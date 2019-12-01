@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/services/movements-in-memory-database.dart';
 
 class RandomMovements extends StatefulWidget {
   @override
@@ -10,7 +11,6 @@ class RandomMovements extends StatefulWidget {
 }
 
 class RandomMovementsState extends State<RandomMovements> {
-  final _movements = <Movement>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final Set<Movement> _saved = Set<Movement>();
 
@@ -20,10 +20,11 @@ class RandomMovementsState extends State<RandomMovements> {
         itemBuilder: /*1*/ (context, i) {
           if (i.isOdd) return Divider(); /*2*/
           final index = i ~/ 2; /*3*/
-          if (index >= _movements.length) {
-            _movements.addAll(MovementsGenerator.getRandomMovements().take(10)); /*4*/
+          if (index >= MovementsInMemoryDatabase.movements.length) {
+            // TODO: change, this is just to show how to build an infinite/auto-reloading list
+            MovementsInMemoryDatabase.movements.addAll(MovementsGenerator.getRandomMovements().take(10)); /*4*/
           }
-          return _buildRow(_movements[index]);
+          return _buildRow(MovementsInMemoryDatabase.movements[index]);
         });
   }
 
@@ -81,6 +82,31 @@ class RandomMovementsState extends State<RandomMovements> {
     );
   }
 
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () => Navigator.of(context).pop() // dismiss dialog,
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("My title"),
+      content: Text("This is my message."),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +118,11 @@ class RandomMovementsState extends State<RandomMovements> {
         ],
       ),
       body: _buildSuggestions(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showAlertDialog(context),
+        tooltip: 'Increment Counter',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
