@@ -1,6 +1,6 @@
-# piggybank
+# Piggybank
 
-This app suggests shows based on filters
+PiggyBank aims to improve the app [MoneyManager](https://play.google.com/store/apps/details?id=money.expense.budget.wallet.manager.track.finance.tracker&hl=it) with a lot of new features but keeping its fantastic minimalistic design.
 
 ## Getting Started
 
