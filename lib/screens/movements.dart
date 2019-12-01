@@ -1,17 +1,18 @@
 
-import 'package:english_words/english_words.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/movements-generator.dart';
+import 'package:piggybank/models/movement.dart';
 
-class RandomWords extends StatefulWidget {
+class RandomMovements extends StatefulWidget {
   @override
-  RandomWordsState createState() => RandomWordsState();
+  RandomMovementsState createState() => RandomMovementsState();
 }
 
-class RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
+class RandomMovementsState extends State<RandomMovements> {
+  final _movements = <Movement>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
-  final Set<WordPair> _saved = Set<WordPair>();
+  final Set<Movement> _saved = Set<Movement>();
 
   Widget _buildSuggestions() {
     return ListView.builder(
@@ -19,30 +20,30 @@ class RandomWordsState extends State<RandomWords> {
         itemBuilder: /*1*/ (context, i) {
           if (i.isOdd) return Divider(); /*2*/
           final index = i ~/ 2; /*3*/
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+          if (index >= _movements.length) {
+            _movements.addAll(MovementsGenerator.getRandomMovements().take(10)); /*4*/
           }
-          return _buildRow(_suggestions[index]);
+          return _buildRow(_movements[index]);
         });
   }
 
-  Widget _buildRow(WordPair pair) {
-    final bool alreadySaved = _saved.contains(pair);
+  Widget _buildRow(Movement movement) {
+    final bool alreadySaved = _saved.contains(movement);
     return ListTile(
       title: Text(
-        pair.asPascalCase,
+        movement.description,
         style: _biggerFont,
       ),
-      trailing: Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
+      trailing: Text(
+        movement.value.toString(),
+        style: _biggerFont,
       ),
       onTap: () {
         setState(() {
           if (alreadySaved) {
-            _saved.remove(pair);
+            _saved.remove(movement);
           } else {
-            _saved.add(pair);
+            _saved.add(movement);
           }
         });
       },
@@ -54,10 +55,10 @@ class RandomWordsState extends State<RandomWords> {
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           final Iterable<ListTile> tiles = _saved.map(
-                (WordPair pair) {
+                (Movement pair) {
               return ListTile(
                 title: Text(
-                  pair.asPascalCase,
+                  pair.description,
                   style: _biggerFont,
                 ),
               );

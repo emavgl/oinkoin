@@ -1,4 +1,4 @@
-# movietonight
+# piggybank
 
 This app suggests shows based on filters
 
