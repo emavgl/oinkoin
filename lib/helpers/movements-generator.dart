@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:piggybank/models/movement.dart';
 
 class MovementsGenerator {
@@ -6,6 +7,7 @@ class MovementsGenerator {
   static Random random = new Random();
   static var descriptions = ["Car", "Burritos", "Book", "Groceries", "Coffee", "Dinner"];
   static var tags = ["Shopping", "Food", "Gift", "Fun"];
+  static var currentDate = DateTime.now();
 
   static Movement getRandomMovement() {
     // Create new double value, rounded to 2 digit precision
@@ -14,7 +16,11 @@ class MovementsGenerator {
 
     var mockDescription = _getRandomElement(descriptions);
     List<String> mockTags = _getRandomSubset(tags);
-    return new Movement(mockValue, mockDescription, mockTags);
+
+    // Get an older date, generation after generation
+    currentDate = currentDate.subtract(new Duration(days: random.nextInt(30)));
+    
+    return new Movement(mockValue, mockDescription, mockTags, currentDate);
   }
 
   static List<Movement> getRandomMovements({quantity = 100}) {

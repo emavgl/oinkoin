@@ -12,6 +12,7 @@ class RandomMovements extends StatefulWidget {
 
 class RandomMovementsState extends State<RandomMovements> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _subtitleFont = const TextStyle(fontSize: 13.0);
   final Set<Movement> _saved = Set<Movement>();
 
   Widget _buildSuggestions() {
@@ -38,6 +39,10 @@ class RandomMovementsState extends State<RandomMovements> {
       trailing: Text(
         movement.value.toString(),
         style: _biggerFont,
+      ),
+      subtitle: Text(
+        movement.dateTime.toString(),
+        style: _subtitleFont,
       ),
       onTap: () {
         setState(() {
