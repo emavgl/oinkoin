@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movement.dart';
@@ -17,7 +16,7 @@ class RandomMovementsState extends State<RandomMovements> {
 
   Widget _buildSuggestions() {
     return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
           if (i.isOdd) return Divider(); /*2*/
           final index = i ~/ 2; /*3*/
@@ -40,10 +39,29 @@ class RandomMovementsState extends State<RandomMovements> {
         movement.value.toString(),
         style: _biggerFont,
       ),
-      subtitle: Text(
-        movement.dateTime.toString(),
-        style: _subtitleFont,
-      ),
+      subtitle: Container(
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              movement.dateTime.toString(),
+              style: _subtitleFont,
+            ),
+            Container(
+              color: movement.tags[0].color,
+              child:
+              Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Text(
+                      movement.tags[0].name,
+                      style: TextStyle(
+                        color: Colors.white,
+                      )
+                  )
+              )
+            ),
+          ]
+      )),
       onTap: () {
         setState(() {
           if (alreadySaved) {
@@ -54,6 +72,18 @@ class RandomMovementsState extends State<RandomMovements> {
         });
       },
     );
+  }
+
+  List<Widget> _getTagList(Movement movement) {
+    List<Widget> list = new List<Widget>();
+    for(var tag in movement.tags) {
+      var tagContainer = Container(
+        child: Text(tag.name),
+        color: tag.color,
+      );
+      list.add(tagContainer);
+    }
+    return list;
   }
 
   void _pushSaved() {
@@ -122,7 +152,39 @@ class RandomMovementsState extends State<RandomMovements> {
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
         ],
       ),
-      body: _buildSuggestions(),
+      body: Column(
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.all(10),
+            height: 100,
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    color: Colors.amber,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    color: Colors.red,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _buildSuggestions(),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showAlertDialog(context),
         tooltip: 'Increment Counter',
