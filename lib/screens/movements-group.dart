@@ -18,13 +18,15 @@ class MovementGroupState extends State<MovementsGroupCard> {
   final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   Widget _buildMovements() {
-    return ListView.builder(
-        padding: const EdgeInsets.all(6.0),
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return Divider(); /*2*/
-          final index = i ~/ 2; /*3*/
-          return _buildMovementRow(widget._movementDay.movements[index]);
-        });
+    return ListView.separated(
+      itemCount: widget._movementDay.movements.length,
+      separatorBuilder: (context, index) {
+        return Divider();
+      },
+      padding: const EdgeInsets.all(6.0),
+      itemBuilder: /*1*/ (context, i) {
+        return _buildMovementRow(widget._movementDay.movements[i]);
+      });
   }
 
   Widget _buildMovementRow(Movement movement) {
@@ -69,7 +71,9 @@ class MovementGroupState extends State<MovementsGroupCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
-      child: _buildMovements(),
+      child: Flexible(
+          child: _buildMovements()
+      ),
     );
   }
 }

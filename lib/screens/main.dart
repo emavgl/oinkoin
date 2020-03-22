@@ -18,19 +18,15 @@ class RandomMovementsState extends State<RandomMovements> {
   final Set<Movement> _saved = Set<Movement>();
 
   Widget _buildDays() {
-    return ListView.builder(
-        padding: const EdgeInsets.all(6.0),
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return Divider(); /*2*/
-          final index = i ~/ 2; /*3*/
-/*
-          if (index >= MovementsInMemoryDatabase.movementsDays.length) {
-            // TODO: change, this is just to show how to build an infinite/auto-reloading list
-            MovementsInMemoryDatabase.movementsDays.addAll(MovementsGenerator.getRandomMovements().take(10)); /*4*/
-          }
- */
-          return MovementsGroupCard(MovementsInMemoryDatabase.movementsDays[index]);
-        });
+    return ListView.separated(
+      separatorBuilder: (context, index) {
+        return Divider();
+      },
+      itemCount: MovementsInMemoryDatabase.movementsDays.length,
+      padding: const EdgeInsets.all(6.0),
+      itemBuilder: /*1*/ (context, i) {
+        return MovementsGroupCard(MovementsInMemoryDatabase.movementsDays[i]);
+      });
   }
 
   List<Widget> _getTagList(Movement movement) {
