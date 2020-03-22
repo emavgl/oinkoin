@@ -9,24 +9,21 @@ class MovementsGenerator {
   static var tags = [Tag("Shopping"), Tag("Food"), Tag("Gift"), Tag("Fun"), Tag("Rent")];
   static var currentDate = DateTime.now();
 
-  static Movement getRandomMovement() {
+  static Movement getRandomMovement(movementDate) {
     // Create new double value, rounded to 2 digit precision
     var mockValue = - (random.nextDouble() * 100);
     mockValue = double.parse(mockValue.toStringAsPrecision(2));
 
     var mockDescription = _getRandomElement(descriptions);
     List<Tag> mockTags = _getRandomSubset(tags, minimum: 1).whereType<Tag>().toList();
-
-    // Get an older date, generation after generation
-    currentDate = currentDate.subtract(new Duration(days: random.nextInt(30)));
     
-    return new Movement(mockValue, mockDescription, mockTags, currentDate);
+    return new Movement(mockValue, mockDescription, mockTags, movementDate);
   }
 
-  static List<Movement> getRandomMovements({quantity = 100}) {
+  static List<Movement> getRandomMovements(movementDate, {quantity = 100}) {
     List<Movement> randomMovements = new List();
     for (var i = 0; i < quantity; i++) {
-      Movement randomMovement = getRandomMovement();
+      Movement randomMovement = getRandomMovement(movementDate);
       randomMovements.add(randomMovement);
     }
     return randomMovements;

@@ -1,7 +1,7 @@
 // app.dart
 
 import 'package:flutter/material.dart';
-import 'package:piggybank/screens/movements.dart';
+import 'package:piggybank/screens/main.dart';
 
 class App extends StatelessWidget {
   @override

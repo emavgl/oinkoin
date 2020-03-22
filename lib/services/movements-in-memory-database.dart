@@ -1,9 +1,7 @@
-import 'package:piggybank/helpers/movements-generator.dart';
-import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/helpers/day-movement-generator.dart';
+import 'package:piggybank/models/movements-per-day.dart';
 
 class MovementsInMemoryDatabase {
-    
-    static List<Movement> _movements = MovementsGenerator.getRandomMovements(quantity: 20);
-    static List<Movement> get movements => _movements;
-
+    static List<MovementsPerDay> _movementsDays = DayMovementGenerator.getRandomDayMovements(quantity: 20);
+    static List<MovementsPerDay> get movementsDays => _movementsDays;
 }
