@@ -19,20 +19,22 @@ class MovementGroupState extends State<MovementsGroupCard> {
 
   Widget _buildMovements() {
     return ListView.separated(
-      itemCount: widget._movementDay.movements.length,
-      separatorBuilder: (context, index) {
-        return Divider();
-      },
-      padding: const EdgeInsets.all(6.0),
-      itemBuilder: /*1*/ (context, i) {
-        return _buildMovementRow(widget._movementDay.movements[i]);
-      });
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: widget._movementDay.movements.length,
+        separatorBuilder: (context, index) {
+          return Divider();
+        },
+        padding: const EdgeInsets.all(6.0),
+        itemBuilder: /*1*/ (context, i) {
+          return _buildMovementRow(widget._movementDay.movements[i]);
+        });
   }
 
   Widget _buildMovementRow(Movement movement) {
     return ListTile(
         title: Text(
-          movement.dateTime.toString(),
+          movement.description,
           style: _biggerFont,
         ),
         trailing: Text(
@@ -43,10 +45,6 @@ class MovementGroupState extends State<MovementsGroupCard> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    movement.dateTime.toString(),
-                    style: _subtitleFont,
-                  ),
                   Container(
                       color: movement.tags[0].color,
                       child:
@@ -71,8 +69,17 @@ class MovementGroupState extends State<MovementsGroupCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
-      child: Flexible(
-          child: _buildMovements()
+      child: Container(
+          child: Column(
+            children: <Widget>[
+              Text(
+                widget._movementDay.dateTime.toString(),
+                style: _biggerFont,
+              ),
+              Divider(),
+              _buildMovements()
+            ],
+          )
       ),
     );
   }
