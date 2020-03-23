@@ -16,7 +16,7 @@ class MovementsPerDay {
   double get expenses {
     double total = 0;
     for (var movement in this.movements) {
-      if (movement.value > 0)
+      if (movement.value < 0)
         total += movement.value;
     }
     return total;
@@ -25,7 +25,7 @@ class MovementsPerDay {
   double get income {
     double total = 0;
     for (var movement in this.movements) {
-      if (movement.value < 0)
+      if (movement.value > 0)
         total += movement.value;
     }
     return total;
