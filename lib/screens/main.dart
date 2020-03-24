@@ -110,30 +110,37 @@ class RandomMovementsState extends State<RandomMovements> {
       body: Column(
         children: <Widget>[
           Container(
-            margin: const EdgeInsets.all(10),
+            margin: const EdgeInsets.fromLTRB(6, 10, 6, 10),
             height: 100,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.amber,
-                  ),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        color: Colors.lightBlue,
+                      ),
+                    ),
+                    VerticalDivider(),
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        color: Colors.red,
+                      ),
+                    ),
+                    VerticalDivider(),
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.red,
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
+              )
+            )
           ),
           Expanded(
             child: _buildDays(),

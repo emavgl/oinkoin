@@ -1,9 +1,12 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class MovementsGroupCard extends StatefulWidget {
   final MovementsPerDay _movementDay;
@@ -65,6 +68,10 @@ class MovementGroupState extends State<MovementsGroupCard> {
     );
   }
 
+  String convertDateToHumanReadableString(DateTime dateTime) {
+    return new DateFormat.yMMMd().format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -72,12 +79,18 @@ class MovementGroupState extends State<MovementsGroupCard> {
       child: Container(
           child: Column(
             children: <Widget>[
-              Text(
-                widget._movementDay.dateTime.toString(),
-                style: _biggerFont,
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 0, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      convertDateToHumanReadableString(widget._movementDay.dateTime),
+                      style: _biggerFont,
+                    ),
+                  )
               ),
-              Divider(),
-              _buildMovements()
+              new Divider(),
+              _buildMovements(),
             ],
           )
       ),
