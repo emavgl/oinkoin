@@ -80,13 +80,19 @@ class MovementGroupState extends State<MovementsGroupCard> {
           child: Column(
             children: <Widget>[
               Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 8, 0, 0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      convertDateToHumanReadableString(widget._movementDay.dateTime),
-                      style: _biggerFont,
-                    ),
+                  padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          convertDateToHumanReadableString(widget._movementDay.dateTime),
+                          style: _biggerFont,
+                        ),
+                        Text(
+                          widget._movementDay.balance.toStringAsFixed(1),
+                          style: _biggerFont,
+                        ),
+                    ]
                   )
               ),
               new Divider(),
