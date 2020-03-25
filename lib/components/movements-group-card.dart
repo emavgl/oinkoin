@@ -75,7 +75,7 @@ class MovementGroupState extends State<MovementsGroupCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 5,
+      elevation: 2,
       child: Container(
           child: Column(
             children: <Widget>[
@@ -86,11 +86,11 @@ class MovementGroupState extends State<MovementsGroupCard> {
                       children: [
                         Text(
                           convertDateToHumanReadableString(widget._movementDay.dateTime),
-                          style: _biggerFont,
+                          style: _subtitleFont,
                         ),
                         Text(
                           widget._movementDay.balance.toStringAsFixed(1),
-                          style: _biggerFont,
+                          style: _subtitleFont,
                         ),
                     ]
                   )
