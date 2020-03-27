@@ -18,10 +18,10 @@ class RandomMovementsState extends State<RandomMovements> {
   final _subtitleFont = const TextStyle(fontSize: 13.0);
   List<MovementsPerDay> _daysShown = MovementsInMemoryDatabase.movementsDays;
 
-
-
   Widget _buildDays() {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: _daysShown.length,
       padding: const EdgeInsets.all(6.0),
       itemBuilder: /*1*/ (context, i) {
@@ -62,18 +62,25 @@ class RandomMovementsState extends State<RandomMovements> {
         actions: <Widget>[      // Add 3 lines from here...
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          Container(
-            margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
-            height: 100,
-            child: DaysSummaryBox(this._daysShown)
-          ),
-          Divider(indent: 50, endIndent: 50),
-          Expanded(
-            child: _buildDays(),
-          ),
-        ],
+      body: Container(
+          child: SingleChildScrollView(
+            child: new ConstrainedBox(
+              constraints: new BoxConstraints(),
+              child: new Column(
+                children: <Widget>[
+                  Container(
+                      margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
+                      height: 100,
+                      child: DaysSummaryBox(this._daysShown)
+                  ),
+                  Divider(indent: 50, endIndent: 50),
+                  Container(
+                    child: _buildDays(),
+                  )
+                ],
+              ),
+            ),
+        )
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showAlertDialog(context),
