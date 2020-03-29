@@ -58,16 +58,39 @@ class RandomMovementsState extends State<RandomMovements> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: Text('March 2020', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.transparent,
-        actions: <Widget>[      // Add 3 lines from here...
-          IconButton(icon: Icon(Icons.calendar_today), onPressed: (){}, color: Colors.black)
-        ],
-      ),
-      body: Container(
-          child: SingleChildScrollView(
+      body: new CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).primaryColor,
+            actions: <Widget>[      // Add 3 lines from here...
+              IconButton(icon: Icon(Icons.calendar_today), onPressed: (){}, color: Colors.white),
+              IconButton(icon: Icon(Icons.filter_list), onPressed: (){}, color: Colors.white)
+            ],
+            pinned: true,
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              stretchModes: <StretchMode>[
+                StretchMode.zoomBackground,
+                StretchMode.blurBackground,
+                StretchMode.fadeTitle,
+              ],
+              centerTitle: false,
+              titlePadding: EdgeInsets.all(15),
+              title: Text('March 2020', style: TextStyle(color: Colors.white)),
+              background: ColorFiltered(
+                  colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
+                  child: Container(
+                    decoration:
+                    BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage("https://papers.co/wallpaper/papers.co-ag84-google-lollipop-march-mountain-background-6-wallpaper.jpg")))
+                  )
+              )
+            ),
+          ),
+          SliverToBoxAdapter(
             child: new ConstrainedBox(
               constraints: new BoxConstraints(),
               child: new Column(
@@ -84,7 +107,8 @@ class RandomMovementsState extends State<RandomMovements> {
                 ],
               ),
             ),
-        )
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showAlertDialog(context),
