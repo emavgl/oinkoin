@@ -17,6 +17,7 @@ class RandomMovementsState extends State<RandomMovements> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final _subtitleFont = const TextStyle(fontSize: 13.0);
   List<MovementsPerDay> _daysShown = MovementsInMemoryDatabase.movementsDays;
+  int _currentIndex = 0;
 
   Widget _buildDays() {
     return ListView.builder(
@@ -58,8 +59,11 @@ class RandomMovementsState extends State<RandomMovements> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Movements'),
+        elevation: 0,
+        title: Text('March 2020', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.transparent,
         actions: <Widget>[      // Add 3 lines from here...
+          IconButton(icon: Icon(Icons.calendar_today), onPressed: (){}, color: Colors.black)
         ],
       ),
       body: Container(
@@ -87,6 +91,30 @@ class RandomMovementsState extends State<RandomMovements> {
         tooltip: 'Increment Counter',
         child: const Icon(Icons.add),
       ),
-    );
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        fixedColor: Theme.of(context).primaryColor,
+        currentIndex: 0,
+        items: [
+          BottomNavigationBarItem(
+            title: Text("Home"),
+            icon: Icon(Icons.home)
+          ),
+          BottomNavigationBarItem(
+              title: Text("Graphs"),
+              icon: Icon(Icons.donut_small)
+          ),
+          BottomNavigationBarItem(
+              title: Text("Categories"),
+              icon: Icon(Icons.category)
+          ),
+          BottomNavigationBarItem(
+              title: Text("Settings"),
+              icon: Icon(Icons.settings)
+          ),
+        ]
+      )
+      );
   }
 }
