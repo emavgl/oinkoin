@@ -44,32 +44,24 @@ class MovementGroupState extends State<MovementsGroupCard> {
           movement.value.toString(),
           style: _biggerFont,
         ),
-        subtitle: Container(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                      color: movement.tags[0].color,
-                      child:
-                      Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Text(
-                              movement.tags[0].name,
-                              style: TextStyle(
-                                color: Colors.white,
-                              )
-                          )
-                      )
-                  ),
-                ]
-            )),
-        onTap: () {
-        }
+        leading: Container(
+          width: 40,
+          height: 40,
+          child: Icon(Icons.attach_money, size: 20, color: Colors.white,),
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: movement.tags[0].color,
+        )
+        )
     );
   }
 
-  String convertDateToHumanReadableString(DateTime dateTime) {
-    return new DateFormat.yMMMd().format(dateTime);
+  String extractMonthString(DateTime dateTime) {
+    return new DateFormat("MMMM y").format(dateTime);
+  }
+
+  String extractWeekdayString(DateTime dateTime) {
+    return new DateFormat("EEEE").format(dateTime);
   }
 
   @override
@@ -84,14 +76,39 @@ class MovementGroupState extends State<MovementsGroupCard> {
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          convertDateToHumanReadableString(widget._movementDay.dateTime),
-                          style: _subtitleFont,
+                        Row(
+                          children: [
+                            Text(
+                              widget._movementDay.dateTime.day.toString(),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    extractWeekdayString(widget._movementDay.dateTime),
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.right
+                                  ),
+                                  Text(
+                                    extractMonthString(widget._movementDay.dateTime),
+                                    style: TextStyle(fontSize: 13),
+                                    textAlign: TextAlign.right
+                                  )
+                                ],
+                              )
+                            )
+                          ],
                         ),
-                        Text(
-                          widget._movementDay.balance.toStringAsFixed(1),
-                          style: _subtitleFont,
-                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
+                          child: Text(
+                            widget._movementDay.balance.toStringAsFixed(1),
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        )
                     ]
                   )
               ),

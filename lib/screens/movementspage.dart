@@ -8,25 +8,23 @@ import 'package:piggybank/services/movements-in-memory-database.dart';
 
 import '../components/movements-group-card.dart';
 
-class RandomMovements extends StatefulWidget {
+class MovementsPage extends StatefulWidget {
+  List<MovementsPerDay> _daysShown = MovementsInMemoryDatabase.movementsDays;
+
   @override
-  RandomMovementsState createState() => RandomMovementsState();
+  MovementsPageState createState() => MovementsPageState();
 }
 
-class RandomMovementsState extends State<RandomMovements> {
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-  final _subtitleFont = const TextStyle(fontSize: 13.0);
-  List<MovementsPerDay> _daysShown = MovementsInMemoryDatabase.movementsDays;
-  int _currentIndex = 0;
+class MovementsPageState extends State<MovementsPage> {
 
   Widget _buildDays() {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _daysShown.length,
+      itemCount: widget._daysShown.length,
       padding: const EdgeInsets.all(6.0),
       itemBuilder: /*1*/ (context, i) {
-        return MovementsGroupCard(_daysShown[i]);
+        return MovementsGroupCard(widget._daysShown[i]);
       });
   }
 
@@ -98,7 +96,7 @@ class RandomMovementsState extends State<RandomMovements> {
                   Container(
                       margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
                       height: 100,
-                      child: DaysSummaryBox(this._daysShown)
+                      child: DaysSummaryBox(widget._daysShown)
                   ),
                   Divider(indent: 50, endIndent: 50),
                   Container(
@@ -115,30 +113,6 @@ class RandomMovementsState extends State<RandomMovements> {
         tooltip: 'Increment Counter',
         child: const Icon(Icons.add),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        fixedColor: Theme.of(context).primaryColor,
-        currentIndex: 0,
-        items: [
-          BottomNavigationBarItem(
-            title: Text("Home"),
-            icon: Icon(Icons.home)
-          ),
-          BottomNavigationBarItem(
-              title: Text("Graphs"),
-              icon: Icon(Icons.donut_small)
-          ),
-          BottomNavigationBarItem(
-              title: Text("Categories"),
-              icon: Icon(Icons.category)
-          ),
-          BottomNavigationBarItem(
-              title: Text("Settings"),
-              icon: Icon(Icons.settings)
-          ),
-        ]
-      )
       );
   }
 }
