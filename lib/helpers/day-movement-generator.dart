@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/models/tag.dart';
+import 'package:piggybank/models/category.dart';
 import 'movements-generator.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 
@@ -8,7 +8,7 @@ class DayMovementGenerator {
 
   static Random random = new Random();
   static var descriptions = ["Car", "Burritos", "Book", "Groceries", "Coffee", "Dinner"];
-  static var tags = [Tag("Shopping"), Tag("Food"), Tag("Gift"), Tag("Fun"), Tag("Rent")];
+  static var tags = [Category("Shopping"), Category("Food"), Category("Gift"), Category("Fun"), Category("Rent")];
   static var currentDate = DateTime.now();
 
   static MovementsPerDay getMockMovementDay() {

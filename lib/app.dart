@@ -1,7 +1,7 @@
 // app.dart
 
 import 'package:flutter/material.dart';
-import 'package:piggybank/screens/movementspage.dart';
+import 'package:piggybank/screens/movements-page.dart';
 import 'package:piggybank/screens/shell.dart';
 
 class App extends StatelessWidget {

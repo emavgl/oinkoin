@@ -4,17 +4,13 @@ import 'package:piggybank/components/days-summary-box-card.dart';
 import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/screens/graphspage.dart';
+import 'package:piggybank/screens/categories-page.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 
 import '../components/movements-group-card.dart';
-import 'movementspage.dart';
+import 'movements-page.dart';
 
 class Shell extends StatefulWidget {
-
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-  final _subtitleFont = const TextStyle(fontSize: 13.0);
-  List<MovementsPerDay> _daysShown = MovementsInMemoryDatabase.movementsDays;
 
   @override
   ShellState createState() => ShellState();
@@ -22,42 +18,6 @@ class Shell extends StatefulWidget {
 
 class ShellState extends State<Shell> {
   int _currentIndex = 0;
-
-  Widget _buildDays() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget._daysShown.length,
-      padding: const EdgeInsets.all(6.0),
-      itemBuilder: /*1*/ (context, i) {
-        return MovementsGroupCard(widget._daysShown[i]);
-      });
-  }
-
-  showAlertDialog(BuildContext context) {
-    // set up the button
-    Widget okButton = FlatButton(
-      child: Text("OK"),
-      onPressed: () => Navigator.of(context).pop() // dismiss dialog,
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("My title"),
-      content: Text("This is my message."),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +36,7 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new GraphsPage()),
+              child: new MaterialApp(home: new CategoriesPage()),
             ),
           ),
         ]
@@ -91,10 +51,6 @@ class ShellState extends State<Shell> {
           BottomNavigationBarItem(
             title: Text("Home"),
             icon: Icon(Icons.home)
-          ),
-          BottomNavigationBarItem(
-              title: Text("Graphs"),
-              icon: Icon(Icons.donut_small)
           ),
           BottomNavigationBarItem(
               title: Text("Categories"),

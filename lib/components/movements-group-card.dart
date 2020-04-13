@@ -50,7 +50,7 @@ class MovementGroupState extends State<MovementsGroupCard> {
           child: Icon(Icons.attach_money, size: 20, color: Colors.white,),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: movement.tags[0].color,
+              color: movement.category.color,
         )
         )
     );

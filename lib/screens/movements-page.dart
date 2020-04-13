@@ -61,12 +61,13 @@ class MovementsPageState extends State<MovementsPage> {
           SliverAppBar(
             elevation: 0,
             backgroundColor: Theme.of(context).primaryColor,
-            actions: <Widget>[      // Add 3 lines from here...
+            actions: <Widget>[
               IconButton(icon: Icon(Icons.calendar_today), onPressed: (){}, color: Colors.white),
+              IconButton(icon: Icon(Icons.donut_small), onPressed: (){}, color: Colors.white),
               IconButton(icon: Icon(Icons.filter_list), onPressed: (){}, color: Colors.white)
             ],
             pinned: true,
-            expandedHeight: 120,
+            expandedHeight: 140,
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: <StretchMode>[
                 StretchMode.zoomBackground,
@@ -75,7 +76,7 @@ class MovementsPageState extends State<MovementsPage> {
               ],
               centerTitle: false,
               titlePadding: EdgeInsets.all(15),
-              title: Text('March 2020', style: TextStyle(color: Colors.white)),
+              title: Text('April 2020', style: TextStyle(color: Colors.white)),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
                   child: Container(

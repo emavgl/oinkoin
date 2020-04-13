@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/models/tag.dart';
+import 'package:piggybank/models/category.dart';
 
 class MovementsGenerator {
 
   static Random random = new Random();
   static var descriptions = ["Car", "Burritos", "Book", "Groceries", "Coffee", "Dinner"];
-  static var tags = [Tag("Shopping"), Tag("Food"), Tag("Gift"), Tag("Fun"), Tag("Rent")];
+  static var tags = [Category("Shopping"), Category("Food"), Category("Gift"), Category("Fun"), Category("Rent")];
   static var currentDate = DateTime.now();
 
   static Movement getRandomMovement(movementDate) {
@@ -15,9 +15,9 @@ class MovementsGenerator {
     mockValue = double.parse(mockValue.toStringAsPrecision(2));
 
     var mockDescription = _getRandomElement(descriptions);
-    List<Tag> mockTags = _getRandomSubset(tags, minimum: 1).whereType<Tag>().toList();
+    List<Category> mockTags = _getRandomSubset(tags, minimum: 1).whereType<Category>().toList();
     
-    return new Movement(mockValue, mockDescription, mockTags, movementDate);
+    return new Movement(mockValue, mockDescription, mockTags[0], movementDate);
   }
 
   static List<Movement> getRandomMovements(movementDate, {quantity = 100}) {
