@@ -7,8 +7,6 @@ import 'package:piggybank/helpers/movements-generator.dart';
 main() {
   group('database service test', () {
 
-    /*
-
     test('fetch one category', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       Category category = new Category("testName");
@@ -48,7 +46,6 @@ main() {
       expect(retrievedMovements.length, 2);
     });
 
-    */
 
     test('fetch multiple with Interval', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
