@@ -63,7 +63,6 @@ main() {
       expect(retrievedMovements[1].id != movementId3, true);
     });
 
-
     tearDown(() async {
       await DatabaseService.instance.deleteTables();
     });
