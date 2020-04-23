@@ -5,6 +5,7 @@ import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/screens/edit-category-page.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 
 import '../components/movements-group-card.dart';
@@ -165,7 +166,12 @@ class CategoriesPageState extends State<CategoriesPage> {
       ),
       body: _buildCategories(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showAlertDialog(context),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EditCategoryPage()),
+          );
+        },
         tooltip: 'Increment Counter',
         child: const Icon(Icons.add),
       ),
