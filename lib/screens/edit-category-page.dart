@@ -99,22 +99,39 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     );
   }
 
+  Widget _getTextField() {
+    return Container(
+        margin: EdgeInsets.all(20),
+        child: TextField(
+        decoration: InputDecoration(
+        border: OutlineInputBorder()
+    )));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit category'),
-        actions: <Widget>[      // Add 3 lines from here...
-          IconButton(icon: Icon(Icons.save), onPressed: (){},),
-        ],
-      ),
-      body: Column(
-        children: <Widget>[
-          _createCategoryCirclePreview(),
-          _createColorsGrid(),
-        ]
-      )
-
+        appBar: AppBar(
+          title: Text('Edit category'),
+          actions: <Widget>[ // Add 3 lines from here...
+            IconButton(icon: Icon(Icons.save), onPressed: () {},),
+          ],
+        ),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    Container(child: _getTextField()),
+                    Container(child: _createColorsGrid()),
+                    Container(child: _createCategoryCirclePreview()),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
     );
   }
 }
