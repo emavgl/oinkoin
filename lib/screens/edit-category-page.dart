@@ -108,30 +108,34 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     )));
   }
 
+  Widget _getAppBar() {
+    return AppBar(
+        title: const Text('AppBar Demo'),
+        actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.save),
+          tooltip: 'Show Snackbar', onPressed: () {},
+        )]
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Edit category'),
-          actions: <Widget>[ // Add 3 lines from here...
-            IconButton(icon: Icon(Icons.save), onPressed: () {},),
-          ],
-        ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    Container(child: _getTextField()),
-                    Container(child: _createColorsGrid()),
-                    Container(child: _createCategoryCirclePreview()),
-                  ],
-                ),
-              ),
+    return Column(
+      children: <Widget>[
+        _getAppBar(),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Container(child: _createColorsGrid()),
+                Container(child: _createCategoryCirclePreview()),
+                Container(child: _getTextField()),
+              ],
             ),
-          ],
-        )
+          ),
+        ),
+      ],
     );
   }
 }
