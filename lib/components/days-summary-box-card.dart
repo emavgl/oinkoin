@@ -1,12 +1,8 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/services/movements-in-memory-database.dart';
-import 'package:intl/date_symbol_data_local.dart';
+import '../i18n/days-summary-box-card.dart';
 
 class DaysSummaryBox extends StatefulWidget {
   final List<MovementsPerDay> _movementDays;
@@ -59,7 +55,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "Income",
+                      "Income".i18n,
                       style: _subtitleFont,
                     ),
                     SizedBox(height: 5), // spacing
@@ -78,7 +74,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "Expenses",
+                      "Expenses".i18n,
                       style: _subtitleFont,
                     ),
                     SizedBox(height: 5), // spacing
@@ -97,7 +93,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "Balance",
+                      "Balance".i18n,
                       style: _subtitleFont,
                     ),
                     SizedBox(height: 5), // spacing

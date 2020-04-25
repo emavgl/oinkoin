@@ -1,10 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:piggybank/components/days-summary-box-card.dart';
-import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
+import '../i18n/movements-page.i18n.dart';
 
 import '../components/movements-group-card.dart';
 
@@ -37,8 +36,8 @@ class MovementsPageState extends State<MovementsPage> {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("My title"),
-      content: Text("This is my message."),
+      title: Text("My title".i18n),
+      content: Text("This is my message.".i18n),
       actions: [
         okButton,
       ],
@@ -76,7 +75,7 @@ class MovementsPageState extends State<MovementsPage> {
               ],
               centerTitle: false,
               titlePadding: EdgeInsets.all(15),
-              title: Text('April 2020', style: TextStyle(color: Colors.white)),
+              title: Text('April'.i18n + ' 2020', style: TextStyle(color: Colors.white)),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
                   child: Container(
