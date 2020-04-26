@@ -8,6 +8,7 @@ import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 
 import '../components/movements-group-card.dart';
+import '../style.dart';
 
 class EditCategoryPage extends StatefulWidget {
 
@@ -38,34 +39,61 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     chosenIcon = Icons.category;
   }
 
-  Widget _createColorsGrid() {
-    return GridView.count(
-      // Create a grid with 2 columns. If you change the scrollDirection to
-      // horizontal, this produces 2 rows.
-      crossAxisCount: 4,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      padding: EdgeInsets.all(20),
-      // Generate 100 widgets that display their index in the List.
-      children: List.generate(colors.length, (index) {
-        return Container(
-          margin: EdgeInsets.all(15),
-          child: ClipOval(
-            child: Material(
-            color: colors[index], // button color
-            child: InkWell(
-              splashColor: Colors.white30, // inkwell color
-              onTap: () {
-                setState(() {
-                  chosenColor = colors[index];
-                });
-              },
-            ),
-          ))
-        );
-      }),
+  Widget _getPageSeparatorLabel(String labelText) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: EdgeInsets.all(15),
+        child: Text(labelText, style: Body1Style, textAlign: TextAlign.left),
+      ),
     );
+  }
 
+  Widget _getSliverColors() {
+    return SliverToBoxAdapter(
+        child: new ConstrainedBox(
+          constraints: new BoxConstraints(),
+          child: Column(
+            children: <Widget>[
+              _getPageSeparatorLabel("Colors"),
+              _buildColorList(),
+            ],
+          )
+      )
+    );
+  }
+
+  Widget _buildColorList() {
+      return ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemCount: colors.length,
+          itemBuilder: /*1*/ (context, index) {
+            return Container(
+                margin: EdgeInsets.all(10),
+                child: Container(width: 70, child:
+                ClipOval(
+                    child: Material(
+                      color: colors[index], // button color
+                      child: InkWell(
+                        splashColor: Colors.white30, // inkwell color
+                        onTap: () {
+                          setState(() {
+                            chosenColor = colors[index];
+                          });
+                        },
+                      ),
+                    ))
+                )
+            );
+      });
+  }
+
+  Widget _createColorsList() {
+    return Container(
+      height: 90,
+      child: _buildColorList(),
+    );
   }
 
   Widget _createCategoryCirclePreview() {
@@ -76,22 +104,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               color: chosenColor, // button color
               child: InkWell(
                 splashColor: chosenColor, // inkwell color
-                child: SizedBox(width: 150, height: 150,
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 10,
-                          child: Icon(chosenIcon, color: Colors.white, size: 82,),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: SizedBox(width: 60, height: 50, child:
-                          Text("Change Icon", softWrap: true, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold ), textAlign: TextAlign.center,)
-                        ) ,
-                        )
-
-                      ],
-                )),
+                child: SizedBox(width: 70, height: 70,
+                    child: Icon(chosenIcon, color: Colors.white, size: 30,),
+                ),
                 onTap: () {},
               )
           )
@@ -100,17 +115,24 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   }
 
   Widget _getTextField() {
-    return Container(
-        margin: EdgeInsets.all(20),
-        child: TextField(
-        decoration: InputDecoration(
-        border: OutlineInputBorder()
-    )));
+    return Expanded(
+        child: Container(
+          margin: EdgeInsets.all(10),
+          child: TextField(
+              style: TextStyle(
+                  fontSize: 22.0,
+                  color: Colors.black
+              ),
+              decoration: InputDecoration(
+                  hintText: "Category name",
+                  border: OutlineInputBorder()
+              )),
+      ));
   }
 
   Widget _getAppBar() {
     return AppBar(
-        title: const Text('AppBar Demo'),
+        title: const Text('New Category'),
         actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.save),
@@ -121,21 +143,28 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Material(
+        type: MaterialType.transparency,
+        child: Column(
       children: <Widget>[
         _getAppBar(),
-        Expanded(
+          Expanded(
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                Container(child: _createColorsGrid()),
-                Container(child: _createCategoryCirclePreview()),
-                Container(child: _getTextField()),
+                Row(
+                  children: <Widget>[
+                    Container(child: _createCategoryCirclePreview()),
+                    Container(child: _getTextField()),
+                  ],
+                ),
+                _getPageSeparatorLabel("Color"),
+                _createColorsList(),
               ],
             ),
           ),
         ),
       ],
-    );
+    ));
   }
 }
