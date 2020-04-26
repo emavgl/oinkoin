@@ -26,7 +26,7 @@ class DatabaseService {
     }
 
     Future<Database> init() async {
-        String _path = join(await getDatabasesPath(), 'movements2.db');
+        String _path = join(await getDatabasesPath(), 'movements3.db');
         return await openDatabase(_path, version: _version, onCreate: onCreate);
     }
 
@@ -36,7 +36,8 @@ class DatabaseService {
             id    INTEGER PRIMARY KEY AUTOINCREMENT
             NOT NULL,
             name  TEXT,
-            color TEXT
+            color TEXT,
+            icon INTEGER
         );
         """);
 

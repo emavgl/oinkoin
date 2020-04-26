@@ -119,7 +119,7 @@ class CategoriesPageState extends State<CategoriesPage> {
           leading: Container(
               width: 40,
               height: 40,
-              child: Icon(Icons.attach_money, size: 20, color: Colors.white,),
+              child: Icon(category.icon, size: 20, color: Colors.white,),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: category.color,

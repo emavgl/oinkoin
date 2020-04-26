@@ -215,7 +215,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
           icon: const Icon(Icons.save),
           tooltip: 'Save', onPressed: () {
             if (categoryName != null) {
-              Category newCategory = new Category(categoryName, color: chosenColor);
+              Category newCategory = new Category(categoryName, color: chosenColor, iconCodePoint: chosenIcon.codePoint);
               MovementsInMemoryDatabase.categories.add(newCategory);
               Navigator.pop(context);
             }

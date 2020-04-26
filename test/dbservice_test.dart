@@ -1,22 +1,32 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/helpers/movements-generator.dart';
+import 'dart:ui';
+
 
 main() {
   group('database service test', () {
 
     test('fetch one category', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      Category category = new Category("testName");
+      await DatabaseService.instance.deleteTables();
+      Category category = new Category("testName", color: Colors.red as Color, iconCodePoint: FontAwesomeIcons.film.codePoint);
       await DatabaseService.instance.addCategoryIfNotExists(category);
       Category retrievedCategory = await DatabaseService.instance.getCategoryById(1);
       expect(retrievedCategory.name, "testName");
       expect(retrievedCategory.id, 1);
+      expect(retrievedCategory.color.red, Colors.red.red);
+      expect(retrievedCategory.color.blue, Colors.red.blue);
+      expect(retrievedCategory.color.green, Colors.red.green);
+      expect(retrievedCategory.iconCodePoint, FontAwesomeIcons.film.codePoint);
     });
 
     test('fetch multiple categories', () async {
+      await DatabaseService.instance.deleteTables();
       TestWidgetsFlutterBinding.ensureInitialized();
       Category category1 = new Category("testName1");
       Category category2 = new Category("testName2");
