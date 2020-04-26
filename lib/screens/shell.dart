@@ -6,6 +6,7 @@ import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/screens/categories-page.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
+import '../i18n/shell.i18n.dart';
 
 import '../components/movements-group-card.dart';
 import 'movements-page.dart';
@@ -49,15 +50,15 @@ class ShellState extends State<Shell> {
         fixedColor: Theme.of(context).primaryColor,
         items: [
           BottomNavigationBarItem(
-            title: Text("Home"),
+            title: Text("Home".i18n),
             icon: Icon(Icons.home)
           ),
           BottomNavigationBarItem(
-              title: Text("Categories"),
+              title: Text("Categories".i18n),
               icon: Icon(Icons.category)
           ),
           BottomNavigationBarItem(
-              title: Text("Settings"),
+              title: Text("Settings".i18n),
               icon: Icon(Icons.settings)
           ),
         ]

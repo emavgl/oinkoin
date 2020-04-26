@@ -7,6 +7,7 @@ import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/screens/edit-category-page.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
+import '../i18n/categories-page.i18n.dart';
 
 import '../components/movements-group-card.dart';
 
@@ -51,7 +52,7 @@ class CategoriesPageState extends State<CategoriesPage> {
               color: Colors.white,
             ),
             Text(
-              " Delete",
+              " Delete".i18n,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -77,16 +78,16 @@ class CategoriesPageState extends State<CategoriesPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text("Confirm"),
-              content: const Text("Are you sure you wish to delete this item?"),
+              title: Text("Confirm".i18n),
+              content: Text("Are you sure you wish to delete this category?".i18n),
               actions: <Widget>[
                 FlatButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text("CANCEL")
+                    child: Text("CANCEL".i18n)
                 ),
                 FlatButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text("DELETE"),
+                  child: Text("DELETE".i18n),
                 ),
               ],
             );
@@ -106,9 +107,9 @@ class CategoriesPageState extends State<CategoriesPage> {
         Scaffold.of(context)
             .showSnackBar(
               SnackBar(
-                content: Text("Deleted category: " + categoryName),
+                content: Text("Deleted category: ".i18n + categoryName),
                 action: SnackBarAction(
-                    label: "UNDO",
+                    label: "UNDO".i18n,
                     onPressed: () => setState(() => _categories.insert(index, category),) // this is what you needed
                 ),
               )

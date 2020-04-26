@@ -1,11 +1,12 @@
 import 'dart:math';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/models/category.dart';
+import '../i18n/categories-generator.i18n.dart'; // TODO remove this when categories will be in one page only
 
 class MovementsGenerator {
 
   static Random random = new Random();
-  static var descriptions = ["Car", "Burritos", "Book", "Groceries", "Coffee", "Dinner"];
+  static var descriptions = ["Car".i18n, "Burritos".i18n, "Book".i18n, "Groceries".i18n, "Coffee".i18n, "Dinner".i18n];
   static var tags = [Category("Shopping"), Category("Food"), Category("Gift"), Category("Fun"), Category("Rent")];
   static var currentDate = DateTime.now();
 

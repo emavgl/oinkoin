@@ -1,14 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:piggybank/components/days-summary-box-card.dart';
-import 'package:piggybank/helpers/movements-generator.dart';
-import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/services/movements-in-memory-database.dart';
-
-import '../components/movements-group-card.dart';
 import '../style.dart';
+import '../i18n/edit-category-page.i18n.dart';
 
 class EditCategoryPage extends StatefulWidget {
 
@@ -132,7 +125,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   Widget _getAppBar() {
     return AppBar(
-        title: const Text('New Category'),
+        title: Text('New category'.i18n),
         actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.save),

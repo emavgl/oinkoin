@@ -7,6 +7,7 @@ import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import '../i18n/movements-group-card.i18n.dart';
 
 class MovementsGroupCard extends StatefulWidget {
   final MovementsPerDay _movementDay;
@@ -57,7 +58,11 @@ class MovementGroupState extends State<MovementsGroupCard> {
   }
 
   String extractMonthString(DateTime dateTime) {
-    return new DateFormat("MMMM y").format(dateTime);
+    return new DateFormat("MMMM").format(dateTime);
+  }
+
+  String extractYearString(DateTime dateTime) {
+    return new DateFormat("y").format(dateTime);
   }
 
   String extractWeekdayString(DateTime dateTime) {
@@ -88,12 +93,12 @@ class MovementGroupState extends State<MovementsGroupCard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    extractWeekdayString(widget._movementDay.dateTime),
+                                    extractWeekdayString(widget._movementDay.dateTime).i18n,
                                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.right
                                   ),
                                   Text(
-                                    extractMonthString(widget._movementDay.dateTime),
+                                    extractMonthString(widget._movementDay.dateTime).i18n + ' ' + extractYearString(widget._movementDay.dateTime),
                                     style: TextStyle(fontSize: 13),
                                     textAlign: TextAlign.right
                                   )
