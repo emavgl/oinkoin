@@ -171,7 +171,11 @@ class CategoriesPageState extends State<CategoriesPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => EditCategoryPage()),
-          );
+          ).then((value) {
+            setState(() {
+              _categories = MovementsInMemoryDatabase.categories;
+            });
+          });
         },
         tooltip: 'Increment Counter',
         child: const Icon(Icons.add),

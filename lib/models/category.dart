@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:piggybank/models/model.dart';
 
 class Category extends Model {
@@ -9,8 +10,9 @@ class Category extends Model {
   int id;
   String name;
   Color color;
+  IconData icon;
 
-  Category(String name, {this.color, this.id}) {
+  Category(String name, {this.color, this.id, this.icon}) {
     this.name = name;
     if (this.color == null) {
       var _r = _random.nextInt(255);

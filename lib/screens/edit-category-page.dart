@@ -1,7 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/category.dart';
+import 'package:piggybank/services/movements-in-memory-database.dart';
 import '../style.dart';
 import '../i18n/edit-category-page.i18n.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class EditCategoryPage extends StatefulWidget {
 
@@ -22,14 +25,75 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     Colors.black,
   ];
 
+  List<IconData> icons = [
+    // food
+    FontAwesomeIcons.hamburger,
+    FontAwesomeIcons.pizzaSlice,
+    FontAwesomeIcons.cheese,
+    FontAwesomeIcons.appleAlt,
+    FontAwesomeIcons.breadSlice,
+    FontAwesomeIcons.iceCream,
+    FontAwesomeIcons.cocktail,
+    FontAwesomeIcons.wineGlass,
+    FontAwesomeIcons.birthdayCake,
+    FontAwesomeIcons.fish,
+    FontAwesomeIcons.coffee,
+
+    // transports
+    FontAwesomeIcons.gasPump,
+    FontAwesomeIcons.car,
+    FontAwesomeIcons.carBattery,
+    FontAwesomeIcons.parking,
+    FontAwesomeIcons.biking,
+    FontAwesomeIcons.motorcycle,
+    FontAwesomeIcons.bicycle,
+    FontAwesomeIcons.caravan,
+    FontAwesomeIcons.taxi,
+    FontAwesomeIcons.planeDeparture,
+    FontAwesomeIcons.ship,
+    FontAwesomeIcons.train,
+
+    // Shopping
+    FontAwesomeIcons.shoppingCart,
+    FontAwesomeIcons.shoppingBag,
+    FontAwesomeIcons.shoppingBasket,
+    FontAwesomeIcons.gem,
+    FontAwesomeIcons.tag,
+    FontAwesomeIcons.gift,
+    FontAwesomeIcons.mitten,
+    FontAwesomeIcons.socks,
+    FontAwesomeIcons.hatCowboy,
+
+    // Entertainment
+    FontAwesomeIcons.gamepad,
+    FontAwesomeIcons.theaterMasks,
+    FontAwesomeIcons.swimmer,
+    FontAwesomeIcons.bowlingBall,
+    FontAwesomeIcons.golfBall,
+    FontAwesomeIcons.baseballBall,
+    FontAwesomeIcons.basketballBall,
+    FontAwesomeIcons.footballBall,
+    FontAwesomeIcons.volleyballBall,
+    FontAwesomeIcons.skiing,
+    FontAwesomeIcons.tv,
+    FontAwesomeIcons.film,
+  ];
+
   Color chosenColor;
+  int chosenColorIndex;
+
   IconData chosenIcon;
+  int chosenIconIndex;
+  String categoryName;
 
   @override
   void initState() {
     super.initState();
     chosenColor = colors[0];
-    chosenIcon = Icons.category;
+    chosenIcon = FontAwesomeIcons.hamburger;
+    chosenIconIndex = 0;
+    chosenColorIndex = 0;
+    categoryName = null;
   }
 
   Widget _getPageSeparatorLabel(String labelText) {
@@ -42,17 +106,30 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     );
   }
 
-  Widget _getSliverColors() {
-    return SliverToBoxAdapter(
-        child: new ConstrainedBox(
-          constraints: new BoxConstraints(),
-          child: Column(
-            children: <Widget>[
-              _getPageSeparatorLabel("Colors"),
-              _buildColorList(),
-            ],
-          )
-      )
+
+  Widget _getIconsGrid() {
+    return GridView.count(
+      // Create a grid with 2 columns. If you change the scrollDirection to
+      // horizontal, this produces 2 rows
+      crossAxisCount: 5,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      // Generate 100 widgets that display their index in the List.
+      children: List.generate(icons.length, (index) {
+        return Container(
+            child: IconButton(
+              // Use the FaIcon Widget + FontAwesomeIcons class for the IconData
+                icon: FaIcon(icons[index]),
+                color: ((chosenIconIndex == index) ? Colors.blueAccent : Colors.black45),
+                onPressed: () {
+                  setState(() {
+                    chosenIcon = icons[index];
+                    chosenIconIndex = index;
+                });
+                }
+            )
+        );
+      }),
     );
   }
 
@@ -70,9 +147,13 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                       color: colors[index], // button color
                       child: InkWell(
                         splashColor: Colors.white30, // inkwell color
+                        child: (index == chosenColorIndex) ? SizedBox(width: 50, height: 50,
+                          child: Icon(Icons.check, color: Colors.white, size: 20,),
+                        ) : Container(),
                         onTap: () {
                           setState(() {
                             chosenColor = colors[index];
+                            chosenColorIndex = index;
                           });
                         },
                       ),
@@ -112,6 +193,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
         child: Container(
           margin: EdgeInsets.all(10),
           child: TextField(
+              onChanged: (text) {
+                categoryName = text;
+              },
               style: TextStyle(
                   fontSize: 22.0,
                   color: Colors.black
@@ -129,7 +213,13 @@ class EditCategoryPageState extends State<EditCategoryPage> {
         actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.save),
-          tooltip: 'Show Snackbar', onPressed: () {},
+          tooltip: 'Save', onPressed: () {
+            if (categoryName != null) {
+              Category newCategory = new Category(categoryName, color: chosenColor);
+              MovementsInMemoryDatabase.categories.add(newCategory);
+              Navigator.pop(context);
+            }
+          },
         )]
     );
   }
@@ -153,6 +243,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 ),
                 _getPageSeparatorLabel("Color"),
                 _createColorsList(),
+                _getPageSeparatorLabel("Icons"),
+                _getIconsGrid()
               ],
             ),
           ),
