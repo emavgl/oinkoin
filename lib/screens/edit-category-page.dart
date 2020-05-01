@@ -8,11 +8,18 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class EditCategoryPage extends StatefulWidget {
 
+  Category passedCategory;
+
+  EditCategoryPage({Key key, this.passedCategory}) : super(key: key);
+
   @override
-  EditCategoryPageState createState() => EditCategoryPageState();
+  EditCategoryPageState createState() => EditCategoryPageState(category: passedCategory);
 }
 
 class EditCategoryPageState extends State<EditCategoryPage> {
+
+  Category category;
+  EditCategoryPageState({this.category});
 
   List<Color> colors = [
     Colors.green[300],
@@ -84,16 +91,22 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   IconData chosenIcon;
   int chosenIconIndex;
-  String categoryName;
 
   @override
   void initState() {
     super.initState();
-    chosenColor = colors[0];
-    chosenIcon = FontAwesomeIcons.hamburger;
-    chosenIconIndex = 0;
-    chosenColorIndex = 0;
-    categoryName = null;
+    if (this.category == null) {
+      chosenColor = colors[0];
+      chosenIcon = FontAwesomeIcons.hamburger;
+      chosenIconIndex = 0;
+      chosenColorIndex = 0;
+      category = new Category(null);
+    } else {
+      chosenIcon = category.icon;
+      chosenIconIndex = icons.indexOf(chosenIcon);
+      chosenColor = category.color;
+      chosenColorIndex = colors.indexOf(chosenColor);
+    }
   }
 
   Widget _getPageSeparatorLabel(String labelText) {
@@ -192,10 +205,13 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     return Expanded(
         child: Container(
           margin: EdgeInsets.all(10),
-          child: TextField(
+          child: TextFormField(
               onChanged: (text) {
-                categoryName = text;
+                setState(() {
+                  category.name = text;
+                });
               },
+              initialValue: category.name,
               style: TextStyle(
                   fontSize: 22.0,
                   color: Colors.black
@@ -207,20 +223,70 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       ));
   }
 
+  showAlertDialog(BuildContext context, yesButtonName, noButtonName, title, subtitle) async {
+    // set up the button
+    Widget okButton = FlatButton(
+        child: Text(yesButtonName),
+      onPressed: () => Navigator.of(context, rootNavigator: true).pop(true),
+    );
+
+    // set up the button
+    Widget cancelButton = FlatButton(
+      child: Text(noButtonName),
+      onPressed: () => Navigator.of(context, rootNavigator: true).pop(false)
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(subtitle),
+      actions: [
+        okButton,
+        cancelButton,
+      ],
+    );
+
+    // show the dialog
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Widget _getAppBar() {
     return AppBar(
-        title: Text('New category'.i18n),
+        title: Text('Edit category'.i18n),
         actions: <Widget>[
-        IconButton(
-          icon: const Icon(Icons.save),
-          tooltip: 'Save', onPressed: () {
-            if (categoryName != null) {
-              Category newCategory = new Category(categoryName, color: chosenColor, iconCodePoint: chosenIcon.codePoint);
-              MovementsInMemoryDatabase.categories.add(newCategory);
+          Visibility(
+            visible: widget.passedCategory != null,
+            child: IconButton(
+              icon: const Icon(Icons.delete),
+              tooltip: 'Delete', onPressed: () async {
+              var continueDelete = await showAlertDialog(context, "Yes", "No", "Do you really want to delete the category?", "Deleting the category you will remove all the associated expenses");
+              if (continueDelete) {
+                MovementsInMemoryDatabase.deleteCategoryById(widget.passedCategory.id);
+                Navigator.pop(context);
+              }
+            },
+          )
+        ),
+          IconButton(
+              icon: const Icon(Icons.save),
+              tooltip: 'Save', onPressed: () async {
+            if (category.name != null && category.name.isNotEmpty) {
+              category.color = chosenColor;
+              category.icon = chosenIcon;
+              category.iconCodePoint = chosenIcon.codePoint;
+
+              MovementsInMemoryDatabase.upsertCategory(category);
               Navigator.pop(context);
+            } else {
+              await showAlertDialog(context, "OK", "Cancel", "Category name is missing", "You need to specify the category name");
             }
-          },
-        )]
+          }
+          )]
     );
   }
 

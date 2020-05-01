@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:piggybank/components/days-summary-box-card.dart';
 import 'package:piggybank/helpers/movements-generator.dart';
@@ -40,96 +42,30 @@ class CategoriesPageState extends State<CategoriesPage> {
         });
   }
 
-  Widget slideLeftBackground() {
-    return Container(
-      color: Colors.red,
-      child: Align(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Icon(
-              Icons.delete,
-              color: Colors.white,
-            ),
-            Text(
-              " Delete".i18n,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-              textAlign: TextAlign.right,
-            ),
-            SizedBox(
-              width: 20,
-            ),
-          ],
-        ),
-        alignment: Alignment.centerRight,
-      ),
-    );
-  }
-
-
   Widget _buildCategory(int index, Category category) {
-    String categoryName = category.name;
-    return Dismissible(
-      confirmDismiss: (DismissDirection direction) async {
-        return await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Confirm".i18n),
-              content: Text("Are you sure you wish to delete this category?".i18n),
-              actions: <Widget>[
-                FlatButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text("CANCEL".i18n)
-                ),
-                FlatButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text("DELETE".i18n),
-                ),
-              ],
-            );
-          },
-        );
-      },
-      key: UniqueKey(),
-      direction: DismissDirection.endToStart,
-      background: slideLeftBackground(),
-      onDismissed: (direction) {
-        // Remove the item from the data source.
-        setState(() {
-          _categories.removeAt(index);
-        });
-
-        // Then show a snackbar.
-        Scaffold.of(context)
-            .showSnackBar(
-              SnackBar(
-                content: Text("Deleted category: ".i18n + categoryName),
-                action: SnackBarAction(
-                    label: "UNDO".i18n,
-                    onPressed: () => setState(() => _categories.insert(index, category),) // this is what you needed
-                ),
-              )
-        );
-      },
-      child: ListTile(
-          leading: Container(
-              width: 40,
-              height: 40,
-              child: Icon(category.icon, size: 20, color: Colors.white,),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: category.color,
-              )
-          ),
-          title: Text(category.name, style: _biggerFont)
-      ),
-    );
+    return
+      InkWell(
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EditCategoryPage(passedCategory: category)),
+          );
+          _categories = MovementsInMemoryDatabase.categories;
+        },
+        child: ListTile(
+            leading: Container(
+                width: 40,
+                height: 40,
+                child: Icon(category.icon, size: 20, color: Colors.white,),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: category.color,
+                )
+            ),
+            title: Text(category.name, style: _biggerFont)
+        )
+      );
   }
-
 
   showAlertDialog(BuildContext context) {
     // set up the button
