@@ -1,17 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:piggybank/components/categories-list.dart';
-import 'package:piggybank/components/days-summary-box-card.dart';
-import 'package:piggybank/helpers/movements-generator.dart';
-import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/screens/edit-category-page.dart';
-import 'package:piggybank/services/movements-in-memory-database.dart';
-import '../i18n/categories-page.i18n.dart';
+import 'package:piggybank/categories/categories-list.dart';
+import 'package:piggybank/categories/edit-category-page.dart';
+import './i18n/categories-page.i18n.dart';
 
-import '../components/movements-group-card.dart';
+import '../movements/movements-group-card.dart';
 
 class CategoryTabPage extends StatefulWidget {
   @override

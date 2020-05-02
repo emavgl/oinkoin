@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 import '../style.dart';
-import '../i18n/edit-category-page.i18n.dart';
+import './i18n/edit-category-page.i18n.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class EditCategoryPage extends StatefulWidget {

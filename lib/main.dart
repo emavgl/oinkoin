@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
-import 'package:piggybank/screens/shell.dart';
+import 'package:piggybank/shell.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() => runApp(App());

@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:piggybank/components/days-summary-box-card.dart';
+import 'package:piggybank/movements/days-summary-box-card.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
-import '../i18n/movements-page.i18n.dart';
+import './i18n/movements-page.i18n.dart';
 
-import '../components/movements-group-card.dart';
+import 'movements-group-card.dart';
 
 class MovementsPage extends StatefulWidget {
   List<MovementsPerDay> _daysShown = MovementsInMemoryDatabase.movementsDays;
