@@ -27,6 +27,8 @@ dependencies:
   moor:           # use the latest version
   moor_ffi:       # use the latest version
   path_provider:
+  shared_preferences: ^0.5.7  # plugin for persistent store for simple data (key-value pairs) like settings
+  fl_chart: ^0.9.4  # plugin for statistics and charts
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

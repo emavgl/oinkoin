@@ -1,14 +1,10 @@
 
 import 'package:flutter/material.dart';
-import 'package:piggybank/movements/days-summary-box-card.dart';
-import 'package:piggybank/helpers/movements-generator.dart';
-import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/categories/categories-tab-page.dart';
-import 'package:piggybank/services/movements-in-memory-database.dart';
+import 'package:piggybank/settings/settings-page.dart';
+
 import 'i18n/shell.i18n.dart';
 
-import 'movements/movements-group-card.dart';
 import 'movements/movements-page.dart';
 
 class Shell extends StatefulWidget {
@@ -40,6 +36,13 @@ class ShellState extends State<Shell> {
               child: new MaterialApp(home: new CategoryTabPage()),
             ),
           ),
+            new Offstage(
+              offstage: _currentIndex != 2,
+              child: new TickerMode(
+                enabled: _currentIndex == 2,
+                child: new MaterialApp(home: new SettingsPage()),
+              ),
+            ),
         ]
       ),
       bottomNavigationBar: BottomNavigationBar(
