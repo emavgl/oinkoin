@@ -6,6 +6,7 @@ import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/screens/categories-tab-page.dart';
 import 'package:piggybank/screens/settings-page.dart';
+import 'package:piggybank/screens/statistics-page.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 import '../i18n/shell.i18n.dart';
 

@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/components/settings-item.dart';
 import '../i18n/settings-page.i18n.dart';
 
+
+// look here for how to store settings
+//https://flutter.dev/docs/cookbook/persistence/key-value
+//https://pub.dev/packages/shared_preferences
+
 class SettingsPage extends StatelessWidget {
   static const double kSettingsItemsExtent = 75.0;
   static const double kSettingsItemsIconPadding = 8.0;
