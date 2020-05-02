@@ -1,11 +1,17 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/helpers/categories-generator.dart';
 import 'package:piggybank/helpers/day-movement-generator.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 
 class MovementsInMemoryDatabase {
+
     static List<MovementsPerDay> _movementsDays = DayMovementGenerator.getRandomDayMovements(quantity: 20);
-    static List<Category> _categories = CategoriesGenerator.getRandomCategories(quantity: 4);
+    static List<Category> _categories = [
+        Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: 0),
+        Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: 0),
+        Category("Salary", iconCodePoint: FontAwesomeIcons.wallet.codePoint, categoryType: 1)
+    ];
     static List<MovementsPerDay> get movementsDays => _movementsDays;
     static List<Category> get categories => _categories;
 
@@ -16,6 +22,10 @@ class MovementsInMemoryDatabase {
 
     static Future<List<Category>> getAllCategories() async {
         return Future<List<Category>>.value(_categories);
+    }
+
+    static Future<List<Category>> getCategoriesByType(int categoryType) async {
+        return Future<List<Category>>.value(_categories.where((x) => x.categoryType == categoryType).toList());
     }
 
     static Future<Category> getCategoryByName(String name) {

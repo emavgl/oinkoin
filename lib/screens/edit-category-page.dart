@@ -9,82 +9,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class EditCategoryPage extends StatefulWidget {
 
   Category passedCategory;
+  int categoryType;
 
-  EditCategoryPage({Key key, this.passedCategory}) : super(key: key);
+  EditCategoryPage({Key key, this.passedCategory, this.categoryType}) : super(key: key);
 
   @override
-  EditCategoryPageState createState() => EditCategoryPageState(category: passedCategory);
+  EditCategoryPageState createState() => EditCategoryPageState(passedCategory, categoryType);
 }
 
 class EditCategoryPageState extends State<EditCategoryPage> {
 
   Category category;
-  EditCategoryPageState({this.category});
+  int categoryType;
 
-  List<Color> colors = [
-    Colors.green[300],
-    Colors.red[300],
-    Colors.blue[300],
-    Colors.orange[300],
-    Colors.yellow[600],
-    Colors.purple[200],
-    Colors.grey,
-    Colors.black,
-  ];
-
-  List<IconData> icons = [
-    // food
-    FontAwesomeIcons.hamburger,
-    FontAwesomeIcons.pizzaSlice,
-    FontAwesomeIcons.cheese,
-    FontAwesomeIcons.appleAlt,
-    FontAwesomeIcons.breadSlice,
-    FontAwesomeIcons.iceCream,
-    FontAwesomeIcons.cocktail,
-    FontAwesomeIcons.wineGlass,
-    FontAwesomeIcons.birthdayCake,
-    FontAwesomeIcons.fish,
-    FontAwesomeIcons.coffee,
-
-    // transports
-    FontAwesomeIcons.gasPump,
-    FontAwesomeIcons.car,
-    FontAwesomeIcons.carBattery,
-    FontAwesomeIcons.parking,
-    FontAwesomeIcons.biking,
-    FontAwesomeIcons.motorcycle,
-    FontAwesomeIcons.bicycle,
-    FontAwesomeIcons.caravan,
-    FontAwesomeIcons.taxi,
-    FontAwesomeIcons.planeDeparture,
-    FontAwesomeIcons.ship,
-    FontAwesomeIcons.train,
-
-    // Shopping
-    FontAwesomeIcons.shoppingCart,
-    FontAwesomeIcons.shoppingBag,
-    FontAwesomeIcons.shoppingBasket,
-    FontAwesomeIcons.gem,
-    FontAwesomeIcons.tag,
-    FontAwesomeIcons.gift,
-    FontAwesomeIcons.mitten,
-    FontAwesomeIcons.socks,
-    FontAwesomeIcons.hatCowboy,
-
-    // Entertainment
-    FontAwesomeIcons.gamepad,
-    FontAwesomeIcons.theaterMasks,
-    FontAwesomeIcons.swimmer,
-    FontAwesomeIcons.bowlingBall,
-    FontAwesomeIcons.golfBall,
-    FontAwesomeIcons.baseballBall,
-    FontAwesomeIcons.basketballBall,
-    FontAwesomeIcons.footballBall,
-    FontAwesomeIcons.volleyballBall,
-    FontAwesomeIcons.skiing,
-    FontAwesomeIcons.tv,
-    FontAwesomeIcons.film,
-  ];
+  EditCategoryPageState(this.category, this.categoryType);
 
   Color chosenColor;
   int chosenColorIndex;
@@ -96,16 +34,17 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   void initState() {
     super.initState();
     if (this.category == null) {
-      chosenColor = colors[0];
+      chosenColor = Category.colors[0];
       chosenIcon = FontAwesomeIcons.hamburger;
       chosenIconIndex = 0;
       chosenColorIndex = 0;
       category = new Category(null);
     } else {
+      categoryType = category.categoryType;
       chosenIcon = category.icon;
-      chosenIconIndex = icons.indexOf(chosenIcon);
+      chosenIconIndex = Category.icons.indexOf(chosenIcon);
       chosenColor = category.color;
-      chosenColorIndex = colors.indexOf(chosenColor);
+      chosenColorIndex = Category.colors.indexOf(chosenColor);
     }
   }
 
@@ -128,15 +67,15 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       // Generate 100 widgets that display their index in the List.
-      children: List.generate(icons.length, (index) {
+      children: List.generate(Category.icons.length, (index) {
         return Container(
             child: IconButton(
               // Use the FaIcon Widget + FontAwesomeIcons class for the IconData
-                icon: FaIcon(icons[index]),
+                icon: FaIcon(Category.icons[index]),
                 color: ((chosenIconIndex == index) ? Colors.blueAccent : Colors.black45),
                 onPressed: () {
                   setState(() {
-                    chosenIcon = icons[index];
+                    chosenIcon = Category.icons[index];
                     chosenIconIndex = index;
                 });
                 }
@@ -150,14 +89,14 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       return ListView.builder(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
-          itemCount: colors.length,
+          itemCount: Category.colors.length,
           itemBuilder: /*1*/ (context, index) {
             return Container(
                 margin: EdgeInsets.all(10),
                 child: Container(width: 70, child:
                 ClipOval(
                     child: Material(
-                      color: colors[index], // button color
+                      color: Category.colors[index], // button color
                       child: InkWell(
                         splashColor: Colors.white30, // inkwell color
                         child: (index == chosenColorIndex) ? SizedBox(width: 50, height: 50,
@@ -165,7 +104,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                         ) : Container(),
                         onTap: () {
                           setState(() {
-                            chosenColor = colors[index];
+                            chosenColor = Category.colors[index];
                             chosenColorIndex = index;
                           });
                         },
@@ -276,10 +215,10 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               icon: const Icon(Icons.save),
               tooltip: 'Save', onPressed: () async {
             if (category.name != null && category.name.isNotEmpty) {
+              category.categoryType = categoryType;
               category.color = chosenColor;
               category.icon = chosenIcon;
               category.iconCodePoint = chosenIcon.codePoint;
-
               MovementsInMemoryDatabase.upsertCategory(category);
               Navigator.pop(context);
             } else {

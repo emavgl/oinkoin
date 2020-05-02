@@ -4,7 +4,7 @@ import 'package:piggybank/components/days-summary-box-card.dart';
 import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/screens/categories-page.dart';
+import 'package:piggybank/screens/categories-tab-page.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 import '../i18n/shell.i18n.dart';
 
@@ -37,7 +37,7 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoriesPage()),
+              child: new MaterialApp(home: new CategoryTabPage()),
             ),
           ),
         ]
