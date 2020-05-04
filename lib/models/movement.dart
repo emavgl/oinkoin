@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:piggybank/models/model.dart';
 import 'package:piggybank/models/category.dart';
 
@@ -31,6 +32,10 @@ class Movement extends Model {
       new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
       id: map['id'],
     );
+  }
+
+  get date {
+    return dateTime.year.toString() + dateTime.month.toString() + dateTime.day.toString();
   }
 
 }

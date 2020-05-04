@@ -1,14 +1,19 @@
 
+import 'dart:core';
+import 'dart:core';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/movements/days-summary-box-card.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
 import './i18n/movements-page.i18n.dart';
 
 import 'movements-group-card.dart';
+import "package:collection/collection.dart";
 
 class MovementsPage extends StatefulWidget {
-  List<MovementsPerDay> _daysShown = MovementsInMemoryDatabase.movementsDays;
 
   @override
   MovementsPageState createState() => MovementsPageState();
@@ -16,14 +21,41 @@ class MovementsPage extends StatefulWidget {
 
 class MovementsPageState extends State<MovementsPage> {
 
+  Future<List<MovementsPerDay>> getMovementsDaysDateTime( _from, DateTime _to) async {
+    List<Movement> _movements = await MovementsInMemoryDatabase.getAllMovementsInInterval(_from, _to);
+    var movementsGroups = groupBy(_movements, (movement) => movement.date);
+    List<MovementsPerDay> movementsPerDay = List();
+    movementsGroups.forEach((k, groupedMovements) {
+      if (groupedMovements.isNotEmpty) {
+        DateTime groupedDay = groupedMovements[0].dateTime;
+        movementsPerDay.add(new MovementsPerDay(groupedDay, movements: groupedMovements));
+      }
+    });
+    return movementsPerDay;
+  }
+
+  List<MovementsPerDay> _daysShown = new List();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // get movements given a range
+    DateTime _from = DateTime.parse("2020-05-01 00:01:00");
+    DateTime _to = DateTime.parse("2020-06-01 00:00:00");
+    getMovementsDaysDateTime(_from, _to).then((movementsDay) => {
+      _daysShown = movementsDay
+    });
+  }
+
   Widget _buildDays() {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget._daysShown.length,
+      itemCount: _daysShown.length,
       padding: const EdgeInsets.all(6.0),
       itemBuilder: /*1*/ (context, i) {
-        return MovementsGroupCard(widget._daysShown[i]);
+        return MovementsGroupCard(_daysShown[i]);
       });
   }
 
@@ -96,7 +128,7 @@ class MovementsPageState extends State<MovementsPage> {
                   Container(
                       margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
                       height: 100,
-                      child: DaysSummaryBox(widget._daysShown)
+                      child: DaysSummaryBox(_daysShown)
                   ),
                   Divider(indent: 50, endIndent: 50),
                   Container(

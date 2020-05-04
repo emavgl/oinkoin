@@ -2,7 +2,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:piggybank/helpers/movements-generator.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/services/movements-in-memory-database.dart';
@@ -48,7 +47,7 @@ class MovementGroupState extends State<MovementsGroupCard> {
         leading: Container(
           width: 40,
           height: 40,
-          child: Icon(Icons.attach_money, size: 20, color: Colors.white,),
+          child: Icon(movement.category.icon, size: 20, color: Colors.white,),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: movement.category.color,
