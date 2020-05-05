@@ -1,7 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/services/movements-in-memory-database.dart';
+import 'package:piggybank/services/database-service.dart';
+import 'package:piggybank/services/inmemory-database.dart';
 import '../style.dart';
 import './i18n/edit-category-page.i18n.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,6 +30,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   IconData chosenIcon;
   int chosenIconIndex;
+  DatabaseService database = new InMemoryDatabase();
+
 
   @override
   void initState() {
@@ -205,7 +208,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               tooltip: 'Delete', onPressed: () async {
               var continueDelete = await showAlertDialog(context, "Yes", "No", "Do you really want to delete the category?", "Deleting the category you will remove all the associated expenses");
               if (continueDelete) {
-                MovementsInMemoryDatabase.deleteCategoryById(widget.passedCategory.id);
+                database.deleteCategoryById(widget.passedCategory.id);
                 Navigator.pop(context);
               }
             },
@@ -219,7 +222,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               category.color = chosenColor;
               category.icon = chosenIcon;
               category.iconCodePoint = chosenIcon.codePoint;
-              MovementsInMemoryDatabase.upsertCategory(category);
+              database.upsertCategory(category);
               Navigator.pop(context);
             } else {
               await showAlertDialog(context, "OK", "Cancel", "Category name is missing", "You need to specify the category name");

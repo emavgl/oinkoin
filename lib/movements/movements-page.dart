@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/movements/days-summary-box-card.dart';
 import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/services/movements-in-memory-database.dart';
+import 'package:piggybank/services/database-service.dart';
+import 'package:piggybank/services/inmemory-database.dart';
 import './i18n/movements-page.i18n.dart';
 
 import 'movements-group-card.dart';
@@ -22,7 +23,7 @@ class MovementsPage extends StatefulWidget {
 class MovementsPageState extends State<MovementsPage> {
 
   Future<List<MovementsPerDay>> getMovementsDaysDateTime( _from, DateTime _to) async {
-    List<Movement> _movements = await MovementsInMemoryDatabase.getAllMovementsInInterval(_from, _to);
+    List<Movement> _movements = await database.getAllMovementsInInterval(_from, _to);
     var movementsGroups = groupBy(_movements, (movement) => movement.date);
     List<MovementsPerDay> movementsPerDay = List();
     movementsGroups.forEach((k, groupedMovements) {
@@ -35,6 +36,7 @@ class MovementsPageState extends State<MovementsPage> {
   }
 
   List<MovementsPerDay> _daysShown = new List();
+  DatabaseService database = new InMemoryDatabase();
 
   @override
   void initState() {

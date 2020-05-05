@@ -1,8 +1,11 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 
-class MovementsInMemoryDatabase {
+import 'database-service.dart';
+
+class InMemoryDatabase implements DatabaseService {
 
     static List<Category> _categories = [
         Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: 0, id: 1),
@@ -21,25 +24,25 @@ class MovementsInMemoryDatabase {
     static List<Movement> get movements => _movements;
     static List<Category> get categories => _categories;
 
-    static Future<Category> getCategoryById(int id) {
+    Future<Category> getCategoryById(int id) {
         var matching = _categories.where((x) => x.id == id).toList();
         return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
     }
 
-    static Future<List<Category>> getAllCategories() async {
+    Future<List<Category>> getAllCategories() async {
         return Future<List<Category>>.value(_categories);
     }
 
-    static Future<List<Category>> getCategoriesByType(int categoryType) async {
+    Future<List<Category>> getCategoriesByType(int categoryType) async {
         return Future<List<Category>>.value(_categories.where((x) => x.categoryType == categoryType).toList());
     }
 
-    static Future<Category> getCategoryByName(String name) {
+    Future<Category> getCategoryByName(String name) {
         var matching = _categories.where((x) => x.name == name).toList();
         return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
     }
 
-    static Future<int> upsertCategory(Category category) async {
+    Future<int> upsertCategory(Category category) async {
         var existingCategory = await getCategoryByName(category.name);
         if (existingCategory != null) {
             var indexOfExistingCategory = _categories.indexOf(existingCategory);
@@ -53,24 +56,44 @@ class MovementsInMemoryDatabase {
         }
     }
 
-    static void deleteCategoryById(int categoryId) async {
+    void deleteCategoryById(int categoryId) async {
         _categories.removeWhere((x) => x.id == categoryId);
     }
 
-    static Future<int> addMovement(Movement movement) async {
+    Future<int> addMovement(Movement movement) async {
         movement.id = _movements.length + 1;
         _movements.add(movement);
         return Future<int>.value(movement.id);
     }
 
-    static Future<List<Movement>> getAllMovements() async {
+    Future<int> addCategory(Category category) async {
+      category.id = _categories.length + 1;
+      _categories.add(category);
+      return Future<int>.value(category.id);
+    }
+
+    Future<List<Movement>> getAllMovements() async {
         return Future<List<Movement>>.value(_movements);
     }
 
-    static Future<List<Movement>> getAllMovementsInInterval(DateTime from, DateTime to) async {
+    Future<List<Movement>> getAllMovementsInInterval(DateTime from, DateTime to) async {
         List<Movement> targetMovements = _movements.where((movement) =>
             movement.dateTime.isAfter(from) && movement.dateTime.isBefore(to)).toList();
         return Future<List<Movement>>.value(targetMovements);
+    }
+
+    @override
+    Future<int> addCategoryIfNotExists(Category category) async {
+      Category foundCategory = await this.getCategoryById(category.id);
+      if (foundCategory == null) {
+        return await addCategory(category);
+      }
+    }
+
+    @override
+    Future<Movement> getMovementById(int id) {
+      var matching = _movements.where((x) => x.id == id).toList();
+      return (matching.isEmpty) ? Future<Movement>.value(null): Future<Movement>.value(matching[0]);
     }
 
 }

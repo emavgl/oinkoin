@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/services/movements-in-memory-database.dart';
+import 'package:piggybank/services/inmemory-database.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import './i18n/movements-group-card.i18n.dart';
 
