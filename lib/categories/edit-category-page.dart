@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
@@ -165,38 +166,6 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       ));
   }
 
-  showAlertDialog(BuildContext context, yesButtonName, noButtonName, title, subtitle) async {
-    // set up the button
-    Widget okButton = FlatButton(
-        child: Text(yesButtonName),
-      onPressed: () => Navigator.of(context, rootNavigator: true).pop(true),
-    );
-
-    // set up the button
-    Widget cancelButton = FlatButton(
-      child: Text(noButtonName),
-      onPressed: () => Navigator.of(context, rootNavigator: true).pop(false)
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text(title),
-      content: Text(subtitle),
-      actions: [
-        okButton,
-        cancelButton,
-      ],
-    );
-
-    // show the dialog
-    return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
   Widget _getAppBar() {
     return AppBar(
         title: Text('Edit category'.i18n),
@@ -206,11 +175,20 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             child: IconButton(
               icon: const Icon(Icons.delete),
               tooltip: 'Delete', onPressed: () async {
-              var continueDelete = await showAlertDialog(context, "Yes", "No", "Do you really want to delete the category?", "Deleting the category you will remove all the associated expenses");
-              if (continueDelete) {
-                database.deleteCategoryById(widget.passedCategory.id);
-                Navigator.pop(context);
-              }
+                // Prompt confirmation
+                AlertDialogBuilder deleteDialog = AlertDialogBuilder("Do you really want to delete the category?")
+                      .addSubtitle("Deleting the category you will remove all the associated expenses")
+                      .addTrueButtonName("Yes")
+                      .addFalseButtonName("No");
+
+                var continueDelete = await showDialog(context: context, builder: (BuildContext context) {
+                  return deleteDialog.build(context);
+                });
+
+                if (continueDelete) {
+                  database.deleteCategoryById(widget.passedCategory.id);
+                  Navigator.pop(context);
+                }
             },
           )
         ),
@@ -225,7 +203,13 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               database.upsertCategory(category);
               Navigator.pop(context);
             } else {
-              await showAlertDialog(context, "OK", "Cancel", "Category name is missing", "You need to specify the category name");
+              // Prompt category missing dialog
+              AlertDialogBuilder categoryMissingDialog = AlertDialogBuilder("Category name is missing")
+                  .addSubtitle("You need to specify the category name");
+
+              await showDialog(context: context, builder: (BuildContext context) {
+                return categoryMissingDialog.build(context);
+              });
             }
           }
           )]

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/movements/days-summary-box-card.dart';
 import 'package:piggybank/models/movements-per-day.dart';
+import 'package:piggybank/movements/edit-movement-page.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
 import './i18n/movements-page.i18n.dart';
@@ -86,6 +87,13 @@ class MovementsPageState extends State<MovementsPage> {
     );
   }
 
+  navigateToAddNewMovementPage() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditMovementPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,8 +151,8 @@ class MovementsPageState extends State<MovementsPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showAlertDialog(context),
-        tooltip: 'Increment Counter',
+        onPressed: () async => await navigateToAddNewMovementPage(),
+        tooltip: 'Add new movement',
         child: const Icon(Icons.add),
       ),
       );
