@@ -1,7 +1,13 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/movement.dart';
 
 class StatisticsLineChart extends StatefulWidget {
+
+  final List<Movement> movementsForChart;
+
+  StatisticsLineChart({this.movementsForChart});
+
   @override
   _StatisticsLineChartState createState() => _StatisticsLineChartState();
 }

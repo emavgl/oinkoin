@@ -1,7 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/movement.dart';
 
 class StatisticsBarChart extends StatefulWidget {
+
+  final List<Movement> incomeMovementsForChart;
+  final List<Movement> expensesMovementsForChart;
+
+  StatisticsBarChart({this.incomeMovementsForChart, this.expensesMovementsForChart});
+
   @override
   State<StatefulWidget> createState() => StatisticsBarChartState();
 }

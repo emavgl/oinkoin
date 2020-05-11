@@ -1,14 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/movement.dart';
 
 import 'statistics-pie-chart-indicator.dart';
 
 class StatisticsPieChart extends StatefulWidget {
+  final List<Movement> movementsForChart;
+
+  StatisticsPieChart({this.movementsForChart});
+
   @override
-  State<StatefulWidget> createState() => PieChart2State();
+  State<StatefulWidget> createState() => StatisticsPieChartState();
 }
 
-class PieChart2State extends State {
+class StatisticsPieChartState extends State<StatisticsPieChart> {
   int touchedIndex;
 
   @override
@@ -27,7 +32,8 @@ class PieChart2State extends State {
                 aspectRatio: 1,
                 child: PieChart(
                   PieChartData(
-                      pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
+                      pieTouchData:
+                          PieTouchData(touchCallback: (pieTouchResponse) {
                         setState(() {
                           if (pieTouchResponse.touchInput is FlLongPressEnd ||
                               pieTouchResponse.touchInput is FlPanEnd) {
@@ -94,6 +100,35 @@ class PieChart2State extends State {
     );
   }
 
+  // from the list of movements to the list of pie chart section data
+  List<PieChartSectionData> generateSections() {
+    List<Movement> movements = widget.movementsForChart;
+    List<PieChartSectionData> sections = List<PieChartSectionData>();
+
+    movements.forEach((movement) => () {
+          sections.add(generateSection(movement));
+        });
+
+    return sections;
+  }
+
+  PieChartSectionData generateSection(Movement movement) {
+   // final isTouched = i == touchedIndex;
+    final isTouched = false;
+    final double fontSize = isTouched ? 25 : 16;
+    final double radius = isTouched ? 60 : 50;
+    return PieChartSectionData(
+      color: movement.category.color,
+      value: movement.value,
+      title: '40%',
+      radius: radius,
+      titleStyle: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xffffffff)),
+    );
+  }
+
   List<PieChartSectionData> showingSections() {
     return List.generate(4, (i) {
       final isTouched = i == touchedIndex;
@@ -107,7 +142,9 @@ class PieChart2State extends State {
             title: '40%',
             radius: radius,
             titleStyle: TextStyle(
-                fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xffffffff)),
           );
         case 1:
           return PieChartSectionData(
@@ -116,7 +153,9 @@ class PieChart2State extends State {
             title: '30%',
             radius: radius,
             titleStyle: TextStyle(
-                fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xffffffff)),
           );
         case 2:
           return PieChartSectionData(
@@ -125,7 +164,9 @@ class PieChart2State extends State {
             title: '15%',
             radius: radius,
             titleStyle: TextStyle(
-                fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xffffffff)),
           );
         case 3:
           return PieChartSectionData(
@@ -134,7 +175,9 @@ class PieChart2State extends State {
             title: '15%',
             radius: radius,
             titleStyle: TextStyle(
-                fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xffffffff)),
           );
         default:
           return null;

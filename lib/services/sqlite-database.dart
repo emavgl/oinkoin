@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'package:path/path.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/models/movements-per-category.dart';
+import 'package:piggybank/models/movements-summary-by-category.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -80,7 +82,7 @@ class SqliteDatabase implements DatabaseService {
         final db = await database;
         List<Map> results = await db.query("categories");
 
-        // Convert the List<Map<String, dynamic> into a List<Dog>.
+        // Convert the List<Map<String, dynamic> into a List<Dog>. // TODO woof woof
         return List.generate(results.length, (i) {
             return Category.fromMap(results[i]);
         });
@@ -116,7 +118,7 @@ class SqliteDatabase implements DatabaseService {
             FROM movements as m LEFT JOIN categories as c ON m.category_id = c.id
         """);
         
-        // Convert the List<Map<String, dynamic> into a List<Dog>.
+        // Convert the List<Map<String, dynamic> into a List<Dog>. // TODO woof woof
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);
@@ -136,7 +138,7 @@ class SqliteDatabase implements DatabaseService {
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [from_unix, to_unix]);
 
-        // Convert the List<Map<String, dynamic> into a List<Dog>.
+        // Convert the List<Map<String, dynamic> into a List<Dog>. // TODO woof woof
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);
@@ -172,5 +174,30 @@ class SqliteDatabase implements DatabaseService {
       void upsertCategory(Category category) {
         // TODO: implement upsertCategory
       }
+
+
+
+
+    // TODO Stefano: I'm working on it. The method is to be tested
+    @override
+    Future<List<MovementsSummaryPerCategory>> getExpensesInIntervalByCategory(DateTime from, DateTime to) async {
+        final db = await database;
+        final from_unix = from.millisecondsSinceEpoch;
+        final to_unix = to.millisecondsSinceEpoch;
+
+        var maps = await db.rawQuery("""
+            SELECT SUM(m.value), c.color, c.name
+            FROM movements as m LEFT JOIN categories as c ON m.category_id = c.id
+            WHERE m.value < 0 AND m.datetime >= ? AND m.datetime <= ? 
+            GROUP BY c.id
+        """, [from_unix, to_unix]);
+
+        // Convert the List<Map<String, dynamic> into a List<MovementsPerCategory>.
+        return List.generate(maps.length, (i) {
+            Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
+            currentRowMap["category"] = Category.fromMap(currentRowMap);
+            return MovementsSummaryPerCategory.fromMap(currentRowMap);
+        });
+    }
 
 }
