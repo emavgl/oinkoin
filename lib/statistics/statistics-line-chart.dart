@@ -1,12 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class MovementsLineChart extends StatefulWidget {
+class StatisticsLineChart extends StatefulWidget {
   @override
-  _MovementsLineChartState createState() => _MovementsLineChartState();
+  _StatisticsLineChartState createState() => _StatisticsLineChartState();
 }
 
-class _MovementsLineChartState extends State<MovementsLineChart> {
+class _StatisticsLineChartState extends State<StatisticsLineChart> {
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
     const Color(0xff02d39a),

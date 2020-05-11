@@ -10,6 +10,7 @@ import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/movements/edit-movement-page.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
+import 'package:piggybank/statistics/statistics-page.dart';
 import './i18n/movements-page.i18n.dart';
 
 import 'movements-group-card.dart';
@@ -87,10 +88,18 @@ class MovementsPageState extends State<MovementsPage> {
     );
   }
 
+  // TODO why do you make the transition from on screen to the other async? the cookbook (https://flutter.dev/docs/cookbook/navigation/navigation-basics) does not mention it
   navigateToAddNewMovementPage() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditMovementPage()),
+    );
+  }
+
+  navigateToStatisticsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => StatisticsPage()),
     );
   }
 
@@ -104,7 +113,7 @@ class MovementsPageState extends State<MovementsPage> {
             backgroundColor: Theme.of(context).primaryColor,
             actions: <Widget>[
               IconButton(icon: Icon(Icons.calendar_today), onPressed: (){}, color: Colors.white),
-              IconButton(icon: Icon(Icons.donut_small), onPressed: (){}, color: Colors.white),
+              IconButton(icon: Icon(Icons.donut_small), onPressed: () => navigateToStatisticsPage(), color: Colors.white),
               IconButton(icon: Icon(Icons.filter_list), onPressed: (){}, color: Colors.white)
             ],
             pinned: true,
