@@ -16,7 +16,7 @@ abstract class DatabaseService {
     Future<int> addCategoryIfNotExists(Category category);
     Future<List<Category>> getCategoriesByType(int categoryType);
     void deleteCategoryById(int id);
-    void upsertCategory(Category category);
+    Future<int> upsertCategory(Category category);
 
     Future<Movement> getMovementById(int id);
     Future<int> addMovement(Movement movement);

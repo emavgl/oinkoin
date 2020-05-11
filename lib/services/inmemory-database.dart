@@ -43,17 +43,26 @@ class InMemoryDatabase implements DatabaseService {
     }
 
     Future<int> upsertCategory(Category category) async {
-        var existingCategory = await getCategoryByName(category.name);
-        if (existingCategory != null) {
-            var indexOfExistingCategory = _categories.indexOf(existingCategory);
-            category.id = existingCategory.id;
-            _categories[indexOfExistingCategory] = category;
-            return existingCategory.id;
+        var categoryWithTheSameId = await getCategoryById(category.id);
+        if (categoryWithTheSameId != null) {
+            // I'm updating an existing category
+            _categories[_categories.indexOf(categoryWithTheSameId)] = category;
         } else {
-            category.id = _categories.length + 1;
-            _categories.add(category);
-            return Future<int>.value(category.id);
+            // no category with the same id exists, adding new category
+            // new category can have the same name of another one
+            // if so, update the category with the same name, keeping the id
+            // otherwise, add new category assigning the id
+            var categoryWithTheSameName = await getCategoryByName(category.name);
+            if (categoryWithTheSameName != null) {
+                var indexOfExistingCategory = _categories.indexOf(categoryWithTheSameName);
+                category.id = categoryWithTheSameName.id;
+                _categories[indexOfExistingCategory] = category;
+            } else {
+                category.id = _categories.length + 1;
+                _categories.add(category);
+            }
         }
+        return Future<int>.value(category.id);
     }
 
     void deleteCategoryById(int categoryId) async {

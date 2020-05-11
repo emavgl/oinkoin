@@ -1,3 +1,8 @@
+import 'package:animations/animations.dart';
+import 'package:animations/animations.dart';
+import 'package:animations/animations.dart';
+import 'package:animations/animations.dart';
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/categories/categories-list.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
@@ -30,6 +35,38 @@ class CategoryTabPageState extends State<CategoryTabPage> {
   void refreshIncomeCategoriesList() async {
     await _incomingCategoryKey.currentState.fetchCategories();
   }
+
+  OpenContainer floatingButtonOpenContainer() {
+    ContainerTransitionType _transitionType = ContainerTransitionType.fade;
+    const double _fabDimension = 56.0;
+    return OpenContainer(
+      transitionType: _transitionType,
+      openBuilder: (BuildContext context, VoidCallback _) {
+        return EditCategoryPage(categoryType: indexTab);
+      },
+      closedElevation: 6.0,
+      closedShape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(_fabDimension / 2),
+        ),
+      ),
+      closedColor: Theme.of(context).colorScheme.secondary,
+      closedBuilder: (BuildContext context, VoidCallback openContainer){
+        return SizedBox(
+          height: _fabDimension,
+          width: _fabDimension,
+          child: Center(
+            child: Icon(
+              Icons.add,
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {

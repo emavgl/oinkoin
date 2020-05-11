@@ -169,7 +169,7 @@ class SqliteDatabase implements DatabaseService {
       }
 
       @override
-      void upsertCategory(Category category) {
+      Future<int> upsertCategory(Category category) {
         // TODO: implement upsertCategory
       }
 

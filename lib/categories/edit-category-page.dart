@@ -21,35 +21,42 @@ class EditCategoryPage extends StatefulWidget {
 
 class EditCategoryPageState extends State<EditCategoryPage> {
 
+  Category passedCategory;
   Category category;
   int categoryType;
 
-  EditCategoryPageState(this.category, this.categoryType);
+  EditCategoryPageState(this.passedCategory, this.categoryType);
 
-  Color chosenColor;
   int chosenColorIndex;
-
-  IconData chosenIcon;
   int chosenIconIndex;
+
   DatabaseService database = new InMemoryDatabase();
 
+  final _formKey = GlobalKey<FormState>();
+
+  Category initCategory(){
+    Category category = new Category(null);
+    if (this.passedCategory == null) {
+      category.color = Category.colors[0];
+      category.icon = Category.icons[0];
+      category.iconCodePoint = category.icon.codePoint;
+      category.categoryType = categoryType;
+    } else {
+      category.icon = passedCategory.icon;
+      category.name = passedCategory.name;
+      category.color = passedCategory.color;
+      category.id = passedCategory.id;
+      category.categoryType = passedCategory.categoryType;
+    }
+    return category;
+  }
 
   @override
   void initState() {
     super.initState();
-    if (this.category == null) {
-      chosenColor = Category.colors[0];
-      chosenIcon = FontAwesomeIcons.hamburger;
-      chosenIconIndex = 0;
-      chosenColorIndex = 0;
-      category = new Category(null);
-    } else {
-      categoryType = category.categoryType;
-      chosenIcon = category.icon;
-      chosenIconIndex = Category.icons.indexOf(chosenIcon);
-      chosenColor = category.color;
-      chosenColorIndex = Category.colors.indexOf(chosenColor);
-    }
+    category = initCategory();
+    chosenIconIndex = Category.icons.indexOf(category.icon);
+    chosenColorIndex = Category.colors.indexOf(category.color);
   }
 
   Widget _getPageSeparatorLabel(String labelText) {
@@ -79,7 +86,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 color: ((chosenIconIndex == index) ? Colors.blueAccent : Colors.black45),
                 onPressed: () {
                   setState(() {
-                    chosenIcon = Category.icons[index];
+                    category.icon = Category.icons[index];
+                    category.iconCodePoint = category.icon.codePoint;
                     chosenIconIndex = index;
                 });
                 }
@@ -108,7 +116,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                         ) : Container(),
                         onTap: () {
                           setState(() {
-                            chosenColor = Category.colors[index];
+                            category.color = Category.colors[index];
                             chosenColorIndex = index;
                           });
                         },
@@ -131,11 +139,11 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       margin: EdgeInsets.all(10),
       child: ClipOval(
           child: Material(
-              color: chosenColor, // button color
+              color: category.color, // button color
               child: InkWell(
-                splashColor: chosenColor, // inkwell color
+                splashColor: category.color, // inkwell color
                 child: SizedBox(width: 70, height: 70,
-                    child: Icon(chosenIcon, color: Colors.white, size: 30,),
+                    child: Icon(category.icon, color: Colors.white, size: 30,),
                 ),
                 onTap: () {},
               )
@@ -146,24 +154,36 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   Widget _getTextField() {
     return Expanded(
-        child: Container(
-          margin: EdgeInsets.all(10),
-          child: TextFormField(
-              onChanged: (text) {
-                setState(() {
-                  category.name = text;
-                });
-              },
-              initialValue: category.name,
-              style: TextStyle(
-                  fontSize: 22.0,
-                  color: Colors.black
-              ),
-              decoration: InputDecoration(
-                  hintText: "Category name",
-                  border: OutlineInputBorder()
-              )),
-      ));
+        child: Form(
+          key: _formKey,
+          child: Container(
+            margin: EdgeInsets.all(10),
+            child: TextFormField(
+                onChanged: (text) {
+                  setState(() {
+                    category.name = text;
+                  });
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "Please enter the category name";
+                  }
+                  return null;
+                },
+                initialValue: category.name,
+                style: TextStyle(
+                    fontSize: 22.0,
+                    color: Colors.black
+                ),
+                decoration: InputDecoration(
+                    hintText: "Category name",
+                    border: OutlineInputBorder(),
+                    errorStyle: TextStyle(
+                      fontSize: 16.0,
+                    ),
+                )),
+      ),
+        ));
   }
 
   Widget _getAppBar() {
@@ -195,23 +215,11 @@ class EditCategoryPageState extends State<EditCategoryPage> {
           IconButton(
               icon: const Icon(Icons.save),
               tooltip: 'Save', onPressed: () async {
-            if (category.name != null && category.name.isNotEmpty) {
-              category.categoryType = categoryType;
-              category.color = chosenColor;
-              category.icon = chosenIcon;
-              category.iconCodePoint = chosenIcon.codePoint;
-              database.upsertCategory(category);
-              Navigator.pop(context);
-            } else {
-              // Prompt category missing dialog
-              AlertDialogBuilder categoryMissingDialog = AlertDialogBuilder("Category name is missing")
-                  .addSubtitle("You need to specify the category name");
-
-              await showDialog(context: context, builder: (BuildContext context) {
-                return categoryMissingDialog.build(context);
-              });
+                if (_formKey.currentState.validate()) {
+                  await database.upsertCategory(category);
+                  Navigator.pop(context);
+                }
             }
-          }
           )]
     );
   }

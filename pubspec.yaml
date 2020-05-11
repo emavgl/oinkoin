@@ -29,12 +29,13 @@ dependencies:
   path_provider:
   shared_preferences: ^0.5.7  # plugin for persistent store for simple data (key-value pairs) like settings
   fl_chart: ^0.9.4  # plugin for statistics and charts
+  animations: ^1.0.0+5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   font_awesome_flutter:
-  intl: 0.16.0
+  intl: 0.16.1
 
 dev_dependencies:
   flutter_test:

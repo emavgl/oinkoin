@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
@@ -52,11 +53,12 @@ class CategoriesListState extends State<CategoriesList> {
         itemCount: _categories.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildCategory(i, _categories[i]);
+          return _buildCategory(_categories[i]);
         });
   }
 
-  Widget _buildCategory(int index, Category category) {
+
+  Widget _buildCategory(Category category) {
     return InkWell(
         onTap: () async {
           await Navigator.push(

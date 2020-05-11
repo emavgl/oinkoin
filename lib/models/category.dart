@@ -73,6 +73,7 @@ class Category extends Model {
 
     FontAwesomeIcons.home,
     FontAwesomeIcons.wallet,
+    FontAwesomeIcons.question
   ];
 
 
