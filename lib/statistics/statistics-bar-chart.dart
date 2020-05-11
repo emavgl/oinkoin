@@ -1,12 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/movement.dart';
 
-class MovementsBarChart extends StatefulWidget {
+class StatisticsBarChart extends StatefulWidget {
+
+  final List<Movement> incomeMovementsForChart;
+  final List<Movement> expensesMovementsForChart;
+
+  StatisticsBarChart({this.incomeMovementsForChart, this.expensesMovementsForChart});
+
   @override
-  State<StatefulWidget> createState() => MovementsBarChartState();
+  State<StatefulWidget> createState() => StatisticsBarChartState();
 }
 
-class MovementsBarChartState extends State<MovementsBarChart> {
+class StatisticsBarChartState extends State<StatisticsBarChart> {
   final Color leftBarColor = const Color(0xff53fdd7);
   final Color rightBarColor = const Color(0xffff5182);
   final double width = 7;
