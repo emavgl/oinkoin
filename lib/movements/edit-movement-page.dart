@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
@@ -20,12 +21,13 @@ class EditMovementPage extends StatefulWidget {
 class EditMovementPageState extends State<EditMovementPage> {
 
   DatabaseService database = new InMemoryDatabase();
+  final _formKey = GlobalKey<FormState>();
   Movement movement;
 
   @override
   void initState() {
     super.initState();
-    movement = new Movement(null, null, null, null);
+    movement = new Movement(null, null, null, DateTime.now());
   }
 
   Widget _createCategoryCirclePreview() {
@@ -98,6 +100,99 @@ class EditMovementPageState extends State<EditMovementPage> {
     );
   }
 
+  Widget _getForm() {
+    return Form(
+      key: _formKey,
+      child: Container(
+        margin: EdgeInsets.all(10),
+        child:  Column(
+            children: [
+              _getPageSeparatorLabel("Value"),
+              Row(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(12, 12, 20, 12),
+                      child: Text("€", style: Body1Style, textAlign: TextAlign.left),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        onChanged: (text) {
+                          setState(() {
+                            movement.description = text;
+                          });
+                        },
+                        initialValue: movement.description,
+                        style: TextStyle(
+                            fontSize: 22.0,
+                            color: Colors.black
+                        ),
+                        decoration: InputDecoration(
+                            hintText: "42",
+                            labelText: 'Value',
+                            border: OutlineInputBorder()
+                        )),
+                  )
+                ],
+              ),
+              _getPageSeparatorLabel("Date"),
+              Row(children: <Widget>[
+                Expanded(
+                  child: OutlineButton(
+                    onPressed: () async {
+                      DateTime result = await showDatePicker(context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1970), lastDate: DateTime(2050));
+                      if (result != null) {
+                        setState(() {
+                          movement.dateTime = result;
+                        });
+                      }
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                       movement.dateTime.toString(),
+                       style: TextStyle(fontSize: 22),
+                     ), 
+                    ),
+                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                  ),
+                )
+              ],),
+              _getPageSeparatorLabel("Description"),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                        onChanged: (text) {
+                          setState(() {
+                            movement.description = text;
+                          });
+                        },
+                        initialValue: movement.description,
+                        style: TextStyle(
+                            fontSize: 22.0,
+                            color: Colors.black
+                        ),
+                        decoration: InputDecoration(
+                            hintText: "42",
+                            labelText: 'Value',
+                            border: OutlineInputBorder()
+                        )),
+                  )
+                ],
+              ),
+              _getPageSeparatorLabel("Labels"),
+            ]
+        ),
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -115,8 +210,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                         Container(child: _getTextField()),
                       ],
                     ),
-                    _getPageSeparatorLabel("Color"),
-                    _getPageSeparatorLabel("Icons"),
+                    _getForm(),
                   ]
                 ),
               ),
