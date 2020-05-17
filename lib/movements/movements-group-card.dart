@@ -9,6 +9,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import './i18n/movements-group-card.i18n.dart';
 
 class MovementsGroupCard extends StatefulWidget {
+  /// MovementsGroupCard renders a MovementPerDay object as a Card
+  /// The card contains an header with date and the balance of the day
+  /// and a body, containing the list of movements included in the MovementsPerDay object
+
   final MovementsPerDay _movementDay;
   const MovementsGroupCard(this._movementDay);
 
@@ -21,6 +25,7 @@ class MovementGroupState extends State<MovementsGroupCard> {
   final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   Widget _buildMovements() {
+    /// Returns a ListView with all the movements contained in the MovementPerDay object
     return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -35,6 +40,7 @@ class MovementGroupState extends State<MovementsGroupCard> {
   }
 
   Widget _buildMovementRow(Movement movement) {
+    /// Returns a ListTile rendering the single movement row
     return ListTile(
         title: Text(
           movement.description,

@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 
 class AlertDialogBuilder {
 
+  /// Utility class that simplify the creation of an alert dialog that return a boolean value.
+  /// There are two buttons, trueButton and falseButton that return either true or false.
+
   String title;
   String subtitle;
   String trueButtonName;

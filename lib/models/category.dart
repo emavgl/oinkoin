@@ -7,6 +7,14 @@ import 'package:piggybank/models/model.dart';
 
 class Category extends Model {
 
+  /// Object representing a Category.
+  /// A category has an name, type, icon and a color.
+  /// The category type is used to discriminate between categories for expenses,
+  /// and categories for incomes.
+
+  /// List of icons.
+  /// These are the only colors that can be used in the Category.
+  /// The order matters in the way they are showed in the list.
   static final List<Color> colors = [
     Colors.green[300],
     Colors.red[300],
@@ -18,6 +26,10 @@ class Category extends Model {
     Colors.black,
   ];
 
+  /// List of icons.
+  /// These are the only icons that can be used in the Category.
+  /// Feel free to add more icons. The order matters in the way
+  /// they are showed in the grid.
   static final List<IconData> icons = [
     // food
     FontAwesomeIcons.hamburger,

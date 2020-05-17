@@ -4,6 +4,10 @@ import 'package:piggybank/models/movement.dart';
 
 class MovementsPerDay {
 
+  /// Object containing a list of movements.
+  /// Used for grouping together movements with the same day.
+  /// Contains also utility getters to retrieve easily the amount of expenses, income and balance.
+
   List<Movement> movements;
   DateTime dateTime;
 

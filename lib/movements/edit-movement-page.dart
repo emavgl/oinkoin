@@ -11,6 +11,10 @@ import './i18n/edit-movement-page.i18n.dart';
 
 class EditMovementPage extends StatefulWidget {
 
+  /// EditMovementPage is a page containing forms for the editing of a Movement object.
+  /// EditMovementPage can take the movement object to edit as a constructor parameters
+  /// or can create a new Movement otherwise.
+
   Movement passedMovement;
   EditMovementPage({Key key, this.passedMovement}) : super(key: key);
 

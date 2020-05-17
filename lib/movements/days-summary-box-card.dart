@@ -5,6 +5,11 @@ import 'package:piggybank/models/movements-per-day.dart';
 import './i18n/days-summary-box-card.dart';
 
 class DaysSummaryBox extends StatefulWidget {
+  
+  /// DaysSummaryBox is a card that, given a list of MovementsPerDay objects,
+  /// shows the total income, total expenses, total balance resulting from
+  /// all the movements in input days.
+
   final List<MovementsPerDay> _movementDays;
   const DaysSummaryBox(this._movementDays);
 

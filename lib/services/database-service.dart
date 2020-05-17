@@ -10,6 +10,9 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:developer' as developer;
 
 abstract class DatabaseService {
+    /// DatabaseService is an interface the database classes must implement.
+    /// It contains all the method necessary to manage categories and movements
+    /// such as addCategory or getCategoryById.
     Future<Category> getCategoryById(int id);
     Future<List<Category>> getAllCategories();
     Future<Category> getCategoryByName(String categoryName);

@@ -12,6 +12,9 @@ import '../movements/movements-group-card.dart';
 
 class CategoriesList extends StatefulWidget {
 
+  /// CategoriesList fetches the categories of a given categoryType (input parameter)
+  /// and renders them using a vertical ListView.
+
   int categoryType;
 
   CategoriesList({Key key, this.categoryType}) : super(key: key);

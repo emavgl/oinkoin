@@ -11,6 +11,12 @@ import './i18n/categories-page.i18n.dart';
 import '../movements/movements-group-card.dart';
 
 class CategoryTabPage extends StatefulWidget {
+
+  /// The category page that you can select from the bottom navigation bar.
+  /// It contains two tab, showing the categories for expenses and categories
+  /// for incomes. It has a single Floating Button that, dependending from which
+  /// tab you clicked, it open the EditCategory page passing the selected Category type.
+
   @override
   CategoryTabPageState createState() => CategoryTabPageState();
 }

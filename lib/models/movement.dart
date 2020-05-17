@@ -4,6 +4,13 @@ import 'package:piggybank/models/category.dart';
 
 class Movement extends Model {
 
+  /// Represents the Movement object.
+  /// A Movement has:
+  /// - value: monetary value associated to the movement (can be positive, or negative)
+  /// - description: a short description of the movement
+  /// - category: a Category object assigned to the movement, describing the type of movement (income, expense)
+  /// - dateTime: a date representing when the movement was performed
+
   int id;
   double value;
   String description;

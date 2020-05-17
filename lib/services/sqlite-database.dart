@@ -12,6 +12,9 @@ import 'package:sqflite/sqflite.dart';
 
 class SqliteDatabase implements DatabaseService {
 
+    /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
+    /// It is implemented using Singleton pattern.
+
     SqliteDatabase._privateConstructor();
     static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
     static int get _version => 1;
