@@ -126,7 +126,7 @@ class MovementsPageState extends State<MovementsPage> {
               ],
               centerTitle: false,
               titlePadding: EdgeInsets.all(15),
-              title: Text('April'.i18n + ' 2020', style: TextStyle(color: Colors.white)),
+              title: Text('May'.i18n + ' 2020', style: TextStyle(color: Colors.white)),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
                   child: Container(

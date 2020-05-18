@@ -1,7 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/services/database-service.dart';
@@ -72,14 +74,18 @@ class EditMovementPageState extends State<EditMovementPage> {
         ));
   }
 
-  Widget _getPageSeparatorLabel(String labelText) {
+  Widget _getFormLabel(String labelText, {topMargin: 14.0}) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.all(15),
+        margin: EdgeInsets.fromLTRB(0, topMargin, 14, 14),
         child: Text(labelText, style: Body1Style, textAlign: TextAlign.left),
       ),
     );
+  }
+
+  String _getHumanReadableDate(DateTime targetDate) {
+    return new DateFormat("EEEE d.M.y").format(targetDate);
   }
 
   Widget _getAppBar() {
@@ -107,7 +113,7 @@ class EditMovementPageState extends State<EditMovementPage> {
         margin: EdgeInsets.all(10),
         child:  Column(
             children: [
-              _getPageSeparatorLabel("Value"),
+              _getFormLabel("How much?"),
               Row(
                 children: [
                   Align(
@@ -138,7 +144,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                   )
                 ],
               ),
-              _getPageSeparatorLabel("Date"),
+              _getFormLabel("When?", topMargin: 30.0),
               Row(children: <Widget>[
                 Expanded(
                   child: OutlineButton(
@@ -153,17 +159,19 @@ class EditMovementPageState extends State<EditMovementPage> {
                       }
                     },
                     child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Text(
-                       movement.dateTime.toString(),
-                       style: TextStyle(fontSize: 22),
-                     ), 
+                      padding: EdgeInsets.all(14),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                        _getHumanReadableDate(movement.dateTime),
+                        style: TextStyle(fontSize: 22),
+                      ),
                     ),
-                    borderSide: BorderSide(color: Colors.grey, width: 1),
                   ),
-                )
+                    borderSide: BorderSide(color: Colors.grey, width: 0),
+                  ))
               ],),
-              _getPageSeparatorLabel("Description"),
+              _getFormLabel("How?", topMargin: 30.0),
               Row(
                 children: [
                   Expanded(
@@ -178,15 +186,15 @@ class EditMovementPageState extends State<EditMovementPage> {
                             fontSize: 22.0,
                             color: Colors.black
                         ),
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                            hintText: "42",
-                            labelText: 'Value',
+                            labelText: 'Description',
                             border: OutlineInputBorder()
                         )),
                   )
                 ],
               ),
-              _getPageSeparatorLabel("Labels"),
             ]
         ),
       )
