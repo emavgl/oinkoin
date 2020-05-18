@@ -17,6 +17,8 @@ import 'movements-group-card.dart';
 import "package:collection/collection.dart";
 
 class MovementsPage extends StatefulWidget {
+  /// MovementsPage is the page showing the list of movements grouped per day.
+  /// It contains also buttons for filtering the list of movements and add a new movement.
 
   @override
   MovementsPageState createState() => MovementsPageState();
@@ -24,7 +26,10 @@ class MovementsPage extends StatefulWidget {
 
 class MovementsPageState extends State<MovementsPage> {
 
-  Future<List<MovementsPerDay>> getMovementsDaysDateTime( _from, DateTime _to) async {
+  Future<List<MovementsPerDay>> getMovementsDaysDateTime(DateTime _from, DateTime _to) async {
+    /// Fetches from the database all the movements between the two dates _from and _to.
+    /// The movements are then grouped in days using the object MovementsPerDay.
+    /// It returns a list of MovementsPerDay object, containing at least 1 movement.
     List<Movement> _movements = await database.getAllMovementsInInterval(_from, _to);
     var movementsGroups = groupBy(_movements, (movement) => movement.date);
     List<MovementsPerDay> movementsPerDay = List();
@@ -44,7 +49,7 @@ class MovementsPageState extends State<MovementsPage> {
   void initState() {
     super.initState();
 
-    // get movements given a range
+    // TODO: change the hard-coded date
     DateTime _from = DateTime.parse("2020-05-01 00:01:00");
     DateTime _to = DateTime.parse("2020-06-01 00:00:00");
     getMovementsDaysDateTime(_from, _to).then((movementsDay) => {
@@ -53,6 +58,7 @@ class MovementsPageState extends State<MovementsPage> {
   }
 
   Widget _buildDays() {
+    /// Creates the list-view of MovementsGroup cards
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -63,34 +69,8 @@ class MovementsPageState extends State<MovementsPage> {
       });
   }
 
-  showAlertDialog(BuildContext context) {
-    // set up the button
-    Widget okButton = FlatButton(
-      child: Text("OK"),
-      onPressed: () => Navigator.of(context).pop() // dismiss dialog,
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("My title".i18n),
-      content: Text("This is my message.".i18n),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
-  // TODO why do you make the transition from on screen to the other async? the cookbook (https://flutter.dev/docs/cookbook/navigation/navigation-basics) does not mention it
-  navigateToAddNewMovementPage() async {
-    await Navigator.push(
+  navigateToAddNewMovementPage() {
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditMovementPage()),
     );

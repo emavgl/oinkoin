@@ -10,6 +10,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class EditCategoryPage extends StatefulWidget {
 
+  /// EditCategoryPage is a page containing forms for the editing of a Category object.
+  /// EditCategoryPage can take the category object to edit as a constructor parameters
+  /// or can create a new Category otherwise.
+  
   Category passedCategory;
   int categoryType;
 
@@ -27,8 +31,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   EditCategoryPageState(this.passedCategory, this.categoryType);
 
-  int chosenColorIndex;
-  int chosenIconIndex;
+
+  int chosenColorIndex; // Index of the Category.color list for showing the selected color in the list
+  int chosenIconIndex; // Index of the Category.icons list for showing the selected color in the list
 
   DatabaseService database = new InMemoryDatabase();
 

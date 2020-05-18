@@ -7,6 +7,10 @@ import 'database-service.dart';
 
 class InMemoryDatabase implements DatabaseService {
 
+    /// InMemoryDatabase is an implementation of DatabaseService that runs in memory.
+    /// All this methods are implemented using operations on Lists.
+    /// InMemoryDatabase is intended for debug/testing purposes.
+
     static List<Category> _categories = [
         Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: 0, id: 1),
         Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: 0, id: 2),

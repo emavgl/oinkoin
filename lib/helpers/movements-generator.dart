@@ -4,6 +4,9 @@ import 'package:piggybank/models/category.dart';
 
 class MovementsGenerator {
 
+  /// Methods for creating random Movements from a set of pre-defined data.
+  /// Used in unit-tests.
+
   static Random random = new Random();
   static var descriptions = ["Car", "Burritos", "Book", "Groceries", "Coffee", "Dinner"];
   static var tags = [Category("Shopping"), Category("Food"), Category("Gift"), Category("Fun"), Category("Rent")];
