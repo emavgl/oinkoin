@@ -1,4 +1,6 @@
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -18,10 +20,11 @@ class EditMovementPage extends StatefulWidget {
   /// or can create a new Movement otherwise.
 
   Movement passedMovement;
-  EditMovementPage({Key key, this.passedMovement}) : super(key: key);
+  Category passedCategory;
+  EditMovementPage({Key key, this.passedMovement, this.passedCategory}) : super(key: key);
 
   @override
-  EditMovementPageState createState() => EditMovementPageState();
+  EditMovementPageState createState() => EditMovementPageState(this.passedMovement, this.passedCategory);
 }
 
 class EditMovementPageState extends State<EditMovementPage> {
@@ -30,10 +33,19 @@ class EditMovementPageState extends State<EditMovementPage> {
   final _formKey = GlobalKey<FormState>();
   Movement movement;
 
+  Movement passedMovement;
+  Category passedCategory;
+
+  EditMovementPageState(this.passedMovement, this.passedCategory);
+
   @override
   void initState() {
     super.initState();
-    movement = new Movement(null, null, null, DateTime.now());
+    if (passedMovement != null) {
+      movement = passedMovement;
+    } else {
+      movement = new Movement(null, null, passedCategory, DateTime.now());
+    }
   }
 
   Widget _createCategoryCirclePreview() {

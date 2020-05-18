@@ -4,6 +4,7 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/movements/days-summary-box-card.dart';
 import 'package:piggybank/models/movements-per-day.dart';
@@ -72,7 +73,7 @@ class MovementsPageState extends State<MovementsPage> {
   navigateToAddNewMovementPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => EditMovementPage()),
+      MaterialPageRoute(builder: (context) => CategoryTabPageView()),
     );
   }
 
