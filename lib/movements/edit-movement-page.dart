@@ -113,7 +113,6 @@ class EditMovementPageState extends State<EditMovementPage> {
       await database.updateMovementById(movement.id, movement);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
-    //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => MovementsPage()));
   }
 
   Widget _getAppBar() {

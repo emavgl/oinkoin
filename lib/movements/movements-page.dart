@@ -72,7 +72,7 @@ class MovementsPageState extends State<MovementsPage> {
   }
 
   navigateToAddNewMovementPage() async {
-    bool returnValue = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CategoryTabPageView()),
     );
