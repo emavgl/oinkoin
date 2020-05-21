@@ -23,6 +23,7 @@ abstract class DatabaseService {
 
     Future<Movement> getMovementById(int id);
     Future<int> addMovement(Movement movement);
+    Future<int> updateMovementById(int movementId, Movement newMovement);
     Future<List<Movement>> getAllMovements();
     Future<List<Movement>> getAllMovementsInInterval(DateTime from, DateTime to);
 }

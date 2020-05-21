@@ -8,8 +8,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/movements/movements-page.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
+import '../shell.dart';
 import '../style.dart';
 import './i18n/edit-movement-page.i18n.dart';
 
@@ -104,6 +106,16 @@ class EditMovementPageState extends State<EditMovementPage> {
     return new DateFormat("EEEE d.M.y").format(targetDate);
   }
 
+  saveMovement() async {
+    if (movement.id == null) {
+      await database.addMovement(movement);
+    } else {
+      await database.updateMovementById(movement.id, movement);
+    }
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => MovementsPage()));
+  }
+
   Widget _getAppBar() {
     return AppBar(
         title: Text('Edit movement'.i18n),
@@ -117,7 +129,11 @@ class EditMovementPageState extends State<EditMovementPage> {
           ),
           IconButton(
               icon: const Icon(Icons.save),
-              tooltip: 'Save', onPressed: () {}
+              tooltip: 'Save', onPressed: () async {
+                if (_formKey.currentState.validate()) {
+                  await saveMovement();
+                }
+              }
           )]
     );
   }
@@ -143,9 +159,20 @@ class EditMovementPageState extends State<EditMovementPage> {
                     child: TextFormField(
                         keyboardType: TextInputType.number,
                         onChanged: (text) {
-                          setState(() {
-                            movement.description = text;
-                          });
+                          var numericValue = double.tryParse(text);
+                          if (numericValue != null) {
+                            movement.value = numericValue;
+                          }
+                        },
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return "Please enter a value";
+                          }
+                          var numericValue = double.tryParse(value);
+                          if (numericValue == null) {
+                            return "Please enter a numeric value";
+                          }
+                          return null;
                         },
                         initialValue: movement.description,
                         style: TextStyle(
@@ -155,7 +182,10 @@ class EditMovementPageState extends State<EditMovementPage> {
                         decoration: InputDecoration(
                             hintText: "42",
                             labelText: 'Value',
-                            border: OutlineInputBorder()
+                            border: OutlineInputBorder(),
+                            errorStyle: TextStyle(
+                              fontSize: 16.0,
+                            ),
                         )),
                   )
                 ],
@@ -187,7 +217,8 @@ class EditMovementPageState extends State<EditMovementPage> {
                     borderSide: BorderSide(color: Colors.grey, width: 0),
                   ))
               ],),
-              _getFormLabel("How?", topMargin: 30.0),
+              // _getFormLabel("How?", topMargin: 30.0),
+/*
               Row(
                 children: [
                   Expanded(
@@ -211,6 +242,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                   )
                 ],
               ),
+*/
             ]
         ),
       )

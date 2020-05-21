@@ -109,4 +109,14 @@ class InMemoryDatabase implements DatabaseService {
       return (matching.isEmpty) ? Future<Movement>.value(null): Future<Movement>.value(matching[0]);
     }
 
+    @override
+    Future<int> updateMovementById(int movementId, Movement newMovement) async {
+      var movementWithTheSameId = await getMovementById(movementId);
+      if (movementWithTheSameId == null) {
+          throw Exception("Movement ID `$movementId` does not exists.");
+      }
+      _movements[_movements.indexOf(movementWithTheSameId)] = newMovement;
+      return movementId;
+    }
+
 }

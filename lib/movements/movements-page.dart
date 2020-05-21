@@ -1,4 +1,5 @@
 
+import 'dart:collection';
 import 'dart:core';
 import 'dart:core';
 import 'dart:ui';
@@ -33,26 +34,26 @@ class MovementsPageState extends State<MovementsPage> {
     /// It returns a list of MovementsPerDay object, containing at least 1 movement.
     List<Movement> _movements = await database.getAllMovementsInInterval(_from, _to);
     var movementsGroups = groupBy(_movements, (movement) => movement.date);
-    List<MovementsPerDay> movementsPerDay = List();
+    Queue<MovementsPerDay> movementsPerDay = Queue();
     movementsGroups.forEach((k, groupedMovements) {
       if (groupedMovements.isNotEmpty) {
         DateTime groupedDay = groupedMovements[0].dateTime;
-        movementsPerDay.add(new MovementsPerDay(groupedDay, movements: groupedMovements));
+        movementsPerDay.addFirst(new MovementsPerDay(groupedDay, movements: groupedMovements));
       }
     });
-    return movementsPerDay;
+    return movementsPerDay.toList();
   }
 
   List<MovementsPerDay> _daysShown = new List();
   DatabaseService database = new InMemoryDatabase();
 
+  // TODO: change the hard-coded date
+  DateTime _from = DateTime.parse("2020-05-01 00:01:00");
+  DateTime _to = DateTime.parse("2020-06-01 00:00:00");
+
   @override
   void initState() {
     super.initState();
-
-    // TODO: change the hard-coded date
-    DateTime _from = DateTime.parse("2020-05-01 00:01:00");
-    DateTime _to = DateTime.parse("2020-06-01 00:00:00");
     getMovementsDaysDateTime(_from, _to).then((movementsDay) => {
       _daysShown = movementsDay
     });
@@ -70,11 +71,15 @@ class MovementsPageState extends State<MovementsPage> {
       });
   }
 
-  navigateToAddNewMovementPage() {
-    Navigator.push(
+  navigateToAddNewMovementPage() async {
+    bool returnValue = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CategoryTabPageView()),
     );
+    var newMovements = await getMovementsDaysDateTime(_from, _to);
+    setState(() {
+      _daysShown = newMovements;
+    });
   }
 
   navigateToStatisticsPage() {

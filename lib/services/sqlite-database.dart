@@ -203,4 +203,10 @@ class SqliteDatabase implements DatabaseService {
         });
     }
 
+  @override
+  Future<int> updateMovementById(int movementId, Movement newMovement) {
+    // TODO: implement updateMovementById
+    throw UnimplementedError();
+  }
+
 }
