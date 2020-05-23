@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:piggybank/categories/categories-tab-page.dart';
 import 'package:piggybank/settings/settings-page.dart';
 
+import 'categories/categories-tab-page-edit.dart';
 import 'i18n/shell.i18n.dart';
 
 import 'movements/movements-page.dart';
@@ -33,7 +33,7 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoryTabPage()),
+              child: new MaterialApp(home: new CategoryTabPageEdit()),
             ),
           ),
             new Offstage(

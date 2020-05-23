@@ -72,12 +72,10 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
@@ -89,7 +87,6 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
             tabs: [
               Tab(text: "Expenses",),
               Tab(text: "Income",),
-              Tab(text: "Tags",),
             ],
           ),
           title: Text('Categories'),
@@ -98,7 +95,6 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
           children: [
             CategoriesList(key: _expensesCategoryKey,categoryType: 0),
             CategoriesList(key: _incomingCategoryKey, categoryType: 1),
-            Icon(Icons.directions_bike),
           ],
         ),
         floatingActionButton: FloatingActionButton(
