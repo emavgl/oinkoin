@@ -67,19 +67,23 @@ class MovementsPageState extends State<MovementsPage> {
       itemCount: _daysShown.length,
       padding: const EdgeInsets.all(6.0),
       itemBuilder: /*1*/ (context, i) {
-        return MovementsGroupCard(_daysShown[i]);
+        return MovementsGroupCard(_daysShown[i], refreshList);
       });
+  }
+
+  refreshList() async {
+    var newMovements = await getMovementsDaysDateTime(_from, _to);
+    setState(() {
+      _daysShown = newMovements;
+    });
   }
 
   navigateToAddNewMovementPage() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CategoryTabPageView()),
+      MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true,)),
     );
-    var newMovements = await getMovementsDaysDateTime(_from, _to);
-    setState(() {
-      _daysShown = newMovements;
-    });
+    await refreshList();
   }
 
   navigateToStatisticsPage() {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/models/movements-per-day.dart';
 import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/movements/edit-movement-page.dart';
 import 'package:piggybank/services/inmemory-database.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import './i18n/movements-group-card.i18n.dart';
@@ -13,8 +14,9 @@ class MovementsGroupCard extends StatefulWidget {
   /// The card contains an header with date and the balance of the day
   /// and a body, containing the list of movements included in the MovementsPerDay object
 
+  final Function refreshParentMovementList;
   final MovementsPerDay _movementDay;
-  const MovementsGroupCard(this._movementDay);
+  const MovementsGroupCard(this._movementDay, this.refreshParentMovementList);
 
   @override
   MovementGroupState createState() => MovementGroupState();
@@ -42,6 +44,15 @@ class MovementGroupState extends State<MovementsGroupCard> {
   Widget _buildMovementRow(Movement movement) {
     /// Returns a ListTile rendering the single movement row
     return ListTile(
+        onTap: () async {
+          await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => EditMovementPage(passedMovement: movement,)
+              )
+          );
+          await widget.refreshParentMovementList();
+        },
         title: Text(
           movement.description,
           style: _biggerFont,

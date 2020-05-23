@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/movements/edit-movement-page.dart';
@@ -15,10 +16,15 @@ import '../movements/movements-group-card.dart';
 class CategoriesGrid extends StatefulWidget {
 
   /// CategoriesGrid fetches the categories of a given Category type
-  /// and renders them using a GridView.
+  /// and renders them using a GridView. By default, it returns the
+  /// selected category. If you pass the parameter goToEditMovementPage=true
+  /// when selecting a category, it will go to EditMovementPage.
 
   int categoryType;
-  CategoriesGrid({Key key, this.categoryType}) : super(key: key);
+  bool goToEditMovementPage;
+
+  CategoriesGrid({Key key, this.categoryType, this.goToEditMovementPage=false})
+      : super(key: key);
 
   @override
   CategoriesGridState createState() => CategoriesGridState(categoryType);
@@ -47,8 +53,6 @@ class CategoriesGridState extends State<CategoriesGrid> {
     fetchCategories();
   }
 
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-
   Widget _buildCategories() {
     return GridView.count(
         crossAxisCount: 4,
@@ -62,13 +66,18 @@ class CategoriesGridState extends State<CategoriesGrid> {
   Widget _buildCategory(Category category) {
     return InkWell(
         onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    EditMovementPage(passedCategory: category)),
-          );
-          await fetchCategories();
+          if (widget.goToEditMovementPage != null && widget.goToEditMovementPage) {
+            // navigate to EditMovementPage
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditMovementPage(passedCategory: category)
+                )
+            );
+          } else {
+            // navigate back to the caller, passing the selected Category
+            Navigator.pop(context, category);
+          }
         },
         child: Padding(
           padding: EdgeInsets.all(15),

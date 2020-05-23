@@ -18,6 +18,10 @@ class CategoryTabPageView extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
+  bool goToEditMovementPage;
+  CategoryTabPageView({Key key, this.goToEditMovementPage=false})
+      : super(key: key);
+
   @override
   CategoryTabPageViewState createState() => CategoryTabPageViewState();
 }
@@ -64,8 +68,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         ),
         body: TabBarView(
           children: [
-            CategoriesGrid(key: _expensesCategoryKey,categoryType: 0),
-            CategoriesGrid(key: _incomingCategoryKey, categoryType: 1),
+            CategoriesGrid(key: _expensesCategoryKey,categoryType: 0, goToEditMovementPage: widget.goToEditMovementPage,),
+            CategoriesGrid(key: _incomingCategoryKey, categoryType: 1, goToEditMovementPage: widget.goToEditMovementPage,),
           ],
         ),
       ),

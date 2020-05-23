@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/movements/movements-page.dart';
@@ -63,7 +64,15 @@ class EditMovementPageState extends State<EditMovementPage> {
                   child: SizedBox(width: 70, height: 70,
                     child: Icon(toRender.icon, color: Colors.white, size: 30,),
                   ),
-                  onTap: () {},
+                  onTap: () async {
+                    var selectedCategory = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CategoryTabPageView()),
+                    );
+                    setState(() {
+                      movement.category = selectedCategory;
+                    });
+                  },
                 )
             )
         )
@@ -160,6 +169,11 @@ class EditMovementPageState extends State<EditMovementPage> {
                         onChanged: (text) {
                           var numericValue = double.tryParse(text);
                           if (numericValue != null) {
+                            numericValue = numericValue.abs();
+                            if (movement.category.categoryType == 0) {
+                              // value is an expenses, needs to be negative
+                              numericValue = numericValue * -1;
+                            }
                             movement.value = numericValue;
                           }
                         },
@@ -173,7 +187,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                           }
                           return null;
                         },
-                        initialValue: movement.description,
+                        initialValue: movement.value.abs().toString(),
                         style: TextStyle(
                             fontSize: 22.0,
                             color: Colors.black
