@@ -48,7 +48,7 @@ class EditMovementPageState extends State<EditMovementPage> {
     if (passedMovement != null) {
       movement = passedMovement;
     } else {
-      movement = new Movement(null, null, passedCategory, DateTime.now());
+      movement = new Movement(null, passedCategory.name, passedCategory, DateTime.now());
     }
   }
 
