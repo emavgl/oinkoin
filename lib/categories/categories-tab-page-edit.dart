@@ -6,7 +6,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/categories/categories-list.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
-import './i18n/categories-page.i18n.dart';
+import './i18n/categories-tab-page.i18n.dart';
 
 import '../movements/movements-group-card.dart';
 
@@ -85,11 +85,11 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
               });
             },
             tabs: [
-              Tab(text: "Expenses",),
-              Tab(text: "Income",),
+              Tab(text: "Expenses".i18n,),
+              Tab(text: "Income".i18n,),
             ],
           ),
-          title: Text('Categories'),
+          title: Text('Categories'.i18n),
         ),
         body: TabBarView(
           children: [

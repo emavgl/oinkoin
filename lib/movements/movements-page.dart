@@ -5,6 +5,7 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/models/movement.dart';
@@ -49,20 +50,30 @@ class MovementsPageState extends State<MovementsPage> {
     _from = new DateTime(year, month, 1);
     DateTime lastDayOfMonths = (_from.month < 12) ? new DateTime(_from.year, _from.month + 1, 0) : new DateTime(_from.year + 1, 1, 0);
     _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
-    _header = extractHeaderRepresentation(_from);
     return getMovementsDaysDateTime(_from, _to);
   }
 
   String extractHeaderRepresentation(DateTime dateTime) {
-    String localeRepr = DateFormat.yMMMM(Intl.getCurrentLocale()).format(dateTime);
+    Locale myLocale = I18n.locale;
+    String localeRepr = DateFormat.yMMMM(myLocale.languageCode).format(dateTime);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    DateTime _now = DateTime.now();
+    String headerRepresentation = extractHeaderRepresentation(_now);
+    setState(() {
+      _header = headerRepresentation;
+    });
   }
 
   List<MovementsPerDay> _daysShown = new List();
   DatabaseService database = new InMemoryDatabase();
   DateTime _from;
   DateTime _to;
-  String _header;
+  String _header = DateFormat.yMMMM().format(DateTime.now());
 
   @override
   void initState() {

@@ -5,7 +5,7 @@ extension Localization on String {
   static var _translations = Translations("en_us") +
       {
         "en_us": "Home",
-        "it_it": "Principale",
+        "it_it": "Movimenti",
         "es_es": "Principal",
         "fr_fr": "Principal",
         "de_de": "TODO",

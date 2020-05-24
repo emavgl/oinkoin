@@ -201,7 +201,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                           }
                           return null;
                         },
-                        initialValue: movement.value.abs().toString(),
+                        initialValue: movement.value != null ? movement.value.abs().toString() : "",
                         style: TextStyle(
                             fontSize: 22.0,
                             color: Colors.black
