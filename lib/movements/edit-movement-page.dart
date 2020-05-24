@@ -70,9 +70,11 @@ class EditMovementPageState extends State<EditMovementPage> {
                       context,
                       MaterialPageRoute(builder: (context) => CategoryTabPageView()),
                     );
-                    setState(() {
-                      movement.category = selectedCategory;
-                    });
+                    if (selectedCategory != null) {
+                      setState(() {
+                        movement.category = selectedCategory;
+                      });
+                    }
                   },
                 )
             )
