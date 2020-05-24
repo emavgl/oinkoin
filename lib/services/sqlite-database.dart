@@ -169,7 +169,7 @@ class SqliteDatabase implements DatabaseService {
       }
 
       @override
-      void deleteCategoryById(int id) {
+      Future<void> deleteCategoryById(int id) {
         // TODO: implement deleteCategoryById
       }
 
@@ -206,6 +206,12 @@ class SqliteDatabase implements DatabaseService {
   @override
   Future<int> updateMovementById(int movementId, Movement newMovement) {
     // TODO: implement updateMovementById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteMovementById(int id) {
+    // TODO: implement deleteMovementById
     throw UnimplementedError();
   }
 

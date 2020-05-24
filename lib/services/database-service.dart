@@ -18,10 +18,11 @@ abstract class DatabaseService {
     Future<Category> getCategoryByName(String categoryName);
     Future<int> addCategoryIfNotExists(Category category);
     Future<List<Category>> getCategoriesByType(int categoryType);
-    void deleteCategoryById(int id);
+    Future<void> deleteCategoryById(int id);
     Future<int> upsertCategory(Category category);
 
     Future<Movement> getMovementById(int id);
+    Future<void> deleteMovementById(int id);
     Future<int> addMovement(Movement movement);
     Future<int> updateMovementById(int movementId, Movement newMovement);
     Future<List<Movement>> getAllMovements();

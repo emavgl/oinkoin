@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
+import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/movements/movements-page.dart';
@@ -132,7 +133,20 @@ class EditMovementPageState extends State<EditMovementPage> {
               visible: widget.passedMovement != null,
               child: IconButton(
                 icon: const Icon(Icons.delete),
-                tooltip: 'Delete', onPressed: () {}
+                tooltip: 'Delete', onPressed: () async {
+                  AlertDialogBuilder deleteDialog = AlertDialogBuilder("Do you really want to delete this record?")
+                      .addTrueButtonName("Yes")
+                      .addFalseButtonName("No");
+
+                  var continueDelete = await showDialog(context: context, builder: (BuildContext context) {
+                    return deleteDialog.build(context);
+                  });
+
+                  if (continueDelete) {
+                      await database.deleteMovementById(movement.id);
+                      Navigator.pop(context);
+                  }
+                }
               )
           ),
           IconButton(

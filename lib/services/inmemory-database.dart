@@ -69,7 +69,7 @@ class InMemoryDatabase implements DatabaseService {
         return Future<int>.value(category.id);
     }
 
-    void deleteCategoryById(int categoryId) async {
+    Future<void> deleteCategoryById(int categoryId) async {
         _categories.removeWhere((x) => x.id == categoryId);
     }
 
@@ -117,6 +117,11 @@ class InMemoryDatabase implements DatabaseService {
       }
       _movements[_movements.indexOf(movementWithTheSameId)] = newMovement;
       return movementId;
+    }
+
+    @override
+    Future<void> deleteMovementById(int id) {
+      _movements.removeWhere((x) => x.id == id);
     }
 
 }
