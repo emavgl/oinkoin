@@ -5,6 +5,7 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/models/movement.dart';
 import 'package:piggybank/movements/days-summary-box-card.dart';
@@ -44,17 +45,30 @@ class MovementsPageState extends State<MovementsPage> {
     return movementsPerDay.toList();
   }
 
+  Future<List<MovementsPerDay>> getMovementsByMonth(int year, int month) async {
+    _from = new DateTime(year, month, 1);
+    DateTime lastDayOfMonths = (_from.month < 12) ? new DateTime(_from.year, _from.month + 1, 0) : new DateTime(_from.year + 1, 1, 0);
+    _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
+    _header = extractHeaderRepresentation(_from);
+    return getMovementsDaysDateTime(_from, _to);
+  }
+
+  String extractHeaderRepresentation(DateTime dateTime) {
+    String localeRepr = DateFormat.yMMMM(Intl.getCurrentLocale()).format(dateTime);
+    return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
+  }
+
   List<MovementsPerDay> _daysShown = new List();
   DatabaseService database = new InMemoryDatabase();
-
-  // TODO: change the hard-coded date
-  DateTime _from = DateTime.parse("2020-05-01 00:01:00");
-  DateTime _to = DateTime.parse("2020-06-01 00:00:00");
+  DateTime _from;
+  DateTime _to;
+  String _header;
 
   @override
   void initState() {
     super.initState();
-    getMovementsDaysDateTime(_from, _to).then((movementsDay) => {
+    DateTime _now = DateTime.now();
+    getMovementsByMonth(_now.year, _now.month).then((movementsDay) => {
       _daysShown = movementsDay
     });
   }
@@ -116,7 +130,7 @@ class MovementsPageState extends State<MovementsPage> {
               ],
               centerTitle: false,
               titlePadding: EdgeInsets.all(15),
-              title: Text('May'.i18n + ' 2020', style: TextStyle(color: Colors.white)),
+              title: Text(_header, style: TextStyle(color: Colors.white)),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
                   child: Container(
