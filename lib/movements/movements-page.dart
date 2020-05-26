@@ -47,44 +47,38 @@ class MovementsPageState extends State<MovementsPage> {
   }
 
   Future<List<MovementsPerDay>> getMovementsByMonth(int year, int month) async {
+    /// Returns the list of movements of a given month identified by
+    /// :year and :month integers.
     _from = new DateTime(year, month, 1);
     DateTime lastDayOfMonths = (_from.month < 12) ? new DateTime(_from.year, _from.month + 1, 0) : new DateTime(_from.year + 1, 1, 0);
     _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
-    return getMovementsDaysDateTime(_from, _to);
+    return await getMovementsDaysDateTime(_from, _to);
   }
 
-  String extractHeaderRepresentation(DateTime dateTime) {
+  String getMonthHeader(DateTime dateTime) {
+    /// Returns the header string identifying the current visualised month.
     Locale myLocale = I18n.locale;
     String localeRepr = DateFormat.yMMMM(myLocale.languageCode).format(dateTime);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    DateTime _now = DateTime.now();
-    String headerRepresentation = extractHeaderRepresentation(_now);
-    setState(() {
-      _header = headerRepresentation;
-    });
   }
 
   List<MovementsPerDay> _daysShown = new List();
   DatabaseService database = new InMemoryDatabase();
   DateTime _from;
   DateTime _to;
-  String _header = DateFormat.yMMMM().format(DateTime.now());
+  String _header;
 
   @override
   void initState() {
     super.initState();
     DateTime _now = DateTime.now();
+    _header = getMonthHeader(_now);
     getMovementsByMonth(_now.year, _now.month).then((movementsDay) => {
       _daysShown = movementsDay
     });
   }
 
-  Widget _buildDays() {
+  Widget _buildDaysList() {
     /// Creates the list-view of MovementsGroup cards
     return ListView.builder(
       shrinkWrap: true,
@@ -92,11 +86,14 @@ class MovementsPageState extends State<MovementsPage> {
       itemCount: _daysShown.length,
       padding: const EdgeInsets.all(6.0),
       itemBuilder: /*1*/ (context, i) {
-        return MovementsGroupCard(_daysShown[i], refreshList);
+        return MovementsGroupCard(_daysShown[i], fetchMovementsFromDb);
       });
   }
 
-  refreshList() async {
+  fetchMovementsFromDb() async {
+    /// Refetch the list of movements in the selected range
+    /// from the database. We call this method all the times we land back to
+    /// this page after have visited the page add-movement.
     var newMovements = await getMovementsDaysDateTime(_from, _to);
     setState(() {
       _daysShown = newMovements;
@@ -104,14 +101,17 @@ class MovementsPageState extends State<MovementsPage> {
   }
 
   navigateToAddNewMovementPage() async {
+    /// Navigate to CategoryTabPageView (first step for adding new movement)
+    /// Refetch the movements from db where it returns.
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true,)),
     );
-    await refreshList();
+    await fetchMovementsFromDb();
   }
 
   navigateToStatisticsPage() {
+    /// Navigate to the Statistics Page
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => StatisticsPage()),
@@ -166,7 +166,7 @@ class MovementsPageState extends State<MovementsPage> {
                   ),
                   Divider(indent: 50, endIndent: 50),
                   Container(
-                    child: _buildDays(),
+                    child: _buildDaysList(),
                   )
                 ],
               ),

@@ -10,6 +10,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import './i18n/movements-group-card.i18n.dart';
 
 class MovementsGroupCard extends StatefulWidget {
+
   /// MovementsGroupCard renders a MovementPerDay object as a Card
   /// The card contains an header with date and the balance of the day
   /// and a body, containing the list of movements included in the MovementsPerDay object

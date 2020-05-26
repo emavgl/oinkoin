@@ -10,10 +10,8 @@ import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/movements/movements-page.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
-import '../shell.dart';
 import '../style.dart';
 import './i18n/edit-movement-page.i18n.dart';
 
