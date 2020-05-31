@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
@@ -85,6 +86,60 @@ class RecordsPageState extends State<RecordsPage> {
       });
   }
 
+  Future<void> _showSelectDateDialog() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return selectDateDialog();
+        });
+  }
+
+  selectDateDialog() {
+    return SimpleDialog(
+        title: const Text('Shows records per'),
+        children: <Widget>[
+          SimpleDialogOption(
+            onPressed: () { print("Selezionato del mese"); },
+            child: ListTile(
+              title: Text("Month"),
+              leading: Container(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  FontAwesomeIcons.calendarAlt,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).accentColor,
+              )),
+            )
+          ),
+          SimpleDialogOption(
+          onPressed: () {},
+          child: ListTile(
+            title: Text("Date Range"),
+            subtitle: Text("For Premium user only"),
+            enabled: false,
+            leading: Container(
+              width: 40,
+              height: 40,
+              child: Icon(
+              FontAwesomeIcons.calendarWeek,
+              size: 20,
+              color: Colors.white,
+              ),
+              decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).accentColor,
+              )),
+            )
+          ),
+        ],
+      );
+  }
+
   fetchMovementsFromDb() async {
     /// Refetch the list of movements in the selected range
     /// from the database. We call this method all the times we land back to
@@ -122,7 +177,7 @@ class RecordsPageState extends State<RecordsPage> {
             elevation: 0,
             backgroundColor: Theme.of(context).primaryColor,
             actions: <Widget>[
-              IconButton(icon: Icon(Icons.calendar_today), onPressed: (){}, color: Colors.white),
+              IconButton(icon: Icon(Icons.calendar_today), onPressed: () async => await _showSelectDateDialog(), color: Colors.white),
               IconButton(icon: Icon(Icons.donut_small), onPressed: () => navigateToStatisticsPage(), color: Colors.white),
               IconButton(icon: Icon(Icons.filter_list), onPressed: (){}, color: Colors.white)
             ],
