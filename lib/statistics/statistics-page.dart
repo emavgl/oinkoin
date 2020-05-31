@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/sqlite-database.dart';
 import './i18n/statistics-page.i18n.dart';
 
@@ -28,8 +28,8 @@ class StatisticsPage extends StatefulWidget {
 
 class StatisticsPageState extends State<StatisticsPage> {
   int indexTab;
-  List<Movement> incomeMovements;
-  List<Movement> expensesMovements;
+  List<Record> incomeMovements;
+  List<Record> expensesMovements;
 
   @override
   void initState() {
@@ -46,8 +46,8 @@ class StatisticsPageState extends State<StatisticsPage> {
       incomeMovements.clear();
       expensesMovements.clear();
 
-      List<Movement> movementsForStatistics = await SqliteDatabase.instance
-          .getAllMovementsInInterval(widget.startingDate, widget.endingDate);
+      List<Record> movementsForStatistics = await SqliteDatabase.instance
+          .getAllRecordsInInterval(widget.startingDate, widget.endingDate);
 
       movementsForStatistics.forEach((movement) => () {
             if (movement.value > 0)

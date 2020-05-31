@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:piggybank/helpers/records-generator.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/sqlite-database.dart';
-import 'package:piggybank/helpers/movements-generator.dart';
 import 'dart:ui';
 
 
@@ -38,9 +38,9 @@ main() {
 
     test('fetch one movement', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      Movement movement = MovementsGenerator.getRandomMovement(DateTime.now());
-      await SqliteDatabase.instance.addMovement(movement);
-      Movement retrievedMovement = await SqliteDatabase.instance.getMovementById(1);
+      Record movement = RecordsGenerator.getRandomRecord(DateTime.now());
+      await SqliteDatabase.instance.addRecord(movement);
+      Record retrievedMovement = await SqliteDatabase.instance.getRecordById(1);
       expect(retrievedMovement.value, movement.value);
       expect(retrievedMovement.dateTime.millisecondsSinceEpoch, movement.dateTime.millisecondsSinceEpoch);
       expect(retrievedMovement.id, 1);
@@ -48,26 +48,26 @@ main() {
 
     test('fetch multiple movements', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      Movement movement = MovementsGenerator.getRandomMovement(DateTime.now());
-      Movement movement2 = MovementsGenerator.getRandomMovement(DateTime.now().add(Duration(seconds: 5)));
-      await SqliteDatabase.instance.addMovement(movement);
-      await SqliteDatabase.instance.addMovement(movement2);
-      List<Movement> retrievedMovements = await SqliteDatabase.instance.getAllMovements();
+      Record movement = RecordsGenerator.getRandomRecord(DateTime.now());
+      Record movement2 = RecordsGenerator.getRandomRecord(DateTime.now().add(Duration(seconds: 5)));
+      await SqliteDatabase.instance.addRecord(movement);
+      await SqliteDatabase.instance.addRecord(movement2);
+      List<Record> retrievedMovements = await SqliteDatabase.instance.getAllRecords();
       expect(retrievedMovements.length, 2);
     });
 
 
     test('fetch multiple with Interval', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      Movement movement = MovementsGenerator.getRandomMovement(DateTime.parse("2020-04-10 13:00:00"));
-      Movement movement2 = MovementsGenerator.getRandomMovement(DateTime.parse("2020-04-12 13:00:00"));
-      Movement movement3 = MovementsGenerator.getRandomMovement(DateTime.parse("2020-05-10 13:00:00"));
-      int movementId1 = await SqliteDatabase.instance.addMovement(movement);
-      int movementId2 = await SqliteDatabase.instance.addMovement(movement2);
-      int movementId3 = await SqliteDatabase.instance.addMovement(movement3);
+      Record movement = RecordsGenerator.getRandomRecord(DateTime.parse("2020-04-10 13:00:00"));
+      Record movement2 = RecordsGenerator.getRandomRecord(DateTime.parse("2020-04-12 13:00:00"));
+      Record movement3 = RecordsGenerator.getRandomRecord(DateTime.parse("2020-05-10 13:00:00"));
+      int movementId1 = await SqliteDatabase.instance.addRecord(movement);
+      int movementId2 = await SqliteDatabase.instance.addRecord(movement2);
+      int movementId3 = await SqliteDatabase.instance.addRecord(movement3);
       DateTime from = DateTime.parse("2020-04-01 00:00:00");
       DateTime to = DateTime.parse("2020-04-30 00:00:00");
-      List<Movement> retrievedMovements = await SqliteDatabase.instance.getAllMovementsInInterval(from, to);
+      List<Record> retrievedMovements = await SqliteDatabase.instance.getAllRecordsInInterval(from, to);
       expect(retrievedMovements.length, 2);
       expect(retrievedMovements[0].id != movementId3, true);
       expect(retrievedMovements[1].id != movementId3, true);

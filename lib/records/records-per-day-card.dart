@@ -2,28 +2,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/movements/edit-movement-page.dart';
-import 'package:piggybank/services/inmemory-database.dart';
-import 'package:intl/date_symbol_data_local.dart';
+import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/records-per-day.dart';
+import 'package:piggybank/records/edit-record-page.dart';
 import './i18n/movements-group-card.i18n.dart';
 
-class MovementsGroupCard extends StatefulWidget {
+class RecordsPerDayCard extends StatefulWidget {
 
-  /// MovementsGroupCard renders a MovementPerDay object as a Card
+  /// RecordsCard renders a MovementPerDay object as a Card
   /// The card contains an header with date and the balance of the day
   /// and a body, containing the list of movements included in the MovementsPerDay object
 
   final Function refreshParentMovementList;
-  final MovementsPerDay _movementDay;
-  const MovementsGroupCard(this._movementDay, this.refreshParentMovementList);
+  final RecordsPerDay _movementDay;
+  const RecordsPerDayCard(this._movementDay, this.refreshParentMovementList);
 
   @override
   MovementGroupState createState() => MovementGroupState();
 }
 
-class MovementGroupState extends State<MovementsGroupCard> {
+class MovementGroupState extends State<RecordsPerDayCard> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final _subtitleFont = const TextStyle(fontSize: 13.0);
 
@@ -32,24 +30,24 @@ class MovementGroupState extends State<MovementsGroupCard> {
     return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: widget._movementDay.movements.length,
+        itemCount: widget._movementDay.records.length,
         separatorBuilder: (context, index) {
           return Divider();
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildMovementRow(widget._movementDay.movements[i]);
+          return _buildMovementRow(widget._movementDay.records[i]);
         });
   }
 
-  Widget _buildMovementRow(Movement movement) {
+  Widget _buildMovementRow(Record movement) {
     /// Returns a ListTile rendering the single movement row
     return ListTile(
         onTap: () async {
           await Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => EditMovementPage(passedMovement: movement,)
+                  builder: (context) => EditRecordPage(passedRecord: movement,)
               )
           );
           await widget.refreshParentMovementList();

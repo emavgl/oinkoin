@@ -1,17 +1,10 @@
-import 'dart:math';
-
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/categories/edit-category-page.dart';
-import 'package:piggybank/movements/edit-movement-page.dart';
+import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
-import './i18n/categories-page.i18n.dart';
 
-import '../movements/movements-group-card.dart';
 
 class CategoriesGrid extends StatefulWidget {
 
@@ -71,7 +64,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => EditMovementPage(passedCategory: category)
+                    builder: (context) => EditRecordPage(passedCategory: category)
                 )
             );
           } else {

@@ -1,14 +1,8 @@
 import 'package:animations/animations.dart';
-import 'package:animations/animations.dart';
-import 'package:animations/animations.dart';
-import 'package:animations/animations.dart';
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/categories/categories-list.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import './i18n/categories-tab-page.i18n.dart';
-
-import '../movements/movements-group-card.dart';
 
 class CategoryTabPageEdit extends StatefulWidget {
 

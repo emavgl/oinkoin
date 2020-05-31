@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:piggybank/models/model.dart';
 import 'package:piggybank/models/category.dart';
 
-class Movement extends Model {
+class Record extends Model {
 
-  /// Represents the Movement object.
-  /// A Movement has:
+  /// Represents the Record object.
+  /// A Record has:
   /// - value: monetary value associated to the movement (can be positive, or negative)
   /// - description: a short description of the movement
   /// - category: a Category object assigned to the movement, describing the type of movement (income, expense)
@@ -17,7 +17,7 @@ class Movement extends Model {
   Category category;
   DateTime dateTime;
 
-  Movement(this.value, this.description, this.category, this.dateTime, {this.id});
+  Record(this.value, this.description, this.category, this.dateTime, {this.id});
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
@@ -31,8 +31,8 @@ class Movement extends Model {
     return map;
   }
 
-  static Movement fromMap(Map<String, dynamic> map) {
-    return Movement(
+  static Record fromMap(Map<String, dynamic> map) {
+    return Record(
       map['value'],
       map['description'],
       map['category'],

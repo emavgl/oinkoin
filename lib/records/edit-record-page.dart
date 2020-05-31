@@ -9,50 +9,50 @@ import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
 import '../style.dart';
 import './i18n/edit-movement-page.i18n.dart';
 
-class EditMovementPage extends StatefulWidget {
+class EditRecordPage extends StatefulWidget {
 
   /// EditMovementPage is a page containing forms for the editing of a Movement object.
   /// EditMovementPage can take the movement object to edit as a constructor parameters
   /// or can create a new Movement otherwise.
 
-  Movement passedMovement;
+  Record passedRecord;
   Category passedCategory;
-  EditMovementPage({Key key, this.passedMovement, this.passedCategory}) : super(key: key);
+  EditRecordPage({Key key, this.passedRecord, this.passedCategory}) : super(key: key);
 
   @override
-  EditMovementPageState createState() => EditMovementPageState(this.passedMovement, this.passedCategory);
+  EditRecordPageState createState() => EditRecordPageState(this.passedRecord, this.passedCategory);
 }
 
-class EditMovementPageState extends State<EditMovementPage> {
+class EditRecordPageState extends State<EditRecordPage> {
 
   DatabaseService database = new InMemoryDatabase();
   final _formKey = GlobalKey<FormState>();
-  Movement movement;
+  Record record;
 
-  Movement passedMovement;
+  Record passedRecord;
   Category passedCategory;
 
-  EditMovementPageState(this.passedMovement, this.passedCategory);
+  EditRecordPageState(this.passedRecord, this.passedCategory);
 
   @override
   void initState() {
     super.initState();
-    if (passedMovement != null) {
-      movement = passedMovement;
+    if (passedRecord != null) {
+      record = passedRecord;
     } else {
-      movement = new Movement(null, passedCategory.name, passedCategory, DateTime.now());
+      record = new Record(null, passedCategory.name, passedCategory, DateTime.now());
     }
   }
 
   Widget _createCategoryCirclePreview() {
     Category defaultCategory = Category("Missing", color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender = (movement.category == null) ? defaultCategory : movement.category;
+    Category toRender = (record.category == null) ? defaultCategory : record.category;
     return Container(
         margin: EdgeInsets.all(10),
         child: ClipOval(
@@ -70,7 +70,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                     );
                     if (selectedCategory != null) {
                       setState(() {
-                        movement.category = selectedCategory;
+                        record.category = selectedCategory;
                       });
                     }
                   },
@@ -87,16 +87,16 @@ class EditMovementPageState extends State<EditMovementPage> {
           child: TextFormField(
               onChanged: (text) {
                 setState(() {
-                  movement.description = text;
+                  record.description = text;
                 });
               },
-              initialValue: movement.description,
+              initialValue: record.description,
               style: TextStyle(
                   fontSize: 22.0,
                   color: Colors.black
               ),
               decoration: InputDecoration(
-                  hintText: "Movement name  (optional)",
+                  hintText: "Record name  (optional)",
                   border: OutlineInputBorder()
               )),
         ));
@@ -116,21 +116,21 @@ class EditMovementPageState extends State<EditMovementPage> {
     return new DateFormat("EEEE d.M.y").format(targetDate);
   }
 
-  saveMovement() async {
-    if (movement.id == null) {
-      await database.addMovement(movement);
+  saveRecord() async {
+    if (record.id == null) {
+      await database.addRecord(record);
     } else {
-      await database.updateMovementById(movement.id, movement);
+      await database.updateRecordById(record.id, record);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   Widget _getAppBar() {
     return AppBar(
-        title: Text('Edit movement'.i18n),
+        title: Text('Edit record'.i18n),
         actions: <Widget>[
           Visibility(
-              visible: widget.passedMovement != null,
+              visible: widget.passedRecord != null,
               child: IconButton(
                 icon: const Icon(Icons.delete),
                 tooltip: 'Delete', onPressed: () async {
@@ -143,7 +143,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                   });
 
                   if (continueDelete) {
-                      await database.deleteMovementById(movement.id);
+                      await database.deleteRecordById(record.id);
                       Navigator.pop(context);
                   }
                 }
@@ -153,7 +153,7 @@ class EditMovementPageState extends State<EditMovementPage> {
               icon: const Icon(Icons.save),
               tooltip: 'Save', onPressed: () async {
                 if (_formKey.currentState.validate()) {
-                  await saveMovement();
+                  await saveRecord();
                 }
               }
           )]
@@ -184,11 +184,11 @@ class EditMovementPageState extends State<EditMovementPage> {
                           var numericValue = double.tryParse(text);
                           if (numericValue != null) {
                             numericValue = numericValue.abs();
-                            if (movement.category.categoryType == 0) {
+                            if (record.category.categoryType == 0) {
                               // value is an expenses, needs to be negative
                               numericValue = numericValue * -1;
                             }
-                            movement.value = numericValue;
+                            record.value = numericValue;
                           }
                         },
                         validator: (value) {
@@ -201,7 +201,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                           }
                           return null;
                         },
-                        initialValue: movement.value != null ? movement.value.abs().toString() : "",
+                        initialValue: record.value != null ? record.value.abs().toString() : "",
                         style: TextStyle(
                             fontSize: 22.0,
                             color: Colors.black
@@ -227,7 +227,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                           firstDate: DateTime(1970), lastDate: DateTime(2050));
                       if (result != null) {
                         setState(() {
-                          movement.dateTime = result;
+                          record.dateTime = result;
                         });
                       }
                     },
@@ -236,7 +236,7 @@ class EditMovementPageState extends State<EditMovementPage> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                        _getHumanReadableDate(movement.dateTime),
+                        _getHumanReadableDate(record.dateTime),
                         style: TextStyle(fontSize: 22),
                       ),
                     ),

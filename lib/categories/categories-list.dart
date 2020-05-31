@@ -1,14 +1,8 @@
-import 'dart:math';
-
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
-import './i18n/categories-page.i18n.dart';
-
-import '../movements/movements-group-card.dart';
 
 class CategoriesList extends StatefulWidget {
 

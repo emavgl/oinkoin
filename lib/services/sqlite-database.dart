@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:ui';
-
 import 'package:path/path.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/models/movements-per-category.dart';
-import 'package:piggybank/models/movements-summary-by-category.dart';
+import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/records-summary-by-category.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -64,7 +60,7 @@ class SqliteDatabase implements DatabaseService {
         return results.isNotEmpty ? Category.fromMap(results[0]) : null;
     }
 
-    Future<Movement> getMovementById(int id) async {
+    Future<Record> getRecordById(int id) async {
         final db = await database;
         var maps = await db.rawQuery("""
             SELECT m.id, m.datetime, m.value, m.description, m.category_id, c.color, c.name
@@ -75,7 +71,7 @@ class SqliteDatabase implements DatabaseService {
         var results = List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);
-            return Movement.fromMap(currentRowMap);
+            return Record.fromMap(currentRowMap);
         });
 
         return results.isNotEmpty ? results[0] : null;
@@ -107,14 +103,14 @@ class SqliteDatabase implements DatabaseService {
         }
     }
 
-    Future<int> addMovement(Movement movement) async {
+    Future<int> addRecord(Record movement) async {
         final db = await database;
         int categoryId = await addCategoryIfNotExists(movement.category);
         movement.category.id = categoryId;
         return await db.insert("movements", movement.toMap());
     }
 
-    Future<List<Movement>> getAllMovements() async {
+    Future<List<Record>> getAllRecords() async {
         final db = await database;
         var maps = await db.rawQuery("""
             SELECT m.id, m.datetime, m.value, m.description, m.category_id, c.color, c.name
@@ -125,12 +121,12 @@ class SqliteDatabase implements DatabaseService {
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);
-            return Movement.fromMap(currentRowMap);
+            return Record.fromMap(currentRowMap);
         });
     }
 
     @override
-    Future<List<Movement>> getAllMovementsInInterval(DateTime from, DateTime to) async {
+    Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to) async {
         final db = await database;
         final from_unix = from.millisecondsSinceEpoch;
         final to_unix = to.millisecondsSinceEpoch;
@@ -145,7 +141,7 @@ class SqliteDatabase implements DatabaseService {
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);
-            return Movement.fromMap(currentRowMap);
+            return Record.fromMap(currentRowMap);
         });
     }
 
@@ -183,7 +179,7 @@ class SqliteDatabase implements DatabaseService {
 
     // TODO Stefano: I'm working on it. The method is to be tested
     @override
-    Future<List<MovementsSummaryPerCategory>> getExpensesInIntervalByCategory(DateTime from, DateTime to) async {
+    Future<List<RecordsSummaryPerCategory>> getExpensesInIntervalByCategory(DateTime from, DateTime to) async {
         final db = await database;
         final from_unix = from.millisecondsSinceEpoch;
         final to_unix = to.millisecondsSinceEpoch;
@@ -199,20 +195,20 @@ class SqliteDatabase implements DatabaseService {
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);
-            return MovementsSummaryPerCategory.fromMap(currentRowMap);
+            return RecordsSummaryPerCategory.fromMap(currentRowMap);
         });
     }
 
-  @override
-  Future<int> updateMovementById(int movementId, Movement newMovement) {
-    // TODO: implement updateMovementById
-    throw UnimplementedError();
-  }
+      @override
+      Future<int> updateRecordById(int movementId, Record newMovement) {
+        // TODO: implement updateMovementById
+        throw UnimplementedError();
+      }
 
-  @override
-  Future<void> deleteMovementById(int id) {
-    // TODO: implement deleteMovementById
-    throw UnimplementedError();
-  }
+      @override
+      Future<void> deleteRecordById(int id) {
+        // TODO: implement deleteMovementById
+        throw UnimplementedError();
+      }
 
 }

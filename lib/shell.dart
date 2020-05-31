@@ -1,11 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/records/records-page.dart';
 import 'package:piggybank/settings/settings-page.dart';
-
 import 'categories/categories-tab-page-edit.dart';
 import 'i18n/shell.i18n.dart';
-
-import 'movements/movements-page.dart';
 
 class Shell extends StatefulWidget {
 
@@ -26,7 +24,7 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 0,
             child: new TickerMode(
             enabled: _currentIndex == 0,
-            child: new MaterialApp(home: new MovementsPage()),
+            child: new MaterialApp(home: new RecordsPage()),
           ),
           ),
           new Offstage(

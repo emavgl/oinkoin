@@ -1,6 +1,4 @@
-
 import 'dart:collection';
-import 'dart:core';
 import 'dart:core';
 import 'dart:ui';
 
@@ -8,45 +6,42 @@ import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
-import 'package:piggybank/models/movement.dart';
-import 'package:piggybank/movements/days-summary-box-card.dart';
-import 'package:piggybank/models/movements-per-day.dart';
-import 'package:piggybank/movements/edit-movement-page.dart';
+import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/records-per-day.dart';
+import 'package:piggybank/records/records-per-day-card.dart';
 import 'package:piggybank/services/database-service.dart';
 import 'package:piggybank/services/inmemory-database.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
-import './i18n/movements-page.i18n.dart';
-
-import 'movements-group-card.dart';
+import 'days-summary-box-card.dart';
 import "package:collection/collection.dart";
 
-class MovementsPage extends StatefulWidget {
+class RecordsPage extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
   /// It contains also buttons for filtering the list of movements and add a new movement.
 
   @override
-  MovementsPageState createState() => MovementsPageState();
+  RecordsPageState createState() => RecordsPageState();
 }
 
-class MovementsPageState extends State<MovementsPage> {
+class RecordsPageState extends State<RecordsPage> {
 
-  Future<List<MovementsPerDay>> getMovementsDaysDateTime(DateTime _from, DateTime _to) async {
+  Future<List<RecordsPerDay>> getMovementsDaysDateTime(DateTime _from, DateTime _to) async {
     /// Fetches from the database all the movements between the two dates _from and _to.
     /// The movements are then grouped in days using the object MovementsPerDay.
     /// It returns a list of MovementsPerDay object, containing at least 1 movement.
-    List<Movement> _movements = await database.getAllMovementsInInterval(_from, _to);
+    List<Record> _movements = await database.getAllRecordsInInterval(_from, _to);
     var movementsGroups = groupBy(_movements, (movement) => movement.date);
-    Queue<MovementsPerDay> movementsPerDay = Queue();
+    Queue<RecordsPerDay> movementsPerDay = Queue();
     movementsGroups.forEach((k, groupedMovements) {
       if (groupedMovements.isNotEmpty) {
         DateTime groupedDay = groupedMovements[0].dateTime;
-        movementsPerDay.addFirst(new MovementsPerDay(groupedDay, movements: groupedMovements));
+        movementsPerDay.addFirst(new RecordsPerDay(groupedDay, records: groupedMovements));
       }
     });
     return movementsPerDay.toList();
   }
 
-  Future<List<MovementsPerDay>> getMovementsByMonth(int year, int month) async {
+  Future<List<RecordsPerDay>> getMovementsByMonth(int year, int month) async {
     /// Returns the list of movements of a given month identified by
     /// :year and :month integers.
     _from = new DateTime(year, month, 1);
@@ -62,7 +57,7 @@ class MovementsPageState extends State<MovementsPage> {
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
   }
 
-  List<MovementsPerDay> _daysShown = new List();
+  List<RecordsPerDay> _daysShown = new List();
   DatabaseService database = new InMemoryDatabase();
   DateTime _from;
   DateTime _to;
@@ -86,7 +81,7 @@ class MovementsPageState extends State<MovementsPage> {
       itemCount: _daysShown.length,
       padding: const EdgeInsets.all(6.0),
       itemBuilder: /*1*/ (context, i) {
-        return MovementsGroupCard(_daysShown[i], fetchMovementsFromDb);
+        return RecordsPerDayCard(_daysShown[i], fetchMovementsFromDb);
       });
   }
 

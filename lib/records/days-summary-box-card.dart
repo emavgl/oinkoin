@@ -1,7 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:piggybank/models/movements-per-day.dart';
+import 'package:piggybank/models/records-per-day.dart';
 import './i18n/days-summary-box-card.dart';
 
 class DaysSummaryBox extends StatefulWidget {
@@ -10,7 +10,7 @@ class DaysSummaryBox extends StatefulWidget {
   /// shows the total income, total expenses, total balance resulting from
   /// all the movements in input days.
 
-  final List<MovementsPerDay> _movementDays;
+  final List<RecordsPerDay> _movementDays;
   const DaysSummaryBox(this._movementDays);
 
   @override

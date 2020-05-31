@@ -1,24 +1,24 @@
 
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/models/record.dart';
 
 
-class MovementsPerCategory {
+class RecordsPerCategory {
 
-  List<Movement> movements;
+  List<Record> records;
   Category _category;
 
   Category get category => _category;
 
-  MovementsPerCategory(this._category, {this.movements}) {
-    if (this.movements == null) {
-      this.movements = List();
+  RecordsPerCategory(this._category, {this.records}) {
+    if (this.records == null) {
+      this.records = List();
     }
   }
 
   double get expenses {
     double total = 0;
-    for (var movement in this.movements) {
+    for (var movement in this.records) {
       if (movement.value < 0)
         total += movement.value;
     }
@@ -27,7 +27,7 @@ class MovementsPerCategory {
 
   double get income {
     double total = 0;
-    for (var movement in this.movements) {
+    for (var movement in this.records) {
       if (movement.value > 0)
         total += movement.value;
     }
@@ -36,20 +36,20 @@ class MovementsPerCategory {
 
   double get balance {
     double total = 0;
-    for (var movement in this.movements) {
+    for (var movement in this.records) {
       total += movement.value;
     }
     return total;
   }
 
-  void addMovement(Movement movement) {
-    movements.add(movement);
+  void addMovement(Record movement) {
+    records.add(movement);
   }
 
-  static MovementsPerCategory fromMap(Map<String, dynamic> map)
+  static RecordsPerCategory fromMap(Map<String, dynamic> map)
   {
-    return MovementsPerCategory(
+    return RecordsPerCategory(
       map['category'],
-      movements: map['movements']);
+      records: map['movements']);
   }
 }

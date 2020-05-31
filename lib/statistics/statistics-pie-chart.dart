@@ -1,11 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/models/record.dart';
 
 import 'statistics-pie-chart-indicator.dart';
 
 class StatisticsPieChart extends StatefulWidget {
-  final List<Movement> movementsForChart;
+  final List<Record> movementsForChart;
 
   StatisticsPieChart({this.movementsForChart});
 
@@ -102,7 +102,7 @@ class StatisticsPieChartState extends State<StatisticsPieChart> {
 
   // from the list of movements to the list of pie chart section data
   List<PieChartSectionData> generateSections() {
-    List<Movement> movements = widget.movementsForChart;
+    List<Record> movements = widget.movementsForChart;
     List<PieChartSectionData> sections = List<PieChartSectionData>();
 
     movements.forEach((movement) => () {
@@ -112,7 +112,7 @@ class StatisticsPieChartState extends State<StatisticsPieChart> {
     return sections;
   }
 
-  PieChartSectionData generateSection(Movement movement) {
+  PieChartSectionData generateSection(Record movement) {
    // final isTouched = i == touchedIndex;
     final isTouched = false;
     final double fontSize = isTouched ? 25 : 16;

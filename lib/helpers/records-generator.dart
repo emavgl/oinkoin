@@ -1,8 +1,8 @@
 import 'dart:math';
-import 'package:piggybank/models/movement.dart';
+import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/category.dart';
 
-class MovementsGenerator {
+class RecordsGenerator {
 
   /// Methods for creating random Movements from a set of pre-defined data.
   /// Used in unit-tests.
@@ -12,7 +12,7 @@ class MovementsGenerator {
   static var tags = [Category("Shopping"), Category("Food"), Category("Gift"), Category("Fun"), Category("Rent")];
   static var currentDate = DateTime.now();
 
-  static Movement getRandomMovement(movementDate) {
+  static Record getRandomRecord(recordDate) {
     // Create new double value, rounded to 2 digit precision
     var mockValue = - (random.nextDouble() * 100);
     mockValue = double.parse(mockValue.toStringAsPrecision(2));
@@ -20,13 +20,13 @@ class MovementsGenerator {
     var mockDescription = _getRandomElement(descriptions);
     List<Category> mockTags = _getRandomSubset(tags, minimum: 1).whereType<Category>().toList();
     
-    return new Movement(mockValue, mockDescription, mockTags[0], movementDate);
+    return new Record(mockValue, mockDescription, mockTags[0], recordDate);
   }
 
-  static List<Movement> getRandomMovements(movementDate, {quantity = 100}) {
-    List<Movement> randomMovements = new List();
+  static List<Record> getRandomMovements(movementDate, {quantity = 100}) {
+    List<Record> randomMovements = new List();
     for (var i = 0; i < quantity; i++) {
-      Movement randomMovement = getRandomMovement(movementDate);
+      Record randomMovement = getRandomRecord(movementDate);
       randomMovements.add(randomMovement);
     }
     return randomMovements;
