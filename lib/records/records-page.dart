@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
@@ -89,17 +90,37 @@ class RecordsPageState extends State<RecordsPage> {
   Future<void> _showSelectDateDialog() async {
     await showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return selectDateDialog();
+        builder:  (BuildContext context) {
+          return _buildSelectDateDialog();
         });
   }
 
-  selectDateDialog() {
+  selectNewMonth() async {
+    DateTime currentDate = _from;
+    int currentYear = DateTime.now().year;
+    DateTime dateTime = await showMonthPicker(
+      context: context,
+      firstDate: DateTime(currentYear - 5, 1),
+      lastDate: DateTime(currentYear, 12),
+      initialDate: currentDate,
+      locale: I18n.locale,
+    );
+    if (dateTime != null) {
+      var movementsDay = await getMovementsByMonth(dateTime.year, dateTime.month);
+      setState(() {
+        _header = getMonthHeader(_from);
+        _daysShown = movementsDay;
+      });
+    }
+    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+  }
+
+  _buildSelectDateDialog() {
     return SimpleDialog(
         title: const Text('Shows records per'),
         children: <Widget>[
           SimpleDialogOption(
-            onPressed: () { print("Selezionato del mese"); },
+            onPressed: () async { return await selectNewMonth(); },
             child: ListTile(
               title: Text("Month"),
               leading: Container(

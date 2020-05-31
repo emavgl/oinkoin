@@ -18,11 +18,12 @@ class InMemoryDatabase implements DatabaseService {
     ];
 
     static List<Record> _movements = [
-        Record(-300, "Rent", _categories[0], DateTime.parse("2020-05-01 10:30:00"), id: 1),
-        Record(-30, "Pizza", _categories[1], DateTime.parse("2020-05-01 09:30:00"), id: 2),
-        Record(1700, "Salary", _categories[2], DateTime.parse("2020-05-02 09:30:00"), id: 3),
-        Record(-30, "Restaurant", _categories[1], DateTime.parse("2020-05-02 10:30:00"), id: 4),
-        Record(-60.5, "Groceries", _categories[1], DateTime.parse("2020-05-03 10:30:00"), id: 5),
+        Record(-300, "April Rent", _categories[0], DateTime.parse("2020-04-02 10:30:00"), id: 1),
+        Record(-300, "May Rent", _categories[0], DateTime.parse("2020-05-01 10:30:00"), id: 2),
+        Record(-30, "Pizza", _categories[1], DateTime.parse("2020-05-01 09:30:00"), id: 3),
+        Record(1700, "Salary", _categories[2], DateTime.parse("2020-05-02 09:30:00"), id: 4),
+        Record(-30, "Restaurant", _categories[1], DateTime.parse("2020-05-02 10:30:00"), id: 5),
+        Record(-60.5, "Groceries", _categories[1], DateTime.parse("2020-05-03 10:30:00"), id: 6),
     ];
 
     static List<Record> get movements => _movements;

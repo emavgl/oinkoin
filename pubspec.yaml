@@ -30,6 +30,7 @@ dependencies:
   shared_preferences: ^0.5.7  # plugin for persistent store for simple data (key-value pairs) like settings
   fl_chart: ^0.9.4  # plugin for statistics and charts
   animations: ^1.0.0+5
+  month_picker_dialog: ^0.3.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
