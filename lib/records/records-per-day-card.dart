@@ -53,7 +53,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           await widget.refreshParentMovementList();
         },
         title: Text(
-          movement.title,
+          movement.title != null ? movement.title: movement.category.name,
           style: _biggerFont,
         ),
         trailing: Text(

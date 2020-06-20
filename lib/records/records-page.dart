@@ -70,8 +70,10 @@ class RecordsPageState extends State<RecordsPage> {
     super.initState();
     DateTime _now = DateTime.now();
     _header = getMonthHeader(_now);
-    getMovementsByMonth(_now.year, _now.month).then((movementsDay) => {
-      _daysShown = movementsDay
+    getMovementsByMonth(_now.year, _now.month).then((movementsDay) {
+      setState(() {
+        _daysShown = movementsDay;
+      });
     });
   }
 
@@ -220,7 +222,7 @@ class RecordsPageState extends State<RecordsPage> {
                     BoxDecoration(
                         image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage("https://papers.co/wallpaper/papers.co-ag84-google-lollipop-march-mountain-background-6-wallpaper.jpg")))
+                            image: AssetImage('assets/background.jpg')))
                   )
               )
             ),
