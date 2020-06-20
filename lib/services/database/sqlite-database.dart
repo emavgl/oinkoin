@@ -174,11 +174,18 @@ class SqliteDatabase implements DatabaseInterface {
         return results.isNotEmpty ? results[0] : null;
     }
 
+    @override
+    Future<int> updateRecordById(int movementId, Record newMovement) async {
+        final db = await database;
+        return await db.update("records", newMovement.toMap(),
+            where: "id = ?", whereArgs: [movementId]);
+    }
 
-
-
-
-
+    @override
+    Future<void> deleteRecordById(int id) async {
+        final db = await database;
+        await db.delete("records", where: "id = ?", whereArgs: [id]);
+    }
 
     // TODO Stefano: I'm working on it. The method is to be tested
     @override
@@ -201,17 +208,5 @@ class SqliteDatabase implements DatabaseInterface {
             return RecordsSummaryPerCategory.fromMap(currentRowMap);
         });
     }
-
-      @override
-      Future<int> updateRecordById(int movementId, Record newMovement) {
-        // TODO: implement updateMovementById
-        throw UnimplementedError();
-      }
-
-      @override
-      Future<void> deleteRecordById(int id) {
-        // TODO: implement deleteMovementById
-        throw UnimplementedError();
-      }
 
 }

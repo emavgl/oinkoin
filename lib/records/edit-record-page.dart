@@ -244,18 +244,17 @@ class EditRecordPageState extends State<EditRecordPage> {
                     borderSide: BorderSide(color: Colors.grey, width: 0),
                   ))
               ],),
-              // _getFormLabel("How?", topMargin: 30.0),
-/*
+              _getFormLabel("How?", topMargin: 30.0),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                         onChanged: (text) {
                           setState(() {
-                            movement.description = text;
+                            record.description = text;
                           });
                         },
-                        initialValue: movement.description,
+                        initialValue: record.description,
                         style: TextStyle(
                             fontSize: 22.0,
                             color: Colors.black
@@ -269,7 +268,6 @@ class EditRecordPageState extends State<EditRecordPage> {
                   )
                 ],
               ),
-*/
             ]
         ),
       )
