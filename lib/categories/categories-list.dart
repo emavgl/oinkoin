@@ -84,7 +84,20 @@ class CategoriesListState extends State<CategoriesList> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCategories();
+    return _categories.length == 0 ? Container(
+        margin: EdgeInsets.all(15),
+        child: Column(
+          children: <Widget>[
+            Image.asset(
+              'assets/no_entry_2.png', width: 200,
+            ),
+            Text("No categories yet.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22.0,) ,)
+          ],
+        )
+    ) : _buildCategories();
   }
 
 }

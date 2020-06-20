@@ -238,7 +238,19 @@ class RecordsPageState extends State<RecordsPage> {
                       child: DaysSummaryBox(_daysShown)
                   ),
                   Divider(indent: 50, endIndent: 50),
-                  Container(
+                  _daysShown.length == 0 ? Container(
+                      child: Column(
+                        children: <Widget>[
+                          Image.asset(
+                              'assets/no_entry.png', width: 200,
+                          ),
+                          Text("No entries yet.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 22.0,) ,)
+                        ],
+                      )
+                  ) : Container(
                     child: _buildDaysList(),
                   )
                 ],

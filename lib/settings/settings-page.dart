@@ -34,16 +34,6 @@ class SettingsPage extends StatelessWidget {
           ),
           SettingsItem(
             icon: Icon(
-              Icons.color_lens,
-              color: Colors.white,
-            ),
-            iconBackgroundColor: Colors.green,
-            title: 'Theme'.i18n,
-            subtitle: 'Select the theme of the app'.i18n,
-            onPressed: () {},
-          ),
-          SettingsItem(
-            icon: Icon(
               Icons.save,
               color: Colors.white,
             ),
@@ -74,12 +64,12 @@ class SettingsPage extends StatelessWidget {
           ),
           SettingsItem(
             icon: Icon(
-              Icons.cake,
+              Icons.info_outline,
               color: Colors.white,
             ),
             iconBackgroundColor: Colors.tealAccent.shade700,
-            title: 'Thanks'.i18n,
-            subtitle: 'Pay us a coffee'.i18n,
+            title: 'Info'.i18n,
+            subtitle: 'Privacy policy and credits'.i18n,
             onPressed: () {},
           ),
         ],

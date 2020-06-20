@@ -50,7 +50,7 @@ class SqliteDatabase implements DatabaseInterface {
                 value       REAL,
                 title       TEXT,
                 description TEXT,
-                category_name TEXT REFERENCES categories (name) 
+                category_name TEXT REFERENCES categories (name)
             );
         """);
     }
@@ -86,6 +86,7 @@ class SqliteDatabase implements DatabaseInterface {
     Future<void> deleteCategoryByName(String categoryName) async {
         final db = await database;
         await db.delete("categories", where: "name = ?", whereArgs: [categoryName]);
+        await db.delete("records", where: "category_name = ?", whereArgs: [categoryName]);
     }
 
     @override
