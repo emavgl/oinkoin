@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/helpers/records-generator.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/services/sqlite-database.dart';
+import 'package:piggybank/services/database/sqlite-database.dart';
 import 'dart:ui';
 
 
@@ -14,11 +14,11 @@ main() {
     test('fetch one category', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       await SqliteDatabase.instance.deleteTables();
-      Category category = new Category("testName", color: Colors.red as Color, iconCodePoint: FontAwesomeIcons.film.codePoint);
-      await SqliteDatabase.instance.addCategoryIfNotExists(category);
-      Category retrievedCategory = await SqliteDatabase.instance.getCategoryById(1);
+      Category category = new Category("testName", color: Colors.red as Color,
+          iconCodePoint: FontAwesomeIcons.film.codePoint);
+      var result = await SqliteDatabase.instance.addCategory(category);
+      Category retrievedCategory = await SqliteDatabase.instance.getCategoryByName("testName");
       expect(retrievedCategory.name, "testName");
-      expect(retrievedCategory.id, 1);
       expect(retrievedCategory.color.red, Colors.red.red);
       expect(retrievedCategory.color.blue, Colors.red.blue);
       expect(retrievedCategory.color.green, Colors.red.green);
@@ -30,41 +30,41 @@ main() {
       TestWidgetsFlutterBinding.ensureInitialized();
       Category category1 = new Category("testName1");
       Category category2 = new Category("testName2");
-      await SqliteDatabase.instance.addCategoryIfNotExists(category1);
-      await SqliteDatabase.instance.addCategoryIfNotExists(category2);
+      await SqliteDatabase.instance.addCategory(category1);
+      await SqliteDatabase.instance.addCategory(category2);
       List<Category> retrievedCategories = await SqliteDatabase.instance.getAllCategories();
       expect(retrievedCategories.length, 2);
     });
 
-    test('fetch one movement', () async {
+    test('fetch one record', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      Record movement = RecordsGenerator.getRandomRecord(DateTime.now());
-      await SqliteDatabase.instance.addRecord(movement);
+      Record record = RecordsGenerator.getRandomRecord(DateTime.now());
+      await SqliteDatabase.instance.addRecord(record);
       Record retrievedMovement = await SqliteDatabase.instance.getRecordById(1);
-      expect(retrievedMovement.value, movement.value);
-      expect(retrievedMovement.dateTime.millisecondsSinceEpoch, movement.dateTime.millisecondsSinceEpoch);
+      expect(retrievedMovement.value, record.value);
+      expect(retrievedMovement.dateTime.millisecondsSinceEpoch, record.dateTime.millisecondsSinceEpoch);
       expect(retrievedMovement.id, 1);
     });
 
-    test('fetch multiple movements', () async {
+    test('fetch multiple records', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      Record movement = RecordsGenerator.getRandomRecord(DateTime.now());
-      Record movement2 = RecordsGenerator.getRandomRecord(DateTime.now().add(Duration(seconds: 5)));
-      await SqliteDatabase.instance.addRecord(movement);
-      await SqliteDatabase.instance.addRecord(movement2);
+      Record record = RecordsGenerator.getRandomRecord(DateTime.now());
+      Record record2 = RecordsGenerator.getRandomRecord(DateTime.now().add(Duration(seconds: 5)));
+      await SqliteDatabase.instance.addRecord(record);
+      await SqliteDatabase.instance.addRecord(record2);
       List<Record> retrievedMovements = await SqliteDatabase.instance.getAllRecords();
       expect(retrievedMovements.length, 2);
     });
 
 
-    test('fetch multiple with Interval', () async {
+    test('fetch multiple records based on date Interval', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      Record movement = RecordsGenerator.getRandomRecord(DateTime.parse("2020-04-10 13:00:00"));
-      Record movement2 = RecordsGenerator.getRandomRecord(DateTime.parse("2020-04-12 13:00:00"));
-      Record movement3 = RecordsGenerator.getRandomRecord(DateTime.parse("2020-05-10 13:00:00"));
-      int movementId1 = await SqliteDatabase.instance.addRecord(movement);
-      int movementId2 = await SqliteDatabase.instance.addRecord(movement2);
-      int movementId3 = await SqliteDatabase.instance.addRecord(movement3);
+      Record record = RecordsGenerator.getRandomRecord(DateTime.parse("2020-04-10 13:00:00"));
+      Record record2 = RecordsGenerator.getRandomRecord(DateTime.parse("2020-04-12 13:00:00"));
+      Record record3 = RecordsGenerator.getRandomRecord(DateTime.parse("2020-05-10 13:00:00"));
+      int movementId1 = await SqliteDatabase.instance.addRecord(record);
+      int movementId2 = await SqliteDatabase.instance.addRecord(record2);
+      int movementId3 = await SqliteDatabase.instance.addRecord(record3);
       DateTime from = DateTime.parse("2020-04-01 00:00:00");
       DateTime to = DateTime.parse("2020-04-30 00:00:00");
       List<Record> retrievedMovements = await SqliteDatabase.instance.getAllRecordsInInterval(from, to);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/services/sqlite-database.dart';
+import 'package:piggybank/services/database/sqlite-database.dart';
 import './i18n/statistics-page.i18n.dart';
 
 import 'statistics-pie-chart.dart';

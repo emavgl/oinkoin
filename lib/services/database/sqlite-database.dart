@@ -3,10 +3,12 @@ import 'package:path/path.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-summary-by-category.dart';
-import 'package:piggybank/services/database-service.dart';
+import 'package:piggybank/services/database/database-interface.dart';
 import 'package:sqflite/sqflite.dart';
 
-class SqliteDatabase implements DatabaseService {
+import 'exceptions.dart';
+
+class SqliteDatabase implements DatabaseInterface {
 
     /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
     /// It is implemented using Singleton pattern.
@@ -26,16 +28,15 @@ class SqliteDatabase implements DatabaseService {
     }
 
     Future<Database> init() async {
-        String _path = join(await getDatabasesPath(), 'movements3.db');
+        String databasePath = await getDatabasesPath();
+        String _path = join(databasePath, 'movements.db');
         return await openDatabase(_path, version: _version, onCreate: onCreate);
     }
 
     static void onCreate(Database db, int version) async {
 
         await db.execute("""CREATE TABLE IF NOT EXISTS categories (
-            id    INTEGER PRIMARY KEY AUTOINCREMENT
-            NOT NULL,
-            name  TEXT,
+            name  TEXT PRIMARY KEY,
             color TEXT,
             icon INTEGER,
             category_type INTEGER
@@ -43,81 +44,73 @@ class SqliteDatabase implements DatabaseService {
         """);
 
         await db.execute("""
-        CREATE TABLE IF NOT EXISTS  movements (
+        CREATE TABLE IF NOT EXISTS  records (
                 id          INTEGER  PRIMARY KEY AUTOINCREMENT,
                 datetime    INTEGER,
                 value       REAL,
+                title       TEXT,
                 description TEXT,
-                category_id INTEGER  REFERENCES categories (id) 
+                category_name TEXT REFERENCES categories (name) 
             );
         """);
     }
 
-    Future<Category> getCategoryById(int id) async {
-        final db = await database;
-        List<Map> results = await db.query("categories", where: "id = ?",
-        whereArgs: [id]);
-        return results.isNotEmpty ? Category.fromMap(results[0]) : null;
-    }
-
-    Future<Record> getRecordById(int id) async {
-        final db = await database;
-        var maps = await db.rawQuery("""
-            SELECT m.id, m.datetime, m.value, m.description, m.category_id, c.color, c.name
-            FROM movements as m LEFT JOIN categories as c ON m.category_id = c.id
-            WHERE m.id = ?
-        """, [id]);
-
-        var results = List.generate(maps.length, (i) {
-            Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
-            currentRowMap["category"] = Category.fromMap(currentRowMap);
-            return Record.fromMap(currentRowMap);
-        });
-
-        return results.isNotEmpty ? results[0] : null;
-    }
-
+    // Category implementation
+    @override
     Future<List<Category>> getAllCategories() async {
         final db = await database;
         List<Map> results = await db.query("categories");
-
-        // Convert the List<Map<String, dynamic> into a List<Dog>. // TODO woof woof
         return List.generate(results.length, (i) {
             return Category.fromMap(results[i]);
         });
     }
 
+    @override
     Future<Category> getCategoryByName(String categoryName) async {
         final db = await database;
         List<Map> results = await db.query("categories", where: "name = ?", whereArgs: [categoryName]);
         return results.isNotEmpty ? Category.fromMap(results[0]) : null;
     }
 
-    Future<int> addCategoryIfNotExists(Category category) async {
+    @override
+    Future<int> addCategory(Category category) async {
         final db = await database;
-        var existingCategory = await getCategoryByName(category.name);
-        if (existingCategory != null) {
-            return existingCategory.id;
-        } else {
-            return await db.insert("categories", category.toMap());
+        Category foundCategory = await this.getCategoryByName(category.name);
+        if (foundCategory != null) {
+            throw ElementAlreadyExists();
         }
+        return await db.insert("categories", category.toMap());
     }
 
-    Future<int> addRecord(Record movement) async {
+    @override
+    Future<void> deleteCategoryByName(String categoryName) async {
         final db = await database;
-        int categoryId = await addCategoryIfNotExists(movement.category);
-        movement.category.id = categoryId;
-        return await db.insert("movements", movement.toMap());
+        await db.delete("categories", where: "name = ?", whereArgs: [categoryName]);
+    }
+
+    @override
+    Future<int> updateCategory(Category category) async {
+        final db = await database;
+        String categoryName = category.name;
+        return await db.update("categories", category.toMap(),
+            where: "name = ?", whereArgs: [categoryName]);
+    }
+
+    @override
+    Future<int> addRecord(Record record) async {
+        final db = await database;
+        if (await getCategoryByName(record.category.name) == null){
+            await addCategory(record.category);
+        }
+        return await db.insert("records", record.toMap());
     }
 
     Future<List<Record>> getAllRecords() async {
         final db = await database;
         var maps = await db.rawQuery("""
-            SELECT m.id, m.datetime, m.value, m.description, m.category_id, c.color, c.name
-            FROM movements as m LEFT JOIN categories as c ON m.category_id = c.id
+            SELECT m.id, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
         """);
-        
-        // Convert the List<Map<String, dynamic> into a List<Dog>. // TODO woof woof
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);
@@ -132,8 +125,8 @@ class SqliteDatabase implements DatabaseService {
         final to_unix = to.millisecondsSinceEpoch;
 
         var maps = await db.rawQuery("""
-            SELECT m.id, m.datetime, m.value, m.description, m.category_id, c.color, c.name
-            FROM movements as m LEFT JOIN categories as c ON m.category_id = c.id
+            SELECT m.id, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [from_unix, to_unix]);
 
@@ -147,9 +140,9 @@ class SqliteDatabase implements DatabaseService {
 
     Future<void> deleteTables() async {
         final db = await database;
-        await db.execute("DELETE FROM movements");
+        await db.execute("DELETE FROM records");
         await db.execute("DELETE FROM categories");
-        await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='movements'");
+        await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
         _db = null;
     }
@@ -164,15 +157,25 @@ class SqliteDatabase implements DatabaseService {
           });
       }
 
-      @override
-      Future<void> deleteCategoryById(int id) {
-        // TODO: implement deleteCategoryById
-      }
+    Future<Record> getRecordById(int id) async {
+        final db = await database;
+        var maps = await db.rawQuery("""
+            SELECT m.id, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
+            WHERE m.id = ?
+        """, [id]);
 
-      @override
-      Future<int> upsertCategory(Category category) {
-        // TODO: implement upsertCategory
-      }
+        var results = List.generate(maps.length, (i) {
+            Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
+            currentRowMap["category"] = Category.fromMap(currentRowMap);
+            return Record.fromMap(currentRowMap);
+        });
+
+        return results.isNotEmpty ? results[0] : null;
+    }
+
+
+
 
 
 

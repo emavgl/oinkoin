@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/services/database-service.dart';
-import 'package:piggybank/services/inmemory-database.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 import '../style.dart';
 import './i18n/edit-category-page.i18n.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -35,7 +35,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   int chosenColorIndex; // Index of the Category.color list for showing the selected color in the list
   int chosenIconIndex; // Index of the Category.icons list for showing the selected color in the list
 
-  DatabaseService database = new InMemoryDatabase();
+  DatabaseInterface database = ServiceConfig.database;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -50,7 +50,6 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       category.icon = passedCategory.icon;
       category.name = passedCategory.name;
       category.color = passedCategory.color;
-      category.id = passedCategory.id;
       category.categoryType = passedCategory.categoryType;
     }
     return category;
@@ -211,7 +210,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 });
 
                 if (continueDelete) {
-                  database.deleteCategoryById(widget.passedCategory.id);
+                  database.deleteCategoryByName(widget.passedCategory.name);
                   Navigator.pop(context);
                 }
             },
@@ -221,7 +220,12 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               icon: const Icon(Icons.save),
               tooltip: 'Save', onPressed: () async {
                 if (_formKey.currentState.validate()) {
-                  await database.upsertCategory(category);
+                  var existingCategory = await database.getCategoryByName(category.name);
+                  if (existingCategory == null) {
+                    await database.addCategory(category);
+                  } else {
+                    await database.updateCategory(category);
+                  }
                   Navigator.pop(context);
                 }
             }

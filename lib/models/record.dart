@@ -7,37 +7,40 @@ class Record extends Model {
   /// Represents the Record object.
   /// A Record has:
   /// - value: monetary value associated to the movement (can be positive, or negative)
-  /// - description: a short description of the movement
+  /// - title: a headline for the record
   /// - category: a Category object assigned to the movement, describing the type of movement (income, expense)
   /// - dateTime: a date representing when the movement was performed
 
   int id;
   double value;
+  String title;
   String description;
   Category category;
   DateTime dateTime;
 
-  Record(this.value, this.description, this.category, this.dateTime, {this.id});
+  Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description});
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
-      'description': description,
+      'title': title,
       'value': value,
       'datetime': dateTime.millisecondsSinceEpoch,
-      'category_id': category.id
+      'category_name': category.name
     };
 
     if (this.id != null) { map['id'] = this.id; }
+    if (this.description != null) { map['description'] = this.description; }
     return map;
   }
 
   static Record fromMap(Map<String, dynamic> map) {
     return Record(
       map['value'],
-      map['description'],
+      map['title'],
       map['category'],
       new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
       id: map['id'],
+      description: map['description'],
     );
   }
 

@@ -91,14 +91,13 @@ class Category extends Model {
 
   static Random _random = new Random();
 
-  int id;
   String name;
   Color color;
   int iconCodePoint;
   IconData icon;
   int categoryType; // 0 for expenses, 1 for income
 
-  Category(String name, {this.color, this.id, this.iconCodePoint, this.categoryType}) {
+  Category(String name, {this.color, this.iconCodePoint, this.categoryType}) {
     this.name = name;
     if (this.color == null) {
       var randomColorIndex = _random.nextInt(colors.length);
@@ -110,7 +109,7 @@ class Category extends Model {
       this.icon = icons[randomIconIndex];
       this.iconCodePoint = this.icon.codePoint;
     } else {
-      this.icon = icons.where((i) => i.codePoint == iconCodePoint).first;
+      this.icon = icons.where((i) => i.codePoint == this.iconCodePoint).first;
     }
 
     if (this.categoryType == null) {
@@ -123,25 +122,20 @@ class Category extends Model {
       'name': name,
       'color': color.alpha.toString() + ":" + color.red.toString() + ":"
           + color.green.toString() + ":" + color.blue.toString(),
-      'icon': iconCodePoint,
-      'categoryType': categoryType
+      'icon': this.icon.codePoint,
+      'category_type': categoryType
     };
-
-    if (this.id != null) { map['id'] = this.id; }
     return map;
   }
 
   static Category fromMap(Map<String, dynamic> map) {
     String serializedColor = map["color"] as String;
-    int category_id = map["category_id"] != null ?
-                      map["category_id"] as int : map["id"] as int;
     List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
     return Category(
       map["name"],
       color: Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]),
-      id: category_id,
       iconCodePoint: map["icon"],
-      categoryType: map["categoryType"]
+      categoryType: map["category_type"]
     );
   }
 

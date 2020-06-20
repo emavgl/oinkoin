@@ -2,19 +2,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 
-import 'database-service.dart';
+import 'database-interface.dart';
+import 'exceptions.dart';
 
 
-class InMemoryDatabase implements DatabaseService {
+class InMemoryDatabase implements DatabaseInterface {
 
     /// InMemoryDatabase is an implementation of DatabaseService that runs in memory.
     /// All this methods are implemented using operations on Lists.
     /// InMemoryDatabase is intended for debug/testing purposes.
 
     static List<Category> _categories = [
-        Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: 0, id: 1),
-        Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: 0, id: 2),
-        Category("Salary", iconCodePoint: FontAwesomeIcons.wallet.codePoint, categoryType: 1, id: 3)
+        Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: 0),
+        Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: 0),
+        Category("Salary", iconCodePoint: FontAwesomeIcons.wallet.codePoint, categoryType: 1)
     ];
 
     static List<Record> _movements = [
@@ -29,11 +30,6 @@ class InMemoryDatabase implements DatabaseService {
     static List<Record> get movements => _movements;
     static List<Category> get categories => _categories;
 
-    Future<Category> getCategoryById(int id) {
-        var matching = _categories.where((x) => x.id == id).toList();
-        return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
-    }
-
     Future<List<Category>> getAllCategories() async {
         return Future<List<Category>>.value(_categories);
     }
@@ -47,31 +43,18 @@ class InMemoryDatabase implements DatabaseService {
         return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
     }
 
-    Future<int> upsertCategory(Category category) async {
-        var categoryWithTheSameId = await getCategoryById(category.id);
-        if (categoryWithTheSameId != null) {
-            // I'm updating an existing category
-            _categories[_categories.indexOf(categoryWithTheSameId)] = category;
-        } else {
-            // no category with the same id exists, adding new category
-            // new category can have the same name of another one
-            // if so, update the category with the same name, keeping the id
-            // otherwise, add new category assigning the id
-            var categoryWithTheSameName = await getCategoryByName(category.name);
-            if (categoryWithTheSameName != null) {
-                var indexOfExistingCategory = _categories.indexOf(categoryWithTheSameName);
-                category.id = categoryWithTheSameName.id;
-                _categories[indexOfExistingCategory] = category;
-            } else {
-                category.id = _categories.length + 1;
-                _categories.add(category);
-            }
+    Future<int> updateCategory(Category category) async {
+        var categoryWithTheSameName = await getCategoryByName(category.name);
+        if (categoryWithTheSameName == null) {
+            throw NotFoundException();
         }
-        return Future<int>.value(category.id);
+        var index = _categories.indexOf(categoryWithTheSameName);
+        _categories[index] = category;
+        return Future<int>.value(index);
     }
 
-    Future<void> deleteCategoryById(int categoryId) async {
-        _categories.removeWhere((x) => x.id == categoryId);
+    Future<void> deleteCategoryByName(String categoryName) async {
+        _categories.removeWhere((x) => x.name == categoryName);
     }
 
     Future<int> addRecord(Record movement) async {
@@ -80,10 +63,14 @@ class InMemoryDatabase implements DatabaseService {
         return Future<int>.value(movement.id);
     }
 
+    @override
     Future<int> addCategory(Category category) async {
-      category.id = _categories.length + 1;
-      _categories.add(category);
-      return Future<int>.value(category.id);
+        Category foundCategory = await this.getCategoryByName(category.name);
+        if (foundCategory != null) {
+            throw ElementAlreadyExists();
+        }
+        _categories.add(category);
+        return Future<int>.value(_categories.length - 1);
     }
 
     Future<List<Record>> getAllRecords() async {
@@ -94,14 +81,6 @@ class InMemoryDatabase implements DatabaseService {
         List<Record> targetMovements = _movements.where((movement) =>
             movement.dateTime.isAfter(from) && movement.dateTime.isBefore(to)).toList();
         return Future<List<Record>>.value(targetMovements);
-    }
-
-    @override
-    Future<int> addCategoryIfNotExists(Category category) async {
-      Category foundCategory = await this.getCategoryById(category.id);
-      if (foundCategory == null) {
-        return await addCategory(category);
-      }
     }
 
     @override

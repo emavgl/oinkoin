@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/records/edit-record-page.dart';
-import 'package:piggybank/services/database-service.dart';
-import 'package:piggybank/services/inmemory-database.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 
 
 class CategoriesGrid extends StatefulWidget {
@@ -28,7 +28,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
   int indexTab;
   int categoryType;
 
-  DatabaseService database = new InMemoryDatabase();
+  DatabaseInterface database = ServiceConfig.database;
 
   CategoriesGridState(this.categoryType);
 

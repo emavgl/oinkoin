@@ -2,20 +2,19 @@ import 'dart:async';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 
-abstract class DatabaseService {
 
-    /// DatabaseService is an interface the database classes must implement.
-    /// It contains all the method necessary to manage categories and records
-    /// such as addCategory or getCategoryById.
+abstract class DatabaseInterface {
+
+    /// DatabaseInterface is an interface that the database classes
+    /// must implement. It contains basic CRUD methods for categories and records
 
     /// Category CRUD
-    Future<Category> getCategoryById(int id);
     Future<List<Category>> getAllCategories();
     Future<List<Category>> getCategoriesByType(int categoryType);
     Future<Category> getCategoryByName(String categoryName);
-    Future<int> addCategoryIfNotExists(Category category);
-    Future<int> upsertCategory(Category category);
-    Future<void> deleteCategoryById(int id);
+    Future<int> addCategory(Category category);
+    Future<int> updateCategory(Category category);
+    Future<void> deleteCategoryByName(String name);
     
     /// Record CRUD
     Future<Record> getRecordById(int id);

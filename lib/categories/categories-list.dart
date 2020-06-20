@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
-import 'package:piggybank/services/database-service.dart';
-import 'package:piggybank/services/inmemory-database.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 
 class CategoriesList extends StatefulWidget {
 
@@ -22,7 +22,7 @@ class CategoriesListState extends State<CategoriesList> {
   int indexTab;
   int categoryType;
 
-  DatabaseService database = new InMemoryDatabase();
+  DatabaseInterface database = ServiceConfig.database;
 
   CategoriesListState(this.categoryType);
 

@@ -10,8 +10,8 @@ import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/services/database-service.dart';
-import 'package:piggybank/services/inmemory-database.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 import '../style.dart';
 import './i18n/edit-movement-page.i18n.dart';
 
@@ -31,7 +31,7 @@ class EditRecordPage extends StatefulWidget {
 
 class EditRecordPageState extends State<EditRecordPage> {
 
-  DatabaseService database = new InMemoryDatabase();
+  DatabaseInterface database = ServiceConfig.database;
   final _formKey = GlobalKey<FormState>();
   Record record;
 
@@ -87,10 +87,10 @@ class EditRecordPageState extends State<EditRecordPage> {
           child: TextFormField(
               onChanged: (text) {
                 setState(() {
-                  record.description = text;
+                  record.title = text;
                 });
               },
-              initialValue: record.description,
+              initialValue: record.title,
               style: TextStyle(
                   fontSize: 22.0,
                   color: Colors.black

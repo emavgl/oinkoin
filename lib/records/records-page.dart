@@ -11,8 +11,8 @@ import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/records-per-day-card.dart';
-import 'package:piggybank/services/database-service.dart';
-import 'package:piggybank/services/inmemory-database.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'days-summary-box-card.dart';
 import "package:collection/collection.dart";
@@ -60,7 +60,7 @@ class RecordsPageState extends State<RecordsPage> {
   }
 
   List<RecordsPerDay> _daysShown = new List();
-  DatabaseService database = new InMemoryDatabase();
+  DatabaseInterface database = ServiceConfig.database;
   DateTime _from;
   DateTime _to;
   String _header;
