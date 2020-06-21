@@ -8,10 +8,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../style.dart';
 import './i18n/edit-movement-page.i18n.dart';
 
@@ -37,17 +39,29 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Record passedRecord;
   Category passedCategory;
+  String currency;
 
   EditRecordPageState(this.passedRecord, this.passedCategory);
+
+  Future<String> getCurrency() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('currency') ?? "€";
+  }
 
   @override
   void initState() {
     super.initState();
+    currency = "€";
     if (passedRecord != null) {
       record = passedRecord;
     } else {
       record = new Record(null, null, passedCategory, DateTime.now());
     }
+    getCurrency().then((value) {
+      setState(() {
+        currency = value;
+      });
+    });
   }
 
   Widget _createCategoryCirclePreview() {
@@ -174,7 +188,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                     alignment: Alignment.centerLeft,
                     child: Container(
                       margin: EdgeInsets.fromLTRB(12, 12, 20, 12),
-                      child: Text("€", style: Body1Style, textAlign: TextAlign.left),
+                      child: Text(currency, style: Body1Style, textAlign: TextAlign.left),
                     ),
                   ),
                   Expanded(
@@ -184,7 +198,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                           var numericValue = double.tryParse(text);
                           if (numericValue != null) {
                             numericValue = numericValue.abs();
-                            if (record.category.categoryType == 0) {
+                            if (record.category.categoryType == CategoryType.expense) {
                               // value is an expenses, needs to be negative
                               numericValue = numericValue * -1;
                             }

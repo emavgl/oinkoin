@@ -10,6 +10,8 @@ import './i18n/settings-page.i18n.dart';
 import 'dart:convert';
 import 'dart:io';
 
+import 'currency-page.dart';
+
 // look here for how to store settings
 //https://flutter.dev/docs/cookbook/persistence/key-value
 //https://pub.dev/packages/shared_preferences
@@ -70,7 +72,12 @@ class SettingsPage extends StatelessWidget {
             iconBackgroundColor: Colors.blue,
             title: 'Currency'.i18n,
             subtitle: 'Select the currency for your expenses'.i18n,
-            onPressed: () {},
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CurrencyPage()),
+              );
+            },
           ),
           SettingsItem(
             icon: Icon(

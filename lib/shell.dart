@@ -14,6 +14,10 @@ class Shell extends StatefulWidget {
 class ShellState extends State<Shell> {
   int _currentIndex = 0;
 
+  final GlobalKey<RecordsPageState> _recordPageKey = GlobalKey();
+  final GlobalKey<CategoryTabPageEditState> _categoryTapEditStateKey = GlobalKey();
+
+
   @override
   Widget build(BuildContext context) {
     // How I have implemented navigation: https://stackoverflow.com/questions/45235570/how-to-use-bottomnavigationbar-with-navigator
@@ -24,14 +28,14 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 0,
             child: new TickerMode(
             enabled: _currentIndex == 0,
-            child: new MaterialApp(home: new RecordsPage()),
+            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey)),
           ),
           ),
           new Offstage(
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoryTabPageEdit()),
+              child: new MaterialApp(home: new CategoryTabPageEdit(key: _categoryTapEditStateKey)),
             ),
           ),
             new Offstage(
@@ -45,7 +49,14 @@ class ShellState extends State<Shell> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (int index) { setState((){ this._currentIndex = index; }); },
+        onTap: (int index) async {
+          setState((){
+            this._currentIndex = index; }
+          );
+          if (this._currentIndex == 0) {
+            await _recordPageKey.currentState.onTabChange();
+          }
+        },
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         fixedColor: Theme.of(context).primaryColor,

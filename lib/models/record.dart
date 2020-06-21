@@ -25,7 +25,8 @@ class Record extends Model {
       'title': title,
       'value': value,
       'datetime': dateTime.millisecondsSinceEpoch,
-      'category_name': category.name
+      'category_name': category.name,
+      'category_type': category.categoryType.index
     };
 
     if (this.id != null) { map['id'] = this.id; }

@@ -12,6 +12,18 @@ class CategoryTabPageEdit extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
+
+  GlobalKey<CategoriesListState> _expensesCategoryKey = GlobalKey();
+  GlobalKey<CategoriesListState> _incomingCategoryKey = GlobalKey();
+
+  CategoriesList expenseSubPage;
+  CategoriesList incomeSubPage;
+
+  CategoryTabPageEdit({Key key}) : super(key: key) {
+    expenseSubPage = CategoriesList(key: _expensesCategoryKey, categoryType: CategoryType.expense);
+    incomeSubPage = CategoriesList(key: _incomingCategoryKey, categoryType: CategoryType.income);
+  }
+
   @override
   CategoryTabPageEditState createState() => CategoryTabPageEditState();
 }
@@ -20,8 +32,6 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
 
   int indexTab;
 
-  final GlobalKey<CategoriesListState> _expensesCategoryKey = GlobalKey();
-  final GlobalKey<CategoriesListState> _incomingCategoryKey = GlobalKey();
 
   @override
   void initState() {
@@ -30,11 +40,17 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
   }
 
   void refreshExpenseCategoriesList() async {
-    await _expensesCategoryKey.currentState.fetchCategories();
+    if (widget._expensesCategoryKey.currentState != null) {
+      print("refreshExpenseCategoriesList called");
+      await widget._expensesCategoryKey.currentState.fetchCategories();
+    }
   }
 
   void refreshIncomeCategoriesList() async {
-    await _incomingCategoryKey.currentState.fetchCategories();
+    if (widget._incomingCategoryKey.currentState != null) {
+      print("refreshIncomeCategoriesList called");
+      await widget._incomingCategoryKey.currentState.fetchCategories();
+    }
   }
 
   OpenContainer floatingButtonOpenContainer() {
@@ -74,10 +90,14 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
-            onTap: (index){
+            onTap: (index) async {
               setState(() {
                 indexTab = index;
               });
+              if (index == 0)
+                await refreshExpenseCategoriesList();
+              else
+                await refreshIncomeCategoriesList();
             },
             tabs: [
               Tab(text: "Expenses".i18n,),
@@ -88,8 +108,8 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
         ),
         body: TabBarView(
           children: [
-            CategoriesList(key: _expensesCategoryKey, categoryType: CategoryType.expense),
-            CategoriesList(key: _incomingCategoryKey, categoryType: CategoryType.income),
+            widget.expenseSubPage,
+            widget.incomeSubPage
           ],
         ),
         floatingActionButton: FloatingActionButton(

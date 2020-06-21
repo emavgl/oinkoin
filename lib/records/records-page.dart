@@ -21,6 +21,8 @@ class RecordsPage extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
   /// It contains also buttons for filtering the list of movements and add a new movement.
 
+  RecordsPage({Key key}) : super(key: key);
+
   @override
   RecordsPageState createState() => RecordsPageState();
 }
@@ -189,6 +191,11 @@ class RecordsPageState extends State<RecordsPage> {
       context,
       MaterialPageRoute(builder: (context) => StatisticsPage()),
     );
+  }
+
+  onTabChange() async {
+    // Navigator.of(context).popUntil((route) => route.isFirst);
+    await fetchMovementsFromDb();
   }
 
   @override

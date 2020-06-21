@@ -36,7 +36,7 @@ class RecordsPerDay {
   }
 
   double get balance {
-    return income - expenses;
+    return income - (expenses*-1);
   }
 
   void addMovement(Record movement) {
