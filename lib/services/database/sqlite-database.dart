@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:path/path.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-summary-by-category.dart';
@@ -36,10 +37,11 @@ class SqliteDatabase implements DatabaseInterface {
     static void onCreate(Database db, int version) async {
 
         await db.execute("""CREATE TABLE IF NOT EXISTS categories (
-            name  TEXT PRIMARY KEY,
+            name  TEXT,
             color TEXT,
             icon INTEGER,
-            category_type INTEGER
+            category_type INTEGER,
+            PRIMARY KEY (name, category_type)
         );
         """);
 
@@ -50,7 +52,8 @@ class SqliteDatabase implements DatabaseInterface {
                 value       REAL,
                 title       TEXT,
                 description TEXT,
-                category_name TEXT REFERENCES categories (name)
+                category_name TEXT,
+                category_type INTEGER
             );
         """);
     }
@@ -66,16 +69,16 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<Category> getCategoryByName(String categoryName) async {
+    Future<Category> getCategory(String categoryName, CategoryType categoryType) async {
         final db = await database;
-        List<Map> results = await db.query("categories", where: "name = ?", whereArgs: [categoryName]);
+        List<Map> results = await db.query("categories", where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryType.index]);
         return results.isNotEmpty ? Category.fromMap(results[0]) : null;
     }
 
     @override
     Future<int> addCategory(Category category) async {
         final db = await database;
-        Category foundCategory = await this.getCategoryByName(category.name);
+        Category foundCategory = await this.getCategory(category.name, category.categoryType);
         if (foundCategory != null) {
             throw ElementAlreadyExists();
         }
@@ -83,33 +86,36 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<void> deleteCategoryByName(String categoryName) async {
+    Future<void> deleteCategory(String categoryName, CategoryType categoryType) async {
         final db = await database;
-        await db.delete("categories", where: "name = ?", whereArgs: [categoryName]);
-        await db.delete("records", where: "category_name = ?", whereArgs: [categoryName]);
+        var categoryIndex = categoryType.index;
+        await db.delete("categories", where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
+        await db.delete("records", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
     }
 
     @override
     Future<int> updateCategory(Category category) async {
         final db = await database;
         String categoryName = category.name;
+        var categoryIndex = category.categoryType.index;
         return await db.update("categories", category.toMap(),
-            where: "name = ?", whereArgs: [categoryName]);
+            where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
     }
 
     @override
     Future<int> addRecord(Record record) async {
         final db = await database;
-        if (await getCategoryByName(record.category.name) == null){
+        if (await getCategory(record.category.name, record.category.categoryType) == null){
             await addCategory(record.category);
         }
         return await db.insert("records", record.toMap());
     }
 
+    @override
     Future<List<Record>> getAllRecords() async {
         final db = await database;
         var maps = await db.rawQuery("""
-            SELECT m.id, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
         """);
         return List.generate(maps.length, (i) {
@@ -126,7 +132,7 @@ class SqliteDatabase implements DatabaseInterface {
         final to_unix = to.millisecondsSinceEpoch;
 
         var maps = await db.rawQuery("""
-            SELECT m.id, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [from_unix, to_unix]);
@@ -139,7 +145,7 @@ class SqliteDatabase implements DatabaseInterface {
         });
     }
 
-    Future<void> deleteTables() async {
+    Future<void> deleteDatabase() async {
         final db = await database;
         await db.execute("DELETE FROM records");
         await db.execute("DELETE FROM categories");
@@ -148,20 +154,19 @@ class SqliteDatabase implements DatabaseInterface {
         _db = null;
     }
 
-      @override
-      Future<List<Category>> getCategoriesByType(int categoryType) async {
-          final db = await database;
-          List<Map> results = await db.query("categories", where: "category_type = ?", whereArgs: [categoryType]);
-
-          return List.generate(results.length, (i) {
-              return Category.fromMap(results[i]);
-          });
-      }
+    @override
+    Future<List<Category>> getCategoriesByType(CategoryType categoryType) async {
+      final db = await database;
+      List<Map> results = await db.query("categories", where: "category_type = ?", whereArgs: [categoryType.index]);
+      return List.generate(results.length, (i) {
+          return Category.fromMap(results[i]);
+      });
+    }
 
     Future<Record> getRecordById(int id) async {
         final db = await database;
         var maps = await db.rawQuery("""
-            SELECT m.id, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.id = ?
         """, [id]);
@@ -178,7 +183,8 @@ class SqliteDatabase implements DatabaseInterface {
     @override
     Future<int> updateRecordById(int movementId, Record newMovement) async {
         final db = await database;
-        return await db.update("records", newMovement.toMap(),
+        var recordMap = newMovement.toMap();
+        return await db.update("records", recordMap,
             where: "id = ?", whereArgs: [movementId]);
     }
 
@@ -209,5 +215,6 @@ class SqliteDatabase implements DatabaseInterface {
             return RecordsSummaryPerCategory.fromMap(currentRowMap);
         });
     }
+
 
 }

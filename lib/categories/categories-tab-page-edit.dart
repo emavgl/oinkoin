@@ -2,6 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/categories/categories-list.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
+import 'package:piggybank/models/category-type.dart';
 import './i18n/categories-tab-page.i18n.dart';
 
 class CategoryTabPageEdit extends StatefulWidget {
@@ -42,7 +43,7 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
     return OpenContainer(
       transitionType: _transitionType,
       openBuilder: (BuildContext context, VoidCallback _) {
-        return EditCategoryPage(categoryType: indexTab);
+        return EditCategoryPage(categoryType: CategoryType.values[indexTab]);
       },
       closedElevation: 6.0,
       closedShape: const RoundedRectangleBorder(
@@ -87,8 +88,8 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
         ),
         body: TabBarView(
           children: [
-            CategoriesList(key: _expensesCategoryKey,categoryType: 0),
-            CategoriesList(key: _incomingCategoryKey, categoryType: 1),
+            CategoriesList(key: _expensesCategoryKey, categoryType: CategoryType.expense),
+            CategoriesList(key: _incomingCategoryKey, categoryType: CategoryType.income),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -96,15 +97,14 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
             if (indexTab == 0) {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: 0)),
+                MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.expense)),
               );
               await refreshExpenseCategoriesList();
             }
-
             if (indexTab == 1) {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: 1)),
+                MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.income)),
               );
               await refreshIncomeCategoriesList();
             }

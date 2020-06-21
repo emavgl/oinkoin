@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/helpers/records-generator.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
@@ -13,11 +14,11 @@ main() {
 
     test('fetch one category', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      await SqliteDatabase.instance.deleteTables();
+      await SqliteDatabase.instance.deleteDatabase();
       Category category = new Category("testName", color: Colors.red as Color,
           iconCodePoint: FontAwesomeIcons.film.codePoint);
       var result = await SqliteDatabase.instance.addCategory(category);
-      Category retrievedCategory = await SqliteDatabase.instance.getCategoryByName("testName");
+      Category retrievedCategory = await SqliteDatabase.instance.getCategory("testName", CategoryType.expense);
       expect(retrievedCategory.name, "testName");
       expect(retrievedCategory.color.red, Colors.red.red);
       expect(retrievedCategory.color.blue, Colors.red.blue);
@@ -26,7 +27,7 @@ main() {
     });
 
     test('fetch multiple categories', () async {
-      await SqliteDatabase.instance.deleteTables();
+      await SqliteDatabase.instance.deleteDatabase();
       TestWidgetsFlutterBinding.ensureInitialized();
       Category category1 = new Category("testName1");
       Category category2 = new Category("testName2");
@@ -74,7 +75,7 @@ main() {
     });
 
     tearDown(() async {
-      await SqliteDatabase.instance.deleteTables();
+      await SqliteDatabase.instance.deleteDatabase();
     });
 
   });

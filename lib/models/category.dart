@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/model.dart';
 
+import 'category-type.dart';
+
 class Category extends Model {
 
   /// Object representing a Category.
@@ -95,7 +97,7 @@ class Category extends Model {
   Color color;
   int iconCodePoint;
   IconData icon;
-  int categoryType; // 0 for expenses, 1 for income
+  CategoryType categoryType; // 0 for expenses, 1 for income
 
   Category(String name, {this.color, this.iconCodePoint, this.categoryType}) {
     this.name = name;
@@ -113,7 +115,7 @@ class Category extends Model {
     }
 
     if (this.categoryType == null) {
-      categoryType = 0;
+      categoryType = CategoryType.expense;
     }
   }
 
@@ -123,7 +125,7 @@ class Category extends Model {
       'color': color.alpha.toString() + ":" + color.red.toString() + ":"
           + color.green.toString() + ":" + color.blue.toString(),
       'icon': this.icon.codePoint,
-      'category_type': categoryType
+      'category_type': categoryType.index
     };
     return map;
   }
@@ -135,7 +137,7 @@ class Category extends Model {
       map["name"],
       color: Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]),
       iconCodePoint: map["icon"],
-      categoryType: map["category_type"]
+      categoryType: CategoryType.values[map['category_type']]
     );
   }
 

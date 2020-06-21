@@ -31,12 +31,19 @@ dependencies:
   fl_chart: ^0.9.4  # plugin for statistics and charts
   animations: ^1.0.0+5
   month_picker_dialog: ^0.3.2
+  share:
+    git:
+      url: https://github.com/pboos/plugins.git
+      path: packages/share
+      ref: feature/shareFile
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   font_awesome_flutter:
   intl: 0.16.1
+
 
 dev_dependencies:
   flutter_test:

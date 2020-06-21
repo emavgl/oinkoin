@@ -5,4 +5,7 @@ abstract class Model {
 
   static fromMap() {}
   toMap() {}
+  Map toJson() => toMap();
+  Map fromJson() => fromMap();
+
 }

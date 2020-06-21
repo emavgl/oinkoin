@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -9,7 +10,7 @@ class CategoriesList extends StatefulWidget {
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
 
-  int categoryType;
+  CategoryType categoryType;
 
   CategoriesList({Key key, this.categoryType}) : super(key: key);
 
@@ -20,7 +21,7 @@ class CategoriesList extends StatefulWidget {
 class CategoriesListState extends State<CategoriesList> {
   List<Category> _categories = new List();
   int indexTab;
-  int categoryType;
+  CategoryType categoryType;
 
   DatabaseInterface database = ServiceConfig.database;
 

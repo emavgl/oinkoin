@@ -1,3 +1,4 @@
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 
 class RecordsPerDay {
@@ -18,28 +19,24 @@ class RecordsPerDay {
 
   double get expenses {
     double total = 0;
-    for (var movement in this.records) {
-      if (movement.value < 0)
-        total += movement.value;
+    List<Record> incomeRecords = this.records.where((e) => e.category.categoryType == CategoryType.expense).toList();
+    for (var movement in incomeRecords) {
+      total += movement.value;
     }
     return total;
   }
 
   double get income {
     double total = 0;
-    for (var movement in this.records) {
-      if (movement.value > 0)
+    List<Record> incomeRecords = this.records.where((e) => e.category.categoryType == CategoryType.income).toList();
+    for (var movement in incomeRecords) {
         total += movement.value;
     }
     return total;
   }
 
   double get balance {
-    double total = 0;
-    for (var movement in this.records) {
-      total += movement.value;
-    }
-    return total;
+    return income - expenses;
   }
 
   void addMovement(Record movement) {

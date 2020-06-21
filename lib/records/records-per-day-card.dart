@@ -36,7 +36,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildMovementRow(widget._movementDay.records[i]);
+          var reversed_index = widget._movementDay.records.length - i - 1;
+          return _buildMovementRow(widget._movementDay.records[reversed_index]);
         });
   }
 
@@ -53,7 +54,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           await widget.refreshParentMovementList();
         },
         title: Text(
-          movement.title != null ? movement.title: movement.category.name,
+          movement.title != null ? movement.title : movement.category.name,
           style: _biggerFont,
         ),
         trailing: Text(

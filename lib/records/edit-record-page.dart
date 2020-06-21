@@ -46,7 +46,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     if (passedRecord != null) {
       record = passedRecord;
     } else {
-      record = new Record(null, passedCategory.name, passedCategory, DateTime.now());
+      record = new Record(null, null, passedCategory, DateTime.now());
     }
   }
 

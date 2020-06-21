@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/categories/categories-grid.dart';
+import 'package:piggybank/models/category-type.dart';
 
 
 class CategoryTabPageView extends StatefulWidget {
@@ -59,8 +60,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         ),
         body: TabBarView(
           children: [
-            CategoriesGrid(key: _expensesCategoryKey,categoryType: 0, goToEditMovementPage: widget.goToEditMovementPage,),
-            CategoriesGrid(key: _incomingCategoryKey, categoryType: 1, goToEditMovementPage: widget.goToEditMovementPage,),
+            CategoriesGrid(key: _expensesCategoryKey, categoryType: CategoryType.expense, goToEditMovementPage: widget.goToEditMovementPage,),
+            CategoriesGrid(key: _incomingCategoryKey, categoryType: CategoryType.income, goToEditMovementPage: widget.goToEditMovementPage,),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -13,7 +14,7 @@ class CategoriesGrid extends StatefulWidget {
   /// selected category. If you pass the parameter goToEditMovementPage=true
   /// when selecting a category, it will go to EditMovementPage.
 
-  int categoryType;
+  CategoryType categoryType;
   bool goToEditMovementPage;
 
   CategoriesGrid({Key key, this.categoryType, this.goToEditMovementPage=false})
@@ -26,7 +27,7 @@ class CategoriesGrid extends StatefulWidget {
 class CategoriesGridState extends State<CategoriesGrid> {
   List<Category> _categories = new List();
   int indexTab;
-  int categoryType;
+  CategoryType categoryType;
 
   DatabaseInterface database = ServiceConfig.database;
 

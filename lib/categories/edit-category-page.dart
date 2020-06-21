@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -15,7 +16,7 @@ class EditCategoryPage extends StatefulWidget {
   /// or can create a new Category otherwise.
   
   Category passedCategory;
-  int categoryType;
+  CategoryType categoryType;
 
   EditCategoryPage({Key key, this.passedCategory, this.categoryType}) : super(key: key);
 
@@ -27,7 +28,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   Category passedCategory;
   Category category;
-  int categoryType;
+  CategoryType categoryType;
 
   EditCategoryPageState(this.passedCategory, this.categoryType);
 
@@ -210,7 +211,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 });
 
                 if (continueDelete) {
-                  database.deleteCategoryByName(widget.passedCategory.name);
+                  database.deleteCategory(widget.passedCategory.name, widget.passedCategory.categoryType);
                   Navigator.pop(context);
                 }
             },
@@ -220,7 +221,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               icon: const Icon(Icons.save),
               tooltip: 'Save', onPressed: () async {
                 if (_formKey.currentState.validate()) {
-                  var existingCategory = await database.getCategoryByName(category.name);
+                  var existingCategory = await database.getCategory(category.name, category.categoryType);
                   if (existingCategory == null) {
                     await database.addCategory(category);
                   } else {

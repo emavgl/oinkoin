@@ -1,4 +1,5 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 
@@ -13,9 +14,9 @@ class InMemoryDatabase implements DatabaseInterface {
     /// InMemoryDatabase is intended for debug/testing purposes.
 
     static List<Category> _categories = [
-        Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: 0),
-        Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: 0),
-        Category("Salary", iconCodePoint: FontAwesomeIcons.wallet.codePoint, categoryType: 1)
+        Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: CategoryType.expense),
+        Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: CategoryType.expense),
+        Category("Salary", iconCodePoint: FontAwesomeIcons.wallet.codePoint, categoryType: CategoryType.income)
     ];
 
     static List<Record> _movements = [
@@ -34,17 +35,17 @@ class InMemoryDatabase implements DatabaseInterface {
         return Future<List<Category>>.value(_categories);
     }
 
-    Future<List<Category>> getCategoriesByType(int categoryType) async {
+    Future<List<Category>> getCategoriesByType(CategoryType categoryType) async {
         return Future<List<Category>>.value(_categories.where((x) => x.categoryType == categoryType).toList());
     }
 
-    Future<Category> getCategoryByName(String name) {
-        var matching = _categories.where((x) => x.name == name).toList();
+    Future<Category> getCategory(String name, CategoryType categoryType) {
+        var matching = _categories.where((x) => x.name == name && x.categoryType == categoryType).toList();
         return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
     }
 
     Future<int> updateCategory(Category category) async {
-        var categoryWithTheSameName = await getCategoryByName(category.name);
+        var categoryWithTheSameName = await getCategory(category.name, category.categoryType);
         if (categoryWithTheSameName == null) {
             throw NotFoundException();
         }
@@ -53,8 +54,8 @@ class InMemoryDatabase implements DatabaseInterface {
         return Future<int>.value(index);
     }
 
-    Future<void> deleteCategoryByName(String categoryName) async {
-        _categories.removeWhere((x) => x.name == categoryName);
+    Future<void> deleteCategory(String categoryName, CategoryType categoryType) async {
+        _categories.removeWhere((x) => x.name == categoryName && x.categoryType == categoryType);
     }
 
     Future<int> addRecord(Record movement) async {
@@ -65,7 +66,7 @@ class InMemoryDatabase implements DatabaseInterface {
 
     @override
     Future<int> addCategory(Category category) async {
-        Category foundCategory = await this.getCategoryByName(category.name);
+        Category foundCategory = await this.getCategory(category.name, category.categoryType);
         if (foundCategory != null) {
             throw ElementAlreadyExists();
         }
@@ -102,6 +103,12 @@ class InMemoryDatabase implements DatabaseInterface {
     @override
     Future<void> deleteRecordById(int id) {
       _movements.removeWhere((x) => x.id == id);
+    }
+
+    @override
+    Future<void> deleteDatabase() {
+      _movements.clear();
+      _categories.clear();
     }
 
 }
