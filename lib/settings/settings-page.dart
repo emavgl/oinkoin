@@ -31,8 +31,16 @@ class SettingsPage extends StatelessWidget {
     Share.shareFile(backupJsonOnDisk);
   }
 
-  deleteAllData() async {
-    await database.deleteDatabase();
+  deleteAllData(BuildContext context) async {
+    AlertDialogBuilder premiumDialog = AlertDialogBuilder("Premium required")
+        .addSubtitle("Do you really want to delete all the data?")
+        .addTrueButtonName("Yes").addFalseButtonName("No");
+    var ok = await showDialog(context: context, builder: (BuildContext context) {
+      return premiumDialog.build(context);
+    });
+    if (ok) {
+      await database.deleteDatabase();
+    }
   }
 
   premiumFeatureMessage(BuildContext context) async {
@@ -92,7 +100,7 @@ class SettingsPage extends StatelessWidget {
             iconBackgroundColor: Colors.teal,
             title: 'Delete'.i18n,
             subtitle: 'Delete all the data'.i18n,
-            onPressed: () async => await deleteAllData(),
+            onPressed: () async => await deleteAllData(context),
           ),
           SettingsItem(
             icon: Icon(
