@@ -1,35 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/services/database/sqlite-database.dart';
-import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/statistics/piechart-page.dart';
 
-import 'statistics-pie-chart.dart';
-import 'statistics-line-chart.dart';
-import 'statistics-bar-chart.dart';
-
-// This class shows statistics to the user based on the given interval of time.
-// If no interval is provided, TODO
-// The statistics page has three tabs: expenses, income and balance; the first
-// two tabs reports a line and a pie chart related to the expenses and income
-// movements, respectively. The third tab reports a bar chart comparing expenses
-// and income.
-// TODO we could also have a unique tab with a single line chart and a single
-// TODO bar chart for both expenses and income, and two pie charts for expenses
-// TODO and income (so a total of 4 graphs instead of 5)
 class StatisticsPage extends StatefulWidget {
-  final DateTime startingDate;
-  final DateTime endingDate;
 
-  StatisticsPage({this.startingDate, this.endingDate});
+  /// The category page that you can select from the bottom navigation bar.
+  /// It contains two tab, showing the categories for expenses and categories
+  /// for incomes. It has a single Floating Button that, dependending from which
+  /// tab you clicked, it open the EditCategory page passing the selected Category type.
+
+  List<Record> records;
+  DateTime from;
+  DateTime to;
+  StatisticsPage(this.from, this.to, this.records): super();
 
   @override
   StatisticsPageState createState() => StatisticsPageState();
 }
 
 class StatisticsPageState extends State<StatisticsPage> {
+
   int indexTab;
-  List<Record> incomeMovements;
-  List<Record> expensesMovements;
 
   @override
   void initState() {
@@ -37,71 +29,33 @@ class StatisticsPageState extends State<StatisticsPage> {
     indexTab = 0;
   }
 
-  // to get movements with the given date interval
-  void fetchMovements() async {
-
-    setState(() async {
-
-      // clear the lists, we are going to fetch new data
-      incomeMovements.clear();
-      expensesMovements.clear();
-
-      List<Record> movementsForStatistics = await SqliteDatabase.instance
-          .getAllRecordsInInterval(widget.startingDate, widget.endingDate);
-
-      movementsForStatistics.forEach((movement) => () {
-            if (movement.value > 0)
-              incomeMovements.add(movement);
-            else if (movement.value < 0)
-              expensesMovements.add(movement);
-            else {
-              // TODO what to do?
-            }
-          });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
-            onTap: (index) {
+            onTap: (index){
               setState(() {
                 indexTab = index;
               });
             },
             tabs: [
-              Tab(
-                text: "Expenses".i18n,
-              ),
-              Tab(
-                text: "Income".i18n,
-              ),
-              Tab(
-                text: "Balance".i18n,
-              ),
+              Tab(text: "Expenses",),
+              Tab(text: "Income",)
             ],
           ),
-          title: Text('Statistics'.i18n),
+          title: Text('Charts'),
         ),
         body: TabBarView(
           children: [
-            StatisticsPieChart(
-              movementsForChart: expensesMovements,
-            ),
-            StatisticsLineChart(
-              movementsForChart: incomeMovements,
-            ),
-            StatisticsBarChart(
-              incomeMovementsForChart: incomeMovements,
-              expensesMovementsForChart: expensesMovements,
-            ),
+            PieChartPage(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.expense).toList(),),
+            PieChartPage(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.income).toList(),),
           ],
         ),
       ),
     );
   }
+
 }

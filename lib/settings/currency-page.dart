@@ -15,8 +15,8 @@ class CurrencyPage extends StatefulWidget {
 }
 
 class CurrencyPageState extends State<CurrencyPage> {
-  List<String> _currencyNames = ["Euro", "Dollar"];
-  List<String> _currencies = ["€", "\$"];
+  List<String> _currencyNames = ["Euro", "Dollar", "Pound sterling"];
+  List<String> _currencies = ["€", "\$", "£"];
   List<IconData> _icons = [Icons.euro_symbol, Icons.attach_money];
   int indexSelected = 0;
   DatabaseInterface database = ServiceConfig.database;

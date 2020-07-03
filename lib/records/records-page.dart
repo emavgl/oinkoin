@@ -29,12 +29,23 @@ class RecordsPage extends StatefulWidget {
 
 class RecordsPageState extends State<RecordsPage> {
 
-  Future<List<RecordsPerDay>> getMovementsDaysDateTime(DateTime _from, DateTime _to) async {
-    /// Fetches from the database all the movements between the two dates _from and _to.
-    /// The movements are then grouped in days using the object MovementsPerDay.
+  Future<List<Record>> getRecordsByInterval(DateTime _from, DateTime _to) async {
+    return await database.getAllRecordsInInterval(_from, _to);
+  }
+
+  Future<List<Record>> getRecordsByMonth(int year, int month) async {
+    /// Returns the list of movements of a given month identified by
+    /// :year and :month integers.
+    _from = new DateTime(year, month, 1);
+    DateTime lastDayOfMonths = (_from.month < 12) ? new DateTime(_from.year, _from.month + 1, 0) : new DateTime(_from.year + 1, 1, 0);
+    _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
+    return await getRecordsByInterval(_from, _to);
+  }
+
+  List<RecordsPerDay> groupRecordsByDay(List<Record> records) {
+    /// Groups the record in days using the object MovementsPerDay.
     /// It returns a list of MovementsPerDay object, containing at least 1 movement.
-    List<Record> _movements = await database.getAllRecordsInInterval(_from, _to);
-    var movementsGroups = groupBy(_movements, (movement) => movement.date);
+    var movementsGroups = groupBy(records, (records) => records.date);
     Queue<RecordsPerDay> movementsPerDay = Queue();
     movementsGroups.forEach((k, groupedMovements) {
       if (groupedMovements.isNotEmpty) {
@@ -45,15 +56,6 @@ class RecordsPageState extends State<RecordsPage> {
     return movementsPerDay.toList();
   }
 
-  Future<List<RecordsPerDay>> getMovementsByMonth(int year, int month) async {
-    /// Returns the list of movements of a given month identified by
-    /// :year and :month integers.
-    _from = new DateTime(year, month, 1);
-    DateTime lastDayOfMonths = (_from.month < 12) ? new DateTime(_from.year, _from.month + 1, 0) : new DateTime(_from.year + 1, 1, 0);
-    _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
-    return await getMovementsDaysDateTime(_from, _to);
-  }
-
   String getMonthHeader(DateTime dateTime) {
     /// Returns the header string identifying the current visualised month.
     Locale myLocale = I18n.locale;
@@ -62,6 +64,7 @@ class RecordsPageState extends State<RecordsPage> {
   }
 
   List<RecordsPerDay> _daysShown = new List();
+  List<Record> _records = new List();
   DatabaseInterface database = ServiceConfig.database;
   DateTime _from;
   DateTime _to;
@@ -72,9 +75,10 @@ class RecordsPageState extends State<RecordsPage> {
     super.initState();
     DateTime _now = DateTime.now();
     _header = getMonthHeader(_now);
-    getMovementsByMonth(_now.year, _now.month).then((movementsDay) {
+    getRecordsByMonth(_now.year, _now.month).then((records) {
       setState(() {
-        _daysShown = movementsDay;
+        _records = records;
+        _daysShown = groupRecordsByDay(records);
       });
     });
   }
@@ -110,10 +114,11 @@ class RecordsPageState extends State<RecordsPage> {
       locale: I18n.locale,
     );
     if (dateTime != null) {
-      var movementsDay = await getMovementsByMonth(dateTime.year, dateTime.month);
+      var newRecords = await getRecordsByMonth(dateTime.year, dateTime.month);
       setState(() {
         _header = getMonthHeader(_from);
-        _daysShown = movementsDay;
+        _records = newRecords;
+        _daysShown = groupRecordsByDay(_records);
       });
     }
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
@@ -169,9 +174,11 @@ class RecordsPageState extends State<RecordsPage> {
     /// Refetch the list of movements in the selected range
     /// from the database. We call this method all the times we land back to
     /// this page after have visited the page add-movement.
-    var newMovements = await getMovementsDaysDateTime(_from, _to);
+    var newRecords = await getRecordsByInterval(_from, _to);
     setState(() {
-      _daysShown = newMovements;
+      _header = getMonthHeader(_from);
+      _records = newRecords;
+      _daysShown = groupRecordsByDay(_records);
     });
   }
 
@@ -189,7 +196,7 @@ class RecordsPageState extends State<RecordsPage> {
     /// Navigate to the Statistics Page
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => StatisticsPage()),
+      MaterialPageRoute(builder: (context) => StatisticsPage(_from, _to, _records)),
     );
   }
 
