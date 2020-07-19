@@ -56,7 +56,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
           }
         },
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.all(10),
           child: Column(
             children: [
               Container(
