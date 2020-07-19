@@ -3,6 +3,7 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
+/*
 class PieChartPage extends StatefulWidget {
 
   /// The category page that you can select from the bottom navigation bar.
@@ -20,6 +21,7 @@ class PieChartPage extends StatefulWidget {
   @override
   PieChartPageState createState() => PieChartPageState();
 }
+*/
 
 /// Sample linear data type.
 class LinearRecord {
@@ -29,7 +31,15 @@ class LinearRecord {
   LinearRecord(this.category, this.value);
 }
 
-class PieChartPageState extends State<PieChartPage> {
+class PieChartPage extends StatelessWidget {
+
+  final List<Record> records;
+  DateTime from;
+  DateTime to;
+
+  PieChartPage(this.from, this.to, this.records) {
+    seriesList = _prepareData(records);
+  }
 
   /// Create series list with one series
   List<charts.Series<LinearRecord, String>> _prepareData(List<Record> records) {
@@ -74,13 +84,6 @@ class PieChartPageState extends State<PieChartPage> {
   bool animate = true;
   static final palette = charts.MaterialPalette.getOrderedPalettes(categoryCount);
   static final categoryCount = 5;
-
-  @override
-  void initState() {
-    super.initState();
-    palette.shuffle();
-    seriesList = _prepareData(widget.records);
-  }
 
   Widget _buildCardPieChart() {
     return Container(

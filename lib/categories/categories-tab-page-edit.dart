@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/categories/categories-list.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/category.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 import './i18n/categories-tab-page.i18n.dart';
 
 class CategoryTabPageEdit extends StatefulWidget {
@@ -12,18 +15,6 @@ class CategoryTabPageEdit extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
-
-  GlobalKey<CategoriesListState> _expensesCategoryKey = GlobalKey();
-  GlobalKey<CategoriesListState> _incomingCategoryKey = GlobalKey();
-
-  CategoriesList expenseSubPage;
-  CategoriesList incomeSubPage;
-
-  CategoryTabPageEdit({Key key}) : super(key: key) {
-    expenseSubPage = CategoriesList(key: _expensesCategoryKey, categoryType: CategoryType.expense);
-    incomeSubPage = CategoriesList(key: _incomingCategoryKey, categoryType: CategoryType.income);
-  }
-
   @override
   CategoryTabPageEditState createState() => CategoryTabPageEditState();
 }
@@ -31,26 +22,27 @@ class CategoryTabPageEdit extends StatefulWidget {
 class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
 
   int indexTab;
+  List<Category> _categories;
+  CategoryType categoryType;
 
+  DatabaseInterface database = ServiceConfig.database;
 
   @override
   void initState() {
     super.initState();
     indexTab = 0;
+    database.getAllCategories().then((categories) => {
+      setState(() {
+        _categories = categories;
+      })
+    });
   }
 
-  void refreshExpenseCategoriesList() async {
-    if (widget._expensesCategoryKey.currentState != null) {
-      print("refreshExpenseCategoriesList called");
-      await widget._expensesCategoryKey.currentState.fetchCategories();
-    }
-  }
-
-  void refreshIncomeCategoriesList() async {
-    if (widget._incomingCategoryKey.currentState != null) {
-      print("refreshIncomeCategoriesList called");
-      await widget._incomingCategoryKey.currentState.fetchCategories();
-    }
+  refreshCategories() async {
+    var newlyFetchedCategories = await database.getAllCategories();
+    setState(() {
+      _categories = newlyFetchedCategories;
+    });
   }
 
   OpenContainer floatingButtonOpenContainer() {
@@ -94,10 +86,6 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
               setState(() {
                 indexTab = index;
               });
-              if (index == 0)
-                await refreshExpenseCategoriesList();
-              else
-                await refreshIncomeCategoriesList();
             },
             tabs: [
               Tab(text: "Expenses".i18n,),
@@ -108,26 +96,19 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> {
         ),
         body: TabBarView(
           children: [
-            widget.expenseSubPage,
-            widget.incomeSubPage
+            _categories != null ? CategoriesList(_categories.where((element) => element.categoryType == CategoryType.expense).toList(), callback: refreshCategories) : Container(),
+            _categories != null ? CategoriesList(_categories.where((element) => element.categoryType == CategoryType.income).toList(), callback: refreshCategories) : Container(),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: ()  async {
-            if (indexTab == 0) {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.expense)),
-              );
-              await refreshExpenseCategoriesList();
-            }
-            if (indexTab == 1) {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.income)),
-              );
-              await refreshIncomeCategoriesList();
-            }
+            var categoryType = indexTab == 0 ? CategoryType.expense : CategoryType.income;
+            print("CategoryType: " + categoryType.toString());
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: categoryType)),
+            );
+            await refreshCategories();
           },
           tooltip: 'Increment Counter',
           child: const Icon(Icons.add),

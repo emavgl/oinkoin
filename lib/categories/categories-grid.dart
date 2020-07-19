@@ -14,45 +14,27 @@ class CategoriesGrid extends StatefulWidget {
   /// selected category. If you pass the parameter goToEditMovementPage=true
   /// when selecting a category, it will go to EditMovementPage.
 
-  CategoryType categoryType;
+  /// CategoriesList fetches the categories of a given categoryType (input parameter)
+  /// and renders them using a vertical ListView.
+
+  List<Category> categories;
+
   bool goToEditMovementPage;
 
-  CategoriesGrid({Key key, this.categoryType, this.goToEditMovementPage=false})
-      : super(key: key);
+  CategoriesGrid(this.categories, {this.goToEditMovementPage});
 
   @override
-  CategoriesGridState createState() => CategoriesGridState(categoryType);
+  CategoriesGridState createState() => CategoriesGridState();
 }
 
 class CategoriesGridState extends State<CategoriesGrid> {
-  List<Category> _categories = new List();
-  int indexTab;
-  CategoryType categoryType;
-
-  DatabaseInterface database = ServiceConfig.database;
-
-  CategoriesGridState(this.categoryType);
-
-  fetchCategories() async {
-    var categories = await database.getCategoriesByType(categoryType);
-    setState(() {
-      _categories = categories;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    indexTab = 0;
-    fetchCategories();
-  }
-
+  
   Widget _buildCategories() {
     return GridView.count(
         crossAxisCount: 4,
         shrinkWrap: true,
-        children: List.generate(_categories.length, (index) {
-          return _buildCategory(_categories[index]);
+        children: List.generate(widget.categories.length, (index) {
+          return _buildCategory(widget.categories[index]);
         }),
     );
   }
@@ -102,9 +84,9 @@ class CategoriesGridState extends State<CategoriesGrid> {
 
   @override
   Widget build(BuildContext context) {
-    return _categories.length == 0 ? Container(
+    return widget.categories != null ? new Container(
         margin: EdgeInsets.all(15),
-        child: Column(
+        child: widget.categories.length == 0 ? new Column(
           children: <Widget>[
             Image.asset(
               'assets/no_entry_2.png', width: 200,
@@ -114,8 +96,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
               style: TextStyle(
                 fontSize: 22.0,) ,)
           ],
-        )
-    ) : _buildCategories();
+        ) : _buildCategories()
+    ) : new Container();
   }
-
 }

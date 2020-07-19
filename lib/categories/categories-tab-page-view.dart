@@ -1,7 +1,12 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:piggybank/categories/categories-grid.dart';
+import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/category.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 
+import 'categories-grid.dart';
 
 class CategoryTabPageView extends StatefulWidget {
 
@@ -11,8 +16,7 @@ class CategoryTabPageView extends StatefulWidget {
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
   bool goToEditMovementPage;
-  CategoryTabPageView({Key key, this.goToEditMovementPage=false})
-      : super(key: key);
+  CategoryTabPageView({this.goToEditMovementPage});
 
   @override
   CategoryTabPageViewState createState() => CategoryTabPageViewState();
@@ -21,22 +25,57 @@ class CategoryTabPageView extends StatefulWidget {
 class CategoryTabPageViewState extends State<CategoryTabPageView> {
 
   int indexTab;
+  List<Category> _categories;
+  CategoryType categoryType;
 
-  final GlobalKey<CategoriesGridState> _expensesCategoryKey = GlobalKey();
-  final GlobalKey<CategoriesGridState> _incomingCategoryKey = GlobalKey();
+  DatabaseInterface database = ServiceConfig.database;
 
   @override
   void initState() {
     super.initState();
     indexTab = 0;
+    database.getAllCategories().then((categories) => {
+      setState(() {
+        _categories = categories;
+      })
+    });
   }
 
-  void refreshExpenseCategoriesList() async {
-    await _expensesCategoryKey.currentState.fetchCategories();
+  refreshCategories() async {
+    var newlyFetchedCategories = await database.getAllCategories();
+    setState(() {
+      _categories = newlyFetchedCategories;
+    });
   }
 
-  void refreshIncomeCategoriesList() async {
-    await _incomingCategoryKey.currentState.fetchCategories();
+  OpenContainer floatingButtonOpenContainer() {
+    ContainerTransitionType _transitionType = ContainerTransitionType.fade;
+    const double _fabDimension = 56.0;
+    return OpenContainer(
+      transitionType: _transitionType,
+      openBuilder: (BuildContext context, VoidCallback _) {
+        return EditCategoryPage(categoryType: CategoryType.values[indexTab]);
+      },
+      closedElevation: 6.0,
+      closedShape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(_fabDimension / 2),
+        ),
+      ),
+      closedColor: Theme.of(context).colorScheme.secondary,
+      closedBuilder: (BuildContext context, VoidCallback openContainer){
+        return SizedBox(
+          height: _fabDimension,
+          width: _fabDimension,
+          child: Center(
+            child: Icon(
+              Icons.add,
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -60,12 +99,13 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         ),
         body: TabBarView(
           children: [
-            CategoriesGrid(key: _expensesCategoryKey, categoryType: CategoryType.expense, goToEditMovementPage: widget.goToEditMovementPage,),
-            CategoriesGrid(key: _incomingCategoryKey, categoryType: CategoryType.income, goToEditMovementPage: widget.goToEditMovementPage,),
+            _categories != null ? CategoriesGrid(_categories.where((element) => element.categoryType == CategoryType.expense).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
+            _categories != null ? CategoriesGrid(_categories.where((element) => element.categoryType == CategoryType.income).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
           ],
         ),
       ),
     );
   }
+
 
 }

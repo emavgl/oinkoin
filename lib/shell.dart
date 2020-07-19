@@ -15,7 +15,6 @@ class ShellState extends State<Shell> {
   int _currentIndex = 0;
 
   final GlobalKey<RecordsPageState> _recordPageKey = GlobalKey();
-  final GlobalKey<CategoryTabPageEditState> _categoryTapEditStateKey = GlobalKey();
 
 
   @override
@@ -35,7 +34,7 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoryTabPageEdit(key: _categoryTapEditStateKey)),
+              child: new MaterialApp(home: new CategoryTabPageEdit()),
             ),
           ),
             new Offstage(

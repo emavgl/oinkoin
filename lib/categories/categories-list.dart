@@ -10,35 +10,20 @@ class CategoriesList extends StatefulWidget {
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
 
-  CategoryType categoryType;
+  List<Category> categories;
+  final void Function() callback;
 
-  CategoriesList({Key key, this.categoryType}) : super(key: key);
+  CategoriesList(this.categories, {this.callback});
 
   @override
-  CategoriesListState createState() => CategoriesListState(categoryType);
+  CategoriesListState createState() => CategoriesListState();
 }
 
 class CategoriesListState extends State<CategoriesList> {
-  List<Category> _categories = new List();
-  int indexTab;
-  CategoryType categoryType;
-
-  DatabaseInterface database = ServiceConfig.database;
-
-  CategoriesListState(this.categoryType);
-
-  fetchCategories() async {
-    var categories = await database.getCategoriesByType(categoryType);
-    setState(() {
-      _categories = categories;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    indexTab = 0;
-    fetchCategories();
   }
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
@@ -48,13 +33,12 @@ class CategoriesListState extends State<CategoriesList> {
         shrinkWrap: true,
         separatorBuilder: (context, index) => Divider(),
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: _categories.length,
+        itemCount: widget.categories.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildCategory(_categories[i]);
+          return _buildCategory(widget.categories[i]);
         });
   }
-
 
   Widget _buildCategory(Category category) {
     return InkWell(
@@ -65,7 +49,8 @@ class CategoriesListState extends State<CategoriesList> {
                 builder: (context) =>
                     EditCategoryPage(passedCategory: category)),
           );
-          await fetchCategories();
+          if (widget.callback != null)
+            await widget.callback();
         },
         child: ListTile(
             leading: Container(
@@ -85,9 +70,9 @@ class CategoriesListState extends State<CategoriesList> {
 
   @override
   Widget build(BuildContext context) {
-    return _categories.length == 0 ? Container(
+    return widget.categories != null ? new Container(
         margin: EdgeInsets.all(15),
-        child: Column(
+        child: widget.categories.length == 0 ? new Column(
           children: <Widget>[
             Image.asset(
               'assets/no_entry_2.png', width: 200,
@@ -97,8 +82,8 @@ class CategoriesListState extends State<CategoriesList> {
               style: TextStyle(
                 fontSize: 22.0,) ,)
           ],
-        )
-    ) : _buildCategories();
+        ) : _buildCategories()
+    ) : new Container();
   }
 
 }
