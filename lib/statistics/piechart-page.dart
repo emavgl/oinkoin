@@ -1,29 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-/*
-class PieChartPage extends StatefulWidget {
-
-  /// The category page that you can select from the bottom navigation bar.
-  /// It contains two tab, showing the categories for expenses and categories
-  /// for incomes. It has a single Floating Button that, dependending from which
-  /// tab you clicked, it open the EditCategory page passing the selected Category type.
-
-  bool goToEditMovementPage;
-  List<Record> records;
-  DateTime from;
-  DateTime to;
-  PieChartPage(this.from, this.to, this.records);
-
-
-  @override
-  PieChartPageState createState() => PieChartPageState();
-}
-*/
-
-/// Sample linear data type.
 class LinearRecord {
   final String category;
   final double value;
@@ -31,17 +9,16 @@ class LinearRecord {
   LinearRecord(this.category, this.value);
 }
 
-class PieChartPage extends StatelessWidget {
+class PieChartCard extends StatelessWidget {
 
   final List<Record> records;
   DateTime from;
   DateTime to;
 
-  PieChartPage(this.from, this.to, this.records) {
+  PieChartCard(this.from, this.to, this.records) {
     seriesList = _prepareData(records);
   }
 
-  /// Create series list with one series
   List<charts.Series<LinearRecord, String>> _prepareData(List<Record> records) {
     Map<String, double> aggregatedCategoriesValuesTemporaryMap = new Map();
     double totalSum = 0;
@@ -99,7 +76,7 @@ class PieChartPage extends StatelessWidget {
                   // Add the legend behavior to the chart to turn on legends.
                   // This example shows how to optionally show measure and provide a custom
                   // formatter.
-                  defaultRenderer: new charts.ArcRendererConfig(arcWidth: 70, arcRendererDecorators: [
+                  defaultRenderer: new charts.ArcRendererConfig(arcWidth: 35, arcRendererDecorators: [
                     new charts.ArcLabelDecorator(
                         labelPosition: charts.ArcLabelPosition.outside)
                   ]),

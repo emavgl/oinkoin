@@ -50,8 +50,8 @@ class StatisticsPageState extends State<StatisticsPage> {
         ),
         body: TabBarView(
           children: [
-            PieChartPage(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.expense).toList(),),
-            PieChartPage(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.income).toList(),),
+            PieChartCard(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.expense).toList(),),
+            PieChartCard(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.income).toList(),),
           ],
         ),
       ),

@@ -3,6 +3,8 @@ import './i18n/currency-page.i18n.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 
 class CurrencyPage extends StatefulWidget {
 
@@ -17,7 +19,7 @@ class CurrencyPage extends StatefulWidget {
 class CurrencyPageState extends State<CurrencyPage> {
   List<String> _currencyNames = ["Euro", "Dollar", "Pound sterling"];
   List<String> _currencies = ["€", "\$", "£"];
-  List<IconData> _icons = [Icons.euro_symbol, Icons.attach_money];
+  List<IconData> _icons = [FontAwesomeIcons.euroSign, FontAwesomeIcons.dollarSign, FontAwesomeIcons.poundSign];
   int indexSelected = 0;
   DatabaseInterface database = ServiceConfig.database;
 
