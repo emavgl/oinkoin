@@ -13,6 +13,8 @@ class LinearRecord {
 class PieChartCard extends StatelessWidget {
 
   final List<Record> records;
+  List<LinearRecord> linearRecords;
+  List<charts.Series> seriesList;
 
   PieChartCard(this.records) {
     seriesList = _prepareData(records);
@@ -56,6 +58,8 @@ class PieChartCard extends StatelessWidget {
       data.add(lr);
     }
 
+    linearRecords = data;
+
     return [
       new charts.Series<LinearRecord, String>(
         id: 'Expenses'.i18n,
@@ -69,54 +73,68 @@ class PieChartCard extends StatelessWidget {
     ];
   }
 
-  List<charts.Series> seriesList;
   bool animate = true;
   static final categoryCount = 5;
   static final palette = charts.MaterialPalette.getOrderedPalettes(categoryCount);
 
-  Widget _buildCardPieChart() {
+  Widget _buildPieChart() {
+    return new Container(
+        child: new charts.PieChart(
+          seriesList,
+          animate: animate,
+          defaultRenderer: new charts.ArcRendererConfig(arcWidth: 35),
+        )
+    );
+  }
+
+  Widget _buildLegend() {
+    /// Returns a ListView with all the movements contained in the MovementPerDay object
+    return ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: linearRecords.length,
+        padding: const EdgeInsets.all(6.0),
+        itemBuilder: /*1*/ (context, i) {
+          var linearRecord = linearRecords[i];
+          var recordColor = palette[i].shadeDefault;
+          return Container(
+            margin: EdgeInsets.fromLTRB(0, 0, 8, 8),
+            child: new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                          height: 10,
+                          width: 20,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color.fromARGB(recordColor.a, recordColor.r, recordColor.g, recordColor.b),
+                          )
+                      ),
+                      Text(linearRecord.category),
+                    ],
+                  )
+                ),
+                Text(linearRecord.value.toStringAsFixed(2) + " %"),
+              ],
+            )
+          );
+        });
+  }
+
+  Widget _buildCard() {
     return Container(
         padding: EdgeInsets.all(10),
         height: 200,
         child: new Card(
             elevation: 2,
-            child: new Container(
-              padding: EdgeInsets.all(10),
-              child: new charts.PieChart(
-                  seriesList,
-                  animate: animate,
-
-                  // Add the legend behavior to the chart to turn on legends.
-                  // This example shows how to optionally show measure and provide a custom
-                  // formatter.
-                  defaultRenderer: new charts.ArcRendererConfig(arcWidth: 35),
-                  behaviors: [
-                    new charts.DatumLegend(
-                      outsideJustification: charts.OutsideJustification.middleDrawArea,
-                      // Positions for "start" and "end" will be left and right respectively
-                      // for widgets with a build context that has directionality ltr.
-                      // For rtl, "start" and "end" will be right and left respectively.
-                      // Since this example has directionality of ltr, the legend is
-                      // positioned on the right side of the chart.
-                      position: charts.BehaviorPosition.end,
-                      // By default, if the position of the chart is on the left or right of
-                      // the chart, [horizontalFirst] is set to false. This means that the
-                      // legend entries will grow as new rows first instead of a new column.
-                      horizontalFirst: false,
-                      // This defines the padding around each legend entry.
-                      cellPadding: new EdgeInsets.only(right: 20.0, bottom: 10.0),
-                      // Set [showMeasures] to true to display measures in series legend.
-                      showMeasures: true,
-                      // Configure the measure value to be shown by default in the legend.
-                      legendDefaultMeasure: charts.LegendDefaultMeasure.firstValue,
-                      // Optionally provide a measure formatter to format the measure value.
-                      // If none is specified the value is formatted as a decimal.
-                      measureFormatter: (num value) {
-                        return value == null ? '-' : '${value.toStringAsFixed(2)}%';
-                      },
-                    ),
-                  ],
-                )              
+            child: new Row(
+              children: <Widget>[
+                Expanded(child: _buildPieChart()),
+                Expanded(child: _buildLegend()),
+              ],
             )
         )
     );
@@ -124,6 +142,6 @@ class PieChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCardPieChart();
+    return _buildCard();
   }
 }
