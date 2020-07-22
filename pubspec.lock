@@ -7,14 +7,14 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.0"
+    version: "6.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.39.13"
+    version: "0.39.14"
   analyzer_plugin:
     dependency: transitive
     description:
@@ -242,6 +242,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_speed_dial:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: b1e3c6f5c52ba9d0cd04e746bfa79e42d2b30bc9
+      url: "https://github.com/emavgl/flutter_speed_dial.git"
+    source: git
+    version: "1.2.5"
   flutter_test:
     dependency: "direct dev"
     description: flutter

@@ -25,8 +25,15 @@ extension Localization on String {
         "de_de": "TODO",
       } +
       {
-        "en_us": "Balance",
-        "it_it": "Bilancio",
+        "en_us": "Others",
+        "it_it": "Altre",
+        "es_es": "Gastos",
+        "fr_fr": "Dépenses",
+        "de_de": "TODO",
+      } +
+      {
+        "en_us": "Values grouped by category",
+        "it_it": "Valori raggruppati per categoria",
         "es_es": "Saldo",
         "fr_fr": "Balance",
         "de_de": "TODO",

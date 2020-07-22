@@ -24,7 +24,6 @@ class CategoryTabPageView extends StatefulWidget {
 
 class CategoryTabPageViewState extends State<CategoryTabPageView> {
 
-  int indexTab;
   List<Category> _categories;
   CategoryType categoryType;
 
@@ -33,7 +32,6 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   @override
   void initState() {
     super.initState();
-    indexTab = 0;
     database.getAllCategories().then((categories) => {
       setState(() {
         _categories = categories;
@@ -48,36 +46,6 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
     });
   }
 
-  OpenContainer floatingButtonOpenContainer() {
-    ContainerTransitionType _transitionType = ContainerTransitionType.fade;
-    const double _fabDimension = 56.0;
-    return OpenContainer(
-      transitionType: _transitionType,
-      openBuilder: (BuildContext context, VoidCallback _) {
-        return EditCategoryPage(categoryType: CategoryType.values[indexTab]);
-      },
-      closedElevation: 6.0,
-      closedShape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(_fabDimension / 2),
-        ),
-      ),
-      closedColor: Theme.of(context).colorScheme.secondary,
-      closedBuilder: (BuildContext context, VoidCallback openContainer){
-        return SizedBox(
-          height: _fabDimension,
-          width: _fabDimension,
-          child: Center(
-            child: Icon(
-              Icons.add,
-              color: Theme.of(context).colorScheme.onSecondary,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -85,11 +53,6 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
-            onTap: (index){
-              setState(() {
-                indexTab = index;
-              });
-            },
             tabs: [
               Tab(text: "Expenses",),
               Tab(text: "Income",)

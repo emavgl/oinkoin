@@ -37,6 +37,8 @@ dependencies:
       url: https://github.com/pboos/plugins.git
       path: packages/share
       ref: feature/shareFile
+  flutter_speed_dial:
+    git: https://github.com/emavgl/flutter_speed_dial.git
 
 
   # The following adds the Cupertino Icons font to your application.

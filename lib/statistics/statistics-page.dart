@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/statistics/piechart-page.dart';
+import 'package:piggybank/statistics/piechart-card.dart';
+import 'package:piggybank/statistics/statistics-tab-page.dart';
 
 class StatisticsPage extends StatefulWidget {
 
@@ -50,8 +51,8 @@ class StatisticsPageState extends State<StatisticsPage> {
         ),
         body: TabBarView(
           children: [
-            PieChartCard(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.expense).toList(),),
-            PieChartCard(widget.from, widget.to, widget.records.where((element) => element.category.categoryType == CategoryType.income).toList(),),
+            StatisticsTabPage(widget.records.where((element) => element.category.categoryType == CategoryType.expense).toList()),
+            StatisticsTabPage(widget.records.where((element) => element.category.categoryType == CategoryType.income).toList()),
           ],
         ),
       ),

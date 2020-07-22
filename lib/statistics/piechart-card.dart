@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import './i18n/statistics-page.i18n.dart';
 
 class LinearRecord {
   final String category;
@@ -12,10 +13,8 @@ class LinearRecord {
 class PieChartCard extends StatelessWidget {
 
   final List<Record> records;
-  DateTime from;
-  DateTime to;
 
-  PieChartCard(this.from, this.to, this.records) {
+  PieChartCard(this.records) {
     seriesList = _prepareData(records);
   }
 
@@ -30,13 +29,15 @@ class PieChartCard extends StatelessWidget {
     }
     var aggregatedCategoriesAndValues = aggregatedCategoriesValuesTemporaryMap
         .entries.toList();
-    aggregatedCategoriesAndValues.sort((a, b) => a.value.compareTo(b.value));
+    aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value)); // sort descending
 
     var limit = aggregatedCategoriesAndValues.length > categoryCount
         ? categoryCount
         : aggregatedCategoriesAndValues.length;
+
     var topCategoriesAndValue = aggregatedCategoriesAndValues.sublist(0, limit);
 
+    // add top categories
     List<LinearRecord> data = [];
     for (var categoryAndValue in topCategoriesAndValue) {
       var percentage = (100 * categoryAndValue.value) / totalSum;
@@ -44,9 +45,20 @@ class PieChartCard extends StatelessWidget {
       data.add(lr);
     }
 
+    // if visualized categories are less than the total amount of categories
+    // aggregated the reaming category as a mock category name "Other"
+    if (limit < aggregatedCategoriesAndValues.length) {
+      var remainingCategoriesAndValue = aggregatedCategoriesAndValues.sublist(limit);
+      var sumOfRemainingCategories = remainingCategoriesAndValue.fold(0, (value, element) => value + element.value);
+      var remainingCategoryKey = "Others".i18n;
+      var percentage = (100 * sumOfRemainingCategories) / totalSum;
+      var lr = LinearRecord(remainingCategoryKey, percentage);
+      data.add(lr);
+    }
+
     return [
       new charts.Series<LinearRecord, String>(
-        id: 'Expenses',
+        id: 'Expenses'.i18n,
         colorFn: (LinearRecord sales, i) =>
           palette[i].shadeDefault,
         domainFn: (LinearRecord records, _) => records.category,
@@ -59,14 +71,15 @@ class PieChartCard extends StatelessWidget {
 
   List<charts.Series> seriesList;
   bool animate = true;
-  static final palette = charts.MaterialPalette.getOrderedPalettes(categoryCount);
   static final categoryCount = 5;
+  static final palette = charts.MaterialPalette.getOrderedPalettes(categoryCount);
 
   Widget _buildCardPieChart() {
     return Container(
         padding: EdgeInsets.all(10),
         height: 200,
         child: new Card(
+            elevation: 2,
             child: new Container(
               padding: EdgeInsets.all(10),
               child: new charts.PieChart(
@@ -76,10 +89,7 @@ class PieChartCard extends StatelessWidget {
                   // Add the legend behavior to the chart to turn on legends.
                   // This example shows how to optionally show measure and provide a custom
                   // formatter.
-                  defaultRenderer: new charts.ArcRendererConfig(arcWidth: 35, arcRendererDecorators: [
-                    new charts.ArcLabelDecorator(
-                        labelPosition: charts.ArcLabelPosition.outside)
-                  ]),
+                  defaultRenderer: new charts.ArcRendererConfig(arcWidth: 35),
                   behaviors: [
                     new charts.DatumLegend(
                       outsideJustification: charts.OutsideJustification.middleDrawArea,
@@ -94,7 +104,7 @@ class PieChartCard extends StatelessWidget {
                       // legend entries will grow as new rows first instead of a new column.
                       horizontalFirst: false,
                       // This defines the padding around each legend entry.
-                      cellPadding: new EdgeInsets.only(right: 4.0, bottom: 4.0),
+                      cellPadding: new EdgeInsets.only(right: 20.0, bottom: 10.0),
                       // Set [showMeasures] to true to display measures in series legend.
                       showMeasures: true,
                       // Configure the measure value to be shown by default in the legend.
@@ -114,12 +124,6 @@ class PieChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        type: MaterialType.transparency,
-        child: new Align(
-            alignment: Alignment.topCenter,
-            child: _buildCardPieChart()
-        )
-    );
+    return _buildCardPieChart();
   }
 }
