@@ -18,9 +18,12 @@ class CategorySummaryCard extends StatelessWidget {
   final _biggerFont = const TextStyle(fontSize: 16.0);
 
   CategorySummaryCard(this.records) {
-    categoriesAndSums = _aggregateRecordByCategory(records);
-    totalExpensesSum = categoriesAndSums.fold(0, (previousValue, element) => previousValue + element.value);
-    maxExpensesSum = categoriesAndSums[0].value;
+    if (records.length > 0) {
+      categoriesAndSums = _aggregateRecordByCategory(records);
+      totalExpensesSum = categoriesAndSums.fold(
+          0, (previousValue, element) => previousValue + element.value);
+      maxExpensesSum = categoriesAndSums[0].value;
+    }
   }
 
   List<CategorySumTuple> _aggregateRecordByCategory(List<Record> records) {
@@ -80,8 +83,12 @@ class CategorySummaryCard extends StatelessWidget {
                     ],
                   ),
                   Container(
-                    padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                    child: LinearProgressIndicator(value: percentageBar, backgroundColor: Colors.transparent,),
+                    padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                    child:
+                    SizedBox(
+                      height: 2,
+                      child: LinearProgressIndicator(value: percentageBar, backgroundColor: Colors.transparent,),
+                    )
                   )
                 ],
               ),

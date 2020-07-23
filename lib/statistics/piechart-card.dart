@@ -133,7 +133,7 @@ class PieChartCard extends StatelessWidget {
             child: new Row(
               children: <Widget>[
                 Expanded(child: _buildPieChart()),
-                Expanded(child: _buildLegend()),
+                Expanded(child: _buildLegend())
               ],
             )
         )

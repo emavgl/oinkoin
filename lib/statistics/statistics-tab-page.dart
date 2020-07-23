@@ -29,16 +29,30 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     indexTab = 0;
   }
 
+  Widget noRecordsWidget() {
+    return new Column(
+      children: <Widget>[
+        Image.asset(
+          'assets/no_entry_3.png', width: 200,
+        ),
+        Text("No entries to show.",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 22.0,) ,)
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Align(
         alignment: Alignment.topCenter,
-        child: new Column(
+        child: widget.records.length > 0 ? new Column(
           children: <Widget>[
             PieChartCard(widget.records),
             CategorySummaryCard(widget.records)
           ],
-        )
+        ) : noRecordsWidget()
     );
   }
 
