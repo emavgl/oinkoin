@@ -122,7 +122,7 @@ class CategorySummaryCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Values grouped by category".i18n,
+                          "Entries grouped by category".i18n,
                           style: TextStyle(fontSize: 14),
                         ),
                         Text(
