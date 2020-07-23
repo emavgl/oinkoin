@@ -29,7 +29,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     indexTab = 0;
   }
 
-  Widget noRecordsWidget() {
+  Widget _buildNoRecordPage() {
     return new Column(
       children: <Widget>[
         Image.asset(
@@ -43,16 +43,22 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     );
   }
 
+  Widget _buildStatisticPage() {
+    return new SingleChildScrollView(
+      child: new Column(
+        children: <Widget>[
+          PieChartCard(widget.records),
+          CategorySummaryCard(widget.records)
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Align(
         alignment: Alignment.topCenter,
-        child: widget.records.length > 0 ? new Column(
-          children: <Widget>[
-            PieChartCard(widget.records),
-            CategorySummaryCard(widget.records)
-          ],
-        ) : noRecordsWidget()
+        child: widget.records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
     );
   }
 

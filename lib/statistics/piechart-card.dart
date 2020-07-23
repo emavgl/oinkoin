@@ -126,7 +126,7 @@ class PieChartCard extends StatelessWidget {
 
   Widget _buildCard() {
     return Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
         height: 200,
         child: new Card(
             elevation: 2,

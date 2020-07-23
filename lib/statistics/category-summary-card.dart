@@ -111,7 +111,7 @@ class CategorySummaryCard extends StatelessWidget {
 
   Widget _buildCategoryStatsCard() {
     return Container(
-        padding: EdgeInsets.all(10),
+        margin: const EdgeInsets.fromLTRB(10, 5, 10, 0),
         child: new Card(
           elevation: 2,
           child: Column(
