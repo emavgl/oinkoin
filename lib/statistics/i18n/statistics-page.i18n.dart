@@ -29,6 +29,10 @@ extension Localization on String {
         "it_it": "Grafici",
       } +
       {
+        "en_us": "Trend in the selected period",
+        "it_it": "Andamento nel periodo selezionato",
+      } +
+      {
         "en_us": "Others",
         "it_it": "Altre",
         "es_es": "Gastos",

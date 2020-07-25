@@ -53,7 +53,9 @@ class RecordsPageState extends State<RecordsPage> {
         movementsPerDay.addFirst(new RecordsPerDay(groupedDay, records: groupedMovements));
       }
     });
-    return movementsPerDay.toList();
+    var movementsDayList = movementsPerDay.toList();
+    movementsDayList.sort((b, a) => a.dateTime.compareTo(b.dateTime));
+    return movementsDayList;
   }
 
   String getMonthHeader(DateTime dateTime) {

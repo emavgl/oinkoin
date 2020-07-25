@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/piechart-card.dart';
+import 'package:piggybank/statistics/timeseries-card.dart';
 
 import 'category-summary-card.dart';
 
@@ -12,8 +15,10 @@ class StatisticsTabPage extends StatefulWidget {
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
   List<Record> records;
+  DateTime from;
+  DateTime to;
 
-  StatisticsTabPage(this.records): super();
+  StatisticsTabPage(this.from, this.to, this.records): super();
 
   @override
   StatisticsTabPageState createState() => StatisticsTabPageState();
@@ -47,8 +52,10 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
+          OverviewCard(widget.records),
+          TimeSeriesCard(widget.records),
           PieChartCard(widget.records),
-          CategorySummaryCard(widget.records)
+          CategorySummaryCard(widget.records),
         ],
       ),
     );
