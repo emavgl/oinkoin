@@ -105,7 +105,7 @@ class RecordsPageState extends State<RecordsPage> {
         });
   }
 
-  selectNewMonth() async {
+  pickMonth() async {
     DateTime currentDate = _from;
     int currentYear = DateTime.now().year;
     DateTime dateTime = await showMonthPicker(
@@ -126,12 +126,17 @@ class RecordsPageState extends State<RecordsPage> {
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
   }
 
+  pickYear() async {
+    // TODO: to implement
+    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+  }
+
   _buildSelectDateDialog() {
     return SimpleDialog(
         title: const Text('Shows records per'),
         children: <Widget>[
           SimpleDialogOption(
-            onPressed: () async { return await selectNewMonth(); },
+            onPressed: () async { return await pickMonth(); },
             child: ListTile(
               title: Text("Month"),
               leading: Container(
@@ -147,6 +152,24 @@ class RecordsPageState extends State<RecordsPage> {
                 color: Theme.of(context).accentColor,
               )),
             )
+          ),
+          SimpleDialogOption(
+              onPressed: () async { return await pickYear(); },
+              child: ListTile(
+                title: Text("Year"),
+                leading: Container(
+                    width: 40,
+                    height: 40,
+                    child: Icon(
+                      FontAwesomeIcons.calendarDay,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).accentColor,
+                    )),
+              )
           ),
           SimpleDialogOption(
           onPressed: () {},
@@ -282,4 +305,5 @@ class RecordsPageState extends State<RecordsPage> {
       ),
       );
   }
+
 }
