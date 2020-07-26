@@ -52,9 +52,11 @@ class TimeSeriesCard extends StatelessWidget {
   static String pointerValue;
   final List<Record> records;
   List<charts.Series> seriesList;
+  List<TickSpec<num>> ticksList;
 
   TimeSeriesCard(this.records) {
     seriesList = _prepareData(records);
+    ticksList = _createTicksList(records);
   }
 
   List<charts.Series<TimeSeriesRecord, DateTime>> _prepareData(List<Record> records) {
@@ -113,7 +115,11 @@ class TimeSeriesCard extends StatelessWidget {
                     format: 'd', transitionFormat: 'MM/dd')),
             showAxisLine: false,
           ),
-  )
+          primaryMeasureAxis: new charts.NumericAxisSpec(
+            tickProviderSpec: new charts.StaticNumericTickProviderSpec(
+              ticksList
+          )),
+        )
     );
   }
 
@@ -146,5 +152,16 @@ class TimeSeriesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard();
+  }
+
+  _createTicksList(List<Record> records) {
+    double maxRecord = records.map((e) => e.value.abs()).reduce(max);
+    var ticksNumber = [charts.TickSpec<num>(0), charts.TickSpec<num>(50)];
+    int maxTick = 50;
+    while (maxTick <= maxRecord) {
+      maxTick = maxTick * 2;
+      ticksNumber.add(charts.TickSpec<num>(maxTick));
+    }
+    return ticksNumber;
   }
 }
