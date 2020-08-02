@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/statistics/category-statistics-page.dart';
 import './i18n/statistics-page.i18n.dart';
 
 class CategorySumTuple {
@@ -9,15 +10,17 @@ class CategorySumTuple {
   CategorySumTuple(this.category, this.value);
 }
 
-class CategorySummaryCard extends StatelessWidget {
+class CategoriesSummaryCard extends StatelessWidget {
 
   final List<Record> records;
+  DateTime from;
+  DateTime to;
   List<CategorySumTuple> categoriesAndSums;
   double totalExpensesSum;
   double maxExpensesSum;
   final _biggerFont = const TextStyle(fontSize: 16.0);
 
-  CategorySummaryCard(this.records) {
+  CategoriesSummaryCard(this.from, this.to, this.records) {
     if (records.length > 0) {
       categoriesAndSums = _aggregateRecordByCategory(records);
       totalExpensesSum = categoriesAndSums.fold(
@@ -50,11 +53,11 @@ class CategorySummaryCard extends StatelessWidget {
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildCategoryStatsRow(categoriesAndSums[i]);
+          return _buildCategoryStatsRow(context, categoriesAndSums[i]);
         });
   }
 
-  Widget _buildCategoryStatsRow(CategorySumTuple categoryAndSum) {
+  Widget _buildCategoryStatsRow(BuildContext context, CategorySumTuple categoryAndSum) {
     double percentage = (100 * categoryAndSum.value) / totalExpensesSum;
     double percentageBar = (categoryAndSum.value) / maxExpensesSum;
     String percentageStrRepr = percentage.toStringAsFixed(2);
@@ -65,6 +68,13 @@ class CategorySummaryCard extends StatelessWidget {
       children: <Widget>[
         ListTile(
             onTap: () async {
+              var categoryRecords = records.where((element) => element.category.name == category.name).toList();
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CategoryStatisticPage(from, to, categoryRecords)
+                  )
+              );
             },
             title: Container(
               child: Column(

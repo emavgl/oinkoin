@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/piechart-card.dart';
@@ -7,31 +8,29 @@ import 'package:piggybank/statistics/timeseries-card.dart';
 
 import 'categories-summary-card.dart';
 
-class StatisticsTabPage extends StatefulWidget {
+class CategoryStatisticPage extends StatefulWidget {
 
-  /// The category page that you can select from the bottom navigation bar.
-  /// It contains two tab, showing the categories for expenses and categories
-  /// for incomes. It has a single Floating Button that, dependending from which
-  /// tab you clicked, it open the EditCategory page passing the selected Category type.
+  /// CategoryStatisticPage shows statistics of records belonging to
+  /// the same category.
 
   List<Record> records;
   DateTime from;
   DateTime to;
 
-  StatisticsTabPage(this.from, this.to, this.records): super();
+  CategoryStatisticPage(this.from, this.to, this.records): super();
 
   @override
-  StatisticsTabPageState createState() => StatisticsTabPageState();
+  CategoryStatisticPageState createState() => CategoryStatisticPageState();
 }
 
-class StatisticsTabPageState extends State<StatisticsTabPage> {
+class CategoryStatisticPageState extends State<CategoryStatisticPage> {
 
-  int indexTab;
+  String categoryName;
 
   @override
   void initState() {
     super.initState();
-    indexTab = 0;
+    categoryName = widget.records[0].category.name;
   }
 
   Widget _buildNoRecordPage() {
@@ -55,7 +54,6 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           OverviewCard(widget.records),
           TimeSeriesCard(widget.records),
           PieChartCard(widget.records),
-          CategoriesSummaryCard(widget.from, widget.to, widget.records),
         ],
       ),
     );
@@ -63,9 +61,20 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Align(
-        alignment: Alignment.topCenter,
-        child: widget.records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
+    return Scaffold(
+        appBar: AppBar(
+          title: new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(categoryName),
+              Text(getDateRangeStr(widget.from, widget.to))
+            ],
+          ),
+        ),
+        body: new Align(
+            alignment: Alignment.topCenter,
+            child: widget.records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
+        )
     );
   }
 

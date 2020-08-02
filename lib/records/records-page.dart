@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:core';
 import 'dart:ui';
 
@@ -12,12 +11,12 @@ import 'package:piggybank/components/year-picker.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
+import 'package:piggybank/records/records-day-list.dart';
 import 'package:piggybank/records/records-per-day-card.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'days-summary-box-card.dart';
-import "package:collection/collection.dart";
 
 class RecordsPage extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
@@ -44,24 +43,7 @@ class RecordsPageState extends State<RecordsPage> {
     return await getRecordsByInterval(_from, _to);
   }
 
-  List<RecordsPerDay> groupRecordsByDay(List<Record> records) {
-    /// Groups the record in days using the object MovementsPerDay.
-    /// It returns a list of MovementsPerDay object, containing at least 1 movement.
-    var movementsGroups = groupBy(records, (records) => records.date);
-    Queue<RecordsPerDay> movementsPerDay = Queue();
-    movementsGroups.forEach((k, groupedMovements) {
-      if (groupedMovements.isNotEmpty) {
-        DateTime groupedDay = groupedMovements[0].dateTime;
-        movementsPerDay.addFirst(new RecordsPerDay(groupedDay, records: groupedMovements));
-      }
-    });
-    var movementsDayList = movementsPerDay.toList();
-    movementsDayList.sort((b, a) => a.dateTime.compareTo(b.dateTime));
-    return movementsDayList;
-  }
-
-  List<RecordsPerDay> _daysShown = new List();
-  List<Record> _records = new List();
+  List<Record> records = new List();
   DatabaseInterface database = ServiceConfig.database;
   DateTime _from;
   DateTime _to;
@@ -72,24 +54,11 @@ class RecordsPageState extends State<RecordsPage> {
     super.initState();
     DateTime _now = DateTime.now();
     _header = getMonthStr(_now);
-    getRecordsByMonth(_now.year, _now.month).then((records) {
+    getRecordsByMonth(_now.year, _now.month).then((fetchedRecords) {
       setState(() {
-        _records = records;
-        _daysShown = groupRecordsByDay(records);
+        records = fetchedRecords;
       });
     });
-  }
-
-  Widget _buildDaysList() {
-    /// Creates the list-view of MovementsGroup cards
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _daysShown.length,
-      padding: const EdgeInsets.all(6.0),
-      itemBuilder: /*1*/ (context, i) {
-        return RecordsPerDayCard(_daysShown[i], fetchMovementsFromDb);
-      });
   }
 
   Future<void> _showSelectDateDialog() async {
@@ -114,8 +83,7 @@ class RecordsPageState extends State<RecordsPage> {
       var newRecords = await getRecordsByMonth(dateTime.year, dateTime.month);
       setState(() {
         _header = getMonthStr(_from);
-        _records = newRecords;
-        _daysShown = groupRecordsByDay(_records);
+        records = newRecords;
       });
     }
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
@@ -131,15 +99,15 @@ class RecordsPageState extends State<RecordsPage> {
       initialDate: lastDate, context: context,
     );
     if (yearPicked != null) {
-      DateTime _from = DateTime(yearPicked.year, 1, 1);
-      DateTime _to = DateTime(yearPicked.year, 12, 31, 23, 59);
-      var newRecords = await getRecordsByInterval(_from, _to);
+      DateTime from = DateTime(yearPicked.year, 1, 1);
+      DateTime to = DateTime(yearPicked.year, 12, 31, 23, 59);
+      var newRecords = await getRecordsByInterval(from, to);
       setState(() {
-        _from = _from;
-        _to = _to;
+        _from = from;
+        _to = to;
         _header = getDateRangeStr(_from, _to);
-        _records = newRecords;
-        _daysShown = groupRecordsByDay(_records);
+        records = newRecords;
+//        _daysShown = groupRecordsByDay(_records);
       });
     }
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
@@ -215,8 +183,8 @@ class RecordsPageState extends State<RecordsPage> {
     /// this page after have visited the page add-movement.
     var newRecords = await getRecordsByInterval(_from, _to);
     setState(() {
-      _records = newRecords;
-      _daysShown = groupRecordsByDay(_records);
+      records = newRecords;
+//      _daysShown = groupRecordsByDay(_records);
     });
   }
 
@@ -234,7 +202,7 @@ class RecordsPageState extends State<RecordsPage> {
     /// Navigate to the Statistics Page
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => StatisticsPage(_from, _to, _records)),
+      MaterialPageRoute(builder: (context) => StatisticsPage(_from, _to, records)),
     );
   }
 
@@ -287,10 +255,10 @@ class RecordsPageState extends State<RecordsPage> {
                   Container(
                       margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
                       height: 100,
-                      child: DaysSummaryBox(_daysShown)
+                      child: DaysSummaryBox(records)
                   ),
                   Divider(indent: 50, endIndent: 50),
-                  _daysShown.length == 0 ? Container(
+                  records.length == 0 ? Container(
                       child: Column(
                         children: <Widget>[
                           Image.asset(
@@ -303,7 +271,7 @@ class RecordsPageState extends State<RecordsPage> {
                         ],
                       )
                   ) : Container(
-                    child: _buildDaysList(),
+                    child: new RecordsDayList(records, onListBackCallback: fetchMovementsFromDb,),
                   )
                 ],
               ),

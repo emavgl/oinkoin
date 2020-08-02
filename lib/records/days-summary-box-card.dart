@@ -1,17 +1,20 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
+import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import './i18n/days-summary-box-card.dart';
 
 class DaysSummaryBox extends StatefulWidget {
   
-  /// DaysSummaryBox is a card that, given a list of MovementsPerDay objects,
+  /// DaysSummaryBox is a card that, given a list of records,
   /// shows the total income, total expenses, total balance resulting from
   /// all the movements in input days.
 
-  final List<RecordsPerDay> _movementDays;
-  const DaysSummaryBox(this._movementDays);
+  List<Record> records;
+  DaysSummaryBox(this.records);
 
   @override
   DaysSummaryBoxState createState() => DaysSummaryBoxState();
@@ -22,27 +25,15 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   double totalIncome() {
-    var totalIncome = 0.0;
-    for (var value in widget._movementDays) {
-      totalIncome += value.income;
-    }
-    return totalIncome;
+    return widget.records.where((record) => record.category.categoryType == CategoryType.income).fold(0.0, (previousValue, record) => previousValue + record.value);
   }
 
   double totalExpenses() {
-    var totalExpenses = 0.0;
-    for (var value in widget._movementDays) {
-      totalExpenses += value.expenses;
-    }
-    return totalExpenses;
+    return widget.records.where((record) => record.category.categoryType == CategoryType.expense).fold(0.0, (previousValue, record) => previousValue + record.value);
   }
 
   double totalBalance() {
-    var totalBalance = 0.0;
-    for (var value in widget._movementDays) {
-      totalBalance += value.balance;
-    }
-    return totalBalance;
+    return totalIncome() - totalExpenses();
   }
 
   @override

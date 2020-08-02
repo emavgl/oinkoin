@@ -12,10 +12,13 @@ class RecordsPerDayCard extends StatefulWidget {
   /// RecordsCard renders a MovementPerDay object as a Card
   /// The card contains an header with date and the balance of the day
   /// and a body, containing the list of movements included in the MovementsPerDay object
+  /// refreshParentMovementList is a callback method called every time the card may change
+  /// for example, from the deletion of a record or the editing of the record.
+  /// The callback should re-fetch the newest version of the records list from the database and rebuild the card
 
-  final Function refreshParentMovementList;
+  final Function onListBackCallback;
   final RecordsPerDay _movementDay;
-  const RecordsPerDayCard(this._movementDay, this.refreshParentMovementList);
+  const RecordsPerDayCard(this._movementDay, {this.onListBackCallback});
 
   @override
   MovementGroupState createState() => MovementGroupState();
@@ -51,7 +54,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                   builder: (context) => EditRecordPage(passedRecord: movement,)
               )
           );
-          await widget.refreshParentMovementList();
+          if (widget.onListBackCallback != null)
+            await widget.onListBackCallback();
         },
         title: Text(
           movement.title != null ? movement.title : movement.category.name,
