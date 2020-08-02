@@ -14,7 +14,14 @@ String getDateRangeStr(DateTime start, DateTime end) {
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
   } else {
     String startLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(start);
-    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(start);
+    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(end);
     return startLocalRepr.split(",")[0] + " - " + endLocalRepr;
   }
+}
+
+String getMonthStr(DateTime dateTime) {
+  /// Returns the header string identifying the current visualised month.
+  Locale myLocale = I18n.locale;
+  String localeRepr = DateFormat.yMMMM(myLocale.languageCode).format(dateTime);
+  return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
 }

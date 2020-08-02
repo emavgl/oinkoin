@@ -8,6 +8,8 @@ import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
+import 'package:piggybank/components/year-picker.dart';
+import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/records-per-day-card.dart';
@@ -58,13 +60,6 @@ class RecordsPageState extends State<RecordsPage> {
     return movementsDayList;
   }
 
-  String getMonthHeader(DateTime dateTime) {
-    /// Returns the header string identifying the current visualised month.
-    Locale myLocale = I18n.locale;
-    String localeRepr = DateFormat.yMMMM(myLocale.languageCode).format(dateTime);
-    return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
-  }
-
   List<RecordsPerDay> _daysShown = new List();
   List<Record> _records = new List();
   DatabaseInterface database = ServiceConfig.database;
@@ -76,7 +71,7 @@ class RecordsPageState extends State<RecordsPage> {
   void initState() {
     super.initState();
     DateTime _now = DateTime.now();
-    _header = getMonthHeader(_now);
+    _header = getMonthStr(_now);
     getRecordsByMonth(_now.year, _now.month).then((records) {
       setState(() {
         _records = records;
@@ -118,7 +113,7 @@ class RecordsPageState extends State<RecordsPage> {
     if (dateTime != null) {
       var newRecords = await getRecordsByMonth(dateTime.year, dateTime.month);
       setState(() {
-        _header = getMonthHeader(_from);
+        _header = getMonthStr(_from);
         _records = newRecords;
         _daysShown = groupRecordsByDay(_records);
       });
@@ -127,7 +122,26 @@ class RecordsPageState extends State<RecordsPage> {
   }
 
   pickYear() async {
-    // TODO: to implement
+    DateTime currentDate = DateTime.now();
+    DateTime lastDate = DateTime(currentDate.year, 1);
+    DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
+    DateTime yearPicked = await showYearPicker(
+      firstDate: firstDate,
+      lastDate: lastDate,
+      initialDate: lastDate, context: context,
+    );
+    if (yearPicked != null) {
+      DateTime _from = DateTime(yearPicked.year, 1, 1);
+      DateTime _to = DateTime(yearPicked.year, 12, 31, 23, 59);
+      var newRecords = await getRecordsByInterval(_from, _to);
+      setState(() {
+        _from = _from;
+        _to = _to;
+        _header = getDateRangeStr(_from, _to);
+        _records = newRecords;
+        _daysShown = groupRecordsByDay(_records);
+      });
+    }
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
   }
 
@@ -201,7 +215,6 @@ class RecordsPageState extends State<RecordsPage> {
     /// this page after have visited the page add-movement.
     var newRecords = await getRecordsByInterval(_from, _to);
     setState(() {
-      _header = getMonthHeader(_from);
       _records = newRecords;
       _daysShown = groupRecordsByDay(_records);
     });
