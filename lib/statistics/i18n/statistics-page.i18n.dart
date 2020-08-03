@@ -33,6 +33,10 @@ extension Localization on String {
         "it_it": "Andamento nel periodo selezionato",
       } +
       {
+        "en_us": "Entries for category: ",
+        "it_it": "Movimenti per la categoria: ",
+      } +
+      {
         "en_us": "Others",
         "it_it": "Altre",
         "es_es": "Gastos",

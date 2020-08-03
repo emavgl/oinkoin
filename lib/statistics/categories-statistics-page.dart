@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/records/records-day-list.dart';
 import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/piechart-card.dart';
 import 'package:piggybank/statistics/timeseries-card.dart';
 
 import 'categories-summary-card.dart';
+import 'category-summary-card.dart';
 
 class CategoryStatisticPage extends StatefulWidget {
 
@@ -53,7 +55,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
         children: <Widget>[
           OverviewCard(widget.records),
           TimeSeriesCard(widget.records),
-          PieChartCard(widget.records),
+          CategorySummaryCard(widget.records),
         ],
       ),
     );

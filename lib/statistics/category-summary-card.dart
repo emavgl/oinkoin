@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/statistics/categories-statistics-page.dart';
 import './i18n/statistics-page.i18n.dart';
 
 class CategorySumTuple {
@@ -10,72 +12,48 @@ class CategorySumTuple {
   CategorySumTuple(this.category, this.value);
 }
 
-class CategoriesSummaryCard extends StatelessWidget {
+class CategorySummaryCard extends StatelessWidget {
 
   final List<Record> records;
-  DateTime from;
-  DateTime to;
-  List<CategorySumTuple> categoriesAndSums;
-  double totalExpensesSum;
-  double maxExpensesSum;
+  String categoryName;
+
+  double totalCategoryValue;
+  double maxValue;
   final _biggerFont = const TextStyle(fontSize: 16.0);
+  final _dateFont = const TextStyle(fontSize: 12.0);
 
-  CategoriesSummaryCard(this.from, this.to, this.records) {
-    if (records.length > 0) {
-      categoriesAndSums = _aggregateRecordByCategory(records);
-      totalExpensesSum = categoriesAndSums.fold(
-          0, (previousValue, element) => previousValue + element.value);
-      maxExpensesSum = categoriesAndSums[0].value;
-    }
+  CategorySummaryCard(this.records) {
+    categoryName = this.records[0].category.name;
+    totalCategoryValue = records.fold(
+        0, (previousValue, element) => previousValue + element.value.abs());
+    maxValue = records.map((e) => e.value.abs()).reduce(max);
+    records.sort((a, b) => a.value.compareTo(b.value));
   }
 
-  List<CategorySumTuple> _aggregateRecordByCategory(List<Record> records) {
-    Map<String, CategorySumTuple> aggregatedCategoriesValuesTemporaryMap = new Map();
-    for (var record in records) {
-      aggregatedCategoriesValuesTemporaryMap.update(
-          record.category.name, (tuple) => new CategorySumTuple(tuple.category, tuple.value + record.value),
-          ifAbsent: () => new CategorySumTuple(record.category, record.value));
-    }
-    var aggregatedCategoriesAndValues = aggregatedCategoriesValuesTemporaryMap
-        .values.toList();
-    aggregatedCategoriesAndValues.sort((a, b) => a.value.compareTo(b.value)); // sort ascending
-    return aggregatedCategoriesAndValues;
-  }
-
-  Widget _buildCategoriesList() {
+  Widget _buildRecordsStatList() {
     /// Returns a ListView with all the movements contained in the MovementPerDay object
     return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: categoriesAndSums.length,
+        itemCount: records.length,
         separatorBuilder: (context, index) {
           return Divider();
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildCategoryStatsRow(context, categoriesAndSums[i]);
+          return _buildRow(context, records[i]);
         });
   }
 
-  Widget _buildCategoryStatsRow(BuildContext context, CategorySumTuple categoryAndSum) {
-    double percentage = (100 * categoryAndSum.value) / totalExpensesSum;
-    double percentageBar = (categoryAndSum.value) / maxExpensesSum;
+  Widget _buildRow(BuildContext context, Record record) {
+    double percentage = (100 * record.value.abs()) / totalCategoryValue;
+    double percentageBar = (record.value.abs()) / maxValue;
     String percentageStrRepr = percentage.toStringAsFixed(2);
-    String categorySumStr = categoryAndSum.value.toString();
-    Category category = categoryAndSum.category;
+    String value = record.value.toStringAsFixed(2);
     /// Returns a ListTile rendering the single movement row
     return Column(
       children: <Widget>[
         ListTile(
-            onTap: () async {
-              var categoryRecords = records.where((element) => element.category.name == category.name).toList();
-              await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CategoryStatisticPage(from, to, categoryRecords)
-                  )
-              );
-            },
             title: Container(
               child: Column(
                 children: <Widget>[
@@ -83,14 +61,18 @@ class CategoriesSummaryCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        category.name,
+                        record.title != null ? record.title : categoryName,
                         style: _biggerFont,
                       ),
                       Text(
-                        "$categorySumStr ($percentageStrRepr%)",
+                        "$value ($percentageStrRepr%)",
                         style: _biggerFont,
                       ),
                     ],
+                  ),
+                  Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(getDateStr(record.dateTime), style: _dateFont,)
                   ),
                   Container(
                     padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -106,10 +88,10 @@ class CategoriesSummaryCard extends StatelessWidget {
             leading: Container(
                 width: 40,
                 height: 40,
-                child: Icon(category.icon, size: 20, color: Colors.white,),
+                child: Icon(record.category.icon, size: 20, color: Colors.white,),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: category.color,
+                  color: record.category.color,
                 )
             )
         ),
@@ -132,18 +114,18 @@ class CategoriesSummaryCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Entries grouped by category".i18n,
+                          "Entries for category: ".i18n + categoryName,
                           style: TextStyle(fontSize: 14),
                         ),
                         Text(
-                          totalExpensesSum.toString(),
+                          totalCategoryValue.toStringAsFixed(2),
                           style: TextStyle(fontSize: 14),
                         ),
                       ]
                   )
               ),
               new Divider(),
-              _buildCategoriesList()
+              _buildRecordsStatList()
             ],
           )
         )

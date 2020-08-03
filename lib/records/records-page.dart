@@ -4,15 +4,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/components/year-picker.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/records-day-list.dart';
-import 'package:piggybank/records/records-per-day-card.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
@@ -107,7 +104,6 @@ class RecordsPageState extends State<RecordsPage> {
         _to = to;
         _header = getDateRangeStr(_from, _to);
         records = newRecords;
-//        _daysShown = groupRecordsByDay(_records);
       });
     }
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
@@ -184,7 +180,6 @@ class RecordsPageState extends State<RecordsPage> {
     var newRecords = await getRecordsByInterval(_from, _to);
     setState(() {
       records = newRecords;
-//      _daysShown = groupRecordsByDay(_records);
     });
   }
 

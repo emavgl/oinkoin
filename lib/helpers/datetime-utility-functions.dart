@@ -25,3 +25,8 @@ String getMonthStr(DateTime dateTime) {
   String localeRepr = DateFormat.yMMMM(myLocale.languageCode).format(dateTime);
   return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
 }
+
+String getDateStr(DateTime dateTime) {
+  Locale myLocale = I18n.locale;
+  return DateFormat.yMd(myLocale.languageCode).format(dateTime);
+}
