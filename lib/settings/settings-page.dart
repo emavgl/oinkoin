@@ -22,7 +22,7 @@ class SettingsPage extends StatelessWidget {
   static const double kSettingsItemsIconElevation = 2.0;
   final DatabaseInterface database = ServiceConfig.database;
 
-  export() async {
+  createJsonBackup() async {
     var records = await database.getAllRecords();
     var categories = await database.getAllCategories();
     var backup = Backup(categories, records);
@@ -81,21 +81,21 @@ class SettingsPage extends StatelessWidget {
           ),
           SettingsItem(
             icon: Icon(
-              Icons.save,
-              color: Colors.white,
-            ),
-            iconBackgroundColor: Colors.orange.shade600,
-            title: 'Export'.i18n,
-            subtitle: 'Make a backup of the data of the app'.i18n,
-            onPressed: () async => await export(),
-          ),
-          SettingsItem(
-            icon: Icon(
               Icons.backup,
               color: Colors.white,
             ),
+            iconBackgroundColor: Colors.orange.shade600,
+            title: 'Backup'.i18n,
+            subtitle: 'Make a backup of all the data'.i18n,
+            onPressed: () async => await createJsonBackup(),
+          ),
+          SettingsItem(
+            icon: Icon(
+              Icons.restore_page,
+              color: Colors.white,
+            ),
             iconBackgroundColor: Colors.teal,
-            title: 'Import'.i18n,
+            title: 'Restore Backup'.i18n,
             subtitle: '(Premium) Import a backup of the data of the app'.i18n,
             onPressed: () async => await premiumFeatureMessage(context),
           ),

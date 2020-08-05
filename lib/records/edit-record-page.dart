@@ -193,6 +193,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   ),
                   Expanded(
                     child: TextFormField(
+                        autofocus: record.value == null,
                         keyboardType: TextInputType.number,
                         onChanged: (text) {
                           var numericValue = double.tryParse(text);

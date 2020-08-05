@@ -10,10 +10,14 @@ import 'package:piggybank/components/year-picker.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/records/records-day-list.dart';
+import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
+import 'package:share/share.dart';
 import 'days-summary-box-card.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class RecordsPage extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
@@ -217,7 +221,25 @@ class RecordsPageState extends State<RecordsPage> {
             actions: <Widget>[
               IconButton(icon: Icon(Icons.calendar_today), onPressed: () async => await _showSelectDateDialog(), color: Colors.white),
               IconButton(icon: Icon(Icons.donut_small), onPressed: () => navigateToStatisticsPage(), color: Colors.white),
-              IconButton(icon: Icon(Icons.filter_list), onPressed: (){}, color: Colors.white)
+              PopupMenuButton<int>(
+                onSelected: (index) async {
+                  if (index == 1) {
+                    var csvStr = CSVExporter.createCSVFromRecordList(this.records);
+                    final path = await getApplicationDocumentsDirectory();
+                    var backupJsonOnDisk = File(path.path + "/records.csv");
+                    await backupJsonOnDisk.writeAsString(csvStr);
+                    Share.shareFile(backupJsonOnDisk);
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return {'Export CSV': 1}.entries.map((entry) {
+                    return PopupMenuItem<int>(
+                      value: entry.value,
+                      child: Text(entry.key),
+                    );
+                  }).toList();
+                },
+              ),
             ],
             pinned: true,
             expandedHeight: 140,
