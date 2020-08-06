@@ -22,9 +22,9 @@ class App extends StatelessWidget {
       supportedLocales: [
         const Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
         const Locale.fromSubtags(languageCode: 'it', countryCode: 'IT'),
-        const Locale.fromSubtags(languageCode: 'es', countryCode: 'ES'),
-        const Locale.fromSubtags(languageCode: 'fr', countryCode: 'FR'),
-        const Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),
+//        const Locale.fromSubtags(languageCode: 'es', countryCode: 'ES'),
+//        const Locale.fromSubtags(languageCode: 'fr', countryCode: 'FR'),
+//        const Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),
         // TODO add other locales
         // TODO as of now, the current system locale is used. We should give the user the ability to change language in the settings
       ],
