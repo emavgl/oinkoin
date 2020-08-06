@@ -171,7 +171,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 },
                 validator: (value) {
                   if (value.isEmpty) {
-                    return "Please enter the category name";
+                    return "Please enter the category name".i18n;
                   }
                   return null;
                 },
@@ -181,7 +181,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                     color: Colors.black
                 ),
                 decoration: InputDecoration(
-                    hintText: "Category name",
+                    hintText: "Category name".i18n,
                     border: OutlineInputBorder(),
                     errorStyle: TextStyle(
                       fontSize: 16.0,
@@ -193,18 +193,18 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   Widget _getAppBar() {
     return AppBar(
-        title: Text('Edit category'.i18n),
+        title: Text("Edit category".i18n),
         actions: <Widget>[
           Visibility(
             visible: widget.passedCategory != null,
             child: IconButton(
               icon: const Icon(Icons.delete),
-              tooltip: 'Delete', onPressed: () async {
+              tooltip: "Delete".i18n, onPressed: () async {
                 // Prompt confirmation
-                AlertDialogBuilder deleteDialog = AlertDialogBuilder("Do you really want to delete the category?")
-                      .addSubtitle("Deleting the category you will remove all the associated expenses")
-                      .addTrueButtonName("Yes")
-                      .addFalseButtonName("No");
+                AlertDialogBuilder deleteDialog = AlertDialogBuilder("Do you really want to delete the category?".i18n)
+                      .addSubtitle("Deleting the category you will remove all the associated records".i18n)
+                      .addTrueButtonName("Yes".i18n)
+                      .addFalseButtonName("No".i18n);
 
                 var continueDelete = await showDialog(context: context, builder: (BuildContext context) {
                   return deleteDialog.build(context);
@@ -219,7 +219,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
         ),
           IconButton(
               icon: const Icon(Icons.save),
-              tooltip: 'Save', onPressed: () async {
+              tooltip: "Save".i18n, onPressed: () async {
                 if (_formKey.currentState.validate()) {
                   var existingCategory = await database.getCategory(category.name, category.categoryType);
                   if (existingCategory == null) {
@@ -251,9 +251,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                     Container(child: _getTextField()),
                   ],
                 ),
-                _getPageSeparatorLabel("Color"),
+                _getPageSeparatorLabel("Color".i18n),
                 _createColorsList(),
-                _getPageSeparatorLabel("Icons"),
+                _getPageSeparatorLabel("Icons".i18n),
                 _getIconsGrid()
               ],
             ),

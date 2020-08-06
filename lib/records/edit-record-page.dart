@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
+import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
@@ -15,7 +16,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../style.dart';
-import './i18n/edit-movement-page.i18n.dart';
+import './i18n/edit-record-page.i18n.dart';
 
 class EditRecordPage extends StatefulWidget {
 
@@ -65,7 +66,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createCategoryCirclePreview() {
-    Category defaultCategory = Category("Missing", color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
+    Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
     Category toRender = (record.category == null) ? defaultCategory : record.category;
     return Container(
         margin: EdgeInsets.all(10),
@@ -110,7 +111,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   color: Colors.black
               ),
               decoration: InputDecoration(
-                  hintText: "Record name  (optional)",
+                  hintText: "Record name  (optional)".i18n,
                   border: OutlineInputBorder()
               )),
         ));
@@ -124,10 +125,6 @@ class EditRecordPageState extends State<EditRecordPage> {
         child: Text(labelText, style: Body1Style, textAlign: TextAlign.left),
       ),
     );
-  }
-
-  String _getHumanReadableDate(DateTime targetDate) {
-    return new DateFormat("EEEE d.M.y").format(targetDate);
   }
 
   saveRecord() async {
@@ -147,10 +144,11 @@ class EditRecordPageState extends State<EditRecordPage> {
               visible: widget.passedRecord != null,
               child: IconButton(
                 icon: const Icon(Icons.delete),
-                tooltip: 'Delete', onPressed: () async {
-                  AlertDialogBuilder deleteDialog = AlertDialogBuilder("Do you really want to delete this record?")
-                      .addTrueButtonName("Yes")
-                      .addFalseButtonName("No");
+                tooltip: 'Delete'.i18n, onPressed: () async {
+                  AlertDialogBuilder deleteDialog = AlertDialogBuilder("Critical action".i18n)
+                      .addSubtitle("Do you really want to delete this record?".i18n)
+                      .addTrueButtonName("Yes".i18n)
+                      .addFalseButtonName("No".i18n);
 
                   var continueDelete = await showDialog(context: context, builder: (BuildContext context) {
                     return deleteDialog.build(context);
@@ -165,7 +163,7 @@ class EditRecordPageState extends State<EditRecordPage> {
           ),
           IconButton(
               icon: const Icon(Icons.save),
-              tooltip: 'Save', onPressed: () async {
+              tooltip: 'Save'.i18n, onPressed: () async {
                 if (_formKey.currentState.validate()) {
                   await saveRecord();
                 }
@@ -181,7 +179,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         margin: EdgeInsets.all(10),
         child:  Column(
             children: [
-              _getFormLabel("How much?"),
+              _getFormLabel("How much?".i18n),
               Row(
                 children: [
                   Align(
@@ -232,7 +230,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   )
                 ],
               ),
-              _getFormLabel("When?", topMargin: 30.0),
+              _getFormLabel("When?".i18n, topMargin: 30.0),
               Row(children: <Widget>[
                 Expanded(
                   child: OutlineButton(
@@ -251,7 +249,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                        _getHumanReadableDate(record.dateTime),
+                          getDateStr(record.dateTime),
                         style: TextStyle(fontSize: 22),
                       ),
                     ),
@@ -259,7 +257,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                     borderSide: BorderSide(color: Colors.grey, width: 0),
                   ))
               ],),
-              _getFormLabel("How?", topMargin: 30.0),
+              _getFormLabel("How?".i18n, topMargin: 30.0),
               Row(
                 children: [
                   Expanded(
@@ -277,7 +275,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                            labelText: 'Description',
+                            labelText: 'Description'.i18n,
                             border: OutlineInputBorder()
                         )),
                   )

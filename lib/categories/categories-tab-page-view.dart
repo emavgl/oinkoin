@@ -1,12 +1,12 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
 import 'categories-grid.dart';
+import './i18n/categories-tab-page.i18n.dart';
+
 
 class CategoryTabPageView extends StatefulWidget {
 
@@ -54,11 +54,11 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         appBar: AppBar(
           bottom: TabBar(
             tabs: [
-              Tab(text: "Expenses",),
-              Tab(text: "Income",)
+              Tab(text: "Expenses".i18n,),
+              Tab(text: "Income".i18n,)
             ],
           ),
-          title: Text('Select the category'),
+          title: Text('Select the category'.i18n),
         ),
         body: TabBarView(
           children: [

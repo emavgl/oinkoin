@@ -34,9 +34,9 @@ class SettingsPage extends StatelessWidget {
   }
 
   deleteAllData(BuildContext context) async {
-    AlertDialogBuilder premiumDialog = AlertDialogBuilder("Premium required")
-        .addSubtitle("Do you really want to delete all the data?")
-        .addTrueButtonName("Yes").addFalseButtonName("No");
+    AlertDialogBuilder premiumDialog = AlertDialogBuilder("Critical action".i18n)
+        .addSubtitle("Do you really want to delete all the data?".i18n)
+        .addTrueButtonName("Yes".i18n).addFalseButtonName("No".i18n);
     var ok = await showDialog(context: context, builder: (BuildContext context) {
       return premiumDialog.build(context);
     });
@@ -46,8 +46,8 @@ class SettingsPage extends StatelessWidget {
   }
 
   premiumFeatureMessage(BuildContext context) async {
-    AlertDialogBuilder premiumDialog = AlertDialogBuilder("Premium required")
-        .addSubtitle("This feature is accessible in the premium version of the app.")
+    AlertDialogBuilder premiumDialog = AlertDialogBuilder("Premium required".i18n)
+        .addSubtitle("Available on Piggybank Pro".i18n)
         .addTrueButtonName("OK");
     await showDialog(context: context, builder: (BuildContext context) {
       return premiumDialog.build(context);
@@ -86,8 +86,8 @@ class SettingsPage extends StatelessWidget {
             ),
             iconBackgroundColor: Colors.orange.shade600,
             title: 'Backup'.i18n,
-            subtitle: 'Make a backup of all the data'.i18n,
-            onPressed: () async => await createJsonBackup(),
+            subtitle: '(Piggybank Pro) Make a backup of all the data'.i18n,
+            onPressed: () async => await premiumFeatureMessage(context),
           ),
           SettingsItem(
             icon: Icon(
@@ -96,7 +96,7 @@ class SettingsPage extends StatelessWidget {
             ),
             iconBackgroundColor: Colors.teal,
             title: 'Restore Backup'.i18n,
-            subtitle: '(Premium) Import a backup of the data of the app'.i18n,
+            subtitle: '(Piggybank Pro) Import a backup of the data of the app'.i18n,
             onPressed: () async => await premiumFeatureMessage(context),
           ),
           SettingsItem(
@@ -108,16 +108,6 @@ class SettingsPage extends StatelessWidget {
             title: 'Delete'.i18n,
             subtitle: 'Delete all the data'.i18n,
             onPressed: () async => await deleteAllData(context),
-          ),
-          SettingsItem(
-            icon: Icon(
-              Icons.feedback,
-              color: Colors.white,
-            ),
-            iconBackgroundColor: Colors.amber.shade600,
-            title: 'Feedback'.i18n,
-            subtitle: 'Any suggestion? Tell us!'.i18n,
-            onPressed: () {},
           ),
           SettingsItem(
             icon: Icon(

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/records/edit-record-page.dart';
-import 'package:piggybank/services/database/database-interface.dart';
-import 'package:piggybank/services/service-config.dart';
+import './i18n/categories-grid-list.i18n.dart';
 
 
 class CategoriesGrid extends StatefulWidget {
@@ -91,7 +89,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
             Image.asset(
               'assets/no_entry_2.png', width: 200,
             ),
-            Text("No categories yet.",
+            Text("No categories yet.".i18n,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22.0,) ,)

@@ -2,10 +2,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
-import './i18n/movements-group-card.i18n.dart';
 
 class RecordsPerDayCard extends StatefulWidget {
 
@@ -77,17 +77,6 @@ class MovementGroupState extends State<RecordsPerDayCard> {
     );
   }
 
-  String extractMonthString(DateTime dateTime) {
-    return new DateFormat("MMMM").format(dateTime);
-  }
-
-  String extractYearString(DateTime dateTime) {
-    return new DateFormat("y").format(dateTime);
-  }
-
-  String extractWeekdayString(DateTime dateTime) {
-    return new DateFormat("EEEE").format(dateTime);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,12 +102,12 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    extractWeekdayString(widget._movementDay.dateTime).i18n,
+                                    extractWeekdayString(widget._movementDay.dateTime),
                                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.right
                                   ),
                                   Text(
-                                    extractMonthString(widget._movementDay.dateTime).i18n + ' ' + extractYearString(widget._movementDay.dateTime),
+                                    extractMonthString(widget._movementDay.dateTime) + ' ' + extractYearString(widget._movementDay.dateTime),
                                     style: TextStyle(fontSize: 13),
                                     textAlign: TextAlign.right
                                   )

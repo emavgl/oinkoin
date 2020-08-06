@@ -30,3 +30,18 @@ String getDateStr(DateTime dateTime) {
   Locale myLocale = I18n.locale;
   return DateFormat.yMd(myLocale.languageCode).format(dateTime);
 }
+
+String extractMonthString(DateTime dateTime) {
+  Locale myLocale = I18n.locale;
+  return DateFormat.MMMM(myLocale.languageCode).format(dateTime);
+}
+
+String extractYearString(DateTime dateTime) {
+  Locale myLocale = I18n.locale;
+  return new DateFormat.y(myLocale.languageCode).format(dateTime);
+}
+
+String extractWeekdayString(DateTime dateTime) {
+  Locale myLocale = I18n.locale;
+  return DateFormat.EEEE(myLocale.languageCode).format(dateTime);
+}

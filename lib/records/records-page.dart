@@ -7,6 +7,7 @@ import 'package:i18n_extension/i18n_widget.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/components/year-picker.dart';
+import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/records/records-day-list.dart';
@@ -17,6 +18,7 @@ import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:share/share.dart';
 import 'days-summary-box-card.dart';
 import 'package:path_provider/path_provider.dart';
+import './i18n/records-page.i18n.dart';
 import 'dart:io';
 
 class RecordsPage extends StatefulWidget {
@@ -44,11 +46,17 @@ class RecordsPageState extends State<RecordsPage> {
     return await getRecordsByInterval(_from, _to);
   }
 
+
   List<Record> records = new List();
   DatabaseInterface database = ServiceConfig.database;
   DateTime _from;
   DateTime _to;
   String _header;
+
+  Future<bool> isThereSomeCategory() async {
+    var categories = await database.getAllCategories();
+    return categories.length > 0;
+  }
 
   @override
   void initState() {
@@ -115,12 +123,12 @@ class RecordsPageState extends State<RecordsPage> {
 
   _buildSelectDateDialog() {
     return SimpleDialog(
-        title: const Text('Shows records per'),
+        title: Text('Shows records per'.i18n),
         children: <Widget>[
           SimpleDialogOption(
             onPressed: () async { return await pickMonth(); },
             child: ListTile(
-              title: Text("Month"),
+              title: Text("Month".i18n),
               leading: Container(
                 width: 40,
                 height: 40,
@@ -138,7 +146,9 @@ class RecordsPageState extends State<RecordsPage> {
           SimpleDialogOption(
               onPressed: () async { return await pickYear(); },
               child: ListTile(
-                title: Text("Year"),
+                title: Text("Year".i18n),
+                subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : Container(),
+                enabled: ServiceConfig.isPremium,
                 leading: Container(
                     width: 40,
                     height: 40,
@@ -156,9 +166,9 @@ class RecordsPageState extends State<RecordsPage> {
           SimpleDialogOption(
           onPressed: () {},
           child: ListTile(
-            title: Text("Date Range"),
-            subtitle: Text("For Premium user only"),
-            enabled: false,
+            title: Text("Date Range".i18n),
+            subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : Container(),
+            enabled: ServiceConfig.isPremium,
             leading: Container(
               width: 40,
               height: 40,
@@ -190,11 +200,21 @@ class RecordsPageState extends State<RecordsPage> {
   navigateToAddNewMovementPage() async {
     /// Navigate to CategoryTabPageView (first step for adding new movement)
     /// Refetch the movements from db where it returns.
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true,)),
-    );
-    await fetchMovementsFromDb();
+    var categoryIsSet = await isThereSomeCategory();
+    if (categoryIsSet) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true,)),
+      );
+      await fetchMovementsFromDb();
+    } else {
+      AlertDialogBuilder noCategoryDialog = AlertDialogBuilder("No Category is set yet.".i18n)
+          .addTrueButtonName("OK")
+          .addSubtitle("You need to set a category first. Go to Category tab and add a new category.");
+      await showDialog(context: context, builder: (BuildContext context) {
+        return noCategoryDialog.build(context);
+      });
+    }
   }
 
   navigateToStatisticsPage() {
@@ -281,7 +301,7 @@ class RecordsPageState extends State<RecordsPage> {
                           Image.asset(
                               'assets/no_entry.png', width: 200,
                           ),
-                          Text("No entries yet.",
+                          Text("No entries yet.".i18n,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 22.0,) ,)
@@ -298,7 +318,7 @@ class RecordsPageState extends State<RecordsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async => await navigateToAddNewMovementPage(),
-        tooltip: 'Add new movement',
+        tooltip: 'Add a new record'.i18n,
         child: const Icon(Icons.add),
       ),
       );

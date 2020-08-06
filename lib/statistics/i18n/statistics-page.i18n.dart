@@ -1,6 +1,6 @@
 import 'package:i18n_extension/i18n_extension.dart';
 
-// check doc in movements-page.i18n.dart
+// check doc in records-page.i18n.dart
 extension Localization on String {
   static var _translations = Translations("en_us") +
       {
@@ -12,17 +12,11 @@ extension Localization on String {
       } +
       {
         "en_us": "Income",
-        "it_it": "Guadagno",
-        "es_es": "Ingresos",
-        "fr_fr": "Revenu",
-        "de_de": "TODO",
+        "it_it": "Entrate",
       } +
       {
         "en_us": "Expenses",
-        "it_it": "Spese",
-        "es_es": "Gastos",
-        "fr_fr": "Dépenses",
-        "de_de": "TODO",
+        "it_it": "Uscite",
       } +
       {
         "en_us": "Charts",
@@ -39,16 +33,10 @@ extension Localization on String {
       {
         "en_us": "Others",
         "it_it": "Altre",
-        "es_es": "Gastos",
-        "fr_fr": "Dépenses",
-        "de_de": "TODO",
       } +
       {
         "en_us": "Entries grouped by category",
         "it_it": "Movimenti raggruppati per categoria",
-        "es_es": "Saldo",
-        "fr_fr": "Balance",
-        "de_de": "TODO",
       };
   String get i18n => localize(this, _translations);
 }
