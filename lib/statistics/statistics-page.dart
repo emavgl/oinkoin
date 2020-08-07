@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:i18n_extension/i18n_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';

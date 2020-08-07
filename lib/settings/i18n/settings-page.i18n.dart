@@ -44,6 +44,18 @@ extension Localization on String {
         "it_it": "Importa",
       } +
       {
+        "en_us": "Backup",
+        "it_it": "Backup",
+      } +
+      {
+        "en_us": "Info",
+        "it_it": "Info",
+      } +
+      {
+        "en_us": "Privacy policy and credits",
+        "it_it": "Privacy policy e crediti",
+      } +
+      {
         "en_us": "Import a backup of the data of the app",
         "it_it": "Importa un backup dei dati dell'app",
       } +
@@ -76,8 +88,16 @@ extension Localization on String {
         "it_it": "Disponibile su Piggybank Pro",
       } +
       {
-        "en_us": "Available on Piggybank Pro",
-        "it_it": "Disponibile su Piggybank Pro",
+        "en_us": "(Piggybank Pro) Make a backup of all the data",
+        "it_it": "(Piggybank Pro) Crea un backup dei tuoi dati",
+      } +
+      {
+        "en_us": "Restore Backup",
+        "it_it": "Ripristino",
+      } +
+      {
+        "en_us": "(Piggybank Pro) Restore a backup",
+        "it_it": "(Piggybank Pro) Ripristina un backup",
       } +
       {
         "en_us": "Pay us a coffee",

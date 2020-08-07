@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import './i18n/statistics-page.i18n.dart';
 
 class TimeSeriesRecord {
   final DateTime time;

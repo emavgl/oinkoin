@@ -6,9 +6,6 @@ extension Localization on String {
       {
         "en_us": "Statistics",
         "it_it": "Statistiche",
-        "es_es": "TODO",
-        "fr_fr": "TODO",
-        "de_de": "TODO",
       } +
       {
         "en_us": "Income",
@@ -33,6 +30,34 @@ extension Localization on String {
       {
         "en_us": "Others",
         "it_it": "Altre",
+      } +
+      {
+        "en_us": "No entries to show.",
+        "it_it": "Nessun movimento da visualizzare.",
+      } +
+      {
+        "en_us": "Records",
+        "it_it": "Movimenti",
+      } +
+      {
+        "en_us": "Sum",
+        "it_it": "Somma",
+      } +
+      {
+        "en_us": "Min",
+        "it_it": "Minimo",
+      } +
+      {
+        "en_us": "Max",
+        "it_it": "Massimo",
+      } +
+      {
+        "en_us": "Average",
+        "it_it": "Media",
+      } +
+      {
+        "en_us": "Median",
+        "it_it": "Mediana",
       } +
       {
         "en_us": "Entries grouped by category",

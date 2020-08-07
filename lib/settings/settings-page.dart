@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/backup.dart';
@@ -11,6 +12,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'currency-page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // look here for how to store settings
 //https://flutter.dev/docs/cookbook/persistence/key-value
@@ -45,13 +47,17 @@ class SettingsPage extends StatelessWidget {
     }
   }
 
-  premiumFeatureMessage(BuildContext context) async {
-    AlertDialogBuilder premiumDialog = AlertDialogBuilder("Premium required".i18n)
-        .addSubtitle("Available on Piggybank Pro".i18n)
-        .addTrueButtonName("OK");
-    await showDialog(context: context, builder: (BuildContext context) {
-      return premiumDialog.build(context);
-    });
+  goToPremiumSplashScreen(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+    );
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
   }
 
   @override
@@ -86,8 +92,13 @@ class SettingsPage extends StatelessWidget {
             ),
             iconBackgroundColor: Colors.orange.shade600,
             title: 'Backup'.i18n,
-            subtitle: '(Piggybank Pro) Make a backup of all the data'.i18n,
-            onPressed: () async => await premiumFeatureMessage(context),
+            subtitle: "(Piggybank Pro) Make a backup of all the data".i18n,
+            onPressed: ServiceConfig.isPremium ? () => {} : () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+              );
+            },
           ),
           SettingsItem(
             icon: Icon(
@@ -96,8 +107,13 @@ class SettingsPage extends StatelessWidget {
             ),
             iconBackgroundColor: Colors.teal,
             title: 'Restore Backup'.i18n,
-            subtitle: '(Piggybank Pro) Import a backup of the data of the app'.i18n,
-            onPressed: () async => await premiumFeatureMessage(context),
+            subtitle: "(Piggybank Pro) Restore a backup".i18n,
+            onPressed: ServiceConfig.isPremium ? () => {} : () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+              );
+            },
           ),
           SettingsItem(
             icon: Icon(
@@ -117,7 +133,7 @@ class SettingsPage extends StatelessWidget {
             iconBackgroundColor: Colors.tealAccent.shade700,
             title: 'Info'.i18n,
             subtitle: 'Privacy policy and credits'.i18n,
-            onPressed: () {},
+            onPressed: () async => await _launchURL("https://github.com/emavgl/piggybank-privacy-policy/blob/master/privacy-policy.md"),
           ),
         ],
       ),

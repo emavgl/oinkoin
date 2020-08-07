@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/records/records-day-list.dart';
 import 'package:piggybank/statistics/overview-card.dart';
-import 'package:piggybank/statistics/piechart-card.dart';
 import 'package:piggybank/statistics/timeseries-card.dart';
+import './i18n/statistics-page.i18n.dart';
 
-import 'categories-summary-card.dart';
 import 'category-summary-card.dart';
 
 class CategoryStatisticPage extends StatefulWidget {
@@ -41,7 +38,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
         Image.asset(
           'assets/no_entry_3.png', width: 200,
         ),
-        Text("No entries to show.",
+        Text("No entries to show.".i18n,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 22.0,) ,)

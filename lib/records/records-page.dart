@@ -10,6 +10,7 @@ import 'package:piggybank/components/year-picker.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/records/records-day-list.dart';
 import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -121,6 +122,14 @@ class RecordsPageState extends State<RecordsPage> {
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
   }
 
+  goToPremiumSplashScreen() async {
+    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+    );
+  }
+
   _buildSelectDateDialog() {
     return SimpleDialog(
         title: Text('Shows records per'.i18n),
@@ -144,7 +153,7 @@ class RecordsPageState extends State<RecordsPage> {
             )
           ),
           SimpleDialogOption(
-              onPressed: () async { return await pickYear(); },
+              onPressed: ServiceConfig.isPremium ? pickYear : goToPremiumSplashScreen,
               child: ListTile(
                 title: Text("Year".i18n),
                 subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : Container(),
@@ -164,9 +173,10 @@ class RecordsPageState extends State<RecordsPage> {
               )
           ),
           SimpleDialogOption(
-          onPressed: () {},
+          onPressed: ServiceConfig.isPremium ? pickYear : goToPremiumSplashScreen,
           child: ListTile(
             title: Text("Date Range".i18n),
+            onTap: goToPremiumSplashScreen,
             subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : Container(),
             enabled: ServiceConfig.isPremium,
             leading: Container(

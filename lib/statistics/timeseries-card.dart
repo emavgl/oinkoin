@@ -1,4 +1,3 @@
-import 'package:charts_common/common.dart' as common;
 import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart' as fmaterial;
 import 'package:piggybank/models/record.dart';
@@ -6,7 +5,6 @@ import './i18n/statistics-page.i18n.dart';
 import 'package:charts_flutter/src/text_style.dart' as style;
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:charts_flutter/src/text_element.dart' as ChartText;
-import 'package:charts_flutter/src/text_style.dart' as ChartStyle;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
