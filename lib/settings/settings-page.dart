@@ -14,6 +14,8 @@ import 'dart:io';
 import 'currency-page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'feedback-page.dart';
+
 // look here for how to store settings
 //https://flutter.dev/docs/cookbook/persistence/key-value
 //https://pub.dev/packages/shared_preferences
@@ -51,6 +53,13 @@ class SettingsPage extends StatelessWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+    );
+  }
+
+  goToFeedbackPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => FeedbackPage()),
     );
   }
 
@@ -135,6 +144,20 @@ class SettingsPage extends StatelessWidget {
             subtitle: 'Privacy policy and credits'.i18n,
             onPressed: () async => await _launchURL("https://github.com/emavgl/piggybank-privacy-policy/blob/master/privacy-policy.md"),
           ),
+          SettingsItem(
+            icon: Icon(
+              Icons.mail_outline,
+              color: Colors.white,
+            ),
+            iconBackgroundColor: Colors.red.shade700,
+            title: 'Feedback'.i18n,
+            subtitle: "Send us a feedback".i18n,
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FeedbackPage()),
+              );
+            },          ),
         ],
       ),
     ));

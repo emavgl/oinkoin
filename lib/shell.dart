@@ -16,7 +16,6 @@ class ShellState extends State<Shell> {
 
   final GlobalKey<RecordsPageState> _recordPageKey = GlobalKey();
 
-
   @override
   Widget build(BuildContext context) {
     // How I have implemented navigation: https://stackoverflow.com/questions/45235570/how-to-use-bottomnavigationbar-with-navigator

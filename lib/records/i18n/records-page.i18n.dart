@@ -45,6 +45,14 @@ extension Localization on String {
         "it_it": "Esporta CSV",
       } +
       {
+        "en_us": 'Rate this app',
+        "it_it": "Vota Piggybank",
+      } +
+      {
+        "en_us": 'If you like this app, please take a little bit of your time to review it !\nIt really helps us and it shouldn\'t take you more than one minute.',
+        "it_it": "Se ti piace l'applicazione, aiutaci a crescere lasciando una recensione su Google Play store.",
+      } +
+      {
         "en_us": "Month",
         "it_it": "Mese",
       };

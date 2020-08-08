@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -15,11 +16,14 @@ import 'package:piggybank/records/records-day-list.dart';
 import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/feedback-page.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
+import 'package:rate_my_app/rate_my_app.dart';
 import 'package:share/share.dart';
 import 'days-summary-box-card.dart';
 import 'package:path_provider/path_provider.dart';
 import './i18n/records-page.i18n.dart';
+import 'package:launch_review/launch_review.dart';
 import 'dart:io';
 
 class RecordsPage extends StatefulWidget {
@@ -59,6 +63,15 @@ class RecordsPageState extends State<RecordsPage> {
     return categories.length > 0;
   }
 
+
+  RateMyApp _rateMyApp = RateMyApp(
+    preferencesPrefix: "rateMyApp_",
+    minDays: 3,
+    minLaunches: 7,
+    remindDays: 2,
+    remindLaunches: 5,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +80,62 @@ class RecordsPageState extends State<RecordsPage> {
     getRecordsByMonth(_now.year, _now.month).then((fetchedRecords) {
       setState(() {
         records = fetchedRecords;
+      });
+    });
+
+    // Rate my App
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _rateMyApp.init().then((_) {
+        if ( _rateMyApp.shouldOpenDialog) {
+          _rateMyApp.showStarRateDialog(context,
+            title: 'Rate this app'.i18n,
+            // The dialog title.
+            message: 'If you like this app, please take a little bit of your time to review it !\nIt really helps us and it shouldn\'t take you more than one minute.',
+            actionsBuilder: (context,
+                stars) { // Triggered when the user updates the star rating.
+              return [
+                // Return a list of actions (that will be shown at the bottom of the dialog).
+                FlatButton(
+                  child: Text('OK'),
+                  onPressed: () async {
+                    var starsNumber = stars == null ? 0 : stars.round();
+                    print('Thanks for the ' + (stars == null ? '0' : stars
+                        .round().toString()) + ' star(s) !');
+                    // You can handle the result as you want (for instance if the user puts 1 star then open your contact page, if he puts more then open the store page, etc...).
+                    // This allows to mimic the behavior of the default "Rate" button. See "Advanced > Broadcasting events" for more information :
+                    Navigator.pop<RateMyAppDialogButton>(
+                        context, RateMyAppDialogButton.rate);
+                    if (starsNumber <= 3) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FeedbackPage()),
+                      );
+                      await _rateMyApp.callEvent(
+                          RateMyAppEventType.noButtonPressed);
+                    } else {
+                      LaunchReview.launch();
+                      await _rateMyApp.callEvent(
+                          RateMyAppEventType.rateButtonPressed);
+                    }
+                    //Navigator.of(context, rootNavigator: true).pop('dialog');
+                  },
+                ),
+              ];
+            },
+            ignoreIOS: false,
+            // Set to false if you want to show the native Apple app rating dialog on iOS.
+            dialogStyle: DialogStyle( // Custom dialog styles.
+              titleAlign: TextAlign.center,
+              messageAlign: TextAlign.center,
+              messagePadding: EdgeInsets.only(bottom: 20),
+            ),
+            starRatingOptions: StarRatingOptions(),
+            // Custom star bar rating options.
+            onDismissed: () =>
+                _rateMyApp.callEvent(RateMyAppEventType
+                    .laterButtonPressed), // Called when the user dismissed the dialog (either by taping outside or by pressing the "back" button).
+          );
+        }
       });
     });
   }

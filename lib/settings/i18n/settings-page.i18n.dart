@@ -52,6 +52,14 @@ extension Localization on String {
         "it_it": "Info",
       } +
       {
+        "en_us": "Feedback",
+        "it_it": "Feedback",
+      } +
+      {
+        "en_us": "Send us a feedback",
+        "it_it": "Invia un feedback",
+      } +
+      {
         "en_us": "Privacy policy and credits",
         "it_it": "Privacy policy e crediti",
       } +
