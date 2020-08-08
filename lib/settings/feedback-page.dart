@@ -35,7 +35,7 @@ class FeedbackPage extends StatelessWidget {
                     child: Row(
                     children: <Widget>[
                       Flexible(
-                          child: new Text("Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!", style: _biggerFont,))
+                          child: new Text("Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!".i18n, style: _biggerFont,))
                     ],
                   )),
                 Container(

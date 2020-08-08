@@ -10,26 +10,6 @@ extension Localization on String {
       {
         "en_us": "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!",
         "it_it": "Cliccando sul bottone in basso puoi inviarci un email con il tuo commento. Ogni feedback è importante e ci aiuta a crescere!",
-      } +
-      {
-        "en_us": "Currency",
-        "it_it": "Valuta",
-      } +
-      {
-        "en_us": "Currency",
-        "it_it": "Valuta",
-      } +
-      {
-        "en_us": "Currency",
-        "it_it": "Valuta",
-      } +
-      {
-        "en_us": "Currency",
-        "it_it": "Valuta",
-      } +
-      {
-        "en_us": "Pay us a coffee",
-        "it_it": "Donaci un caffè",
       };
 
   String get i18n => localize(this, _translations);
