@@ -35,7 +35,7 @@ class PremiumSplashScren extends StatelessWidget {
                     children: <TextSpan>[
                       new TextSpan(text: 'Upgrade to'.i18n),
                       new TextSpan(text: ' '),
-                      new TextSpan(text: 'PiggyBank Pro'.i18n, style: new TextStyle(fontWeight: FontWeight.bold)),
+                      new TextSpan(text: 'Piggybank Pro'.i18n, style: new TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -162,7 +162,7 @@ class PremiumSplashScren extends StatelessWidget {
                       onPressed: () {},
                       color: Colors.red,
                       textColor: Colors.white,
-                      child: Text("Available soon!".toUpperCase(), style: _biggerFont),
+                      child: Text("AVAILABLE SOON!".i18n, style: _biggerFont),
                     ),
                   ),
                 )

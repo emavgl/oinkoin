@@ -12,16 +12,16 @@ extension Localization on String {
         "it_it": "Passa a",
       } +
       {
-        "en_us": 'PiggyBank Pro',
-        "it_it": 'PiggyBank Pro',
+        "en_us": 'Piggybank Pro',
+        "it_it": 'Piggybank Pro',
       } +
       {
         "en_us": "Filter records by year or custom date range",
-        "it_it": "Filtra i movimenti per anno o personalizza il range delle date",
+        "it_it": "Filtra per anno o per date personalizzate",
       } +
       {
         "en_us": "Full category icon pack and color picker",
-        "it_it": "Pack completo di icone e colori per le categorie",
+        "it_it": "Pack completo di icone e colori",
       } +
       {
         "en_us": "Backup/Restore the application data",
@@ -30,6 +30,10 @@ extension Localization on String {
       {
         "en_us": "Set budgets",
         "it_it": "Imposta dei budget",
+      } +
+      {
+        "en_us": "AVAILABLE SOON!",
+        "it_it": "PRESTO DISPONIBILE!",
       } +
       {
         "en_us": "Add recurrent expenses",

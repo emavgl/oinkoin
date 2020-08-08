@@ -33,12 +33,16 @@ extension Localization on String {
         "it_it": "Nessuna categoria inserita.",
       } +
       {
-        "en_us": 'You need to set a category first. Go to Category tab to add a new category.',
+        "en_us": "You need to set a category first. Go to Category tab and add a new category.",
         "it_it": "Devi prima aggiungere almeno una categoria. Vai nella tab 'Categorie' per aggiungerne una.",
       } +
       {
         "en_us": "Available on Piggybank Pro",
         "it_it": "Disponibile su Piggybank Pro",
+      } +
+      {
+        "en_us": "Export CSV",
+        "it_it": "Esporta CSV",
       } +
       {
         "en_us": "Month",

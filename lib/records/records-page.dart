@@ -220,7 +220,7 @@ class RecordsPageState extends State<RecordsPage> {
     } else {
       AlertDialogBuilder noCategoryDialog = AlertDialogBuilder("No Category is set yet.".i18n)
           .addTrueButtonName("OK")
-          .addSubtitle("You need to set a category first. Go to Category tab and add a new category.");
+          .addSubtitle("You need to set a category first. Go to Category tab and add a new category.".i18n);
       await showDialog(context: context, builder: (BuildContext context) {
         return noCategoryDialog.build(context);
       });
@@ -262,7 +262,7 @@ class RecordsPageState extends State<RecordsPage> {
                   }
                 },
                 itemBuilder: (BuildContext context) {
-                  return {'Export CSV': 1}.entries.map((entry) {
+                  return {"Export CSV".i18n: 1}.entries.map((entry) {
                     return PopupMenuItem<int>(
                       value: entry.value,
                       child: Text(entry.key),
