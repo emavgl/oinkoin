@@ -13,11 +13,11 @@ extension Localization on String {
       } +
       {
         "en_us": "Add a new 'Expense' category",
-        "it_it": "Nuova categoria sezione: Spese",
+        "it_it": "Nuova categoria sezione: Uscite",
       } +
       {
         "en_us": "Add a new 'Income' category",
-        "it_it": "Nuova categoria sezione: Guadagni",
+        "it_it": "Nuova categoria sezione: Entrate",
       } +
       {
         "en_us": "Select the category",

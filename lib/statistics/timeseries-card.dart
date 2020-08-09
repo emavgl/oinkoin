@@ -10,8 +10,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class TimeSeriesRecord {
-  final DateTime time;
-  final double dailyValue;
+  DateTime time;
+  double dailyValue;
 
   TimeSeriesRecord(this.time, this.dailyValue);
 }
@@ -58,14 +58,17 @@ class TimeSeriesCard extends StatelessWidget {
   }
 
   List<charts.Series<TimeSeriesRecord, DateTime>> _prepareData(List<Record> records) {
-    List<TimeSeriesRecord> data = [];
 
-    records.sort((a, b) => a.dateTime.compareTo(b.dateTime)); // sort descending
-
+    Map<DateTime, TimeSeriesRecord> aggregatedByDay = new Map();
     for (var record in records) {
-      TimeSeriesRecord timeSerieRecord = new TimeSeriesRecord(record.dateTime, record.value.abs());
-      data.add(timeSerieRecord);
+      aggregatedByDay.update(
+          new DateTime(record.dateTime.year, record.dateTime.month, record.dateTime.day),
+              (tsr) => new TimeSeriesRecord(record.dateTime, tsr.dailyValue + record.value.abs()),
+          ifAbsent: () => new TimeSeriesRecord(record.dateTime, record.value.abs()) );
     }
+
+    List<TimeSeriesRecord> data = aggregatedByDay.values.toList();
+    data.sort((a, b) => a.time.compareTo(b.time)); // sort descending
 
     return [
       new charts.Series<TimeSeriesRecord, DateTime>(
@@ -154,8 +157,8 @@ class TimeSeriesCard extends StatelessWidget {
 
   _createTicksList(List<Record> records) {
     double maxRecord = records.map((e) => e.value.abs()).reduce(max);
-    var ticksNumber = [charts.TickSpec<num>(0), charts.TickSpec<num>(50)];
-    int maxTick = 50;
+    var ticksNumber = [charts.TickSpec<num>(0), charts.TickSpec<num>(100)];
+    int maxTick = 100;
     while (maxTick <= maxRecord) {
       maxTick = maxTick * 2;
       ticksNumber.add(charts.TickSpec<num>(maxTick));

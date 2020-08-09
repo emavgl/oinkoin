@@ -253,7 +253,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 ),
                 _getPageSeparatorLabel("Color".i18n),
                 _createColorsList(),
-                _getPageSeparatorLabel("Icons".i18n),
+                _getPageSeparatorLabel("Icon".i18n),
                 _getIconsGrid()
               ],
             ),

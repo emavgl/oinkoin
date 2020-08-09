@@ -9,7 +9,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // these are the app-specific localization delegates that collectively
+      debugShowCheckedModeBanner: false,
+        // these are the app-specific localization delegates that collectively
       // define the localized resources for this application's Localizations widget
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,   // provides localized strings and other values for the Material Components library

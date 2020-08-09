@@ -58,7 +58,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             await widget.onListBackCallback();
         },
         title: Text(
-          movement.title != null ? movement.title : movement.category.name,
+          movement.title == null || movement.title.trim().isEmpty ? movement.category.name : movement.title ,
           style: _biggerFont,
         ),
         trailing: Text(

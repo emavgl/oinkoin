@@ -33,7 +33,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   }
 
   double totalBalance() {
-    return totalIncome() - totalExpenses();
+    return totalIncome() + totalExpenses();
   }
 
   @override
