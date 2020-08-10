@@ -96,8 +96,8 @@ extension Localization on String {
         "it_it": "Disponibile su Piggybank Pro",
       } +
       {
-        "en_us": "(Piggybank Pro) Make a backup of all the data",
-        "it_it": "(Piggybank Pro) Crea un backup dei tuoi dati",
+        "en_us": "Make a backup of all the data",
+        "it_it": "Crea un backup dei tuoi dati",
       } +
       {
         "en_us": "Restore Backup",

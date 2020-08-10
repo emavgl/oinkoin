@@ -101,13 +101,8 @@ class SettingsPage extends StatelessWidget {
             ),
             iconBackgroundColor: Colors.orange.shade600,
             title: 'Backup'.i18n,
-            subtitle: "(Piggybank Pro) Make a backup of all the data".i18n,
-            onPressed: ServiceConfig.isPremium ? () => {} : () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PremiumSplashScren()),
-              );
-            },
+            subtitle: "Make a backup of all the data".i18n,
+            onPressed: () async => await createJsonBackup()
           ),
           SettingsItem(
             icon: Icon(
