@@ -149,6 +149,7 @@ class RecordsPageState extends State<RecordsPage> {
   }
 
   pickMonth() async {
+    /// Open the dialog to pick a Month
     DateTime currentDate = _from;
     int currentYear = DateTime.now().year;
     DateTime dateTime = await showMonthPicker(
@@ -169,6 +170,7 @@ class RecordsPageState extends State<RecordsPage> {
   }
 
   pickYear() async {
+    /// Open the dialog to pick a Year
     DateTime currentDate = DateTime.now();
     DateTime lastDate = DateTime(currentDate.year, 1);
     DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
@@ -184,6 +186,32 @@ class RecordsPageState extends State<RecordsPage> {
       setState(() {
         _from = from;
         _to = to;
+        _header = getDateRangeStr(_from, _to);
+        records = newRecords;
+      });
+    }
+    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+  }
+
+  pickDateRange() async {
+    /// Open the dialog to pick a date range
+    DateTime currentDate = DateTime.now();
+    DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
+    DateTimeRange initialDateTimeRange = DateTimeRange(start: DateTime.now().subtract(Duration(days: 7)), end: currentDate);
+    DateTimeRange dateTimeRange = await showDateRangePicker(
+      context: context,
+      firstDate: firstDate,
+      lastDate: currentDate,
+      initialDateRange: initialDateTimeRange,
+      locale: I18n.locale,
+    );
+    if (dateTimeRange != null) {
+      var startDate = DateTime(dateTimeRange.start.year, dateTimeRange.start.month, dateTimeRange.start.day);
+      var endDate = DateTime(dateTimeRange.end.year, dateTimeRange.end.month, dateTimeRange.end.day, 23, 59);
+      var newRecords = await getRecordsByInterval(startDate, endDate);
+      setState(() {
+        _from = startDate;
+        _to = endDate;
         _header = getDateRangeStr(_from, _to);
         records = newRecords;
       });
@@ -242,7 +270,7 @@ class RecordsPageState extends State<RecordsPage> {
               )
           ),
           SimpleDialogOption(
-          onPressed: ServiceConfig.isPremium ? pickYear : goToPremiumSplashScreen,
+          onPressed: ServiceConfig.isPremium ? pickDateRange : goToPremiumSplashScreen,
           child: ListTile(
             title: Text("Date Range".i18n),
             onTap: goToPremiumSplashScreen,
