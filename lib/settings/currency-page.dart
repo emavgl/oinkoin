@@ -17,9 +17,19 @@ class CurrencyPage extends StatefulWidget {
 }
 
 class CurrencyPageState extends State<CurrencyPage> {
-  List<String> _currencyNames = ["Euro", "Dollar", "Pound sterling"];
-  List<String> _currencies = ["€", "\$", "£"];
-  List<IconData> _icons = [FontAwesomeIcons.euroSign, FontAwesomeIcons.dollarSign, FontAwesomeIcons.poundSign];
+  Map<String, String> _currencies = {
+    "Euro": "€",
+    "Dollar": "\$",
+    "Pound sterling": "£",
+    "Swiss franc":  "CHF",
+    "Czech koruna": "Kč",
+    "Danish krone": "kr.",
+    "Norwegian krone": "kr",
+    "Polish złoty": "zł",
+    "Swedish krona": "kr"
+  };
+
+  List<MapEntry<String, String>> _currenciesList;
   int indexSelected = 0;
   DatabaseInterface database = ServiceConfig.database;
 
@@ -33,12 +43,17 @@ class CurrencyPageState extends State<CurrencyPage> {
     return prefs.setString('currency', currency);
   }
 
+  CurrencyPageState() {
+    _currenciesList = _currencies.entries.toList();
+  }
+
   @override
   void initState() {
     super.initState();
+
     getCurrency().then((value) {
       setState(() {
-        indexSelected = _currencies.indexOf(value);
+        indexSelected = _currencies[value].indexOf(value);
       });
     });
   }
@@ -50,7 +65,7 @@ class CurrencyPageState extends State<CurrencyPage> {
         shrinkWrap: true,
         separatorBuilder: (context, index) => Divider(),
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: _currencies.length,
+        itemCount: _currenciesList.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
           return _buildCurrency(i);
@@ -60,7 +75,7 @@ class CurrencyPageState extends State<CurrencyPage> {
   Widget _buildCurrency(int index) {
     return InkWell(
         onTap: () async {
-          await setCurrency(_currencies[index]);
+          await setCurrency(_currenciesList[index].value);
           setState(() {
             indexSelected = index;
           });
@@ -69,11 +84,10 @@ class CurrencyPageState extends State<CurrencyPage> {
             leading: Container(
                 width: 40,
                 height: 40,
-                child: Icon(
-                  _icons[index],
-                  size: 20,
-                  color: Colors.white,
-                ),
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(14, 8, 0, 10),
+                  child: Text(_currenciesList[index].value[0].toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 20),)
+                ), 
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.lightBlue,
@@ -83,20 +97,18 @@ class CurrencyPageState extends State<CurrencyPage> {
                 size: 20,
                 color: Colors.black,
               ) : null,
-            title: Text(_currencyNames[index], style: _biggerFont)));
+            title: Text("${_currenciesList[index].key} (${_currenciesList[index].value})", style: _biggerFont)));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        type: MaterialType.transparency,
-        child: Column(
-            children: <Widget>[
-            AppBar(
+    return Scaffold(
+        appBar: AppBar(
               title: Text('Select the currency'.i18n)
             ),
-            _buildList()]
-      )
+        body: SingleChildScrollView(
+              child: _buildList()
+        )
     );
   }
 
