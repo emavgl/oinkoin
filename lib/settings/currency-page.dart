@@ -171,9 +171,7 @@ class CurrencyPageState extends State<CurrencyPage> {
 
   Widget _buildList() {
     return ListView.separated(
-        shrinkWrap: true,
         separatorBuilder: (context, index) => Divider(),
-        physics: const NeverScrollableScrollPhysics(),
         itemCount: _currenciesList.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
@@ -215,9 +213,7 @@ class CurrencyPageState extends State<CurrencyPage> {
         appBar: AppBar(
               title: Text('Select the currency'.i18n)
             ),
-        body: SingleChildScrollView(
-              child: _buildList()
-        )
+        body:  _buildList()
     );
   }
 

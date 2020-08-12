@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
+import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -29,6 +30,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   Category passedCategory;
   Category category;
   CategoryType categoryType;
+  List<IconData> icons;
 
   EditCategoryPageState(this.passedCategory, this.categoryType);
 
@@ -44,7 +46,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     Category category = new Category(null);
     if (this.passedCategory == null) {
       category.color = Category.colors[0];
-      category.icon = Category.icons[0];
+      category.icon = FontAwesomeIcons.question;
       category.iconCodePoint = category.icon.codePoint;
       category.categoryType = categoryType;
     } else {
@@ -60,7 +62,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   void initState() {
     super.initState();
     category = initCategory();
-    chosenIconIndex = Category.icons.indexOf(category.icon);
+    icons = ServiceConfig.isPremium ? CategoryIcons.pro_category_icons : CategoryIcons.free_category_icons;
+    chosenIconIndex = icons.indexOf(category.icon);
     chosenColorIndex = Category.colors.indexOf(category.color);
   }
 
@@ -83,15 +86,15 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       // Generate 100 widgets that display their index in the List.
-      children: List.generate(Category.icons.length, (index) {
+      children: List.generate(icons.length, (index) {
         return Container(
             child: IconButton(
               // Use the FaIcon Widget + FontAwesomeIcons class for the IconData
-                icon: FaIcon(Category.icons[index]),
+                icon: FaIcon(icons[index]),
                 color: ((chosenIconIndex == index) ? Colors.blueAccent : Colors.black45),
                 onPressed: () {
                   setState(() {
-                    category.icon = Category.icons[index];
+                    category.icon = icons[index];
                     category.iconCodePoint = category.icon.codePoint;
                     chosenIconIndex = index;
                 });

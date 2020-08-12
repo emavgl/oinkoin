@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/model.dart';
+import 'package:piggybank/services/service-config.dart';
 
 import 'category-type.dart';
 
@@ -28,73 +30,6 @@ class Category extends Model {
     Colors.black,
   ];
 
-  /// List of icons.
-  /// These are the only icons that can be used in the Category.
-  /// Feel free to add more icons. The order matters in the way
-  /// they are showed in the grid.
-  static final List<IconData> icons = [
-    // food
-    FontAwesomeIcons.hamburger,
-    FontAwesomeIcons.pizzaSlice,
-    FontAwesomeIcons.cheese,
-    FontAwesomeIcons.appleAlt,
-    FontAwesomeIcons.breadSlice,
-    FontAwesomeIcons.iceCream,
-    FontAwesomeIcons.cocktail,
-    FontAwesomeIcons.wineGlass,
-    FontAwesomeIcons.birthdayCake,
-    FontAwesomeIcons.fish,
-    FontAwesomeIcons.coffee,
-
-    // transports
-    FontAwesomeIcons.gasPump,
-    FontAwesomeIcons.car,
-    FontAwesomeIcons.carBattery,
-    FontAwesomeIcons.parking,
-    FontAwesomeIcons.biking,
-    FontAwesomeIcons.motorcycle,
-    FontAwesomeIcons.bicycle,
-    FontAwesomeIcons.caravan,
-    FontAwesomeIcons.taxi,
-    FontAwesomeIcons.planeDeparture,
-    FontAwesomeIcons.ship,
-    FontAwesomeIcons.train,
-
-    // Shopping
-    FontAwesomeIcons.shoppingCart,
-    FontAwesomeIcons.shoppingBag,
-    FontAwesomeIcons.shoppingBasket,
-    FontAwesomeIcons.gem,
-    FontAwesomeIcons.tag,
-    FontAwesomeIcons.gift,
-    FontAwesomeIcons.mitten,
-    FontAwesomeIcons.socks,
-    FontAwesomeIcons.hatCowboy,
-
-    // Entertainment
-    FontAwesomeIcons.gamepad,
-    FontAwesomeIcons.theaterMasks,
-    FontAwesomeIcons.swimmer,
-    FontAwesomeIcons.bowlingBall,
-    FontAwesomeIcons.golfBall,
-    FontAwesomeIcons.baseballBall,
-    FontAwesomeIcons.basketballBall,
-    FontAwesomeIcons.footballBall,
-    FontAwesomeIcons.volleyballBall,
-    FontAwesomeIcons.skiing,
-    FontAwesomeIcons.tv,
-    FontAwesomeIcons.film,
-
-    FontAwesomeIcons.home,
-    FontAwesomeIcons.wallet,
-    FontAwesomeIcons.question,
-
-    FontAwesomeIcons.donate,
-    FontAwesomeIcons.moneyBill,
-    FontAwesomeIcons.handHoldingUsd,
-  ];
-
-
   static Random _random = new Random();
 
   String name;
@@ -102,20 +37,21 @@ class Category extends Model {
   int iconCodePoint;
   IconData icon;
   CategoryType categoryType; // 0 for expenses, 1 for income
+  List<IconData> categoryIcons;
 
   Category(String name, {this.color, this.iconCodePoint, this.categoryType}) {
     this.name = name;
+    this.categoryIcons = CategoryIcons.pro_category_icons;
     if (this.color == null) {
       var randomColorIndex = _random.nextInt(colors.length);
       this.color = colors[randomColorIndex];
     }
 
-    if (this.iconCodePoint == null) {
-      var randomIconIndex = _random.nextInt(icons.length);
-      this.icon = icons[randomIconIndex];
+    if (this.iconCodePoint == null || this.categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
+      this.icon = FontAwesomeIcons.question;
       this.iconCodePoint = this.icon.codePoint;
     } else {
-      this.icon = icons.where((i) => i.codePoint == this.iconCodePoint).first;
+      this.icon = this.categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
     }
 
     if (this.categoryType == null) {
