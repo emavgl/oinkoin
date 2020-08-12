@@ -42,6 +42,7 @@ dependencies:
   url_launcher: ^5.5.0
   rate_my_app: ^0.6.1+7
   launch_review: ^2.0.0
+  flutter_colorpicker: ^0.3.4
 
 
 

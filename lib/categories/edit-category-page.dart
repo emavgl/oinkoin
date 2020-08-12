@@ -1,9 +1,14 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/premium/splash-screen.dart';
+import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import '../style.dart';
@@ -37,6 +42,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   int chosenColorIndex; // Index of the Category.color list for showing the selected color in the list
   int chosenIconIndex; // Index of the Category.icons list for showing the selected color in the list
+  Color pickedColor;
 
   DatabaseInterface database = ServiceConfig.database;
 
@@ -65,6 +71,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     icons = ServiceConfig.isPremium ? CategoryIcons.pro_category_icons : CategoryIcons.free_category_icons;
     chosenIconIndex = icons.indexOf(category.icon);
     chosenColorIndex = Category.colors.indexOf(category.color);
+    if (chosenColorIndex == -1) {
+      pickedColor = category.color;
+    }
   }
 
   Widget _getPageSeparatorLabel(String labelText) {
@@ -109,6 +118,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       return ListView.builder(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: Category.colors.length,
           itemBuilder: /*1*/ (context, index) {
             return Container(
@@ -135,10 +145,20 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       });
   }
 
+
+
   Widget _createColorsList() {
-    return Container(
-      height: 90,
-      child: _buildColorList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+          height: 90,
+          child: Row(
+            children: [
+              _createColorPickerCircle(),
+              _buildColorList(),
+            ],
+          )
+      )
     );
   }
 
@@ -153,10 +173,87 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 child: SizedBox(width: 70, height: 70,
                     child: Icon(category.icon, color: Colors.white, size: 30,),
                 ),
-                onTap: () {},
+                onTap: openColorPicker,
               )
           )
       )
+    );
+  }
+
+  Widget _createColorPickerCircle() {
+    return Container(
+        margin: EdgeInsets.all(10),
+        child: Stack(
+          children: [
+            ClipOval(
+                child: Material(
+                  child: Container(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: pickedColor == null ? [
+                                Colors.yellow,
+                                Colors.red,
+                                Colors.indigo,
+                                Colors.teal
+                              ] : [pickedColor, pickedColor])),
+                      child: InkWell(
+                        splashColor: category.color, // inkwell color
+                        child: SizedBox(width: 70, height: 70,
+                          child: Icon(Icons.colorize, color: Colors.white, size: 30,),
+                        ),
+                        onTap: ServiceConfig.isPremium ? openColorPicker : () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+                          );
+                        },
+                      )
+                  ), // button color
+                )
+            ),
+            ServiceConfig.isPremium ? Container() : getProLabel()
+          ],
+        )
+    );
+  }
+
+  openColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Container(
+            padding: EdgeInsets.all(15),
+            color: Theme.of(context).primaryColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Choose a color".i18n, style: TextStyle(color: Colors.white),),
+                IconButton(icon: const Icon(Icons.close), color: Colors.white, onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
+                })
+              ],
+            )
+          ),
+          titlePadding: const EdgeInsets.all(0.0),
+          contentPadding: const EdgeInsets.all(0.0),
+          content: SingleChildScrollView(
+            child: MaterialPicker(
+              pickerColor: category.color,
+              onColorChanged: (newColor) {
+                setState(() {
+                  pickedColor = newColor;
+                  category.color = newColor;
+                  chosenColorIndex = -1;
+                });
+              },
+              enableLabel: false,
+            ),
+          ),
+        );
+      },
     );
   }
 

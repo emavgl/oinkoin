@@ -44,6 +44,10 @@ extension Localization on String {
         "it_it": "Colore",
       } +
       {
+        "en_us": "Choose a color",
+        "it_it": "Scegli un colore",
+      } +
+      {
         "en_us": "Icon",
         "it_it": "Icona",
       };
