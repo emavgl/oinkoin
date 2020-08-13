@@ -43,6 +43,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   int chosenColorIndex; // Index of the Category.color list for showing the selected color in the list
   int chosenIconIndex; // Index of the Category.icons list for showing the selected color in the list
   Color pickedColor;
+  String categoryName;
 
   DatabaseInterface database = ServiceConfig.database;
 
@@ -58,6 +59,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     } else {
       category.icon = passedCategory.icon;
       category.name = passedCategory.name;
+      categoryName = passedCategory.name;
       category.color = passedCategory.color;
       category.categoryType = passedCategory.categoryType;
     }
@@ -266,7 +268,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             child: TextFormField(
                 onChanged: (text) {
                   setState(() {
-                    category.name = text;
+                    categoryName = text;
                   });
                 },
                 validator: (value) {
@@ -275,7 +277,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                   }
                   return null;
                 },
-                initialValue: category.name,
+                initialValue: categoryName,
                 style: TextStyle(
                     fontSize: 22.0,
                     color: Colors.black
@@ -321,11 +323,19 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               icon: const Icon(Icons.save),
               tooltip: "Save".i18n, onPressed: () async {
                 if (_formKey.currentState.validate()) {
-                  var existingCategory = await database.getCategory(category.name, category.categoryType);
-                  if (existingCategory == null) {
+                  if (category.name == null) {
+                    // Then it is a newly created category
+                    // Call the method add category
+                    category.name = categoryName;
                     await database.addCategory(category);
                   } else {
-                    await database.updateCategory(category);
+                    // If category.name is already set
+                    // I'm editing an existing category
+                    // Call the method updateCategory
+                    String existingName = category.name;
+                    var existingType = category.categoryType;
+                    category.name = categoryName;
+                    await database.updateCategory(existingName, existingType, category);
                   }
                   Navigator.pop(context);
                 }

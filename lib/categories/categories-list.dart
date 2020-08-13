@@ -29,9 +29,7 @@ class CategoriesListState extends State<CategoriesList> {
 
   Widget _buildCategories() {
     return ListView.separated(
-        shrinkWrap: true,
         separatorBuilder: (context, index) => Divider(),
-        physics: const NeverScrollableScrollPhysics(),
         itemCount: widget.categories.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {

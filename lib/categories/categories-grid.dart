@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:piggybank/models/category.dart';
@@ -53,30 +54,32 @@ class CategoriesGridState extends State<CategoriesGrid> {
             Navigator.pop(context, category);
           }
         },
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Container(
-                  width: 40,
-                  height: 40,
-                  child: Icon(
-                    category.icon,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: category.color,
-                  )
-              ),
-              Container(
+      child: Container(
+        margin: EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Container(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  category.icon,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: category.color,
+                )
+            ),
+            Flexible(
+              child: Container(
                 margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                child:  Text(category.name),
-              )
-            ],
-          ),
-        )
+                child:  Text( category.name, maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 

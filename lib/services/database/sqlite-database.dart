@@ -94,12 +94,11 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<int> updateCategory(Category category) async {
+    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
         final db = await database;
-        String categoryName = category.name;
-        var categoryIndex = category.categoryType.index;
-        return await db.update("categories", category.toMap(),
-            where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
+        var categoryIndex = existingCategoryType.index;
+        return await db.update("categories", updatedCategory.toMap(),
+            where: "name = ? AND category_type = ?", whereArgs: [existingCategoryName, categoryIndex]);
     }
 
     @override

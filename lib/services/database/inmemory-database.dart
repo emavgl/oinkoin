@@ -44,13 +44,13 @@ class InMemoryDatabase implements DatabaseInterface {
         return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
     }
 
-    Future<int> updateCategory(Category category) async {
-        var categoryWithTheSameName = await getCategory(category.name, category.categoryType);
+    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
+        var categoryWithTheSameName = await getCategory(existingCategoryName, existingCategoryType);
         if (categoryWithTheSameName == null) {
             throw NotFoundException();
         }
         var index = _categories.indexOf(categoryWithTheSameName);
-        _categories[index] = category;
+        _categories[index] = updatedCategory;
         return Future<int>.value(index);
     }
 

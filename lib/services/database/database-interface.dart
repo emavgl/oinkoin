@@ -14,7 +14,7 @@ abstract class DatabaseInterface {
     Future<List<Category>> getCategoriesByType(CategoryType categoryType);
     Future<Category> getCategory(String categoryName, CategoryType categoryType);
     Future<int> addCategory(Category category);
-    Future<int> updateCategory(Category category);
+    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory);
     Future<void> deleteCategory(String name, CategoryType categoryType);
     
     /// Record CRUD
