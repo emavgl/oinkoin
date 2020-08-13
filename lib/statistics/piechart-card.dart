@@ -102,20 +102,31 @@ class PieChartCard extends StatelessWidget {
             child: new Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Container(
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                          height: 10,
-                          width: 20,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color.fromARGB(recordColor.a, recordColor.r, recordColor.g, recordColor.b),
+                Flexible(
+                  child: Container(
+                      margin: EdgeInsets.fromLTRB(0, 0, 4, 0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            child: Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color.fromARGB(recordColor.a, recordColor.r, recordColor.g, recordColor.b),
+                                )
+                            ),
+                          ),
+                          Flexible(
+                            child: Text(
+                                linearRecord.category,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
+                            ),
                           )
-                      ),
-                      Text(linearRecord.category),
-                    ],
-                  )
+                        ],
+                      )
+                  ),
                 ),
                 Text(linearRecord.value.toStringAsFixed(2) + " %"),
               ],

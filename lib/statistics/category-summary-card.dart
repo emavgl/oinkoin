@@ -60,14 +60,21 @@ class CategorySummaryCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(
-                        record.title != null ? record.title : categoryName,
-                        style: _biggerFont,
+                      Flexible(
+                        child: Text(
+                          record.title != null ? record.title : categoryName,
+                          style: _biggerFont,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      Text(
-                        "$value ($percentageStrRepr%)",
-                        style: _biggerFont,
-                      ),
+                      Container(
+                        child: Text(
+                          "$value ($percentageStrRepr%)",
+                          style: _biggerFont,
+                        ),
+                        margin: EdgeInsets.only(left: 10),
+                      )
                     ],
                   ),
                   Align(
@@ -113,14 +120,21 @@ class CategorySummaryCard extends StatelessWidget {
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Entries for category: ".i18n + categoryName,
-                          style: TextStyle(fontSize: 14),
+                        Flexible(
+                          child: Text(
+                            "Entries for category: ".i18n + categoryName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 14),
+                          ),
                         ),
-                        Text(
-                          totalCategoryValue.toStringAsFixed(2),
-                          style: TextStyle(fontSize: 14),
-                        ),
+                        Container(
+                          child: Text(
+                            totalCategoryValue.toStringAsFixed(2),
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          margin: EdgeInsets.only(left: 15),
+                        )
                       ]
                   )
               ),

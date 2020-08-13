@@ -65,8 +65,17 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
           title: new Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(categoryName),
-              Text(getDateRangeStr(widget.from, widget.to))
+              Flexible(
+                child: Text(
+                  categoryName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                child:  Text(getDateRangeStr(widget.from, widget.to)),
+                margin: EdgeInsets.only(left: 10),
+              )
             ],
           ),
         ),

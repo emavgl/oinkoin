@@ -60,6 +60,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         title: Text(
           movement.title == null || movement.title.trim().isEmpty ? movement.category.name : movement.title ,
           style: _biggerFont,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
         trailing: Text(
           movement.value.toString(),

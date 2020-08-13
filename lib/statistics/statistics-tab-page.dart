@@ -5,6 +5,7 @@ import 'package:piggybank/statistics/piechart-card.dart';
 import 'package:piggybank/statistics/timeseries-card.dart';
 
 import 'categories-summary-card.dart';
+import './i18n/statistics-page.i18n.dart';
 
 class StatisticsTabPage extends StatefulWidget {
 
@@ -39,7 +40,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
         Image.asset(
           'assets/no_entry_3.png', width: 200,
         ),
-        Text("No entries to show.",
+        Text("No entries to show.".i18n,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 22.0,) ,)

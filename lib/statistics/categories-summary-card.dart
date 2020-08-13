@@ -82,14 +82,21 @@ class CategoriesSummaryCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(
-                        category.name,
-                        style: _biggerFont,
+                      Flexible(
+                        child: Text(
+                            category.name,
+                            style: _biggerFont,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis
+                        ),
                       ),
-                      Text(
-                        "$categorySumStr ($percentageStrRepr%)",
-                        style: _biggerFont,
-                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 5),
+                        child: Text(
+                          "$categorySumStr ($percentageStrRepr%)",
+                          style: _biggerFont,
+                        ),
+                      )
                     ],
                   ),
                   Container(
