@@ -12,6 +12,7 @@ import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/premium/splash-screen.dart';
+import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/records/records-day-list.dart';
 import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -253,7 +254,7 @@ class RecordsPageState extends State<RecordsPage> {
               onPressed: ServiceConfig.isPremium ? pickYear : goToPremiumSplashScreen,
               child: ListTile(
                 title: Text("Year".i18n),
-                subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : Container(),
+                subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : null,
                 enabled: ServiceConfig.isPremium,
                 leading: Container(
                     width: 40,
@@ -274,7 +275,7 @@ class RecordsPageState extends State<RecordsPage> {
           child: ListTile(
             title: Text("Date Range".i18n),
             onTap: goToPremiumSplashScreen,
-            subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : Container(),
+            subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : null,
             enabled: ServiceConfig.isPremium,
             leading: Container(
               width: 40,

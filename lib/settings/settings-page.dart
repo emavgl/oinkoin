@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:piggybank/premium/splash-screen.dart';
+import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
@@ -122,20 +123,28 @@ class SettingsPage extends StatelessWidget {
             subtitle: "Make a backup of all the data".i18n,
             onPressed: () async => await createAndShareBackupFile()
           ),
-          SettingsItem(
-            icon: Icon(
-              Icons.restore_page,
-              color: Colors.white,
-            ),
-            iconBackgroundColor: Colors.teal,
-            title: 'Restore Backup'.i18n,
-            subtitle: "(Piggybank Pro) Restore a backup".i18n,
-            onPressed: ServiceConfig.isPremium ? () async => await importFromBackupFile(context) : () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PremiumSplashScren()),
-              );
-            },
+          Stack(
+            children: [
+              SettingsItem(
+                icon: Icon(
+                  Icons.restore_page,
+                  color: Colors.white,
+                ),
+                iconBackgroundColor: Colors.teal,
+                title: 'Restore Backup'.i18n,
+                subtitle: "Restore data from a backup file".i18n,
+                onPressed: ServiceConfig.isPremium ? () async => await importFromBackupFile(context) : () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+                  );
+                },
+              ),
+              !ServiceConfig.isPremium ? Container(
+                margin: EdgeInsets.fromLTRB(8, 8, 0, 0),
+                child:  getProLabel(labelFontSize: 10.0),
+              ) : Container()
+            ],
           ),
           SettingsItem(
             icon: Icon(

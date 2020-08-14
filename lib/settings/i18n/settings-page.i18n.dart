@@ -126,8 +126,8 @@ extension Localization on String {
       } +
 
       {
-        "en_us": "(Piggybank Pro) Restore a backup",
-        "it_it": "(Piggybank Pro) Ripristina un backup",
+        "en_us": "Restore data from a backup file",
+        "it_it": "Ripristina dati da un file di backup",
       } +
       {
         "en_us": "Pay us a coffee",
