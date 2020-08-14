@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import './i18n/alert-dialog-builder.i18n.dart';
 
 class AlertDialogBuilder {
 
@@ -15,7 +16,7 @@ class AlertDialogBuilder {
   AlertDialogBuilder(String title) {
     this.title = title;
     this.trueButtonName = "OK";
-    this.falseButtonName = "Cancel";
+    this.falseButtonName = "Cancel".i18n;
     this.subtitle = null;
   }
 

@@ -24,6 +24,7 @@ abstract class DatabaseInterface {
     Future<int> updateRecordById(int recordId, Record newRecord);
     Future<List<Record>> getAllRecords();
     Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to);
+    Future<Record> getMatchingRecord(Record record);
 
     // Utils
     Future<void> deleteDatabase();

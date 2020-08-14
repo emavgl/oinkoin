@@ -103,6 +103,28 @@ extension Localization on String {
         "en_us": "Restore Backup",
         "it_it": "Ripristino",
       } +
+
+      {
+        "en_us": "Restore successful",
+        "it_it": "Ripristino riusciuto",
+      } +
+      {
+        "en_us": "Restore unsuccessful",
+        "it_it": "Ripristino non riuscito",
+      } +
+      {
+        "en_us": "The data from the backup file are now restored.",
+        "it_it": "I dati dal file di backup sono stati ripristinati.",
+      } +
+      {
+        "en_us": "Make sure you have the latest version of the app. If so, the backup file may be corrupted.",
+        "it_it": "Assicurati di avere l'ultima versione dell'app. Se già aggiornata, allora il file di backup potrebbe essere corrotto.",
+      } +
+      {
+        "en_us": "Restore Backup",
+        "it_it": "Ripristino",
+      } +
+
       {
         "en_us": "(Piggybank Pro) Restore a backup",
         "it_it": "(Piggybank Pro) Ripristina un backup",

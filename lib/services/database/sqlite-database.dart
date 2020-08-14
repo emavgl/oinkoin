@@ -111,6 +111,38 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
+    Future<Record> getMatchingRecord(Record record) async {
+        /// Check if there are records with the same title, value, category on the same day of :record
+        /// If yes, return the first match. If no, null is returned.
+        final db = await database;
+        var sameDateTime = record.dateTime.millisecondsSinceEpoch;
+        var sameValue = record.value;
+        var sameTitle = record.title;
+        var sameCategoryName = record.category.name;
+        var sameCategoryType = record.category.categoryType.index;
+        var maps;
+        if (sameTitle != null) {
+            maps = await db.rawQuery("""
+            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
+            WHERE m.datetime = ? AND m.value = ? AND m.title = ? AND c.name = ? AND c.category_type = ?
+        """, [sameDateTime, sameValue, sameTitle, sameCategoryName, sameCategoryType]);
+        } else {
+            maps = await db.rawQuery("""
+            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
+            WHERE m.datetime = ? AND m.value = ? AND m.title IS NULL AND c.name = ? AND c.category_type = ?
+        """, [sameDateTime, sameValue, sameCategoryName, sameCategoryType]);
+        }
+        var matching = List.generate(maps.length, (i) {
+            Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
+            currentRowMap["category"] = Category.fromMap(currentRowMap);
+            return Record.fromMap(currentRowMap);
+        });
+        return (matching.isEmpty) ? null : matching.first;
+    }
+
+    @override
     Future<List<Record>> getAllRecords() async {
         final db = await database;
         var maps = await db.rawQuery("""

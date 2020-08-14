@@ -235,8 +235,9 @@ class EditRecordPageState extends State<EditRecordPage> {
                 Expanded(
                   child: OutlineButton(
                     onPressed: () async {
+                      DateTime now = DateTime.now();
                       DateTime result = await showDatePicker(context: context,
-                          initialDate: DateTime.now(),
+                          initialDate: now,
                           firstDate: DateTime(1970), lastDate: DateTime(2050));
                       if (result != null) {
                         setState(() {

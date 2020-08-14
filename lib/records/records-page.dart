@@ -90,7 +90,7 @@ class RecordsPageState extends State<RecordsPage> {
           _rateMyApp.showStarRateDialog(context,
             title: 'Rate this app'.i18n,
             // The dialog title.
-            message: 'If you like this app, please take a little bit of your time to review it !\nIt really helps us and it shouldn\'t take you more than one minute.',
+            message: "If you like this app, please take a little bit of your time to review it !\nIt really helps us and it shouldn\'t take you more than one minute.".i18n,
             actionsBuilder: (context,
                 stars) { // Triggered when the user updates the star rating.
               return [

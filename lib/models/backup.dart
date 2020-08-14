@@ -1,3 +1,4 @@
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 
 import 'category.dart';
@@ -23,13 +24,22 @@ class Backup extends Model {
   }
 
   static Backup fromMap(Map<String, dynamic> map) {
-    var records = List.generate(map["records"].length, (i) {
-      Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(map["records"][i]);
-      currentRowMap["category"] = Category.fromMap(currentRowMap);
-      return Record.fromMap(currentRowMap);
-    });
+    // Step 1: load categories
     var categories = List.generate(map["categories"].length, (i) {
       return Category.fromMap(map["categories"][i]);
+    });
+
+    // Step 2: load records
+    var records = List.generate(map["records"].length, (i) {
+      Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(map["records"][i]);
+      String categoryName = currentRowMap["category_name"];
+      CategoryType categoryType = CategoryType.values[currentRowMap["category_type"]];
+      Category matchingCategory = categories.firstWhere((element) => element.categoryType == categoryType && element.name == categoryName, orElse: null);
+      if (matchingCategory == null) {
+        throw Exception("Can't find category during the backup import. Backup file is corrupted.");
+      }
+      currentRowMap["category"] = matchingCategory;
+      return Record.fromMap(currentRowMap);
     });
     return Backup(categories, records);
   }

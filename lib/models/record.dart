@@ -26,11 +26,11 @@ class Record extends Model {
       'value': value,
       'datetime': dateTime.millisecondsSinceEpoch,
       'category_name': category.name,
-      'category_type': category.categoryType.index
+      'category_type': category.categoryType.index,
+      'description': description
     };
 
     if (this.id != null) { map['id'] = this.id; }
-    if (this.description != null) { map['description'] = this.description; }
     return map;
   }
 

@@ -37,21 +37,20 @@ class Category extends Model {
   int iconCodePoint;
   IconData icon;
   CategoryType categoryType; // 0 for expenses, 1 for income
-  List<IconData> categoryIcons;
 
   Category(String name, {this.color, this.iconCodePoint, this.categoryType}) {
     this.name = name;
-    this.categoryIcons = CategoryIcons.pro_category_icons;
+    var categoryIcons = CategoryIcons.pro_category_icons;
     if (this.color == null) {
       var randomColorIndex = _random.nextInt(colors.length);
       this.color = colors[randomColorIndex];
     }
 
-    if (this.iconCodePoint == null || this.categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
+    if (this.iconCodePoint == null || categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
       this.icon = FontAwesomeIcons.question;
       this.iconCodePoint = this.icon.codePoint;
     } else {
-      this.icon = this.categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
+      this.icon = categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
     }
 
     if (this.categoryType == null) {

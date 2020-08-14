@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:piggybank/premium/splash-screen.dart';
+import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
-import 'package:piggybank/models/backup.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:share/share.dart';
 import './i18n/settings-page.i18n.dart';
-import 'dart:convert';
 import 'dart:io';
 
 import 'currency-page.dart';
@@ -26,15 +25,34 @@ class SettingsPage extends StatelessWidget {
   static const double kSettingsItemsIconElevation = 2.0;
   final DatabaseInterface database = ServiceConfig.database;
 
-  createJsonBackup() async {
-    var records = await database.getAllRecords();
-    var categories = await database.getAllCategories();
-    var backup = Backup(categories, records);
-    var backupJsonStr = jsonEncode(backup.toMap());
-    final path = await getApplicationDocumentsDirectory();
-    var backupJsonOnDisk = File(path.path + "/backup.json");
-    await backupJsonOnDisk.writeAsString(backupJsonStr);
-    Share.shareFile(backupJsonOnDisk);
+  createAndShareBackupFile() async {
+    File backupFile = await BackupService.createJsonBackupFile();
+    Share.shareFile(backupFile);
+  }
+
+  importFromBackupFile(BuildContext context) async {
+    File file = await FilePicker.getFile(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (file != null) {
+      bool successful = await BackupService.importDataFromBackupFile(file);
+      if (successful) {
+        AlertDialogBuilder resultDialog = AlertDialogBuilder("Restore successful".i18n)
+            .addSubtitle("The data from the backup file are now restored.".i18n)
+            .addTrueButtonName("OK");
+        await showDialog(context: context, builder: (BuildContext context) {
+          return resultDialog.build(context);
+        });
+      } else {
+        AlertDialogBuilder resultDialog = AlertDialogBuilder("Restore unsuccessful".i18n)
+            .addSubtitle("Make sure you have the latest version of the app. If so, the backup file may be corrupted.".i18n)
+            .addTrueButtonName("OK");
+        await showDialog(context: context, builder: (BuildContext context) {
+          return resultDialog.build(context);
+        });
+      }
+    }
   }
 
   deleteAllData(BuildContext context) async {
@@ -102,7 +120,7 @@ class SettingsPage extends StatelessWidget {
             iconBackgroundColor: Colors.orange.shade600,
             title: 'Backup'.i18n,
             subtitle: "Make a backup of all the data".i18n,
-            onPressed: () async => await createJsonBackup()
+            onPressed: () async => await createAndShareBackupFile()
           ),
           SettingsItem(
             icon: Icon(
@@ -112,7 +130,7 @@ class SettingsPage extends StatelessWidget {
             iconBackgroundColor: Colors.teal,
             title: 'Restore Backup'.i18n,
             subtitle: "(Piggybank Pro) Restore a backup".i18n,
-            onPressed: ServiceConfig.isPremium ? () => {} : () async {
+            onPressed: ServiceConfig.isPremium ? () async => await importFromBackupFile(context) : () async {
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => PremiumSplashScren()),

@@ -91,6 +91,12 @@ class InMemoryDatabase implements DatabaseInterface {
     }
 
     @override
+    Future<Record> getMatchingRecord(Record record) async {
+        var matching = _movements.where((x) => x.category == record.category && x.value == record.value && x.dateTime.isAtSameMomentAs(record.dateTime)).toList();
+        return (matching.isEmpty) ? Future<Record>.value(null): Future<Record>.value(matching[0]);
+    }
+
+    @override
     Future<int> updateRecordById(int movementId, Record newMovement) async {
       var movementWithTheSameId = await getRecordById(movementId);
       if (movementWithTheSameId == null) {
