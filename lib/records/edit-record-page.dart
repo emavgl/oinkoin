@@ -1,6 +1,7 @@
 
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -65,6 +66,108 @@ class EditRecordPageState extends State<EditRecordPage> {
     });
   }
 
+  Widget _createAddNoteCard() {
+    return Card(
+        elevation: 2,
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 40.0, top: 10, right: 10, left: 10),
+          child: TextFormField(
+              onChanged: (text) {
+                setState(() {
+                  record.description = text;
+                });
+              },
+              style: TextStyle(
+                  fontSize: 22.0,
+                  color: Colors.black
+              ),
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: "Add a note",
+              )
+          ),
+        ),
+    );
+  }
+
+  Widget _createTitleCard() {
+    return Card(
+      elevation: 2,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 5, 5, 5),
+        child: TextFormField(
+            onChanged: (text) {
+              setState(() {
+                record.description = text;
+              });
+            },
+            style: TextStyle(
+                fontSize: 22.0,
+                color: Colors.black
+            ),
+            maxLines: 1,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                contentPadding: EdgeInsets.all(10),
+                border: InputBorder.none,
+                hintText: record.category.name,
+                labelText: "Record title (optional)"
+            )
+        ),
+      ),
+    );
+  }
+
+  Widget _createDateCard() {
+    return Card(
+      elevation: 2,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () async {
+                DateTime now = DateTime.now();
+                DateTime result = await showDatePicker(context: context,
+                    initialDate: now,
+                    firstDate: DateTime(1970), lastDate: DateTime(2050));
+                if (result != null) {
+                  setState(() {
+                    record.dateTime = result;
+                  });
+                }
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 28, color: Colors.blueAccent,),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    child: Text(getDateStr(record.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                  )
+                ],
+              ),
+            ),
+            Divider(indent: 40, thickness: 2,),
+            InkWell(
+              child: Row(
+                children: [
+                  Icon(Icons.repeat, size: 28, color: Colors.black54,),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    child: Text("Repeat", style: TextStyle(fontSize: 20, color: Colors.black54),),
+                  )
+                ],
+              ),
+            ),
+          ],
+        )
+      ),
+    );
+  }
+
   Widget _createCategoryCirclePreview() {
     Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
     Category toRender = (record.category == null) ? defaultCategory : record.category;
@@ -95,35 +198,37 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
-  Widget _getTextField() {
-    return Expanded(
-        child: Container(
-          margin: EdgeInsets.all(10),
-          child: TextFormField(
-              onChanged: (text) {
-                setState(() {
-                  record.title = text;
-                });
-              },
-              initialValue: record.title,
-              style: TextStyle(
-                  fontSize: 22.0,
-                  color: Colors.black
+  Widget _createAmountCard() {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: EdgeInsets.fromLTRB(12, 12, 20, 12),
+            child: Text(currency, style: Body1Style, textAlign: TextAlign.left),
+          ),
+          Expanded(
+              child: TextFormField(
+                  onChanged: (text) {
+                    setState(() {
+                      record.description = text;
+                    });
+                  },
+                  style: TextStyle(
+                      fontSize: 50.0,
+                      color: Colors.black
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "42.00",
+                  )
               ),
-              decoration: InputDecoration(
-                  hintText: "Record name  (optional)".i18n,
-                  border: OutlineInputBorder()
-              )),
-        ));
-  }
-
-  Widget _getFormLabel(String labelText, {topMargin: 14.0}) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.fromLTRB(0, topMargin, 14, 14),
-        child: Text(labelText, style: Body1Style, textAlign: TextAlign.left),
-      ),
+          )
+        ],
+      )
     );
   }
 
@@ -179,109 +284,9 @@ class EditRecordPageState extends State<EditRecordPage> {
         margin: EdgeInsets.all(10),
         child:  Column(
             children: [
-              _getFormLabel("How much?".i18n),
-              Row(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      margin: EdgeInsets.fromLTRB(12, 12, 20, 12),
-                      child: Text(currency, style: Body1Style, textAlign: TextAlign.left),
-                    ),
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                        autofocus: record.value == null,
-                        keyboardType: TextInputType.number,
-                        onChanged: (text) {
-                          var numericValue = double.tryParse(text);
-                          if (numericValue != null) {
-                            numericValue = numericValue.abs();
-                            if (record.category.categoryType == CategoryType.expense) {
-                              // value is an expenses, needs to be negative
-                              numericValue = numericValue * -1;
-                            }
-                            record.value = numericValue;
-                          }
-                        },
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return "Please enter a value";
-                          }
-                          var numericValue = double.tryParse(value);
-                          if (numericValue == null) {
-                            return "Please enter a numeric value";
-                          }
-                          return null;
-                        },
-                        initialValue: record.value != null ? record.value.abs().toString() : "",
-                        style: TextStyle(
-                            fontSize: 22.0,
-                            color: Colors.black
-                        ),
-                        decoration: InputDecoration(
-                            hintText: "42",
-                            labelText: 'Value',
-                            border: OutlineInputBorder(),
-                            errorStyle: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                        )),
-                  )
-                ],
-              ),
-              _getFormLabel("When?".i18n, topMargin: 30.0),
-              Row(children: <Widget>[
-                Expanded(
-                  child: OutlineButton(
-                    onPressed: () async {
-                      DateTime now = DateTime.now();
-                      DateTime result = await showDatePicker(context: context,
-                          initialDate: now,
-                          firstDate: DateTime(1970), lastDate: DateTime(2050));
-                      if (result != null) {
-                        setState(() {
-                          record.dateTime = result;
-                        });
-                      }
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.all(14),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          getDateStr(record.dateTime),
-                        style: TextStyle(fontSize: 22),
-                      ),
-                    ),
-                  ),
-                    borderSide: BorderSide(color: Colors.grey, width: 0),
-                  ))
-              ],),
-              _getFormLabel("How?".i18n, topMargin: 30.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                        onChanged: (text) {
-                          setState(() {
-                            record.description = text;
-                          });
-                        },
-                        initialValue: record.description,
-                        style: TextStyle(
-                            fontSize: 22.0,
-                            color: Colors.black
-                        ),
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
-                        decoration: InputDecoration(
-                            labelText: 'Description (optional)'.i18n,
-                            border: OutlineInputBorder()
-                        )),
-                  )
-                ],
-              ),
+              _createTitleCard(),
+              _createDateCard(),
+              _createAddNoteCard()
             ]
         ),
       )
@@ -302,7 +307,9 @@ class EditRecordPageState extends State<EditRecordPage> {
                     Row(
                       children: <Widget>[
                         Container(child: _createCategoryCirclePreview()),
-                        Container(child: _getTextField()),
+                        Expanded(
+                          child:  Container(child: _createAmountCard()),
+                        ),
                       ],
                     ),
                     _getForm(),
