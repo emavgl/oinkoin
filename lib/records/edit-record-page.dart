@@ -276,7 +276,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                            labelText: 'Description'.i18n,
+                            labelText: 'Description (optional)'.i18n,
                             border: OutlineInputBorder()
                         )),
                   )

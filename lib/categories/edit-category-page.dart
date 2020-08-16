@@ -175,7 +175,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 child: SizedBox(width: 70, height: 70,
                     child: Icon(category.icon, color: Colors.white, size: 30,),
                 ),
-                onTap: openColorPicker,
+                onTap: () {},
               )
           )
       )

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -29,11 +31,22 @@ class CategoriesGrid extends StatefulWidget {
 class CategoriesGridState extends State<CategoriesGrid> {
   
   Widget _buildCategories() {
+    var size = MediaQuery.of(context).size;
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 2;
+    final double itemWidth = size.width / 2;
     return GridView.count(
-        crossAxisCount: 4,
-        shrinkWrap: true,
+        childAspectRatio: (itemWidth / itemHeight),
+        padding: EdgeInsets.only(top: 10),
+        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 5.0,
+        crossAxisCount: min(4, 6 - MediaQuery.of(context).devicePixelRatio.floor()),
+        shrinkWrap: false,
         children: List.generate(widget.categories.length, (index) {
-          return _buildCategory(widget.categories[index]);
+          return Align(
+            alignment: Alignment.center,
+            child: _buildCategory(widget.categories[index]),
+          );
+          return null;
         }),
     );
   }
@@ -55,7 +68,6 @@ class CategoriesGridState extends State<CategoriesGrid> {
           }
         },
       child: Container(
-        margin: EdgeInsets.all(5),
         child: Column(
           children: [
             Container(

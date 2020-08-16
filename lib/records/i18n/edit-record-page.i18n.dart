@@ -48,8 +48,8 @@ extension Localization on String {
         "it_it": "Perché?",
       } +
       {
-        "en_us": "Description",
-        "it_it": "Descrizione",
+        "en_us": "Description (optional)",
+        "it_it": "Descrizione (opzionale)",
       } +
       {
         "en_us": "Expenses",

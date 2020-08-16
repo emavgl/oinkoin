@@ -168,7 +168,6 @@ class SqliteDatabase implements DatabaseInterface {
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [from_unix, to_unix]);
 
-        // Convert the List<Map<String, dynamic> into a List<Dog>. // TODO woof woof
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
             currentRowMap["category"] = Category.fromMap(currentRowMap);

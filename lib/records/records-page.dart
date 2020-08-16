@@ -417,7 +417,8 @@ class RecordsPageState extends State<RecordsPage> {
                       )
                   ) : Container(
                     child: new RecordsDayList(records, onListBackCallback: fetchMovementsFromDb,),
-                  )
+                  ),
+                  SizedBox(height: 75),
                 ],
               ),
             ),

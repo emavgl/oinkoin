@@ -71,10 +71,14 @@ class Category extends Model {
 
   static Category fromMap(Map<String, dynamic> map) {
     String serializedColor = map["color"] as String;
-    List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
+    var color = colors[0];
+    if (serializedColor != null) {
+      List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
+      color = Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);
+    }
     return Category(
       map["name"],
-      color: Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]),
+      color: color,
       iconCodePoint: map["icon"],
       categoryType: CategoryType.values[map['category_type']]
     );
