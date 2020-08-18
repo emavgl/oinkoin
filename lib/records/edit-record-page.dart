@@ -121,6 +121,60 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
+  Widget _createCategoryCard() {
+    return Card(
+      elevation: 2,
+      child: Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              InkWell(
+                onTap: () async {
+                  var selectedCategory = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CategoryTabPageView()),
+                  );
+                  if (selectedCategory != null) {
+                    setState(() {
+                      record.category = selectedCategory;
+                    });
+                  }
+                },
+                child: Row(
+                  children: [
+                    _createCategoryCirclePreview(40.0),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                      child: Text(record.category.name, style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )
+      ),
+    );
+  }
+
+  Widget _createCategoryCirclePreview(double size) {
+    Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
+    Category toRender = (record.category == null) ? defaultCategory : record.category;
+    return Container(
+        margin: EdgeInsets.all(10),
+        child: ClipOval(
+            child: Material(
+                color: toRender.color, // button color
+                child: InkWell(
+                  splashColor: toRender.color, // inkwell color
+                  child: SizedBox(width: size, height: size,
+                    child: Icon(toRender.icon, color: Colors.white, size: size - 20,),
+                  ),
+                )
+            )
+        )
+    );
+  }
+
   Widget _createDateCard() {
     return Card(
       elevation: 2,
@@ -168,67 +222,47 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
-  Widget _createCategoryCirclePreview() {
-    Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender = (record.category == null) ? defaultCategory : record.category;
-    return Container(
-        margin: EdgeInsets.all(10),
-        child: ClipOval(
-            child: Material(
-                color: toRender.color, // button color
-                child: InkWell(
-                  splashColor: toRender.color, // inkwell color
-                  child: SizedBox(width: 70, height: 70,
-                    child: Icon(toRender.icon, color: Colors.white, size: 30,),
+  Widget _createAmountCard() {
+    return Card(
+      elevation: 2,
+      child: Container(
+        child: IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    child: Text(currency, style: TextStyle(fontSize: 35), textAlign: TextAlign.left),
                   ),
-                  onTap: () async {
-                    var selectedCategory = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CategoryTabPageView()),
-                    );
-                    if (selectedCategory != null) {
-                      setState(() {
-                        record.category = selectedCategory;
-                      });
-                    }
-                  },
+                ),
+                VerticalDivider(endIndent: 20, indent: 20, color: Colors.black),
+                Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: TextFormField(
+                          onChanged: (text) {
+                            setState(() {
+                              record.description = text;
+                            });
+                          },
+                          style: TextStyle(
+                              fontSize: 40.0,
+                              color: Colors.black
+                          ),
+                          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "42.00",
+                          )
+                      ),
+                    )
                 )
+              ],
             )
         )
-    );
-  }
-
-  Widget _createAmountCard() {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: EdgeInsets.fromLTRB(12, 12, 20, 12),
-            child: Text(currency, style: Body1Style, textAlign: TextAlign.left),
-          ),
-          Expanded(
-              child: TextFormField(
-                  onChanged: (text) {
-                    setState(() {
-                      record.description = text;
-                    });
-                  },
-                  style: TextStyle(
-                      fontSize: 50.0,
-                      color: Colors.black
-                  ),
-                  keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "42.00",
-                  )
-              ),
-          )
-        ],
-      )
+      ),
     );
   }
 
@@ -284,6 +318,8 @@ class EditRecordPageState extends State<EditRecordPage> {
         margin: EdgeInsets.all(10),
         child:  Column(
             children: [
+              _createAmountCard(),
+              _createCategoryCard(),
               _createTitleCard(),
               _createDateCard(),
               _createAddNoteCard()
@@ -304,14 +340,6 @@ class EditRecordPageState extends State<EditRecordPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Container(child: _createCategoryCirclePreview()),
-                        Expanded(
-                          child:  Container(child: _createAmountCard()),
-                        ),
-                      ],
-                    ),
                     _getForm(),
                   ]
                 ),
