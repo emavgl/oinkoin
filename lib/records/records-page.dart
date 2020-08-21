@@ -274,7 +274,6 @@ class RecordsPageState extends State<RecordsPage> {
           onPressed: ServiceConfig.isPremium ? pickDateRange : goToPremiumSplashScreen,
           child: ListTile(
             title: Text("Date Range".i18n),
-            onTap: goToPremiumSplashScreen,
             subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : null,
             enabled: ServiceConfig.isPremium,
             leading: Container(

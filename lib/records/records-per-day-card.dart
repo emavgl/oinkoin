@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
@@ -121,7 +122,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
                           child: Text(
-                            widget._movementDay.balance.toStringAsFixed(1),
+                            getCurrencyValueString(widget._movementDay.balance),
                             style: TextStyle(fontSize: 15),
                           ),
                         )

@@ -1,5 +1,6 @@
 import 'dart:collection';
 import "package:collection/collection.dart";
+import 'package:intl/intl.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 
@@ -19,3 +20,10 @@ List<RecordsPerDay> groupRecordsByDay(List<Record> records) {
   movementsDayList.sort((b, a) => a.dateTime.compareTo(b.dateTime));
   return movementsDayList;
 }
+
+final currencyNumberFormat = new NumberFormat("#######.0#", "en_US");
+
+String getCurrencyValueString(double value) {
+  return currencyNumberFormat.format(value);
+}
+

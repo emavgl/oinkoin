@@ -10,13 +10,15 @@ import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/premium/splash-screen.dart';
+import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../style.dart';
 import './i18n/edit-record-page.i18n.dart';
 
 class EditRecordPage extends StatefulWidget {
@@ -36,6 +38,7 @@ class EditRecordPage extends StatefulWidget {
 class EditRecordPageState extends State<EditRecordPage> {
 
   DatabaseInterface database = ServiceConfig.database;
+  TextEditingController _textEditingController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   Record record;
 
@@ -56,6 +59,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     currency = "€";
     if (passedRecord != null) {
       record = passedRecord;
+      _textEditingController.text = getCurrencyValueString(record.value.abs());
     } else {
       record = new Record(null, null, passedCategory, DateTime.now());
     }
@@ -64,6 +68,19 @@ class EditRecordPageState extends State<EditRecordPage> {
         currency = value;
       });
     });
+    _textEditingController.addListener(() {
+      var text = _textEditingController.text.toLowerCase();
+      final exp = new RegExp(r'[^\d.]');
+      String toRepl = text.replaceAll(",", ".");
+      toRepl = toRepl.replaceAll(exp, "");
+      _textEditingController.value = _textEditingController.value.copyWith(
+        text: toRepl,
+        selection:
+        TextSelection(baseOffset: toRepl.length, extentOffset: toRepl.length),
+        composing: TextRange.empty,
+      );
+    });
+
   }
 
   Widget _createAddNoteCard() {
@@ -81,6 +98,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   fontSize: 22.0,
                   color: Colors.black
               ),
+              initialValue: record.description,
               maxLines: null,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
@@ -175,6 +193,13 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
+  goToPremiumSplashScreen() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+    );
+  }
+
   Widget _createDateCard() {
     return Card(
       elevation: 2,
@@ -187,7 +212,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                 DateTime now = DateTime.now();
                 DateTime result = await showDatePicker(context: context,
                     initialDate: now,
-                    firstDate: DateTime(1970), lastDate: DateTime(2050));
+                    firstDate: DateTime(1970), lastDate: DateTime.now());
                 if (result != null) {
                   setState(() {
                     record.dateTime = result;
@@ -209,12 +234,21 @@ class EditRecordPageState extends State<EditRecordPage> {
               child: Row(
                 children: [
                   Icon(Icons.repeat, size: 28, color: Colors.black54,),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                    child: Text("Repeat", style: TextStyle(fontSize: 20, color: Colors.black54),),
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Repeat", style: TextStyle(fontSize: 20, color: Colors.black54),),
+                          getProLabel(labelFontSize: 12.0)
+                        ],
+                      ),
+                    ),
                   )
                 ],
               ),
+              onTap: goToPremiumSplashScreen,
             ),
           ],
         )
@@ -234,27 +268,49 @@ class EditRecordPageState extends State<EditRecordPage> {
                   alignment: Alignment.centerLeft,
                   child: Container(
                     padding: EdgeInsets.all(10),
-                    child: Text(currency, style: TextStyle(fontSize: 35), textAlign: TextAlign.left),
+                    margin: EdgeInsets.only(left: 20, right: 20),
+                    child: Text(currency, style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
                   ),
                 ),
                 VerticalDivider(endIndent: 20, indent: 20, color: Colors.black),
                 Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      margin: EdgeInsets.only(right: 20),
                       child: TextFormField(
+                          controller: _textEditingController,
+                          autofocus: record.value == null,
                           onChanged: (text) {
-                            setState(() {
-                              record.description = text;
-                            });
+                            var numericValue = double.tryParse(text);
+                            if (numericValue != null) {
+                              numericValue = double.parse(numericValue.toStringAsFixed(2));
+                              numericValue = numericValue.abs();
+                              if (record.category.categoryType == CategoryType.expense) {
+                                // value is an expenses, needs to be negative
+                                numericValue = numericValue * -1;
+                              }
+                              record.value = numericValue;
+                            }
                           },
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return "Please enter a value";
+                            }
+                            var numericValue = double.tryParse(value);
+                            if (numericValue == null) {
+                              return "Please enter a numeric value";
+                            }
+                            return null;
+                          },
+                          textAlign: TextAlign.end,
                           style: TextStyle(
-                              fontSize: 40.0,
+                              fontSize: 32.0,
                               color: Colors.black
                           ),
                           keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: "42.00",
+                            hintText: "0",
                           )
                       ),
                     )
@@ -275,7 +331,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
-  Widget _getAppBar() {
+  AppBar _getAppBar() {
     return AppBar(
         title: Text('Edit record'.i18n),
         actions: <Widget>[
@@ -299,15 +355,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   }
                 }
               )
-          ),
-          IconButton(
-              icon: const Icon(Icons.save),
-              tooltip: 'Save'.i18n, onPressed: () async {
-                if (_formKey.currentState.validate()) {
-                  await saveRecord();
-                }
-              }
-          )]
+          ),]
     );
   }
 
@@ -331,21 +379,21 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        type: MaterialType.transparency,
-        child: Column(
-          children: <Widget>[
-            _getAppBar(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    _getForm(),
-                  ]
-                ),
-              ),
-            ),
-          ],
-        ));
+    return Scaffold(
+        appBar: _getAppBar(),
+        resizeToAvoidBottomPadding: false,
+        body: SingleChildScrollView(
+            child: _getForm()
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            if (_formKey.currentState.validate()) {
+              await saveRecord();
+            }
+          },
+          tooltip: 'Add a new record'.i18n,
+          child: const Icon(Icons.save),
+        ),
+      );
   }
 }
