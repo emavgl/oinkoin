@@ -118,7 +118,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         child: TextFormField(
             onChanged: (text) {
               setState(() {
-                record.description = text;
+                record.title = text;
               });
             },
             style: TextStyle(
