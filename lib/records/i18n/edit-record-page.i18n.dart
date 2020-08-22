@@ -8,8 +8,8 @@ extension Localization on String {
         "it_it": "Non definita",
       } +
       {
-        "en_us": "Record name  (optional)",
-        "it_it": "Nome (opzionale)",
+        "en_us": "Record name",
+        "it_it": "Nome",
       } +
       {
         "en_us": 'Edit record',
@@ -36,20 +36,24 @@ extension Localization on String {
         "it_it": "Salva",
       } +
       {
-        "en_us": "How much?",
-        "it_it": "Quanto?",
+        "en_us": "Delete",
+        "it_it": "Cancella",
       } +
       {
-        "en_us": "When?",
-        "it_it": "Quando?",
+        "en_us": "Repeat",
+        "it_it": "Ripeti",
       } +
       {
-        "en_us": "How?",
-        "it_it": "Perché?",
+        "en_us": "Please enter a value",
+        "it_it": "Inserisci un valore",
       } +
       {
-        "en_us": "Description (optional)",
-        "it_it": "Descrizione (opzionale)",
+        "en_us": "Please enter a numeric value",
+        "it_it": "Inserisci un valore numerico",
+      } +
+      {
+        "en_us": "Add a note",
+        "it_it": "Aggiungi note",
       } +
       {
         "en_us": "Expenses",

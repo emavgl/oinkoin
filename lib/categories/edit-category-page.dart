@@ -82,7 +82,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.all(15),
+        margin: EdgeInsets.fromLTRB(15, 15, 0, 5),
         child: Text(labelText, style: Body1Style, textAlign: TextAlign.left),
       ),
     );
@@ -93,6 +93,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     return GridView.count(
       // Create a grid with 2 columns. If you change the scrollDirection to
       // horizontal, this produces 2 rows
+      padding: EdgeInsets.all(0),
       crossAxisCount: 5,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -146,8 +147,6 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             );
       });
   }
-
-
 
   Widget _createColorsList() {
     return SingleChildScrollView(
@@ -284,10 +283,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 ),
                 decoration: InputDecoration(
                     hintText: "Category name".i18n,
-                    border: OutlineInputBorder(),
                     errorStyle: TextStyle(
-                      fontSize: 16.0,
-                    ),
+                        fontSize: 16.0,
+                      ),
                 )),
       ),
         ));
@@ -318,58 +316,95 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 }
             },
           )
-        ),
-          IconButton(
-              icon: const Icon(Icons.save),
-              tooltip: "Save".i18n, onPressed: () async {
-                if (_formKey.currentState.validate()) {
-                  if (category.name == null) {
-                    // Then it is a newly created category
-                    // Call the method add category
-                    category.name = categoryName;
-                    await database.addCategory(category);
-                  } else {
-                    // If category.name is already set
-                    // I'm editing an existing category
-                    // Call the method updateCategory
-                    String existingName = category.name;
-                    var existingType = category.categoryType;
-                    category.name = categoryName;
-                    await database.updateCategory(existingName, existingType, category);
-                  }
-                  Navigator.pop(context);
-                }
-            }
-          )]
+        )]
     );
+  }
+
+  Card _getPickColorCard() {
+    return Card(
+      elevation: 2,
+      child: Container(
+        padding: EdgeInsets.only(bottom: 10),
+        child: Column(
+          children: [
+            _getPageSeparatorLabel("Color".i18n),
+            Divider(),
+            _createColorsList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _getIconPickerCard() {
+    return Card(
+      elevation: 2,
+      child: Container(
+        child: Column(
+          children: [
+            _getPageSeparatorLabel("Icon".i18n),
+            Divider(),
+            _getIconsGrid(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _getPreviewAndTitleCard() {
+    return Card(
+      elevation: 2,
+      child: Container(
+        child: Row(
+          children: <Widget>[
+            Container(child: _createCategoryCirclePreview()),
+            Container(child: _getTextField()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  saveCategory() async {
+    if (_formKey.currentState.validate()) {
+      if (category.name == null) {
+        // Then it is a newly created category
+        // Call the method add category
+        category.name = categoryName;
+        await database.addCategory(category);
+      } else {
+        // If category.name is already set
+        // I'm editing an existing category
+        // Call the method updateCategory
+        String existingName = category.name;
+        var existingType = category.categoryType;
+        category.name = categoryName;
+        await database.updateCategory(existingName, existingType, category);
+      }
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        type: MaterialType.transparency,
+    return Scaffold(
+      appBar: _getAppBar(),
+      resizeToAvoidBottomPadding: false,
+      body: SingleChildScrollView(
         child: Column(
-      children: <Widget>[
-        _getAppBar(),
-          Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Container(child: _createCategoryCirclePreview()),
-                    Container(child: _getTextField()),
-                  ],
-                ),
-                _getPageSeparatorLabel("Color".i18n),
-                _createColorsList(),
-                _getPageSeparatorLabel("Icon".i18n),
-                _getIconsGrid()
-              ],
-            ),
-          ),
+          children: <Widget>[
+            _getPreviewAndTitleCard(),
+            _getPickColorCard(),
+            _getIconPickerCard(),
+            SizedBox(height: 75),
+          ],
         ),
-      ],
-    ));
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: saveCategory,
+        tooltip: 'Add a new category'.i18n,
+        child: const Icon(Icons.save),
+      ),
+    );
   }
 }

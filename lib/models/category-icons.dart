@@ -27,7 +27,7 @@ class CategoryIcons {
     FontAwesomeIcons.motorcycle,
     FontAwesomeIcons.taxi,
     FontAwesomeIcons.planeDeparture,
-    FontAwesomeIcons.ship,
+    FontAwesomeIcons.bus,
     FontAwesomeIcons.train,
 
     // Shopping
@@ -104,6 +104,7 @@ class CategoryIcons {
     FontAwesomeIcons.gasPump,
     FontAwesomeIcons.car,
     FontAwesomeIcons.carBattery,
+    FontAwesomeIcons.bus,
     FontAwesomeIcons.parking,
     FontAwesomeIcons.biking,
     FontAwesomeIcons.motorcycle,

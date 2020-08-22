@@ -103,7 +103,7 @@ class EditRecordPageState extends State<EditRecordPage> {
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: "Add a note",
+                hintText: "Add a note".i18n,
               )
           ),
         ),
@@ -132,7 +132,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
                 hintText: record.category.name,
-                labelText: "Record title (optional)"
+                labelText: "Record name".i18n
             )
         ),
       ),
@@ -240,7 +240,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Repeat", style: TextStyle(fontSize: 20, color: Colors.black54),),
+                          Text("Repeat".i18n, style: TextStyle(fontSize: 20, color: Colors.black54),),
                           getProLabel(labelFontSize: 12.0)
                         ],
                       ),
@@ -294,11 +294,11 @@ class EditRecordPageState extends State<EditRecordPage> {
                           },
                           validator: (value) {
                             if (value.isEmpty) {
-                              return "Please enter a value";
+                              return "Please enter a value".i18n;
                             }
                             var numericValue = double.tryParse(value);
                             if (numericValue == null) {
-                              return "Please enter a numeric value";
+                              return "Please enter a numeric value".i18n;
                             }
                             return null;
                           },
@@ -391,7 +391,7 @@ class EditRecordPageState extends State<EditRecordPage> {
               await saveRecord();
             }
           },
-          tooltip: 'Add a new record'.i18n,
+          tooltip: 'Save'.i18n,
           child: const Icon(Icons.save),
         ),
       );

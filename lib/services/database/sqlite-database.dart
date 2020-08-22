@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart';
+import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-summary-by-category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:sqflite/sqflite.dart';
+import 'i18n/default-category-names.i18n.dart';
 
 import 'exceptions.dart';
 
@@ -56,6 +59,36 @@ class SqliteDatabase implements DatabaseInterface {
                 category_type INTEGER
             );
         """);
+
+        List<Category> defaultCategories = getDefaultCategories();
+        for (var defaultCategory in defaultCategories) {
+            await db.insert("categories", defaultCategory.toMap());
+        }
+    }
+
+    static List<Category> getDefaultCategories() {
+        List<Category> defaultCategories = new List<Category>();
+        defaultCategories.add(new Category("House".i18n,
+            color: Category.colors[0],
+            iconCodePoint: FontAwesomeIcons.home.codePoint,
+            categoryType: CategoryType.expense
+        ));
+        defaultCategories.add(new Category("Transports".i18n,
+            color: Category.colors[1],
+            iconCodePoint: FontAwesomeIcons.bus.codePoint,
+            categoryType: CategoryType.expense
+        ));
+        defaultCategories.add(new Category("Food".i18n,
+            color: Category.colors[2],
+            iconCodePoint: FontAwesomeIcons.hamburger.codePoint,
+            categoryType: CategoryType.expense
+        ));
+        defaultCategories.add(new Category("Salary".i18n,
+            color: Category.colors[3],
+            iconCodePoint: FontAwesomeIcons.wallet.codePoint,
+            categoryType: CategoryType.income
+        ));
+        return defaultCategories;
     }
 
     // Category implementation
@@ -97,8 +130,13 @@ class SqliteDatabase implements DatabaseInterface {
     Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
         final db = await database;
         var categoryIndex = existingCategoryType.index;
-        return await db.update("categories", updatedCategory.toMap(),
-            where: "name = ? AND category_type = ?", whereArgs: [existingCategoryName, categoryIndex]);
+        int newIndex = await db.update("categories", updatedCategory.toMap(),
+            where: "name = ? AND category_type = ?",
+            whereArgs: [existingCategoryName, categoryIndex]);
+        await db.update("records", {"category_name": updatedCategory.name},
+            where: "category_name = ? AND category_type = ?",
+            whereArgs: [existingCategoryName, categoryIndex]);
+        return newIndex;
     }
 
     @override

@@ -36,8 +36,8 @@ extension Localization on String {
         "it_it": "Cancellando la categoria cancellerai anche tutti i movimenti associati",
       } +
       {
-        "en_us": "Save",
-        "it_it": "Salva",
+        "en_us": "Add a new category",
+        "it_it": "Salva la categoria",
       } +
       {
         "en_us": "Color",
