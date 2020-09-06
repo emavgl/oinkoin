@@ -19,7 +19,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     SqliteDatabase._privateConstructor();
     static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-    static int get _version => 1;
+    static int get _version => 2;
     static Database _db;
 
     Future<Database> get database async {
@@ -34,7 +34,25 @@ class SqliteDatabase implements DatabaseInterface {
     Future<Database> init() async {
         String databasePath = await getDatabasesPath();
         String _path = join(databasePath, 'movements.db');
-        return await openDatabase(_path, version: _version, onCreate: onCreate);
+        return await openDatabase(_path, version: _version, onCreate: onCreate, onUpgrade: onUpgrade);
+    }
+
+    static void onUpgrade(Database db, int oldVersion, int newVersion) async {
+        if (newVersion == 2) {
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS  recurrent_records (
+                        id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+                        datetime    INTEGER,
+                        value       REAL,
+                        title       TEXT,
+                        description TEXT,
+                        category_name TEXT,
+                        category_type INTEGER,
+                        last_update INTEGER,
+                        recurrence_type TEXT
+                    );
+                """);
+        }
     }
 
     static void onCreate(Database db, int version) async {
@@ -57,6 +75,20 @@ class SqliteDatabase implements DatabaseInterface {
                 description TEXT,
                 category_name TEXT,
                 category_type INTEGER
+            );
+        """);
+
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS  recurrent_records (
+                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+                datetime    INTEGER,
+                value       REAL,
+                title       TEXT,
+                description TEXT,
+                category_name TEXT,
+                category_type INTEGER,
+                last_update INTEGER,
+                recurrence_type TEXT
             );
         """);
 
@@ -124,6 +156,7 @@ class SqliteDatabase implements DatabaseInterface {
         var categoryIndex = categoryType.index;
         await db.delete("categories", where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
         await db.delete("records", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
+        await db.delete("recurrent_records", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
     }
 
     @override
@@ -134,6 +167,9 @@ class SqliteDatabase implements DatabaseInterface {
             where: "name = ? AND category_type = ?",
             whereArgs: [existingCategoryName, categoryIndex]);
         await db.update("records", {"category_name": updatedCategory.name},
+            where: "category_name = ? AND category_type = ?",
+            whereArgs: [existingCategoryName, categoryIndex]);
+        await db.update("recurrent_records", {"category_name": updatedCategory.name},
             where: "category_name = ? AND category_type = ?",
             whereArgs: [existingCategoryName, categoryIndex]);
         return newIndex;
@@ -217,8 +253,10 @@ class SqliteDatabase implements DatabaseInterface {
         final db = await database;
         await db.execute("DELETE FROM records");
         await db.execute("DELETE FROM categories");
+        await db.execute("DELETE FROM recurrent_records");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
+        await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_records'");
         _db = null;
     }
 
