@@ -74,8 +74,8 @@ class PieChartCard extends StatelessWidget {
   }
 
   bool animate = true;
-  static final categoryCount = 5;
-  static final palette = charts.MaterialPalette.getOrderedPalettes(categoryCount);
+  static final categoryCount = 4;
+  static final palette = charts.MaterialPalette.getOrderedPalettes(categoryCount+1);
 
   Widget _buildPieChart() {
     return new Container(

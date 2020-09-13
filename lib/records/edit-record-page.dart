@@ -238,17 +238,26 @@ class EditRecordPageState extends State<EditRecordPage> {
                     child: Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Repeat".i18n, style: TextStyle(fontSize: 20, color: Colors.black54),),
-                          getProLabel(labelFontSize: 12.0)
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              new DropdownButton<String>(
+                                items: <String>['Repeat', 'Foo', 'Bar'].map((String value) {
+                                  return new DropdownMenuItem<String>(
+                                    value: value,
+                                    child: new Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (_) {},
+                                value: "Repeat",
+                                underline: null,
+                              ),
+                            getProLabel(labelFontSize: 12.0)
                         ],
                       ),
                     ),
                   )
                 ],
-              ),
-              onTap: goToPremiumSplashScreen,
+              )
             ),
           ],
         )

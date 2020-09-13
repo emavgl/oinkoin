@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
@@ -143,7 +144,7 @@ class CategoriesSummaryCard extends StatelessWidget {
                           style: TextStyle(fontSize: 14),
                         ),
                         Text(
-                          totalExpensesSum.toString(),
+                          getCurrencyValueString(totalExpensesSum),
                           style: TextStyle(fontSize: 14),
                         ),
                       ]

@@ -26,7 +26,7 @@ class Category extends Model {
     Colors.orange[300],
     Colors.yellow[600],
     Colors.purple[200],
-    Colors.grey,
+    Colors.grey[400],
     Colors.black,
   ];
 
