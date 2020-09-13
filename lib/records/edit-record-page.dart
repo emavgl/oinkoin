@@ -200,7 +200,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
-  Widget _createDateCard() {
+  Widget _createDateAndRepeatCard() {
     return Card(
       elevation: 2,
       child: Container(
@@ -209,6 +209,7 @@ class EditRecordPageState extends State<EditRecordPage> {
           children: [
             InkWell(
               onTap: () async {
+                FocusScope.of(context).unfocus();
                 DateTime now = DateTime.now();
                 DateTime result = await showDatePicker(context: context,
                     initialDate: now,
@@ -240,16 +241,30 @@ class EditRecordPageState extends State<EditRecordPage> {
                       child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              new DropdownButton<String>(
-                                items: <String>['Repeat', 'Foo', 'Bar'].map((String value) {
-                                  return new DropdownMenuItem<String>(
-                                    value: value,
-                                    child: new Text(value),
-                                  );
-                                }).toList(),
-                                onChanged: (_) {},
-                                value: "Repeat",
-                                underline: null,
+                              Expanded(
+                                child: new DropdownButton<String>(
+                                  iconSize: 0.0,
+                                  items: <String>['Repeat', 'Foo', 'Bar'].map((String value) {
+                                    return new DropdownMenuItem<String>(
+                                      value: value,
+                                      child: new Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (_) {},
+                                  onTap: () {
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  value: null,
+                                  underline: null,
+                                  isExpanded: true,
+                                  hint: Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Repeat",
+                                      style: TextStyle(fontSize: 20.0, color: Colors.black26),
+                                    ),
+                                  ),
+                                )
                               ),
                             getProLabel(labelFontSize: 12.0)
                         ],
@@ -369,20 +384,26 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _getForm() {
-    return Form(
-      key: _formKey,
-      child: Container(
-        margin: EdgeInsets.all(10),
-        child:  Column(
-            children: [
-              _createAmountCard(),
-              _createCategoryCard(),
-              _createTitleCard(),
-              _createDateCard(),
-              _createAddNoteCard()
-            ]
-        ),
-      )
+    return Container(
+      margin: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Form(
+            key: _formKey,
+            child: Container(
+              child: Column(
+                  children: [
+                    _createAmountCard(),
+                    _createCategoryCard(),
+                    _createTitleCard(),
+                    _createDateAndRepeatCard(),
+                    _createAddNoteCard()
+                  ]
+              ),
+            )
+        )
+      ],
+      ),
     );
   }
 
