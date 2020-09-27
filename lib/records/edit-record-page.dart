@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
@@ -14,6 +13,8 @@ import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/recurrent-period.dart';
+import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -44,6 +45,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Record passedRecord;
   Category passedCategory;
+  RecurrentPeriod recurrentPeriod;
   String currency;
 
   EditRecordPageState(this.passedRecord, this.passedCategory);
@@ -60,6 +62,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     if (passedRecord != null) {
       record = passedRecord;
       _textEditingController.text = getCurrencyValueString(record.value.abs());
+      if (record.recurrence_id != null) {
+        // TODO: recurrent_period = ...
+      }
     } else {
       record = new Record(null, null, passedCategory, DateTime.now());
     }
@@ -80,7 +85,6 @@ class EditRecordPageState extends State<EditRecordPage> {
         composing: TextRange.empty,
       );
     });
-
   }
 
   Widget _createAddNoteCard() {
@@ -168,7 +172,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   ],
                 ),
               ),
-            ],
+            ]
           )
       ),
     );
@@ -230,50 +234,72 @@ class EditRecordPageState extends State<EditRecordPage> {
                 ],
               ),
             ),
-            Divider(indent: 40, thickness: 2,),
-            InkWell(
-              child: Row(
+            Visibility(
+              visible: record.id == null || recurrentPeriod != null, // when record comes from recurrent record
+              child: Column(
                 children: [
-                  Icon(Icons.repeat, size: 28, color: Colors.black54,),
-                  Expanded(
-                    child: Container(
-                      margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                  Divider(indent: 40, thickness: 2,),
+                  InkWell(
                       child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: new DropdownButton<String>(
-                                  iconSize: 0.0,
-                                  items: <String>['Repeat', 'Foo', 'Bar'].map((String value) {
-                                    return new DropdownMenuItem<String>(
-                                      value: value,
-                                      child: new Text(value),
-                                    );
-                                  }).toList(),
-                                  onChanged: (_) {},
-                                  onTap: () {
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                  value: null,
-                                  underline: null,
-                                  isExpanded: true,
-                                  hint: Container(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "Repeat",
-                                      style: TextStyle(fontSize: 20.0, color: Colors.black26),
-                                    ),
+                        children: [
+                          Icon(Icons.repeat, size: 28, color: Colors.black54,),
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                      child: new DropdownButton<RecurrentPeriod>(
+                                        iconSize: 0.0,
+                                        items: [
+                                          new DropdownMenuItem<RecurrentPeriod>(
+                                              value: RecurrentPeriod.EveryDay,
+                                              child: new Text("Every day", style: TextStyle(fontSize: 20.0))
+                                          ),
+                                          new DropdownMenuItem<RecurrentPeriod>(
+                                              value: RecurrentPeriod.EveryWeek,
+                                              child: new Text("Every week", style: TextStyle(fontSize: 20.0))
+                                          ),
+                                          new DropdownMenuItem<RecurrentPeriod>(
+                                            value: RecurrentPeriod.EveryMonth,
+                                            child: new Text("Every month", style: TextStyle(fontSize: 20.0)),
+                                          ),
+                                        ],
+                                        onChanged: ServiceConfig.isPremium && record.id == null ? (value) {
+                                          setState(() {
+                                            recurrentPeriod = value;
+                                          });
+                                        } : null,
+                                        onTap: () {
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                        value: recurrentPeriod,
+                                        underline: SizedBox(),
+                                        isExpanded: true,
+                                        hint: Container(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            "Repeat",
+                                            style: TextStyle(fontSize: 20.0, color: Colors.black26),
+                                          ),
+                                        ),
+                                      )
                                   ),
-                                )
+                                  Visibility(
+                                    child: getProLabel(labelFontSize: 12.0),
+                                    visible: !ServiceConfig.isPremium,
+                                  )
+                                ],
                               ),
-                            getProLabel(labelFontSize: 12.0)
+                            ),
+                          )
                         ],
-                      ),
-                    ),
-                  )
+                      )
+                  ),
                 ],
-              )
-            ),
+              ),
+            )
           ],
         )
       ),
@@ -346,7 +372,13 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
-  saveRecord() async {
+  addRecurrentPattern() async {
+    RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(record, recurrentPeriod);
+    // TODO: insert into the database
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  addOrUpdateRecord() async {
     if (record.id == null) {
       await database.addRecord(record);
     } else {
@@ -418,7 +450,12 @@ class EditRecordPageState extends State<EditRecordPage> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             if (_formKey.currentState.validate()) {
-              await saveRecord();
+              if (recurrentPeriod == null) {
+                await addOrUpdateRecord();
+              } else {
+                // a recurrent pattern is defined
+                await addRecurrentPattern();
+              }
             }
           },
           tooltip: 'Save'.i18n,

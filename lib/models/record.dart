@@ -17,8 +17,9 @@ class Record extends Model {
   String description;
   Category category;
   DateTime dateTime;
+  int recurrence_id;
 
-  Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description});
+  Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description, this.recurrence_id});
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
@@ -31,6 +32,7 @@ class Record extends Model {
     };
 
     if (this.id != null) { map['id'] = this.id; }
+    if (this.recurrence_id != null) { map['recurrence_id'] = this.recurrence_id; }
     return map;
   }
 
@@ -42,6 +44,7 @@ class Record extends Model {
       new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
       id: map['id'],
       description: map['description'],
+      recurrence_id: map['recurrence_id']
     );
   }
 

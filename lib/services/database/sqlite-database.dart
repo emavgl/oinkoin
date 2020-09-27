@@ -19,7 +19,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     SqliteDatabase._privateConstructor();
     static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-    static int get _version => 2;
+    static int get _version => 4;
     static Database _db;
 
     Future<Database> get database async {
@@ -38,20 +38,25 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     static void onUpgrade(Database db, int oldVersion, int newVersion) async {
-        if (newVersion == 2) {
+        if (newVersion > 1) {
             await db.execute("""
-                CREATE TABLE IF NOT EXISTS  recurrent_records (
-                        id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                        datetime    INTEGER,
-                        value       REAL,
-                        title       TEXT,
-                        description TEXT,
-                        category_name TEXT,
-                        category_type INTEGER,
-                        last_update INTEGER,
-                        recurrence_type TEXT
-                    );
-                """);
+                CREATE TABLE IF NOT EXISTS  recurrence_patterns (
+                    id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+                    datetime    INTEGER,
+                    value       REAL,
+                    title       TEXT,
+                    description TEXT,
+                    category_name TEXT,
+                    category_type INTEGER,
+                    last_update INTEGER,
+                    recurrence_type INTEGER
+                );
+            """);
+            try {
+                await db.execute("ALTER TABLE records ADD COLUMN recurrence_id INTEGER;");
+            } catch(DatabaseException) {
+                // so that this method is idempotent
+            }
         }
     }
 
@@ -74,12 +79,13 @@ class SqliteDatabase implements DatabaseInterface {
                 title       TEXT,
                 description TEXT,
                 category_name TEXT,
-                category_type INTEGER
+                category_type INTEGER,
+                recurrence_id INTEGER
             );
         """);
 
         await db.execute("""
-        CREATE TABLE IF NOT EXISTS  recurrent_records (
+        CREATE TABLE IF NOT EXISTS  recurrence_patterns (
                 id          INTEGER  PRIMARY KEY AUTOINCREMENT,
                 datetime    INTEGER,
                 value       REAL,
@@ -88,7 +94,7 @@ class SqliteDatabase implements DatabaseInterface {
                 category_name TEXT,
                 category_type INTEGER,
                 last_update INTEGER,
-                recurrence_type TEXT
+                recurrence_type INTEGER
             );
         """);
 

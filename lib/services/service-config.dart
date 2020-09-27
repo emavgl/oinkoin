@@ -7,5 +7,5 @@ class ServiceConfig {
   /// used in different parts of the applications.
 
   static final DatabaseInterface database = SqliteDatabase.instance;
-  static final isPremium = false;
+  static final isPremium = true;
 }

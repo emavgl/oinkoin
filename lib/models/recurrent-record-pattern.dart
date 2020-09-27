@@ -1,0 +1,60 @@
+import 'package:flutter/cupertino.dart';
+import 'package:piggybank/models/model.dart';
+import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/record.dart';
+
+import 'recurrent-period.dart';
+
+class RecurrentRecordPattern {
+
+  // This class is used to create records based on this pattern.
+  // It includes all the fields from Record + recurrent_period
+  // that defines the time period of the recurrent event.
+  // It does not inherit from Record because, although it share a lot of fields
+  // the context is different and their logic is separated.
+
+  int id;
+  double value;
+  String title;
+  String description;
+  Category category;
+  DateTime dateTime;
+  RecurrentPeriod recurrentPeriod;
+
+  RecurrentRecordPattern(this.value, this.title, this.category, this.dateTime, this.recurrentPeriod, {this.id, this.description});
+
+  RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod) {
+    this.value = record.value;
+    this.title = record.title;
+    this.category = record.category;
+    this.dateTime = record.dateTime;
+    this.description = record.description;
+  }
+
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> map = {
+      'title': title,
+      'value': value,
+      'datetime': dateTime.millisecondsSinceEpoch,
+      'category_name': category.name,
+      'category_type': category.categoryType.index,
+      'description': description,
+      'recurrent_period': recurrentPeriod.index
+    };
+
+    if (this.id != null) { map['id'] = this.id; }
+    return map;
+  }
+
+  static RecurrentRecordPattern fromMap(Map<String, dynamic> map) {
+    return RecurrentRecordPattern(
+      map['value'],
+      map['title'],
+      map['category'],
+      new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
+      RecurrentPeriod.values[map['recurrent_period']],
+      id: map['id'],
+      description: map['description'],
+    );
+  }
+}
