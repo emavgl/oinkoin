@@ -6,9 +6,11 @@ import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-summary-by-category.dart';
+import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:sqflite/sqflite.dart';
 import 'i18n/default-category-names.i18n.dart';
+import 'package:uuid/uuid.dart';
 
 import 'exceptions.dart';
 
@@ -40,16 +42,16 @@ class SqliteDatabase implements DatabaseInterface {
     static void onUpgrade(Database db, int oldVersion, int newVersion) async {
         if (newVersion > 1) {
             await db.execute("""
-                CREATE TABLE IF NOT EXISTS  recurrence_patterns (
-                    id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                    datetime    INTEGER,
-                    value       REAL,
-                    title       TEXT,
-                    description TEXT,
-                    category_name TEXT,
-                    category_type INTEGER,
-                    last_update INTEGER,
-                    recurrence_type INTEGER
+                CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
+                        id          TEXT  PRIMARY KEY,
+                        datetime    INTEGER,
+                        value       REAL,
+                        title       TEXT,
+                        description TEXT,
+                        category_name TEXT,
+                        category_type INTEGER,
+                        last_update INTEGER,
+                        recurrence_type INTEGER
                 );
             """);
             try {
@@ -85,8 +87,8 @@ class SqliteDatabase implements DatabaseInterface {
         """);
 
         await db.execute("""
-        CREATE TABLE IF NOT EXISTS  recurrence_patterns (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+        CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
+                id          TEXT  PRIMARY KEY,
                 datetime    INTEGER,
                 value       REAL,
                 title       TEXT,
@@ -162,7 +164,7 @@ class SqliteDatabase implements DatabaseInterface {
         var categoryIndex = categoryType.index;
         await db.delete("categories", where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
         await db.delete("records", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
-        await db.delete("recurrent_records", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
+        await db.delete("recurrent_record_patterns", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
     }
 
     @override
@@ -175,7 +177,7 @@ class SqliteDatabase implements DatabaseInterface {
         await db.update("records", {"category_name": updatedCategory.name},
             where: "category_name = ? AND category_type = ?",
             whereArgs: [existingCategoryName, categoryIndex]);
-        await db.update("recurrent_records", {"category_name": updatedCategory.name},
+        await db.update("recurrent_record_patterns", {"category_name": updatedCategory.name},
             where: "category_name = ? AND category_type = ?",
             whereArgs: [existingCategoryName, categoryIndex]);
         return newIndex;
@@ -262,7 +264,7 @@ class SqliteDatabase implements DatabaseInterface {
         await db.execute("DELETE FROM recurrent_records");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
-        await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_records'");
+        await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_record_patterns'");
         _db = null;
     }
 
@@ -304,6 +306,37 @@ class SqliteDatabase implements DatabaseInterface {
     Future<void> deleteRecordById(int id) async {
         final db = await database;
         await db.delete("records", where: "id = ?", whereArgs: [id]);
+    }
+
+    @override
+    Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
+        final db = await database;
+        List<Map> results = await db.query("recurrent_record_patterns");
+        return List.generate(results.length, (i) {
+            return RecurrentRecordPattern.fromMap(results[i]);
+        });
+    }
+
+    @override
+    Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId) async {
+        final db = await database;
+        List<Map> results = await db.query("recurrent_record_patterns", where: "id = ?", whereArgs: [recurrentPatternId]);
+        return results.isNotEmpty ? RecurrentRecordPattern.fromMap(results[0]) : null;
+    }
+
+    @override
+    Future<void> addRecurrentRecordPattern(RecurrentRecordPattern recordPattern) async {
+        final db = await database;
+        var uuid = Uuid().v4();
+        recordPattern.id = uuid;
+        return await db.insert("recurrent_record_patterns", recordPattern.toMap());
+    }
+
+    @override
+    Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId) async {
+        final db = await database;
+        await db.delete("recurrent_record_patterns",
+            where: "id = ?", whereArgs: [recurrentPatternId]);
     }
 
     // TODO Stefano: I'm working on it. The method is to be tested

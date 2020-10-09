@@ -355,7 +355,7 @@ class RecordsPageState extends State<RecordsPage> {
                     final path = await getApplicationDocumentsDirectory();
                     var backupJsonOnDisk = File(path.path + "/records.csv");
                     await backupJsonOnDisk.writeAsString(csvStr);
-                    Share.shareFile(backupJsonOnDisk);
+                    Share.shareFiles([backupJsonOnDisk.path]);
                   }
                 },
                 itemBuilder: (BuildContext context) {

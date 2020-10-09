@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/recurrent-record-pattern.dart';
 
 
 abstract class DatabaseInterface {
@@ -25,6 +26,12 @@ abstract class DatabaseInterface {
     Future<List<Record>> getAllRecords();
     Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to);
     Future<Record> getMatchingRecord(Record record);
+
+    // Recurrent Records Patterns CRD
+    Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();
+    Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId);
+    Future<void> addRecurrentRecordPattern(RecurrentRecordPattern recordPattern);
+    Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId);
 
     // Utils
     Future<void> deleteDatabase();

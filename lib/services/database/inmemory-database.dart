@@ -2,6 +2,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/recurrent-record-pattern.dart';
 
 import 'database-interface.dart';
 import 'exceptions.dart';
@@ -116,5 +117,29 @@ class InMemoryDatabase implements DatabaseInterface {
       _movements.clear();
       _categories.clear();
     }
+
+  @override
+  Future<void> addRecurrentRecordPattern(RecurrentRecordPattern recordPattern) {
+    // TODO: implement addRecurrentRecordPattern
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId) {
+    // TODO: implement deleteRecurrentRecordPatternById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId) {
+    // TODO: implement getRecurrentRecordPattern
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() {
+    // TODO: implement getRecurrentRecordPatterns
+    throw UnimplementedError();
+  }
 
 }

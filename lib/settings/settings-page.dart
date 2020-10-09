@@ -28,7 +28,7 @@ class SettingsPage extends StatelessWidget {
 
   createAndShareBackupFile() async {
     File backupFile = await BackupService.createJsonBackupFile();
-    Share.shareFile(backupFile);
+    Share.shareFiles([backupFile.path]);
   }
 
   importFromBackupFile(BuildContext context) async {

@@ -13,7 +13,7 @@ class RecurrentRecordPattern {
   // It does not inherit from Record because, although it share a lot of fields
   // the context is different and their logic is separated.
 
-  int id;
+  String id;
   double value;
   String title;
   String description;

@@ -374,7 +374,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   addRecurrentPattern() async {
     RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(record, recurrentPeriod);
-    // TODO: insert into the database
+    await database.addRecurrentRecordPattern(recordPattern);
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
