@@ -46,9 +46,25 @@ class EditRecordPageState extends State<EditRecordPage> {
   Record passedRecord;
   Category passedCategory;
   RecurrentPeriod recurrentPeriod;
+  int recurrentPeriodIndex;
   String currency;
 
   EditRecordPageState(this.passedRecord, this.passedCategory);
+
+  static final dropDownList = [
+    new DropdownMenuItem<int>(
+    value: 0,
+    child: new Text("Every day".i18n, style: TextStyle(fontSize: 20.0))
+    ),
+    new DropdownMenuItem<int>(
+    value: 1,
+    child: new Text("Every week".i18n, style: TextStyle(fontSize: 20.0))
+    ),
+    new DropdownMenuItem<int>(
+    value: 2,
+    child: new Text("Every month".i18n, style: TextStyle(fontSize: 20.0)),
+    )
+  ];
 
   Future<String> getCurrency() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,8 +78,15 @@ class EditRecordPageState extends State<EditRecordPage> {
     if (passedRecord != null) {
       record = passedRecord;
       _textEditingController.text = getCurrencyValueString(record.value.abs());
-      if (record.recurrence_id != null) {
-        // TODO: recurrent_period = ...
+      if (record.recurrencePatternId != null) {
+        database.getRecurrentRecordPattern(record.recurrencePatternId).then((value) {
+          if (value != null) {
+            setState(() {
+              recurrentPeriod = value.recurrentPeriod;
+              recurrentPeriodIndex = value.recurrentPeriod.index;
+            });
+          }
+        });
       }
     } else {
       record = new Record(null, null, passedCategory, DateTime.now());
@@ -118,7 +141,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     return Card(
       elevation: 2,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 5, 5, 5),
+        padding: const EdgeInsets.all(10),
         child: TextFormField(
             onChanged: (text) {
               setState(() {
@@ -224,77 +247,89 @@ class EditRecordPageState extends State<EditRecordPage> {
                   });
                 }
               },
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today, size: 28, color: Colors.blueAccent,),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                    child: Text(getDateStr(record.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
-                  )
-                ],
-              ),
+              child: Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 28, color: Colors.blueAccent,),
+                    Container(
+                      margin: EdgeInsets.only(left: 20, right: 20),
+                      child: Text(getDateStr(record.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                    )
+                  ],
+                )
+              )
             ),
             Visibility(
               visible: record.id == null || recurrentPeriod != null, // when record comes from recurrent record
               child: Column(
                 children: [
-                  Divider(indent: 40, thickness: 2,),
+                  Divider(indent: 60, thickness: 1,),
                   InkWell(
-                      child: Row(
-                        children: [
-                          Icon(Icons.repeat, size: 28, color: Colors.black54,),
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                      child: new DropdownButton<RecurrentPeriod>(
-                                        iconSize: 0.0,
-                                        items: [
-                                          new DropdownMenuItem<RecurrentPeriod>(
-                                              value: RecurrentPeriod.EveryDay,
-                                              child: new Text("Every day", style: TextStyle(fontSize: 20.0))
-                                          ),
-                                          new DropdownMenuItem<RecurrentPeriod>(
-                                              value: RecurrentPeriod.EveryWeek,
-                                              child: new Text("Every week", style: TextStyle(fontSize: 20.0))
-                                          ),
-                                          new DropdownMenuItem<RecurrentPeriod>(
-                                            value: RecurrentPeriod.EveryMonth,
-                                            child: new Text("Every month", style: TextStyle(fontSize: 20.0)),
-                                          ),
-                                        ],
-                                        onChanged: ServiceConfig.isPremium && record.id == null ? (value) {
-                                          setState(() {
-                                            recurrentPeriod = value;
-                                          });
-                                        } : null,
-                                        onTap: () {
-                                          FocusScope.of(context).unfocus();
-                                        },
-                                        value: recurrentPeriod,
-                                        underline: SizedBox(),
-                                        isExpanded: true,
-                                        hint: Container(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            "Repeat",
-                                            style: TextStyle(fontSize: 20.0, color: Colors.black26),
-                                          ),
+                      child: Container(
+                          margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.repeat, size: 28, color: Colors.black54),
+                              Expanded(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 15, right: 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                          child: new DropdownButton<int>(
+                                            iconSize: 0.0,
+                                            items: dropDownList,
+                                            onChanged: ServiceConfig.isPremium && record.id == null ? (value) {
+                                              setState(() {
+                                                recurrentPeriodIndex = value;
+                                                recurrentPeriod = RecurrentPeriod.values[value];
+                                              });
+                                            } : null,
+                                            onTap: () {
+                                              FocusScope.of(context).unfocus();
+                                            },
+                                            value: recurrentPeriodIndex,
+                                            underline: SizedBox(),
+                                            isExpanded: true,
+                                            hint: recurrentPeriod == null ? Container(
+                                              margin: const EdgeInsets.only(left: 10.0),
+                                              child: Text(
+                                                "Repeat".i18n,
+                                                style: TextStyle(fontSize: 20.0, color: Colors.black26),
+                                              ),
+                                            ) : Container(
+                                              margin: const EdgeInsets.only(left: 10.0),
+                                              child: Text(
+                                                recurrentPeriodString(recurrentPeriod).i18n,
+                                                style: TextStyle(fontSize: 20.0),
+                                              ),
+                                            ),
+                                          )
+                                      ),
+                                      Visibility(
+                                        child: getProLabel(labelFontSize: 12.0),
+                                        visible: !ServiceConfig.isPremium,
+                                      ),
+                                      Visibility(
+                                        child: new IconButton(
+                                          icon: new Icon(Icons.close, size: 28, color: Colors.black54),
+                                          onPressed: () {
+                                            setState(() {
+                                              recurrentPeriod = null;
+                                              recurrentPeriodIndex = null;
+                                            });
+                                          },
                                         ),
+                                        visible: record.id == null && recurrentPeriod != null,
                                       )
+                                    ],
                                   ),
-                                  Visibility(
-                                    child: getProLabel(labelFontSize: 12.0),
-                                    visible: !ServiceConfig.isPremium,
-                                  )
-                                ],
-                              ),
-                            ),
+                                ),
+                              )
+                            ],
                           )
-                        ],
                       )
                   ),
                 ],
@@ -417,7 +452,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Widget _getForm() {
     return Container(
-      margin: EdgeInsets.all(10),
+      margin: EdgeInsets.fromLTRB(10, 10, 10, 80),
       child: Column(
         children: [
           Form(

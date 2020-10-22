@@ -4,8 +4,24 @@ import 'package:i18n_extension/i18n_extension.dart';
 extension Localization on String {
   static var _translations = Translations("en_us") +
       {
-        "en_us": "Missing",
-        "it_it": "Non definita",
+        "en_us": "No recurrent records yet.",
+        "it_it": "Nessun movimento ricorrente.",
+      } +
+      {
+        "en_us": "Recurrent record detail",
+        "it_it": "Dettagli movimento ricorrente",
+      } +
+      {
+        "en_us": "Do you really want to delete this recurrent record?",
+        "it_it": "Vuoi davvero cancellare il movimento ricorrente?",
+      } +
+      {
+        "en_us": "From:",
+        "it_it": "Da:",
+      } +
+      {
+        "en_us": "Repeat:",
+        "it_it": "Ripeti:",
       } +
       {
         "en_us": "Every day",
@@ -18,6 +34,10 @@ extension Localization on String {
       {
         "en_us": "Every week",
         "it_it": "Ogni settimana",
+      } +
+      {
+        "en_us": "Missing",
+        "it_it": "Non definita",
       } +
       {
         "en_us": "Record name",
@@ -74,7 +94,10 @@ extension Localization on String {
       {
         "en_us": "Balance",
         "it_it": "Bilancio",
+      } +
+      {
+        "en_us": 'Recurrent Records',
+        "it_it": "Movimenti ricorrenti",
       };
-
   String get i18n => localize(this, _translations);
 }

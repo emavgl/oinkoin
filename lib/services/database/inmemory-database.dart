@@ -142,4 +142,10 @@ class InMemoryDatabase implements DatabaseInterface {
     throw UnimplementedError();
   }
 
+  @override
+  Future<void> updateRecordPatternById(String recurrentPatternId, RecurrentRecordPattern pattern) {
+    // TODO: implement updateRecordPatternById
+    throw UnimplementedError();
+  }
+
 }

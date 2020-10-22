@@ -27,12 +27,13 @@ abstract class DatabaseInterface {
     Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to);
     Future<Record> getMatchingRecord(Record record);
 
-    // Recurrent Records Patterns CRD
+    // Recurrent Records Patterns CRUD
     Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();
     Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId);
     Future<void> addRecurrentRecordPattern(RecurrentRecordPattern recordPattern);
     Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId);
+    Future<void> updateRecordPatternById(String recurrentPatternId, RecurrentRecordPattern pattern);
 
-    // Utils
+        // Utils
     Future<void> deleteDatabase();
 }

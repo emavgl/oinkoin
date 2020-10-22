@@ -130,6 +130,14 @@ extension Localization on String {
         "it_it": "Ripristina dati da un file di backup",
       } +
       {
+        "en_us": "Recurrent Records",
+        "it_it": "Movimenti ricorrenti",
+      } +
+      {
+        "en_us": "View or delete recurrent records",
+        "it_it": "Visualizza o cancella movimenti ricorrenti",
+      } +
+      {
         "en_us": "Pay us a coffee",
         "it_it": "Donaci un caffè",
       };

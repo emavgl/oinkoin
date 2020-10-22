@@ -45,6 +45,46 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         });
   }
 
+  Widget _buildLeadingIconRecurrentMovement(Record movement) {
+    return Stack(
+      children: [
+        Container(
+            width: 40,
+            height: 40,
+            child: Icon(movement.category.icon, size: 20, color: Colors.white,),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: movement.category.color,
+            )
+        ),
+        Container(
+            margin: EdgeInsets.only(left: 30, top: 20),
+            width: 20,
+            height: 20,
+            child: Icon(Icons.repeat, size: 10, color: Colors.black,),
+            decoration: BoxDecoration(
+//              border: Border.all(color: Colors.black),
+              shape: BoxShape.circle,
+              color: Colors.white,
+            )
+        )
+      ],
+    );
+  }
+
+  Widget _buildLeadingIconMovement(Record movement) {
+    return Container(
+        margin: EdgeInsets.only(right: 10),
+        width: 40,
+        height: 40,
+        child: Icon(movement.category.icon, size: 20, color: Colors.white,),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: movement.category.color,
+        )
+    );
+  }
+
   Widget _buildMovementRow(Record movement) {
     /// Returns a ListTile rendering the single movement row
     return ListTile(
@@ -68,15 +108,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           movement.value.toString(),
           style: _biggerFont,
         ),
-        leading: Container(
-          width: 40,
-          height: 40,
-          child: Icon(movement.category.icon, size: 20, color: Colors.white,),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: movement.category.color,
-        )
-        )
+        leading: movement.recurrencePatternId == null ? _buildLeadingIconMovement(movement) : _buildLeadingIconRecurrentMovement(movement)
     );
   }
 

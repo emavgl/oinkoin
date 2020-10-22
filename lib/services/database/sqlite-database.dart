@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart';
-import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
@@ -21,7 +20,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     SqliteDatabase._privateConstructor();
     static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-    static int get _version => 4;
+    static int get _version => 6;
     static Database _db;
 
     Future<Database> get database async {
@@ -40,22 +39,22 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     static void onUpgrade(Database db, int oldVersion, int newVersion) async {
-        if (newVersion > 1) {
+        if (newVersion == 6) {
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
-                        id          TEXT  PRIMARY KEY,
-                        datetime    INTEGER,
-                        value       REAL,
-                        title       TEXT,
-                        description TEXT,
-                        category_name TEXT,
-                        category_type INTEGER,
-                        last_update INTEGER,
-                        recurrence_type INTEGER
+                    id          TEXT  PRIMARY KEY,
+                    datetime    INTEGER,
+                    value       REAL,
+                    title       TEXT,
+                    description TEXT,
+                    category_name TEXT,
+                    category_type INTEGER,
+                    last_update INTEGER,
+                    recurrent_period INTEGER
                 );
             """);
             try {
-                await db.execute("ALTER TABLE records ADD COLUMN recurrence_id INTEGER;");
+                await db.execute("ALTER TABLE records ADD COLUMN recurrence_id TEXT;");
             } catch(DatabaseException) {
                 // so that this method is idempotent
             }
@@ -82,7 +81,7 @@ class SqliteDatabase implements DatabaseInterface {
                 description TEXT,
                 category_name TEXT,
                 category_type INTEGER,
-                recurrence_id INTEGER
+                recurrence_id TEXT
             );
         """);
 
@@ -96,7 +95,7 @@ class SqliteDatabase implements DatabaseInterface {
                 category_name TEXT,
                 category_type INTEGER,
                 last_update INTEGER,
-                recurrence_type INTEGER
+                recurrent_period INTEGER
             );
         """);
 
@@ -205,13 +204,13 @@ class SqliteDatabase implements DatabaseInterface {
         var maps;
         if (sameTitle != null) {
             maps = await db.rawQuery("""
-            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title = ? AND c.name = ? AND c.category_type = ?
         """, [sameDateTime, sameValue, sameTitle, sameCategoryName, sameCategoryType]);
         } else {
             maps = await db.rawQuery("""
-            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title IS NULL AND c.name = ? AND c.category_type = ?
         """, [sameDateTime, sameValue, sameCategoryName, sameCategoryType]);
@@ -228,7 +227,7 @@ class SqliteDatabase implements DatabaseInterface {
     Future<List<Record>> getAllRecords() async {
         final db = await database;
         var maps = await db.rawQuery("""
-            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
         """);
         return List.generate(maps.length, (i) {
@@ -245,7 +244,7 @@ class SqliteDatabase implements DatabaseInterface {
         final to_unix = to.millisecondsSinceEpoch;
 
         var maps = await db.rawQuery("""
-            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [from_unix, to_unix]);
@@ -280,7 +279,7 @@ class SqliteDatabase implements DatabaseInterface {
     Future<Record> getRecordById(int id) async {
         final db = await database;
         var maps = await db.rawQuery("""
-            SELECT m.id, m.title, m.datetime, m.value, m.description, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.id = ?
         """, [id]);
@@ -311,17 +310,36 @@ class SqliteDatabase implements DatabaseInterface {
     @override
     Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
         final db = await database;
-        List<Map> results = await db.query("recurrent_record_patterns");
-        return List.generate(results.length, (i) {
-            return RecurrentRecordPattern.fromMap(results[i]);
+        var maps = await db.rawQuery("""
+            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name
+        """);
+
+        var results = List.generate(maps.length, (i) {
+            Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
+            currentRowMap["category"] = Category.fromMap(currentRowMap);
+            return RecurrentRecordPattern.fromMap(currentRowMap);
         });
+
+        return results;
     }
 
     @override
     Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId) async {
         final db = await database;
-        List<Map> results = await db.query("recurrent_record_patterns", where: "id = ?", whereArgs: [recurrentPatternId]);
-        return results.isNotEmpty ? RecurrentRecordPattern.fromMap(results[0]) : null;
+        var maps = await db.rawQuery("""
+            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name
+            WHERE m.id = ?
+        """, [recurrentPatternId]);
+
+        var results = List.generate(maps.length, (i) {
+            Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
+            currentRowMap["category"] = Category.fromMap(currentRowMap);
+            return RecurrentRecordPattern.fromMap(currentRowMap);
+        });
+
+        return results.isNotEmpty ? results[0] : null;
     }
 
     @override
@@ -336,6 +354,14 @@ class SqliteDatabase implements DatabaseInterface {
     Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId) async {
         final db = await database;
         await db.delete("recurrent_record_patterns",
+            where: "id = ?", whereArgs: [recurrentPatternId]);
+    }
+
+    @override
+    Future<void> updateRecordPatternById(String recurrentPatternId, RecurrentRecordPattern pattern) async {
+        final db = await database;
+        var patternMap = pattern.toMap();
+        return await db.update("recurrent_record_patterns", patternMap,
             where: "id = ?", whereArgs: [recurrentPatternId]);
     }
 

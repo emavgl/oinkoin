@@ -20,8 +20,9 @@ class RecurrentRecordPattern {
   Category category;
   DateTime dateTime;
   RecurrentPeriod recurrentPeriod;
+  DateTime lastUpdate;
 
-  RecurrentRecordPattern(this.value, this.title, this.category, this.dateTime, this.recurrentPeriod, {this.id, this.description});
+  RecurrentRecordPattern(this.value, this.title, this.category, this.dateTime, this.recurrentPeriod, {this.id, this.description, this.lastUpdate});
 
   RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod) {
     this.value = record.value;
@@ -39,10 +40,11 @@ class RecurrentRecordPattern {
       'category_name': category.name,
       'category_type': category.categoryType.index,
       'description': description,
-      'recurrent_period': recurrentPeriod.index
+      'recurrent_period': recurrentPeriod.index,
     };
 
     if (this.id != null) { map['id'] = this.id; }
+    if (this.lastUpdate != null) { map['last_update'] = this.lastUpdate.millisecondsSinceEpoch; }
     return map;
   }
 
@@ -55,6 +57,7 @@ class RecurrentRecordPattern {
       RecurrentPeriod.values[map['recurrent_period']],
       id: map['id'],
       description: map['description'],
+      lastUpdate: map['last_update'] != null ? DateTime.fromMillisecondsSinceEpoch(map['last_update']) : null
     );
   }
 }

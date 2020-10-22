@@ -12,8 +12,8 @@ extension Localization on String {
         "it_it": "Passa a",
       } +
       {
-        "en_us": 'Piggybank Pro',
-        "it_it": 'Piggybank Pro',
+        "en_us": 'Under Control Pro',
+        "it_it": 'Under Control Pro',
       } +
       {
         "en_us": "Filter records by year or custom date range",
@@ -32,8 +32,8 @@ extension Localization on String {
         "it_it": "Imposta dei budget",
       } +
       {
-        "en_us": "AVAILABLE SOON!",
-        "it_it": "PRESTO DISPONIBILE!",
+        "en_us": "DOWNLOAD IT NOW!",
+        "it_it": "SCARICALA ADESSO!",
       } +
       {
         "en_us": "Add recurrent expenses",

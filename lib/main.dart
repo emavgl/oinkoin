@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:piggybank/shell.dart';
@@ -13,9 +14,11 @@ class App extends StatelessWidget {
         // these are the app-specific localization delegates that collectively
       // define the localized resources for this application's Localizations widget
       localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,   // provides localized strings and other values for the Material Components library
+        DefaultMaterialLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,    // defines the default text direction, either left-to-right or right-to-left, for the widgets library
         GlobalCupertinoLocalizations.delegate,  // for IoS
+        DefaultCupertinoLocalizations.delegate
       ],
       // the list of locales that this app has been localized for,
       // i.e., the supported languages

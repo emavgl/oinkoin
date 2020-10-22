@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
@@ -75,6 +76,13 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  goToRecurrentRecordPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PatternsPageView()),
+    );
+  }
+
   goToFeedbackPage(BuildContext context) async {
     await Navigator.push(
       context,
@@ -112,6 +120,16 @@ class SettingsPage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => CurrencyPage()),
               );
             },
+          ),
+          SettingsItem(
+              icon: Icon(
+                Icons.repeat,
+                color: Colors.white,
+              ),
+              iconBackgroundColor: Colors.pink.shade600,
+              title: 'Recurrent Records'.i18n,
+              subtitle: "View or delete recurrent records".i18n,
+              onPressed: () async => await goToRecurrentRecordPage(context)
           ),
           SettingsItem(
             icon: Icon(
@@ -184,4 +202,5 @@ class SettingsPage extends StatelessWidget {
       ),
     ));
   }
+
 }

@@ -16,6 +16,7 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/records/records-day-list.dart';
 import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/recurrent-record-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/feedback-page.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
@@ -26,6 +27,7 @@ import 'package:path_provider/path_provider.dart';
 import './i18n/records-page.i18n.dart';
 import 'package:launch_review/launch_review.dart';
 import 'dart:io';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class RecordsPage extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
@@ -78,9 +80,12 @@ class RecordsPageState extends State<RecordsPage> {
     super.initState();
     DateTime _now = DateTime.now();
     _header = getMonthStr(_now);
-    getRecordsByMonth(_now.year, _now.month).then((fetchedRecords) {
-      setState(() {
-        records = fetchedRecords;
+
+    RecurrentRecordService().updateRecurrentRecords().then((_) {
+      getRecordsByMonth(_now.year, _now.month).then((fetchedRecords) {
+        setState(() {
+          records = fetchedRecords;
+        });
       });
     });
 
@@ -204,7 +209,7 @@ class RecordsPageState extends State<RecordsPage> {
       firstDate: firstDate,
       lastDate: currentDate,
       initialDateRange: initialDateTimeRange,
-      locale: I18n.locale,
+      locale: I18n.forcedLocale, // do not change, it has some bug if not used forced locale
     );
     if (dateTimeRange != null) {
       var startDate = DateTime(dateTimeRange.start.year, dateTimeRange.start.month, dateTimeRange.start.day);
@@ -294,10 +299,12 @@ class RecordsPageState extends State<RecordsPage> {
       );
   }
 
-  fetchMovementsFromDb() async {
+  updateRecurrentRecordsAndFetchRecords() async {
     /// Refetch the list of movements in the selected range
     /// from the database. We call this method all the times we land back to
     /// this page after have visited the page add-movement.
+    var recurrentRecordService = RecurrentRecordService();
+    await recurrentRecordService.updateRecurrentRecords();
     var newRecords = await getRecordsByInterval(_from, _to);
     setState(() {
       records = newRecords;
@@ -313,7 +320,7 @@ class RecordsPageState extends State<RecordsPage> {
         context,
         MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true,)),
       );
-      await fetchMovementsFromDb();
+      await updateRecurrentRecordsAndFetchRecords();
     } else {
       AlertDialogBuilder noCategoryDialog = AlertDialogBuilder("No Category is set yet.".i18n)
           .addTrueButtonName("OK")
@@ -334,7 +341,7 @@ class RecordsPageState extends State<RecordsPage> {
 
   onTabChange() async {
     // Navigator.of(context).popUntil((route) => route.isFirst);
-    await fetchMovementsFromDb();
+    await updateRecurrentRecordsAndFetchRecords();
   }
 
   @override
@@ -415,7 +422,7 @@ class RecordsPageState extends State<RecordsPage> {
                         ],
                       )
                   ) : Container(
-                    child: new RecordsDayList(records, onListBackCallback: fetchMovementsFromDb,),
+                    child: new RecordsDayList(records, onListBackCallback: updateRecurrentRecordsAndFetchRecords,),
                   ),
                   SizedBox(height: 75),
                 ],

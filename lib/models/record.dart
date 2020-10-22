@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:piggybank/models/model.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/recurrent-record-pattern.dart';
 
 class Record extends Model {
 
@@ -17,9 +18,19 @@ class Record extends Model {
   String description;
   Category category;
   DateTime dateTime;
-  int recurrence_id;
+  String recurrencePatternId;
 
-  Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description, this.recurrence_id});
+  Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description, this.recurrencePatternId});
+
+  Record.fromRecurrencePattern(RecurrentRecordPattern recordPattern, DateTime dateTime) {
+    this.value = recordPattern.value;
+    this.title = recordPattern.title;
+    this.category = recordPattern.category;
+    this.dateTime = dateTime;
+    this.recurrencePatternId = recordPattern.id;
+    this.description = recordPattern.description;
+  }
+
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
@@ -32,7 +43,7 @@ class Record extends Model {
     };
 
     if (this.id != null) { map['id'] = this.id; }
-    if (this.recurrence_id != null) { map['recurrence_id'] = this.recurrence_id; }
+    if (this.recurrencePatternId != null) { map['recurrence_id'] = this.recurrencePatternId; }
     return map;
   }
 
@@ -44,7 +55,7 @@ class Record extends Model {
       new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
       id: map['id'],
       description: map['description'],
-      recurrence_id: map['recurrence_id']
+      recurrencePatternId: map['recurrence_id']
     );
   }
 

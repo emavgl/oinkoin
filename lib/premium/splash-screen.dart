@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import './i18n/splash-screen.i18n.dart';
 
 class PremiumSplashScren extends StatelessWidget {
@@ -9,6 +10,12 @@ class PremiumSplashScren extends StatelessWidget {
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final _subtitleFont = const TextStyle(fontSize: 13.0);
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +42,7 @@ class PremiumSplashScren extends StatelessWidget {
                     children: <TextSpan>[
                       new TextSpan(text: 'Upgrade to'.i18n),
                       new TextSpan(text: ' '),
-                      new TextSpan(text: 'Piggybank Pro'.i18n, style: new TextStyle(fontWeight: FontWeight.bold)),
+                      new TextSpan(text: 'Oinkoin Pro'.i18n, style: new TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -106,7 +113,7 @@ class PremiumSplashScren extends StatelessWidget {
                             ),
                           ],
                         ),
-                        new Row(
+/*                        new Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Container(
@@ -126,7 +133,7 @@ class PremiumSplashScren extends StatelessWidget {
                                 )
                             ),
                           ],
-                        ),
+                        ),*/
                         new Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -159,10 +166,10 @@ class PremiumSplashScren extends StatelessWidget {
                           borderRadius: BorderRadius.circular(0.0),
                           side: BorderSide(color: Colors.red)
                       ),
-                      onPressed: () {},
+                      onPressed: () async => await _launchURL("https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro"),
                       color: Colors.red,
                       textColor: Colors.white,
-                      child: Text("AVAILABLE SOON!".i18n, style: _biggerFont),
+                      child: Text("DOWNLOAD IT NOW!".i18n, style: _biggerFont),
                     ),
                   ),
                 )

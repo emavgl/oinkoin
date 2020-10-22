@@ -11,11 +11,12 @@ class CSVExporter {
       element["category_type"] = element["category_type"] == 1 ? "Income" : "Expense";
       element.remove("id");
       element.remove("datetime");
+      element.remove("recurrence_id");
       csvLines.add(element.values.join(","));
     });
     var recordsHeader = recordsMap[0].keys.join(",");
     csvLines.insert(0, recordsHeader);
-    return csvLines.join("/n");
+    return csvLines.join("\n");
   }
 
 

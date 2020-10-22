@@ -16,7 +16,8 @@ class BackupService {
   static Future<File> createJsonBackupFile({backupFileName: "backup"}) async {
     var records = await database.getAllRecords();
     var categories = await database.getAllCategories();
-    var backup = Backup(categories, records);
+    var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
+    var backup = Backup(categories, records, recurrentRecordPatterns);
     var backupJsonStr = jsonEncode(backup.toMap());
     final path = await getApplicationDocumentsDirectory();
     var backupJsonOnDisk = File(path.path + "/${backupFileName}.json");
