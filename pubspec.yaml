@@ -11,7 +11,7 @@ description: The expenses under your control.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.4+7
+version: 1.0.4+8
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
@@ -41,7 +41,8 @@ dependencies:
     git: https://github.com/emavgl/flutter_speed_dial.git
   url_launcher: ^5.5.0
   rate_my_app: ^0.6.1+7
-  launch_review: ^2.0.0
+  launch_review:
+    git: https://github.com/lslv1243/launch_review.git
   flutter_colorpicker: ^0.3.4
   file_picker: ^1.13.3
   uuid: ^2.2.2
