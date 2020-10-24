@@ -29,6 +29,8 @@ class BackupService {
       String fileContent = await inputFile.readAsString();
       var jsonMap = jsonDecode(fileContent);
       Backup backup = Backup.fromMap(jsonMap);
+
+      // Add categories
       for(var backupCategory in backup.categories) {
         try {
           await database.addCategory(backupCategory);
@@ -36,6 +38,8 @@ class BackupService {
           print("${backupCategory.name} already exists.");
         }
       }
+
+      // Add records
       for(var backupRecord in backup.records) {
         if (await database.getMatchingRecord(backupRecord) == null){
           await database.addRecord(backupRecord);
@@ -44,6 +48,19 @@ class BackupService {
               .value} already exists.");
         }
       }
+
+      // Add recurrent patterns
+      if (backup.recurrentRecordsPattern != null) {
+        for(var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
+          String recurrentPatternId = backupRecurrentPatterns.id;
+          if (await database.getRecurrentRecordPattern(recurrentPatternId) == null) {
+            await database.addRecurrentRecordPattern(backupRecurrentPatterns);
+          } else {
+            print("Recurrent pattern with id $recurrentPatternId already exists.");
+          }
+        }
+      }
+
       return true;
     } catch (err) {
      return false;
