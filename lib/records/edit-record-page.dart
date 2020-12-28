@@ -153,6 +153,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                 color: Colors.black
             ),
             maxLines: 1,
+            initialValue: record.title,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
                 floatingLabelBehavior: FloatingLabelBehavior.always,
