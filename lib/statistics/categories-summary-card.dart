@@ -62,7 +62,7 @@ class CategoriesSummaryCard extends StatelessWidget {
     double percentage = (100 * categoryAndSum.value) / totalExpensesSum;
     double percentageBar = (categoryAndSum.value) / maxExpensesSum;
     String percentageStrRepr = percentage.toStringAsFixed(2);
-    String categorySumStr = categoryAndSum.value.toString();
+    String categorySumStr = categoryAndSum.value.toStringAsFixed(2);
     Category category = categoryAndSum.category;
     /// Returns a ListTile rendering the single movement row
     return Column(
