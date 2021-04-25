@@ -344,6 +344,20 @@ class RecordsPageState extends State<RecordsPage> {
     await updateRecurrentRecordsAndFetchRecords();
   }
 
+  AssetImage getBackgroundImage() {
+    if (!ServiceConfig.isPremium) {
+      return AssetImage('assets/background.jpg');
+    } else {
+      try {
+        var now = DateTime.now();
+        String month = now.month.toString();
+        return AssetImage('assets/bkg_' + month + '.jpg');
+      } on Exception catch (_) {
+        return AssetImage('assets/background.jpg');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -376,7 +390,7 @@ class RecordsPageState extends State<RecordsPage> {
               ),
             ],
             pinned: true,
-            expandedHeight: 140,
+            expandedHeight: 150,
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: <StretchMode>[
                 StretchMode.zoomBackground,
@@ -387,13 +401,13 @@ class RecordsPageState extends State<RecordsPage> {
               titlePadding: EdgeInsets.all(15),
               title: Text(_header, style: TextStyle(color: Colors.white)),
               background: ColorFiltered(
-                  colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
+                  colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.1), BlendMode.srcATop),
                   child: Container(
                     decoration:
                     BoxDecoration(
                         image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: AssetImage('assets/background.jpg')))
+                            image: getBackgroundImage()))
                   )
               )
             ),
