@@ -20,7 +20,7 @@ class BackupService {
     var backup = Backup(categories, records, recurrentRecordPatterns);
     var backupJsonStr = jsonEncode(backup.toMap());
     final path = await getApplicationDocumentsDirectory();
-    var backupJsonOnDisk = File(path.path + "/${backupFileName}.json");
+    var backupJsonOnDisk = File(path.path + "/$backupFileName.json");
     return await backupJsonOnDisk.writeAsString(backupJsonStr);
   }
 

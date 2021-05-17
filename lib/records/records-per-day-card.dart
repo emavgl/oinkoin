@@ -40,8 +40,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          var reversed_index = widget._movementDay.records.length - i - 1;
-          return _buildMovementRow(widget._movementDay.records[reversed_index]);
+          var reversedIndex = widget._movementDay.records.length - i - 1;
+          return _buildMovementRow(widget._movementDay.records[reversedIndex]);
         });
   }
 

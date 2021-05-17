@@ -240,14 +240,14 @@ class SqliteDatabase implements DatabaseInterface {
     @override
     Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to) async {
         final db = await database;
-        final from_unix = from.millisecondsSinceEpoch;
-        final to_unix = to.millisecondsSinceEpoch;
+        final fromUnix = from.millisecondsSinceEpoch;
+        final toUnix = to.millisecondsSinceEpoch;
 
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime >= ? AND m.datetime <= ? 
-        """, [from_unix, to_unix]);
+        """, [fromUnix, toUnix]);
 
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
@@ -369,15 +369,15 @@ class SqliteDatabase implements DatabaseInterface {
     @override
     Future<List<RecordsSummaryPerCategory>> getExpensesInIntervalByCategory(DateTime from, DateTime to) async {
         final db = await database;
-        final from_unix = from.millisecondsSinceEpoch;
-        final to_unix = to.millisecondsSinceEpoch;
+        final fromUnix = from.millisecondsSinceEpoch;
+        final toUnix = to.millisecondsSinceEpoch;
 
         var maps = await db.rawQuery("""
             SELECT SUM(m.value), c.color, c.name
             FROM movements as m LEFT JOIN categories as c ON m.category_id = c.id
             WHERE m.value < 0 AND m.datetime >= ? AND m.datetime <= ? 
             GROUP BY c.id
-        """, [from_unix, to_unix]);
+        """, [fromUnix, toUnix]);
 
         // Convert the List<Map<String, dynamic> into a List<MovementsPerCategory>.
         return List.generate(maps.length, (i) {

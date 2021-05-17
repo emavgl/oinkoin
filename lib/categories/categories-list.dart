@@ -47,7 +47,7 @@ class CategoriesListState extends State<CategoriesList> {
                     EditCategoryPage(passedCategory: category)),
           );
           if (widget.callback != null)
-            await widget.callback();
+            widget.callback();
         },
         child: ListTile(
             leading: Container(

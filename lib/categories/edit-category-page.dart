@@ -389,7 +389,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _getAppBar(),
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[

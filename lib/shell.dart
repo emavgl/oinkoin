@@ -60,15 +60,15 @@ class ShellState extends State<Shell> {
         fixedColor: Theme.of(context).primaryColor,
         items: [
           BottomNavigationBarItem(
-            title: Text("Home".i18n),
+            label: "Home".i18n,
             icon: Icon(Icons.home)
           ),
           BottomNavigationBarItem(
-              title: Text("Categories".i18n),
+              label: "Categories".i18n,
               icon: Icon(Icons.category)
           ),
           BottomNavigationBarItem(
-              title: Text("Settings".i18n),
+              label: "Settings".i18n,
               icon: Icon(Icons.settings)
           ),
         ]

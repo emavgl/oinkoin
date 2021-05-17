@@ -333,7 +333,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: _getAppBar(),
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         body: SingleChildScrollView(
             child: _getForm()
         ),
