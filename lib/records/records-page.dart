@@ -21,7 +21,7 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/feedback-page.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:rate_my_app/rate_my_app.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'days-summary-box-card.dart';
 import 'package:path_provider/path_provider.dart';
 import './i18n/records-page.i18n.dart';
@@ -128,7 +128,6 @@ class RecordsPageState extends State<RecordsPage> {
                 ),
               ];
             },
-            ignoreIOS: false,
             // Set to false if you want to show the native Apple app rating dialog on iOS.
             dialogStyle: DialogStyle( // Custom dialog styles.
               titleAlign: TextAlign.center,
