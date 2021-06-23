@@ -21,38 +21,32 @@ dependencies:
     sdk: flutter
   flutter_localizations:    # i18n
     sdk: flutter            # i18n
-  i18n_extension: ^1.3.5    # i18n
+  i18n_extension:
   sqflite:
   path:
-  moor:           # use the latest version
-  moor_ffi:       # use the latest version
   path_provider:
-  shared_preferences: ^0.5.7  # plugin for persistent store for simple data (key-value pairs) like settings
-  charts_common: ^0.9.0  # plugin for statistics and charts
-  charts_flutter: ^0.9.0  # plugin for statistics and charts
-  animations: ^1.0.0+5
-  month_picker_dialog: ^0.3.2
-  share:
-    git:
-      url: https://github.com/pboos/plugins.git
-      path: packages/share
-      ref: feature/shareFile
+  shared_preferences: # plugin for persistent store for simple data (key-value pairs) like settings
+  charts_common: ^0.10.0  # plugin for statistics and charts
+  charts_flutter: ^0.10.0  # plugin for statistics and charts
+  animations:
+  month_picker_dialog:
+  share_plus:
   flutter_speed_dial:
     git: https://github.com/emavgl/flutter_speed_dial.git
-  url_launcher: ^5.5.0
-  rate_my_app: ^0.6.1+7
+  url_launcher: ^6.0.6
+  rate_my_app:
   launch_review:
     git: https://github.com/lslv1243/launch_review.git
-  flutter_colorpicker: ^0.3.4
-  file_picker: ^1.13.3
-  uuid: ^2.2.2
+  flutter_colorpicker:
+  file_picker:
+  uuid:
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
+  cupertino_icons:
   font_awesome_flutter:
-  intl: 0.16.1
+  intl: 0.17.0
 
 
 

@@ -8,7 +8,7 @@ import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import './i18n/settings-page.i18n.dart';
 import 'dart:io';
 
@@ -33,11 +33,12 @@ class SettingsPage extends StatelessWidget {
   }
 
   importFromBackupFile(BuildContext context) async {
-    File file = await FilePicker.getFile(
+    FilePickerResult result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    if (file != null) {
+    if(result != null) {
+      File file = File(result.files.single.path);
       bool successful = await BackupService.importDataFromBackupFile(file);
       if (successful) {
         AlertDialogBuilder resultDialog = AlertDialogBuilder("Restore successful".i18n)
@@ -54,6 +55,8 @@ class SettingsPage extends StatelessWidget {
           return resultDialog.build(context);
         });
       }
+    } else {
+      // User has canceled the picker
     }
   }
 
