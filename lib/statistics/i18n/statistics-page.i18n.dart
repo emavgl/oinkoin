@@ -60,6 +60,18 @@ extension Localization on String {
         "it_it": "Mediana",
       } +
       {
+        "en_us": "Month",
+        "it_it": "Mese",
+      } +
+      {
+        "en_us": "Day",
+        "it_it": "Giorno",
+      } +
+      {
+        "en_us": "Trend in",
+        "it_it": "Andamento",
+      } +
+      {
         "en_us": "Entries grouped by category",
         "it_it": "Movimenti raggruppati per categoria",
       };

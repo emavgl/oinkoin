@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:piggybank/statistics/statistics-models.dart';
 
 String getDateRangeStr(DateTime start, DateTime end) {
   /// Returns a string representing the range from :start to :end
@@ -26,8 +27,16 @@ String getMonthStr(DateTime dateTime) {
   return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
 }
 
-String getDateStr(DateTime dateTime) {
+String getDateStr(DateTime dateTime, {AggregationMethod aggregationMethod}) {
   Locale myLocale = I18n.locale;
+  if (aggregationMethod != null) {
+    if (aggregationMethod == AggregationMethod.MONTH) {
+      return DateFormat.yM(myLocale.languageCode).format(dateTime);
+    }
+    if (aggregationMethod == AggregationMethod.YEAR) {
+      return DateFormat.y(myLocale.languageCode).format(dateTime);
+    }
+  }
   return DateFormat.yMd(myLocale.languageCode).format(dateTime);
 }
 

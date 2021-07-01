@@ -3,7 +3,10 @@ import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
+import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:piggybank/statistics/statistics-tab-page.dart';
 import './i18n/statistics-page.i18n.dart';
+import 'categories-piechart.dart';
 
 class CategorySumTuple {
   final Category category;
@@ -14,6 +17,9 @@ class CategorySumTuple {
 class CategoriesSummaryCard extends StatelessWidget {
 
   final List<Record> records;
+  final List<Record> aggregatedRecords;
+  final AggregationMethod aggregationMethod;
+
   DateTime from;
   DateTime to;
   List<CategorySumTuple> categoriesAndSums;
@@ -21,7 +27,7 @@ class CategoriesSummaryCard extends StatelessWidget {
   double maxExpensesSum;
   final _biggerFont = const TextStyle(fontSize: 16.0);
 
-  CategoriesSummaryCard(this.from, this.to, this.records) {
+  CategoriesSummaryCard(this.from, this.to, this.records, this.aggregatedRecords, this.aggregationMethod) {
     if (records.length > 0) {
       categoriesAndSums = _aggregateRecordByCategory(records);
       totalExpensesSum = categoriesAndSums.fold(
@@ -73,7 +79,7 @@ class CategoriesSummaryCard extends StatelessWidget {
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CategoryStatisticPage(from, to, categoryRecords)
+                      builder: (context) => CategoryStatisticPage(from, to, categoryRecords, aggregationMethod)
                   )
               );
             },
@@ -126,7 +132,6 @@ class CategoriesSummaryCard extends StatelessWidget {
     );
   }
 
-
   Widget _buildCategoryStatsCard() {
     return Container(
         margin: const EdgeInsets.fromLTRB(10, 5, 10, 0),
@@ -151,6 +156,7 @@ class CategoriesSummaryCard extends StatelessWidget {
                   )
               ),
               new Divider(),
+              CategoriesPieChart(records),
               _buildCategoriesList()
             ],
           )

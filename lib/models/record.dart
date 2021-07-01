@@ -19,6 +19,7 @@ class Record extends Model {
   Category category;
   DateTime dateTime;
   String recurrencePatternId;
+  int aggregatedValues = 1;
 
   Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description, this.recurrencePatternId});
 

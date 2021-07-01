@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/overview-card.dart';
-import 'package:piggybank/statistics/piechart-card.dart';
-import 'package:piggybank/statistics/timeseries-card.dart';
+import 'package:piggybank/statistics/categories-piechart.dart';
+import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:piggybank/statistics/statistics-utils.dart';
 
+import 'barchart-card.dart';
 import 'categories-summary-card.dart';
 import './i18n/statistics-page.i18n.dart';
+
 
 class StatisticsTabPage extends StatefulWidget {
 
@@ -27,11 +30,15 @@ class StatisticsTabPage extends StatefulWidget {
 class StatisticsTabPageState extends State<StatisticsTabPage> {
 
   int indexTab;
+  List<Record> aggregatedRecords;
+  AggregationMethod aggregationMethod;
 
   @override
   void initState() {
     super.initState();
-    indexTab = 0;
+    indexTab = 0; // index identifying the tab
+    this.aggregationMethod = widget.from.month == widget.to.month ? AggregationMethod.DAY : AggregationMethod.MONTH;
+    this.aggregatedRecords = aggregateRecordsByDateAndCategory(widget.records, aggregationMethod);
   }
 
   Widget _buildNoRecordPage() {
@@ -52,10 +59,9 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
-          OverviewCard(widget.records),
-          TimeSeriesCard(widget.records),
-          PieChartCard(widget.records),
-          CategoriesSummaryCard(widget.from, widget.to, widget.records),
+          OverviewCard(widget.records, aggregationMethod),
+          BarChartCard(widget.records, aggregationMethod),
+          CategoriesSummaryCard(widget.from, widget.to, widget.records, aggregatedRecords, aggregationMethod),
         ],
       ),
     );

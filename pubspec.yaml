@@ -37,7 +37,7 @@ dependencies:
   rate_my_app:
   launch_review:
     git: https://github.com/lslv1243/launch_review.git
-  flutter_colorpicker:
+  flutter_colorpicker: ^0.4.0
   file_picker:
   uuid:
 

@@ -1,10 +1,15 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/statistics/records-statistic-page.dart';
+import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:piggybank/statistics/statistics-utils.dart';
 import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/statistics/categories-statistics-page.dart';
 
 class CategorySumTuple {
   final Category category;
@@ -15,16 +20,20 @@ class CategorySumTuple {
 class CategorySummaryCard extends StatelessWidget {
 
   final List<Record> records;
-  String categoryName;
+  Category category;
+  AggregationMethod aggregationMethod;
+  List<Record> aggregatedRecords;
 
   double totalCategoryValue;
   double maxValue;
   final _biggerFont = const TextStyle(fontSize: 16.0);
   final _dateFont = const TextStyle(fontSize: 12.0);
 
-  CategorySummaryCard(this.records) {
-    categoryName = this.records[0].category.name;
-    totalCategoryValue = records.fold(
+  CategorySummaryCard(this.records, this.aggregationMethod) {
+    aggregatedRecords = aggregateRecordsByDateAndCategory(records, aggregationMethod);
+    aggregatedRecords.sort((a, b) => a.value.compareTo(b.value)); // sort desc
+    category = this.records[0].category;
+    totalCategoryValue = aggregatedRecords.fold(
         0, (previousValue, element) => previousValue + element.value.abs());
     maxValue = records.map((e) => e.value.abs()).reduce(max);
     records.sort((a, b) => a.value.compareTo(b.value));
@@ -35,13 +44,13 @@ class CategorySummaryCard extends StatelessWidget {
     return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: records.length,
+        itemCount: aggregatedRecords.length,
         separatorBuilder: (context, index) {
           return Divider();
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildRow(context, records[i]);
+          return _buildRow(context, aggregatedRecords[i]);
         });
   }
 
@@ -54,6 +63,31 @@ class CategorySummaryCard extends StatelessWidget {
     return Column(
       children: <Widget>[
         ListTile(
+            onTap: () async {
+              if (aggregationMethod == AggregationMethod.MONTH) {
+                var formatter = DateFormat("yy/MM");
+                var categoryRecords = records.where((element) => element.category.name == record.category.name && formatter.format(element.dateTime) == formatter.format(record.dateTime)).toList();
+                DateTime from = DateTime(record.dateTime.year, record.dateTime.month);
+                DateTime to = DateTime(record.dateTime.year, record.dateTime.month + 1).subtract(Duration(minutes: 1));
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CategoryStatisticPage(from, to, categoryRecords, AggregationMethod.DAY)
+                    )
+                );
+              }
+              if (aggregationMethod == AggregationMethod.DAY) {
+                var categoryRecords = records.where((element) => element.dateTime.day == record.dateTime.day).toList();
+                DateTime from = categoryRecords[0].dateTime;
+                DateTime to = from;
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => RecordsStatisticPage(from, to, categoryRecords, AggregationMethod.CUSTOM)
+                    )
+                );
+              }
+              },
             title: Container(
               child: Column(
                 children: <Widget>[
@@ -62,7 +96,7 @@ class CategorySummaryCard extends StatelessWidget {
                     children: <Widget>[
                       Flexible(
                         child: Text(
-                          record.title != null ? record.title : categoryName,
+                          record.title != null ? record.title : category.name,
                           style: _biggerFont,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -79,7 +113,7 @@ class CategorySummaryCard extends StatelessWidget {
                   ),
                   Align(
                       alignment: Alignment.bottomLeft,
-                      child: Text(getDateStr(record.dateTime), style: _dateFont,)
+                      child: Text(getDateStr(record.dateTime, aggregationMethod: aggregationMethod), style: _dateFont,)
                   ),
                   Container(
                     padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -122,7 +156,7 @@ class CategorySummaryCard extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            "Entries for category: ".i18n + categoryName,
+                            "Entries for category: ".i18n + category.name + (aggregationMethod != AggregationMethod.CUSTOM ? (" (per " + (aggregationMethod == AggregationMethod.MONTH? "Month".i18n : "Day".i18n) + ")") : ""),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontSize: 14),

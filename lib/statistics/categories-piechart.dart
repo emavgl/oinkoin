@@ -10,13 +10,13 @@ class LinearRecord {
   LinearRecord(this.category, this.value);
 }
 
-class PieChartCard extends StatelessWidget {
+class CategoriesPieChart extends StatelessWidget {
 
   final List<Record> records;
   List<LinearRecord> linearRecords;
   List<charts.Series> seriesList;
 
-  PieChartCard(this.records) {
+  CategoriesPieChart(this.records) {
     seriesList = _prepareData(records);
   }
 
@@ -139,14 +139,11 @@ class PieChartCard extends StatelessWidget {
     return Container(
         padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
         height: 200,
-        child: new Card(
-            elevation: 2,
-            child: new Row(
-              children: <Widget>[
-                Expanded(child: _buildPieChart()),
-                Expanded(child: _buildLegend())
-              ],
-            )
+        child: new Row(
+          children: <Widget>[
+            Expanded(child: _buildPieChart()),
+            Expanded(child: _buildLegend())
+          ],
         )
     );
   }

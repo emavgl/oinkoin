@@ -1,39 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import 'package:piggybank/statistics/statistics-utils.dart';
 import './i18n/statistics-page.i18n.dart';
-
-import 'barchart-card.dart';
 import 'category-summary-card.dart';
 
-class CategoryStatisticPage extends StatefulWidget {
+class RecordsStatisticPage extends StatelessWidget {
 
   /// CategoryStatisticPage shows statistics of records belonging to
   /// the same category.
 
   List<Record> records;
+  String categoryName;
   AggregationMethod aggregationMethod;
   DateTime from;
   DateTime to;
 
-  CategoryStatisticPage(this.from, this.to, this.records, this.aggregationMethod): super();
-
-  @override
-  CategoryStatisticPageState createState() => CategoryStatisticPageState();
-}
-
-class CategoryStatisticPageState extends State<CategoryStatisticPage> {
-
-  String categoryName;
-  List<DateTimeSeriesRecord> aggregatedRecords;
-
-  @override
-  void initState() {
-    super.initState();
-    categoryName = widget.records[0].category.name;
+  RecordsStatisticPage(this.from, this.to, this.records, this.aggregationMethod) {
+    categoryName = this.records[0].category.name;
   }
 
   Widget _buildNoRecordPage() {
@@ -54,9 +38,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
-          OverviewCard(widget.records, widget.aggregationMethod),
-          BarChartCard(widget.records, widget.aggregationMethod),
-          CategorySummaryCard(widget.records, widget.aggregationMethod),
+          CategorySummaryCard(records, aggregationMethod),
         ],
       ),
     );
@@ -64,6 +46,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isSameDay = getDateStr(from) == getDateStr(to);
     return Scaffold(
         appBar: AppBar(
           title: new Row(
@@ -77,7 +60,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
                 ),
               ),
               Container(
-                child:  Text(getDateRangeStr(widget.from, widget.to)),
+                child: isSameDay ? Text(getDateStr(from)) : Text(getDateRangeStr(from, to)),
                 margin: EdgeInsets.only(left: 10),
               )
             ],
@@ -85,7 +68,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
         ),
         body: new Align(
             alignment: Alignment.topCenter,
-            child: widget.records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
+            child: records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
         )
     );
   }
