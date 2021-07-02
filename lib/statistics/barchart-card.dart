@@ -134,7 +134,7 @@ class BarChartCard extends StatelessWidget {
                   if (model.hasDatumSelection) {
                     pointerValue = model.selectedSeries[0].labelAccessorFn(model.selectedDatum[0].index) + ": " + model.selectedSeries[0]
                         .measureFn(model.selectedDatum[0].index)
-                        .toString();
+                        .toStringAsFixed(2);
                   }
                 }
             )
