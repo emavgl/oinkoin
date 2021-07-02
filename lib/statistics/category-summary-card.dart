@@ -63,7 +63,27 @@ class CategorySummaryCard extends StatelessWidget {
     return Column(
       children: <Widget>[
         ListTile(
+            onLongPress: () async {
+              // Record has no aggregated records inside, show info
+              String infoMessage = (record.title == null ? record.category.name : record.title) + " (${value})";
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(
+                    infoMessage,
+                    style: TextStyle(
+                        fontSize: 20
+                    ),
+                  ), action: SnackBarAction(
+                    label: 'Dismiss'.i18n,
+                    textColor: Colors.yellow,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    },
+                  )));
+            },
             onTap: () async {
+              if (record.aggregatedValues == 1) {
+                return;
+              }
               if (aggregationMethod == AggregationMethod.MONTH) {
                 var formatter = DateFormat("yy/MM");
                 var categoryRecords = records.where((element) => element.category.name == record.category.name && formatter.format(element.dateTime) == formatter.format(record.dateTime)).toList();
@@ -96,7 +116,7 @@ class CategorySummaryCard extends StatelessWidget {
                     children: <Widget>[
                       Flexible(
                         child: Text(
-                          record.title != null ? record.title : category.name,
+                          (record.aggregatedValues > 1 ? "(${record.aggregatedValues}) " : "") + (record.title != null ? record.title : category.name),
                           style: _biggerFont,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -157,7 +177,7 @@ class CategorySummaryCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             "Entries for category: ".i18n + category.name + (aggregationMethod != AggregationMethod.CUSTOM ? (" (per " + (aggregationMethod == AggregationMethod.MONTH? "Month".i18n : "Day".i18n) + ")") : ""),
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontSize: 14),
                           ),

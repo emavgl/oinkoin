@@ -72,6 +72,10 @@ extension Localization on String {
         "it_it": "Andamento",
       } +
       {
+        "en_us": "Dismiss",
+        "it_it": "Chiudi",
+      } +
+      {
         "en_us": "Entries grouped by category",
         "it_it": "Movimenti raggruppati per categoria",
       };

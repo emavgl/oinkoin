@@ -26,21 +26,21 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 0,
             child: new TickerMode(
             enabled: _currentIndex == 0,
-            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey)),
+            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey), title: "Oinkoin",),
           ),
           ),
           new Offstage(
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoryTabPageEdit()),
+              child: new MaterialApp(home: new CategoryTabPageEdit(), title: "Oinkoin"),
             ),
           ),
             new Offstage(
               offstage: _currentIndex != 2,
               child: new TickerMode(
                 enabled: _currentIndex == 2,
-                child: new MaterialApp(home: new SettingsPage()),
+                child: new MaterialApp(home: new SettingsPage(), title: "Oinkoin"),
               ),
             ),
         ]

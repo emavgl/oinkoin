@@ -19,7 +19,7 @@ class Record extends Model {
   Category category;
   DateTime dateTime;
   String recurrencePatternId;
-  int aggregatedValues = 1;
+  int aggregatedValues = 1;  // internal variables - used to identified an aggregated records (statistics)
 
   Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description, this.recurrencePatternId});
 

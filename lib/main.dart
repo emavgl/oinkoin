@@ -32,7 +32,7 @@ class App extends StatelessWidget {
         // TODO add other locales
         // TODO as of now, the current system locale is used. We should give the user the ability to change language in the settings
       ],
-      title: 'Welcome to PiggyBank', // DO NOT LOCALIZE THIS, YOU CAN'T.
+      title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
       home: I18n(
           // I18n translates strings to the current system locale
           child: Shell()),
