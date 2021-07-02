@@ -49,6 +49,7 @@ class BarChartCard extends StatelessWidget {
   static String pointerValue;
   final List<Record> records;
   final AggregationMethod aggregationMethod;
+  final DateTime from, to;
   List<DateTimeSeriesRecord> aggregatedRecords;
   List<charts.Series> seriesList;
   List<TickSpec<num>> ticksListY;
@@ -57,7 +58,7 @@ class BarChartCard extends StatelessWidget {
   String chartScope;
   double average;
 
-  BarChartCard(this.records, this.aggregationMethod) {
+  BarChartCard(this.from, this.to, this.records, this.aggregationMethod) {
     this.aggregatedRecords = aggregateRecordsByDate(records, aggregationMethod);
 
     // Initialise varibales given the aggregation Method
@@ -125,7 +126,7 @@ class BarChartCard extends StatelessWidget {
               new charts.LineAnnotationSegment(
                   average, charts.RangeAnnotationAxisType.measure,
                   color: charts.MaterialPalette.gray.shade400,
-                  endLabel: 'Average'.i18n),
+                  endLabel: 'Average'.i18n) ,
             ]),
           ],
           selectionModels: [
@@ -183,13 +184,13 @@ class BarChartCard extends StatelessWidget {
   }
 
   // Ticks creation utils
-  _createYTicks(List<DateTimeSeriesRecord> records) {
+  List<TickSpec<num>> _createYTicks(List<DateTimeSeriesRecord> records) {
     double maxRecord = records.map((e) => e.value.abs()).reduce(max);
-    var ticksNumber = [charts.TickSpec<num>(0), charts.TickSpec<num>(100)];
-    int maxTick = 100;
-    while (maxTick <= maxRecord) {
-      maxTick = maxTick * 2;
-      ticksNumber.add(charts.TickSpec<num>(maxTick));
+    int maxNumberOfTicks = 4;
+    var interval = (maxRecord / (maxNumberOfTicks * 10)).round() * 10;
+    List<TickSpec<num>> ticksNumber = [];
+    for (double i = 0; i <= maxRecord + interval; i = i + interval) {
+      ticksNumber.add(charts.TickSpec<num>(i.toInt()));
     }
     return ticksNumber;
   }

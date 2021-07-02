@@ -54,8 +54,8 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
-          OverviewCard(widget.records, widget.aggregationMethod),
-          BarChartCard(widget.records, widget.aggregationMethod),
+          OverviewCard(widget.from, widget.to, widget.records, widget.aggregationMethod),
+          BarChartCard(widget.from, widget.to, widget.records, widget.aggregationMethod),
           CategorySummaryCard(widget.records, widget.aggregationMethod),
         ],
       ),

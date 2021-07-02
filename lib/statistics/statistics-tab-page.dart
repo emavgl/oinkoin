@@ -59,8 +59,8 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
-          OverviewCard(widget.records, aggregationMethod),
-          BarChartCard(widget.records, aggregationMethod),
+          OverviewCard(widget.from, widget.to, widget.records, aggregationMethod),
+          BarChartCard(widget.from, widget.to, widget.records, aggregationMethod),
           CategoriesSummaryCard(widget.from, widget.to, widget.records, aggregatedRecords, aggregationMethod),
         ],
       ),

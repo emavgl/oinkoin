@@ -1,7 +1,52 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import "package:collection/collection.dart";
+
+double computeNumberOfMonthsBetweenTwoDates(DateTime from, DateTime to) {
+  var apprxSizeOfMonth = 30;
+  var numberOfDaysInBetween = from.difference(to).abs().inDays;
+  var numberOfMonths = numberOfDaysInBetween / apprxSizeOfMonth;
+  return numberOfMonths;
+}
+
+double computeNumberOfYearsBetweenTwoDates(DateTime from, DateTime to) {
+  var apprxSizeOfYear = 365;
+  var numberOfDaysInBetween = from.difference(to).abs().inDays;
+  return numberOfDaysInBetween / apprxSizeOfYear;
+}
+
+double computeAverage(DateTime from, DateTime to, List<DateTimeSeriesRecord> records, AggregationMethod aggregationMethod) {
+  var sumValues = records.fold(0, (acc, e) => acc + e.value).abs();
+  switch(aggregationMethod) {
+    case AggregationMethod.DAY:
+      return sumValues / records.length; // divide for each entries (eg. 20), not for each days (30).
+      break;
+    case AggregationMethod.MONTH:
+      // Question here is: how much of the month I am covering.
+      // If a new month is starting, I don't want the it counts as an entire
+      // month when computing the average for each month.
+      // For example today is the 2 of March and I have spent nothing yet.
+      // And I want to compute the average of expenses per month of 2021.
+      // And I don't want that just 2 days of March will have an impact on
+      // the average.
+      // Idea: instead of dividing the sum per 3 months. I will rather
+      // divide the sum per 2 months (January, February) + 2/30 (March).
+      // But Am I counting the days with expenses, or all the days.
+      // If a count just the days with expenses, how much sense has this ...
+      return sumValues / computeNumberOfMonthsBetweenTwoDates(from, to);
+      break;
+    case AggregationMethod.YEAR:
+      return sumValues / computeNumberOfYearsBetweenTwoDates(from, to);
+      break;
+    default:
+      return sumValues / records.length;
+      break;
+  }
+}
 
 DateTime truncateDateTime(DateTime dateTime, AggregationMethod aggregationMethod) {
   DateTime newDateTime;

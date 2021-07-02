@@ -10,6 +10,8 @@ class OverviewCard extends StatelessWidget {
 
   final List<Record> records;
   final AggregationMethod aggregationMethod;
+  final DateTime from;
+  final DateTime to;
   List<DateTimeSeriesRecord> aggregatedRecords;
 
   double maxRecord;
@@ -25,7 +27,7 @@ class OverviewCard extends StatelessWidget {
   final valueStyle = const TextStyle(fontSize: 18.0);
   final dateStyle = const TextStyle(fontSize: 24.0);
 
-  OverviewCard(this.records, this.aggregationMethod) {
+  OverviewCard(this.from, this.to, this.records, this.aggregationMethod) {
     this.records.sort((a, b) => a.value.abs().compareTo(b.value.abs()));
     aggregatedRecords = aggregateRecordsByDate(this.records, aggregationMethod);
     sumValues = this.records.fold(0, (acc, e) => acc + e.value).abs();
