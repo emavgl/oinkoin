@@ -68,7 +68,7 @@ class CategorySummaryCard extends StatelessWidget {
               String infoMessage = (record.title == null ? record.category.name : record.title) + " (${value})";
               ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      margin: EdgeInsets.all(20),
+                      elevation: 6,
                       behavior: SnackBarBehavior.floating,
                       content: Text(
                     infoMessage,
