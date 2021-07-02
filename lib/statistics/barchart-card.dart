@@ -187,7 +187,7 @@ class BarChartCard extends StatelessWidget {
   List<TickSpec<num>> _createYTicks(List<DateTimeSeriesRecord> records) {
     double maxRecord = records.map((e) => e.value.abs()).reduce(max);
     int maxNumberOfTicks = 4;
-    var interval = (maxRecord / (maxNumberOfTicks * 10)).round() * 10;
+    var interval = max(10, (maxRecord / (maxNumberOfTicks * 10)).round() * 10);
     List<TickSpec<num>> ticksNumber = [];
     for (double i = 0; i <= maxRecord + interval; i = i + interval) {
       ticksNumber.add(charts.TickSpec<num>(i.toInt()));
