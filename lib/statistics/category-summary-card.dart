@@ -67,7 +67,10 @@ class CategorySummaryCard extends StatelessWidget {
               // Record has no aggregated records inside, show info
               String infoMessage = (record.title == null ? record.category.name : record.title) + " (${value})";
               ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(
+                  SnackBar(
+                      margin: EdgeInsets.all(20),
+                      behavior: SnackBarBehavior.floating,
+                      content: Text(
                     infoMessage,
                     style: TextStyle(
                         fontSize: 20
