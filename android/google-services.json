@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "555743501955",
+    "project_id": "oinkoin-91895",
+    "storage_bucket": "oinkoin-91895.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555743501955:android:3527895e13286b6f8245b6",
+        "android_client_info": {
+          "package_name": "com.github.emavgl.piggybankonline"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555743501955-uk5jfb487kpkb1dev27innrl7da4op2n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8wnMQGA0iuoxamHjYJ9b9-eFmkMfBE80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555743501955-uk5jfb487kpkb1dev27innrl7da4op2n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
