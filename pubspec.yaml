@@ -26,8 +26,8 @@ dependencies:
   path:
   path_provider:
   shared_preferences: # plugin for persistent store for simple data (key-value pairs) like settings
-  charts_common: ^0.10.0  # plugin for statistics and charts
-  charts_flutter: ^0.10.0  # plugin for statistics and charts
+  charts_common: ^0.11.0
+  charts_flutter: ^0.11.0
   animations:
   month_picker_dialog:
   share_plus:
@@ -37,7 +37,7 @@ dependencies:
   rate_my_app:
   launch_review:
     git: https://github.com/lslv1243/launch_review.git
-  flutter_colorpicker: ^0.4.0
+  flutter_colorpicker: ^0.6.0
   file_picker:
   uuid:
 

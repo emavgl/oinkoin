@@ -444,11 +444,12 @@ class RecordsPageState extends State<RecordsPage> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async => await navigateToAddNewMovementPage(),
-        tooltip: 'Add a new record'.i18n,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async => await navigateToAddNewMovementPage(),
+          tooltip: 'Add a new record'.i18n,
+          label: Text('Add'.i18n),
+          icon: const Icon(Icons.add),
+        ),
       );
   }
 
