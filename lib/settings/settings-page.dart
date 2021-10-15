@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:piggybank/auth/google_sign_in.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
@@ -8,6 +9,7 @@ import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import './i18n/settings-page.i18n.dart';
 import 'dart:io';
@@ -200,7 +202,21 @@ class SettingsPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => FeedbackPage()),
               );
-            },          ),
+            },
+          ),
+          SettingsItem(
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            iconBackgroundColor: Colors.green.shade700,
+            title: 'Logout'.i18n,
+            subtitle: 'Logout from your account'.i18n,
+            onPressed: () {
+              final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
+              provider.googleLogOut();
+            },
+          ),
         ],
       ),
     ));

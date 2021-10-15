@@ -27,7 +27,10 @@ dependencies:
   path_provider:
   shared_preferences: # plugin for persistent store for simple data (key-value pairs) like settings
   charts_common: ^0.11.0
-  charts_flutter: ^0.11.0
+  charts_flutter:
+    git:
+      url: https://github.com/google/charts.git
+      path: charts_flutter
   animations:
   month_picker_dialog:
   share_plus:
@@ -42,7 +45,7 @@ dependencies:
   uuid:
   firebase_auth:
   google_sign_in:
-
+  provider:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

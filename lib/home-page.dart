@@ -5,13 +5,13 @@ import 'package:piggybank/settings/settings-page.dart';
 import 'categories/categories-tab-page-edit.dart';
 import 'i18n/shell.i18n.dart';
 
-class Shell extends StatefulWidget {
+class HomePage extends StatefulWidget {
 
   @override
-  ShellState createState() => ShellState();
+  HomePageState createState() => HomePageState();
 }
 
-class ShellState extends State<Shell> {
+class HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   final GlobalKey<RecordsPageState> _recordPageKey = GlobalKey();

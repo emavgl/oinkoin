@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "555743501955-gm29r9ueio72m2ltj499v183fmhnonla.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.emavgl.piggybankonline",
+            "certificate_hash": "3920f32b8aee712667484f8ad3c1ed48b7eb6e5f"
+          }
+        },
+        {
           "client_id": "555743501955-uk5jfb487kpkb1dev27innrl7da4op2n.apps.googleusercontent.com",
           "client_type": 3
         }

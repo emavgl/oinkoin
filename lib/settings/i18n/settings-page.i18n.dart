@@ -138,6 +138,14 @@ extension Localization on String {
         "it_it": "Visualizza o cancella movimenti ricorrenti",
       } +
       {
+        "en_us": "Logout",
+        "it_it": "Logout",
+      } +
+      {
+        "en_us": "Logout from your account",
+        "it_it": "Esci dal tuo account.",
+      } +
+      {
         "en_us": "Pay us a coffee",
         "it_it": "Donaci un caffè",
       };
