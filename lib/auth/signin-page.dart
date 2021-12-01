@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import './i18n/login-page.i18n.dart';
 import 'google_sign_in.dart';
 
-class SigninPage extends StatelessWidget {
+class SigninPage extends StatefulWidget {
+
+  @override
+  SigninPageState createState() => SigninPageState();
+}
+
+class SigninPageState extends State<SigninPage> {
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
+
+  @override
+  void initState() {
+    final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
+    provider.googleLoginSilently();
+  }
 
   @override
   Widget build(BuildContext context)  => ChangeNotifierProvider<GoogleSignInProvider>(

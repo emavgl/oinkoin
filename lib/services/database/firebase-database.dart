@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:piggybank/auth/i18n/login-page.i18n.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
@@ -7,12 +9,55 @@ import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'database-interface.dart';
 import 'exceptions.dart';
 
+// Import the firebase_core and cloud_firestore plugin
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class InMemoryDatabase implements DatabaseInterface {
+class FirebaseDatabase implements DatabaseInterface {
 
-    /// InMemoryDatabase is an implementation of DatabaseService that runs in memory.
-    /// All this methods are implemented using operations on Lists.
-    /// InMemoryDatabase is intended for debug/testing purposes.
+    FirebaseFirestore firestore;
+    String user_id;
+
+    static List<Category> getDefaultCategories() {
+      List<Category> defaultCategories = [];
+      defaultCategories.add(new Category("House".i18n,
+          color: Category.colors[0],
+          iconCodePoint: FontAwesomeIcons.home.codePoint,
+          categoryType: CategoryType.expense
+      ));
+      defaultCategories.add(new Category("Transports".i18n,
+          color: Category.colors[1],
+          iconCodePoint: FontAwesomeIcons.bus.codePoint,
+          categoryType: CategoryType.expense
+      ));
+      defaultCategories.add(new Category("Food".i18n,
+          color: Category.colors[2],
+          iconCodePoint: FontAwesomeIcons.hamburger.codePoint,
+          categoryType: CategoryType.expense
+      ));
+      defaultCategories.add(new Category("Salary".i18n,
+          color: Category.colors[3],
+          iconCodePoint: FontAwesomeIcons.wallet.codePoint,
+          categoryType: CategoryType.income
+      ));
+      return defaultCategories;
+    }
+
+    FirebaseDatabase(mode) {
+      firestore = FirebaseFirestore.instance;
+      user_id = FirebaseAuth.instance.currentUser.uid;
+
+      // check if no categories are in, if so apply the standard ones
+      getAllCategories().then((categories) async {
+        if (categories.length == 0) {
+          final defaultCategories = FirebaseDatabase.getDefaultCategories();
+          for (var defaultCategory in defaultCategories) {
+            await addCategory(defaultCategory);
+          }
+        }
+      });
+    }
+
 
     static List<Category> _categories = [
         Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: CategoryType.expense),
@@ -33,7 +78,15 @@ class InMemoryDatabase implements DatabaseInterface {
     static List<Category> get categories => _categories;
 
     Future<List<Category>> getAllCategories() async {
-        return Future<List<Category>>.value(_categories);
+      var result = await this.firestore.collection('user_data').doc(user_id).collection("user_categories").get();
+      var docs = result.docs;
+      List<Category> retrievedCategories = [];
+      for (var doc in docs) {
+        var data = doc.data();
+        var category = Category.fromMap(data);
+        retrievedCategories.add(category);
+      }
+      return retrievedCategories;
     }
 
     Future<List<Category>> getCategoriesByType(CategoryType categoryType) async {
@@ -67,12 +120,8 @@ class InMemoryDatabase implements DatabaseInterface {
 
     @override
     Future<String> addCategory(Category category) async {
-        Category foundCategory = await this.getCategory(category.name, category.categoryType);
-        if (foundCategory != null) {
-            throw ElementAlreadyExists();
-        }
-        _categories.add(category);
-        return Future<String>.value((_categories.length - 1).toString());
+      final result = await this.firestore.collection('user_data').doc(user_id).collection("user_categories").add(category.toJson());
+      return result.id;
     }
 
     Future<List<Record>> getAllRecords() async {
@@ -121,31 +170,27 @@ class InMemoryDatabase implements DatabaseInterface {
   @override
   Future<void> addRecurrentRecordPattern(RecurrentRecordPattern recordPattern) {
     // TODO: implement addRecurrentRecordPattern
-    throw UnimplementedError();
   }
 
   @override
   Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId) {
     // TODO: implement deleteRecurrentRecordPatternById
-    throw UnimplementedError();
   }
 
   @override
   Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId) {
     // TODO: implement getRecurrentRecordPattern
-    throw UnimplementedError();
   }
 
   @override
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() {
     // TODO: implement getRecurrentRecordPatterns
-    throw UnimplementedError();
+    return Future<List<RecurrentRecordPattern>>.value([]);
   }
 
   @override
   Future<void> updateRecordPatternById(String recurrentPatternId, RecurrentRecordPattern pattern) {
     // TODO: implement updateRecordPatternById
-    throw UnimplementedError();
   }
 
 }

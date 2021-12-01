@@ -26,17 +26,14 @@ dependencies:
   path:
   path_provider:
   shared_preferences: # plugin for persistent store for simple data (key-value pairs) like settings
-  charts_common: ^0.11.0
+  charts_common: ^0.12.0
   charts_flutter:
-    git:
-      url: https://github.com/google/charts.git
-      path: charts_flutter
   animations:
   month_picker_dialog:
   share_plus:
   flutter_speed_dial:
     git: https://github.com/emavgl/flutter_speed_dial.git
-  url_launcher: ^6.0.6
+  url_launcher: ^6.0.12
   rate_my_app:
   launch_review:
     git: https://github.com/lslv1243/launch_review.git
@@ -44,6 +41,7 @@ dependencies:
   file_picker:
   uuid:
   firebase_auth:
+  cloud_firestore:
   google_sign_in:
   provider:
 
@@ -62,6 +60,10 @@ dev_dependencies:
   build_runner:
   test:
   mockito:
+  firebase_auth:
+  cloud_firestore:
+  google_sign_in:
+  provider:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

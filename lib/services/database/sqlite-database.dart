@@ -148,13 +148,13 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<int> addCategory(Category category) async {
+    Future<String> addCategory(Category category) async {
         final db = await database;
         Category foundCategory = await this.getCategory(category.name, category.categoryType);
         if (foundCategory != null) {
             throw ElementAlreadyExists();
         }
-        return await db.insert("categories", category.toMap());
+        return await db.insert("categories", category.toMap()).toString();
     }
 
     @override
