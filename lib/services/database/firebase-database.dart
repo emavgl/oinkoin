@@ -5,6 +5,7 @@ import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
+import 'package:collection/collection.dart';
 
 import 'database-interface.dart';
 import 'exceptions.dart';
@@ -43,6 +44,18 @@ class FirebaseDatabase implements DatabaseInterface {
       return defaultCategories;
     }
 
+    static List<Record> getDebugRecords() {
+      var _categories = getDefaultCategories();
+      return [
+        Record(-300, "April Rent", _categories[0], DateTime.parse("2020-04-02 10:30:00"), id: "1"),
+        Record(-300, "May Rent", _categories[0], DateTime.parse("2020-05-01 10:30:00"), id: "2"),
+        Record(-30, "Pizza", _categories[1], DateTime.parse("2020-05-01 09:30:00"), id: "3"),
+        Record(1700, "Salary", _categories[2], DateTime.parse("2020-05-02 09:30:00"), id: "4"),
+        Record(-30, "Restaurant", _categories[1], DateTime.parse("2020-05-02 10:30:00"), id: "5"),
+        Record(-60.5, "Groceries", _categories[1], DateTime.parse("2020-05-03 10:30:00"), id: "6"),
+      ];
+    }
+
     FirebaseDatabase(mode) {
       firestore = FirebaseFirestore.instance;
       user_id = FirebaseAuth.instance.currentUser.uid;
@@ -56,66 +69,101 @@ class FirebaseDatabase implements DatabaseInterface {
           }
         }
       });
+
     }
 
-
-    static List<Category> _categories = [
-        Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: CategoryType.expense),
-        Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: CategoryType.expense),
-        Category("Salary", iconCodePoint: FontAwesomeIcons.wallet.codePoint, categoryType: CategoryType.income)
-    ];
-
-    static List<Record> _movements = [
-        Record(-300, "April Rent", _categories[0], DateTime.parse("2020-04-02 10:30:00"), id: 1),
-        Record(-300, "May Rent", _categories[0], DateTime.parse("2020-05-01 10:30:00"), id: 2),
-        Record(-30, "Pizza", _categories[1], DateTime.parse("2020-05-01 09:30:00"), id: 3),
-        Record(1700, "Salary", _categories[2], DateTime.parse("2020-05-02 09:30:00"), id: 4),
-        Record(-30, "Restaurant", _categories[1], DateTime.parse("2020-05-02 10:30:00"), id: 5),
-        Record(-60.5, "Groceries", _categories[1], DateTime.parse("2020-05-03 10:30:00"), id: 6),
-    ];
-
-    static List<Record> get movements => _movements;
-    static List<Category> get categories => _categories;
+    // Category Operations
 
     Future<List<Category>> getAllCategories() async {
-      var result = await this.firestore.collection('user_data').doc(user_id).collection("user_categories").get();
-      var docs = result.docs;
-      List<Category> retrievedCategories = [];
-      for (var doc in docs) {
-        var data = doc.data();
-        var category = Category.fromMap(data);
-        retrievedCategories.add(category);
-      }
-      return retrievedCategories;
+        var result = await this.firestore.collection('user_data').doc(user_id).collection("user_categories").get();
+        var docs = result.docs;
+        List<Category> retrievedCategories = [];
+        for (var doc in docs) {
+          var data = doc.data();
+          data.putIfAbsent("id", () => doc.id);
+          var category = Category.fromMap(data);
+          retrievedCategories.add(category);
+        }
+        return retrievedCategories;
     }
 
     Future<List<Category>> getCategoriesByType(CategoryType categoryType) async {
-        return Future<List<Category>>.value(_categories.where((x) => x.categoryType == categoryType).toList());
-    }
-
-    Future<Category> getCategory(String name, CategoryType categoryType) {
-        var matching = _categories.where((x) => x.name == name && x.categoryType == categoryType).toList();
-        return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
-    }
-
-    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
-        var categoryWithTheSameName = await getCategory(existingCategoryName, existingCategoryType);
-        if (categoryWithTheSameName == null) {
-            throw NotFoundException();
+        var result = await this.firestore.collection('user_data')
+            .doc(user_id)
+            .collection("user_categories")
+            .where("category_type", isEqualTo: categoryType.index)
+            .get();
+        var docs = result.docs;
+        List<Category> retrievedCategories = [];
+        for (var doc in docs) {
+          var data = doc.data();
+          data.putIfAbsent("id", () => doc.id);
+          var category = Category.fromMap(data);
+          retrievedCategories.add(category);
         }
-        var index = _categories.indexOf(categoryWithTheSameName);
-        _categories[index] = updatedCategory;
-        return Future<int>.value(index);
+        return retrievedCategories;
     }
 
-    Future<void> deleteCategory(String categoryName, CategoryType categoryType) async {
-        _categories.removeWhere((x) => x.name == categoryName && x.categoryType == categoryType);
+    Future<Category> getCategory(String name, CategoryType categoryType) async {
+        var result = await this.firestore.collection('user_data')
+            .doc(user_id)
+            .collection("user_categories")
+            .where("category_type", isEqualTo: categoryType.index)
+            .where("name", isEqualTo: name)
+            .get();
+        var docs = result.docs;
+        List<Category> retrievedCategories = [];
+        for (var doc in docs) {
+          var data = doc.data();
+          data.putIfAbsent("id", () => doc.id);
+          var category = Category.fromMap(data);
+          retrievedCategories.add(category);
+        }
+        return retrievedCategories.firstOrNull;
     }
 
-    Future<int> addRecord(Record movement) async {
-        movement.id = _movements.length + 1;
-        _movements.add(movement);
-        return Future<int>.value(movement.id);
+    Future<String> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
+      var existingCategory = await getCategory(existingCategoryName, existingCategoryType);
+      if (existingCategory == null) {
+        return null; // element does not exists
+      } else {
+        updatedCategory.id = existingCategory.id;
+        await this.firestore.collection('user_data')
+            .doc(user_id)
+            .collection("user_categories")
+            .doc(existingCategory.id)
+            .update(updatedCategory.toJson());
+        return updatedCategory.id;
+      }
+    }
+
+    Future<bool> deleteCategory(String categoryName, CategoryType categoryType) async {
+        var category = await getCategory(categoryName, categoryType);
+        if (category == null) {
+          return false;
+        }
+        // Delete the category
+        await this.firestore.collection('user_data')
+            .doc(user_id)
+            .collection("user_categories")
+            .doc(category.id)
+            .delete();
+        // Delete related records
+        var reletedRecords = await this.firestore.collection('user_data')
+            .doc(user_id)
+            .collection("user_records")
+            .where("category_name", isEqualTo: categoryName)
+            .where("category_type", isEqualTo: categoryType.index)
+            .get();
+        for (var r in reletedRecords.docs) {
+          String recordIdToBeDeleted = r.id;
+          await this.firestore.collection('user_data')
+              .doc(user_id)
+              .collection("user_records")
+              .doc(recordIdToBeDeleted)
+              .delete();
+        }
+        // TODO: delete related recurrent records
     }
 
     @override
@@ -124,47 +172,115 @@ class FirebaseDatabase implements DatabaseInterface {
       return result.id;
     }
 
+
+    // Records Operations
+
+    Future<String> addRecord(Record record) async {
+      final result = await this.firestore.collection('user_data').doc(user_id).collection("user_records").add(record.toJson());
+      return result.id;
+    }
+
     Future<List<Record>> getAllRecords() async {
-        return Future<List<Record>>.value(_movements);
+        var result = await this.firestore.collection('user_data').doc(user_id).collection("user_records").get();
+        var docs = result.docs;
+        List<Record> records = [];
+        for (var doc in docs) {
+          var data = doc.data();
+          data.putIfAbsent("id", () => doc.id);
+          data["category"] = await getCategory(data['category_name'], CategoryType.values[data['category_type']]);
+          var record = Record.fromMap(data);
+          records.add(record);
+        }
+        return records;
     }
 
     Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to) async {
-        List<Record> targetMovements = _movements.where((movement) =>
-            movement.dateTime.isAfter(from) && movement.dateTime.isBefore(to)).toList();
-        return Future<List<Record>>.value(targetMovements);
+      final from_unix = from.millisecondsSinceEpoch;
+      final to_unix = to.millisecondsSinceEpoch;
+      var result = await this.firestore
+          .collection('user_data')
+          .doc(user_id)
+          .collection("user_records")
+          .where("datetime", isGreaterThanOrEqualTo: from_unix)
+          .where("datetime", isLessThanOrEqualTo: to_unix)
+          .get();
+      var docs = result.docs;
+      List<Record> records = [];
+      for (var doc in docs) {
+        var data = doc.data();
+        data.putIfAbsent("id", () => doc.id);
+        data["category"] = await getCategory(data['category_name'], CategoryType.values[data['category_type']]);
+        var record = Record.fromMap(data);
+        records.add(record);
+      }
+      return records;
     }
 
-    @override
-    Future<Record> getRecordById(int id) {
-      var matching = _movements.where((x) => x.id == id).toList();
-      return (matching.isEmpty) ? Future<Record>.value(null): Future<Record>.value(matching[0]);
+    Future<Record> getRecordById(String recordId) async {
+      var doc = await this.firestore.collection('user_data')
+          .doc(user_id)
+          .collection("user_records")
+          .doc(recordId)
+          .get();
+      if (doc == null) return null;
+      var data = doc.data();
+      data["category"] = await getCategory(data['category_name'], CategoryType.values[data['category_type']]);
+      data.putIfAbsent("id", () => doc.id);
+      return Record.fromMap(data);
     }
 
     @override
     Future<Record> getMatchingRecord(Record record) async {
-        var matching = _movements.where((x) => x.category == record.category && x.value == record.value && x.dateTime.isAtSameMomentAs(record.dateTime)).toList();
-        return (matching.isEmpty) ? Future<Record>.value(null): Future<Record>.value(matching[0]);
+        var result = await this.firestore
+            .collection('user_data')
+            .doc(user_id)
+            .collection("user_records")
+            .where("datetime", isEqualTo: record.dateTime.millisecondsSinceEpoch)
+            .where("category_name", isEqualTo: record.category.name)
+            .where("category_type", isEqualTo: record.category.categoryType.index)
+            .where("value", isEqualTo: record.value)
+            .get();
+        var docs = result.docs;
+        List<Record> retrievedRecords = [];
+        for (var doc in docs) {
+          var data = doc.data();
+          data.putIfAbsent("id", () => doc.id);
+          data["category"] = await getCategory(data['category_name'], CategoryType.values[data['category_type']]);
+          var record = Record.fromMap(data);
+          retrievedRecords.add(record);
+        }
+        return retrievedRecords.firstOrNull;
     }
 
     @override
-    Future<int> updateRecordById(int movementId, Record newMovement) async {
-      var movementWithTheSameId = await getRecordById(movementId);
-      if (movementWithTheSameId == null) {
-          throw Exception("Movement ID `$movementId` does not exists.");
+    Future<String> updateRecordById(String movementId, Record newMovement) async {
+      var existingRecord = await getRecordById(movementId);
+      if (existingRecord == null) {
+        return null; // element does not exists
+      } else {
+        await this.firestore.collection('user_data')
+            .doc(user_id)
+            .collection("user_records")
+            .doc(movementId)
+            .update(newMovement.toJson());
+        return movementId;
       }
-      _movements[_movements.indexOf(movementWithTheSameId)] = newMovement;
-      return movementId;
     }
 
     @override
-    Future<void> deleteRecordById(int id) {
-      _movements.removeWhere((x) => x.id == id);
+    Future<void> deleteRecordById(String recordId) async {
+      await this.firestore.collection('user_data')
+          .doc(user_id)
+          .collection("user_records")
+          .doc(recordId)
+          .delete();
     }
 
     @override
-    Future<void> deleteDatabase() {
-      _movements.clear();
-      _categories.clear();
+    Future<void> deleteDatabase() async {
+      await this.firestore.collection('user_data')
+          .doc(user_id)
+          .delete();
     }
 
   @override

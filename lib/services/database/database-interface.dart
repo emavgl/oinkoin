@@ -15,14 +15,14 @@ abstract class DatabaseInterface {
     Future<List<Category>> getCategoriesByType(CategoryType categoryType);
     Future<Category> getCategory(String categoryName, CategoryType categoryType);
     Future<String> addCategory(Category category);
-    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory);
-    Future<void> deleteCategory(String name, CategoryType categoryType);
+    Future<String> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory);
+    Future<bool> deleteCategory(String name, CategoryType categoryType);
     
     /// Record CRUD
-    Future<Record> getRecordById(int id);
-    Future<void> deleteRecordById(int id);
-    Future<int> addRecord(Record record);
-    Future<int> updateRecordById(int recordId, Record newRecord);
+    Future<Record> getRecordById(String id);
+    Future<void> deleteRecordById(String id);
+    Future<String> addRecord(Record record);
+    Future<String> updateRecordById(String recordId, Record newRecord);
     Future<List<Record>> getAllRecords();
     Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to);
     Future<Record> getMatchingRecord(Record record);

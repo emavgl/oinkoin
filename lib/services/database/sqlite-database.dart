@@ -158,16 +158,20 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<void> deleteCategory(String categoryName, CategoryType categoryType) async {
+    Future<bool> deleteCategory(String categoryName, CategoryType categoryType) async {
         final db = await database;
         var categoryIndex = categoryType.index;
+        if (await getCategory(categoryName, categoryType) == null) {
+            return false;
+        }
         await db.delete("categories", where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
         await db.delete("records", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
         await db.delete("recurrent_record_patterns", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
+        return true;
     }
 
     @override
-    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
+    Future<String> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
         final db = await database;
         var categoryIndex = existingCategoryType.index;
         int newIndex = await db.update("categories", updatedCategory.toMap(),
@@ -179,16 +183,16 @@ class SqliteDatabase implements DatabaseInterface {
         await db.update("recurrent_record_patterns", {"category_name": updatedCategory.name},
             where: "category_name = ? AND category_type = ?",
             whereArgs: [existingCategoryName, categoryIndex]);
-        return newIndex;
+        return newIndex.toString();
     }
 
     @override
-    Future<int> addRecord(Record record) async {
+    Future<String> addRecord(Record record) async {
         final db = await database;
         if (await getCategory(record.category.name, record.category.categoryType) == null){
             await addCategory(record.category);
         }
-        return await db.insert("records", record.toMap());
+        return await db.insert("records", record.toMap()).toString();
     }
 
     @override
@@ -276,7 +280,7 @@ class SqliteDatabase implements DatabaseInterface {
       });
     }
 
-    Future<Record> getRecordById(int id) async {
+    Future<Record> getRecordById(String id) async {
         final db = await database;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
@@ -294,15 +298,15 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<int> updateRecordById(int movementId, Record newMovement) async {
+    Future<String> updateRecordById(String movementId, Record newMovement) async {
         final db = await database;
         var recordMap = newMovement.toMap();
         return await db.update("records", recordMap,
-            where: "id = ?", whereArgs: [movementId]);
+            where: "id = ?", whereArgs: [movementId]).toString();
     }
 
     @override
-    Future<void> deleteRecordById(int id) async {
+    Future<void> deleteRecordById(String id) async {
         final db = await database;
         await db.delete("records", where: "id = ?", whereArgs: [id]);
     }

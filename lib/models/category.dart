@@ -32,6 +32,7 @@ class Category extends Model {
 
   static Random _random = new Random();
 
+  String id;
   String name;
   Color color;
   int iconCodePoint;
@@ -76,12 +77,16 @@ class Category extends Model {
       List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
       color = Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);
     }
-    return Category(
+    var c = Category(
       map["name"],
       color: color,
       iconCodePoint: map["icon"],
       categoryType: CategoryType.values[map['category_type']]
     );
+    if (map.containsKey("id")) {
+      c.id = map['id'];
+    }
+    return c;
   }
 
 }

@@ -21,12 +21,12 @@ class InMemoryDatabase implements DatabaseInterface {
     ];
 
     static List<Record> _movements = [
-        Record(-300, "April Rent", _categories[0], DateTime.parse("2020-04-02 10:30:00"), id: 1),
-        Record(-300, "May Rent", _categories[0], DateTime.parse("2020-05-01 10:30:00"), id: 2),
-        Record(-30, "Pizza", _categories[1], DateTime.parse("2020-05-01 09:30:00"), id: 3),
-        Record(1700, "Salary", _categories[2], DateTime.parse("2020-05-02 09:30:00"), id: 4),
-        Record(-30, "Restaurant", _categories[1], DateTime.parse("2020-05-02 10:30:00"), id: 5),
-        Record(-60.5, "Groceries", _categories[1], DateTime.parse("2020-05-03 10:30:00"), id: 6),
+        Record(-300, "April Rent", _categories[0], DateTime.parse("2020-04-02 10:30:00"), id: "1"),
+        Record(-300, "May Rent", _categories[0], DateTime.parse("2020-05-01 10:30:00"), id: "2"),
+        Record(-30, "Pizza", _categories[1], DateTime.parse("2020-05-01 09:30:00"), id: "3"),
+        Record(1700, "Salary", _categories[2], DateTime.parse("2020-05-02 09:30:00"), id: "4"),
+        Record(-30, "Restaurant", _categories[1], DateTime.parse("2020-05-02 10:30:00"), id: "5"),
+        Record(-60.5, "Groceries", _categories[1], DateTime.parse("2020-05-03 10:30:00"), id: "6"),
     ];
 
     static List<Record> get movements => _movements;
@@ -45,24 +45,29 @@ class InMemoryDatabase implements DatabaseInterface {
         return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
     }
 
-    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
+    Future<String> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
         var categoryWithTheSameName = await getCategory(existingCategoryName, existingCategoryType);
         if (categoryWithTheSameName == null) {
             throw NotFoundException();
         }
         var index = _categories.indexOf(categoryWithTheSameName);
         _categories[index] = updatedCategory;
-        return Future<int>.value(index);
+        return Future<String>.value(index.toString());
     }
 
-    Future<void> deleteCategory(String categoryName, CategoryType categoryType) async {
-        _categories.removeWhere((x) => x.name == categoryName && x.categoryType == categoryType);
+    Future<bool> deleteCategory(String categoryName, CategoryType categoryType) async {
+        if (_categories.where((x) => x.name == categoryName && x.categoryType == categoryType).isEmpty) {
+          return Future<bool>.value(false);
+        } else {
+          _categories.removeWhere((x) => x.name == categoryName && x.categoryType == categoryType);
+          return Future<bool>.value(true);
+        }
     }
 
-    Future<int> addRecord(Record movement) async {
-        movement.id = _movements.length + 1;
+    Future<String> addRecord(Record movement) async {
+        movement.id = (_movements.length + 1).toString();
         _movements.add(movement);
-        return Future<int>.value(movement.id);
+        return Future<String>.value(movement.id.toString());
     }
 
     @override
@@ -86,7 +91,7 @@ class InMemoryDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<Record> getRecordById(int id) {
+    Future<Record> getRecordById(String id) {
       var matching = _movements.where((x) => x.id == id).toList();
       return (matching.isEmpty) ? Future<Record>.value(null): Future<Record>.value(matching[0]);
     }
@@ -98,7 +103,7 @@ class InMemoryDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<int> updateRecordById(int movementId, Record newMovement) async {
+    Future<String> updateRecordById(String movementId, Record newMovement) async {
       var movementWithTheSameId = await getRecordById(movementId);
       if (movementWithTheSameId == null) {
           throw Exception("Movement ID `$movementId` does not exists.");
@@ -108,7 +113,7 @@ class InMemoryDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<void> deleteRecordById(int id) {
+    Future<void> deleteRecordById(String id) {
       _movements.removeWhere((x) => x.id == id);
     }
 

@@ -12,7 +12,7 @@ class Record extends Model {
   /// - category: a Category object assigned to the movement, describing the type of movement (income, expense)
   /// - dateTime: a date representing when the movement was performed
 
-  int id;
+  String id;
   double value;
   String title;
   String description;
@@ -54,7 +54,6 @@ class Record extends Model {
       map['title'],
       map['category'],
       new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
-      id: map['id'],
       description: map['description'],
       recurrencePatternId: map['recurrence_id']
     );
