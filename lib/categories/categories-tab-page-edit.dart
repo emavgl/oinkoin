@@ -55,8 +55,8 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
           bottom: TabBar(
             controller: _tabController,
             tabs: [
-              Tab(text: "Expenses".i18n,),
-              Tab(text: "Income".i18n,),
+              Tab(text: "Expenses".i18n.toUpperCase(),),
+              Tab(text: "Income".i18n.toUpperCase(),),
             ],
           ),
           title: Text('Categories'.i18n),
