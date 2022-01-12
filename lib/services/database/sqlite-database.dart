@@ -365,28 +365,4 @@ class SqliteDatabase implements DatabaseInterface {
             where: "id = ?", whereArgs: [recurrentPatternId]);
     }
 
-    // TODO Stefano: I'm working on it. The method is to be tested
-    // TODO: Not working, not used. Can be deleted.
-    @override
-    Future<List<RecordsSummaryPerCategory>> getExpensesInIntervalByCategory(DateTime from, DateTime to) async {
-        final db = await database;
-        final fromUnix = from.millisecondsSinceEpoch;
-        final toUnix = to.millisecondsSinceEpoch;
-
-        var maps = await db.rawQuery("""
-            SELECT SUM(m.value), c.color, c.name
-            FROM movements as m LEFT JOIN categories as c ON m.category_id = c.id
-            WHERE m.value < 0 AND m.datetime >= ? AND m.datetime <= ? 
-            GROUP BY c.id
-        """, [fromUnix, toUnix]);
-
-        // Convert the List<Map<String, dynamic> into a List<MovementsPerCategory>.
-        return List.generate(maps.length, (i) {
-            Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
-            currentRowMap["category"] = Category.fromMap(currentRowMap);
-            return RecordsSummaryPerCategory.fromMap(currentRowMap);
-        });
-    }
-
-
 }
