@@ -228,7 +228,7 @@ class SqliteDatabase implements DatabaseInterface {
         final db = await database;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
-            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
         return List.generate(maps.length, (i) {
             Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
@@ -245,7 +245,7 @@ class SqliteDatabase implements DatabaseInterface {
 
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
-            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [fromUnix, toUnix]);
 
@@ -280,7 +280,7 @@ class SqliteDatabase implements DatabaseInterface {
         final db = await database;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
-            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
+            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [id]);
 
@@ -312,7 +312,7 @@ class SqliteDatabase implements DatabaseInterface {
         final db = await database;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
-            FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name
+            FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
 
         var results = List.generate(maps.length, (i) {
@@ -329,7 +329,7 @@ class SqliteDatabase implements DatabaseInterface {
         final db = await database;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
-            FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name
+            FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [recurrentPatternId]);
 
@@ -366,6 +366,7 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     // TODO Stefano: I'm working on it. The method is to be tested
+    // TODO: Not working, not used. Can be deleted.
     @override
     Future<List<RecordsSummaryPerCategory>> getExpensesInIntervalByCategory(DateTime from, DateTime to) async {
         final db = await database;
