@@ -324,6 +324,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
+  function_tree:
+    dependency: "direct main"
+    description:
+      name: function_tree
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.12"
   gettext_parser:
     dependency: transitive
     description:
@@ -771,7 +778,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   sqflite_common:
     dependency: transitive
     description:
@@ -785,7 +792,7 @@ packages:
       name: sqlite3
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.1"
   sqlparser:
     dependency: transitive
     description:

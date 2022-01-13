@@ -1,4 +1,5 @@
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -21,6 +22,9 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './i18n/edit-record-page.i18n.dart';
+
+import 'package:function_tree/function_tree.dart';
+
 
 class EditRecordPage extends StatefulWidget {
 
@@ -71,6 +75,16 @@ class EditRecordPageState extends State<EditRecordPage> {
     return prefs.getString('currency') ?? "€";
   }
 
+  bool isMathExpression(String text) {
+    bool containsOperator = false;
+    containsOperator |= text.contains("+");
+    containsOperator |= text.contains("-");
+    containsOperator |= text.contains("*");
+    containsOperator |= text.contains("/");
+    containsOperator |= text.contains("%");
+    return containsOperator;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,13 +112,21 @@ class EditRecordPageState extends State<EditRecordPage> {
     });
     _textEditingController.addListener(() {
       var text = _textEditingController.text.toLowerCase();
-      final exp = new RegExp(r'[^\d.]');
-      String toRepl = text.replaceAll(",", ".");
-      toRepl = toRepl.replaceAll(exp, "");
+      final exp = new RegExp(r'[^\d.\\+\-\*=/%x]');
+      text = text.replaceAll(",", ".");
+      text = text.replaceAll("x", "*");
+      text = text.replaceAll(exp, "");
+      if (isMathExpression(text)) {
+        try {
+          text = text.interpret().toStringAsPrecision(2);
+        } catch (e) {
+          stderr.writeln("Can't parse the expression");
+        }
+      }
       _textEditingController.value = _textEditingController.value.copyWith(
-        text: toRepl,
+        text: text,
         selection:
-        TextSelection(baseOffset: toRepl.length, extentOffset: toRepl.length),
+        TextSelection(baseOffset: text.length, extentOffset: text.length),
         composing: TextRange.empty,
       );
     });
@@ -393,7 +415,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                               fontSize: 32.0,
                               color: Colors.black
                           ),
-                          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                          keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: "0",

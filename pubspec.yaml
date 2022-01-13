@@ -47,6 +47,7 @@ dependencies:
   cupertino_icons:
   font_awesome_flutter:
   intl: 0.17.0
+  function_tree: ^0.8.12
 
 
 
