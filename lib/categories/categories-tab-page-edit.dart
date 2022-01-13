@@ -46,6 +46,19 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
     });
   }
 
+  refreshCategoriesAndHighlightsTab() async {
+    var newlyFetchedCategories = await database.getAllCategories();
+    setState(() {
+      _categories = newlyFetchedCategories;
+    });
+    await Future.delayed(Duration(milliseconds:50));
+    if (_tabController.index == 1) {
+      _tabController.animateTo(0);
+    } else {
+      _tabController.animateTo(1);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -81,9 +94,7 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
                   context,
                   MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.expense)),
                 );
-                await refreshCategories();
-                if (_tabController.index == 1)
-                  _tabController.animateTo(0);
+                await refreshCategoriesAndHighlightsTab();
               }
             ),
             SpeedDialChild(
@@ -94,9 +105,7 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
                     context,
                     MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.income)),
                   );
-                  await refreshCategories();
-                  if (_tabController.index == 0)
-                    _tabController.animateTo(1);
+                  await refreshCategoriesAndHighlightsTab();
                 }
             ),
           ],
