@@ -52,6 +52,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   RecurrentPeriod recurrentPeriod;
   int recurrentPeriodIndex;
   String currency;
+  DateTime lastCharInsertedMillisecond;
 
   EditRecordPageState(this.passedRecord, this.passedCategory);
 
@@ -85,6 +86,23 @@ class EditRecordPageState extends State<EditRecordPage> {
     return containsOperator;
   }
 
+  void solveMathExpressionAndUpdateText() {
+    var text = _textEditingController.text.toLowerCase();
+    if (isMathExpression(text)) {
+      try {
+        text = text.interpret().toStringAsPrecision(2);
+      } catch (e) {
+        stderr.writeln("Can't parse the expression");
+      }
+    }
+    _textEditingController.value = _textEditingController.value.copyWith(
+      text: text,
+      selection:
+      TextSelection(baseOffset: text.length, extentOffset: text.length),
+      composing: TextRange.empty,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -110,19 +128,15 @@ class EditRecordPageState extends State<EditRecordPage> {
         currency = value;
       });
     });
+
+    // char validation
     _textEditingController.addListener(() {
+      lastCharInsertedMillisecond = DateTime.now();
       var text = _textEditingController.text.toLowerCase();
       final exp = new RegExp(r'[^\d.\\+\-\*=/%x]');
       text = text.replaceAll(",", ".");
       text = text.replaceAll("x", "*");
       text = text.replaceAll(exp, "");
-      if (isMathExpression(text)) {
-        try {
-          text = text.interpret().toStringAsPrecision(2);
-        } catch (e) {
-          stderr.writeln("Can't parse the expression");
-        }
-      }
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
@@ -130,9 +144,19 @@ class EditRecordPageState extends State<EditRecordPage> {
         composing: TextRange.empty,
       );
     });
+
+    _textEditingController.addListener(() async {
+      var text = _textEditingController.text.toLowerCase();
+      await Future.delayed(Duration(seconds: 2));
+      var textAfterPause = _textEditingController.text.toLowerCase();
+      if (text == textAfterPause) {
+        solveMathExpressionAndUpdateText();
+      }
+    });
   }
 
-  Widget _createAddNoteCard() {
+
+Widget _createAddNoteCard() {
     return Card(
         elevation: 2,
         child: Container(
