@@ -24,8 +24,8 @@ class StatisticsPage extends StatelessWidget {
         appBar: AppBar(
           bottom: TabBar(
             tabs: [
-              Tab(text: "Expenses".i18n,),
-              Tab(text: "Income".i18n,)
+              Tab(text: "Expenses".i18n.toUpperCase(),),
+              Tab(text: "Income".i18n.toUpperCase(),)
             ],
           ),
           title: new Row(
