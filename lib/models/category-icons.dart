@@ -76,6 +76,13 @@ class CategoryIcons {
     FontAwesomeIcons.home,
     FontAwesomeIcons.bed,
     FontAwesomeIcons.couch,
+    FontAwesomeIcons.lightbulb,
+    FontAwesomeIcons.blender,
+    FontAwesomeIcons.faucet,
+    FontAwesomeIcons.plug,
+    FontAwesomeIcons.toiletPaper,
+    FontAwesomeIcons.baby,
+    FontAwesomeIcons.babyCarriage,
 
     // Food
     FontAwesomeIcons.hamburger,
@@ -91,10 +98,10 @@ class CategoryIcons {
     FontAwesomeIcons.drumstickBite,
     FontAwesomeIcons.bacon,
 
+
     // Beverage
     FontAwesomeIcons.cocktail,
     FontAwesomeIcons.wineGlass,
-    FontAwesomeIcons.flask,
     FontAwesomeIcons.mugHot,
     FontAwesomeIcons.glassWhiskey,
     FontAwesomeIcons.coffee,
@@ -121,8 +128,10 @@ class CategoryIcons {
     FontAwesomeIcons.shoppingBag,
     FontAwesomeIcons.shoppingBasket,
     FontAwesomeIcons.gem,
+    FontAwesomeIcons.ring,
     FontAwesomeIcons.tag,
     FontAwesomeIcons.gift,
+    FontAwesomeIcons.gifts,
     FontAwesomeIcons.mitten,
     FontAwesomeIcons.socks,
     FontAwesomeIcons.hatCowboy,
@@ -172,15 +181,24 @@ class CategoryIcons {
     FontAwesomeIcons.desktop,
     FontAwesomeIcons.music,
     FontAwesomeIcons.spotify,
+    FontAwesomeIcons.amazon,
     FontAwesomeIcons.headphones,
+    FontAwesomeIcons.dice,
+    FontAwesomeIcons.guitar,
+    FontAwesomeIcons.university,
 
     // Medical
     FontAwesomeIcons.pills,
+    FontAwesomeIcons.tablets,
     FontAwesomeIcons.smoking,
     FontAwesomeIcons.joint,
     FontAwesomeIcons.syringe,
     FontAwesomeIcons.tooth,
     FontAwesomeIcons.virus,
+    FontAwesomeIcons.airFreshener,
+    FontAwesomeIcons.soap,
+    FontAwesomeIcons.pumpSoap,
+    FontAwesomeIcons.handsWash,
   ];
 
 }
