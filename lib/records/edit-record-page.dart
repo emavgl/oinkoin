@@ -88,19 +88,24 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   void solveMathExpressionAndUpdateText() {
     var text = _textEditingController.text.toLowerCase();
+    var newNum;
     if (isMathExpression(text)) {
       try {
-        text = text.interpret().toStringAsPrecision(2);
+        newNum = text.interpret();
       } catch (e) {
         stderr.writeln("Can't parse the expression");
       }
     }
-    _textEditingController.value = _textEditingController.value.copyWith(
-      text: text,
-      selection:
-      TextSelection(baseOffset: text.length, extentOffset: text.length),
-      composing: TextRange.empty,
-    );
+    if (newNum != null) {
+      text = newNum.toStringAsFixed(2);
+      _textEditingController.value = _textEditingController.value.copyWith(
+        text: text,
+        selection:
+        TextSelection(baseOffset: text.length, extentOffset: text.length),
+        composing: TextRange.empty,
+      );
+      changeRecordValue(_textEditingController.text.toLowerCase());
+    }
   }
 
   @override
@@ -413,16 +418,7 @@ Widget _createAddNoteCard() {
                           controller: _textEditingController,
                           autofocus: record.value == null,
                           onChanged: (text) {
-                            var numericValue = double.tryParse(text);
-                            if (numericValue != null) {
-                              numericValue = double.parse(numericValue.toStringAsFixed(2));
-                              numericValue = numericValue.abs();
-                              if (record.category.categoryType == CategoryType.expense) {
-                                // value is an expenses, needs to be negative
-                                numericValue = numericValue * -1;
-                              }
-                              record.value = numericValue;
-                            }
+                            changeRecordValue(text);
                           },
                           validator: (value) {
                             if (value.isEmpty) {
@@ -452,6 +448,19 @@ Widget _createAddNoteCard() {
         )
       ),
     );
+  }
+
+  void changeRecordValue(String text) {
+    var numericValue = double.tryParse(text);
+    if (numericValue != null) {
+      numericValue = double.parse(numericValue.toStringAsFixed(2));
+      numericValue = numericValue.abs();
+      if (record.category.categoryType == CategoryType.expense) {
+        // value is an expenses, needs to be negative
+        numericValue = numericValue * -1;
+      }
+      record.value = numericValue;
+    }
   }
 
   addRecurrentPattern() async {
