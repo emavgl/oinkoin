@@ -234,6 +234,7 @@ Widget _createAddNoteCard() {
                   if (selectedCategory != null) {
                     setState(() {
                       record.category = selectedCategory;
+                      changeRecordValue(record.value.toString()); // Handle sign change
                     });
                   }
                 },
