@@ -96,7 +96,7 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
               }
             ),
             SpeedDialChild(
-                child: Icon(FontAwesomeIcons.handHoldingUsd),
+                child: Icon(FontAwesomeIcons.handHoldingDollar),
                 label: "Add a new 'Income' category".i18n,
                 onTap: () async {
                   await Navigator.push(
