@@ -81,8 +81,8 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
         ),
         floatingActionButton: SpeedDial(
           animatedIcon: AnimatedIcons.menu_close,
-          childBottomMargin: 16,
-          marginRight: 14,
+          childPadding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+          childMargin: EdgeInsets.fromLTRB(0, 0, 14, 16),
           children: [
             SpeedDialChild(
               child: Icon(FontAwesomeIcons.moneyBillWave),
