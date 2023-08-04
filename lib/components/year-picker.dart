@@ -301,6 +301,12 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
             return _inputLandscapeDialogSize;
         }
         break;
+      case DatePickerEntryMode.calendarOnly:
+        // TODO: Handle this case.
+        break;
+      case DatePickerEntryMode.inputOnly:
+        // TODO: Handle this case.
+        break;
     }
     return null;
   }
@@ -328,11 +334,11 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
       buttonTextTheme: ButtonTextTheme.primary,
       layoutBehavior: ButtonBarLayoutBehavior.constrained,
       children: <Widget>[
-        FlatButton(
+        TextButton(
           child: Text(widget.cancelText ?? localizations.cancelButtonLabel),
           onPressed: _handleCancel,
         ),
-        FlatButton(
+        TextButton(
           child: Text(widget.confirmText ?? localizations.okButtonLabel),
           onPressed: _handleOk,
         ),
@@ -348,12 +354,13 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     );
 
     final Widget header = DatePickerHeader(
-      // TODO(darrenaustin): localize 'SELECT DATE'
       helpText: widget.helpText ?? 'SELECT YEAR',
       titleText: dateText,
       titleStyle: dateStyle,
       orientation: orientation,
-      isShort: orientation == Orientation.landscape,
+      iconTooltip: "Pick a date",
+      onIconPressed: () => {},
+      isShort: orientation == Orientation.landscape, icon: Icons.calendar_month,
     );
 
     final Size dialogSize = _dialogSize(context) * textScaleFactor;

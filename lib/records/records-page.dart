@@ -101,7 +101,7 @@ class RecordsPageState extends State<RecordsPage> {
                 stars) { // Triggered when the user updates the star rating.
               return [
                 // Return a list of actions (that will be shown at the bottom of the dialog).
-                FlatButton(
+                TextButton(
                   child: Text('OK'),
                   onPressed: () async {
                     var starsNumber = stars == null ? 0 : stars.round();

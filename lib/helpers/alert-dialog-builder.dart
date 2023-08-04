@@ -43,13 +43,13 @@ class AlertDialogBuilder {
   AlertDialog build(BuildContext context) {
 
     // set up the button
-    Widget trueButton = FlatButton(
+    Widget trueButton = TextButton(
       child: Text(trueButtonName),
       onPressed: () => Navigator.of(context, rootNavigator: true).pop(true),
     );
 
     // set up the button
-    Widget falseButton = FlatButton(
+    Widget falseButton = TextButton(
       child: Text(falseButtonName),
       onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
     );

@@ -36,10 +36,12 @@ class App extends StatelessWidget {
       home: I18n(
           // I18n translates strings to the current system locale
           child: Shell()),
-
-      //theme: ThemeData(          // Add the 3 lines from here...
-      // primaryColor: Colors.white,
-      // ),
+      theme: ThemeData(
+          colorSchemeSeed: Color.fromARGB(255, 0, 92, 184),
+          useMaterial3: true,
+          brightness: Brightness.light
+      ),
+      themeMode: ThemeMode.light,
     );
   }
 }

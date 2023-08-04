@@ -41,14 +41,8 @@ class FeedbackPage extends StatelessWidget {
                 Container(
                   child: Align(
                     alignment: Alignment.center,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0.0),
-                          side: BorderSide(color: Colors.red)
-                      ),
+                    child: ElevatedButton(
                       onPressed: () => _launchURL('e.etnann@gmail.com', 'Piggybank feedback', 'Piggybank app is ..., because ...'),
-                      color: Colors.red,
-                      textColor: Colors.white,
                       child: Text("Send a feedback".i18n.toUpperCase(), style: _biggerFont),
                     ),
                   ),

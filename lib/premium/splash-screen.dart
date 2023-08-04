@@ -9,7 +9,6 @@ class PremiumSplashScren extends StatelessWidget {
   /// and shows widgets representing statistics of the given records
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
-  final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   _launchURL(String url) async {
     if (await canLaunch(url)) {
@@ -161,14 +160,8 @@ class PremiumSplashScren extends StatelessWidget {
                 Container(
                   child: Align(
                     alignment: Alignment.center,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0.0),
-                          side: BorderSide(color: Colors.red)
-                      ),
+                    child: ElevatedButton(
                       onPressed: () async => await _launchURL("https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro"),
-                      color: Colors.red,
-                      textColor: Colors.white,
                       child: Text("DOWNLOAD IT NOW!".i18n, style: _biggerFont),
                     ),
                   ),

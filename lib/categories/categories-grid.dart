@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import './i18n/categories-grid-list.i18n.dart';
