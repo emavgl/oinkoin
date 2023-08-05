@@ -47,6 +47,7 @@ class ShellState extends State<Shell> {
         ]
       ),
       bottomNavigationBar: NavigationBar(
+          backgroundColor: Theme.of(context).colorScheme.surface,
           selectedIndex: _currentIndex,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           onDestinationSelected: (int index) async {

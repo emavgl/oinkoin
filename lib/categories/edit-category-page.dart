@@ -323,6 +323,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   Card _getPickColorCard() {
     return Card(
       elevation: 2,
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
       child: Container(
         padding: EdgeInsets.only(bottom: 10),
         child: Column(
@@ -339,6 +341,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   Card _getIconPickerCard() {
     return Card(
       elevation: 2,
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
       child: Container(
         child: Column(
           children: [
@@ -354,14 +358,22 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   Card _getPreviewAndTitleCard() {
     return Card(
       elevation: 2,
-      child: Container(
-        child: Row(
-          children: <Widget>[
-            Container(child: _createCategoryCirclePreview()),
-            Container(child: _getTextField()),
-          ],
-        ),
-      ),
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      child: Column(
+        children: [
+          _getPageSeparatorLabel("Name".i18n),
+          Divider(),
+          Container(
+            child: Row(
+              children: <Widget>[
+                Container(child: _createCategoryCirclePreview()),
+                Container(child: _getTextField()),
+              ],
+            ),
+          ),
+        ],
+      )
     );
   }
 

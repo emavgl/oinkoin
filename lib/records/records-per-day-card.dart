@@ -28,6 +28,7 @@ class RecordsPerDayCard extends StatefulWidget {
 
 class MovementGroupState extends State<RecordsPerDayCard> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _trailingBiggerFont = const TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal);
   final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   Widget _buildMovements() {
@@ -107,7 +108,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         ),
         trailing: Text(
           movement.value.toString(),
-          style: _biggerFont,
+          style: _trailingBiggerFont,
         ),
         leading: movement.recurrencePatternId == null ? _buildLeadingIconMovement(movement) : _buildLeadingIconRecurrentMovement(movement)
     );
@@ -118,6 +119,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
       child: Container(
           child: Column(
             children: <Widget>[
@@ -156,7 +159,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                           padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
                           child: Text(
                             getCurrencyValueString(widget._movementDay.balance),
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
                           ),
                         )
                     ]
