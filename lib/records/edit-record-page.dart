@@ -71,11 +71,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     )
   ];
 
-  Future<String> getCurrency() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('currency') ?? "€";
-  }
-
   bool isMathExpression(String text) {
     bool containsOperator = false;
     containsOperator |= text.contains("+");
@@ -111,7 +106,6 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   void initState() {
     super.initState();
-    currency = "€";
     if (passedRecord != null) {
       record = passedRecord;
       _textEditingController.text = getCurrencyValueString(record!.value!.abs());
@@ -128,11 +122,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     } else {
       record = new Record(null, null, passedCategory, DateTime.now());
     }
-    getCurrency().then((value) {
-      setState(() {
-        currency = value;
-      });
-    });
 
     // char validation
     _textEditingController.addListener(() {
@@ -402,15 +391,6 @@ Widget _createAddNoteCard() {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.only(left: 20, right: 20),
-                    child: Text(currency, style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
-                  ),
-                ),
-                VerticalDivider(endIndent: 20, indent: 20, color: Colors.black),
                 Expanded(
                     child: Container(
                       padding: EdgeInsets.all(10),
@@ -438,8 +418,10 @@ Widget _createAddNoteCard() {
                           ),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
                             border: InputBorder.none,
                             hintText: "0",
+                            labelText: "Amount".i18n
                           )
                       ),
                     )

@@ -80,11 +80,18 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
           ],
         ),
         floatingActionButton: SpeedDial(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+          spacing: 20,
+          childrenButtonSize: const Size(65, 65),
           animatedIcon: AnimatedIcons.menu_close,
-          childPadding: EdgeInsets.fromLTRB(0, 0, 0, 20),
-          childMargin: EdgeInsets.fromLTRB(0, 0, 14, 16),
+          childPadding: EdgeInsets.fromLTRB(8, 8, 8, 8),
           children: [
             SpeedDialChild(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
               child: Icon(FontAwesomeIcons.moneyBillWave),
               label: "Add a new 'Expense' category".i18n,
               onTap: () async {
@@ -96,6 +103,9 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
               }
             ),
             SpeedDialChild(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
                 child: Icon(FontAwesomeIcons.handHoldingDollar),
                 label: "Add a new 'Income' category".i18n,
                 onTap: () async {

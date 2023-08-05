@@ -4,7 +4,6 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import 'package:piggybank/statistics/statistics-tab-page.dart';
 import './i18n/statistics-page.i18n.dart';
 import 'categories-piechart.dart';
 
@@ -31,7 +30,7 @@ class CategoriesSummaryCard extends StatelessWidget {
     if (records.length > 0) {
       categoriesAndSums = _aggregateRecordByCategory(records);
       totalExpensesSum = categoriesAndSums.fold(
-          0, ((previousValue, element) => previousValue + element.value!) as double? Function(double?, CategorySumTuple));
+          0, ((previousValue , element) => previousValue! + element.value!));
       maxExpensesSum = categoriesAndSums[0].value;
     }
   }
@@ -149,7 +148,7 @@ class CategoriesSummaryCard extends StatelessWidget {
                           style: TextStyle(fontSize: 14),
                         ),
                         Text(
-                          getCurrencyValueString(totalExpensesSum),
+                          getCurrencyValueString(totalExpensesSum as double?),
                           style: TextStyle(fontSize: 14),
                         ),
                       ]

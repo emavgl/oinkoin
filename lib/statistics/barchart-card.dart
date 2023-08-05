@@ -51,7 +51,7 @@ class BarChartCard extends StatelessWidget {
   final AggregationMethod? aggregationMethod;
   final DateTime? from, to;
   late List<DateTimeSeriesRecord> aggregatedRecords;
-  late List<charts.Series> seriesList;
+  late List<charts.Series<StringSeriesRecord, String>> seriesList;
   late List<TickSpec<num>> ticksListY;
   late List<TickSpec<String>> ticksListX;
   AxisSpec? domainAxis;
@@ -84,7 +84,7 @@ class BarChartCard extends StatelessWidget {
     average = sumValues / aggregatedRecords.length;
   }
 
-  List<charts.Series<StringSeriesRecord, String?>> _createStringSeries(List<Record?> records, DateTime start, DateTime end, DateFormat formatter) {
+  List<charts.Series<StringSeriesRecord, String>> _createStringSeries(List<Record?> records, DateTime start, DateTime end, DateFormat formatter) {
     List<DateTimeSeriesRecord> dateTimeSeriesRecords = aggregateRecordsByDate(records, aggregationMethod);
     Map<DateTime?, StringSeriesRecord> aggregatedByDay = new Map();
     for (var d in dateTimeSeriesRecords) {
@@ -97,10 +97,10 @@ class BarChartCard extends StatelessWidget {
     List<StringSeriesRecord> data = aggregatedByDay.values.toList();
     data.sort((a, b) => a.timestamp!.compareTo(b.timestamp!)); // sort descending
     return [
-      new charts.Series<StringSeriesRecord, String?>(
+      new charts.Series<StringSeriesRecord, String>(
         id: 'DailyRecords',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (StringSeriesRecord entries, _) => entries.key,
+        domainFn: (StringSeriesRecord entries, _) => entries.key!,
         measureFn: (StringSeriesRecord entries, _) => entries.value,
         data: data,
       )
@@ -116,7 +116,7 @@ class BarChartCard extends StatelessWidget {
     return new Container(
         padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
         child: new charts.BarChart(
-          seriesList as List<Series<dynamic, String>>,
+          seriesList as List<Series<StringSeriesRecord, String>>,
           animate: animate,
           behaviors: [
             charts.LinePointHighlighter(

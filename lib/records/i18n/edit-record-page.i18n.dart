@@ -72,6 +72,10 @@ extension Localization on String {
         "it_it": "Spese",
       } +
       {
+        "en_us": "Amount",
+        "it_it": "Valore",
+      } +
+      {
         "en_us": "Balance",
         "it_it": "Bilancio",
       };

@@ -65,7 +65,7 @@ class CategorySummaryCard extends StatelessWidget {
         ListTile(
             onLongPress: () async {
               // Record has no aggregated records inside, show info
-              String infoMessage = (record.title == null ? record.category!.name : record.title)! + " (${value})";
+              String infoMessage = (record.title == null ? record.category!.name : record.title)! + " ($value)";
               ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                       elevation: 6,

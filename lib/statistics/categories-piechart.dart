@@ -14,19 +14,19 @@ class CategoriesPieChart extends StatelessWidget {
 
   final List<Record?> records;
   late List<LinearRecord> linearRecords;
-  late List<charts.Series> seriesList;
+  late List<charts.Series<LinearRecord, String>> seriesList;
 
   CategoriesPieChart(this.records) {
     seriesList = _prepareData(records);
   }
 
-  List<charts.Series<LinearRecord, String?>> _prepareData(List<Record?> records) {
-    Map<String?, double> aggregatedCategoriesValuesTemporaryMap = new Map();
+  List<charts.Series<LinearRecord, String>> _prepareData(List<Record?> records) {
+    Map<String, double> aggregatedCategoriesValuesTemporaryMap = new Map();
     double totalSum = 0;
     for (var record in records) {
       totalSum += record!.value!.abs();
       aggregatedCategoriesValuesTemporaryMap.update(
-          record.category!.name, (value) => value + record.value!.abs(),
+          record.category!.name!, (value) => value + record.value!.abs(),
           ifAbsent: () => record.value!.abs());
     }
     var aggregatedCategoriesAndValues = aggregatedCategoriesValuesTemporaryMap
@@ -61,11 +61,11 @@ class CategoriesPieChart extends StatelessWidget {
     linearRecords = data;
 
     return [
-      new charts.Series<LinearRecord, String?>(
+      new charts.Series<LinearRecord, String>(
         id: 'Expenses'.i18n,
         colorFn: (LinearRecord sales, i) =>
           palette[i!].shadeDefault,
-        domainFn: (LinearRecord records, _) => records.category,
+        domainFn: (LinearRecord records, _) => records.category!,
         measureFn: (LinearRecord records, _) => records.value,
         labelAccessorFn: (LinearRecord row, _) => row.category!,
         data: data,
@@ -79,7 +79,7 @@ class CategoriesPieChart extends StatelessWidget {
 
   Widget _buildPieChart() {
     return new Container(
-        child: new charts.PieChart(
+        child: new charts.PieChart<String>(
           seriesList,
           animate: animate,
           defaultRenderer: new charts.ArcRendererConfig(arcWidth: 35),

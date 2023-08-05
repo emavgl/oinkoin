@@ -369,6 +369,7 @@ class RecordsPageState extends State<RecordsPage> {
               IconButton(icon: Icon(Icons.calendar_today), onPressed: () async => await _showSelectDateDialog(), color: Colors.white),
               IconButton(icon: Icon(Icons.donut_small), onPressed: () => navigateToStatisticsPage(), color: Colors.white),
               PopupMenuButton<int>(
+                color: Colors.white,
                 onSelected: (index) async {
                   if (index == 1) {
                     var csvStr = CSVExporter.createCSVFromRecordList(this.records);
