@@ -11,9 +11,9 @@ class StatisticsPage extends StatelessWidget {
   /// It has takes the initial date, ending date and a list of records
   /// and shows widgets representing statistics of the given records
 
-  List<Record> records;
-  DateTime from;
-  DateTime to;
+  List<Record?> records;
+  DateTime? from;
+  DateTime? to;
   StatisticsPage(this.from, this.to, this.records);
 
   @override
@@ -32,14 +32,14 @@ class StatisticsPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('Charts'.i18n),
-              Text(getDateRangeStr(from, to))
+              Text(getDateRangeStr(from!, to!))
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            StatisticsTabPage(from, to, records.where((element) => element.category.categoryType == CategoryType.expense).toList()),
-            StatisticsTabPage(from, to, records.where((element) => element.category.categoryType == CategoryType.income).toList()),
+            StatisticsTabPage(from, to, records.where((element) => element!.category!.categoryType == CategoryType.expense).toList()),
+            StatisticsTabPage(from, to, records.where((element) => element!.category!.categoryType == CategoryType.income).toList()),
           ],
         ),
       ),

@@ -1,9 +1,9 @@
 class NotFoundException implements Exception {
-  String cause;
+  String? cause;
   NotFoundException({this.cause});
 }
 
 class ElementAlreadyExists implements Exception {
-  String cause;
+  String? cause;
   ElementAlreadyExists({this.cause});
 }

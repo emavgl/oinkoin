@@ -8,32 +8,32 @@ import './i18n/statistics-page.i18n.dart';
 
 class OverviewCard extends StatelessWidget {
 
-  final List<Record> records;
-  final AggregationMethod aggregationMethod;
-  final DateTime from;
-  final DateTime to;
-  List<DateTimeSeriesRecord> aggregatedRecords;
+  final List<Record?> records;
+  final AggregationMethod? aggregationMethod;
+  final DateTime? from;
+  final DateTime? to;
+  late List<DateTimeSeriesRecord> aggregatedRecords;
 
-  double maxRecord;
-  double minRecord;
-  double minAggregated;
-  double maxAggregated;
-  int numberOfRecords;
-  double sumValues;
-  double averageValue;
-  double median;
+  double? maxRecord;
+  double? minRecord;
+  late double minAggregated;
+  late double maxAggregated;
+  int? numberOfRecords;
+  double? sumValues;
+  late double averageValue;
+  double? median;
 
   final headerStyle = const TextStyle(fontSize: 13.0);
   final valueStyle = const TextStyle(fontSize: 18.0);
   final dateStyle = const TextStyle(fontSize: 24.0);
 
   OverviewCard(this.from, this.to, this.records, this.aggregationMethod) {
-    this.records.sort((a, b) => a.value.abs().compareTo(b.value.abs()));
+    this.records.sort((a, b) => a!.value!.abs().compareTo(b!.value!.abs()));
     aggregatedRecords = aggregateRecordsByDate(this.records, aggregationMethod);
-    sumValues = this.records.fold(0, (acc, e) => acc + e.value).abs();
+    sumValues = this.records.fold(0, (dynamic acc, e) => acc + e!.value).abs();
     minAggregated = this.aggregatedRecords.first.value.abs();
     maxAggregated = this.aggregatedRecords.last.value.abs();
-    averageValue = (sumValues /  this.aggregatedRecords.length);
+    averageValue = (sumValues! /  this.aggregatedRecords.length);
   }
 
   Widget _buildSecondRow () {
@@ -98,7 +98,7 @@ class OverviewCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5), // spacing
                 Text(
-                  sumValues.abs().toStringAsFixed(2),
+                  sumValues!.abs().toStringAsFixed(2),
                   style: valueStyle,
                 ),
               ],

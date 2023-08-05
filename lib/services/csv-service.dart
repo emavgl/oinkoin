@@ -3,8 +3,8 @@ import 'package:piggybank/models/record.dart';
 
 class CSVExporter {
 
-  static createCSVFromRecordList(List<Record> records) {
-    var recordsMap = List.generate(records.length, (index) => records[index].toMap());
+  static createCSVFromRecordList(List<Record?> records) {
+    var recordsMap = List.generate(records.length, (index) => records[index]!.toMap());
     var csvLines = [];
     recordsMap.forEach((element) {
       element["date"] = getDateStr(new DateTime.fromMillisecondsSinceEpoch(element["datetime"]));

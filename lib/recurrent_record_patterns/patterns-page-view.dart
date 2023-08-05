@@ -14,7 +14,7 @@ class PatternsPageView extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
-  bool goToEditMovementPage;
+  bool? goToEditMovementPage;
   PatternsPageView();
 
   @override
@@ -23,7 +23,7 @@ class PatternsPageView extends StatefulWidget {
 
 class PatternsPageViewState extends State<PatternsPageView> {
 
-  List<RecurrentRecordPattern> _recurrentRecordPatterns;
+  List<RecurrentRecordPattern>? _recurrentRecordPatterns;
   DatabaseInterface database = ServiceConfig.database;
 
   @override
@@ -62,7 +62,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
                 await fetchRecurrentRecordPatternsFromDatabase();
               },
               title: Text(
-                pattern.title == null || pattern.title.trim().isEmpty ? pattern.category.name : pattern.title ,
+                pattern.title == null || pattern.title!.trim().isEmpty ? pattern.category!.name! : pattern.title! ,
                 style: _biggerFont,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -74,10 +74,10 @@ class PatternsPageViewState extends State<PatternsPageView> {
               leading: Container(
                   width: 40,
                   height: 40,
-                  child: Icon(pattern.category.icon, size: 20, color: Colors.white,),
+                  child: Icon(pattern.category!.icon, size: 20, color: Colors.white,),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: pattern.category.color,
+                    color: pattern.category!.color,
                   )
               )
           ),
@@ -88,7 +88,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
   Widget buildRecurrentRecordPatternsList() {
     return _recurrentRecordPatterns != null ? new Container(
         margin: EdgeInsets.all(5),
-        child: _recurrentRecordPatterns.length == 0 ? new Row(
+        child: _recurrentRecordPatterns!.length == 0 ? new Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             new Column(
@@ -105,10 +105,10 @@ class PatternsPageViewState extends State<PatternsPageView> {
           ],
         ) : ListView.separated(
             separatorBuilder: (context, index) => Divider(),
-            itemCount: _recurrentRecordPatterns.length,
+            itemCount: _recurrentRecordPatterns!.length,
             padding: const EdgeInsets.all(6.0),
             itemBuilder: /*1*/ (context, i) {
-              return _buildRecurrentPatternRow(_recurrentRecordPatterns[i]);
+              return _buildRecurrentPatternRow(_recurrentRecordPatterns![i]);
         })
     ) : new Container();
   }

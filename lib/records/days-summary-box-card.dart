@@ -13,7 +13,7 @@ class DaysSummaryBox extends StatefulWidget {
   /// shows the total income, total expenses, total balance resulting from
   /// all the movements in input days.
 
-  List<Record> records;
+  List<Record?> records;
   DaysSummaryBox(this.records);
 
   @override
@@ -25,11 +25,11 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   double totalIncome() {
-    return widget.records.where((record) => record.category.categoryType == CategoryType.income).fold(0.0, (previousValue, record) => previousValue + record.value);
+    return widget.records.where((record) => record!.category!.categoryType == CategoryType.income).fold(0.0, (previousValue, record) => previousValue + record!.value!);
   }
 
   double totalExpenses() {
-    return widget.records.where((record) => record.category.categoryType == CategoryType.expense).fold(0.0, (previousValue, record) => previousValue + record.value);
+    return widget.records.where((record) => record!.category!.categoryType == CategoryType.expense).fold(0.0, (previousValue, record) => previousValue + record!.value!);
   }
 
   double totalBalance() {

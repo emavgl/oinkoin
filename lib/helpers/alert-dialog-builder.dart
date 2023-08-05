@@ -8,10 +8,10 @@ class AlertDialogBuilder {
   /// Utility class that simplify the creation of an alert dialog that return a boolean value.
   /// There are two buttons, trueButton and falseButton that return either true or false.
 
-  String title;
-  String subtitle;
-  String trueButtonName;
-  String falseButtonName;
+  late String title;
+  String? subtitle;
+  late String trueButtonName;
+  late String falseButtonName;
 
   AlertDialogBuilder(String title) {
     this.title = title;
@@ -56,7 +56,7 @@ class AlertDialogBuilder {
 
     return AlertDialog(
       title: Text(title),
-      content: (subtitle != null) ? Text(subtitle) : null,
+      content: (subtitle != null) ? Text(subtitle!) : null,
       actions: [
         trueButton,
         falseButton,

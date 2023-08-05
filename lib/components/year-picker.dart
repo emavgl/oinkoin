@@ -71,26 +71,26 @@ const Duration _dialogSizeAnimationDuration = Duration(milliseconds: 200);
 /// calendar date picker initially appear in the [DatePickerMode.year] or
 /// [DatePickerMode.day] mode. It defaults to [DatePickerMode.day], and
 /// must be non-null.
-Future<DateTime> showYearPicker({
-  @required BuildContext context,
-  @required DateTime initialDate,
-  @required DateTime firstDate,
-  @required DateTime lastDate,
+Future<DateTime?> showYearPicker({
+  required BuildContext context,
+  required DateTime initialDate,
+  required DateTime firstDate,
+  required DateTime lastDate,
   DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
-  SelectableDayPredicate selectableDayPredicate,
-  String helpText,
-  String cancelText,
-  String confirmText,
-  Locale locale,
+  SelectableDayPredicate? selectableDayPredicate,
+  String? helpText,
+  String? cancelText,
+  String? confirmText,
+  Locale? locale,
   bool useRootNavigator = true,
-  RouteSettings routeSettings,
-  TextDirection textDirection,
-  TransitionBuilder builder,
+  RouteSettings? routeSettings,
+  TextDirection? textDirection,
+  TransitionBuilder? builder,
   DatePickerMode initialDatePickerMode = DatePickerMode.day,
-  String errorFormatText,
-  String errorInvalidText,
-  String fieldHintText,
-  String fieldLabelText,
+  String? errorFormatText,
+  String? errorInvalidText,
+  String? fieldHintText,
+  String? fieldLabelText,
 }) async {
   assert(context != null);
   assert(initialDate != null);
@@ -165,10 +165,10 @@ DateTime dateOnly(DateTime date) {
 
 class _DatePickerDialog extends StatefulWidget {
   _DatePickerDialog({
-    Key key,
-    @required DateTime initialDate,
-    @required DateTime firstDate,
-    @required DateTime lastDate,
+    Key? key,
+    required DateTime initialDate,
+    required DateTime firstDate,
+    required DateTime lastDate,
     this.initialEntryMode = DatePickerEntryMode.calendar,
     this.selectableDayPredicate,
     this.cancelText,
@@ -201,7 +201,7 @@ class _DatePickerDialog extends StatefulWidget {
     'initialDate ${this.initialDate} must be on or before lastDate ${this.lastDate}.'
     );
     assert(
-    selectableDayPredicate == null || selectableDayPredicate(this.initialDate),
+    selectableDayPredicate == null || selectableDayPredicate!(this.initialDate),
     'Provided initialDate ${this.initialDate} must satisfy provided selectableDayPredicate'
     );
   }
@@ -218,29 +218,29 @@ class _DatePickerDialog extends StatefulWidget {
   final DatePickerEntryMode initialEntryMode;
 
   /// Function to provide full control over which [DateTime] can be selected.
-  final SelectableDayPredicate selectableDayPredicate;
+  final SelectableDayPredicate? selectableDayPredicate;
 
   /// The text that is displayed on the cancel button.
-  final String cancelText;
+  final String? cancelText;
 
   /// The text that is displayed on the confirm button.
-  final String confirmText;
+  final String? confirmText;
 
   /// The text that is displayed at the top of the header.
   ///
   /// This is used to indicate to the user what they are selecting a date for.
-  final String helpText;
+  final String? helpText;
 
   /// The initial display of the calendar picker.
   final DatePickerMode initialCalendarMode;
 
-  final String errorFormatText;
+  final String? errorFormatText;
 
-  final String errorInvalidText;
+  final String? errorInvalidText;
 
-  final String fieldHintText;
+  final String? fieldHintText;
 
-  final String fieldLabelText;
+  final String? fieldLabelText;
 
   @override
   _DatePickerDialogState createState() => _DatePickerDialogState();
@@ -248,9 +248,9 @@ class _DatePickerDialog extends StatefulWidget {
 
 class _DatePickerDialogState extends State<_DatePickerDialog> {
 
-  DatePickerEntryMode _entryMode;
-  DateTime _selectedDate;
-  bool _autoValidate;
+  DatePickerEntryMode? _entryMode;
+  DateTime? _selectedDate;
+  bool? _autoValidate;
   final GlobalKey _calendarPickerKey = GlobalKey();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -264,7 +264,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
 
   void _handleOk() {
     if (_entryMode == DatePickerEntryMode.input) {
-      final FormState form = _formKey.currentState;
+      final FormState form = _formKey.currentState!;
       if (!form.validate()) {
         setState(() => _autoValidate = true);
         return;
@@ -282,7 +282,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     setState(() => _selectedDate = date);
   }
 
-  Size _dialogSize(BuildContext context) {
+  Size? _dialogSize(BuildContext context) {
     final Orientation orientation = MediaQuery.of(context).orientation;
     switch (_entryMode) {
       case DatePickerEntryMode.calendar:
@@ -322,11 +322,11 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     // layout issues.
     final double textScaleFactor = min(MediaQuery.of(context).textScaleFactor, 1.3);
 
-    final String dateText = _selectedDate.year.toString();
+    final String dateText = _selectedDate!.year.toString();
     final Color dateColor = colorScheme.brightness == Brightness.light
         ? colorScheme.onPrimary
         : colorScheme.onSurface;
-    final TextStyle dateStyle = orientation == Orientation.landscape
+    final TextStyle? dateStyle = orientation == Orientation.landscape
         ? textTheme.headline5?.copyWith(color: dateColor)
         : textTheme.headline4?.copyWith(color: dateColor);
 
@@ -347,10 +347,10 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
 
     Widget picker = CustomYearPicker(
       key: _calendarPickerKey,
-      initialDate: _selectedDate,
+      initialDate: _selectedDate!,
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
-      onChanged: _handleDateChanged, selectedDate: _selectedDate, currentDate: _selectedDate,
+      onChanged: _handleDateChanged, selectedDate: _selectedDate!, currentDate: _selectedDate!,
     );
 
     final Widget header = DatePickerHeader(
@@ -363,7 +363,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
       isShort: orientation == Orientation.landscape, icon: Icons.calendar_month,
     );
 
-    final Size dialogSize = _dialogSize(context) * textScaleFactor;
+    final Size dialogSize = _dialogSize(context)! * textScaleFactor;
     final DialogTheme dialogTheme = Theme.of(context).dialogTheme;
     return Dialog(
       child: AnimatedContainer(
@@ -406,7 +406,6 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
                   ],
                 );
             }
-            return null;
           }),
         ),
       ),
@@ -439,16 +438,16 @@ const double _headerPaddingLandscape = 16.0;
 class DatePickerHeader extends StatelessWidget {
   /// Creates a header for use in a date picker dialog.
   const DatePickerHeader({
-    Key key,
-    @required this.helpText,
-    @required this.titleText,
+    Key? key,
+    required this.helpText,
+    required this.titleText,
     this.titleSemanticsLabel,
-    @required this.titleStyle,
-    @required this.orientation,
+    required this.titleStyle,
+    required this.orientation,
     this.isShort = false,
-    @required this.icon,
-    @required this.iconTooltip,
-    @required this.onIconPressed,
+    required this.icon,
+    required this.iconTooltip,
+    required this.onIconPressed,
   }) : assert(helpText != null),
         assert(orientation != null),
         assert(isShort != null),
@@ -463,10 +462,10 @@ class DatePickerHeader extends StatelessWidget {
   final String titleText;
 
   /// The semantic label associated with the [titleText].
-  final String titleSemanticsLabel;
+  final String? titleSemanticsLabel;
 
   /// The [TextStyle] that the title text is displayed with.
-  final TextStyle titleStyle;
+  final TextStyle? titleStyle;
 
   /// The orientation is used to decide how to layout its children.
   final Orientation orientation;
@@ -506,7 +505,7 @@ class DatePickerHeader extends StatelessWidget {
     final Color primarySurfaceColor = isDark ? colorScheme.surface : colorScheme.primary;
     final Color onPrimarySurfaceColor = isDark ? colorScheme.onSurface : colorScheme.onPrimary;
 
-    final TextStyle helpStyle = textTheme.overline?.copyWith(
+    final TextStyle? helpStyle = textTheme.overline?.copyWith(
       color: onPrimarySurfaceColor,
     );
 
@@ -596,7 +595,6 @@ class DatePickerHeader extends StatelessWidget {
           ],
         );
     }
-    return null;
   }
 }
 
@@ -606,13 +604,13 @@ class CustomYearPicker extends StatefulWidget {
   /// The [currentDate, [firstDate], [lastDate], [selectedDate], and [onChanged]
   /// arguments must be non-null. The [lastDate] must be after the [firstDate].
   CustomYearPicker({
-    Key key,
-    @required this.currentDate,
-    @required this.firstDate,
-    @required this.lastDate,
-    @required this.initialDate,
-    @required this.selectedDate,
-    @required this.onChanged,
+    Key? key,
+    required this.currentDate,
+    required this.firstDate,
+    required this.lastDate,
+    required this.initialDate,
+    required this.selectedDate,
+    required this.onChanged,
   }) : assert(currentDate != null),
         assert(firstDate != null),
         assert(lastDate != null),
@@ -649,7 +647,7 @@ class CustomYearPicker extends StatefulWidget {
 }
 
 class YearPickerState extends State<CustomYearPicker> {
-  ScrollController scrollController;
+  ScrollController? scrollController;
 
   // The approximate number of years necessary to fill the available space.
   static const int minYears = 18;
@@ -690,9 +688,9 @@ class YearPickerState extends State<CustomYearPicker> {
     } else {
       textColor = colorScheme.onSurface.withOpacity(0.87);
     }
-    final TextStyle itemStyle = textTheme.bodyText1?.apply(color: textColor);
+    final TextStyle? itemStyle = textTheme.bodyText1?.apply(color: textColor);
 
-    BoxDecoration decoration;
+    BoxDecoration? decoration;
     if (isSelected) {
       decoration = BoxDecoration(
         color: colorScheme.primary,

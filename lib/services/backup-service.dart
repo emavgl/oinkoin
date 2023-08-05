@@ -35,7 +35,7 @@ class BackupService {
         try {
           await database.addCategory(backupCategory);
         } on ElementAlreadyExists {
-          print("${backupCategory.name} already exists.");
+          print("${backupCategory!.name} already exists.");
         }
       }
 
@@ -44,7 +44,7 @@ class BackupService {
         if (await database.getMatchingRecord(backupRecord) == null){
           await database.addRecord(backupRecord);
         } else {
-          print("${backupRecord.category.name} of value ${backupRecord
+          print("${backupRecord!.category!.name} of value ${backupRecord
               .value} already exists.");
         }
       }
@@ -52,7 +52,7 @@ class BackupService {
       // Add recurrent patterns
       if (backup.recurrentRecordsPattern != null) {
         for(var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
-          String recurrentPatternId = backupRecurrentPatterns.id;
+          String? recurrentPatternId = backupRecurrentPatterns.id;
           if (await database.getRecurrentRecordPattern(recurrentPatternId) == null) {
             await database.addRecurrentRecordPattern(backupRecurrentPatterns);
           } else {

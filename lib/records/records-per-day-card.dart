@@ -18,7 +18,7 @@ class RecordsPerDayCard extends StatefulWidget {
   /// for example, from the deletion of a record or the editing of the record.
   /// The callback should re-fetch the newest version of the records list from the database and rebuild the card
 
-  final Function onListBackCallback;
+  final Function? onListBackCallback;
   final RecordsPerDay _movementDay;
   const RecordsPerDayCard(this._movementDay, {this.onListBackCallback});
 
@@ -35,14 +35,14 @@ class MovementGroupState extends State<RecordsPerDayCard> {
     return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: widget._movementDay.records.length,
+        itemCount: widget._movementDay.records!.length,
         separatorBuilder: (context, index) {
           return Divider();
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          var reversedIndex = widget._movementDay.records.length - i - 1;
-          return _buildMovementRow(widget._movementDay.records[reversedIndex]);
+          var reversedIndex = widget._movementDay.records!.length - i - 1;
+          return _buildMovementRow(widget._movementDay.records![reversedIndex]!);
         });
   }
 
@@ -52,10 +52,10 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         Container(
             width: 40,
             height: 40,
-            child: Icon(movement.category.icon, size: 20, color: Colors.white,),
+            child: Icon(movement.category!.icon, size: 20, color: Colors.white,),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: movement.category.color,
+              color: movement.category!.color,
             )
         ),
         Container(
@@ -78,10 +78,10 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         margin: EdgeInsets.only(right: 10),
         width: 40,
         height: 40,
-        child: Icon(movement.category.icon, size: 20, color: Colors.white,),
+        child: Icon(movement.category!.icon, size: 20, color: Colors.white,),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: movement.category.color,
+          color: movement.category!.color,
         )
     );
   }
@@ -97,10 +97,10 @@ class MovementGroupState extends State<RecordsPerDayCard> {
               )
           );
           if (widget.onListBackCallback != null)
-            await widget.onListBackCallback();
+            await widget.onListBackCallback!();
         },
         title: Text(
-          movement.title == null || movement.title.trim().isEmpty ? movement.category.name : movement.title ,
+          movement.title == null || movement.title!.trim().isEmpty ? movement.category!.name! : movement.title! ,
           style: _biggerFont,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -129,7 +129,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                         Row(
                           children: [
                             Text(
-                              widget._movementDay.dateTime.day.toString(),
+                              widget._movementDay.dateTime!.day.toString(),
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             Padding(
@@ -138,12 +138,12 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    extractWeekdayString(widget._movementDay.dateTime),
+                                    extractWeekdayString(widget._movementDay.dateTime!),
                                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.right
                                   ),
                                   Text(
-                                    extractMonthString(widget._movementDay.dateTime) + ' ' + extractYearString(widget._movementDay.dateTime),
+                                    extractMonthString(widget._movementDay.dateTime!) + ' ' + extractYearString(widget._movementDay.dateTime!),
                                     style: TextStyle(fontSize: 13),
                                     textAlign: TextAlign.right
                                   )

@@ -21,10 +21,10 @@ class EditCategoryPage extends StatefulWidget {
   /// EditCategoryPage can take the category object to edit as a constructor parameters
   /// or can create a new Category otherwise.
   
-  Category passedCategory;
-  CategoryType categoryType;
+  Category? passedCategory;
+  CategoryType? categoryType;
 
-  EditCategoryPage({Key key, this.passedCategory, this.categoryType}) : super(key: key);
+  EditCategoryPage({Key? key, this.passedCategory, this.categoryType}) : super(key: key);
 
   @override
   EditCategoryPageState createState() => EditCategoryPageState(passedCategory, categoryType);
@@ -32,18 +32,18 @@ class EditCategoryPage extends StatefulWidget {
 
 class EditCategoryPageState extends State<EditCategoryPage> {
 
-  Category passedCategory;
-  Category category;
-  CategoryType categoryType;
-  List<IconData> icons;
+  Category? passedCategory;
+  Category? category;
+  CategoryType? categoryType;
+  late List<IconData?> icons;
 
   EditCategoryPageState(this.passedCategory, this.categoryType);
 
 
-  int chosenColorIndex; // Index of the Category.color list for showing the selected color in the list
-  int chosenIconIndex; // Index of the Category.icons list for showing the selected color in the list
-  Color pickedColor;
-  String categoryName;
+  int? chosenColorIndex; // Index of the Category.color list for showing the selected color in the list
+  int? chosenIconIndex; // Index of the Category.icons list for showing the selected color in the list
+  Color? pickedColor;
+  String? categoryName;
 
   DatabaseInterface database = ServiceConfig.database;
 
@@ -54,14 +54,14 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     if (this.passedCategory == null) {
       category.color = Category.colors[0];
       category.icon = FontAwesomeIcons.question;
-      category.iconCodePoint = category.icon.codePoint;
+      category.iconCodePoint = category.icon!.codePoint;
       category.categoryType = categoryType;
     } else {
-      category.icon = passedCategory.icon;
-      category.name = passedCategory.name;
-      categoryName = passedCategory.name;
-      category.color = passedCategory.color;
-      category.categoryType = passedCategory.categoryType;
+      category.icon = passedCategory!.icon;
+      category.name = passedCategory!.name;
+      categoryName = passedCategory!.name;
+      category.color = passedCategory!.color;
+      category.categoryType = passedCategory!.categoryType;
     }
     return category;
   }
@@ -71,10 +71,10 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     super.initState();
     category = initCategory();
     icons = ServiceConfig.isPremium ? CategoryIcons.pro_category_icons : CategoryIcons.free_category_icons;
-    chosenIconIndex = icons.indexOf(category.icon);
-    chosenColorIndex = Category.colors.indexOf(category.color);
+    chosenIconIndex = icons.indexOf(category!.icon);
+    chosenColorIndex = Category.colors.indexOf(category!.color);
     if (chosenColorIndex == -1) {
-      pickedColor = category.color;
+      pickedColor = category!.color;
     }
   }
 
@@ -106,8 +106,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 color: ((chosenIconIndex == index) ? Colors.blueAccent : Colors.black45),
                 onPressed: () {
                   setState(() {
-                    category.icon = icons[index];
-                    category.iconCodePoint = category.icon.codePoint;
+                    category!.icon = icons[index];
+                    category!.iconCodePoint = category!.icon!.codePoint;
                     chosenIconIndex = index;
                 });
                 }
@@ -137,7 +137,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                         ) : Container(),
                         onTap: () {
                           setState(() {
-                            category.color = Category.colors[index];
+                            category!.color = Category.colors[index];
                             chosenColorIndex = index;
                           });
                         },
@@ -168,11 +168,11 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       margin: EdgeInsets.all(10),
       child: ClipOval(
           child: Material(
-              color: category.color, // button color
+              color: category!.color, // button color
               child: InkWell(
-                splashColor: category.color, // inkwell color
+                splashColor: category!.color, // inkwell color
                 child: SizedBox(width: 70, height: 70,
-                    child: Icon(category.icon, color: Colors.white, size: 30,),
+                    child: Icon(category!.icon, color: Colors.white, size: 30,),
                 ),
                 onTap: () {},
               )
@@ -198,9 +198,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                                 Colors.red,
                                 Colors.indigo,
                                 Colors.teal
-                              ] : [pickedColor, pickedColor])),
+                              ] : [pickedColor!, pickedColor!])),
                       child: InkWell(
-                        splashColor: category.color, // inkwell color
+                        splashColor: category!.color, // inkwell color
                         child: SizedBox(width: 70, height: 70,
                           child: Icon(Icons.colorize, color: Colors.white, size: 30,),
                         ),
@@ -242,11 +242,11 @@ class EditCategoryPageState extends State<EditCategoryPage> {
           contentPadding: const EdgeInsets.all(0.0),
           content: SingleChildScrollView(
             child: MaterialPicker(
-              pickerColor: category.color,
+              pickerColor: category!.color!,
               onColorChanged: (newColor) {
                 setState(() {
                   pickedColor = newColor;
-                  category.color = newColor;
+                  category!.color = newColor;
                   chosenColorIndex = -1;
                 });
               },
@@ -271,7 +271,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                   });
                 },
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value!.isEmpty) {
                     return "Please enter the category name".i18n;
                   }
                   return null;
@@ -311,7 +311,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 });
 
                 if (continueDelete) {
-                  database.deleteCategory(widget.passedCategory.name, widget.passedCategory.categoryType);
+                  database.deleteCategory(widget.passedCategory!.name, widget.passedCategory!.categoryType);
                   Navigator.pop(context);
                 }
             },
@@ -366,19 +366,19 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   }
 
   saveCategory() async {
-    if (_formKey.currentState.validate()) {
-      if (category.name == null) {
+    if (_formKey.currentState!.validate()) {
+      if (category!.name == null) {
         // Then it is a newly created category
         // Call the method add category
-        category.name = categoryName;
+        category!.name = categoryName;
         await database.addCategory(category);
       } else {
         // If category.name is already set
         // I'm editing an existing category
         // Call the method updateCategory
-        String existingName = category.name;
-        var existingType = category.categoryType;
-        category.name = categoryName;
+        String? existingName = category!.name;
+        var existingType = category!.categoryType;
+        category!.name = categoryName;
         await database.updateCategory(existingName, existingType, category);
       }
       Navigator.pop(context);
@@ -388,7 +388,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _getAppBar(),
+      appBar: _getAppBar() as PreferredSizeWidget?,
       resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
         child: Column(

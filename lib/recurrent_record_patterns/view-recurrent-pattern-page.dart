@@ -20,8 +20,8 @@ import './i18n/recurrent-patterns.i18n.dart';
 
 class ViewRecurrentPatternPage extends StatefulWidget {
 
-  RecurrentRecordPattern passedPattern;
-  ViewRecurrentPatternPage({Key key, this.passedPattern}) : super(key: key);
+  RecurrentRecordPattern? passedPattern;
+  ViewRecurrentPatternPage({Key? key, this.passedPattern}) : super(key: key);
 
   @override
   ViewRecurrentPatternPageState createState() => ViewRecurrentPatternPageState();
@@ -33,8 +33,8 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
   TextEditingController _textEditingController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  RecurrentPeriod recurrentPeriod;
-  String currency;
+  RecurrentPeriod? recurrentPeriod;
+  late String currency;
 
   Future<String> getCurrency() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -50,12 +50,12 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
         currency = value;
       });
     });
-    recurrentPeriod = widget.passedPattern.recurrentPeriod;
+    recurrentPeriod = widget.passedPattern!.recurrentPeriod;
   }
 
   Widget _createAddNoteCard() {
     return Visibility(
-      visible: widget.passedPattern.description != null,
+      visible: widget.passedPattern!.description != null,
       child: Card(
         elevation: 2,
         child: Container(
@@ -64,14 +64,14 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
               enabled: false,
               onChanged: (text) {
                 setState(() {
-                  widget.passedPattern.description = text;
+                  widget.passedPattern!.description = text;
                 });
               },
               style: TextStyle(
                   fontSize: 22.0,
                   color: Colors.black
               ),
-              initialValue: widget.passedPattern.description,
+              initialValue: widget.passedPattern!.description,
               maxLines: null,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
@@ -93,7 +93,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
             enabled: false,
             onChanged: (text) {
               setState(() {
-                widget.passedPattern.title = text;
+                widget.passedPattern!.title = text;
               });
             },
             style: TextStyle(
@@ -106,7 +106,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
-                hintText: widget.passedPattern.category.name,
+                hintText: widget.passedPattern!.category!.name,
                 labelText: "Record name".i18n
             )
         ),
@@ -127,7 +127,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                     _createCategoryCirclePreview(40.0),
                     Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                      child: Text(widget.passedPattern.category.name, style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                      child: Text(widget.passedPattern!.category!.name!, style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
                     )
                   ],
                 ),
@@ -140,7 +140,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
 
   Widget _createCategoryCirclePreview(double size) {
     Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender = (widget.passedPattern.category == null) ? defaultCategory : widget.passedPattern.category;
+    Category toRender = (widget.passedPattern!.category == null) ? defaultCategory : widget.passedPattern!.category!;
     return Container(
         margin: EdgeInsets.all(10),
         child: ClipOval(
@@ -181,7 +181,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                       children: [
                         Text("From:".i18n, style: TextStyle(fontSize: 20)),
                         Text(" ", style: TextStyle(fontSize: 20)),
-                        Text(getDateStr(widget.passedPattern.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent))
+                        Text(getDateStr(widget.passedPattern!.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent))
                       ],
                     ),
                   )
@@ -236,21 +236,21 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                       child: TextFormField(
                           enabled: false,
                           controller: _textEditingController,
-                          autofocus: widget.passedPattern.value == null,
+                          autofocus: widget.passedPattern!.value == null,
                           onChanged: (text) {
                             var numericValue = double.tryParse(text);
                             if (numericValue != null) {
                               numericValue = double.parse(numericValue.toStringAsFixed(2));
                               numericValue = numericValue.abs();
-                              if (widget.passedPattern.category.categoryType == CategoryType.expense) {
+                              if (widget.passedPattern!.category!.categoryType == CategoryType.expense) {
                                 // value is an expenses, needs to be negative
                                 numericValue = numericValue * -1;
                               }
-                              widget.passedPattern.value = numericValue;
+                              widget.passedPattern!.value = numericValue;
                             }
                           },
                           validator: (value) {
-                            if (value.isEmpty) {
+                            if (value!.isEmpty) {
                               return "Please enter a value".i18n;
                             }
                             var numericValue = double.tryParse(value);
@@ -267,7 +267,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                           keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: widget.passedPattern.value.toStringAsFixed(2),
+                            hintText: widget.passedPattern!.value!.toStringAsFixed(2),
                           )
                       ),
                     )
@@ -296,7 +296,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                     return deleteDialog.build(context);
                   });
                   if (continueDelete) {
-                      await database.deleteRecurrentRecordPatternById(widget.passedPattern.id);
+                      await database.deleteRecurrentRecordPatternById(widget.passedPattern!.id);
                       Navigator.pop(context);
                   }
                 }

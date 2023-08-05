@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/records/records-page.dart';
 import 'package:piggybank/settings/settings-page.dart';
+import 'package:piggybank/style.dart';
 import 'categories/categories-tab-page-edit.dart';
 import 'i18n/shell.i18n.dart';
 
@@ -26,53 +27,51 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 0,
             child: new TickerMode(
             enabled: _currentIndex == 0,
-            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey), title: "Oinkoin",),
+            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey), title: "Oinkoin", theme: materialTheme,),
           ),
           ),
           new Offstage(
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoryTabPageEdit(), title: "Oinkoin"),
+              child: new MaterialApp(home: new CategoryTabPageEdit(), title: "Oinkoin", theme: materialTheme),
             ),
           ),
             new Offstage(
               offstage: _currentIndex != 2,
               child: new TickerMode(
                 enabled: _currentIndex == 2,
-                child: new MaterialApp(home: new SettingsPage(), title: "Oinkoin"),
+                child: new MaterialApp(home: new SettingsPage(), title: "Oinkoin", theme: materialTheme,),
               ),
             ),
         ]
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (int index) async {
-          setState((){
-            this._currentIndex = index; }
-          );
-          if (this._currentIndex == 0) {
-            await _recordPageKey.currentState.onTabChange();
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        fixedColor: Theme.of(context).primaryColor,
-        items: [
-          BottomNavigationBarItem(
-            label: "Home".i18n,
-            icon: Icon(Icons.home)
-          ),
-          BottomNavigationBarItem(
-              label: "Categories".i18n,
-              icon: Icon(Icons.category)
-          ),
-          BottomNavigationBarItem(
-              label: "Settings".i18n,
-              icon: Icon(Icons.settings)
-          ),
-        ]
-      )
-      );
+      bottomNavigationBar: NavigationBar(
+          selectedIndex: _currentIndex,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          onDestinationSelected: (int index) async {
+            setState((){
+              this._currentIndex = index; }
+            );
+            if (this._currentIndex == 0) {
+              await _recordPageKey.currentState!.onTabChange();
+            }
+          },
+          destinations: [
+            NavigationDestination(
+              label: "Home".i18n,
+              icon: Icon(Icons.home)
+            ),
+            NavigationDestination(
+                label: "Categories".i18n,
+                icon: Icon(Icons.category)
+            ),
+            NavigationDestination(
+                label: "Settings".i18n,
+                icon: Icon(Icons.settings)
+            ),
+          ]
+        )
+    );
   }
 }

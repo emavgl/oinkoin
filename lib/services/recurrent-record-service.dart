@@ -15,16 +15,16 @@ class RecurrentRecordService {
     // If the last_update field is null, it will start from the original date set in the pattern
     // including it to the list of records to generate.
     List<Record> newRecurrentRecords = [];
-    DateTime startDateTrimmed = new DateTime(recordPattern.dateTime.year, recordPattern.dateTime.month, recordPattern.dateTime.day);
+    DateTime startDateTrimmed = new DateTime(recordPattern.dateTime!.year, recordPattern.dateTime!.month, recordPattern.dateTime!.day);
     DateTime lastUpdateTrimmed = startDateTrimmed;
     if (recordPattern.lastUpdate != null) {
-      lastUpdateTrimmed = new DateTime(recordPattern.lastUpdate.year, recordPattern.lastUpdate.month, recordPattern.lastUpdate.day);
+      lastUpdateTrimmed = new DateTime(recordPattern.lastUpdate!.year, recordPattern.lastUpdate!.month, recordPattern.lastUpdate!.day);
     } else {
       DateTime recurrentRecordDate = startDateTrimmed;
       Record newRecord = Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
       newRecurrentRecords.add(newRecord);
     }
-    RecurrentPeriod recurrentPeriod = recordPattern.recurrentPeriod;
+    RecurrentPeriod? recurrentPeriod = recordPattern.recurrentPeriod;
     if (recurrentPeriod == RecurrentPeriod.EveryDay) {
       var numberOfRepetition = endDate.difference(lastUpdateTrimmed).abs().inDays;
       for (int i = 1; i < numberOfRepetition + 1; i++) {

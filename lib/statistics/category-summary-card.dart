@@ -19,24 +19,24 @@ class CategorySumTuple {
 
 class CategorySummaryCard extends StatelessWidget {
 
-  final List<Record> records;
-  Category category;
-  AggregationMethod aggregationMethod;
-  List<Record> aggregatedRecords;
+  final List<Record?> records;
+  Category? category;
+  AggregationMethod? aggregationMethod;
+  late List<Record?> aggregatedRecords;
 
-  double totalCategoryValue;
-  double maxValue;
+  late double totalCategoryValue;
+  late double maxValue;
   final _biggerFont = const TextStyle(fontSize: 16.0);
   final _dateFont = const TextStyle(fontSize: 12.0);
 
   CategorySummaryCard(this.records, this.aggregationMethod) {
     aggregatedRecords = aggregateRecordsByDateAndCategory(records, aggregationMethod);
-    aggregatedRecords.sort((a, b) => a.value.compareTo(b.value)); // sort desc
-    category = this.records[0].category;
+    aggregatedRecords.sort((a, b) => a!.value!.compareTo(b!.value!)); // sort desc
+    category = this.records[0]!.category;
     totalCategoryValue = aggregatedRecords.fold(
-        0, (previousValue, element) => previousValue + element.value.abs());
-    maxValue = records.map((e) => e.value.abs()).reduce(max);
-    records.sort((a, b) => a.value.compareTo(b.value));
+        0, (previousValue, element) => previousValue + element!.value!.abs());
+    maxValue = records.map((e) => e!.value!.abs()).reduce(max);
+    records.sort((a, b) => a!.value!.compareTo(b!.value!));
   }
 
   Widget _buildRecordsStatList() {
@@ -50,22 +50,22 @@ class CategorySummaryCard extends StatelessWidget {
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildRow(context, aggregatedRecords[i]);
+          return _buildRow(context, aggregatedRecords[i]!);
         });
   }
 
   Widget _buildRow(BuildContext context, Record record) {
-    double percentage = (100 * record.value.abs()) / totalCategoryValue;
-    double percentageBar = (record.value.abs()) / maxValue;
+    double percentage = (100 * record.value!.abs()) / totalCategoryValue;
+    double percentageBar = (record.value!.abs()) / maxValue;
     String percentageStrRepr = percentage.toStringAsFixed(2);
-    String value = record.value.toStringAsFixed(2);
+    String value = record.value!.toStringAsFixed(2);
     /// Returns a ListTile rendering the single movement row
     return Column(
       children: <Widget>[
         ListTile(
             onLongPress: () async {
               // Record has no aggregated records inside, show info
-              String infoMessage = (record.title == null ? record.category.name : record.title) + " (${value})";
+              String infoMessage = (record.title == null ? record.category!.name : record.title)! + " (${value})";
               ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                       elevation: 6,
@@ -89,9 +89,9 @@ class CategorySummaryCard extends StatelessWidget {
               }
               if (aggregationMethod == AggregationMethod.MONTH) {
                 var formatter = DateFormat("yy/MM");
-                var categoryRecords = records.where((element) => element.category.name == record.category.name && formatter.format(element.dateTime) == formatter.format(record.dateTime)).toList();
-                DateTime from = DateTime(record.dateTime.year, record.dateTime.month);
-                DateTime to = DateTime(record.dateTime.year, record.dateTime.month + 1).subtract(Duration(minutes: 1));
+                var categoryRecords = records.where((element) => element!.category!.name == record.category!.name && formatter.format(element.dateTime!) == formatter.format(record.dateTime!)).toList();
+                DateTime from = DateTime(record.dateTime!.year, record.dateTime!.month);
+                DateTime to = DateTime(record.dateTime!.year, record.dateTime!.month + 1).subtract(Duration(minutes: 1));
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -100,9 +100,9 @@ class CategorySummaryCard extends StatelessWidget {
                 );
               }
               if (aggregationMethod == AggregationMethod.DAY) {
-                var categoryRecords = records.where((element) => element.dateTime.day == record.dateTime.day).toList();
-                DateTime from = categoryRecords[0].dateTime;
-                DateTime to = from;
+                var categoryRecords = records.where((element) => element!.dateTime!.day == record.dateTime!.day).toList();
+                DateTime? from = categoryRecords[0]!.dateTime;
+                DateTime? to = from;
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -119,7 +119,7 @@ class CategorySummaryCard extends StatelessWidget {
                     children: <Widget>[
                       Flexible(
                         child: Text(
-                          (record.aggregatedValues > 1 ? "(${record.aggregatedValues}) " : "") + (record.title != null ? record.title : category.name),
+                          (record.aggregatedValues > 1 ? "(${record.aggregatedValues}) " : "") + (record.title != null ? record.title! : category!.name!),
                           style: _biggerFont,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -152,10 +152,10 @@ class CategorySummaryCard extends StatelessWidget {
             leading: Container(
                 width: 40,
                 height: 40,
-                child: Icon(record.category.icon, size: 20, color: Colors.white,),
+                child: Icon(record.category!.icon, size: 20, color: Colors.white,),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: record.category.color,
+                  color: record.category!.color,
                 )
             )
         ),
@@ -179,7 +179,7 @@ class CategorySummaryCard extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            "Entries for category: ".i18n + category.name + (aggregationMethod != AggregationMethod.CUSTOM ? (" (per " + (aggregationMethod == AggregationMethod.MONTH? "Month".i18n : "Day".i18n) + ")") : ""),
+                            "Entries for category: ".i18n + category!.name! + (aggregationMethod != AggregationMethod.CUSTOM ? (" (per " + (aggregationMethod == AggregationMethod.MONTH? "Month".i18n : "Day".i18n) + ")") : ""),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontSize: 14),

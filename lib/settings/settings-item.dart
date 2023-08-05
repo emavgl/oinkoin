@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SettingsItem extends StatelessWidget {
-  final Color iconBackgroundColor;
+  final Color? iconBackgroundColor;
   final Icon icon;
   final String title;
   final String subtitle;
@@ -9,10 +9,10 @@ class SettingsItem extends StatelessWidget {
 
   SettingsItem(
       {this.iconBackgroundColor,
-      @required this.icon,
-      @required this.title,
-      @required this.onPressed,
-      @required this.subtitle});
+      required this.icon,
+      required this.title,
+      required this.onPressed,
+      required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class SettingsItem extends StatelessWidget {
         title: Text(title),
         subtitle: Text(subtitle),
       ),
-      onPressed: onPressed,
+      onPressed: onPressed as void Function()?,
     );
   }
 }

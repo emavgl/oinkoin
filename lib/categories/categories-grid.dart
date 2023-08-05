@@ -16,9 +16,9 @@ class CategoriesGrid extends StatefulWidget {
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
 
-  List<Category> categories;
+  List<Category?> categories;
 
-  bool goToEditMovementPage;
+  bool? goToEditMovementPage;
 
   CategoriesGrid(this.categories, {this.goToEditMovementPage});
 
@@ -42,9 +42,8 @@ class CategoriesGridState extends State<CategoriesGrid> {
         children: List.generate(widget.categories.length, (index) {
           return Align(
             alignment: Alignment.center,
-            child: _buildCategory(widget.categories[index]),
+            child: _buildCategory(widget.categories[index]!),
           );
-          return null;
         }),
     );
   }
@@ -52,7 +51,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
   Widget _buildCategory(Category category) {
     return InkWell(
         onTap: () async {
-          if (widget.goToEditMovementPage != null && widget.goToEditMovementPage) {
+          if (widget.goToEditMovementPage != null && widget.goToEditMovementPage!) {
             // navigate to EditMovementPage
             Navigator.push(
                 context,
@@ -84,7 +83,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
             Flexible(
               child: Container(
                 margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                child:  Text( category.name, maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,),
+                child:  Text( category.name!, maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,),
               ),
             )
           ],

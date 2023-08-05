@@ -13,14 +13,14 @@ class RecurrentRecordPattern {
   // It does not inherit from Record because, although it share a lot of fields
   // the context is different and their logic is separated.
 
-  String id;
-  double value;
-  String title;
-  String description;
-  Category category;
-  DateTime dateTime;
-  RecurrentPeriod recurrentPeriod;
-  DateTime lastUpdate;
+  String? id;
+  double? value;
+  String? title;
+  String? description;
+  Category? category;
+  DateTime? dateTime;
+  RecurrentPeriod? recurrentPeriod;
+  DateTime? lastUpdate;
 
   RecurrentRecordPattern(this.value, this.title, this.category, this.dateTime, this.recurrentPeriod, {this.id, this.description, this.lastUpdate});
 
@@ -36,15 +36,15 @@ class RecurrentRecordPattern {
     Map<String, dynamic> map = {
       'title': title,
       'value': value,
-      'datetime': dateTime.millisecondsSinceEpoch,
-      'category_name': category.name,
-      'category_type': category.categoryType.index,
+      'datetime': dateTime!.millisecondsSinceEpoch,
+      'category_name': category!.name,
+      'category_type': category!.categoryType!.index,
       'description': description,
-      'recurrent_period': recurrentPeriod.index,
+      'recurrent_period': recurrentPeriod!.index,
     };
 
     if (this.id != null) { map['id'] = this.id; }
-    if (this.lastUpdate != null) { map['last_update'] = this.lastUpdate.millisecondsSinceEpoch; }
+    if (this.lastUpdate != null) { map['last_update'] = this.lastUpdate!.millisecondsSinceEpoch; }
     return map;
   }
 

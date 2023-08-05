@@ -20,11 +20,11 @@ class RecordsGenerator {
     var mockDescription = _getRandomElement(descriptions);
     List<Category> mockTags = _getRandomSubset(tags, minimum: 1).whereType<Category>().toList();
     
-    return new Record(mockValue, mockDescription, mockTags[0], recordDate);
+    return new Record(mockValue, mockDescription as String?, mockTags[0], recordDate);
   }
 
   static List<Record> getRandomMovements(movementDate, {quantity = 100}) {
-    List<Record> randomMovements = new List();
+    List<Record> randomMovements = [];
     for (var i = 0; i < quantity; i++) {
       Record randomMovement = getRandomRecord(movementDate);
       randomMovements.add(randomMovement);
@@ -37,14 +37,14 @@ class RecordsGenerator {
   Elements in the list can't repeat
  */
   static List<Object> _getRandomSubset(List<Object> choices, {minimum = 0}) {
-    var newList = new List();
+    var newList = [];
     var randomQuantity = random.nextInt(choices.length) + minimum;
     while (newList.length < randomQuantity) {
       var newElement = _getRandomElement(choices);
       if (!newList.contains(newElement))
         newList.add(_getRandomElement(choices));
     }
-    return newList;
+    return newList as List<Object>;
   }
 
   /*

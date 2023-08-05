@@ -23,9 +23,9 @@ class CategoryTabPageEdit extends StatefulWidget {
 
 class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTickerProviderStateMixin {
 
-  List<Category> _categories;
-  CategoryType categoryType;
-  TabController _tabController;
+  List<Category?>? _categories;
+  CategoryType? categoryType;
+  TabController? _tabController;
   DatabaseInterface database = ServiceConfig.database;
 
   @override
@@ -52,8 +52,8 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
       _categories = newlyFetchedCategories;
     });
     await Future.delayed(Duration(milliseconds:50));
-    if (_tabController.index != destionationTabIndex) {
-      _tabController.animateTo(destionationTabIndex);
+    if (_tabController!.index != destionationTabIndex) {
+      _tabController!.animateTo(destionationTabIndex);
     }
   }
 
@@ -75,8 +75,8 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
         body: TabBarView(
           controller: _tabController,
           children: [
-            _categories != null ? CategoriesList(_categories.where((element) => element.categoryType == CategoryType.expense).toList(), callback: refreshCategories) : Container(),
-            _categories != null ? CategoriesList(_categories.where((element) => element.categoryType == CategoryType.income).toList(), callback: refreshCategories) : Container(),
+            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.expense).toList(), callback: refreshCategories) : Container(),
+            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.income).toList(), callback: refreshCategories) : Container(),
           ],
         ),
         floatingActionButton: SpeedDial(

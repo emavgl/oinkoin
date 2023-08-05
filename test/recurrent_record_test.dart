@@ -25,8 +25,8 @@ main() {
       RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Daily", category1, dateTime, RecurrentPeriod.EveryDay);
       var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
       expect(records.length, 12);
-      expect(records[11].dateTime.month, 3);
-      expect(records[11].dateTime.day, 2);
+      expect(records[11].dateTime!.month, 3);
+      expect(records[11].dateTime!.day, 2);
     });
 
     test('daily recurrent same month', () async {
@@ -49,8 +49,8 @@ main() {
       RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Monthly", category1, dateTime, RecurrentPeriod.EveryMonth);
       var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
       expect(records.length, 4);
-      expect(records[3].dateTime.month, 5);
-      expect(records[3].dateTime.day, 20);
+      expect(records[3].dateTime!.month, 5);
+      expect(records[3].dateTime!.day, 20);
     });
 
     test('monthly recurrent same year strange dates', () async {
@@ -62,8 +62,8 @@ main() {
       RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Monthly", category1, dateTime, RecurrentPeriod.EveryMonth);
       var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
       expect(records.length, 3);
-      expect(records[2].dateTime.month, 3);
-      expect(records[2].dateTime.day, 30);
+      expect(records[2].dateTime!.month, 3);
+      expect(records[2].dateTime!.day, 30);
     });
 
     test('monthly recurrent different year', () async {
@@ -75,8 +75,8 @@ main() {
       RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Monthly", category1, dateTime, RecurrentPeriod.EveryMonth);
       var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
       expect(records.length, 13);
-      expect(records[12].dateTime.month, 2);
-      expect(records[12].dateTime.day, 20);
+      expect(records[12].dateTime!.month, 2);
+      expect(records[12].dateTime!.day, 20);
     });
 
     test('weekly recurrent', () async {
@@ -88,8 +88,8 @@ main() {
       RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Weekly", category1, dateTime, RecurrentPeriod.EveryWeek);
       var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
       expect(records.length, 3);
-      expect(records[2].dateTime.month, 10);
-      expect(records[2].dateTime.day, 15);
+      expect(records[2].dateTime!.month, 10);
+      expect(records[2].dateTime!.day, 15);
     });
 
   });

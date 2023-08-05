@@ -15,7 +15,7 @@ class CategoryTabPageView extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
-  bool goToEditMovementPage;
+  bool? goToEditMovementPage;
   CategoryTabPageView({this.goToEditMovementPage});
 
   @override
@@ -24,8 +24,8 @@ class CategoryTabPageView extends StatefulWidget {
 
 class CategoryTabPageViewState extends State<CategoryTabPageView> {
 
-  List<Category> _categories;
-  CategoryType categoryType;
+  List<Category?>? _categories;
+  CategoryType? categoryType;
 
   DatabaseInterface database = ServiceConfig.database;
 
@@ -62,8 +62,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         ),
         body: TabBarView(
           children: [
-            _categories != null ? CategoriesGrid(_categories.where((element) => element.categoryType == CategoryType.expense).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
-            _categories != null ? CategoriesGrid(_categories.where((element) => element.categoryType == CategoryType.income).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
+            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.expense).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
+            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.income).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
           ],
         ),
       ),

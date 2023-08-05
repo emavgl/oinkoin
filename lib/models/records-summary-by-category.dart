@@ -1,11 +1,11 @@
 import 'package:piggybank/models/category.dart';
 
 class RecordsSummaryPerCategory {
-  double _amount;
-  Category _category;
+  double? _amount;
+  Category? _category;
 
-  double get amount => _amount;
-  Category get category => _category;
+  double? get amount => _amount;
+  Category? get category => _category;
 
   RecordsSummaryPerCategory(this._category, this._amount);
 

@@ -12,7 +12,6 @@ import 'package:share_plus/share_plus.dart';
 import './i18n/settings-page.i18n.dart';
 import 'dart:io';
 
-import 'currency-page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'feedback-page.dart';
@@ -33,12 +32,12 @@ class SettingsPage extends StatelessWidget {
   }
 
   importFromBackupFile(BuildContext context) async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
     if(result != null) {
-      File file = File(result.files.single.path);
+      File file = File(result.files.single.path!);
       bool successful = await BackupService.importDataFromBackupFile(file);
       if (successful) {
         AlertDialogBuilder resultDialog = AlertDialogBuilder("Restore successful".i18n)
@@ -109,21 +108,6 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         itemExtent: kSettingsItemsExtent,
         children: <Widget>[
-          SettingsItem(
-            icon: Icon(
-              Icons.euro_symbol,
-              color: Colors.white,
-            ),
-            iconBackgroundColor: Colors.blue,
-            title: 'Currency'.i18n,
-            subtitle: 'Select the currency for your expenses'.i18n,
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CurrencyPage()),
-              );
-            },
-          ),
           SettingsItem(
               icon: Icon(
                 Icons.repeat,

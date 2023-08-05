@@ -12,13 +12,13 @@ class Record extends Model {
   /// - category: a Category object assigned to the movement, describing the type of movement (income, expense)
   /// - dateTime: a date representing when the movement was performed
 
-  int id;
-  double value;
-  String title;
-  String description;
-  Category category;
-  DateTime dateTime;
-  String recurrencePatternId;
+  int? id;
+  double? value;
+  String? title;
+  String? description;
+  Category? category;
+  DateTime? dateTime;
+  String? recurrencePatternId;
   int aggregatedValues = 1;  // internal variables - used to identified an aggregated records (statistics)
 
   Record(this.value, this.title, this.category, this.dateTime, {this.id, this.description, this.recurrencePatternId});
@@ -37,9 +37,9 @@ class Record extends Model {
     Map<String, dynamic> map = {
       'title': title,
       'value': value,
-      'datetime': dateTime.millisecondsSinceEpoch,
-      'category_name': category.name,
-      'category_type': category.categoryType.index,
+      'datetime': dateTime!.millisecondsSinceEpoch,
+      'category_name': category!.name,
+      'category_type': category!.categoryType!.index,
       'description': description
     };
 
@@ -61,7 +61,7 @@ class Record extends Model {
   }
 
   get date {
-    return dateTime.year.toString() + dateTime.month.toString() + dateTime.day.toString();
+    return dateTime!.year.toString() + dateTime!.month.toString() + dateTime!.day.toString();
   }
 
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:piggybank/shell.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:piggybank/style.dart';
 
 void main() => runApp(App());
 
@@ -36,11 +37,7 @@ class App extends StatelessWidget {
       home: I18n(
           // I18n translates strings to the current system locale
           child: Shell()),
-      theme: ThemeData(
-          colorSchemeSeed: Color.fromARGB(255, 0, 92, 184),
-          useMaterial3: true,
-          brightness: Brightness.light
-      ),
+      theme: materialTheme,
       themeMode: ThemeMode.light,
     );
   }

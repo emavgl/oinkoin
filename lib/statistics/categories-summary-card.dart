@@ -9,43 +9,43 @@ import './i18n/statistics-page.i18n.dart';
 import 'categories-piechart.dart';
 
 class CategorySumTuple {
-  final Category category;
-  double value;
+  final Category? category;
+  double? value;
   CategorySumTuple(this.category, this.value);
 }
 
 class CategoriesSummaryCard extends StatelessWidget {
 
-  final List<Record> records;
-  final List<Record> aggregatedRecords;
-  final AggregationMethod aggregationMethod;
+  final List<Record?> records;
+  final List<Record?>? aggregatedRecords;
+  final AggregationMethod? aggregationMethod;
 
-  DateTime from;
-  DateTime to;
-  List<CategorySumTuple> categoriesAndSums;
-  double totalExpensesSum;
-  double maxExpensesSum;
+  DateTime? from;
+  DateTime? to;
+  late List<CategorySumTuple> categoriesAndSums;
+  double? totalExpensesSum;
+  double? maxExpensesSum;
   final _biggerFont = const TextStyle(fontSize: 16.0);
 
   CategoriesSummaryCard(this.from, this.to, this.records, this.aggregatedRecords, this.aggregationMethod) {
     if (records.length > 0) {
       categoriesAndSums = _aggregateRecordByCategory(records);
       totalExpensesSum = categoriesAndSums.fold(
-          0, (previousValue, element) => previousValue + element.value);
+          0, ((previousValue, element) => previousValue + element.value!) as double? Function(double?, CategorySumTuple));
       maxExpensesSum = categoriesAndSums[0].value;
     }
   }
 
-  List<CategorySumTuple> _aggregateRecordByCategory(List<Record> records) {
-    Map<String, CategorySumTuple> aggregatedCategoriesValuesTemporaryMap = new Map();
+  List<CategorySumTuple> _aggregateRecordByCategory(List<Record?> records) {
+    Map<String?, CategorySumTuple> aggregatedCategoriesValuesTemporaryMap = new Map();
     for (var record in records) {
       aggregatedCategoriesValuesTemporaryMap.update(
-          record.category.name, (tuple) => new CategorySumTuple(tuple.category, tuple.value + record.value),
+          record!.category!.name, (tuple) => new CategorySumTuple(tuple.category, tuple.value! + record.value!),
           ifAbsent: () => new CategorySumTuple(record.category, record.value));
     }
     var aggregatedCategoriesAndValues = aggregatedCategoriesValuesTemporaryMap
         .values.toList();
-    aggregatedCategoriesAndValues.sort((a, b) => a.value.compareTo(b.value)); // sort ascending
+    aggregatedCategoriesAndValues.sort((a, b) => a.value!.compareTo(b.value!)); // sort ascending
     return aggregatedCategoriesAndValues;
   }
 
@@ -65,17 +65,17 @@ class CategoriesSummaryCard extends StatelessWidget {
   }
 
   Widget _buildCategoryStatsRow(BuildContext context, CategorySumTuple categoryAndSum) {
-    double percentage = (100 * categoryAndSum.value) / totalExpensesSum;
-    double percentageBar = (categoryAndSum.value) / maxExpensesSum;
+    double percentage = (100 * categoryAndSum.value!) / totalExpensesSum!;
+    double percentageBar = categoryAndSum.value! / maxExpensesSum!;
     String percentageStrRepr = percentage.toStringAsFixed(2);
-    String categorySumStr = categoryAndSum.value.toStringAsFixed(2);
-    Category category = categoryAndSum.category;
+    String categorySumStr = categoryAndSum.value!.toStringAsFixed(2);
+    Category category = categoryAndSum.category!;
     /// Returns a ListTile rendering the single movement row
     return Column(
       children: <Widget>[
         ListTile(
             onTap: () async {
-              var categoryRecords = records.where((element) => element.category.name == category.name).toList();
+              var categoryRecords = records.where((element) => element!.category!.name == category.name).toList();
               await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -91,7 +91,7 @@ class CategoriesSummaryCard extends StatelessWidget {
                     children: <Widget>[
                       Flexible(
                         child: Text(
-                            category.name,
+                            category.name!,
                             style: _biggerFont,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis

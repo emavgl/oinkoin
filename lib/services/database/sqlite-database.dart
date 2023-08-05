@@ -4,7 +4,6 @@ import 'package:path/path.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/models/records-summary-by-category.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:sqflite/sqflite.dart';
@@ -21,9 +20,9 @@ class SqliteDatabase implements DatabaseInterface {
     SqliteDatabase._privateConstructor();
     static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
     static int get _version => 6;
-    static Database _db;
+    static Database? _db;
 
-    Future<Database> get database async {
+    Future<Database?> get database async {
         if (_db != null)
             return _db;
 
@@ -106,7 +105,7 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     static List<Category> getDefaultCategories() {
-        List<Category> defaultCategories = new List<Category>();
+        List<Category> defaultCategories = <Category>[];
         defaultCategories.add(new Category("House".i18n,
             color: Category.colors[0],
             iconCodePoint: FontAwesomeIcons.home.codePoint,
@@ -133,24 +132,24 @@ class SqliteDatabase implements DatabaseInterface {
     // Category implementation
     @override
     Future<List<Category>> getAllCategories() async {
-        final db = await database;
+        final db = (await database)!;
         List<Map> results = await db.query("categories");
         return List.generate(results.length, (i) {
-            return Category.fromMap(results[i]);
+            return Category.fromMap(results[i] as Map<String, dynamic>);
         });
     }
 
     @override
-    Future<Category> getCategory(String categoryName, CategoryType categoryType) async {
-        final db = await database;
+    Future<Category?> getCategory(String? categoryName, CategoryType categoryType) async {
+        final db = (await database)!;
         List<Map> results = await db.query("categories", where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryType.index]);
-        return results.isNotEmpty ? Category.fromMap(results[0]) : null;
+        return results.isNotEmpty ? Category.fromMap(results[0] as Map<String, dynamic>) : null;
     }
 
     @override
-    Future<int> addCategory(Category category) async {
-        final db = await database;
-        Category foundCategory = await this.getCategory(category.name, category.categoryType);
+    Future<int> addCategory(Category? category) async {
+        final db = (await database)!;
+        Category? foundCategory = await this.getCategory(category!.name, category.categoryType!);
         if (foundCategory != null) {
             throw ElementAlreadyExists();
         }
@@ -158,19 +157,19 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<void> deleteCategory(String categoryName, CategoryType categoryType) async {
-        final db = await database;
-        var categoryIndex = categoryType.index;
+    Future<void> deleteCategory(String? categoryName, CategoryType? categoryType) async {
+        final db = (await database)!;
+        var categoryIndex = categoryType!.index;
         await db.delete("categories", where: "name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
         await db.delete("records", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
         await db.delete("recurrent_record_patterns", where: "category_name = ? AND category_type = ?", whereArgs: [categoryName, categoryIndex]);
     }
 
     @override
-    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
-        final db = await database;
-        var categoryIndex = existingCategoryType.index;
-        int newIndex = await db.update("categories", updatedCategory.toMap(),
+    Future<int> updateCategory(String? existingCategoryName, CategoryType? existingCategoryType, Category? updatedCategory) async {
+        final db = (await database)!;
+        var categoryIndex = existingCategoryType!.index;
+        int newIndex = await db.update("categories", updatedCategory!.toMap(),
             where: "name = ? AND category_type = ?",
             whereArgs: [existingCategoryName, categoryIndex]);
         await db.update("records", {"category_name": updatedCategory.name},
@@ -183,33 +182,33 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<int> addRecord(Record record) async {
-        final db = await database;
-        if (await getCategory(record.category.name, record.category.categoryType) == null){
+    Future<int> addRecord(Record? record) async {
+        final db = (await database)!;
+        if (await getCategory(record!.category!.name, record.category!.categoryType!) == null){
             await addCategory(record.category);
         }
         return await db.insert("records", record.toMap());
     }
 
     @override
-    Future<Record> getMatchingRecord(Record record) async {
+    Future<Record?> getMatchingRecord(Record? record) async {
         /// Check if there are records with the same title, value, category on the same day of :record
         /// If yes, return the first match. If no, null is returned.
         final db = await database;
-        var sameDateTime = record.dateTime.millisecondsSinceEpoch;
+        var sameDateTime = record!.dateTime!.millisecondsSinceEpoch;
         var sameValue = record.value;
         var sameTitle = record.title;
-        var sameCategoryName = record.category.name;
-        var sameCategoryType = record.category.categoryType.index;
+        var sameCategoryName = record.category!.name;
+        var sameCategoryType = record.category!.categoryType!.index;
         var maps;
         if (sameTitle != null) {
-            maps = await db.rawQuery("""
+            maps = await db!.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title = ? AND c.name = ? AND c.category_type = ?
         """, [sameDateTime, sameValue, sameTitle, sameCategoryName, sameCategoryType]);
         } else {
-            maps = await db.rawQuery("""
+            maps = await db!.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title IS NULL AND c.name = ? AND c.category_type = ?
@@ -225,7 +224,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     @override
     Future<List<Record>> getAllRecords() async {
-        final db = await database;
+        final db = (await database)!;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
@@ -238,10 +237,10 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to) async {
-        final db = await database;
-        final fromUnix = from.millisecondsSinceEpoch;
-        final toUnix = to.millisecondsSinceEpoch;
+    Future<List<Record>> getAllRecordsInInterval(DateTime? from, DateTime? to) async {
+        final db = (await database)!;
+        final fromUnix = from!.millisecondsSinceEpoch;
+        final toUnix = to!.millisecondsSinceEpoch;
 
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
@@ -257,7 +256,7 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     Future<void> deleteDatabase() async {
-        final db = await database;
+        final db = (await database)!;
         await db.execute("DELETE FROM records");
         await db.execute("DELETE FROM categories");
         await db.execute("DELETE FROM recurrent_records");
@@ -269,15 +268,15 @@ class SqliteDatabase implements DatabaseInterface {
 
     @override
     Future<List<Category>> getCategoriesByType(CategoryType categoryType) async {
-      final db = await database;
+      final db = (await database)!;
       List<Map> results = await db.query("categories", where: "category_type = ?", whereArgs: [categoryType.index]);
       return List.generate(results.length, (i) {
-          return Category.fromMap(results[i]);
+          return Category.fromMap(results[i] as Map<String, dynamic>);
       });
     }
 
-    Future<Record> getRecordById(int id) async {
-        final db = await database;
+    Future<Record?> getRecordById(int id) async {
+        final db = (await database)!;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
@@ -294,22 +293,22 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<int> updateRecordById(int movementId, Record newMovement) async {
-        final db = await database;
-        var recordMap = newMovement.toMap();
+    Future<int> updateRecordById(int? movementId, Record? newMovement) async {
+        final db = (await database)!;
+        var recordMap = newMovement!.toMap();
         return await db.update("records", recordMap,
             where: "id = ?", whereArgs: [movementId]);
     }
 
     @override
-    Future<void> deleteRecordById(int id) async {
-        final db = await database;
+    Future<void> deleteRecordById(int? id) async {
+        final db = (await database)!;
         await db.delete("records", where: "id = ?", whereArgs: [id]);
     }
 
     @override
     Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
-        final db = await database;
+        final db = (await database)!;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
@@ -325,8 +324,8 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId) async {
-        final db = await database;
+    Future<RecurrentRecordPattern?> getRecurrentRecordPattern(String? recurrentPatternId) async {
+        final db = (await database)!;
         var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
@@ -343,23 +342,23 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<void> addRecurrentRecordPattern(RecurrentRecordPattern recordPattern) async {
-        final db = await database;
+    Future<int> addRecurrentRecordPattern(RecurrentRecordPattern recordPattern) async {
+        final db = (await database)!;
         var uuid = Uuid().v4();
         recordPattern.id = uuid;
         return await db.insert("recurrent_record_patterns", recordPattern.toMap());
     }
 
     @override
-    Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId) async {
-        final db = await database;
+    Future<void> deleteRecurrentRecordPatternById(String? recurrentPatternId) async {
+        final db = (await database)!;
         await db.delete("recurrent_record_patterns",
             where: "id = ?", whereArgs: [recurrentPatternId]);
     }
 
     @override
-    Future<void> updateRecordPatternById(String recurrentPatternId, RecurrentRecordPattern pattern) async {
-        final db = await database;
+    Future<int> updateRecordPatternById(String? recurrentPatternId, RecurrentRecordPattern pattern) async {
+        final db = (await database)!;
         var patternMap = pattern.toMap();
         return await db.update("recurrent_record_patterns", patternMap,
             where: "id = ?", whereArgs: [recurrentPatternId]);

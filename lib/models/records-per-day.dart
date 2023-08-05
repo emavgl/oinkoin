@@ -8,29 +8,29 @@ class RecordsPerDay {
   /// Contains also utility getters to retrieve easily the amount of expenses,
   /// income and balance.
 
-  List<Record> records;
-  DateTime dateTime;
+  List<Record?>? records;
+  DateTime? dateTime;
 
   RecordsPerDay(this.dateTime, {this.records}) {
     if (this.records == null) {
-      this.records = List();
+      this.records = [];
     }
   }
 
   double get expenses {
     double total = 0;
-    List<Record> incomeRecords = this.records.where((e) => e.category.categoryType == CategoryType.expense).toList();
+    List<Record?> incomeRecords = this.records!.where((e) => e!.category!.categoryType == CategoryType.expense).toList();
     for (var movement in incomeRecords) {
-      total += movement.value;
+      total += movement!.value!;
     }
     return total;
   }
 
   double get income {
     double total = 0;
-    List<Record> incomeRecords = this.records.where((e) => e.category.categoryType == CategoryType.income).toList();
+    List<Record?> incomeRecords = this.records!.where((e) => e!.category!.categoryType == CategoryType.income).toList();
     for (var movement in incomeRecords) {
-        total += movement.value;
+        total += movement!.value!;
     }
     return total;
   }
@@ -40,7 +40,7 @@ class RecordsPerDay {
   }
 
   void addMovement(Record movement) {
-    records.add(movement);
+    records!.add(movement);
   }
 
 }

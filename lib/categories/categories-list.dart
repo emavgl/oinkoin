@@ -9,8 +9,8 @@ class CategoriesList extends StatefulWidget {
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
 
-  List<Category> categories;
-  final void Function() callback;
+  List<Category?> categories;
+  final void Function()? callback;
 
   CategoriesList(this.categories, {this.callback});
 
@@ -33,7 +33,7 @@ class CategoriesListState extends State<CategoriesList> {
         itemCount: widget.categories.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          return _buildCategory(widget.categories[i]);
+          return _buildCategory(widget.categories[i]!);
         });
   }
 
@@ -47,7 +47,7 @@ class CategoriesListState extends State<CategoriesList> {
                     EditCategoryPage(passedCategory: category)),
           );
           if (widget.callback != null)
-            widget.callback();
+            widget.callback!();
         },
         child: ListTile(
             leading: Container(
@@ -62,7 +62,7 @@ class CategoriesListState extends State<CategoriesList> {
                   shape: BoxShape.circle,
                   color: category.color,
                 )),
-            title: Text(category.name, style: _biggerFont)));
+            title: Text(category.name!, style: _biggerFont)));
   }
 
   @override

@@ -19,7 +19,7 @@ class Category extends Model {
   /// List of icons.
   /// These are the only colors that can be used in the Category.
   /// The order matters in the way they are showed in the list.
-  static final List<Color> colors = [
+  static final List<Color?> colors = [
     Colors.green[300],
     Colors.red[300],
     Colors.blue[300],
@@ -32,13 +32,13 @@ class Category extends Model {
 
   static Random _random = new Random();
 
-  String name;
-  Color color;
-  int iconCodePoint;
-  IconData icon;
-  CategoryType categoryType; // 0 for expenses, 1 for income
+  String? name;
+  Color? color;
+  int? iconCodePoint;
+  IconData? icon;
+  CategoryType? categoryType; // 0 for expenses, 1 for income
 
-  Category(String name, {this.color, this.iconCodePoint, this.categoryType}) {
+  Category(String? name, {this.color, this.iconCodePoint, this.categoryType}) {
     this.name = name;
     var categoryIcons = CategoryIcons.pro_category_icons;
     if (this.color == null) {
@@ -48,7 +48,7 @@ class Category extends Model {
 
     if (this.iconCodePoint == null || categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
       this.icon = FontAwesomeIcons.question;
-      this.iconCodePoint = this.icon.codePoint;
+      this.iconCodePoint = this.icon!.codePoint;
     } else {
       this.icon = categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
     }
@@ -61,16 +61,16 @@ class Category extends Model {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'name': name,
-      'color': color.alpha.toString() + ":" + color.red.toString() + ":"
-          + color.green.toString() + ":" + color.blue.toString(),
-      'icon': this.icon.codePoint,
-      'category_type': categoryType.index
+      'color': color!.alpha.toString() + ":" + color!.red.toString() + ":"
+          + color!.green.toString() + ":" + color!.blue.toString(),
+      'icon': this.icon!.codePoint,
+      'category_type': categoryType!.index
     };
     return map;
   }
 
   static Category fromMap(Map<String, dynamic> map) {
-    String serializedColor = map["color"] as String;
+    String? serializedColor = map["color"] as String?;
     var color = colors[0];
     if (serializedColor != null) {
       List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();

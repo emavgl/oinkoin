@@ -32,9 +32,9 @@ class EditRecordPage extends StatefulWidget {
   /// EditMovementPage can take the movement object to edit as a constructor parameters
   /// or can create a new Movement otherwise.
 
-  Record passedRecord;
-  Category passedCategory;
-  EditRecordPage({Key key, this.passedRecord, this.passedCategory}) : super(key: key);
+  Record? passedRecord;
+  Category? passedCategory;
+  EditRecordPage({Key? key, this.passedRecord, this.passedCategory}) : super(key: key);
 
   @override
   EditRecordPageState createState() => EditRecordPageState(this.passedRecord, this.passedCategory);
@@ -45,14 +45,14 @@ class EditRecordPageState extends State<EditRecordPage> {
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _textEditingController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  Record record;
+  Record? record;
 
-  Record passedRecord;
-  Category passedCategory;
-  RecurrentPeriod recurrentPeriod;
-  int recurrentPeriodIndex;
-  String currency;
-  DateTime lastCharInsertedMillisecond;
+  Record? passedRecord;
+  Category? passedCategory;
+  RecurrentPeriod? recurrentPeriod;
+  int? recurrentPeriodIndex;
+  late String currency;
+  DateTime? lastCharInsertedMillisecond;
 
   EditRecordPageState(this.passedRecord, this.passedCategory);
 
@@ -114,13 +114,13 @@ class EditRecordPageState extends State<EditRecordPage> {
     currency = "€";
     if (passedRecord != null) {
       record = passedRecord;
-      _textEditingController.text = getCurrencyValueString(record.value.abs());
-      if (record.recurrencePatternId != null) {
-        database.getRecurrentRecordPattern(record.recurrencePatternId).then((value) {
+      _textEditingController.text = getCurrencyValueString(record!.value!.abs());
+      if (record!.recurrencePatternId != null) {
+        database.getRecurrentRecordPattern(record!.recurrencePatternId).then((value) {
           if (value != null) {
             setState(() {
               recurrentPeriod = value.recurrentPeriod;
-              recurrentPeriodIndex = value.recurrentPeriod.index;
+              recurrentPeriodIndex = value.recurrentPeriod!.index;
             });
           }
         });
@@ -169,14 +169,14 @@ Widget _createAddNoteCard() {
           child: TextFormField(
               onChanged: (text) {
                 setState(() {
-                  record.description = text;
+                  record!.description = text;
                 });
               },
               style: TextStyle(
                   fontSize: 22.0,
                   color: Colors.black
               ),
-              initialValue: record.description,
+              initialValue: record!.description,
               maxLines: null,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
@@ -196,7 +196,7 @@ Widget _createAddNoteCard() {
         child: TextFormField(
             onChanged: (text) {
               setState(() {
-                record.title = text;
+                record!.title = text;
               });
             },
             style: TextStyle(
@@ -204,13 +204,13 @@ Widget _createAddNoteCard() {
                 color: Colors.black
             ),
             maxLines: 1,
-            initialValue: record.title,
+            initialValue: record!.title,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
-                hintText: record.category.name,
+                hintText: record!.category!.name,
                 labelText: "Record name".i18n
             )
         ),
@@ -233,8 +233,8 @@ Widget _createAddNoteCard() {
                   );
                   if (selectedCategory != null) {
                     setState(() {
-                      record.category = selectedCategory;
-                      changeRecordValue(record.value.toString()); // Handle sign change
+                      record!.category = selectedCategory;
+                      changeRecordValue(record!.value.toString()); // Handle sign change
                     });
                   }
                 },
@@ -243,7 +243,7 @@ Widget _createAddNoteCard() {
                     _createCategoryCirclePreview(40.0),
                     Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                      child: Text(record.category.name, style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                      child: Text(record!.category!.name!, style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
                     )
                   ],
                 ),
@@ -256,7 +256,7 @@ Widget _createAddNoteCard() {
 
   Widget _createCategoryCirclePreview(double size) {
     Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender = (record.category == null) ? defaultCategory : record.category;
+    Category toRender = (record!.category == null) ? defaultCategory : record!.category!;
     return Container(
         margin: EdgeInsets.all(10),
         child: ClipOval(
@@ -291,12 +291,12 @@ Widget _createAddNoteCard() {
               onTap: () async {
                 FocusScope.of(context).unfocus();
                 DateTime now = DateTime.now();
-                DateTime result = await showDatePicker(context: context,
+                DateTime? result = await showDatePicker(context: context,
                     initialDate: now,
                     firstDate: DateTime(1970), lastDate: DateTime.now());
                 if (result != null) {
                   setState(() {
-                    record.dateTime = result;
+                    record!.dateTime = result;
                   });
                 }
               },
@@ -307,14 +307,14 @@ Widget _createAddNoteCard() {
                     Icon(Icons.calendar_today, size: 28, color: Colors.blueAccent,),
                     Container(
                       margin: EdgeInsets.only(left: 20, right: 20),
-                      child: Text(getDateStr(record.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                      child: Text(getDateStr(record!.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
                     )
                   ],
                 )
               )
             ),
             Visibility(
-              visible: record.id == null || recurrentPeriod != null, // when record comes from recurrent record
+              visible: record!.id == null || recurrentPeriod != null, // when record comes from recurrent record
               child: Column(
                 children: [
                   Divider(indent: 60, thickness: 1,),
@@ -334,10 +334,10 @@ Widget _createAddNoteCard() {
                                           child: new DropdownButton<int>(
                                             iconSize: 0.0,
                                             items: dropDownList,
-                                            onChanged: ServiceConfig.isPremium && record.id == null ? (value) {
+                                            onChanged: ServiceConfig.isPremium && record!.id == null ? (value) {
                                               setState(() {
                                                 recurrentPeriodIndex = value;
-                                                recurrentPeriod = RecurrentPeriod.values[value];
+                                                recurrentPeriod = RecurrentPeriod.values[value!];
                                               });
                                             } : null,
                                             onTap: () {
@@ -375,7 +375,7 @@ Widget _createAddNoteCard() {
                                             });
                                           },
                                         ),
-                                        visible: record.id == null && recurrentPeriod != null,
+                                        visible: record!.id == null && recurrentPeriod != null,
                                       )
                                     ],
                                   ),
@@ -417,12 +417,12 @@ Widget _createAddNoteCard() {
                       margin: EdgeInsets.only(right: 20),
                       child: TextFormField(
                           controller: _textEditingController,
-                          autofocus: record.value == null,
+                          autofocus: record!.value == null,
                           onChanged: (text) {
                             changeRecordValue(text);
                           },
                           validator: (value) {
-                            if (value.isEmpty) {
+                            if (value!.isEmpty) {
                               return "Please enter a value".i18n;
                             }
                             var numericValue = double.tryParse(value);
@@ -456,25 +456,25 @@ Widget _createAddNoteCard() {
     if (numericValue != null) {
       numericValue = double.parse(numericValue.toStringAsFixed(2));
       numericValue = numericValue.abs();
-      if (record.category.categoryType == CategoryType.expense) {
+      if (record!.category!.categoryType == CategoryType.expense) {
         // value is an expenses, needs to be negative
         numericValue = numericValue * -1;
       }
-      record.value = numericValue;
+      record!.value = numericValue;
     }
   }
 
   addRecurrentPattern() async {
-    RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(record, recurrentPeriod);
+    RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(record!, recurrentPeriod);
     await database.addRecurrentRecordPattern(recordPattern);
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   addOrUpdateRecord() async {
-    if (record.id == null) {
+    if (record!.id == null) {
       await database.addRecord(record);
     } else {
-      await database.updateRecordById(record.id, record);
+      await database.updateRecordById(record!.id, record);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
@@ -498,7 +498,7 @@ Widget _createAddNoteCard() {
                   });
 
                   if (continueDelete) {
-                      await database.deleteRecordById(record.id);
+                      await database.deleteRecordById(record!.id);
                       Navigator.pop(context);
                   }
                 }
@@ -541,7 +541,7 @@ Widget _createAddNoteCard() {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            if (_formKey.currentState.validate()) {
+            if (_formKey.currentState!.validate()) {
               if (recurrentPeriod == null) {
                 await addOrUpdateRecord();
               } else {

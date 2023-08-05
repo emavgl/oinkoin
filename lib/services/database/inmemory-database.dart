@@ -14,13 +14,13 @@ class InMemoryDatabase implements DatabaseInterface {
     /// All this methods are implemented using operations on Lists.
     /// InMemoryDatabase is intended for debug/testing purposes.
 
-    static List<Category> _categories = [
+    static List<Category?> _categories = [
         Category("Rent", iconCodePoint: FontAwesomeIcons.home.codePoint, categoryType: CategoryType.expense),
         Category("Food", iconCodePoint: FontAwesomeIcons.hamburger.codePoint, categoryType: CategoryType.expense),
         Category("Salary", iconCodePoint: FontAwesomeIcons.wallet.codePoint, categoryType: CategoryType.income)
     ];
 
-    static List<Record> _movements = [
+    static List<Record?> _movements = [
         Record(-300, "April Rent", _categories[0], DateTime.parse("2020-04-02 10:30:00"), id: 1),
         Record(-300, "May Rent", _categories[0], DateTime.parse("2020-05-01 10:30:00"), id: 2),
         Record(-30, "Pizza", _categories[1], DateTime.parse("2020-05-01 09:30:00"), id: 3),
@@ -29,23 +29,23 @@ class InMemoryDatabase implements DatabaseInterface {
         Record(-60.5, "Groceries", _categories[1], DateTime.parse("2020-05-03 10:30:00"), id: 6),
     ];
 
-    static List<Record> get movements => _movements;
-    static List<Category> get categories => _categories;
+    static List<Record?> get movements => _movements;
+    static List<Category?> get categories => _categories;
 
-    Future<List<Category>> getAllCategories() async {
-        return Future<List<Category>>.value(_categories);
+    Future<List<Category?>> getAllCategories() async {
+        return Future<List<Category?>>.value(_categories);
     }
 
-    Future<List<Category>> getCategoriesByType(CategoryType categoryType) async {
-        return Future<List<Category>>.value(_categories.where((x) => x.categoryType == categoryType).toList());
+    Future<List<Category?>> getCategoriesByType(CategoryType categoryType) async {
+        return Future<List<Category?>>.value(_categories.where((x) => x!.categoryType == categoryType).toList());
     }
 
-    Future<Category> getCategory(String name, CategoryType categoryType) {
-        var matching = _categories.where((x) => x.name == name && x.categoryType == categoryType).toList();
+    Future<Category> getCategory(String? name, CategoryType? categoryType) {
+        var matching = _categories.where((x) => x!.name == name && x.categoryType == categoryType).toList();
         return (matching.isEmpty) ? Future<Category>.value(null): Future<Category>.value(matching[0]);
     }
 
-    Future<int> updateCategory(String existingCategoryName, CategoryType existingCategoryType, Category updatedCategory) async {
+    Future<int> updateCategory(String? existingCategoryName, CategoryType? existingCategoryType, Category? updatedCategory) async {
         var categoryWithTheSameName = await getCategory(existingCategoryName, existingCategoryType);
         if (categoryWithTheSameName == null) {
             throw NotFoundException();
@@ -55,19 +55,19 @@ class InMemoryDatabase implements DatabaseInterface {
         return Future<int>.value(index);
     }
 
-    Future<void> deleteCategory(String categoryName, CategoryType categoryType) async {
-        _categories.removeWhere((x) => x.name == categoryName && x.categoryType == categoryType);
+    Future<void> deleteCategory(String? categoryName, CategoryType? categoryType) async {
+        _categories.removeWhere((x) => x!.name == categoryName && x.categoryType == categoryType);
     }
 
-    Future<int> addRecord(Record movement) async {
-        movement.id = _movements.length + 1;
+    Future<int> addRecord(Record? movement) async {
+        movement!.id = _movements.length + 1;
         _movements.add(movement);
         return Future<int>.value(movement.id);
     }
 
     @override
-    Future<int> addCategory(Category category) async {
-        Category foundCategory = await this.getCategory(category.name, category.categoryType);
+    Future<int> addCategory(Category? category) async {
+        Category foundCategory = await this.getCategory(category!.name, category.categoryType);
         if (foundCategory != null) {
             throw ElementAlreadyExists();
         }
@@ -75,30 +75,30 @@ class InMemoryDatabase implements DatabaseInterface {
         return Future<int>.value(_categories.length - 1);
     }
 
-    Future<List<Record>> getAllRecords() async {
-        return Future<List<Record>>.value(_movements);
+    Future<List<Record?>> getAllRecords() async {
+        return Future<List<Record?>>.value(_movements);
     }
 
-    Future<List<Record>> getAllRecordsInInterval(DateTime from, DateTime to) async {
-        List<Record> targetMovements = _movements.where((movement) =>
-            movement.dateTime.isAfter(from) && movement.dateTime.isBefore(to)).toList();
-        return Future<List<Record>>.value(targetMovements);
+    Future<List<Record?>> getAllRecordsInInterval(DateTime? from, DateTime? to) async {
+        List<Record?> targetMovements = _movements.where((movement) =>
+            movement!.dateTime!.isAfter(from!) && movement.dateTime!.isBefore(to!)).toList();
+        return Future<List<Record?>>.value(targetMovements);
     }
 
     @override
-    Future<Record> getRecordById(int id) {
-      var matching = _movements.where((x) => x.id == id).toList();
+    Future<Record> getRecordById(int? id) {
+      var matching = _movements.where((x) => x!.id == id).toList();
       return (matching.isEmpty) ? Future<Record>.value(null): Future<Record>.value(matching[0]);
     }
 
     @override
-    Future<Record> getMatchingRecord(Record record) async {
-        var matching = _movements.where((x) => x.category == record.category && x.value == record.value && x.dateTime.isAtSameMomentAs(record.dateTime)).toList();
+    Future<Record> getMatchingRecord(Record? record) async {
+        var matching = _movements.where((x) => x!.category == record!.category && x.value == record.value && x.dateTime!.isAtSameMomentAs(record.dateTime!)).toList();
         return (matching.isEmpty) ? Future<Record>.value(null): Future<Record>.value(matching[0]);
     }
 
     @override
-    Future<int> updateRecordById(int movementId, Record newMovement) async {
+    Future<int?> updateRecordById(int? movementId, Record? newMovement) async {
       var movementWithTheSameId = await getRecordById(movementId);
       if (movementWithTheSameId == null) {
           throw Exception("Movement ID `$movementId` does not exists.");
@@ -108,12 +108,12 @@ class InMemoryDatabase implements DatabaseInterface {
     }
 
     @override
-    Future<void> deleteRecordById(int id) {
-      _movements.removeWhere((x) => x.id == id);
+    Future<void> deleteRecordById(int? id) async {
+      _movements.removeWhere((x) => x!.id == id);
     }
 
     @override
-    Future<void> deleteDatabase() {
+    Future<void> deleteDatabase() async {
       _movements.clear();
       _categories.clear();
     }
@@ -125,13 +125,13 @@ class InMemoryDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> deleteRecurrentRecordPatternById(String recurrentPatternId) {
+  Future<void> deleteRecurrentRecordPatternById(String? recurrentPatternId) {
     // TODO: implement deleteRecurrentRecordPatternById
     throw UnimplementedError();
   }
 
   @override
-  Future<RecurrentRecordPattern> getRecurrentRecordPattern(String recurrentPatternId) {
+  Future<RecurrentRecordPattern> getRecurrentRecordPattern(String? recurrentPatternId) {
     // TODO: implement getRecurrentRecordPattern
     throw UnimplementedError();
   }
@@ -143,7 +143,7 @@ class InMemoryDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> updateRecordPatternById(String recurrentPatternId, RecurrentRecordPattern pattern) {
+  Future<void> updateRecordPatternById(String? recurrentPatternId, RecurrentRecordPattern pattern) {
     // TODO: implement updateRecordPatternById
     throw UnimplementedError();
   }

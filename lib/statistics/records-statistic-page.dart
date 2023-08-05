@@ -10,14 +10,14 @@ class RecordsStatisticPage extends StatelessWidget {
   /// CategoryStatisticPage shows statistics of records belonging to
   /// the same category.
 
-  List<Record> records;
-  String categoryName;
+  List<Record?> records;
+  String? categoryName;
   AggregationMethod aggregationMethod;
-  DateTime from;
-  DateTime to;
+  DateTime? from;
+  DateTime? to;
 
   RecordsStatisticPage(this.from, this.to, this.records, this.aggregationMethod) {
-    categoryName = this.records[0].category.name;
+    categoryName = this.records[0]!.category!.name;
   }
 
   Widget _buildNoRecordPage() {
@@ -54,13 +54,13 @@ class RecordsStatisticPage extends StatelessWidget {
             children: <Widget>[
               Flexible(
                 child: Text(
-                  categoryName,
+                  categoryName!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                child: isSameDay ? Text(getDateStr(from)) : Text(getDateRangeStr(from, to)),
+                child: isSameDay ? Text(getDateStr(from)) : Text(getDateRangeStr(from!, to!)),
                 margin: EdgeInsets.only(left: 10),
               )
             ],

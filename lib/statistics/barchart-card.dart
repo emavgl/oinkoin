@@ -1,15 +1,15 @@
-import 'package:charts_flutter/flutter.dart';
+import 'package:community_charts_common/community_charts_common.dart';
+import 'package:community_charts_flutter/community_charts_flutter.dart' as charts;
+import 'package:community_charts_flutter/community_charts_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' as fmaterial;
 import 'package:intl/intl.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import 'package:piggybank/statistics/statistics-tab-page.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import './i18n/statistics-page.i18n.dart';
-import 'package:charts_flutter/src/text_style.dart' as style;
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:charts_flutter/src/text_element.dart' as ChartText;
+import 'package:community_charts_flutter/src/text_style.dart' as style;
+import 'package:community_charts_flutter/src/text_element.dart' as ChartText;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -18,11 +18,11 @@ import 'package:flutter/material.dart';
 class CustomCircleSymbolRenderer extends CircleSymbolRenderer {
   @override
   void paint(ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int> dashPattern,
-        Color fillColor,
-        FillPatternType fillPattern,
-        Color strokeColor,
-        double strokeWidthPx}) {
+      {List<int>? dashPattern,
+        Color? fillColor,
+        FillPatternType? fillPattern,
+        Color? strokeColor,
+        double? strokeWidthPx}) {
     super.paint(canvas, bounds,
         dashPattern: dashPattern,
         fillColor: fillColor,
@@ -46,17 +46,17 @@ class CustomCircleSymbolRenderer extends CircleSymbolRenderer {
 
 class BarChartCard extends StatelessWidget {
 
-  static String pointerValue;
-  final List<Record> records;
-  final AggregationMethod aggregationMethod;
-  final DateTime from, to;
-  List<DateTimeSeriesRecord> aggregatedRecords;
-  List<charts.Series> seriesList;
-  List<TickSpec<num>> ticksListY;
-  List<TickSpec<String>> ticksListX;
-  AxisSpec domainAxis;
-  String chartScope;
-  double average;
+  static late String pointerValue;
+  final List<Record?> records;
+  final AggregationMethod? aggregationMethod;
+  final DateTime? from, to;
+  late List<DateTimeSeriesRecord> aggregatedRecords;
+  late List<charts.Series> seriesList;
+  late List<TickSpec<num>> ticksListY;
+  late List<TickSpec<String>> ticksListX;
+  AxisSpec? domainAxis;
+  late String chartScope;
+  double? average;
 
   BarChartCard(this.from, this.to, this.records, this.aggregationMethod) {
     this.aggregatedRecords = aggregateRecordsByDate(records, aggregationMethod);
@@ -66,13 +66,13 @@ class BarChartCard extends StatelessWidget {
     DateFormat dateFormat;
     if (this.aggregationMethod == AggregationMethod.MONTH) {
       dateFormat = DateFormat("MM");
-      start = DateTime(records[0].dateTime.year);
-      end = DateTime(records[0].dateTime.year + 1);
+      start = DateTime(records[0]!.dateTime!.year);
+      end = DateTime(records[0]!.dateTime!.year + 1);
       chartScope = DateFormat("yyyy").format(start);
     } else {
       dateFormat = DateFormat("dd");
-      start = DateTime(records[0].dateTime.year, records[0].dateTime.month);
-      end = DateTime(records[0].dateTime.year, records[0].dateTime.month + 1);
+      start = DateTime(records[0]!.dateTime!.year, records[0]!.dateTime!.month);
+      end = DateTime(records[0]!.dateTime!.year, records[0]!.dateTime!.month + 1);
       chartScope = DateFormat("yyyy/MM").format(start);
     }
 
@@ -80,13 +80,13 @@ class BarChartCard extends StatelessWidget {
     ticksListX = _createXTicks(start, end, dateFormat);
     seriesList = _createStringSeries(records, start, end, dateFormat);
 
-    double sumValues = (this.aggregatedRecords.fold(0, (acc, e) => acc + e.value)).abs();
+    double sumValues = (this.aggregatedRecords.fold(0, (dynamic acc, e) => acc + e.value)).abs();
     average = sumValues / aggregatedRecords.length;
   }
 
-  List<charts.Series<StringSeriesRecord, String>> _createStringSeries(List<Record> records, DateTime start, DateTime end, DateFormat formatter) {
+  List<charts.Series<StringSeriesRecord, String?>> _createStringSeries(List<Record?> records, DateTime start, DateTime end, DateFormat formatter) {
     List<DateTimeSeriesRecord> dateTimeSeriesRecords = aggregateRecordsByDate(records, aggregationMethod);
-    Map<DateTime, StringSeriesRecord> aggregatedByDay = new Map();
+    Map<DateTime?, StringSeriesRecord> aggregatedByDay = new Map();
     for (var d in dateTimeSeriesRecords) {
       aggregatedByDay.putIfAbsent(truncateDateTime(d.time, aggregationMethod), () => StringSeriesRecord(truncateDateTime(d.time, aggregationMethod), d.value, formatter));
     }
@@ -95,9 +95,9 @@ class BarChartCard extends StatelessWidget {
       start = aggregationMethod == AggregationMethod.DAY ? start.add(Duration(days: 1)) : DateTime(start.year, start.month + 1);
     }
     List<StringSeriesRecord> data = aggregatedByDay.values.toList();
-    data.sort((a, b) => a.timestamp.compareTo(b.timestamp)); // sort descending
+    data.sort((a, b) => a.timestamp!.compareTo(b.timestamp!)); // sort descending
     return [
-      new charts.Series<StringSeriesRecord, String>(
+      new charts.Series<StringSeriesRecord, String?>(
         id: 'DailyRecords',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (StringSeriesRecord entries, _) => entries.key,
@@ -116,7 +116,7 @@ class BarChartCard extends StatelessWidget {
     return new Container(
         padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
         child: new charts.BarChart(
-          seriesList,
+          seriesList as List<Series<dynamic, String>>,
           animate: animate,
           behaviors: [
             charts.LinePointHighlighter(
@@ -124,7 +124,7 @@ class BarChartCard extends StatelessWidget {
             ),
             charts.RangeAnnotation([
               new charts.LineAnnotationSegment(
-                  average, charts.RangeAnnotationAxisType.measure,
+                  average!, charts.RangeAnnotationAxisType.measure,
                   color: charts.MaterialPalette.gray.shade400,
                   endLabel: 'Average'.i18n) ,
             ]),
@@ -133,8 +133,8 @@ class BarChartCard extends StatelessWidget {
             SelectionModelConfig(
                 changedListener: (SelectionModel model) {
                   if (model.hasDatumSelection) {
-                    pointerValue = model.selectedSeries[0].labelAccessorFn(model.selectedDatum[0].index) + ": " + model.selectedSeries[0]
-                        .measureFn(model.selectedDatum[0].index)
+                    pointerValue = model.selectedSeries[0].labelAccessorFn!(model.selectedDatum[0].index) + ": " + model.selectedSeries[0]
+                        .measureFn(model.selectedDatum[0].index)!
                         .toStringAsFixed(2);
                   }
                 }

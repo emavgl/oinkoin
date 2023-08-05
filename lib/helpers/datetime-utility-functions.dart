@@ -27,17 +27,17 @@ String getMonthStr(DateTime dateTime) {
   return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
 }
 
-String getDateStr(DateTime dateTime, {AggregationMethod aggregationMethod}) {
+String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod}) {
   Locale myLocale = I18n.locale;
   if (aggregationMethod != null) {
     if (aggregationMethod == AggregationMethod.MONTH) {
-      return DateFormat.yM(myLocale.languageCode).format(dateTime);
+      return DateFormat.yM(myLocale.languageCode).format(dateTime!);
     }
     if (aggregationMethod == AggregationMethod.YEAR) {
-      return DateFormat.y(myLocale.languageCode).format(dateTime);
+      return DateFormat.y(myLocale.languageCode).format(dateTime!);
     }
   }
-  return DateFormat.yMd(myLocale.languageCode).format(dateTime);
+  return DateFormat.yMd(myLocale.languageCode).format(dateTime!);
 }
 
 String extractMonthString(DateTime dateTime) {

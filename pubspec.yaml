@@ -14,7 +14,7 @@ description: The expenses under your control.
 version: 1.0.14+6004
 
 environment:
-  sdk: ">=2.6.0 <3.0.0"
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -26,16 +26,16 @@ dependencies:
   path:
   path_provider:
   shared_preferences: # plugin for persistent store for simple data (key-value pairs) like settings
-  charts_common: ^0.12.0
-  charts_flutter: ^0.12.0
+  community_charts_common:
+  community_charts_flutter:
   animations:
   month_picker_dialog:
   share_plus:
   flutter_speed_dial:
-  url_launcher: ^6.1.4
+  url_launcher:
   rate_my_app:
   launch_review:
-  flutter_colorpicker: ^1.0.3
+  flutter_colorpicker:
   file_picker:
   uuid:
 
@@ -44,18 +44,16 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons:
   font_awesome_flutter:
-  intl: 0.17.0
-  function_tree: ^0.8.13
+  intl:
+  function_tree:
 
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  moor_generator: # use the latest version
   build_runner:
   test:
-  mockito:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

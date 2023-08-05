@@ -33,7 +33,7 @@ class RecordsPage extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
   /// It contains also buttons for filtering the list of movements and add a new movement.
 
-  RecordsPage({Key key}) : super(key: key);
+  RecordsPage({Key? key}) : super(key: key);
 
   @override
   RecordsPageState createState() => RecordsPageState();
@@ -41,25 +41,25 @@ class RecordsPage extends StatefulWidget {
 
 class RecordsPageState extends State<RecordsPage> {
 
-  Future<List<Record>> getRecordsByInterval(DateTime _from, DateTime _to) async {
+  Future<List<Record?>> getRecordsByInterval(DateTime? _from, DateTime? _to) async {
     return await database.getAllRecordsInInterval(_from, _to);
   }
 
-  Future<List<Record>> getRecordsByMonth(int year, int month) async {
+  Future<List<Record?>> getRecordsByMonth(int year, int month) async {
     /// Returns the list of movements of a given month identified by
     /// :year and :month integers.
     _from = new DateTime(year, month, 1);
-    DateTime lastDayOfMonths = (_from.month < 12) ? new DateTime(_from.year, _from.month + 1, 0) : new DateTime(_from.year + 1, 1, 0);
+    DateTime lastDayOfMonths = (_from!.month < 12) ? new DateTime(_from!.year, _from!.month + 1, 0) : new DateTime(_from!.year + 1, 1, 0);
     _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
     return await getRecordsByInterval(_from, _to);
   }
 
 
-  List<Record> records = new List();
+  List<Record?> records = [];
   DatabaseInterface database = ServiceConfig.database;
-  DateTime _from;
-  DateTime _to;
-  String _header;
+  DateTime? _from;
+  DateTime? _to;
+  late String _header;
 
   Future<bool> isThereSomeCategory() async {
     var categories = await database.getAllCategories();
@@ -155,9 +155,9 @@ class RecordsPageState extends State<RecordsPage> {
 
   pickMonth() async {
     /// Open the dialog to pick a Month
-    DateTime currentDate = _from;
+    DateTime? currentDate = _from;
     int currentYear = DateTime.now().year;
-    DateTime dateTime = await showMonthPicker(
+    DateTime? dateTime = await showMonthPicker(
       context: context,
       firstDate: DateTime(currentYear - 5, 1),
       lastDate: DateTime(currentYear, 12),
@@ -167,7 +167,7 @@ class RecordsPageState extends State<RecordsPage> {
     if (dateTime != null) {
       var newRecords = await getRecordsByMonth(dateTime.year, dateTime.month);
       setState(() {
-        _header = getMonthStr(_from);
+        _header = getMonthStr(_from!);
         records = newRecords;
       });
     }
@@ -179,7 +179,7 @@ class RecordsPageState extends State<RecordsPage> {
     DateTime currentDate = DateTime.now();
     DateTime lastDate = DateTime(currentDate.year, 1);
     DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
-    DateTime yearPicked = await showYearPicker(
+    DateTime? yearPicked = await showYearPicker(
       firstDate: firstDate,
       lastDate: lastDate,
       initialDate: lastDate, context: context,
@@ -191,7 +191,7 @@ class RecordsPageState extends State<RecordsPage> {
       setState(() {
         _from = from;
         _to = to;
-        _header = getDateRangeStr(_from, _to);
+        _header = getDateRangeStr(_from!, _to!);
         records = newRecords;
       });
     }
@@ -203,7 +203,7 @@ class RecordsPageState extends State<RecordsPage> {
     DateTime currentDate = DateTime.now();
     DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
     DateTimeRange initialDateTimeRange = DateTimeRange(start: DateTime.now().subtract(Duration(days: 7)), end: currentDate);
-    DateTimeRange dateTimeRange = await showDateRangePicker(
+    DateTimeRange? dateTimeRange = await showDateRangePicker(
       context: context,
       firstDate: firstDate,
       lastDate: currentDate,
@@ -217,7 +217,7 @@ class RecordsPageState extends State<RecordsPage> {
       setState(() {
         _from = startDate;
         _to = endDate;
-        _header = getDateRangeStr(_from, _to);
+        _header = getDateRangeStr(_from!, _to!);
         records = newRecords;
       });
     }
@@ -250,7 +250,7 @@ class RecordsPageState extends State<RecordsPage> {
                 ),
                 decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).accentColor,
+                color: Theme.of(context).colorScheme.secondary,
               )),
             )
           ),
@@ -270,7 +270,7 @@ class RecordsPageState extends State<RecordsPage> {
                     ),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                     )),
               )
           ),
@@ -290,7 +290,7 @@ class RecordsPageState extends State<RecordsPage> {
               ),
               decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).colorScheme.secondary,
               )),
             )
           ),
@@ -389,7 +389,7 @@ class RecordsPageState extends State<RecordsPage> {
               ),
             ],
             pinned: true,
-            expandedHeight: 150,
+            expandedHeight: 180,
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: <StretchMode>[
                 StretchMode.zoomBackground,
@@ -437,18 +437,16 @@ class RecordsPageState extends State<RecordsPage> {
                   ) : Container(
                     child: new RecordsDayList(records, onListBackCallback: updateRecurrentRecordsAndFetchRecords,),
                   ),
-                  SizedBox(height: 75),
                 ],
               ),
             ),
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
           onPressed: () async => await navigateToAddNewMovementPage(),
           tooltip: 'Add a new record'.i18n,
-          label: Text('Add'.i18n),
-          icon: const Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
       );
   }

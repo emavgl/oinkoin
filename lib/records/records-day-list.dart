@@ -11,8 +11,8 @@ class RecordsDayList extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
   /// It contains also buttons for filtering the list of movements and add a new movement.
 
-  List<Record> records;
-  Function onListBackCallback;
+  List<Record?> records;
+  Function? onListBackCallback;
   RecordsDayList(this.records, {this.onListBackCallback});
 
   @override

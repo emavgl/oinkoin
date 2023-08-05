@@ -17,9 +17,9 @@ class StatisticsTabPage extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
-  List<Record> records;
-  DateTime from;
-  DateTime to;
+  List<Record?> records;
+  DateTime? from;
+  DateTime? to;
 
   StatisticsTabPage(this.from, this.to, this.records): super();
 
@@ -29,15 +29,15 @@ class StatisticsTabPage extends StatefulWidget {
 
 class StatisticsTabPageState extends State<StatisticsTabPage> {
 
-  int indexTab;
-  List<Record> aggregatedRecords;
-  AggregationMethod aggregationMethod;
+  int? indexTab;
+  List<Record?>? aggregatedRecords;
+  AggregationMethod? aggregationMethod;
 
   @override
   void initState() {
     super.initState();
     indexTab = 0; // index identifying the tab
-    this.aggregationMethod = widget.from.month == widget.to.month ? AggregationMethod.DAY : AggregationMethod.MONTH;
+    this.aggregationMethod = widget.from!.month == widget.to!.month ? AggregationMethod.DAY : AggregationMethod.MONTH;
     this.aggregatedRecords = aggregateRecordsByDateAndCategory(widget.records, aggregationMethod);
   }
 

@@ -14,10 +14,10 @@ class CategoryStatisticPage extends StatefulWidget {
   /// CategoryStatisticPage shows statistics of records belonging to
   /// the same category.
 
-  List<Record> records;
-  AggregationMethod aggregationMethod;
-  DateTime from;
-  DateTime to;
+  List<Record?> records;
+  AggregationMethod? aggregationMethod;
+  DateTime? from;
+  DateTime? to;
 
   CategoryStatisticPage(this.from, this.to, this.records, this.aggregationMethod): super();
 
@@ -27,13 +27,13 @@ class CategoryStatisticPage extends StatefulWidget {
 
 class CategoryStatisticPageState extends State<CategoryStatisticPage> {
 
-  String categoryName;
-  List<DateTimeSeriesRecord> aggregatedRecords;
+  String? categoryName;
+  List<DateTimeSeriesRecord>? aggregatedRecords;
 
   @override
   void initState() {
     super.initState();
-    categoryName = widget.records[0].category.name;
+    categoryName = widget.records[0]!.category!.name;
   }
 
   Widget _buildNoRecordPage() {
@@ -71,13 +71,13 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
             children: <Widget>[
               Flexible(
                 child: Text(
-                  categoryName,
+                  categoryName!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                child:  Text(getDateRangeStr(widget.from, widget.to)),
+                child:  Text(getDateRangeStr(widget.from!, widget.to!)),
                 margin: EdgeInsets.only(left: 10),
               )
             ],
