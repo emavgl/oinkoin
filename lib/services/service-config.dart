@@ -7,5 +7,5 @@ class ServiceConfig {
   /// used in different parts of the applications.
 
   static final DatabaseInterface database = SqliteDatabase.instance;
-  static final isPremium = true;
+  static bool isPremium = false; // set in main.dart
 }

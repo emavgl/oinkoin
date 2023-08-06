@@ -73,3 +73,5 @@
 /android/key.properties
 /build-debug-files/
 /store-assets/
+/build-debug-file/
+/tmp_build

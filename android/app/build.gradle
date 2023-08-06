@@ -44,7 +44,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.github.emavgl.piggybankprodebug"
+        applicationId "com.github.emavgl.piggybank"
         minSdkVersion 19
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
@@ -63,6 +63,25 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+        }
+    }
+
+    flavorDimensions "oinkoin"
+    productFlavors {
+        dev {
+            dimension "oinkoin"
+            applicationIdSuffix ".dev.pro"
+            resValue "string", "app_name", "Oinkoin App Dev"
+        }
+        free {
+            dimension "oinkoin"
+            applicationIdSuffix ""
+            resValue "string", "app_name", "Oinkoin App Free"
+        }
+        pro {
+            dimension "oinkoin"
+            applicationId "com.github.emavgl.piggybankpro"
+            resValue "string", "app_name", "Oinkoin App Pro"
         }
     }
 }

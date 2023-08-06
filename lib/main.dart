@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:piggybank/style.dart';
 
 main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized.
+  WidgetsFlutterBinding.ensureInitialized();
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro");
   runApp(
     App(
       lightTheme: await MaterialThemeInstance.getLightTheme(),

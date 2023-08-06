@@ -38,6 +38,7 @@ dependencies:
   flutter_colorpicker:
   file_picker:
   uuid:
+  package_info_plus:
 
 
   # The following adds the Cupertino Icons font to your application.
