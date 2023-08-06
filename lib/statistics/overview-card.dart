@@ -130,7 +130,7 @@ class OverviewCard extends StatelessWidget {
 
   Widget _buildCard() {
     return Card(
-        elevation: 2,
+        elevation: 0,
         child: Padding(
           padding: const EdgeInsets.all(6.0),
           child: Column(
@@ -154,7 +154,6 @@ class OverviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(10, 5, 10, 0),
       child: _buildCard(),
     );
   }

@@ -5,9 +5,25 @@ import 'package:piggybank/shell.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:piggybank/style.dart';
 
-void main() => runApp(App());
+main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized.
+  runApp(
+    App(
+      lightTheme: await MaterialThemeInstance.getLightTheme(),
+      darkTheme: await MaterialThemeInstance.getDarkTheme(),
+      themeMode: await MaterialThemeInstance.getThemeMode()
+    ),
+  );
+}
 
 class App extends StatelessWidget {
+  
+  final ThemeData lightTheme;
+  final ThemeData darkTheme;
+  final ThemeMode themeMode;
+
+  const App({Key? key, required this.lightTheme, required this.darkTheme, required this.themeMode}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,8 +53,9 @@ class App extends StatelessWidget {
       home: I18n(
           // I18n translates strings to the current system locale
           child: Shell()),
-      theme: materialTheme,
-      themeMode: ThemeMode.light,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
     );
   }
 }

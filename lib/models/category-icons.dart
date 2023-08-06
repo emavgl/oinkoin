@@ -8,19 +8,19 @@ class CategoryIcons {
     FontAwesomeIcons.question,
 
     // House
-    FontAwesomeIcons.home,
+    FontAwesomeIcons.house,
 
     // Food
-    FontAwesomeIcons.hamburger,
+    FontAwesomeIcons.burger,
     FontAwesomeIcons.pizzaSlice,
     FontAwesomeIcons.iceCream,
-    FontAwesomeIcons.birthdayCake,
+    FontAwesomeIcons.cakeCandles,
     FontAwesomeIcons.fish,
 
     // Beverage
-    FontAwesomeIcons.cocktail,
-    FontAwesomeIcons.coffee,
-    FontAwesomeIcons.beer,
+    FontAwesomeIcons.martiniGlassCitrus,
+    FontAwesomeIcons.mugSaucer,
+    FontAwesomeIcons.beerMugEmpty,
 
     // transports
     FontAwesomeIcons.car,
@@ -31,11 +31,11 @@ class CategoryIcons {
     FontAwesomeIcons.train,
 
     // Shopping
-    FontAwesomeIcons.shoppingCart,
+    FontAwesomeIcons.cartShopping,
     FontAwesomeIcons.gift,
     FontAwesomeIcons.socks,
     FontAwesomeIcons.receipt,
-    FontAwesomeIcons.tshirt,
+    FontAwesomeIcons.shirt,
 
     // Animal
     FontAwesomeIcons.cat,
@@ -45,16 +45,16 @@ class CategoryIcons {
     FontAwesomeIcons.moneyBill,
     FontAwesomeIcons.creditCard,
     FontAwesomeIcons.wallet,
-    FontAwesomeIcons.handHoldingUsd,
-    FontAwesomeIcons.donate,
+    FontAwesomeIcons.handHoldingDollar,
+    FontAwesomeIcons.circleDollarToSlot,
     FontAwesomeIcons.landmark,
 
     // Entertainment
     FontAwesomeIcons.phone,
     FontAwesomeIcons.gamepad,
-    FontAwesomeIcons.theaterMasks,
-    FontAwesomeIcons.swimmer,
-    FontAwesomeIcons.footballBall,
+    FontAwesomeIcons.masksTheater,
+    FontAwesomeIcons.personSwimming,
+    FontAwesomeIcons.football,
     FontAwesomeIcons.dumbbell,
     FontAwesomeIcons.tv,
     FontAwesomeIcons.film,
@@ -73,7 +73,7 @@ class CategoryIcons {
     FontAwesomeIcons.question,
 
     // House
-    FontAwesomeIcons.home,
+    FontAwesomeIcons.house,
     FontAwesomeIcons.bed,
     FontAwesomeIcons.couch,
     FontAwesomeIcons.lightbulb,
@@ -85,13 +85,13 @@ class CategoryIcons {
     FontAwesomeIcons.babyCarriage,
 
     // Food
-    FontAwesomeIcons.hamburger,
+    FontAwesomeIcons.burger,
     FontAwesomeIcons.pizzaSlice,
     FontAwesomeIcons.cheese,
-    FontAwesomeIcons.appleAlt,
+    FontAwesomeIcons.appleWhole,
     FontAwesomeIcons.breadSlice,
     FontAwesomeIcons.iceCream,
-    FontAwesomeIcons.birthdayCake,
+    FontAwesomeIcons.cakeCandles,
     FontAwesomeIcons.fish,
     FontAwesomeIcons.cookie,
     FontAwesomeIcons.egg,
@@ -100,20 +100,20 @@ class CategoryIcons {
 
 
     // Beverage
-    FontAwesomeIcons.cocktail,
+    FontAwesomeIcons.martiniGlassCitrus,
     FontAwesomeIcons.wineGlass,
     FontAwesomeIcons.mugHot,
-    FontAwesomeIcons.glassWhiskey,
-    FontAwesomeIcons.coffee,
-    FontAwesomeIcons.beer,
+    FontAwesomeIcons.whiskeyGlass,
+    FontAwesomeIcons.mugSaucer,
+    FontAwesomeIcons.beerMugEmpty,
 
     // transports
     FontAwesomeIcons.gasPump,
     FontAwesomeIcons.car,
     FontAwesomeIcons.carBattery,
     FontAwesomeIcons.bus,
-    FontAwesomeIcons.parking,
-    FontAwesomeIcons.biking,
+    FontAwesomeIcons.squareParking,
+    FontAwesomeIcons.personBiking,
     FontAwesomeIcons.motorcycle,
     FontAwesomeIcons.bicycle,
     FontAwesomeIcons.caravan,
@@ -124,9 +124,9 @@ class CategoryIcons {
     FontAwesomeIcons.suitcase,
 
     // Shopping
-    FontAwesomeIcons.shoppingCart,
-    FontAwesomeIcons.shoppingBag,
-    FontAwesomeIcons.shoppingBasket,
+    FontAwesomeIcons.cartShopping,
+    FontAwesomeIcons.bagShopping,
+    FontAwesomeIcons.basketShopping,
     FontAwesomeIcons.gem,
     FontAwesomeIcons.ring,
     FontAwesomeIcons.tag,
@@ -136,7 +136,7 @@ class CategoryIcons {
     FontAwesomeIcons.socks,
     FontAwesomeIcons.hatCowboy,
     FontAwesomeIcons.receipt,
-    FontAwesomeIcons.tshirt,
+    FontAwesomeIcons.shirt,
     FontAwesomeIcons.graduationCap,
 
     // Animal
@@ -155,8 +155,8 @@ class CategoryIcons {
     FontAwesomeIcons.creditCard,
     FontAwesomeIcons.piggyBank,
     FontAwesomeIcons.wallet,
-    FontAwesomeIcons.handHoldingUsd,
-    FontAwesomeIcons.donate,
+    FontAwesomeIcons.handHoldingDollar,
+    FontAwesomeIcons.circleDollarToSlot,
     FontAwesomeIcons.landmark,
     FontAwesomeIcons.coins,
 
@@ -164,18 +164,18 @@ class CategoryIcons {
     FontAwesomeIcons.phone,
     FontAwesomeIcons.simCard,
     FontAwesomeIcons.gamepad,
-    FontAwesomeIcons.theaterMasks,
-    FontAwesomeIcons.swimmer,
+    FontAwesomeIcons.masksTheater,
+    FontAwesomeIcons.personSwimming,
     FontAwesomeIcons.bowlingBall,
-    FontAwesomeIcons.golfBall,
-    FontAwesomeIcons.baseballBall,
-    FontAwesomeIcons.basketballBall,
-    FontAwesomeIcons.footballBall,
-    FontAwesomeIcons.volleyballBall,
+    FontAwesomeIcons.golfBallTee,
+    FontAwesomeIcons.baseball,
+    FontAwesomeIcons.basketball,
+    FontAwesomeIcons.football,
+    FontAwesomeIcons.volleyball,
     FontAwesomeIcons.futbol,
     FontAwesomeIcons.dumbbell,
-    FontAwesomeIcons.hiking,
-    FontAwesomeIcons.skiing,
+    FontAwesomeIcons.personHiking,
+    FontAwesomeIcons.personSkiing,
     FontAwesomeIcons.tv,
     FontAwesomeIcons.film,
     FontAwesomeIcons.desktop,
@@ -185,7 +185,7 @@ class CategoryIcons {
     FontAwesomeIcons.headphones,
     FontAwesomeIcons.dice,
     FontAwesomeIcons.guitar,
-    FontAwesomeIcons.university,
+    FontAwesomeIcons.buildingColumns,
 
     // Medical
     FontAwesomeIcons.pills,
@@ -195,10 +195,10 @@ class CategoryIcons {
     FontAwesomeIcons.syringe,
     FontAwesomeIcons.tooth,
     FontAwesomeIcons.virus,
-    FontAwesomeIcons.airFreshener,
+    FontAwesomeIcons.sprayCanSparkles,
     FontAwesomeIcons.soap,
     FontAwesomeIcons.pumpSoap,
-    FontAwesomeIcons.handsWash,
+    FontAwesomeIcons.handsBubbles,
   ];
 
 }

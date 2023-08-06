@@ -38,7 +38,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         shrinkWrap: true,
         itemCount: widget._movementDay.records!.length,
         separatorBuilder: (context, index) {
-          return Divider();
+          return Divider(thickness: 0.5, endIndent: 10, indent: 10,);
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
@@ -63,11 +63,11 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             margin: EdgeInsets.only(left: 30, top: 20),
             width: 20,
             height: 20,
-            child: Icon(Icons.repeat, size: 10, color: Colors.black,),
+            child: Icon(Icons.repeat, size: 10, color: Theme.of(context).colorScheme.onSurface,),
             decoration: BoxDecoration(
 //              border: Border.all(color: Colors.black),
               shape: BoxShape.circle,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
             )
         )
       ],
@@ -117,15 +117,13 @@ class MovementGroupState extends State<RecordsPerDayCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      surfaceTintColor: Colors.transparent,
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
       child: Container(
           child: Column(
             children: <Widget>[
               Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+                  padding: const EdgeInsets.fromLTRB(15, 8, 8, 0),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -165,7 +163,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                     ]
                   )
               ),
-              new Divider(),
+              new Divider(thickness: 0.5,),
               _buildMovements(),
             ],
           )

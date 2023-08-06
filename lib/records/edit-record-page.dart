@@ -152,7 +152,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
 Widget _createAddNoteCard() {
     return Card(
-        elevation: 2,
+        elevation: 1,
         child: Container(
           padding: const EdgeInsets.only(bottom: 40.0, top: 10, right: 10, left: 10),
           child: TextFormField(
@@ -163,14 +163,16 @@ Widget _createAddNoteCard() {
               },
               style: TextStyle(
                   fontSize: 22.0,
-                  color: Colors.black
               ),
               initialValue: record!.description,
               maxLines: null,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                border: InputBorder.none,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
                 hintText: "Add a note".i18n,
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.all(10),
+                label: Text("Note")
               )
           ),
         ),
@@ -179,7 +181,7 @@ Widget _createAddNoteCard() {
 
   Widget _createTitleCard() {
     return Card(
-      elevation: 2,
+      elevation: 1,
       child: Container(
         padding: const EdgeInsets.all(10),
         child: TextFormField(
@@ -190,7 +192,6 @@ Widget _createAddNoteCard() {
             },
             style: TextStyle(
                 fontSize: 22.0,
-                color: Colors.black
             ),
             maxLines: 1,
             initialValue: record!.title,
@@ -209,7 +210,7 @@ Widget _createAddNoteCard() {
 
   Widget _createCategoryCard() {
     return Card(
-      elevation: 2,
+      elevation: 1,
       child: Container(
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -271,7 +272,7 @@ Widget _createAddNoteCard() {
 
   Widget _createDateAndRepeatCard() {
     return Card(
-      elevation: 2,
+      elevation: 1,
       child: Container(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -312,7 +313,7 @@ Widget _createAddNoteCard() {
                           margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
                           child: Row(
                             children: [
-                              Icon(Icons.repeat, size: 28, color: Colors.black54),
+                              Icon(Icons.repeat, size: 28, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               Expanded(
                                 child: Container(
                                   margin: EdgeInsets.only(left: 15, right: 10),
@@ -339,7 +340,7 @@ Widget _createAddNoteCard() {
                                               margin: const EdgeInsets.only(left: 10.0),
                                               child: Text(
                                                 "Repeat".i18n,
-                                                style: TextStyle(fontSize: 20.0, color: Colors.black26),
+                                                style: TextStyle(fontSize: 20.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                               ),
                                             ) : Container(
                                               margin: const EdgeInsets.only(left: 10.0),
@@ -385,7 +386,7 @@ Widget _createAddNoteCard() {
 
   Widget _createAmountCard() {
     return Card(
-      elevation: 2,
+      elevation: 1,
       child: Container(
         child: IntrinsicHeight(
             child: Row(
@@ -394,7 +395,6 @@ Widget _createAddNoteCard() {
                 Expanded(
                     child: Container(
                       padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.only(right: 20),
                       child: TextFormField(
                           controller: _textEditingController,
                           autofocus: record!.value == null,
@@ -419,7 +419,6 @@ Widget _createAddNoteCard() {
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
-                            border: InputBorder.none,
                             hintText: "0",
                             labelText: "Amount".i18n
                           )
@@ -500,10 +499,10 @@ Widget _createAddNoteCard() {
               child: Column(
                   children: [
                     _createAmountCard(),
-                    _createCategoryCard(),
                     _createTitleCard(),
+                    _createCategoryCard(),
                     _createDateAndRepeatCard(),
-                    _createAddNoteCard()
+                    _createAddNoteCard(),
                   ]
               ),
             )

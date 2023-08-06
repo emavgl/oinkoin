@@ -19,6 +19,11 @@ class ShellState extends State<Shell> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+    MaterialThemeInstance.currentTheme = themeData;
+    ThemeData lightTheme = MaterialThemeInstance.lightTheme!;
+    ThemeData darkTheme = MaterialThemeInstance.darkTheme!;
+    ThemeMode themeMode = MaterialThemeInstance.themeMode!;
     // How I have implemented navigation: https://stackoverflow.com/questions/45235570/how-to-use-bottomnavigationbar-with-navigator
     return Scaffold(
       body: new Stack(
@@ -27,27 +32,26 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 0,
             child: new TickerMode(
             enabled: _currentIndex == 0,
-            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey), title: "Oinkoin", theme: materialTheme,),
+            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
           ),
           ),
           new Offstage(
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoryTabPageEdit(), title: "Oinkoin", theme: materialTheme),
+              child: new MaterialApp(home: new CategoryTabPageEdit(), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
             ),
           ),
             new Offstage(
               offstage: _currentIndex != 2,
               child: new TickerMode(
                 enabled: _currentIndex == 2,
-                child: new MaterialApp(home: new SettingsPage(), title: "Oinkoin", theme: materialTheme,),
+                child: new MaterialApp(home: new SettingsPage(), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
               ),
             ),
         ]
       ),
       bottomNavigationBar: NavigationBar(
-          backgroundColor: Theme.of(context).colorScheme.surface,
           selectedIndex: _currentIndex,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           onDestinationSelected: (int index) async {

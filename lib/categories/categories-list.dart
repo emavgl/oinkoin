@@ -29,7 +29,7 @@ class CategoriesListState extends State<CategoriesList> {
 
   Widget _buildCategories() {
     return ListView.separated(
-        separatorBuilder: (context, index) => Divider(),
+        separatorBuilder: (context, index) => Divider(thickness: 0.5,),
         itemCount: widget.categories.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {

@@ -39,9 +39,9 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   @override
   Widget build(BuildContext context) {
     return Card(
-        elevation: 2,
-        color: Colors.white,
-        surfaceTintColor: Colors.transparent,
+        elevation: 1,
+        //color: Colors.white,
+        //surfaceTintColor: Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.all(6.0),
           child: Row(

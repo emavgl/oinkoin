@@ -4,6 +4,7 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
 import 'package:piggybank/services/backup-service.dart';
+import 'package:piggybank/settings/customization-page.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -85,6 +86,13 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  goToCustomizationPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CustomizationPage()),
+    );
+  }
+
   goToFeedbackPage(BuildContext context) async {
     await Navigator.push(
       context,
@@ -108,6 +116,16 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         itemExtent: kSettingsItemsExtent,
         children: <Widget>[
+          SettingsItem(
+              icon: Icon(
+                Icons.wallpaper,
+                color: Colors.white,
+              ),
+              iconBackgroundColor: Colors.blue.shade600,
+              title: 'Customization'.i18n,
+              subtitle: "Set visual preferences".i18n,
+              onPressed: () async => await goToCustomizationPage(context)
+          ),
           SettingsItem(
               icon: Icon(
                 Icons.repeat,

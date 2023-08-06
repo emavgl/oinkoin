@@ -79,11 +79,17 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   }
 
   Widget _getPageSeparatorLabel(String labelText) {
+    TextStyle textStyle = TextStyle(
+    fontFamily: FontNameDefault,
+    fontWeight: FontWeight.w300,
+    fontSize: 26.0,
+    color: MaterialThemeInstance.currentTheme?.colorScheme.onSurface,
+    );
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
         margin: EdgeInsets.fromLTRB(15, 15, 0, 5),
-        child: Text(labelText, style: Body1Style, textAlign: TextAlign.left),
+        child: Text(labelText, style: textStyle, textAlign: TextAlign.left),
       ),
     );
   }
@@ -103,7 +109,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             child: IconButton(
               // Use the FaIcon Widget + FontAwesomeIcons class for the IconData
                 icon: FaIcon(icons[index]),
-                color: ((chosenIconIndex == index) ? Colors.blueAccent : Colors.black45),
+                color: ((chosenIconIndex == index) ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface.withOpacity(0.6)
+            ),
                 onPressed: () {
                   setState(() {
                     category!.icon = icons[index];
@@ -279,7 +286,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 initialValue: categoryName,
                 style: TextStyle(
                     fontSize: 22.0,
-                    color: Colors.black
+                    color: Theme.of(context).colorScheme.onSurface
                 ),
                 decoration: InputDecoration(
                     hintText: "Category name".i18n,
@@ -320,17 +327,14 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     );
   }
 
-  Card _getPickColorCard() {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      surfaceTintColor: Colors.transparent,
+  Widget _getPickColorCard() {
+    return Container(
       child: Container(
         padding: EdgeInsets.only(bottom: 10),
         child: Column(
           children: [
             _getPageSeparatorLabel("Color".i18n),
-            Divider(),
+            Divider(thickness: 0.5,),
             _createColorsList(),
           ],
         ),
@@ -338,16 +342,13 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     );
   }
 
-  Card _getIconPickerCard() {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      surfaceTintColor: Colors.transparent,
+  Widget _getIconPickerCard() {
+    return Container(
       child: Container(
         child: Column(
           children: [
             _getPageSeparatorLabel("Icon".i18n),
-            Divider(),
+            Divider(thickness: 0.5,),
             _getIconsGrid(),
           ],
         ),
@@ -355,15 +356,12 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     );
   }
 
-  Card _getPreviewAndTitleCard() {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      surfaceTintColor: Colors.transparent,
+  Widget _getPreviewAndTitleCard() {
+    return Container(
       child: Column(
         children: [
           _getPageSeparatorLabel("Name".i18n),
-          Divider(),
+          Divider(thickness: 0.5,),
           Container(
             child: Row(
               children: <Widget>[

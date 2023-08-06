@@ -22,6 +22,7 @@ import 'package:piggybank/settings/feedback-page.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:share_plus/share_plus.dart';
+import '../helpers/records-utility-functions.dart';
 import 'days-summary-box-card.dart';
 import 'package:path_provider/path_provider.dart';
 import './i18n/records-page.i18n.dart';
@@ -341,20 +342,6 @@ class RecordsPageState extends State<RecordsPage> {
   onTabChange() async {
     // Navigator.of(context).popUntil((route) => route.isFirst);
     await updateRecurrentRecordsAndFetchRecords();
-  }
-
-  AssetImage getBackgroundImage() {
-    if (!ServiceConfig.isPremium) {
-      return AssetImage('assets/background.jpg');
-    } else {
-      try {
-        var now = DateTime.now();
-        String month = now.month.toString();
-        return AssetImage('assets/bkg_' + month + '.jpg');
-      } on Exception catch (_) {
-        return AssetImage('assets/background.jpg');
-      }
-    }
   }
 
   @override

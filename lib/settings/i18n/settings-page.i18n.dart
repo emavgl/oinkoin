@@ -138,6 +138,46 @@ extension Localization on String {
         "it_it": "Visualizza o cancella movimenti ricorrenti",
       } +
       {
+        "en_us": "Customization",
+        "it_it": "Preferenze",
+      } +
+      {
+        "en_us": "Dynamic colors",
+        "it_it": "Colori dinamici",
+      } +
+      {
+        "en_us": "System",
+        "it_it": "Sistema",
+      } +
+      {
+        "en_us": "Light",
+        "it_it": "Chiaro",
+      } +
+      {
+        "en_us": "Dark",
+        "it_it": "Scuro",
+      } +
+      {
+        "en_us": "Theme style",
+        "it_it": "Stile del tema",
+      } +
+      {
+        "en_us": "Select the app theme style - Require App restart",
+        "it_it": "Seleziona il tema dell'app - Richiede riavvio dell'app",
+      } +
+      {
+        "en_us": "Dynamic colors",
+        "it_it": "Colori dinamici",
+      } +
+      {
+        "en_us": "Use a color palette based on the main image - Require App restart",
+        "it_it": "Use una palette di colori basata sull'immagine principale - Richiede riavvio dell'app",
+      } +
+      {
+        "en_us": "Set visual preferences",
+        "it_it": "Imposta preferenze grafiche",
+      } +
+      {
         "en_us": "Pay us a coffee",
         "it_it": "Donaci un caffè",
       };

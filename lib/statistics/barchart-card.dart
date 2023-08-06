@@ -154,10 +154,10 @@ class BarChartCard extends StatelessWidget {
 
   Widget _buildCard() {
     return Container(
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
         height: 250,
+        margin: EdgeInsets.only(top: 10, bottom: 10),
         child: new Card(
-            elevation: 2,
+            elevation: 0,
             child: Column(
               children: <Widget>[
                 Container(

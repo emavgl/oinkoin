@@ -29,7 +29,7 @@ class RecordsDayListState extends State<RecordsDayList> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _daysShown.length,
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
         itemBuilder: /*1*/ (context, i) {
           return RecordsPerDayCard(_daysShown[i], onListBackCallback: widget.onListBackCallback);
         });

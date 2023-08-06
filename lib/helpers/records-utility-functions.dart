@@ -1,8 +1,11 @@
 import 'dart:collection';
 import "package:collection/collection.dart";
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
+
+import '../services/service-config.dart';
 
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
@@ -27,3 +30,16 @@ String getCurrencyValueString(double? value) {
   return currencyNumberFormat.format(value);
 }
 
+AssetImage getBackgroundImage() {
+  if (!ServiceConfig.isPremium) {
+    return AssetImage('assets/background.jpg');
+  } else {
+    try {
+      var now = DateTime.now();
+      String month = now.month.toString();
+      return AssetImage('assets/bkg_' + month + '.jpg');
+    } on Exception catch (_) {
+      return AssetImage('assets/background.jpg');
+    }
+  }
+}
