@@ -71,17 +71,17 @@ android {
         dev {
             dimension "oinkoin"
             applicationIdSuffix ".dev.pro"
-            resValue "string", "app_name", "Oinkoin App Dev"
+            resValue "string", "app_name", "Oinkoin Debug"
         }
         free {
             dimension "oinkoin"
             applicationIdSuffix ""
-            resValue "string", "app_name", "Oinkoin App Free"
+            resValue "string", "app_name", "Oinkoin"
         }
         pro {
             dimension "oinkoin"
             applicationId "com.github.emavgl.piggybankpro"
-            resValue "string", "app_name", "Oinkoin App Pro"
+            resValue "string", "app_name", "Oinkoin Pro"
         }
     }
 }
