@@ -48,7 +48,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
   Widget _buildRecurrentPatternRow(RecurrentRecordPattern pattern) {
     /// Returns a ListTile rendering the single movement row
     return Card(
-        elevation: 2,
+        elevation: 0,
         child: Container(
           margin: EdgeInsets.only(top: 10, bottom: 10),
           child: ListTile(

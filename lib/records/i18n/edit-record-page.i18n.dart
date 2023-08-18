@@ -52,8 +52,8 @@ extension Localization on String {
         "it_it": "Cancella",
       } +
       {
-        "en_us": "Repeat",
-        "it_it": "Ripeti",
+        "en_us": "Not repeat",
+        "it_it": "Non ripetere",
       } +
       {
         "en_us": "Please enter a value",

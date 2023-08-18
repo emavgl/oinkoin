@@ -356,7 +356,12 @@ class RecordsPageState extends State<RecordsPage> {
               IconButton(icon: Icon(Icons.calendar_today), onPressed: () async => await _showSelectDateDialog(), color: Colors.white),
               IconButton(icon: Icon(Icons.donut_small), onPressed: () => navigateToStatisticsPage(), color: Colors.white),
               PopupMenuButton<int>(
-                color: Colors.white,
+                icon: Icon(Icons.more_vert,color: Colors.white),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ),
                 onSelected: (index) async {
                   if (index == 1) {
                     var csvStr = CSVExporter.createCSVFromRecordList(this.records);
@@ -369,8 +374,12 @@ class RecordsPageState extends State<RecordsPage> {
                 itemBuilder: (BuildContext context) {
                   return {"Export CSV".i18n: 1}.entries.map((entry) {
                     return PopupMenuItem<int>(
+                      padding: EdgeInsets.all(20),
                       value: entry.value,
-                      child: Text(entry.key),
+                      child: Text(entry.key, style: TextStyle(
+                          fontSize: 16,
+                      )
+                      ),
                     );
                   }).toList();
                 },

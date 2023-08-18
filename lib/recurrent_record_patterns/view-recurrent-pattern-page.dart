@@ -34,22 +34,10 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
   final _formKey = GlobalKey<FormState>();
 
   RecurrentPeriod? recurrentPeriod;
-  late String currency;
-
-  Future<String> getCurrency() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('currency') ?? "€";
-  }
 
   @override
   void initState() {
     super.initState();
-    currency = "€";
-    getCurrency().then((value) {
-      setState(() {
-        currency = value;
-      });
-    });
     recurrentPeriod = widget.passedPattern!.recurrentPeriod;
   }
 
@@ -69,7 +57,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
               },
               style: TextStyle(
                   fontSize: 22.0,
-                  color: Colors.black
+                  color: Theme.of(context).colorScheme.onSurface
               ),
               initialValue: widget.passedPattern!.description,
               maxLines: null,
@@ -98,7 +86,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
             },
             style: TextStyle(
                 fontSize: 22.0,
-                color: Colors.black
+                color: Theme.of(context).colorScheme.onSurface
             ),
             maxLines: 1,
             keyboardType: TextInputType.text,
@@ -127,7 +115,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                     _createCategoryCirclePreview(40.0),
                     Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                      child: Text(widget.passedPattern!.category!.name!, style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                      child: Text(widget.passedPattern!.category!.name!, style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),),
                     )
                   ],
                 ),
@@ -174,14 +162,14 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
             InkWell(
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 28, color: Colors.blueAccent,),
+                  Icon(Icons.calendar_today, size: 28, color: Theme.of(context).colorScheme.onSurface,),
                   Container(
                     margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
                     child: Row(
                       children: [
                         Text("From:".i18n, style: TextStyle(fontSize: 20)),
                         Text(" ", style: TextStyle(fontSize: 20)),
-                        Text(getDateStr(widget.passedPattern!.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent))
+                        Text(getDateStr(widget.passedPattern!.dateTime), style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurface))
                       ],
                     ),
                   )
@@ -192,14 +180,14 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
             InkWell(
                 child: Row(
                   children: [
-                    Icon(Icons.repeat, size: 28, color: Colors.blueAccent,),
+                    Icon(Icons.repeat, size: 28, color: Theme.of(context).colorScheme.onSurface,),
                     Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
                       child: Row(
                         children: [
                           Text("Repeat:".i18n, style: TextStyle(fontSize: 20)),
                           Text(" ".i18n, style: TextStyle(fontSize: 20)),
-                          Text(recurrentPeriodString(recurrentPeriod).i18n, style: TextStyle(fontSize: 20, color: Colors.blueAccent))
+                          Text(recurrentPeriodString(recurrentPeriod).i18n, style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurface))
                         ],
                       ),
                     )
@@ -220,15 +208,6 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.only(left: 20, right: 20),
-                    child: Text(currency, style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
-                  ),
-                ),
-                VerticalDivider(endIndent: 20, indent: 20, color: Colors.black),
                 Expanded(
                     child: Container(
                       padding: EdgeInsets.all(10),
@@ -262,7 +241,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                           textAlign: TextAlign.end,
                           style: TextStyle(
                               fontSize: 32.0,
-                              color: Colors.black
+                              color: Theme.of(context).colorScheme.onSurface
                           ),
                           keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                           decoration: InputDecoration(

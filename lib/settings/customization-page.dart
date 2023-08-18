@@ -19,28 +19,33 @@ class CustomizationPageState extends State<CustomizationPage> {
     SharedPreferences.getInstance().then((value) {
       prefs = value;
       int themeStyleDropdownValueIndex = prefs.getInt('themeMode') ?? 0;
+      int themeColorDropdownValueIndex = prefs.getInt('themeColor') ?? 0;
       setState(() {
-        switchValue1 = prefs.getBool('dynamicColorScheme') ?? false;
-        themeStyleDropdownValue = dropDownValues[themeStyleDropdownValueIndex];
+        themeColorDropdownValue = themeColorDropDownValues[themeColorDropdownValueIndex];
+        themeStyleDropdownValue = themeStyleDropDownValues[themeStyleDropdownValueIndex];
       });
     });
   }
 
-  bool switchValue1 = false;
   late SharedPreferences prefs;
-  List<String> dropDownValues = ["System".i18n, "Light".i18n, "Dark".i18n];
+  List<String> themeStyleDropDownValues = ["System".i18n, "Light".i18n, "Dark".i18n];
   String themeStyleDropdownValue = "System".i18n;
+
+  List<String> themeColorDropDownValues = ["Default".i18n, "System".i18n, "Monthly Image".i18n];
+  String themeColorDropdownValue = "Default".i18n;
 
   Widget buildThemeStyleDropdownButton() {
     return DropdownButton<String>(
+      padding: EdgeInsets.all(15),
       value: themeStyleDropdownValue,
+      underline: SizedBox(),
       onChanged: (String? value) {
         setState(() {
           themeStyleDropdownValue = value!;
-          prefs.setInt("themeMode", dropDownValues.indexOf(value));
+          prefs.setInt("themeMode", themeStyleDropDownValues.indexOf(value));
         });
       },
-      items: dropDownValues.map<DropdownMenuItem<String>>((String value) {
+      items: themeStyleDropDownValues.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -48,6 +53,27 @@ class CustomizationPageState extends State<CustomizationPage> {
       }).toList(),
     );
   }
+
+  Widget buildThemeColorDropdownButton() {
+    return DropdownButton<String>(
+      padding: EdgeInsets.all(15),
+      underline: SizedBox(),
+      value: themeColorDropdownValue,
+      onChanged: (String? value) {
+        setState(() {
+          themeColorDropdownValue = value!;
+          prefs.setInt("themeColor", themeColorDropDownValues.indexOf(value));
+        });
+      },
+      items: themeColorDropDownValues.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -57,16 +83,10 @@ class CustomizationPageState extends State<CustomizationPage> {
       ),
       body: Column(
         children: <Widget>[
-          SwitchListTile(
-            value: switchValue1,
-            onChanged: (bool? value) async {
-              setState(() {
-                switchValue1 = value!;
-                prefs.setBool("dynamicColorScheme", switchValue1);
-              });
-            },
-            title: Text("Dynamic colors".i18n),
-            subtitle: Text("Use a color palette based on the main image - Require App restart".i18n),
+          ListTile(
+            trailing: buildThemeColorDropdownButton(),
+            title: Text("Colors".i18n),
+            subtitle: Text("Select the app theme color - Require App restart".i18n),
           ),
           ListTile(
             trailing: buildThemeStyleDropdownButton(),

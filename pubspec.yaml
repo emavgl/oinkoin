@@ -47,6 +47,7 @@ dependencies:
   font_awesome_flutter:
   intl:
   function_tree:
+  system_theme: ^2.3.1
 
 
 

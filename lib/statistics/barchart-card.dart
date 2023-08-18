@@ -112,11 +112,13 @@ class BarChartCard extends StatelessWidget {
   static final palette = charts.MaterialPalette.getOrderedPalettes(categoryCount);
 
   // Draw the graph
-  Widget _buildLineChart() {
+  Widget _buildLineChart(BuildContext context) {
+    var isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    charts.Color labelAxesColor = isDarkMode ? Color.white : Color.black;
     return new Container(
         padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
         child: new charts.BarChart(
-          seriesList as List<Series<StringSeriesRecord, String>>,
+          seriesList,
           animate: animate,
           behaviors: [
             charts.LinePointHighlighter(
@@ -125,7 +127,6 @@ class BarChartCard extends StatelessWidget {
             charts.RangeAnnotation([
               new charts.LineAnnotationSegment(
                   average!, charts.RangeAnnotationAxisType.measure,
-                  color: charts.MaterialPalette.gray.shade400,
                   endLabel: 'Average'.i18n) ,
             ]),
           ],
@@ -142,9 +143,27 @@ class BarChartCard extends StatelessWidget {
           ],
           domainAxis: new charts.OrdinalAxisSpec(
               tickProviderSpec:
-              new charts.StaticOrdinalTickProviderSpec(ticksListX)
+              new charts.StaticOrdinalTickProviderSpec(ticksListX),
+              renderSpec: new charts.SmallTickRendererSpec(
+                // Tick and Label styling here.
+                  labelStyle: new charts.TextStyleSpec(
+                      fontSize: 14, // size in Pts.
+                      color: labelAxesColor),
+
+                  // Change the line colors to match text color.
+                  lineStyle: new charts.LineStyleSpec(
+                      color: labelAxesColor))
           ),
           primaryMeasureAxis: new charts.NumericAxisSpec(
+              renderSpec: new charts.SmallTickRendererSpec(
+                // Tick and Label styling here.
+                  labelStyle: new charts.TextStyleSpec(
+                      fontSize: 14, // size in Pts.
+                      color: labelAxesColor),
+
+                  // Change the line colors to match text color.
+                  lineStyle: new charts.LineStyleSpec(
+                      color: labelAxesColor)),
             tickProviderSpec: new charts.StaticNumericTickProviderSpec(
               ticksListY
           )),
@@ -152,7 +171,7 @@ class BarChartCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCard() {
+  Widget _buildCard(BuildContext context) {
     return Container(
         height: 250,
         margin: EdgeInsets.only(top: 10, bottom: 10),
@@ -171,7 +190,7 @@ class BarChartCard extends StatelessWidget {
                     )
                 ),
                 new Divider(),
-                fmaterial.Expanded(child: _buildLineChart(),)
+                fmaterial.Expanded(child: _buildLineChart(context),)
               ],
             )
         )
@@ -180,7 +199,7 @@ class BarChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCard();
+    return _buildCard(context);
   }
 
   // Ticks creation utils

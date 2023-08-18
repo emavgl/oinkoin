@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_theme/system_theme.dart';
 
 import 'helpers/records-utility-functions.dart';
 
@@ -11,22 +14,41 @@ class MaterialThemeInstance {
   static ThemeData? darkTheme;
   static ThemeData? currentTheme;
   static ThemeMode? themeMode;
+  static Color defaultSeedColor = Color.fromARGB(255, 255, 214, 91);
 
   static getDefaultColorScheme(Brightness brightness) {
-    Color defaultSeedColor = Color.fromARGB(255, 0, 92, 184);
     ColorScheme defaultColorScheme = ColorScheme.fromSeed(seedColor: defaultSeedColor, brightness: brightness);
     return defaultColorScheme;
   }
 
   static Future<ColorScheme> getColorScheme(Brightness brightness) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? dynamicColorScheme = prefs.getBool("dynamicColorScheme") == null ? false : prefs.getBool("dynamicColorScheme");
-    if (dynamicColorScheme!) {
-      AssetImage assetImage = getBackgroundImage();
-      ColorScheme colorScheme = await ColorScheme.fromImageProvider(provider: assetImage, brightness: brightness);
-      return colorScheme;
+    int dynamicColorScheme = prefs.getInt("themeColor") ?? 0;
+
+    switch(dynamicColorScheme) {
+      case 1: {
+        log("Using system colors");
+        await SystemTheme.accentColor.load();
+        SystemTheme.fallbackColor = defaultSeedColor;
+        final accentColor = SystemTheme.accentColor.accent;
+        if (accentColor == defaultSeedColor) {
+          log("Failed to retrieve system color, using default instead");
+        }
+        return ColorScheme.fromSeed(seedColor: accentColor, brightness: brightness);
+      }
+
+      case 2: {
+        log("Using dynamic colors");
+        AssetImage assetImage = getBackgroundImage();
+        ColorScheme colorScheme = await ColorScheme.fromImageProvider(provider: assetImage, brightness: brightness);
+        return colorScheme;
+      }
+
+      default: {
+        log("Using default colors");
+        return getDefaultColorScheme(brightness);
+      }
     }
-    return Future.value(getDefaultColorScheme(brightness));
   }
 
 

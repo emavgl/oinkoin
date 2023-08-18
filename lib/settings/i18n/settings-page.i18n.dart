@@ -142,12 +142,16 @@ extension Localization on String {
         "it_it": "Preferenze",
       } +
       {
-        "en_us": "Dynamic colors",
-        "it_it": "Colori dinamici",
+        "en_us": "Monthly Image",
+        "it_it": "Immagine del mese",
       } +
       {
         "en_us": "System",
         "it_it": "Sistema",
+      } +
+      {
+        "en_us": "Default",
+        "it_it": "Predefinito",
       } +
       {
         "en_us": "Light",
@@ -158,6 +162,10 @@ extension Localization on String {
         "it_it": "Scuro",
       } +
       {
+        "en_us": "Dynamic",
+        "it_it": "Dinamico",
+      } +
+      {
         "en_us": "Theme style",
         "it_it": "Stile del tema",
       } +
@@ -166,12 +174,12 @@ extension Localization on String {
         "it_it": "Seleziona il tema dell'app - Richiede riavvio dell'app",
       } +
       {
-        "en_us": "Dynamic colors",
-        "it_it": "Colori dinamici",
+        "en_us": "Select the app theme color - Require App restart",
+        "it_it": "Seleziona il colore dell'app - Richiede riavvio dell'app",
       } +
       {
-        "en_us": "Use a color palette based on the main image - Require App restart",
-        "it_it": "Use una palette di colori basata sull'immagine principale - Richiede riavvio dell'app",
+        "en_us": "Colors",
+        "it_it": "Colori",
       } +
       {
         "en_us": "Set visual preferences",

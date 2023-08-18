@@ -233,7 +233,7 @@ Widget _createAddNoteCard() {
                     _createCategoryCirclePreview(40.0),
                     Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                      child: Text(record!.category!.name!, style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                      child: Text(record!.category!.name!, style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),),
                     )
                   ],
                 ),
@@ -294,10 +294,10 @@ Widget _createAddNoteCard() {
                 margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 28, color: Colors.blueAccent,),
+                    Icon(Icons.calendar_today, size: 28, color: Theme.of(context).colorScheme.onSurfaceVariant,),
                     Container(
                       margin: EdgeInsets.only(left: 20, right: 20),
-                      child: Text(getDateStr(record!.dateTime), style: TextStyle(fontSize: 20, color: Colors.blueAccent),),
+                      child: Text(getDateStr(record!.dateTime), style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),),
                     )
                   ],
                 )
@@ -339,7 +339,7 @@ Widget _createAddNoteCard() {
                                             hint: recurrentPeriod == null ? Container(
                                               margin: const EdgeInsets.only(left: 10.0),
                                               child: Text(
-                                                "Repeat".i18n,
+                                                "Not repeat".i18n,
                                                 style: TextStyle(fontSize: 20.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                               ),
                                             ) : Container(
@@ -357,7 +357,7 @@ Widget _createAddNoteCard() {
                                       ),
                                       Visibility(
                                         child: new IconButton(
-                                          icon: new Icon(Icons.close, size: 28, color: Colors.black54),
+                                          icon: new Icon(Icons.close, size: 28, color: Theme.of(context).colorScheme.onSurface),
                                           onPressed: () {
                                             setState(() {
                                               recurrentPeriod = null;
@@ -414,7 +414,7 @@ Widget _createAddNoteCard() {
                           textAlign: TextAlign.end,
                           style: TextStyle(
                               fontSize: 32.0,
-                              color: Colors.black
+                              color: Theme.of(context).colorScheme.onSurface
                           ),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
