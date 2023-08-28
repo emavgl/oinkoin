@@ -283,7 +283,7 @@ Widget _createAddNoteCard() {
                 DateTime now = DateTime.now();
                 DateTime? result = await showDatePicker(context: context,
                     initialDate: now,
-                    firstDate: DateTime(1970), lastDate: DateTime.now());
+                    firstDate: DateTime(1970), lastDate: DateTime.now().add(new Duration(days: 365)));
                 if (result != null) {
                   setState(() {
                     record!.dateTime = result;

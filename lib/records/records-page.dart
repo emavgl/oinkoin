@@ -160,7 +160,7 @@ class RecordsPageState extends State<RecordsPage> {
     int currentYear = DateTime.now().year;
     DateTime? dateTime = await showMonthPicker(
       context: context,
-      firstDate: DateTime(currentYear - 5, 1),
+      firstDate: DateTime(2018, 1),
       lastDate: DateTime(currentYear, 12),
       initialDate: currentDate,
       locale: I18n.locale,
@@ -179,7 +179,7 @@ class RecordsPageState extends State<RecordsPage> {
     /// Open the dialog to pick a Year
     DateTime currentDate = DateTime.now();
     DateTime lastDate = DateTime(currentDate.year, 1);
-    DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
+    DateTime firstDate = DateTime(2018, currentDate.month);
     DateTime? yearPicked = await showYearPicker(
       firstDate: firstDate,
       lastDate: lastDate,
