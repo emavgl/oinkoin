@@ -1,4 +1,5 @@
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:function_tree/function_tree.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
@@ -15,7 +17,7 @@ import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/records-utility-functions.dart';
 import './i18n/recurrent-patterns.i18n.dart';
 
 class ViewRecurrentPatternPage extends StatefulWidget {
@@ -34,11 +36,87 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
   final _formKey = GlobalKey<FormState>();
 
   RecurrentPeriod? recurrentPeriod;
+  DateTime? lastCharInsertedMillisecond;
+
+  // Required for value change
+  void changeRecordValue(String text) {
+    var numericValue = double.tryParse(text);
+    if (numericValue != null) {
+      numericValue = double.parse(numericValue.toStringAsFixed(2));
+      numericValue = numericValue.abs();
+      if (widget.passedPattern!.category!.categoryType == CategoryType.expense) {
+        // value is an expenses, needs to be negative
+        numericValue = numericValue * -1;
+      }
+      widget.passedPattern!.value = numericValue;
+    }
+  }
+
+  bool isMathExpression(String text) {
+    bool containsOperator = false;
+    containsOperator |= text.contains("+");
+    containsOperator |= text.contains("-");
+    containsOperator |= text.contains("*");
+    containsOperator |= text.contains("/");
+    containsOperator |= text.contains("%");
+    return containsOperator;
+  }
+
+  void solveMathExpressionAndUpdateText() {
+    var text = _textEditingController.text.toLowerCase();
+    var newNum;
+    if (isMathExpression(text)) {
+      try {
+        newNum = text.interpret();
+      } catch (e) {
+        stderr.writeln("Can't parse the expression");
+      }
+    }
+    if (newNum != null) {
+      text = newNum.toStringAsFixed(2);
+      _textEditingController.value = _textEditingController.value.copyWith(
+        text: text,
+        selection:
+        TextSelection(baseOffset: text.length, extentOffset: text.length),
+        composing: TextRange.empty,
+      );
+      changeRecordValue(_textEditingController.text.toLowerCase());
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     recurrentPeriod = widget.passedPattern!.recurrentPeriod;
+    _textEditingController.text = getCurrencyValueString(
+        widget.passedPattern!.value!.abs());
+
+
+    // listeners for value validations
+    _textEditingController.addListener(() {
+      lastCharInsertedMillisecond = DateTime.now();
+      var text = _textEditingController.text.toLowerCase();
+      final exp = new RegExp(r'[^\d.\\+\-\*=/%x]');
+      text = text.replaceAll(",", ".");
+      text = text.replaceAll("x", "*");
+      text = text.replaceAll(exp, "");
+      _textEditingController.value = _textEditingController.value.copyWith(
+        text: text,
+        selection:
+        TextSelection(baseOffset: text.length, extentOffset: text.length),
+        composing: TextRange.empty,
+      );
+    });
+
+    // listener for math calculation
+    _textEditingController.addListener(() async {
+      var text = _textEditingController.text.toLowerCase();
+      await Future.delayed(Duration(seconds: 2));
+      var textAfterPause = _textEditingController.text.toLowerCase();
+      if (text == textAfterPause) {
+        solveMathExpressionAndUpdateText();
+      }
+    });
   }
 
   Widget _createAddNoteCard() {
@@ -78,7 +156,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(10, 5, 5, 5),
         child: TextFormField(
-            enabled: false,
+            enabled: true,
             onChanged: (text) {
               setState(() {
                 widget.passedPattern!.title = text;
@@ -94,7 +172,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
-                hintText: widget.passedPattern!.category!.name,
+                hintText: (widget.passedPattern!.title == null || widget.passedPattern!.title!.trim().isEmpty) ? widget.passedPattern!.category!.name! : widget.passedPattern!.title!,
                 labelText: "Record name".i18n
             )
         ),
@@ -213,20 +291,11 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                       padding: EdgeInsets.all(10),
                       margin: EdgeInsets.only(right: 20),
                       child: TextFormField(
-                          enabled: false,
+                          enabled: true,
                           controller: _textEditingController,
                           autofocus: widget.passedPattern!.value == null,
                           onChanged: (text) {
-                            var numericValue = double.tryParse(text);
-                            if (numericValue != null) {
-                              numericValue = double.parse(numericValue.toStringAsFixed(2));
-                              numericValue = numericValue.abs();
-                              if (widget.passedPattern!.category!.categoryType == CategoryType.expense) {
-                                // value is an expenses, needs to be negative
-                                numericValue = numericValue * -1;
-                              }
-                              widget.passedPattern!.value = numericValue;
-                            }
+                            changeRecordValue(text);
                           },
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -246,7 +315,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                           keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: widget.passedPattern!.value!.toStringAsFixed(2),
+                            hintText: "0",
                           )
                       ),
                     )
@@ -308,6 +377,12 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
     );
   }
 
+  updateRecurrentPattern() async {
+    RecurrentRecordPattern recordPattern = widget.passedPattern!;
+    await database.updateRecordPatternById(recordPattern.id, recordPattern);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,6 +391,15 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
         body: SingleChildScrollView(
             child: _getForm()
         ),
+        floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          if (_formKey.currentState!.validate()) {
+            await updateRecurrentPattern();
+          }
+        },
+        tooltip: 'Save'.i18n,
+        child: const Icon(Icons.save),
+      ),
     );
   }
 }
