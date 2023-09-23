@@ -25,12 +25,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 android {
     compileSdkVersion 33
 
@@ -54,12 +48,21 @@ android {
 
     signingConfigs {
         release {
+            def keystoreProperties = new Properties()
+            def keystorePropertiesFile = rootProject.file('key.properties')
+            if (keystorePropertiesFile.exists()) {
+                keystorePropertiesFile.withReader('UTF-8') { reader ->
+                    keystoreProperties.load(reader)
+                }
+            }
+
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
             storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
             storePassword keystoreProperties['storePassword']
         }
     }
+
     buildTypes {
         release {
             signingConfig signingConfigs.release
@@ -82,6 +85,11 @@ android {
             dimension "oinkoin"
             applicationId "com.github.emavgl.piggybankpro"
             resValue "string", "app_name", "Oinkoin Pro"
+        }
+        fdroid {
+            dimension "oinkoin"
+            applicationId "com.github.emavgl.piggybankpro"
+            resValue "string", "app_name", "Oinkoin"
         }
     }
 }
