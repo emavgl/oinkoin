@@ -1,16 +1,44 @@
-# Piggybank
+# Oinkoin
 
-PiggyBank aims to improve the app [MoneyManager](https://play.google.com/store/apps/details?id=money.expense.budget.wallet.manager.track.finance.tracker&hl=it) with a lot of new features but keeping its fantastic minimalistic design.
+<div align="center">
+  <img src="https://play-lh.googleusercontent.com/LHL_KxBCAr-Ee5grPRGyudqiME6g0fAfHTP5m1TyadDIyFoRfd2vr-vAzkfuAbCJjud5=w480-h960" alt="Image" style="border-radius: 50%; width: 150px; height: 150px;">
+</div><br>
 
-## Getting Started
+Oinkoin Money Manager makes managing personal finances easy and secure. It is light and easy to use. You need just few taps to keep track of your expenses. Simplicity and Security are our two main drivers: Oinkoin is an offline and ad-free app.
 
-This project is a starting point for a Flutter application.
+* **Privacy Caring**
+We believe you should be the only person in control of your data. Oinkoin cares about your privacy, therefore it works completely offline and without any ads! No special permissions are required.
 
-A few resources to get you started if this is your first Flutter project:
+* **Save your battery**
+The app only consumes battery when you use it, no power consuming operations are performed in background.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+* **Statistics**
+Understandable and clean statistics and charts!
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Download
+
+At the moment, Oinkoin is only available for Android.
+
+### Oinkoin
+
+<a href='https://play.google.com/store/apps/details?id=com.github.emavgl.piggybank&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150'></a>
+
+### Oinkoin PRO
+
+Oinkoin PRO comes with some additional features at a small costs:
+
+- Backup/Restore your data
+- New fantastic icons
+- More colours for your categories
+- View your data specifying a custom date-range
+- Set recurrent records
+- Support the development
+
+<a href='https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro&pli=1&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150'/></a>
+
+## Contribution
+
+Contributions are welcome! How can you contribute?
+
+- Open Issue/PR on Github
+- Share the App with family and friends
