@@ -1,0 +1,10 @@
+Oinkoin Money Manager makes managing personal finances easy and secure. It is light and easy to use. You need just few taps to keep track of your expenses. Simplicity and Security are our two main drivers: Oinkoin is an offline and ad-free app.
+
+* Privacy caring
+We believe you should be the only person in control of your data. Oinkoin cares about your privacy, therefore it works completely offline and without any ads! No special permissions are required.
+
+* Save your battery
+The app only consumes battery when you use it, no power consuming operations are performed in background.
+
+* Statistics
+Understandable and clean statistics and charts!
