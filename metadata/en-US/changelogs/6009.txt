@@ -1,0 +1,4 @@
+* Bug fix: Add English as default locale
+* Bug fix: Improve supports for currency locales
+* Add category sign on edit-record page
+* Edit recurrent expenses

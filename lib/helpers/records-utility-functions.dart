@@ -1,6 +1,8 @@
 import 'dart:collection';
+import 'dart:developer';
 import "package:collection/collection.dart";
 import 'package:flutter/cupertino.dart';
+import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
@@ -24,10 +26,20 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   return movementsDayList;
 }
 
-final currencyNumberFormat = new NumberFormat("#######.0#", "en_US");
+final defaultNumberFormat = new NumberFormat("#######.0#", "en_US");
 
 String getCurrencyValueString(double? value) {
-  return currencyNumberFormat.format(value);
+  if (value == null) return "";
+  bool hasNotDecimalPart = value % 1 == 0;
+  NumberFormat numberFormat;
+  try {
+    Locale myLocale = I18n.locale;
+    numberFormat = new NumberFormat.currency(
+        locale: myLocale.toString(), symbol: "", decimalDigits: hasNotDecimalPart ? 0 : 2);
+  } on Exception catch (_) {
+    numberFormat = defaultNumberFormat;
+  }
+  return numberFormat.format(value);
 }
 
 AssetImage getBackgroundImage() {

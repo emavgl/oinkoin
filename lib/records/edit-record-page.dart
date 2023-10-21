@@ -385,6 +385,7 @@ Widget _createAddNoteCard() {
   }
 
   Widget _createAmountCard() {
+    String categorySign = record?.category?.categoryType == CategoryType.expense ? "-" : "+";
     return Card(
       elevation: 1,
       child: Container(
@@ -392,6 +393,14 @@ Widget _createAddNoteCard() {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    margin: EdgeInsets.only(left: 10, top: 25),
+                    child: Text(categorySign, style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
+                  ),
+                ),
                 Expanded(
                     child: Container(
                       padding: EdgeInsets.all(10),

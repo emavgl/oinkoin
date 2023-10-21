@@ -41,17 +41,22 @@ class App extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,  // for IoS
         DefaultCupertinoLocalizations.delegate
       ],
-      // the list of locales that this app has been localized for,
-      // i.e., the supported languages
-      // by default, only the American English locale would be supported
+      localeListResolutionCallback: (locales, supportedLocales) {
+        print('device locales=$locales supported locales=$supportedLocales');
+        for (Locale locale in locales!) {
+          // if device language is supported by the app,
+          // just return it to set it as current app language
+          if (supportedLocales.contains(locale)) {
+            return locale;
+          }
+        }
+        // if device language is not supported by the app, returns english
+        return Locale('en', 'US');
+      },
+      locale: Locale('en', 'US'),
       supportedLocales: [
         const Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
         const Locale.fromSubtags(languageCode: 'it', countryCode: 'IT'),
-//        const Locale.fromSubtags(languageCode: 'es', countryCode: 'ES'),
-//        const Locale.fromSubtags(languageCode: 'fr', countryCode: 'FR'),
-//        const Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),
-        // TODO add other locales
-        // TODO as of now, the current system locale is used. We should give the user the ability to change language in the settings
       ],
       title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
       home: I18n(

@@ -8,6 +8,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/records-statistic-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
+import '../helpers/records-utility-functions.dart';
 import './i18n/statistics-page.i18n.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
 
@@ -58,7 +59,7 @@ class CategorySummaryCard extends StatelessWidget {
     double percentage = (100 * record.value!.abs()) / totalCategoryValue;
     double percentageBar = (record.value!.abs()) / maxValue;
     String percentageStrRepr = percentage.toStringAsFixed(2);
-    String value = record.value!.toStringAsFixed(2);
+    String value = getCurrencyValueString(record.value);
     /// Returns a ListTile rendering the single movement row
     return Column(
       children: <Widget>[

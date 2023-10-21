@@ -107,7 +107,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: Text(
-          movement.value.toString(),
+          getCurrencyValueString(movement.value),
           style: _trailingBiggerFont,
         ),
         leading: movement.recurrencePatternId == null ? _buildLeadingIconMovement(movement) : _buildLeadingIconRecurrentMovement(movement)
