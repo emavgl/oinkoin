@@ -53,7 +53,6 @@ class App extends StatelessWidget {
         // if device language is not supported by the app, returns english
         return Locale('en', 'US');
       },
-      locale: Locale('en', 'US'),
       supportedLocales: [
         const Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
         const Locale.fromSubtags(languageCode: 'it', countryCode: 'IT'),
