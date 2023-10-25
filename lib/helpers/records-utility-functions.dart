@@ -28,15 +28,19 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
 
 final defaultNumberFormat = new NumberFormat("#######.0#", "en_US");
 
-String getCurrencyValueString(double? value) {
+String getCurrencyValueString(double? value, {bool useLocale = true}) {
   if (value == null) return "";
   bool hasNotDecimalPart = value % 1 == 0;
   NumberFormat numberFormat;
-  try {
-    Locale myLocale = I18n.locale;
-    numberFormat = new NumberFormat.currency(
-        locale: myLocale.toString(), symbol: "", decimalDigits: hasNotDecimalPart ? 0 : 2);
-  } on Exception catch (_) {
+  if (useLocale) {
+    try {
+      Locale myLocale = I18n.locale;
+      numberFormat = new NumberFormat.currency(
+          locale: myLocale.toString(), symbol: "", decimalDigits: hasNotDecimalPart ? 0 : 2);
+    } on Exception catch (_) {
+      numberFormat = defaultNumberFormat;
+    }
+  } else {
     numberFormat = defaultNumberFormat;
   }
   return numberFormat.format(value);
