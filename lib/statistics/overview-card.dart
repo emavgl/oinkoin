@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
+import '../helpers/records-utility-functions.dart';
 import './i18n/statistics-page.i18n.dart';
 
 class OverviewCard extends StatelessWidget {
@@ -50,7 +51,7 @@ class OverviewCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5), // spacing
                 Text(
-                  maxAggregated.abs().toStringAsFixed(2),
+                  getCurrencyValueString(maxAggregated.abs()),
                   style: valueStyle,
                 ),
               ],
@@ -69,7 +70,7 @@ class OverviewCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5), // spacing
                 Text(
-                  minAggregated.abs().toStringAsFixed(2),
+                  getCurrencyValueString(minAggregated.abs()),
                   style: valueStyle,
                 ),
               ],
@@ -96,7 +97,7 @@ class OverviewCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5), // spacing
                 Text(
-                  sumValues!.abs().toStringAsFixed(2),
+                  getCurrencyValueString(sumValues!.abs()),
                   style: valueStyle,
                 ),
               ],
@@ -115,7 +116,7 @@ class OverviewCard extends StatelessWidget {
                 ),
                 SizedBox(height: 5), // spacing
                 Text(
-                  averageValue.abs().toStringAsFixed(2),
+                  getCurrencyValueString(averageValue.abs()),
                   style: valueStyle,
                 ),
               ],

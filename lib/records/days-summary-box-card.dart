@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 import './i18n/days-summary-box-card.dart';
@@ -55,7 +56,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                     ),
                     SizedBox(height: 5), // spacing
                     Text(
-                      totalIncome().toStringAsFixed(1),
+                      getCurrencyValueString(totalIncome()),
                       style: _biggerFont,
                     ),
                   ],
@@ -74,7 +75,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                     ),
                     SizedBox(height: 5), // spacing
                     Text(
-                      totalExpenses().toStringAsFixed(1),
+                      getCurrencyValueString(totalExpenses()),
                       style: _biggerFont,
                     ),
                   ],
@@ -93,7 +94,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                     ),
                     SizedBox(height: 5), // spacing
                     Text(
-                      totalBalance().toStringAsFixed(1),
+                      getCurrencyValueString(totalBalance()),
                       style: _biggerFont,
                     ),
                   ],

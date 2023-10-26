@@ -31,7 +31,6 @@ class StatisticsPage extends StatelessWidget {
           title: new Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('Charts'.i18n),
               Text(getDateRangeStr(from!, to!))
             ],
           ),
