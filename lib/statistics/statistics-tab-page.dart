@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/overview-card.dart';
-import 'package:piggybank/statistics/categories-piechart.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 

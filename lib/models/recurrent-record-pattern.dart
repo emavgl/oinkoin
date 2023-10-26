@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:piggybank/models/model.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 

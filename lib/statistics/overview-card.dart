@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import 'package:piggybank/statistics/statistics-tab-page.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import './i18n/statistics-page.i18n.dart';
 

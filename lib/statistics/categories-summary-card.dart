@@ -147,7 +147,7 @@ class CategoriesSummaryCard extends StatelessWidget {
                           style: TextStyle(fontSize: 14),
                         ),
                         Text(
-                          getCurrencyValueString(totalExpensesSum as double?),
+                          getCurrencyValueString(totalExpensesSum),
                           style: TextStyle(fontSize: 14),
                         ),
                       ]

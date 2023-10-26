@@ -5,7 +5,6 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/records-per-day-card.dart';
 
-import 'days-summary-box-card.dart';
 
 class RecordsDayList extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.

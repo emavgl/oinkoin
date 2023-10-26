@@ -1,8 +1,6 @@
 import 'dart:core';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';

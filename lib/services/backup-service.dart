@@ -13,7 +13,7 @@ class BackupService {
 
   static final DatabaseInterface database = ServiceConfig.database;
 
-  static Future<File> createJsonBackupFile({backupFileName: "backup"}) async {
+  static Future<File> createJsonBackupFile({backupFileName = "backup"}) async {
     var records = await database.getAllRecords();
     var categories = await database.getAllCategories();
     var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
@@ -50,17 +50,15 @@ class BackupService {
       }
 
       // Add recurrent patterns
-      if (backup.recurrentRecordsPattern != null) {
-        for(var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
-          String? recurrentPatternId = backupRecurrentPatterns.id;
-          if (await database.getRecurrentRecordPattern(recurrentPatternId) == null) {
-            await database.addRecurrentRecordPattern(backupRecurrentPatterns);
-          } else {
-            print("Recurrent pattern with id $recurrentPatternId already exists.");
-          }
+      for(var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
+        String? recurrentPatternId = backupRecurrentPatterns.id;
+        if (await database.getRecurrentRecordPattern(recurrentPatternId) == null) {
+          await database.addRecurrentRecordPattern(backupRecurrentPatterns);
+        } else {
+          print("Recurrent pattern with id $recurrentPatternId already exists.");
         }
       }
-
+    
       return true;
     } catch (err) {
      return false;

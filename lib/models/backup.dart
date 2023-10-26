@@ -4,7 +4,6 @@ import 'package:piggybank/models/recurrent-record-pattern.dart';
 
 import 'category.dart';
 import 'model.dart';
-import 'dart:convert';
 
 class Backup extends Model {
   List<Record?> records;

@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:developer';
 import "package:collection/collection.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:i18n_extension/i18n_widget.dart';

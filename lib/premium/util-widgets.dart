@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Widget getProLabel({labelFontSize: 10.0}) {
+Widget getProLabel({labelFontSize = 10.0}) {
   return Container(
     color: Colors.black,
     padding: EdgeInsets.all(5),

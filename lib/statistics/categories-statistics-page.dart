@@ -3,7 +3,6 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import 'package:piggybank/statistics/statistics-utils.dart';
 import './i18n/statistics-page.i18n.dart';
 
 import 'barchart-card.dart';

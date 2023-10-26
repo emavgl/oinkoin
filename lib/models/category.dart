@@ -1,11 +1,8 @@
 import 'dart:math';
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/model.dart';
-import 'package:piggybank/services/service-config.dart';
 
 import 'category-type.dart';
 

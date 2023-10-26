@@ -1,10 +1,7 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/models/records-per-day.dart';
 import './i18n/days-summary-box-card.dart';
 
 class DaysSummaryBox extends StatefulWidget {

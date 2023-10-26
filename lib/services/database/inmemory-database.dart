@@ -68,10 +68,8 @@ class InMemoryDatabase implements DatabaseInterface {
     @override
     Future<int> addCategory(Category? category) async {
         Category foundCategory = await this.getCategory(category!.name, category.categoryType);
-        if (foundCategory != null) {
-            throw ElementAlreadyExists();
-        }
-        _categories.add(category);
+          throw ElementAlreadyExists();
+              _categories.add(category);
         return Future<int>.value(_categories.length - 1);
     }
 

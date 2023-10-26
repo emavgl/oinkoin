@@ -92,10 +92,6 @@ Future<DateTime?> showYearPicker({
   String? fieldHintText,
   String? fieldLabelText,
 }) async {
-  assert(context != null);
-  assert(initialDate != null);
-  assert(firstDate != null);
-  assert(lastDate != null);
   assert(
   !lastDate.isBefore(firstDate),
   'lastDate $lastDate must be on or after firstDate $firstDate.'
@@ -112,9 +108,6 @@ Future<DateTime?> showYearPicker({
   selectableDayPredicate == null || selectableDayPredicate(initialDate),
   'Provided initialDate $initialDate must satisfy provided selectableDayPredicate.'
   );
-  assert(initialEntryMode != null);
-  assert(useRootNavigator != null);
-  assert(initialDatePickerMode != null);
   assert(debugCheckHasMaterialLocalizations(context));
 
   Widget dialog = _DatePickerDialog(
@@ -179,14 +172,9 @@ class _DatePickerDialog extends StatefulWidget {
     this.errorInvalidText,
     this.fieldHintText,
     this.fieldLabelText,
-  }) : assert(initialDate != null),
-        assert(firstDate != null),
-        assert(lastDate != null),
-        initialDate = dateOnly(initialDate),
+  }) : initialDate = dateOnly(initialDate),
         firstDate = dateOnly(firstDate),
         lastDate = dateOnly(lastDate),
-        assert(initialEntryMode != null),
-        assert(initialCalendarMode != null),
         super(key: key) {
     assert(
     !this.lastDate.isBefore(this.firstDate),
@@ -327,8 +315,8 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
         ? colorScheme.onPrimary
         : colorScheme.onSurface;
     final TextStyle? dateStyle = orientation == Orientation.landscape
-        ? textTheme.headline5?.copyWith(color: dateColor)
-        : textTheme.headline4?.copyWith(color: dateColor);
+        ? textTheme.headlineSmall?.copyWith(color: dateColor)
+        : textTheme.headlineMedium?.copyWith(color: dateColor);
 
     final Widget actions = ButtonBar(
       buttonTextTheme: ButtonTextTheme.primary,
@@ -448,10 +436,7 @@ class DatePickerHeader extends StatelessWidget {
     required this.icon,
     required this.iconTooltip,
     required this.onIconPressed,
-  }) : assert(helpText != null),
-        assert(orientation != null),
-        assert(isShort != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The text that is displayed at the top of the header.
   ///
@@ -505,7 +490,7 @@ class DatePickerHeader extends StatelessWidget {
     final Color primarySurfaceColor = isDark ? colorScheme.surface : colorScheme.primary;
     final Color onPrimarySurfaceColor = isDark ? colorScheme.onSurface : colorScheme.onPrimary;
 
-    final TextStyle? helpStyle = textTheme.overline?.copyWith(
+    final TextStyle? helpStyle = textTheme.labelSmall?.copyWith(
       color: onPrimarySurfaceColor,
     );
 
@@ -611,13 +596,7 @@ class CustomYearPicker extends StatefulWidget {
     required this.initialDate,
     required this.selectedDate,
     required this.onChanged,
-  }) : assert(currentDate != null),
-        assert(firstDate != null),
-        assert(lastDate != null),
-        assert(initialDate != null),
-        assert(selectedDate != null),
-        assert(onChanged != null),
-        assert(!firstDate.isAfter(lastDate)),
+  }) : assert(!firstDate.isAfter(lastDate)),
         super(key: key);
 
   /// The current date.
@@ -688,7 +667,7 @@ class YearPickerState extends State<CustomYearPicker> {
     } else {
       textColor = colorScheme.onSurface.withOpacity(0.87);
     }
-    final TextStyle? itemStyle = textTheme.bodyText1?.apply(color: textColor);
+    final TextStyle? itemStyle = textTheme.bodyLarge?.apply(color: textColor);
 
     BoxDecoration? decoration;
     if (isSelected) {

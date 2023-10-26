@@ -1,14 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:piggybank/helpers/records-generator.dart';
-import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
-import 'package:piggybank/services/database/sqlite-database.dart';
-import 'dart:ui';
 
 import 'package:piggybank/services/recurrent-record-service.dart';
 
