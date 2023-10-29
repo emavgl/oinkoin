@@ -37,8 +37,8 @@ extension Localization on String {
         "it_it": "Devi prima aggiungere almeno una categoria. Vai nella tab 'Categorie' per aggiungerne una.",
       } +
       {
-        "en_us": "Available on Piggybank Pro",
-        "it_it": "Disponibile su Piggybank Pro",
+        "en_us": "Available on Oinkoin Pro",
+        "it_it": "Disponibile su Oinkoin Pro",
       } +
       {
         "en_us": "Export CSV",
@@ -46,7 +46,7 @@ extension Localization on String {
       } +
       {
         "en_us": 'Rate this app',
-        "it_it": "Vota Piggybank",
+        "it_it": "Vota Oinkoin",
       } +
       {
         "en_us": 'Add',

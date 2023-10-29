@@ -14,6 +14,15 @@ import 'package:flutter/material.dart';
 
 
 class CustomCircleSymbolRenderer extends CircleSymbolRenderer {
+
+  Color textColor = Color.black;
+  Color backgroundColor = Color.white;
+
+  CustomCircleSymbolRenderer(bool isDarkMode) {
+    textColor = isDarkMode ? Color.white : Color.black;
+    backgroundColor = isDarkMode ? Color.black : Color.white;
+  }
+
   @override
   void paint(ChartCanvas canvas, Rectangle<num> bounds,
       {List<int>? dashPattern,
@@ -27,12 +36,8 @@ class CustomCircleSymbolRenderer extends CircleSymbolRenderer {
         strokeColor: strokeColor,
         strokeWidthPx: strokeWidthPx);
 
-    canvas.drawRect(
-        Rectangle(bounds.left - 5, bounds.top - 30, bounds.width + 10, bounds.height + 10),
-        fill: Color.white
-    );
     var textStyle = style.TextStyle();
-    textStyle.color = Color.black;
+    textStyle.color = this.textColor;
     textStyle.fontSize = 15;
     canvas.drawText(
         ChartText.TextElement(BarChartCard.pointerValue, style: textStyle),
@@ -120,12 +125,17 @@ class BarChartCard extends StatelessWidget {
           animate: animate,
           behaviors: [
             charts.LinePointHighlighter(
-                symbolRenderer: CustomCircleSymbolRenderer()
+                symbolRenderer: CustomCircleSymbolRenderer(isDarkMode)
             ),
             charts.RangeAnnotation([
               new charts.LineAnnotationSegment(
                   average!, charts.RangeAnnotationAxisType.measure,
-                  endLabel: 'Average'.i18n) ,
+                  color: labelAxesColor,
+                  endLabel: 'Average'.i18n,
+                  labelStyleSpec: new charts.TextStyleSpec(
+                      fontSize: 12, // size in Pts.
+                      color: labelAxesColor),
+              ) ,
             ]),
           ],
           selectionModels: [

@@ -163,6 +163,10 @@ class RecordsPageState extends State<RecordsPage> {
   }
 
   _buildSelectDateDialog() {
+    var isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    var boxBackgroundColor = isDarkMode
+        ? Theme.of(context).colorScheme.primaryContainer
+        : Theme.of(context).colorScheme.secondary;
     return SimpleDialog(
         title: Text('Shows records per'.i18n),
         children: <Widget>[
@@ -174,13 +178,13 @@ class RecordsPageState extends State<RecordsPage> {
                 width: 40,
                 height: 40,
                 child: Icon(
-                  FontAwesomeIcons.calendarAlt,
+                  FontAwesomeIcons.calendarDays,
                   size: 20,
                   color: Colors.white,
                 ),
                 decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.secondary,
+                color: boxBackgroundColor,
               )),
             )
           ),
@@ -188,7 +192,7 @@ class RecordsPageState extends State<RecordsPage> {
               onPressed: ServiceConfig.isPremium ? pickYear : goToPremiumSplashScreen,
               child: ListTile(
                 title: Text("Year".i18n),
-                subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : null,
+                subtitle: !ServiceConfig.isPremium ? Text("Available on Oinkoin Pro".i18n) : null,
                 enabled: ServiceConfig.isPremium,
                 leading: Container(
                     width: 40,
@@ -200,7 +204,7 @@ class RecordsPageState extends State<RecordsPage> {
                     ),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: boxBackgroundColor,
                     )),
               )
           ),
@@ -208,7 +212,7 @@ class RecordsPageState extends State<RecordsPage> {
           onPressed: ServiceConfig.isPremium ? pickDateRange : goToPremiumSplashScreen,
           child: ListTile(
             title: Text("Date Range".i18n),
-            subtitle: !ServiceConfig.isPremium ? Text("Available on Piggybank Pro".i18n) : null,
+            subtitle: !ServiceConfig.isPremium ? Text("Available on Oinkoin Pro".i18n) : null,
             enabled: ServiceConfig.isPremium,
             leading: Container(
               width: 40,
@@ -220,7 +224,7 @@ class RecordsPageState extends State<RecordsPage> {
               ),
               decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.secondary,
+              color: boxBackgroundColor,
               )),
             )
           ),

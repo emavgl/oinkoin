@@ -42,7 +42,7 @@ class FeedbackPage extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.center,
                     child: ElevatedButton(
-                      onPressed: () => _launchURL('e.etnann@gmail.com', 'Piggybank feedback', 'Piggybank app is ..., because ...'),
+                      onPressed: () => _launchURL('emavgl.app@gmail.com', 'Oinkoin feedback', 'Oinkoin app is ..., because ...'),
                       child: Text("Send a feedback".i18n.toUpperCase(), style: _biggerFont),
                     ),
                   ),
