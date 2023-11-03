@@ -26,12 +26,17 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     with open('pubspec.yaml', 'w') as pubspec_file:
         pubspec_file.write(new_pubspec_content)
 
-    # Copy the changelog file to the specified location
-    changelog_destination = os.path.join('metadata/en-US/changelogs', f'{new_version_code}.txt')
-    shutil.copy(changelog_file, changelog_destination)
-
     print(f'Updated version to {new_version_name} in pubspec.yaml')
     print(f'Incremented version code to {new_version_code}')
+
+    # Copy the changelog file to the specified location (for F-droid)
+    changelog_destination = os.path.join('metadata/en-US/changelogs', f'{new_version_code}.txt')
+    shutil.copy(changelog_file, changelog_destination)
+    print(f'Copied changelog to {changelog_destination}')
+
+    # Copy the changelog file to the specified location (for Github action)
+    changelog_destination = os.path.join('metadata/en-US', 'whatsnew-en-US.txt')
+    shutil.copy(changelog_file, changelog_destination)
     print(f'Copied changelog to {changelog_destination}')
 
 if __name__ == '__main__':
