@@ -58,7 +58,7 @@ android {
 
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : file(System.env.X_KEYSTORE_PATH)
             storePassword keystoreProperties['storePassword']
         }
     }

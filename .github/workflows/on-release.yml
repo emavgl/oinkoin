@@ -26,12 +26,14 @@ jobs:
       - name: Set up signing config
         run: |
           echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
-          sudo mkdir -p /home/emavgl/
-          sudo cp upload-keystore.jks /home/emavgl/key.jks
+          export X_KEYSTORE_PATH="$(pwd)/upload-keystore.jks"
+          echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
           echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" > android/key.properties
 
       - name: Build APK
         run: flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi --target-platform="android-arm64"
+        env:
+          X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
