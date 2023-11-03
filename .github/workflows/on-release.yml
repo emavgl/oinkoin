@@ -43,7 +43,7 @@ jobs:
       - name: Bump new version
         run: |
           echo "${{ github.event.release.body }}" > changelog.temp
-          python update_flutter_version.py ${{ github.event.release.tag_name }} changelog.temp
+          python bump_new_version.py ${{ github.event.release.tag_name }} changelog.temp
 
       # Commit all changed files back to the repository
       - uses: stefanzweifel/git-auto-commit-action@v5
