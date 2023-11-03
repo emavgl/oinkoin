@@ -26,9 +26,10 @@ jobs:
       - name: Set up signing config
         run: |
           echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
+          echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" | base64 -d - > key.properties
           export X_KEYSTORE_PATH="$(pwd)/upload-keystore.jks"
           echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
-          echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" > android/key.properties
+          cp key.properties android/key.properties
 
       - name: Build APK
         run: flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi --target-platform="android-arm64"
