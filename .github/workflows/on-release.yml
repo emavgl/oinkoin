@@ -47,7 +47,8 @@ jobs:
 
       # Commit all changed files back to the repository
       - uses: stefanzweifel/git-auto-commit-action@v5
-        file_pattern: 'pubspec.yaml *.txt'
+        with:
+          file_pattern: 'pubspec.yaml *.txt'
 
       - name: Build APK
         run: flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi --target-platform="android-arm64"
