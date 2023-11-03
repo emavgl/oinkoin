@@ -70,7 +70,7 @@ jobs:
       - name: Publish on Google Play Free
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJsonPlainText: ${{ GOOGLE_PLAY_DEV_CONSOLE_SERVICE_ACCOUNT_JSON }}
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_DEV_CONSOLE_SERVICE_ACCOUNT_JSON }}
           packageName: com.github.emavgl.piggybank
           releaseFiles: /build/app/outputs/bundle/freeRelease/app-free-release.aab
           whatsNewDirectory: metadata/en-US
