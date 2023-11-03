@@ -26,8 +26,8 @@ jobs:
       - name: Set up signing config
         run: |
           echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
-          mkdir -p /home/emavgl/
-          cp upload-keystore.jks /home/emavgl/key.jks
+          sudo mkdir -p /home/emavgl/
+          sudo cp upload-keystore.jks /home/emavgl/key.jks
           echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" > android/key.properties
 
       - name: Build APK
