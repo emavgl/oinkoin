@@ -78,7 +78,7 @@ jobs:
       - name: Publish on Google Play Pro
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJsonPlainText: ${{ GOOGLE_PLAY_DEV_CONSOLE_SERVICE_ACCOUNT_JSON }}
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_DEV_CONSOLE_SERVICE_ACCOUNT_JSON }}
           packageName: com.github.emavgl.piggybankpro
           releaseFiles: /build/app/outputs/bundle/proRelease/app-pro-release.aab
           whatsNewDirectory: metadata/en-US
