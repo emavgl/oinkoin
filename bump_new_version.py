@@ -35,7 +35,7 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     print(f'Copied changelog to {changelog_destination}')
 
     # Copy the changelog file to the specified location (for Github action)
-    changelog_destination = os.path.join('metadata/en-US', 'whatsnew-en-US.txt')
+    changelog_destination = os.path.join('metadata/en-US', 'whatsnew-en-US')
     shutil.copy(changelog_file, changelog_destination)
     print(f'Copied changelog to {changelog_destination}')
 
