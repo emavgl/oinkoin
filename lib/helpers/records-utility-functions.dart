@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:developer';
 import "package:collection/collection.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:i18n_extension/i18n_widget.dart';
@@ -27,9 +28,10 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
 
 final defaultNumberFormat = new NumberFormat("#######.0#", "en_US");
 
-String getCurrencyValueString(double? value, {bool useLocale = true, decimalDigits = 2}) {
+String getCurrencyValueString(double? value, {bool useLocale = true}) {
   if (value == null) return "";
   NumberFormat numberFormat;
+  int decimalDigits = ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
   if (useLocale) {
     try {
       Locale myLocale = I18n.locale;

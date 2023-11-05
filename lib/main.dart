@@ -6,11 +6,13 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:piggybank/style.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro");
+  ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
   runApp(
     App(
       lightTheme: await MaterialThemeInstance.getLightTheme(),

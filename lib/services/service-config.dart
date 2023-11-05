@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'database/database-interface.dart';
 import 'database/sqlite-database.dart';
 
@@ -8,4 +10,5 @@ class ServiceConfig {
 
   static final DatabaseInterface database = SqliteDatabase.instance;
   static bool isPremium = false; // set in main.dart
+  static SharedPreferences? sharedPreferences; // set in main.dart
 }

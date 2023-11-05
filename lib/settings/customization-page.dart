@@ -21,6 +21,7 @@ class CustomizationPageState extends State<CustomizationPage> {
       setState(() {
         themeColorDropdownValue = themeColorDropDownValues[themeColorDropdownValueIndex];
         themeStyleDropdownValue = themeStyleDropDownValues[themeStyleDropdownValueIndex];
+        decimalDigitsValue = prefs.getInt('numDecimalDigits') ?? 2;
       });
     });
   }
@@ -31,6 +32,9 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   List<String> themeColorDropDownValues = ["Default".i18n, "System".i18n, "Monthly Image".i18n];
   String themeColorDropdownValue = "Default".i18n;
+
+  List<int> decimalDigitsValues = [0, 1, 2];
+  int decimalDigitsValue = 2;
 
   Widget buildThemeStyleDropdownButton() {
     return DropdownButton<String>(
@@ -72,6 +76,25 @@ class CustomizationPageState extends State<CustomizationPage> {
     );
   }
 
+  Widget buildDecimalDigitsDropdownButton() {
+    return DropdownButton<int>(
+      padding: EdgeInsets.all(15),
+      underline: SizedBox(),
+      value: decimalDigitsValue,
+      onChanged: (int? value) {
+        setState(() {
+          decimalDigitsValue = value!;
+          prefs.setInt("numDecimalDigits", value);
+        });
+      },
+      items: decimalDigitsValues.map<DropdownMenuItem<int>>((int value) {
+        return DropdownMenuItem<int>(
+          value: value,
+          child: Text(value.toString()),
+        );
+      }).toList(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,12 +107,17 @@ class CustomizationPageState extends State<CustomizationPage> {
           ListTile(
             trailing: buildThemeColorDropdownButton(),
             title: Text("Colors".i18n),
-            subtitle: Text("Select the app theme color - Require App restart".i18n),
+            subtitle: Text("Select the app theme color".i18n + " - " +  "Require App restart".i18n),
           ),
           ListTile(
             trailing: buildThemeStyleDropdownButton(),
             title: Text("Theme style".i18n),
-            subtitle: Text("Select the app theme style - Require App restart".i18n),
+            subtitle: Text("Select the app theme style".i18n + " - " +  "Require App restart".i18n),
+          ),
+          ListTile(
+            trailing: buildDecimalDigitsDropdownButton(),
+            title: Text("Decimal digits".i18n),
+            subtitle: Text("Select the number of decimal digits".i18n),
           ),
         ],
       ),

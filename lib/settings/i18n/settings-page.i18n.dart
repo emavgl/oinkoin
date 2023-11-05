@@ -170,12 +170,24 @@ extension Localization on String {
         "it_it": "Stile del tema",
       } +
       {
-        "en_us": "Select the app theme style - Require App restart",
-        "it_it": "Seleziona il tema dell'app - Richiede riavvio dell'app",
+        "en_us": "Decimal digits",
+        "it_it": "Cifre decimali",
       } +
       {
-        "en_us": "Select the app theme color - Require App restart",
-        "it_it": "Seleziona il colore dell'app - Richiede riavvio dell'app",
+        "en_us": "Require App restart",
+        "it_it": "Richiede riavvio dell'app",
+      } +
+      {
+        "en_us": "Select the app theme style",
+        "it_it": "Seleziona il tema dell'app",
+      } +
+      {
+        "en_us": "Select the app theme color",
+        "it_it": "Seleziona il colore dell'app",
+      } +
+      {
+        "en_us": "Select the number of decimal digits",
+        "it_it": "Seleziona il numero di cifre decimali",
       } +
       {
         "en_us": "Colors",
