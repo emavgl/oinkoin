@@ -1,0 +1,1 @@
+- Add the possibility to specify the number of decimal digits
