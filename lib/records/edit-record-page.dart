@@ -103,7 +103,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     super.initState();
     if (passedRecord != null) {
       record = passedRecord;
-      _textEditingController.text = getCurrencyValueString(record!.value!.abs());
+      _textEditingController.text = getCurrencyValueString(record!.value!.abs(), useLocale: false);
       if (record!.recurrencePatternId != null) {
         database.getRecurrentRecordPattern(record!.recurrencePatternId).then((value) {
           if (value != null) {
