@@ -26,7 +26,7 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   return movementsDayList;
 }
 
-final defaultNumberFormat = new NumberFormat("#######.0#", "en_US");
+final defaultNumberFormat = new NumberFormat("#######.##", "en_US");
 
 String getCurrencyValueString(double? value, {bool useLocale = true}) {
   if (value == null) return "";
