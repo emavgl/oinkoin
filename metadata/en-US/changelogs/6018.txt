@@ -1,0 +1,1 @@
+- Bug fix: broken value validation when editing an existing record
