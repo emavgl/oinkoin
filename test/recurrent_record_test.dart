@@ -85,5 +85,20 @@ main() {
       expect(records[2].dateTime!.day, 15);
     });
 
+    test('bi-weekly recurrent', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
+      Category category1 = new Category("testName1");
+      DateTime dateTime = new DateTime(2020, 10, 1);
+      DateTime endDate = new DateTime(2020, 10, 30);
+      RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Bi-Weekly", category1, dateTime, RecurrentPeriod.EveryTwoWeeks);
+      var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+      expect(records.length, 3);
+      expect(records[1].dateTime!.month, 10);
+      expect(records[1].dateTime!.day, 15);
+      expect(records[2].dateTime!.month, 10);
+      expect(records[2].dateTime!.day, 29);
+    });
+
   });
 }

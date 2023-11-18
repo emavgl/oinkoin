@@ -20,6 +20,10 @@ extension Localization on String {
         "it_it": "Ogni settimana",
       } +
       {
+        "en_us": "Every two weeks",
+        "it_it": "Ogni due settimane",
+      } +
+      {
         "en_us": "Record name",
         "it_it": "Nome",
       } +

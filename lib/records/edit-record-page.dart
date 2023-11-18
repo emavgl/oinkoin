@@ -58,16 +58,20 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   static final dropDownList = [
     new DropdownMenuItem<int>(
-    value: 0,
-    child: new Text("Every day".i18n, style: TextStyle(fontSize: 20.0))
+      value: 0,
+      child: new Text("Every day".i18n, style: TextStyle(fontSize: 20.0))
     ),
     new DropdownMenuItem<int>(
-    value: 1,
-    child: new Text("Every week".i18n, style: TextStyle(fontSize: 20.0))
+      value: 1,
+      child: new Text("Every week".i18n, style: TextStyle(fontSize: 20.0))
     ),
     new DropdownMenuItem<int>(
-    value: 2,
-    child: new Text("Every month".i18n, style: TextStyle(fontSize: 20.0)),
+        value: 3,
+        child: new Text("Every two weeks".i18n, style: TextStyle(fontSize: 20.0))
+    ),
+    new DropdownMenuItem<int>(
+      value: 2,
+      child: new Text("Every month".i18n, style: TextStyle(fontSize: 20.0)),
     )
   ];
 
