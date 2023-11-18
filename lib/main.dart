@@ -45,15 +45,20 @@ class App extends StatelessWidget {
       ],
       localeListResolutionCallback: (locales, supportedLocales) {
         print('device locales=$locales supported locales=$supportedLocales');
-        for (Locale locale in locales!) {
-          // if device language is supported by the app,
-          // just return it to set it as current app language
+
+        // If there is no match, returns the first user choice
+        // even if not supported. The user will see still the english
+        // translations, but will be used for the currency format
+
+        Locale defaultLocale = locales![0];
+
+        for (Locale locale in locales) {
           if (supportedLocales.contains(locale)) {
             return locale;
           }
         }
-        // if device language is not supported by the app, returns english
-        return Locale('en', 'US');
+
+        return defaultLocale;
       },
       supportedLocales: [
         const Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),

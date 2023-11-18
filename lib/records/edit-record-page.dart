@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:i18n_extension/i18n_widget.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
@@ -17,6 +20,8 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import './i18n/edit-record-page.i18n.dart';
+import 'package:intl/src/intl_helpers.dart' as helpers;
+
 
 import 'package:function_tree/function_tree.dart';
 
@@ -76,18 +81,46 @@ class EditRecordPageState extends State<EditRecordPage> {
     return containsOperator;
   }
 
+  static bool localeExists(String? localeName) {
+    if (localeName == null) return false;
+    return numberFormatSymbols.containsKey(localeName);
+  }
+  
+  String? tryParseMathExpr(String text) {
+    String myLocale = I18n.locale.toString();
+    String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
+    if (existingLocale == null) {
+      return null;
+    }
+    String decimalSep = numberFormatSymbols[existingLocale]?.DECIMAL_SEP;
+    String groupingSep = numberFormatSymbols[existingLocale]?.GROUP_SEP;
+    if (isMathExpression(text)) {
+      try {
+        text = text.replaceAll(groupingSep, "");
+        text = text.replaceAll(decimalSep, ".");
+        return text;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
   void solveMathExpressionAndUpdateText() {
     var text = _textEditingController.text.toLowerCase();
     var newNum;
-    if (isMathExpression(text)) {
-      try {
-        newNum = text.interpret();
-      } catch (e) {
-        stderr.writeln("Can't parse the expression");
-      }
+    String? mathExpr = tryParseMathExpr(text);
+    if (mathExpr == null) {
+      stderr.writeln("Can't parse the expression: $text");
+      return; // abort!
+    }
+    try {
+      newNum = mathExpr.interpret();
+    } catch (e) {
+      stderr.writeln("Can't parse the expression: $text");
     }
     if (newNum != null) {
-      text = newNum.toStringAsFixed(2);
+      text = getCurrencyValueString(newNum);
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
@@ -98,12 +131,23 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
+  double? tryParseCurrencyString(String toParse) {
+    try {
+      Locale myLocale = I18n.locale;
+      Intl.defaultLocale = myLocale.toString();
+      num f = NumberFormat().parse(toParse);
+      return f.toDouble();
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     if (passedRecord != null) {
       record = passedRecord;
-      _textEditingController.text = getCurrencyValueString(record!.value!.abs(), useLocale: false);
+      _textEditingController.text = getCurrencyValueString(record!.value!.abs());
       if (record!.recurrencePatternId != null) {
         database.getRecurrentRecordPattern(record!.recurrencePatternId).then((value) {
           if (value != null) {
@@ -122,8 +166,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     _textEditingController.addListener(() {
       lastCharInsertedMillisecond = DateTime.now();
       var text = _textEditingController.text.toLowerCase();
-      final exp = new RegExp(r'[^\d.\\+\-\*=/%x]');
-      text = text.replaceAll(",", ".");
+      final exp = new RegExp(r'[^\d.,\\+\-\*=/%x]');
       text = text.replaceAll("x", "*");
       text = text.replaceAll(exp, "");
       _textEditingController.value = _textEditingController.value.copyWith(
@@ -409,9 +452,9 @@ Widget _createAddNoteCard() {
                             if (value!.isEmpty) {
                               return "Please enter a value".i18n;
                             }
-                            var numericValue = double.tryParse(value);
+                            var numericValue = tryParseCurrencyString(value);
                             if (numericValue == null) {
-                              return "Please enter a numeric value".i18n;
+                              return "Not a valid format (use for example: %s)".i18n.fill([getCurrencyValueString(1234.20, turnOffGrouping: true)]);
                             }
                             return null;
                           },
@@ -437,9 +480,8 @@ Widget _createAddNoteCard() {
   }
 
   void changeRecordValue(String text) {
-    var numericValue = double.tryParse(text);
+    var numericValue = tryParseCurrencyString(text);
     if (numericValue != null) {
-      numericValue = double.parse(numericValue.toStringAsFixed(2));
       numericValue = numericValue.abs();
       if (record!.category!.categoryType == CategoryType.expense) {
         // value is an expenses, needs to be negative

@@ -60,8 +60,8 @@ extension Localization on String {
         "it_it": "Inserisci un valore",
       } +
       {
-        "en_us": "Please enter a numeric value",
-        "it_it": "Inserisci un valore numerico",
+        "en_us": "Not a valid format (use for example: %s)",
+        "it_it": "Formato non valido (formato di esempio: %s)",
       } +
       {
         "en_us": "Add a note",
@@ -80,5 +80,6 @@ extension Localization on String {
         "it_it": "Bilancio",
       };
 
+  String fill(List<Object> params) => localizeFill(this, params);
   String get i18n => localize(this, _translations);
 }

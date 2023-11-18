@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:developer';
 import "package:collection/collection.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:i18n_extension/i18n_widget.dart';
@@ -26,22 +25,21 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   return movementsDayList;
 }
 
-final defaultNumberFormat = new NumberFormat("#######.0#", "en_US");
-
-String getCurrencyValueString(double? value, {bool useLocale = true}) {
+String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
   if (value == null) return "";
   NumberFormat numberFormat;
+  bool useGroupSeparator = ServiceConfig.sharedPreferences?.getBool("useGroupSeparator") ?? true;
   int decimalDigits = ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
-  if (useLocale) {
-    try {
-      Locale myLocale = I18n.locale;
-      numberFormat = new NumberFormat.currency(
-          locale: myLocale.toString(), symbol: "", decimalDigits: decimalDigits);
-    } on Exception catch (_) {
-      numberFormat = defaultNumberFormat;
-    }
-  } else {
-    numberFormat = defaultNumberFormat;
+  try {
+    Locale myLocale = I18n.locale;
+    numberFormat = new NumberFormat.currency(
+        locale: myLocale.toString(), symbol: "", decimalDigits: decimalDigits);
+  } on Exception catch (_) {
+    numberFormat = new NumberFormat.currency(
+        locale: "en_US", symbol: "", decimalDigits: decimalDigits);
+  }
+  if (!useGroupSeparator || turnOffGrouping) {
+    numberFormat.turnOffGrouping();
   }
   return numberFormat.format(value);
 }

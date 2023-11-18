@@ -170,8 +170,12 @@ extension Localization on String {
         "it_it": "Stile del tema",
       } +
       {
-        "en_us": "Decimal digits",
-        "it_it": "Cifre decimali",
+        "en_us": "Use `Grouping separator`",
+        "it_it": "Usa il `Separatore delle migliaia`",
+      } +
+      {
+        "en_us": "For example, 1000 -> 1,000",
+        "it_it": "Per esempio, 1000 -> 1.000",
       } +
       {
         "en_us": "Require App restart",

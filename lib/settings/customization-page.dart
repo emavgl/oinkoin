@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:i18n_extension/i18n_widget.dart';
+import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './i18n/settings-page.i18n.dart';
 
@@ -22,6 +24,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         themeColorDropdownValue = themeColorDropDownValues[themeColorDropdownValueIndex];
         themeStyleDropdownValue = themeStyleDropDownValues[themeStyleDropdownValueIndex];
         decimalDigitsValue = prefs.getInt('numDecimalDigits') ?? 2;
+        useGroupSeparator = prefs.getBool("useGroupSeparator") ?? true;
       });
     });
   }
@@ -35,6 +38,8 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   List<int> decimalDigitsValues = [0, 1, 2];
   int decimalDigitsValue = 2;
+
+  bool useGroupSeparator = true;
 
   Widget buildThemeStyleDropdownButton() {
     return DropdownButton<String>(
@@ -115,9 +120,18 @@ class CustomizationPageState extends State<CustomizationPage> {
             subtitle: Text("Select the app theme style".i18n + " - " +  "Require App restart".i18n),
           ),
           ListTile(
-            trailing: buildDecimalDigitsDropdownButton(),
-            title: Text("Decimal digits".i18n),
-            subtitle: Text("Select the number of decimal digits".i18n),
+            trailing: Switch(
+              // This bool value toggles the switch.
+              value: useGroupSeparator,
+              onChanged: (bool value) {
+                setState(() {
+                  prefs.setBool("useGroupSeparator", value);
+                  useGroupSeparator = value;
+                });
+              },
+            ),
+            title: Text("Use `Grouping separator`".i18n),
+            subtitle: Text("For example, 1000 -> 1,000".i18n),
           ),
         ],
       ),
