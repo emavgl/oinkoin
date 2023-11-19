@@ -3,8 +3,10 @@ import "package:collection/collection.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
+import 'package:intl/src/intl_helpers.dart' as helpers;
 
 import '../services/service-config.dart';
 
@@ -25,6 +27,20 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   return movementsDayList;
 }
 
+bool localeExists(String? localeName) {
+  if (localeName == null) return false;
+  return numberFormatSymbols.containsKey(localeName);
+}
+
+String? getLocaleGroupingSeparator() {
+  String myLocale = I18n.locale.toString();
+  String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
+  if (existingLocale == null) {
+  return null;
+  }
+  return numberFormatSymbols[existingLocale]?.GROUP_SEP;
+}
+
 String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
   if (value == null) return "";
   NumberFormat numberFormat;
@@ -38,10 +54,18 @@ String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
     numberFormat = new NumberFormat.currency(
         locale: "en_US", symbol: "", decimalDigits: decimalDigits);
   }
-  if (!useGroupSeparator || turnOffGrouping) {
+  bool mustRemoveGrouping = !useGroupSeparator || turnOffGrouping;
+  if (mustRemoveGrouping) {
     numberFormat.turnOffGrouping();
   }
-  return numberFormat.format(value);
+  String result = numberFormat.format(value);
+  bool userDefinedGroupingSeparator = ServiceConfig.sharedPreferences!.containsKey("groupSeparator");
+  if (!mustRemoveGrouping && userDefinedGroupingSeparator) {
+    String localeGroupingSeparator = getLocaleGroupingSeparator()!;
+    String groupingSeparatorByTheUser = ServiceConfig.sharedPreferences!.getString("groupSeparator")!;
+    result = result.replaceAll(localeGroupingSeparator, groupingSeparatorByTheUser);
+  }
+  return result;
 }
 
 AssetImage getBackgroundImage() {

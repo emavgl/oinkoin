@@ -190,6 +190,34 @@ extension Localization on String {
         "it_it": "Seleziona il colore dell'app",
       } +
       {
+        "en_us": "Decimal digits",
+        "it_it": "Cifre decimali",
+      } +
+      {
+        "en_us": "Grouping separator",
+        "it_it": "Separatore delle migliaia",
+      } +
+      {
+        "en_us": "Overwrite grouping separator",
+        "it_it": "Sovrascrivi il simbolo del separatore",
+      } +
+      {
+        "en_us": "dot",
+        "it_it": "punto",
+      } +
+      {
+        "en_us": "comma",
+        "it_it": "virgola",
+      } +
+      {
+        "en_us": "space",
+        "it_it": "spazio",
+      } +
+      {
+        "en_us": "apostrophe",
+        "it_it": "apostrofo",
+      } +
+      {
         "en_us": "Select the number of decimal digits",
         "it_it": "Seleziona il numero di cifre decimali",
       } +

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/recurrent_record_patterns/view-recurrent-pattern-page.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -68,7 +69,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
                 overflow: TextOverflow.ellipsis,
               ),
               trailing: Text(
-                pattern.value.toString(),
+                getCurrencyValueString(pattern.value),
                 style: _biggerFont,
               ),
               leading: Container(
