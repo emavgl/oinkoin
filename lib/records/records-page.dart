@@ -279,6 +279,8 @@ class RecordsPageState extends State<RecordsPage> {
 
   @override
   Widget build(BuildContext context) {
+    double headerFontSize = _header.length > 13 ? 18 : 22;
+    double headerPaddingBottom = _header.length > 13 ? 15 : 13;
     return Scaffold(
       body: new CustomScrollView(
         slivers: [
@@ -327,8 +329,8 @@ class RecordsPageState extends State<RecordsPage> {
                 StretchMode.fadeTitle,
               ],
               centerTitle: false,
-              titlePadding: EdgeInsets.all(15),
-              title: Text(_header, style: TextStyle(color: Colors.white)),
+              titlePadding: EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
+              title: Text(_header, style: TextStyle(color: Colors.white, fontSize: headerFontSize)),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.1), BlendMode.srcATop),
                   child: Container(

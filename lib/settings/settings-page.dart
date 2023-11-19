@@ -187,7 +187,7 @@ class SettingsPage extends StatelessWidget {
             iconBackgroundColor: Colors.tealAccent.shade700,
             title: 'Info'.i18n,
             subtitle: 'Privacy policy and credits'.i18n,
-            onPressed: () async => await _launchURL("https://github.com/emavgl/piggybank-privacy-policy/blob/master/privacy-policy.md"),
+            onPressed: () async => await _launchURL("https://github.com/emavgl/oinkoin/blob/master/privacy-policy.md"),
           ),
           SettingsItem(
             icon: Icon(

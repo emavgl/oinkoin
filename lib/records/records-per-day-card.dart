@@ -151,7 +151,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 22, 0),
                           child: Text(
                             getCurrencyValueString(widget._movementDay.balance),
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
