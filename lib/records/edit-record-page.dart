@@ -1,4 +1,5 @@
 
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import './i18n/edit-record-page.i18n.dart';
 import 'package:intl/src/intl_helpers.dart' as helpers;
 
@@ -89,6 +91,10 @@ class EditRecordPageState extends State<EditRecordPage> {
     if (localeName == null) return false;
     return numberFormatSymbols.containsKey(localeName);
   }
+
+  static String? getUserDefinedGroupingSeparator() {
+    return ServiceConfig.sharedPreferences?.getString("groupSeparator");
+  }
   
   String? tryParseMathExpr(String text) {
     String myLocale = I18n.locale.toString();
@@ -100,6 +106,12 @@ class EditRecordPageState extends State<EditRecordPage> {
     String groupingSep = numberFormatSymbols[existingLocale]?.GROUP_SEP;
     if (isMathExpression(text)) {
       try {
+        // Clean up from user defined grouping separator if they ever
+        // end up here
+        var userDefinedGroupingSeparator = getUserDefinedGroupingSeparator();
+        if (userDefinedGroupingSeparator != null) {
+          text = text.replaceAll(userDefinedGroupingSeparator, "");
+        }
         text = text.replaceAll(groupingSep, "");
         text = text.replaceAll(decimalSep, ".");
         return text;
@@ -139,6 +151,12 @@ class EditRecordPageState extends State<EditRecordPage> {
     try {
       Locale myLocale = I18n.locale;
       Intl.defaultLocale = myLocale.toString();
+      // Clean up from user defined grouping separator if they ever
+      // end up here
+      var userDefinedGroupingSeparator = getUserDefinedGroupingSeparator();
+      if (userDefinedGroupingSeparator != null) {
+        toParse = toParse.replaceAll(userDefinedGroupingSeparator, "");
+      }
       num f = NumberFormat().parse(toParse);
       return f.toDouble();
     } catch (e) {

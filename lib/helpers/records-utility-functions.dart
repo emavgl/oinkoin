@@ -41,6 +41,10 @@ String? getLocaleGroupingSeparator() {
   return numberFormatSymbols[existingLocale]?.GROUP_SEP;
 }
 
+String? getUserDefinedGroupingSeparator() {
+  return ServiceConfig.sharedPreferences!.getString("groupSeparator");
+}
+
 String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
   if (value == null) return "";
   NumberFormat numberFormat;
@@ -62,7 +66,7 @@ String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
   bool userDefinedGroupingSeparator = ServiceConfig.sharedPreferences!.containsKey("groupSeparator");
   if (!mustRemoveGrouping && userDefinedGroupingSeparator) {
     String localeGroupingSeparator = getLocaleGroupingSeparator()!;
-    String groupingSeparatorByTheUser = ServiceConfig.sharedPreferences!.getString("groupSeparator")!;
+    String groupingSeparatorByTheUser = getUserDefinedGroupingSeparator()!;
     result = result.replaceAll(localeGroupingSeparator, groupingSeparatorByTheUser);
   }
   return result;
