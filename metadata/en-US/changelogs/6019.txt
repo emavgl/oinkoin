@@ -1,0 +1,5 @@
+- Refactoring currency visualization based on locale
+- Added up to 4 decimal digits if needed
+- Possibility to remove or overwrite the grouping separator (1000 -> 1.000)
+- Add recurrence period of Every two weeks
+- Bug fixes and visual improvements 
