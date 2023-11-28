@@ -7,6 +7,7 @@ extension Localization on String {
       {
         "en_us": "No categories yet.",
         "it_it": "Nessuna categoria da visualizzare.",
+        "de_de": "Noch keine Kategorien",
       };
 
   String get i18n => localize(this, _translations);

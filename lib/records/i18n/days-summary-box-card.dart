@@ -6,14 +6,17 @@ extension Localization on String {
       {
         "en_us": "Income",
         "it_it": "Entrate",
+        "de_de": "Einkommen",
       } +
       {
         "en_us": "Expenses",
         "it_it": "Uscite",
+        "de_de": "Ausgaben",
       } +
       {
         "en_us": "Balance",
         "it_it": "Bilancio",
+        "de_de": "Bilanz",
       };
 
   String get i18n => localize(this, _translations);

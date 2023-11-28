@@ -63,6 +63,7 @@ class App extends StatelessWidget {
       supportedLocales: [
         const Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
         const Locale.fromSubtags(languageCode: 'it', countryCode: 'IT'),
+        const Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),
       ],
       title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
       home: I18n(
