@@ -10,5 +10,8 @@ class ServiceConfig {
 
   static final DatabaseInterface database = SqliteDatabase.instance;
   static bool isPremium = false; // set in main.dart
-  static SharedPreferences? sharedPreferences; // set in main.dart
+  static SharedPreferences? sharedPreferences;
+
+  static String? packageName; // set in main.dart
+  static String? version; // set in main.dart
 }

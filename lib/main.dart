@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -11,8 +12,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  ServiceConfig.packageName = packageInfo.packageName;
+  ServiceConfig.version = packageInfo.version;
   ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro");
   ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
+  await FlutterDisplayMode.setHighRefreshRate();
   runApp(
     App(
       lightTheme: await MaterialThemeInstance.getLightTheme(),

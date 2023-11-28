@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:url_launcher/url_launcher.dart';
 import './i18n/feedback-page.i18n.dart';
 
@@ -10,9 +12,11 @@ class FeedbackPage extends StatelessWidget {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   _launchURL(String toMailId, String subject, String body) async {
+    body += "\n\n ${ServiceConfig.packageName}-${ServiceConfig.version}";
     var url = 'mailto:$toMailId?subject=$subject&body=$body';
-    if (await canLaunch(url)) {
-      await launch(url);
+    var uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     }
   }
 
@@ -45,6 +49,12 @@ class FeedbackPage extends StatelessWidget {
                       onPressed: () => _launchURL('emavgl.app@gmail.com', 'Oinkoin feedback', 'Oinkoin app is ..., because ...'),
                       child: Text("Send a feedback".i18n.toUpperCase(), style: _biggerFont),
                     ),
+                  ),
+                ),
+                Container(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text("Version: ${ServiceConfig.version}")
                   ),
                 )
               ],

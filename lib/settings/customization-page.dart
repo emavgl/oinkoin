@@ -196,11 +196,14 @@ class CustomizationPageState extends State<CustomizationPage> {
             title: Text("Use `Grouping separator`".i18n),
             subtitle: Text("For example, 1000 -> 1,000".i18n),
           ),
-          ListTile(
-            trailing: buildGroupingSeparatorDropdownButton(),
-            title: Text("Grouping separator".i18n),
-            subtitle: Text("Overwrite grouping separator".i18n),
-          ),
+          Visibility(
+            visible: useGroupSeparator,
+            child: ListTile(
+              trailing: buildGroupingSeparatorDropdownButton(),
+              title: Text("Grouping separator".i18n),
+              subtitle: Text("Overwrite grouping separator".i18n),
+            ),
+          )
         ],
       ),
     );
