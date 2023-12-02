@@ -12,10 +12,6 @@ extension Localization on String {
         "it_it": "Passa a",
       } +
       {
-        "en_us": 'Under Control Pro',
-        "it_it": 'Under Control Pro',
-      } +
-      {
         "en_us": "Filter records by year or custom date range",
         "it_it": "Filtra per anno o per date personalizzate",
       } +

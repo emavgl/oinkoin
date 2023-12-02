@@ -1,0 +1,14 @@
+[
+    {
+        "en_us": "Not repeat",
+        "it_it": "Non ripetere"
+    },
+    {
+        "en_us": "Not a valid format (use for example: %s)",
+        "it_it": "Formato non valido (formato di esempio: %s)"
+    },
+    {
+        "en_us": "Amount",
+        "it_it": "Valore"
+    }
+]
