@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/records-utility-functions.dart';
 import './i18n/settings-page.i18n.dart';
 import 'package:intl/src/intl_helpers.dart' as helpers;
 
@@ -20,25 +21,6 @@ class CustomizationPageState extends State<CustomizationPage> {
     return numberFormatSymbols.containsKey(localeName);
   }
 
-  String? getLocaleGroupingSeparator() {
-    String myLocale = I18n.locale.toString();
-    String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
-    if (existingLocale == null) {
-      return null;
-    }
-    return numberFormatSymbols[existingLocale]?.GROUP_SEP;
-  }
-
-  String? getLocaleDecimalSeparator() {
-    String myLocale = I18n.locale.toString();
-    String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
-    if (existingLocale == null) {
-      return null;
-    }
-    return numberFormatSymbols[existingLocale]?.DECIMAL_SEP;
-  }
-
-
   @override
   void initState() {
     super.initState();
@@ -51,8 +33,9 @@ class CustomizationPageState extends State<CustomizationPage> {
         themeStyleDropdownValue = themeStyleDropDownValues[themeStyleDropdownValueIndex];
         decimalDigitsValue = prefs.getInt('numDecimalDigits') ?? 2;
         useGroupSeparator = prefs.getBool("useGroupSeparator") ?? true;
-        groupSeparatorValue = prefs.getString("groupSeparator") ?? getLocaleGroupingSeparator()!;
-        groupSeparatorsValues.remove(getLocaleDecimalSeparator()!);
+        groupSeparatorValue = prefs.getString("groupSeparator") ?? getLocaleGroupingSeparator();
+        groupSeparatorsValues.remove(getLocaleDecimalSeparator());
+        overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ?? getLocaleDecimalSeparator() == ",";
       });
     });
   }
@@ -68,7 +51,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   int decimalDigitsValue = 2;
 
   bool useGroupSeparator = true;
-  Map<String, String> groupSeparatorSymbols = {
+  Map<String, String> symbolsTranslations = {
     ".": "dot".i18n,
     ",": "comma".i18n,
     "\u00A0": "space".i18n,
@@ -77,6 +60,9 @@ class CustomizationPageState extends State<CustomizationPage> {
   };
   List<String> groupSeparatorsValues = [".", ",", "\u00A0", "_", "'"];
   String groupSeparatorValue = ".";
+
+  bool overwriteDotValueWithComma = true;
+
 
   Widget buildThemeStyleDropdownButton() {
     return DropdownButton<String>(
@@ -147,13 +133,13 @@ class CustomizationPageState extends State<CustomizationPage> {
         setState(() {
           groupSeparatorValue = value!;
           prefs.setString("groupSeparator", value);
-          print("Selected Group Separator:" + groupSeparatorSymbols[value].toString());
+          print("Selected Group Separator:" + symbolsTranslations[value].toString());
         });
       },
       items: groupSeparatorsValues.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(groupSeparatorSymbols[value].toString()),
+          child: Text(symbolsTranslations[value].toString()),
         );
       }).toList(),
     );
@@ -181,6 +167,23 @@ class CustomizationPageState extends State<CustomizationPage> {
             trailing: buildDecimalDigitsDropdownButton(),
             title: Text("Decimal digits".i18n),
             subtitle: Text("Select the number of decimal digits".i18n),
+          ),
+          Visibility(
+            visible: getLocaleDecimalSeparator() == ",",
+            child: ListTile(
+              trailing: Switch(
+                // This bool value toggles the switch.
+                value: overwriteDotValueWithComma,
+                onChanged: (bool value) {
+                  setState(() {
+                    prefs.setBool("overwriteDotValueWithComma", value);
+                    overwriteDotValueWithComma = value;
+                  });
+                },
+              ),
+              title: Text("Overwrite the `dot`".i18n),
+              subtitle: Text("Overwrite `dot` with `comma`".i18n),
+            ),
           ),
           ListTile(
             trailing: Switch(

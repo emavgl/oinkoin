@@ -12,6 +12,7 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:share_plus/share_plus.dart';
 import './i18n/settings-page.i18n.dart';
 import 'dart:io';
+import 'package:future_progress_dialog/future_progress_dialog.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -29,7 +30,7 @@ class SettingsPage extends StatelessWidget {
 
   createAndShareBackupFile() async {
     File backupFile = await BackupService.createJsonBackupFile();
-    Share.shareFiles([backupFile.path]);
+    Share.shareXFiles([XFile(backupFile.path)]);
   }
 
   importFromBackupFile(BuildContext context) async {
@@ -39,7 +40,10 @@ class SettingsPage extends StatelessWidget {
     );
     if(result != null) {
       File file = File(result.files.single.path!);
-      bool successful = await BackupService.importDataFromBackupFile(file);
+      bool successful = await showDialog(
+        context: context,
+        builder: (context) => FutureProgressDialog(BackupService.importDataFromBackupFile(file)),
+      );
       if (successful) {
         AlertDialogBuilder resultDialog = AlertDialogBuilder("Restore successful".i18n)
             .addSubtitle("The data from the backup file are now restored.".i18n)
@@ -69,13 +73,19 @@ class SettingsPage extends StatelessWidget {
     });
     if (ok) {
       await database.deleteDatabase();
+      AlertDialogBuilder resultDialog = AlertDialogBuilder("Data is deleted".i18n)
+          .addSubtitle("All the data has been deleted".i18n)
+          .addTrueButtonName("OK");
+      await showDialog(context: context, builder: (BuildContext context) {
+        return resultDialog.build(context);
+      });
     }
   }
 
   goToPremiumSplashScreen(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+      MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
     );
   }
 
@@ -159,7 +169,7 @@ class SettingsPage extends StatelessWidget {
                 onPressed: ServiceConfig.isPremium ? () async => await importFromBackupFile(context) : () async {
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+                    MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
                   );
                 },
               ),

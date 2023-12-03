@@ -218,6 +218,22 @@ extension Localization on String {
         "it_it": "apostrofo",
       } +
       {
+        "en_us": "Overwrite the `dot`",
+        "it_it": "Sovrascrivi il `punto`",
+      } +
+      {
+        "en_us": "Overwrite `dot` with `comma`",
+        "it_it": "Sovrascrivi il `punto` con la `virgola`",
+      } +
+      {
+        "en_us": "Data is deleted",
+        "it_it": "Dati cancellati",
+      } +
+      {
+        "en_us": "All the data has been deleted",
+        "it_it": "Tutti i dati sono stati cancellati",
+      } +
+      {
         "en_us": "Select the number of decimal digits",
         "it_it": "Seleziona il numero di cifre decimali",
       } +
@@ -228,6 +244,10 @@ extension Localization on String {
       {
         "en_us": "Set visual preferences",
         "it_it": "Imposta preferenze grafiche",
+      } +
+      {
+        "en_us": "Deleting database...",
+        "it_it": "Sto cancellando il database...",
       } +
       {
         "en_us": "Pay us a coffee",

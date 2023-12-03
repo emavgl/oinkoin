@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import './i18n/splash-screen.i18n.dart';
 
-class PremiumSplashScren extends StatelessWidget {
-
-  /// Statistics Page
-  /// It has takes the initial date, ending date and a list of records
-  /// and shows widgets representing statistics of the given records
+class PremiumSplashScreen extends StatelessWidget {
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
 

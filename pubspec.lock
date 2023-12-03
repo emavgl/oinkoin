@@ -341,6 +341,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.0"
+  future_progress_dialog:
+    dependency: "direct main"
+    description:
+      name: future_progress_dialog
+      sha256: ac6d507b54f020e1334120ce114dd100ed973842223ce61abbea5885c89bc882
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   glob:
     dependency: transitive
     description:
