@@ -158,7 +158,7 @@ class RecordsPageState extends State<RecordsPage> {
     Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+      MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
     );
   }
 

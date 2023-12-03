@@ -48,70 +48,31 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
     }
   }
 
-  bool isMathExpression(String text) {
-    bool containsOperator = false;
-    containsOperator |= text.contains("+");
-    containsOperator |= text.contains("-");
-    containsOperator |= text.contains("*");
-    containsOperator |= text.contains("/");
-    containsOperator |= text.contains("%");
-    return containsOperator;
-  }
-
-  void solveMathExpressionAndUpdateText() {
-    var text = _textEditingController.text.toLowerCase();
-    var newNum;
-    if (isMathExpression(text)) {
-      try {
-        newNum = text.interpret();
-      } catch (e) {
-        stderr.writeln("Can't parse the expression");
-      }
-    }
-    if (newNum != null) {
-      text = newNum.toStringAsFixed(2);
-      _textEditingController.value = _textEditingController.value.copyWith(
-        text: text,
-        selection:
-        TextSelection(baseOffset: text.length, extentOffset: text.length),
-        composing: TextRange.empty,
-      );
-      changeRecordValue(_textEditingController.text.toLowerCase());
-    }
-  }
-
   @override
   void initState() {
     super.initState();
+    bool overwriteDotValue = getOverwriteDotValue();
+
     recurrentPeriod = widget.passedPattern!.recurrentPeriod;
     _textEditingController.text = getCurrencyValueString(
-        widget.passedPattern!.value!.abs());
-
+        widget.passedPattern!.value!.abs(), turnOffGrouping: true);
 
     // listeners for value validations
     _textEditingController.addListener(() {
       lastCharInsertedMillisecond = DateTime.now();
       var text = _textEditingController.text.toLowerCase();
-      final exp = new RegExp(r'[^\d.\\+\-\*=/%x]');
-      text = text.replaceAll(",", ".");
+      final exp = new RegExp(r'[^\d.,\\+\-\*=/%x]');
       text = text.replaceAll("x", "*");
       text = text.replaceAll(exp, "");
+      if (overwriteDotValue) {
+        text = text.replaceAll(".", ",");
+      }
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
         TextSelection(baseOffset: text.length, extentOffset: text.length),
         composing: TextRange.empty,
       );
-    });
-
-    // listener for math calculation
-    _textEditingController.addListener(() async {
-      var text = _textEditingController.text.toLowerCase();
-      await Future.delayed(Duration(seconds: 2));
-      var textAfterPause = _textEditingController.text.toLowerCase();
-      if (text == textAfterPause) {
-        solveMathExpressionAndUpdateText();
-      }
     });
   }
 
@@ -222,7 +183,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
   goToPremiumSplashScreen() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+      MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
     );
   }
 
@@ -275,6 +236,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
   }
 
   Widget _createAmountCard() {
+    String categorySign = widget.passedPattern?.category?.categoryType == CategoryType.expense ? "-" : "+";
     return Card(
       elevation: 2,
       child: Container(
@@ -282,6 +244,14 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    margin: EdgeInsets.only(left: 10, top: 25),
+                    child: Text(categorySign, style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
+                  ),
+                ),
                 Expanded(
                     child: Container(
                       padding: EdgeInsets.all(10),
@@ -297,7 +267,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                             if (value!.isEmpty) {
                               return "Please enter a value".i18n;
                             }
-                            var numericValue = double.tryParse(value);
+                            var numericValue = tryParseCurrencyString(value);
                             if (numericValue == null) {
                               return "Please enter a numeric value".i18n;
                             }

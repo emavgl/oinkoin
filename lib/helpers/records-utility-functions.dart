@@ -32,17 +32,34 @@ bool localeExists(String? localeName) {
   return numberFormatSymbols.containsKey(localeName);
 }
 
-String? getLocaleGroupingSeparator() {
+String getLocaleGroupingSeparator() {
   String myLocale = I18n.locale.toString();
   String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
   if (existingLocale == null) {
-  return null;
+    return ",";
   }
   return numberFormatSymbols[existingLocale]?.GROUP_SEP;
 }
 
 String? getUserDefinedGroupingSeparator() {
   return ServiceConfig.sharedPreferences!.getString("groupSeparator");
+}
+
+String getGroupingSeparator() {
+  return ServiceConfig.sharedPreferences!.getString("groupSeparator") ?? getLocaleGroupingSeparator();
+}
+
+String getLocaleDecimalSeparator() {
+  String myLocale = I18n.locale.toString();
+  String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
+  if (existingLocale == null) {
+    return ".";
+  }
+  return numberFormatSymbols[existingLocale]?.DECIMAL_SEP;
+}
+
+bool getOverwriteDotValue() {
+  return ServiceConfig.sharedPreferences?.getBool("overwriteDotValueWithComma") ?? getLocaleDecimalSeparator() == ",";
 }
 
 String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
@@ -70,6 +87,23 @@ String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
     result = result.replaceAll(localeGroupingSeparator, groupingSeparatorByTheUser);
   }
   return result;
+}
+
+double? tryParseCurrencyString(String toParse) {
+  try {
+    Locale myLocale = I18n.locale;
+    Intl.defaultLocale = myLocale.toString();
+    // Clean up from user defined grouping separator if they ever
+    // end up here
+    var userDefinedGroupingSeparator = getUserDefinedGroupingSeparator();
+    if (userDefinedGroupingSeparator != null) {
+      toParse = toParse.replaceAll(userDefinedGroupingSeparator, "");
+    }
+    num f = NumberFormat().parse(toParse);
+    return f.toDouble();
+  } catch (e) {
+    return null;
+  }
 }
 
 AssetImage getBackgroundImage() {

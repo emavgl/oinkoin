@@ -38,6 +38,7 @@ dependencies:
   uuid:
   package_info_plus:
   flutter_displaymode:
+  future_progress_dialog: ^0.2.0
 
 
   # The following adds the Cupertino Icons font to your application.
