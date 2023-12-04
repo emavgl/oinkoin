@@ -259,7 +259,7 @@ class SqliteDatabase implements DatabaseInterface {
         final db = (await database)!;
         await db.execute("DELETE FROM records");
         await db.execute("DELETE FROM categories");
-        await db.execute("DELETE FROM recurrent_records");
+        await db.execute("DELETE FROM recurrent_record_patterns");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_record_patterns'");

@@ -213,7 +213,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                         onTap: ServiceConfig.isPremium ? openColorPicker : () async {
                           await Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+                            MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
                           );
                         },
                       )

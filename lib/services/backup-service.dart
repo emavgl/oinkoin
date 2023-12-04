@@ -42,6 +42,9 @@ class BackupService {
       // Add records
       for(var backupRecord in backup.records) {
         if (await database.getMatchingRecord(backupRecord) == null){
+          // we need to strip the ID, since there could be another record
+          // with the same ID, we want to ensure no collisions happen
+          backupRecord?.id = null;
           await database.addRecord(backupRecord);
         } else {
           print("${backupRecord!.category!.name} of value ${backupRecord

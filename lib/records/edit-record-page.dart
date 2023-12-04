@@ -1,11 +1,9 @@
 
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
@@ -15,12 +13,10 @@ import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
-import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import './i18n/edit-record-page.i18n.dart';
 import 'package:intl/src/intl_helpers.dart' as helpers;
 
@@ -86,34 +82,14 @@ class EditRecordPageState extends State<EditRecordPage> {
     containsOperator |= text.contains("%");
     return containsOperator;
   }
-
-  static bool localeExists(String? localeName) {
-    if (localeName == null) return false;
-    return numberFormatSymbols.containsKey(localeName);
-  }
-
-  static String? getUserDefinedGroupingSeparator() {
-    return ServiceConfig.sharedPreferences?.getString("groupSeparator");
-  }
   
   String? tryParseMathExpr(String text) {
-    String myLocale = I18n.locale.toString();
-    String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
-    if (existingLocale == null) {
-      return null;
-    }
-    String decimalSep = numberFormatSymbols[existingLocale]?.DECIMAL_SEP;
-    String groupingSep = numberFormatSymbols[existingLocale]?.GROUP_SEP;
+    var groupingSeparator = getGroupingSeparator();
+    var decimalSeparator = getLocaleDecimalSeparator();
     if (isMathExpression(text)) {
       try {
-        // Clean up from user defined grouping separator if they ever
-        // end up here
-        var userDefinedGroupingSeparator = getUserDefinedGroupingSeparator();
-        if (userDefinedGroupingSeparator != null) {
-          text = text.replaceAll(userDefinedGroupingSeparator, "");
-        }
-        text = text.replaceAll(groupingSep, "");
-        text = text.replaceAll(decimalSep, ".");
+        text = text.replaceAll(groupingSeparator, "");
+        text = text.replaceAll(decimalSeparator, ".");
         return text;
       } catch (e) {
         return null;
@@ -136,7 +112,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       stderr.writeln("Can't parse the expression: $text");
     }
     if (newNum != null) {
-      text = getCurrencyValueString(newNum);
+      text = getCurrencyValueString(newNum, turnOffGrouping: true);
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
@@ -147,29 +123,17 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
-  double? tryParseCurrencyString(String toParse) {
-    try {
-      Locale myLocale = I18n.locale;
-      Intl.defaultLocale = myLocale.toString();
-      // Clean up from user defined grouping separator if they ever
-      // end up here
-      var userDefinedGroupingSeparator = getUserDefinedGroupingSeparator();
-      if (userDefinedGroupingSeparator != null) {
-        toParse = toParse.replaceAll(userDefinedGroupingSeparator, "");
-      }
-      num f = NumberFormat().parse(toParse);
-      return f.toDouble();
-    } catch (e) {
-      return null;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
+
+    // Loading preferences
+    bool overwriteDotValue = getOverwriteDotValue();
+
+    // Loading parameters passed to the page
     if (passedRecord != null) {
       record = passedRecord;
-      _textEditingController.text = getCurrencyValueString(record!.value!.abs());
+      _textEditingController.text = getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
       if (record!.recurrencePatternId != null) {
         database.getRecurrentRecordPattern(record!.recurrencePatternId).then((value) {
           if (value != null) {
@@ -184,6 +148,8 @@ class EditRecordPageState extends State<EditRecordPage> {
       record = new Record(null, null, passedCategory, DateTime.now());
     }
 
+    // Keyboard listeners initializations
+
     // char validation
     _textEditingController.addListener(() {
       lastCharInsertedMillisecond = DateTime.now();
@@ -191,6 +157,11 @@ class EditRecordPageState extends State<EditRecordPage> {
       final exp = new RegExp(r'[^\d.,\\+\-\*=/%x]');
       text = text.replaceAll("x", "*");
       text = text.replaceAll(exp, "");
+
+      if (overwriteDotValue) {
+        text = text.replaceAll(".", ",");
+      }
+
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
@@ -326,7 +297,7 @@ Widget _createAddNoteCard() {
   goToPremiumSplashScreen() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PremiumSplashScren()),
+      MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
     );
   }
 
@@ -513,12 +484,6 @@ Widget _createAddNoteCard() {
     }
   }
 
-  addRecurrentPattern() async {
-    RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(record!, recurrentPeriod);
-    await database.addRecurrentRecordPattern(recordPattern);
-    Navigator.of(context).popUntil((route) => route.isFirst);
-  }
-
   addOrUpdateRecord() async {
     if (record!.id == null) {
       await database.addRecord(record);
@@ -591,12 +556,7 @@ Widget _createAddNoteCard() {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              if (recurrentPeriod == null) {
-                await addOrUpdateRecord();
-              } else {
-                // a recurrent pattern is defined
-                await addRecurrentPattern();
-              }
+              await addOrUpdateRecord();
             }
           },
           tooltip: 'Save'.i18n,

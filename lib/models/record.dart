@@ -31,7 +31,6 @@ class Record extends Model {
     this.description = recordPattern.description;
   }
 
-
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'title': title,
@@ -41,7 +40,6 @@ class Record extends Model {
       'category_type': category!.categoryType!.index,
       'description': description
     };
-
     if (this.id != null) { map['id'] = this.id; }
     if (this.recurrencePatternId != null) { map['recurrence_id'] = this.recurrencePatternId; }
     return map;
