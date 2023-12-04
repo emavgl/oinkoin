@@ -6,6 +6,7 @@ extension Localization on String {
       {
         "en_us": "Select the currency",
         "it_it": "Seleziona la moneta",
+        "de_de": "Währung auswählen",
       };
 
   String get i18n => localize(this, _translations);
