@@ -85,13 +85,13 @@ extension Localization on String {
       } +
       {
         "en_us": "Thanks",
-        "it_it": "Ringraziamenti",+
+        "it_it": "Ringraziamenti",
         "de_de": "Danke",
       } +
       {
-        "en_us": "Available on Piggybank Pro",
-        "it_it": "Disponibile su Piggybank Pro",
-        "de_de": "Verfügbar bei Piggybank Pro",
+        "en_us": "Available on Oinkoin Pro",
+        "it_it": "Disponibile su Oinkoin Pro",
+        "de_de": "Verfügbar bei Oinkoin Pro",
       } +
       {
         "en_us": "Critical action",
@@ -114,9 +114,9 @@ extension Localization on String {
         "de_de": "Nein",
       } +
       {
-        "en_us": "Available on Piggybank Pro",
-        "it_it": "Disponibile su Piggybank Pro",
-        "de_de": "Verfügbar bei Piggybank Pro",
+        "en_us": "Available on Oinkoin Pro",
+        "it_it": "Disponibile su Oinkoin Pro",
+        "de_de": "Verfügbar bei Oinkoin Pro",
       } +
       {
         "en_us": "Make a backup of all the data",

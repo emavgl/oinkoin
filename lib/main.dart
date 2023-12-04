@@ -57,7 +57,9 @@ class App extends StatelessWidget {
         Locale defaultLocale = locales![0];
 
         for (Locale locale in locales) {
-          if (supportedLocales.contains(locale)) {
+          // match by language code, but returns full locale
+          Locale deviceLanguageLocale = Locale.fromSubtags(languageCode: locale.languageCode);
+          if (supportedLocales.contains(deviceLanguageLocale)) {
             return locale;
           }
         }
@@ -65,9 +67,9 @@ class App extends StatelessWidget {
         return defaultLocale;
       },
       supportedLocales: [
-        const Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
-        const Locale.fromSubtags(languageCode: 'it', countryCode: 'IT'),
-        const Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),
+        const Locale.fromSubtags(languageCode: 'en'),
+        const Locale.fromSubtags(languageCode: 'it'),
+        const Locale.fromSubtags(languageCode: 'de'),
       ],
       title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
       home: I18n(
