@@ -273,18 +273,22 @@ extension Localization on String {
       {
         "en_us": "Overwrite the `dot`",
         "it_it": "Sovrascrivi il `punto`",
+        "de_de": "`Punkt` überschreiben",
       } +
       {
         "en_us": "Overwrite `dot` with `comma`",
         "it_it": "Sovrascrivi il `punto` con la `virgola`",
+        "de_de": "`Punkt` mit `Komma` überschreiben",
       } +
       {
         "en_us": "Data is deleted",
         "it_it": "Dati cancellati",
+        "de_de": "Daten gelöscht",
       } +
       {
         "en_us": "All the data has been deleted",
         "it_it": "Tutti i dati sono stati cancellati",
+        "de_de": "Alle Daten wurden gelöscht",
       } +
       {
         "en_us": "Select the number of decimal digits",
@@ -304,6 +308,7 @@ extension Localization on String {
       {
         "en_us": "Deleting database...",
         "it_it": "Sto cancellando il database...",
+        "de_de": "Lösche Datenbank",
       } +
       {
         "en_us": "Pay us a coffee",
