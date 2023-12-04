@@ -39,29 +39,20 @@ def save(file_path, entries):
 
 def save_to_json(files_and_entries, total_entries):
     # use as set
-    global_entries = {}
-    global_entries_counters = {}
+    global_entries_per_language = {
+        "en": {},
+        "it": {}
+    }
     for entry in total_entries:
         entry_key = entry['en_us']
-        if entry_key in global_entries_counters:
-            global_entries_counters[entry_key] += 1
-            global_entries[entry_key] = entry
-        else:
-            global_entries_counters[entry_key] = 1
-    
-    for file_and_entries in files_and_entries:
-        file_path = file_and_entries['file_path']
-        entries = file_and_entries['entries']
-        entries = [x for x in entries if x['en_us'] not in global_entries]
+        global_entries_per_language['en'][entry_key] = entry_key
+        global_entries_per_language['it'][entry_key] = entry['it_it']
+
+    with open("en.json", 'w') as destination_file:
+        json.dump(global_entries_per_language['en'], destination_file, indent=4)
         
-        destination_file_path = file_path.replace(".dart", ".json")
-        with open(destination_file_path, 'w') as destination_file:
-            json.dump(entries, destination_file, indent=4)
-            
-    with open("global.i18n.json", 'w') as destination_file:
-        global_entries_to_write = list(global_entries.values())
-        print(global_entries_to_write)
-        json.dump(global_entries_to_write, destination_file, indent=4)
+    with open("it.json", 'w') as destination_file:
+        json.dump(global_entries_per_language['it'], destination_file, indent=4)
 
 def main():
     root_folder = './lib'
