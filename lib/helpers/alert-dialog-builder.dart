@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import './i18n/alert-dialog-builder.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 class AlertDialogBuilder {
 

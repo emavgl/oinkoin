@@ -3,8 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:i18n_extension/i18n_widget.dart';
-import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
@@ -18,9 +16,7 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import '../models/recurrent-record-pattern.dart';
-import './i18n/edit-record-page.i18n.dart';
-import 'package:intl/src/intl_helpers.dart' as helpers;
-
+import 'package:piggybank/i18n.dart';
 
 import 'package:function_tree/function_tree.dart';
 
@@ -31,8 +27,8 @@ class EditRecordPage extends StatefulWidget {
   /// EditMovementPage can take the movement object to edit as a constructor parameters
   /// or can create a new Movement otherwise.
 
-  Record? passedRecord;
-  Category? passedCategory;
+  final Record? passedRecord;
+  final Category? passedCategory;
   EditRecordPage({Key? key, this.passedRecord, this.passedCategory}) : super(key: key);
 
   @override

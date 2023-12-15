@@ -1,12 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/records-utility-functions.dart';
-import './i18n/settings-page.i18n.dart';
-import 'package:intl/src/intl_helpers.dart' as helpers;
-
+import 'package:piggybank/i18n.dart';
 
 class CustomizationPage extends StatefulWidget {
 

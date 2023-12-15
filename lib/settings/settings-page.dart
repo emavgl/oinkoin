@@ -10,7 +10,8 @@ import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:share_plus/share_plus.dart';
-import './i18n/settings-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
+
 import 'dart:io';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
 

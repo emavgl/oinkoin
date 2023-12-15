@@ -12,7 +12,7 @@ import 'package:piggybank/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(App(key: GlobalKey(), lightTheme: ThemeData.light(), darkTheme: ThemeData.dark(), themeMode: ThemeMode.dark,));
+    await tester.pumpWidget(OinkoinApp(key: GlobalKey(), lightTheme: ThemeData.light(), darkTheme: ThemeData.dark(), themeMode: ThemeMode.dark,));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

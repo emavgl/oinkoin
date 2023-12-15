@@ -109,14 +109,14 @@ double? tryParseCurrencyString(String toParse) {
 
 AssetImage getBackgroundImage() {
   if (!ServiceConfig.isPremium) {
-    return AssetImage('assets/background.jpg');
+    return AssetImage('assets/images/background.jpg');
   } else {
     try {
       var now = DateTime.now();
       String month = now.month.toString();
-      return AssetImage('assets/bkg_' + month + '.jpg');
+      return AssetImage('assets/images/bkg_' + month + '.jpg');
     } on Exception catch (_) {
-      return AssetImage('assets/background.jpg');
+      return AssetImage('assets/images/background.jpg');
     }
   }
 }

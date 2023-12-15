@@ -20,7 +20,7 @@ import 'package:share_plus/share_plus.dart';
 import '../helpers/records-utility-functions.dart';
 import 'days-summary-box-card.dart';
 import 'package:path_provider/path_provider.dart';
-import './i18n/records-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 import 'dart:io';
 
 class RecordsPage extends StatefulWidget {
@@ -358,7 +358,7 @@ class RecordsPageState extends State<RecordsPage> {
                       child: Column(
                         children: <Widget>[
                           Image.asset(
-                              'assets/no_entry.png', width: 200,
+                              'assets/images/no_entry.png', width: 200,
                           ),
                           Text("No entries yet.".i18n,
                             textAlign: TextAlign.center,

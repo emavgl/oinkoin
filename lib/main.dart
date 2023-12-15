@@ -9,6 +9,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'i18n.dart';
+
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -18,7 +20,7 @@ main() async {
   ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
   await FlutterDisplayMode.setHighRefreshRate();
   runApp(
-    App(
+    OinkoinApp(
       lightTheme: await MaterialThemeInstance.getLightTheme(),
       darkTheme: await MaterialThemeInstance.getDarkTheme(),
       themeMode: await MaterialThemeInstance.getThemeMode()
@@ -26,48 +28,62 @@ main() async {
   );
 }
 
-class App extends StatelessWidget {
-  
+class OinkoinApp extends StatefulWidget {
+
   final ThemeData lightTheme;
   final ThemeData darkTheme;
   final ThemeMode themeMode;
 
-  const App({Key? key, required this.lightTheme, required this.darkTheme, required this.themeMode}) : super(key: key);
+  OinkoinApp({Key? key, required this.lightTheme, required this.darkTheme, required this.themeMode}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return OinkoinAppState();
+  }
+}
+
+class OinkoinAppState extends State<OinkoinApp> {
+
+  Future<void>? loadAsync;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+        debugShowCheckedModeBanner: false,
         // these are the app-specific localization delegates that collectively
-      // define the localized resources for this application's Localizations widget
-      localizationsDelegates: [
-        DefaultMaterialLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,    // defines the default text direction, either left-to-right or right-to-left, for the widgets library
-        GlobalCupertinoLocalizations.delegate,  // for IoS
-        DefaultCupertinoLocalizations.delegate
-      ],
-      localeListResolutionCallback: (locales, supportedLocales) {
-        print('device locales=$locales supported locales=$supportedLocales');
-
-        // Returns the first user choice
-        // even if not supported. The user will see still the english
-        // translations, but will be used for the currency format
-
-        return locales![0];
-      },
-      supportedLocales: [
-        const Locale.fromSubtags(languageCode: 'en'),
-        const Locale.fromSubtags(languageCode: 'it'),
-        const Locale.fromSubtags(languageCode: 'de'),
-      ],
-      title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
-      home: I18n(
-          // I18n translates strings to the current system locale
-          child: Shell()),
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: themeMode,
+        // define the localized resources for this application's Localizations widget
+        localizationsDelegates: [
+          DefaultMaterialLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,    // defines the default text direction, either left-to-right or right-to-left, for the widgets library
+          GlobalCupertinoLocalizations.delegate,  // for IoS
+          DefaultCupertinoLocalizations.delegate
+        ],
+        supportedLocales: [
+          const Locale.fromSubtags(languageCode: 'en'),
+          const Locale.fromSubtags(languageCode: 'it'),
+          const Locale.fromSubtags(languageCode: 'de'),
+        ],
+        theme: widget.lightTheme,
+        darkTheme: widget.darkTheme,
+        themeMode: widget.themeMode,
+        title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
+        home: FutureBuilder(
+          future: loadAsync,
+          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done)
+              return I18n(
+                child: Shell(),
+              );
+            return Container();
+          },
+        )
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAsync = MyI18n.loadTranslations();
   }
 }

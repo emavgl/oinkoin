@@ -4,7 +4,7 @@ import 'package:piggybank/records/records-page.dart';
 import 'package:piggybank/settings/settings-page.dart';
 import 'package:piggybank/style.dart';
 import 'categories/categories-tab-page-edit.dart';
-import 'i18n/shell.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 class Shell extends StatefulWidget {
 

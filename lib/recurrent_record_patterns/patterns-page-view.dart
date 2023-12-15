@@ -6,7 +6,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
 import '../models/recurrent-period.dart';
-import './i18n/recurrent-patterns.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 
 class PatternsPageView extends StatefulWidget {
@@ -16,7 +16,6 @@ class PatternsPageView extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
-  bool? goToEditMovementPage;
   PatternsPageView();
 
   @override
@@ -104,7 +103,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
             new Column(
               children: <Widget>[
                 Image.asset(
-                  'assets/no_entry_2.png', width: 200,
+                  'assets/images/no_entry_2.png', width: 200,
                 ),
                 Text("No recurrent records yet.".i18n,
                   textAlign: TextAlign.center,

@@ -349,6 +349,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1"
+  gettext_parser:
+    dependency: transitive
+    description:
+      name: gettext_parser
+      sha256: "9565c9dd1033ec125e1fbc7ccba6c0d2d753dd356122ba1a17e6aa7dc868f34a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   glob:
     dependency: transitive
     description:
@@ -397,6 +405,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.0.2"
+  i18n_extension_importer:
+    dependency: "direct main"
+    description:
+      name: i18n_extension_importer
+      sha256: "4fd651ff47ac52f604b34b5cd80ee225d38fe589d51b042f00178081b476252f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.6"
   intl:
     dependency: "direct main"
     description:

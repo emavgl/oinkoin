@@ -22,6 +22,7 @@ dependencies:
   flutter_localizations:    # i18n
     sdk: flutter            # i18n
   i18n_extension:
+  i18n_extension_importer:
   sqflite:
   path:
   path_provider:
@@ -68,7 +69,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/
+    - assets/images/
+    - assets/locales/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

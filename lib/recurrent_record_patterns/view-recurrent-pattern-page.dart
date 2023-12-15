@@ -1,9 +1,5 @@
-
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:function_tree/function_tree.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
@@ -14,11 +10,12 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import '../helpers/records-utility-functions.dart';
-import './i18n/recurrent-patterns.i18n.dart';
+import 'package:piggybank/i18n.dart';
+
 
 class ViewRecurrentPatternPage extends StatefulWidget {
 
-  RecurrentRecordPattern? passedPattern;
+  final RecurrentRecordPattern? passedPattern;
   ViewRecurrentPatternPage({Key? key, this.passedPattern}) : super(key: key);
 
   @override
