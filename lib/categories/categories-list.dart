@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
-import './i18n/categories-grid-list.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 
 class CategoriesList extends StatefulWidget {
@@ -9,7 +9,7 @@ class CategoriesList extends StatefulWidget {
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
 
-  List<Category?> categories;
+  final List<Category?> categories;
   final void Function()? callback;
 
   CategoriesList(this.categories, {this.callback});
@@ -72,7 +72,7 @@ class CategoriesListState extends State<CategoriesList> {
         child: widget.categories.length == 0 ? new Column(
           children: <Widget>[
             Image.asset(
-              'assets/no_entry_2.png', width: 200,
+              'assets/images/no_entry_2.png', width: 200,
             ),
             Text("No categories yet.".i18n,
               textAlign: TextAlign.center,

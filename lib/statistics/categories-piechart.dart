@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:community_charts_flutter/community_charts_flutter.dart' as charts;
-import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 class LinearRecord {
   final String? category;

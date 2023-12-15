@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
-import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:community_charts_flutter/src/text_style.dart' as style;
 import 'package:community_charts_flutter/src/text_element.dart' as ChartText;
 import 'dart:math';

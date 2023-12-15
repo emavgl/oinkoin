@@ -6,8 +6,7 @@ import 'package:piggybank/statistics/statistics-utils.dart';
 
 import 'barchart-card.dart';
 import 'categories-summary-card.dart';
-import './i18n/statistics-page.i18n.dart';
-
+import 'package:piggybank/i18n.dart';
 
 class StatisticsTabPage extends StatefulWidget {
 
@@ -44,7 +43,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     return new Column(
       children: <Widget>[
         Image.asset(
-          'assets/no_entry_3.png', width: 200,
+          'assets/images/no_entry_3.png', width: 200,
         ),
         Text("No entries to show.".i18n,
           textAlign: TextAlign.center,

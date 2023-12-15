@@ -3,9 +3,9 @@ import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/i18n.dart';
 
 import 'categories-grid.dart';
-import './i18n/categories-tab-page.i18n.dart';
 
 
 class CategoryTabPageView extends StatefulWidget {
@@ -15,7 +15,7 @@ class CategoryTabPageView extends StatefulWidget {
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
-  bool? goToEditMovementPage;
+  final bool? goToEditMovementPage;
   CategoryTabPageView({this.goToEditMovementPage});
 
   @override

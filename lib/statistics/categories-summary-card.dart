@@ -4,12 +4,12 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 import 'categories-piechart.dart';
 
 class CategorySumTuple {
   final Category? category;
-  double? value;
+  final double? value;
   CategorySumTuple(this.category, this.value);
 }
 
@@ -19,8 +19,8 @@ class CategoriesSummaryCard extends StatelessWidget {
   final List<Record?>? aggregatedRecords;
   final AggregationMethod? aggregationMethod;
 
-  DateTime? from;
-  DateTime? to;
+  final DateTime? from;
+  final DateTime? to;
   late List<CategorySumTuple> categoriesAndSums;
   double? totalExpensesSum;
   double? maxExpensesSum;

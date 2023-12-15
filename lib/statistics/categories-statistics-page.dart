@@ -3,7 +3,7 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 import 'barchart-card.dart';
 import 'category-summary-card.dart';
@@ -39,7 +39,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
     return new Column(
       children: <Widget>[
         Image.asset(
-          'assets/no_entry_3.png', width: 200,
+          'assets/images/no_entry_3.png', width: 200,
         ),
         Text("No entries to show.".i18n,
           textAlign: TextAlign.center,

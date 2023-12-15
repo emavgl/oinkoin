@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:url_launcher/url_launcher.dart';
-import './i18n/feedback-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 class FeedbackPage extends StatelessWidget {
 
@@ -32,7 +31,7 @@ class FeedbackPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Image.asset(
-                  'assets/feedback.png', width: 250,
+                  'assets/images/feedback.png', width: 250,
                 ),
                 new Container(
                     margin: EdgeInsets.all(20),

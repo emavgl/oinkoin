@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import './i18n/splash-screen.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 class PremiumSplashScreen extends StatelessWidget {
 
@@ -24,7 +24,7 @@ class PremiumSplashScreen extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Image.asset(
-                  'assets/premium_page_banner.png', width: 250,
+                  'assets/images/premium_page_banner.png', width: 250,
                 ),
                 RichText(
                   text: new TextSpan(

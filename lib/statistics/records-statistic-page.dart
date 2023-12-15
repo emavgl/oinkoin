@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 import 'category-summary-card.dart';
 
 class RecordsStatisticPage extends StatelessWidget {
@@ -24,7 +24,7 @@ class RecordsStatisticPage extends StatelessWidget {
     return new Column(
       children: <Widget>[
         Image.asset(
-          'assets/no_entry_3.png', width: 200,
+          'assets/images/no_entry_3.png', width: 200,
         ),
         Text("No entries to show.".i18n,
           textAlign: TextAlign.center,

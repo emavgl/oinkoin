@@ -11,8 +11,8 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import '../style.dart';
-import './i18n/edit-category-page.i18n.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:piggybank/i18n.dart';
 
 class EditCategoryPage extends StatefulWidget {
 
@@ -20,8 +20,8 @@ class EditCategoryPage extends StatefulWidget {
   /// EditCategoryPage can take the category object to edit as a constructor parameters
   /// or can create a new Category otherwise.
   
-  Category? passedCategory;
-  CategoryType? categoryType;
+  final Category? passedCategory;
+  final CategoryType? categoryType;
 
   EditCategoryPage({Key? key, this.passedCategory, this.categoryType}) : super(key: key);
 

@@ -7,7 +7,7 @@ import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
-import './i18n/categories-tab-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 class CategoryTabPageEdit extends StatefulWidget {
 

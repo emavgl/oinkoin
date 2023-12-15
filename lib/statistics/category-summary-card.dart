@@ -9,7 +9,7 @@ import 'package:piggybank/statistics/records-statistic-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import '../helpers/records-utility-functions.dart';
-import './i18n/statistics-page.i18n.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
 
 class CategorySumTuple {
