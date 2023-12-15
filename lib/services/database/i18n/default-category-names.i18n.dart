@@ -6,18 +6,22 @@ extension Localization on String {
       {
         "en_us": "House",
         "it_it": "Casa",
+        "de_de": "Wohnen",
       } +
       {
         "en_us": "Transports",
         "it_it": "Transporti",
+        "de_de": "Verkehr",
       } +
       {
         "en_us": "Food",
         "it_it": "Cibo",
+        "de_de": "Lebensmittel",
       } +
       {
         "en_us": "Salary",
         "it_it": "Salario",
+        "de_de": "Gehalt",
       };
 
   String get i18n => localize(this, _translations);

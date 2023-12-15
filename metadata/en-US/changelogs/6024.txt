@@ -1,0 +1,2 @@
+- Fix bug that prevented to create a recurrent pattern
+- Add subtitle in recurrent page view, so to see immediately the recurrent period

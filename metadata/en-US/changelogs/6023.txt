@@ -1,0 +1,2 @@
+- The app will always use the first language / locale in your phone settings, and not the first officially supported one
+- Added missing german strings

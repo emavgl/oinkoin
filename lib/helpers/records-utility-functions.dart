@@ -59,6 +59,7 @@ String getLocaleDecimalSeparator() {
 }
 
 bool getOverwriteDotValue() {
+  if (getLocaleDecimalSeparator() == ".") return false;
   return ServiceConfig.sharedPreferences?.getBool("overwriteDotValueWithComma") ?? getLocaleDecimalSeparator() == ",";
 }
 

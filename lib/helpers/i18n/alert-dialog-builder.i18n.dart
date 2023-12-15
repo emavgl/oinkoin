@@ -6,6 +6,7 @@ extension Localization on String {
       {
         "en_us": "Cancel",
         "it_it": "Cancella",
+        "de_de": "Abbrechen",
       };
 
   String get i18n => localize(this, _translations);

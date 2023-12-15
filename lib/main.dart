@@ -50,23 +50,16 @@ class App extends StatelessWidget {
       localeListResolutionCallback: (locales, supportedLocales) {
         print('device locales=$locales supported locales=$supportedLocales');
 
-        // If there is no match, returns the first user choice
+        // Returns the first user choice
         // even if not supported. The user will see still the english
         // translations, but will be used for the currency format
 
-        Locale defaultLocale = locales![0];
-
-        for (Locale locale in locales) {
-          if (supportedLocales.contains(locale)) {
-            return locale;
-          }
-        }
-
-        return defaultLocale;
+        return locales![0];
       },
       supportedLocales: [
-        const Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
-        const Locale.fromSubtags(languageCode: 'it', countryCode: 'IT'),
+        const Locale.fromSubtags(languageCode: 'en'),
+        const Locale.fromSubtags(languageCode: 'it'),
+        const Locale.fromSubtags(languageCode: 'de'),
       ],
       title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
       home: I18n(

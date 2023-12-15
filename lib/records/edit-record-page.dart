@@ -17,6 +17,7 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import '../models/recurrent-record-pattern.dart';
 import './i18n/edit-record-page.i18n.dart';
 import 'package:intl/src/intl_helpers.dart' as helpers;
 
@@ -493,6 +494,12 @@ Widget _createAddNoteCard() {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
+  addRecurrentPattern() async {
+    RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(record!, recurrentPeriod);
+    await database.addRecurrentRecordPattern(recordPattern);
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   AppBar _getAppBar() {
     return AppBar(
         title: Text('Edit record'.i18n),
@@ -556,7 +563,12 @@ Widget _createAddNoteCard() {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              await addOrUpdateRecord();
+              if (recurrentPeriod == null) {
+                await addOrUpdateRecord();
+              } else {
+                // a recurrent pattern is defined
+                await addRecurrentPattern();
+              }
             }
           },
           tooltip: 'Save'.i18n,

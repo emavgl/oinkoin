@@ -6,14 +6,17 @@ extension Localization on String {
       {
         "en_us": "Home",
         "it_it": "Movimenti",
+        "de_de": "Start",
       } +
       {
         "en_us": "Categories",
         "it_it": "Categorie",
+        "de_de": "Kategorien",
       } +
       {
         "en_us": "Settings",
         "it_it": "Impostazioni",
+        "de_de": "Einstellungen",
       };
 
   String get i18n => localize(this, _translations);

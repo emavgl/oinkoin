@@ -5,6 +5,7 @@ import 'package:piggybank/recurrent_record_patterns/view-recurrent-pattern-page.
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
+import '../models/recurrent-period.dart';
 import './i18n/recurrent-patterns.i18n.dart';
 
 
@@ -45,6 +46,8 @@ class PatternsPageViewState extends State<PatternsPageView> {
   }
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _subtitleFontSize = const TextStyle(fontSize: 14.0);
+
 
   Widget _buildRecurrentPatternRow(RecurrentRecordPattern pattern) {
     /// Returns a ListTile rendering the single movement row
@@ -67,6 +70,12 @@ class PatternsPageViewState extends State<PatternsPageView> {
                 style: _biggerFont,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                recurrentPeriodString(pattern.recurrentPeriod).i18n,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: _subtitleFontSize,
               ),
               trailing: Text(
                 getCurrencyValueString(pattern.value),
