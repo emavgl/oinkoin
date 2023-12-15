@@ -43,5 +43,18 @@ Oinkoin PRO is also available *for free* via [F-droid](https://f-droid.org/en/pa
 
 Contributions are welcome! How can you contribute?
 
-- Open Issue/PR on Github
+- Report issues/bugs: We can only fix issues that we know about. Please check the issue tracker on Github and if it doesn't already exist, report it there.
+- Contribute code: Pull requests are always welcome. If you need any pointers on how to do something just let us know in the chat or in a Github discussion.
+- Do you have an idea? Open an Issue on Github. I am always open to new ideas.
 - Share the App with family and friends
+- Translate the strings in your language (see below)
+
+### Translation
+
+If you want to contribute by translating a language, feel free to join the [Crowdin](https://crowdin.com/project/oinkoin) project!
+
+Thanks to the following contributors for providing translations:
+- German [@DSiekmeier](https://github.com/DSiekmeier)
+
+If you have an issue with the platform, please open an issue on Github.
+
