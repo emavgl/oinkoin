@@ -1,0 +1,4 @@
+- Add French, Arabic languages
+- You can now add a future (up to 1 year) record
+- You can view a future date range (month, year) up to 1 year
+- Fix bar-chart for multi-year aggregation
