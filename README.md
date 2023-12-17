@@ -64,7 +64,7 @@ Any donation is welcome, thanks for your support! If you wish to donate, you can
 
 - Buy [Oinkoin PRO on Google Play Store](https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro)
 - Bitcoin `bc1qscnas903lcycrkaw7ztflskwld87k8wxgc0sx8`
-- [liberapay.com](https://liberapay.com/emavgl) <noscript><a href="https://liberapay.com/emavgl/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
+- [liberapay.com](https://liberapay.com/emavgl)
 - [buymeacoffe.com](https://www.buymeacoffee.com/emavgl)
 
 With your donation you support the work I do, also helping to keep this project alive. 
