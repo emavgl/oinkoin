@@ -75,3 +75,4 @@
 /store-assets/
 /build-debug-file/
 /tmp_build
+.flutter-plugins-dependencies
