@@ -53,8 +53,20 @@ Contributions are welcome! How can you contribute?
 
 If you want to contribute by translating a language, feel free to join the [Crowdin](https://crowdin.com/project/oinkoin) project!
 
-Thanks to the following contributors for providing translations:
-- German [@DSiekmeier](https://github.com/DSiekmeier)
+Oinkoin is available in the following languages:
+- English
+- Italian
+- German, thanks to [@DSiekmeier](https://github.com/DSiekmeier)
 
-If you have an issue with the platform, please open an issue on Github.
+## How can I donate and sponsor the project?
+
+Any donation is welcome, thanks for your support! If you wish to donate, you can do it in the following ways:
+
+- Buy [Oinkoin PRO on Google Play Store](https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro)
+- Bitcoin `bc1qscnas903lcycrkaw7ztflskwld87k8wxgc0sx8`
+- [liberapay.com](https://liberapay.com/emavgl) <noscript><a href="https://liberapay.com/emavgl/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
+- [buymeacoffe.com](https://www.buymeacoffee.com/emavgl)
+
+With your donation you support the work I do, also helping to keep this project alive. 
+I intend to also use the donations to help pay for the yearly subscription fee of 100€ for the apple developer program in order to also offer Oinkoin in the App Store in the future.
 
