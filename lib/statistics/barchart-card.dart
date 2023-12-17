@@ -41,8 +41,8 @@ class CustomCircleSymbolRenderer extends CircleSymbolRenderer {
     textStyle.fontSize = 15;
     canvas.drawText(
         ChartText.TextElement(BarChartCard.pointerValue, style: textStyle),
-        (bounds.left).round(),
-        (bounds.top - 28).round()
+        (bounds.left - 40).round(),
+        (bounds.top - 30).round()
     );
   }
 }
@@ -64,14 +64,19 @@ class BarChartCard extends StatelessWidget {
   BarChartCard(this.from, this.to, this.records, this.aggregationMethod) {
     this.aggregatedRecords = aggregateRecordsByDate(records, aggregationMethod);
 
-    // Initialise varibales given the aggregation Method
+    // Initialise variables given the aggregation Method
     DateTime start, end;
     DateFormat dateFormat;
     if (this.aggregationMethod == AggregationMethod.MONTH) {
       dateFormat = DateFormat("MM");
-      start = DateTime(records[0]!.dateTime!.year);
-      end = DateTime(records[0]!.dateTime!.year + 1);
+      start = DateTime(from!.year);
+      end = DateTime(to!.year + 1);
       chartScope = DateFormat("yyyy").format(start);
+    } else if (this.aggregationMethod == AggregationMethod.YEAR) {
+      dateFormat = DateFormat("yyyy");
+      start = DateTime(from!.year);
+      end = DateTime(to!.year + 1);
+      chartScope = DateFormat("yyyy").format(start) + " - " +  DateFormat("yyyy").format(end);
     } else {
       dateFormat = DateFormat("dd");
       start = DateTime(records[0]!.dateTime!.year, records[0]!.dateTime!.month);
@@ -95,7 +100,18 @@ class BarChartCard extends StatelessWidget {
     }
     while (start.isBefore(end)) {
       aggregatedByDay.putIfAbsent(truncateDateTime(start, aggregationMethod), () => StringSeriesRecord(start, 0, formatter));
-      start = aggregationMethod == AggregationMethod.DAY ? start.add(Duration(days: 1)) : DateTime(start.year, start.month + 1);
+      // advance start
+      if (aggregationMethod == AggregationMethod.DAY) {
+        start = start.add(Duration(days: 1));
+      } else if (aggregationMethod == AggregationMethod.MONTH) {
+        start = DateTime(start.year, start.month + 1);
+      } else if (aggregationMethod == AggregationMethod.YEAR) {
+        if (start.year == end.year) {
+          start = DateTime(start.year + 1, end.month);
+        } else {
+          start = DateTime(start.year + 1, 12, 31, 23, 59);
+        }
+      }
     }
     List<StringSeriesRecord> data = aggregatedByDay.values.toList();
     data.sort((a, b) => a.timestamp!.compareTo(b.timestamp!)); // sort descending
@@ -226,7 +242,14 @@ class BarChartCard extends StatelessWidget {
     List<charts.TickSpec<String>> ticks = [];
     while (start.isBefore(end)) {
       ticks.add(charts.TickSpec<String>(formatter.format(start)));
-      start = aggregationMethod == AggregationMethod.MONTH ? DateTime(start.year, start.month + 1) : start.add(Duration(days: 3));
+      // advance start
+      if (aggregationMethod == AggregationMethod.DAY) {
+        start = start.add(Duration(days: 3));
+      } else if (aggregationMethod == AggregationMethod.MONTH) {
+        start = DateTime(start.year, start.month + 1);
+      } else if (aggregationMethod == AggregationMethod.YEAR) {
+        start = DateTime(start.year + 1, end.month);
+      }
     }
     return ticks;
   }

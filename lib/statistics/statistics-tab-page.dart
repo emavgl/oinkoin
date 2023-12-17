@@ -31,11 +31,22 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
   List<Record?>? aggregatedRecords;
   AggregationMethod? aggregationMethod;
 
+  AggregationMethod getAggregationMethodGivenTheTimeRange(DateTime from, DateTime to) {
+    if (from.year != to.year) {
+      return AggregationMethod.YEAR;
+    }
+    else if (from.month == to.month) {
+      return AggregationMethod.DAY;
+    } else {
+      return AggregationMethod.MONTH;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     indexTab = 0; // index identifying the tab
-    this.aggregationMethod = widget.from!.month == widget.to!.month ? AggregationMethod.DAY : AggregationMethod.MONTH;
+    this.aggregationMethod = getAggregationMethodGivenTheTimeRange(widget.from!, widget.to!);
     this.aggregatedRecords = aggregateRecordsByDateAndCategory(widget.records, aggregationMethod);
   }
 

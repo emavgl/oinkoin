@@ -48,7 +48,7 @@ double? computeAverage(DateTime from, DateTime to, List<DateTimeSeriesRecord> re
 
 DateTime? truncateDateTime(DateTime? dateTime, AggregationMethod? aggregationMethod) {
   DateTime? newDateTime;
-  switch (aggregationMethod) {
+  switch (aggregationMethod!) {
     case AggregationMethod.DAY:
       newDateTime = new DateTime(dateTime!.year, dateTime.month, dateTime.day);
       break;
