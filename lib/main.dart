@@ -59,10 +59,21 @@ class OinkoinAppState extends State<OinkoinApp> {
           GlobalCupertinoLocalizations.delegate,  // for IoS
           DefaultCupertinoLocalizations.delegate
         ],
+        localeListResolutionCallback: (locales, supportedLocales) {
+          print('device locales=$locales supported locales=$supportedLocales');
+
+          // Returns the first user choice
+          // even if not supported. The user will see still the english
+          // translations, but will be used for the currency format
+
+          return locales![0];
+        },
         supportedLocales: [
           const Locale.fromSubtags(languageCode: 'en'),
           const Locale.fromSubtags(languageCode: 'it'),
           const Locale.fromSubtags(languageCode: 'de'),
+          const Locale.fromSubtags(languageCode: 'fr'),
+          const Locale.fromSubtags(languageCode: 'ar')
         ],
         theme: widget.lightTheme,
         darkTheme: widget.darkTheme,
