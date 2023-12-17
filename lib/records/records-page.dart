@@ -90,7 +90,7 @@ class RecordsPageState extends State<RecordsPage> {
     DateTime? dateTime = await showMonthPicker(
       context: context,
       firstDate: DateTime(2018, 1),
-      lastDate: DateTime(currentYear, 12),
+      lastDate: DateTime(currentYear + 1, 12),
       initialDate: currentDate,
       locale: I18n.locale,
     );
@@ -107,12 +107,14 @@ class RecordsPageState extends State<RecordsPage> {
   pickYear() async {
     /// Open the dialog to pick a Year
     DateTime currentDate = DateTime.now();
-    DateTime lastDate = DateTime(currentDate.year, 1);
+    DateTime initialDate = DateTime(currentDate.year, 1);
+    DateTime lastDate = DateTime(currentDate.year + 1, 1);
     DateTime firstDate = DateTime(2018, currentDate.month);
     DateTime? yearPicked = await showYearPicker(
       firstDate: firstDate,
       lastDate: lastDate,
-      initialDate: lastDate, context: context,
+      initialDate: initialDate,
+      context: context,
     );
     if (yearPicked != null) {
       DateTime from = DateTime(yearPicked.year, 1, 1);
@@ -131,12 +133,13 @@ class RecordsPageState extends State<RecordsPage> {
   pickDateRange() async {
     /// Open the dialog to pick a date range
     DateTime currentDate = DateTime.now();
+    DateTime lastDate = DateTime(currentDate.year + 1, currentDate.month + 1);
     DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
     DateTimeRange initialDateTimeRange = DateTimeRange(start: DateTime.now().subtract(Duration(days: 7)), end: currentDate);
     DateTimeRange? dateTimeRange = await showDateRangePicker(
       context: context,
       firstDate: firstDate,
-      lastDate: currentDate,
+      lastDate: lastDate,
       initialDateRange: initialDateTimeRange,
       locale: I18n.forcedLocale, // do not change, it has some bug if not used forced locale
     );
