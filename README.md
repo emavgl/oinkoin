@@ -59,6 +59,7 @@ Oinkoin is available in the following languages:
 - German, thanks to [@DSiekmeier](https://github.com/DSiekmeier)
 - French, thanks to [@nizarus](https://github.com/nizarus)
 - Arabic, thanks to [@nizarus](https://github.com/nizarus)
+- Spanish, thanks to [@mockballed](https://github.com/mockballed)
 
 ## How can I donate and sponsor the project?
 
