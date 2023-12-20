@@ -73,6 +73,7 @@ class OinkoinAppState extends State<OinkoinApp> {
           const Locale.fromSubtags(languageCode: 'it'),
           const Locale.fromSubtags(languageCode: 'de'),
           const Locale.fromSubtags(languageCode: 'fr'),
+          const Locale.fromSubtags(languageCode: 'es'),
           const Locale.fromSubtags(languageCode: 'ar')
         ],
         theme: widget.lightTheme,
