@@ -53,6 +53,7 @@ jobs:
 
       - name: Update the tag
         run: |
+          git tag -d ${{ github.event.release.tag_name }}
           git push --delete origin ${{ github.event.release.tag_name }}
           git tag ${{ github.event.release.tag_name }}
           git push origin ${{ github.event.release.tag_name }}
