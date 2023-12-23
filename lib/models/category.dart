@@ -33,9 +33,12 @@ class Category extends Model {
   Color? color;
   int? iconCodePoint;
   IconData? icon;
+  DateTime? lastUsed;
+  double? monthlyBudget;
+  int? recordCount;
   CategoryType? categoryType; // 0 for expenses, 1 for income
 
-  Category(String? name, {this.color, this.iconCodePoint, this.categoryType}) {
+  Category(String? name, {this.color, this.iconCodePoint, this.categoryType, this.lastUsed, this.monthlyBudget, this.recordCount}) {
     this.name = name;
     var categoryIcons = CategoryIcons.pro_category_icons;
     if (this.color == null) {
@@ -61,7 +64,10 @@ class Category extends Model {
       'color': color!.alpha.toString() + ":" + color!.red.toString() + ":"
           + color!.green.toString() + ":" + color!.blue.toString(),
       'icon': this.icon!.codePoint,
-      'category_type': categoryType!.index
+      'category_type': categoryType!.index,
+      'last_used': lastUsed?.millisecondsSinceEpoch,
+      'monthly_budget': monthlyBudget,
+      'record_count': recordCount
     };
     return map;
   }
@@ -73,11 +79,19 @@ class Category extends Model {
       List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
       color = Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);
     }
+    int? lastUsed = map["last_used"] as int?;
+    DateTime? lastUsedFromMap;
+    if (lastUsed != null) {
+      lastUsedFromMap = new DateTime.fromMillisecondsSinceEpoch(lastUsed);
+    }
     return Category(
       map["name"],
       color: color,
       iconCodePoint: map["icon"],
-      categoryType: CategoryType.values[map['category_type']]
+      categoryType: CategoryType.values[map['category_type']],
+      lastUsed: lastUsedFromMap,
+      monthlyBudget: map['monthly_budget'] as double?,
+      recordCount: map['record_count']
     );
   }
 

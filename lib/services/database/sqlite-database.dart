@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:sqflite/sqflite.dart';
-import 'i18n/default-category-names.i18n.dart';
+import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:uuid/uuid.dart';
 
 import 'exceptions.dart';
@@ -19,7 +19,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     SqliteDatabase._privateConstructor();
     static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-    static int get _version => 6;
+    static int get _version => 7;
     static Database? _db;
 
     Future<Database?> get database async {
@@ -34,99 +34,16 @@ class SqliteDatabase implements DatabaseInterface {
     Future<Database> init() async {
         String databasePath = await getDatabasesPath();
         String _path = join(databasePath, 'movements.db');
-        return await openDatabase(_path, version: _version, onCreate: onCreate, onUpgrade: onUpgrade);
-    }
-
-    static void onUpgrade(Database db, int oldVersion, int newVersion) async {
-        if (newVersion == 6) {
-            await db.execute("""
-                CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
-                    id          TEXT  PRIMARY KEY,
-                    datetime    INTEGER,
-                    value       REAL,
-                    title       TEXT,
-                    description TEXT,
-                    category_name TEXT,
-                    category_type INTEGER,
-                    last_update INTEGER,
-                    recurrent_period INTEGER
-                );
-            """);
-            try {
-                await db.execute("ALTER TABLE records ADD COLUMN recurrence_id TEXT;");
-            } catch(DatabaseException) {
-                // so that this method is idempotent
-            }
-        }
-    }
-
-    static void onCreate(Database db, int version) async {
-
-        await db.execute("""CREATE TABLE IF NOT EXISTS categories (
-            name  TEXT,
-            color TEXT,
-            icon INTEGER,
-            category_type INTEGER,
-            PRIMARY KEY (name, category_type)
+        var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
+            options: SqfliteLoggerOptions(
+                type: SqfliteDatabaseFactoryLoggerType.all));
+        return await factoryWithLogs.openDatabase(_path,
+            options: OpenDatabaseOptions(
+                version: _version,
+                onCreate: SqliteMigrationService.onCreate,
+                onUpgrade: SqliteMigrationService.onUpgrade
+            ),
         );
-        """);
-
-        await db.execute("""
-        CREATE TABLE IF NOT EXISTS  records (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                datetime    INTEGER,
-                value       REAL,
-                title       TEXT,
-                description TEXT,
-                category_name TEXT,
-                category_type INTEGER,
-                recurrence_id TEXT
-            );
-        """);
-
-        await db.execute("""
-        CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
-                id          TEXT  PRIMARY KEY,
-                datetime    INTEGER,
-                value       REAL,
-                title       TEXT,
-                description TEXT,
-                category_name TEXT,
-                category_type INTEGER,
-                last_update INTEGER,
-                recurrent_period INTEGER
-            );
-        """);
-
-        List<Category> defaultCategories = getDefaultCategories();
-        for (var defaultCategory in defaultCategories) {
-            await db.insert("categories", defaultCategory.toMap());
-        }
-    }
-
-    static List<Category> getDefaultCategories() {
-        List<Category> defaultCategories = <Category>[];
-        defaultCategories.add(new Category("House".i18n,
-            color: Category.colors[0],
-            iconCodePoint: FontAwesomeIcons.home.codePoint,
-            categoryType: CategoryType.expense
-        ));
-        defaultCategories.add(new Category("Transports".i18n,
-            color: Category.colors[1],
-            iconCodePoint: FontAwesomeIcons.bus.codePoint,
-            categoryType: CategoryType.expense
-        ));
-        defaultCategories.add(new Category("Food".i18n,
-            color: Category.colors[2],
-            iconCodePoint: FontAwesomeIcons.hamburger.codePoint,
-            categoryType: CategoryType.expense
-        ));
-        defaultCategories.add(new Category("Salary".i18n,
-            color: Category.colors[3],
-            iconCodePoint: FontAwesomeIcons.wallet.codePoint,
-            categoryType: CategoryType.income
-        ));
-        return defaultCategories;
     }
 
     // Category implementation
@@ -149,6 +66,7 @@ class SqliteDatabase implements DatabaseInterface {
     @override
     Future<int> addCategory(Category? category) async {
         final db = (await database)!;
+        category?.lastUsed = DateTime.now();
         Category? foundCategory = await this.getCategory(category!.name, category.categoryType!);
         if (foundCategory != null) {
             throw ElementAlreadyExists();
@@ -184,9 +102,16 @@ class SqliteDatabase implements DatabaseInterface {
     @override
     Future<int> addRecord(Record? record) async {
         final db = (await database)!;
-        if (await getCategory(record!.category!.name, record.category!.categoryType!) == null){
+
+        if (record == null) {
+            return -1;
+        }
+
+        // Add Category if it does not exists
+        if (await getCategory(record.category!.name, record.category!.categoryType!) == null){
             await addCategory(record.category);
         }
+
         return await db.insert("records", record.toMap());
     }
 
@@ -263,6 +188,7 @@ class SqliteDatabase implements DatabaseInterface {
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
         await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_record_patterns'");
+        await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records_tags'");
         _db = null;
     }
 
