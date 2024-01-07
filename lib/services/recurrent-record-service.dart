@@ -44,17 +44,17 @@ class RecurrentRecordService {
       }
     }
     else if (recurrentPeriod == RecurrentPeriod.EveryWeek) {
-      int numberOfWeeks = (difference(endDate, startDateTrimmed).abs().inDays / 7).floor();
+      int numberOfWeeks = (difference(endDate, lastUpdateTrimmed).abs().inDays / 7).floor();
       for (int i = 1; i < numberOfWeeks + 1; i++) {
-        DateTime recurrentRecordDate = dateAddDays(startDateTrimmed, i*7);
+        DateTime recurrentRecordDate = dateAddDays(lastUpdateTrimmed, i*7);
         Record newRecord = Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
         newRecurrentRecords.add(newRecord);
       }
     }
     else if (recurrentPeriod == RecurrentPeriod.EveryTwoWeeks) {
-      int numberOfTwoWeeks = (difference(endDate, startDateTrimmed).abs().inDays / 14).floor();
+      int numberOfTwoWeeks = (difference(endDate, lastUpdateTrimmed).abs().inDays / 14).floor();
       for (int i = 1; i < numberOfTwoWeeks + 1; i++) {
-        DateTime recurrentRecordDate = dateAddDays(startDateTrimmed, i*14);
+        DateTime recurrentRecordDate = dateAddDays(lastUpdateTrimmed, i*14);
         Record newRecord = Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
         newRecurrentRecords.add(newRecord);
       }
