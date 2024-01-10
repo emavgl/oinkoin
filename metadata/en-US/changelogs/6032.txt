@@ -1,0 +1,4 @@
+- Fixed bug of new recurrent pattern added when modifing a recurrent record
+- Fixed bug when inserting number with decimal part when modifying a recurrent pattern
+- Fixed bug adding a wrong value when changing category of a record
+- Surely added some other bug
