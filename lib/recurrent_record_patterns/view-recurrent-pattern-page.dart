@@ -33,9 +33,8 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
 
   // Required for value change
   void changeRecordValue(String text) {
-    var numericValue = double.tryParse(text);
+    var numericValue = tryParseCurrencyString(text);
     if (numericValue != null) {
-      numericValue = double.parse(numericValue.toStringAsFixed(2));
       numericValue = numericValue.abs();
       if (widget.passedPattern!.category!.categoryType == CategoryType.expense) {
         // value is an expenses, needs to be negative
@@ -266,7 +265,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                             }
                             var numericValue = tryParseCurrencyString(value);
                             if (numericValue == null) {
-                              return "Please enter a numeric value".i18n;
+                              return "Not a valid format (use for example: %s)".i18n.fill([getCurrencyValueString(1234.20, turnOffGrouping: true)]);
                             }
                             return null;
                           },

@@ -252,7 +252,7 @@ Widget _createAddNoteCard() {
                   if (selectedCategory != null) {
                     setState(() {
                       record!.category = selectedCategory;
-                      changeRecordValue(record!.value.toString()); // Handle sign change
+                      changeRecordValue(_textEditingController.text.toLowerCase()); // Handle sign change
                     });
                   }
                 },
@@ -549,6 +549,10 @@ Widget _createAddNoteCard() {
     );
   }
 
+  isNewRecurrentPattern() {
+    return recurrentPeriod != null && record?.recurrencePatternId == null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -560,11 +564,15 @@ Widget _createAddNoteCard() {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              if (recurrentPeriod == null) {
-                await addOrUpdateRecord();
-              } else {
-                // a recurrent pattern is defined
+              if (isNewRecurrentPattern()) {
+                // A new recurrent pattern is defined
                 await addRecurrentPattern();
+              } else {
+                // it is a normal record, either single or it comes from a
+                // recurrent pattern. When saving the record, we need
+                // to add/update the single instance and never touch the pattern
+                // from this page
+                await addOrUpdateRecord();
               }
             }
           },
