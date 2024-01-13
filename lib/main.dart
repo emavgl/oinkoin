@@ -63,8 +63,8 @@ class OinkoinAppState extends State<OinkoinApp> {
           print('device locales=$locales supported locales=$supportedLocales');
 
           // Returns the first user choice
-          // even if not supported. The user will see still the english
-          // translations, but will be used for the currency format
+          // even if not supported. The user will still the english
+          // translations, but it will be used for the currency format
 
           return locales![0];
         },
@@ -75,6 +75,7 @@ class OinkoinAppState extends State<OinkoinApp> {
           const Locale.fromSubtags(languageCode: 'fr'),
           const Locale.fromSubtags(languageCode: 'es'),
           const Locale.fromSubtags(languageCode: 'ar'),
+          const Locale.fromSubtags(languageCode: 'ru'),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "BR"),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "PT")
         ],
