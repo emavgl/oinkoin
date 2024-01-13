@@ -31,6 +31,11 @@ class CustomizationPageState extends State<CustomizationPage> {
         decimalDigitsValue = prefs.getInt('numDecimalDigits') ?? 2;
         useGroupSeparator = prefs.getBool("useGroupSeparator") ?? true;
         groupSeparatorValue = prefs.getString("groupSeparator") ?? getLocaleGroupingSeparator();
+        if (!symbolsTranslations.containsKey(groupSeparatorValue)) {
+          // this happen when there are languages with different group separator
+          // like persian
+          symbolsTranslations[groupSeparatorValue] = groupSeparatorValue;
+        }
         groupSeparatorsValues.remove(getLocaleDecimalSeparator());
         overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ?? getLocaleDecimalSeparator() == ",";
       });
@@ -59,7 +64,6 @@ class CustomizationPageState extends State<CustomizationPage> {
   String groupSeparatorValue = ".";
 
   bool overwriteDotValueWithComma = true;
-
 
   Widget buildThemeStyleDropdownButton() {
     return DropdownButton<String>(
@@ -130,13 +134,13 @@ class CustomizationPageState extends State<CustomizationPage> {
         setState(() {
           groupSeparatorValue = value!;
           prefs.setString("groupSeparator", value);
-          print("Selected Group Separator:" + symbolsTranslations[value].toString());
+          print("Selected Group Separator:" + symbolsTranslations[value]!);
         });
       },
       items: groupSeparatorsValues.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(symbolsTranslations[value].toString()),
+          child: Text(symbolsTranslations[value]!),
         );
       }).toList(),
     );

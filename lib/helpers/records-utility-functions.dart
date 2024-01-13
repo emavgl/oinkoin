@@ -63,15 +63,21 @@ bool getOverwriteDotValue() {
   return ServiceConfig.sharedPreferences?.getBool("overwriteDotValueWithComma") ?? getLocaleDecimalSeparator() == ",";
 }
 
-String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
+bool usesWesternArabicNumerals(Locale locale) {
+  return getCurrencyValueString(1234, locale: locale, turnOffGrouping: true).contains("1234");
+}
+
+String getCurrencyValueString(double? value, { turnOffGrouping = false, locale}) {
   if (value == null) return "";
   NumberFormat numberFormat;
   bool useGroupSeparator = ServiceConfig.sharedPreferences?.getBool("useGroupSeparator") ?? true;
   int decimalDigits = ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
   try {
-    Locale myLocale = I18n.locale;
+    if (locale == null) {
+      locale = I18n.locale;
+    }
     numberFormat = new NumberFormat.currency(
-        locale: myLocale.toString(), symbol: "", decimalDigits: decimalDigits);
+        locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
   } on Exception catch (_) {
     numberFormat = new NumberFormat.currency(
         locale: "en_US", symbol: "", decimalDigits: decimalDigits);

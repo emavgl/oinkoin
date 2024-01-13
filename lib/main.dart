@@ -9,6 +9,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'helpers/records-utility-functions.dart';
 import 'i18n.dart';
 
 main() async {
@@ -66,7 +67,16 @@ class OinkoinAppState extends State<OinkoinApp> {
           // even if not supported. The user will still the english
           // translations, but it will be used for the currency format
 
-          return locales![0];
+          Locale attemptedLocale = locales![0];
+          Locale toSet = attemptedLocale;
+          if (usesWesternArabicNumerals(attemptedLocale)) {
+            toSet = attemptedLocale;
+          } else {
+            toSet = Locale.fromSubtags(languageCode: 'en', countryCode: "US");
+          }
+
+          checkForSettingInconsistency(toSet);
+          return toSet;
         },
         supportedLocales: [
           const Locale.fromSubtags(languageCode: 'en'),
@@ -100,5 +110,27 @@ class OinkoinAppState extends State<OinkoinApp> {
   void initState() {
     super.initState();
     loadAsync = MyI18n.loadTranslations();
+  }
+
+  void checkForSettingInconsistency(Locale toSet) {
+    // Custom Group Separator Inconsistency
+    bool userDefinedGroupingSeparator = ServiceConfig.sharedPreferences!.containsKey("groupSeparator");
+    if (userDefinedGroupingSeparator) {
+      String groupingSeparatorByTheUser = getUserDefinedGroupingSeparator()!;
+      if (groupingSeparatorByTheUser == getLocaleDecimalSeparator()) {
+        // It may happen when a custom groupSeparator is set
+        // then the app language is changed
+        // in this case, reset the user preferences
+        ServiceConfig.sharedPreferences?.remove("groupSeparator");
+      }
+    }
+    
+    // Replace dot with comma inconsistency
+    bool userDefinedOverwriteDotWithComma =
+      ServiceConfig.sharedPreferences!.containsKey("overwriteDotValueWithComma");
+    if (userDefinedOverwriteDotWithComma && getLocaleDecimalSeparator() != ",") {
+      // overwriteDotValueWithComma possible just when decimal separator is ,
+      ServiceConfig.sharedPreferences?.remove("overwriteDotValueWithComma");
+    }
   }
 }
