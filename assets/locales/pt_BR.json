@@ -34,6 +34,7 @@
     "Please enter the category name": "Por favor, informe o nome da categoria",
     "Category name": "Nome da categoria",
     "Edit category": "Editar Categoria",
+    "Edit record": "Editar Item",
     "Do you really want to delete the category?": "Deseja realmente excluir esta categoria?",
     "Deleting the category you will remove all the associated records": "Excluindo a categoria que você irá remover todos os Itens associados a ela",
     "Add a new category": "Adicionar uma nova categoria",
