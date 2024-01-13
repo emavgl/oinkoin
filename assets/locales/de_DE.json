@@ -34,6 +34,7 @@
     "Please enter the category name": "Bitte einen Kategorie-Namen eingeben",
     "Category name": "Kategorie-Name",
     "Edit category": "Kategorie ändern",
+    "Edit record": "Edit record",
     "Do you really want to delete the category?": "Kategorie wirklich löschen?",
     "Deleting the category you will remove all the associated records": "Löschen der Kategorie entfernt auch alle Einträge dieser Kategorie",
     "Add a new category": "Eine neue Kategorie hinzufügen",
