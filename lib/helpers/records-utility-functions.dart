@@ -83,7 +83,7 @@ String getCurrencyValueString(double? value, { turnOffGrouping = false }) {
   String result = numberFormat.format(value);
   bool userDefinedGroupingSeparator = ServiceConfig.sharedPreferences!.containsKey("groupSeparator");
   if (!mustRemoveGrouping && userDefinedGroupingSeparator) {
-    String localeGroupingSeparator = getLocaleGroupingSeparator()!;
+    String localeGroupingSeparator = getLocaleGroupingSeparator();
     String groupingSeparatorByTheUser = getUserDefinedGroupingSeparator()!;
     result = result.replaceAll(localeGroupingSeparator, groupingSeparatorByTheUser);
   }

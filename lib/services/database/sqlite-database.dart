@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:sqflite/sqflite.dart';
-import 'i18n/default-category-names.i18n.dart';
 import 'package:uuid/uuid.dart';
 
 import 'exceptions.dart';
@@ -108,7 +108,7 @@ class SqliteDatabase implements DatabaseInterface {
         List<Category> defaultCategories = <Category>[];
         defaultCategories.add(new Category("House".i18n,
             color: Category.colors[0],
-            iconCodePoint: FontAwesomeIcons.home.codePoint,
+            iconCodePoint: FontAwesomeIcons.house.codePoint,
             categoryType: CategoryType.expense
         ));
         defaultCategories.add(new Category("Transports".i18n,
@@ -118,7 +118,7 @@ class SqliteDatabase implements DatabaseInterface {
         ));
         defaultCategories.add(new Category("Food".i18n,
             color: Category.colors[2],
-            iconCodePoint: FontAwesomeIcons.hamburger.codePoint,
+            iconCodePoint: FontAwesomeIcons.burger.codePoint,
             categoryType: CategoryType.expense
         ));
         defaultCategories.add(new Category("Salary".i18n,
