@@ -1,0 +1,6 @@
+-  Add support for Android 13 Per-app language preferences
+- Add Russian language
+- More translations fixes
+- Fix problems with language changes and previously registered preferences
+- Languages that don't use Western Arabic numerals (eg. 123..) are defaulted to en_US
+
