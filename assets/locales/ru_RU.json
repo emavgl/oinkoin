@@ -34,6 +34,7 @@
     "Please enter the category name": "Укажите название для категории",
     "Category name": "Название категории",
     "Edit category": "Редактировать категорию",
+    "Edit record": "Edit record",
     "Do you really want to delete the category?": "Вы уверены, что хотите удалить категорию?",
     "Deleting the category you will remove all the associated records": "Все связанные записи будут удалены",
     "Add a new category": "Добавить категорию",
