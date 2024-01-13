@@ -34,6 +34,7 @@
     "Please enter the category name": "الرجاء إدخال اسم الفئة",
     "Category name": "اسم الفئة",
     "Edit category": "تعديل الفئة",
+    "Edit record": "Edit record",
     "Do you really want to delete the category?": "هل تريد حقاً حذف هذه الفئة؟",
     "Deleting the category you will remove all the associated records": "حذف الفئة سيزيل جميع السجلات المرتبطة بها",
     "Add a new category": "أضف فئة جديدة",
