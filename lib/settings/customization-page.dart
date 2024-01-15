@@ -57,7 +57,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     ".": "dot".i18n,
     ",": "comma".i18n,
     "\u00A0": "space".i18n,
-    "_": "underscore",
+    "_": "underscore".i18n,
     "'": "apostrophe".i18n
   };
   List<String> groupSeparatorsValues = [".", ",", "\u00A0", "_", "'"];
