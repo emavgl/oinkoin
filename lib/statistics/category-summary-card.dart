@@ -78,7 +78,6 @@ class CategorySummaryCard extends StatelessWidget {
                     ),
                   ), action: SnackBarAction(
                     label: 'Dismiss'.i18n,
-                    textColor: Colors.yellow,
                     onPressed: () {
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     },

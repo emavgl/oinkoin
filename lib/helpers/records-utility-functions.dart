@@ -67,6 +67,10 @@ bool usesWesternArabicNumerals(Locale locale) {
   return getCurrencyValueString(1234, locale: locale, turnOffGrouping: true).contains("1234");
 }
 
+Locale getCurrencyLocale() {
+  return ServiceConfig.currencyLocale!;
+}
+
 String getCurrencyValueString(double? value, { turnOffGrouping = false, locale}) {
   if (value == null) return "";
   NumberFormat numberFormat;
@@ -74,7 +78,7 @@ String getCurrencyValueString(double? value, { turnOffGrouping = false, locale})
   int decimalDigits = ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
   try {
     if (locale == null) {
-      locale = I18n.locale;
+      locale = getCurrencyLocale();
     }
     numberFormat = new NumberFormat.currency(
         locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
@@ -98,15 +102,16 @@ String getCurrencyValueString(double? value, { turnOffGrouping = false, locale})
 
 double? tryParseCurrencyString(String toParse) {
   try {
-    Locale myLocale = I18n.locale;
-    Intl.defaultLocale = myLocale.toString();
+    Locale myLocale = getCurrencyLocale();
+
+    // Intl.defaultLocale = myLocale.toString();
     // Clean up from user defined grouping separator if they ever
     // end up here
     var userDefinedGroupingSeparator = getUserDefinedGroupingSeparator();
     if (userDefinedGroupingSeparator != null) {
       toParse = toParse.replaceAll(userDefinedGroupingSeparator, "");
     }
-    num f = NumberFormat().parse(toParse);
+    num f = NumberFormat(null, myLocale.toString()).parse(toParse);
     return f.toDouble();
   } catch (e) {
     return null;

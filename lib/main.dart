@@ -68,15 +68,9 @@ class OinkoinAppState extends State<OinkoinApp> {
           // translations, but it will be used for the currency format
 
           Locale attemptedLocale = locales![0];
-          Locale toSet = attemptedLocale;
-          if (usesWesternArabicNumerals(attemptedLocale)) {
-            toSet = attemptedLocale;
-          } else {
-            toSet = Locale.fromSubtags(languageCode: 'en', countryCode: "US");
-          }
+          setCurrencyLocale(attemptedLocale);
 
-          checkForSettingInconsistency(toSet);
-          return toSet;
+          return attemptedLocale;
         },
         supportedLocales: [
           const Locale.fromSubtags(languageCode: 'en'),
@@ -86,6 +80,7 @@ class OinkoinAppState extends State<OinkoinApp> {
           const Locale.fromSubtags(languageCode: 'es'),
           const Locale.fromSubtags(languageCode: 'ar'),
           const Locale.fromSubtags(languageCode: 'ru'),
+          const Locale.fromSubtags(languageCode: 'zh', countryCode: "CN"),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "BR"),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "PT")
         ],
@@ -110,6 +105,14 @@ class OinkoinAppState extends State<OinkoinApp> {
   void initState() {
     super.initState();
     loadAsync = MyI18n.loadTranslations();
+  }
+
+  void setCurrencyLocale(Locale toSet) {
+    if (!usesWesternArabicNumerals(toSet)) {
+      toSet = Locale.fromSubtags(languageCode: 'en', countryCode: "US");
+    }
+    checkForSettingInconsistency(toSet);
+    ServiceConfig.currencyLocale = toSet;
   }
 
   void checkForSettingInconsistency(Locale toSet) {
