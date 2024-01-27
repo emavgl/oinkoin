@@ -1,0 +1,1 @@
+- Add more APK's architectures
