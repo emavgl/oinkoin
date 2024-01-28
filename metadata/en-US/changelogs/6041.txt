@@ -1,0 +1,2 @@
+- Fix bugs related to record pattern planned in the future
+- Fix bugs of categories not refreshing
