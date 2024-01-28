@@ -100,5 +100,29 @@ main() {
       expect(records[2].dateTime!.day, 29);
     });
 
+    test('recurrent pattern in the future must return no records', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
+      Category category1 = new Category("testName1");
+      DateTime patternStartDate = new DateTime(2020, 10, 1); // date of the start of the pattern
+      DateTime endDate = new DateTime(2020, 01, 30); // date of today
+      RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Bi-Weekly", category1, patternStartDate, RecurrentPeriod.EveryDay);
+      var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+      // must happen nothing
+      expect(records.length, 0);
+    });
+
+    test('recurrent pattern in the future should work when executed in a future date', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
+      Category category1 = new Category("testName1");
+      DateTime patternStartDate = new DateTime(2020, 10, 1); // date of the start of the pattern
+      DateTime endDate = new DateTime(2020, 10, 5); // date of today
+      RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Bi-Weekly", category1, patternStartDate, RecurrentPeriod.EveryDay);
+      var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+      expect(records.length, 5);
+    });
+
+
   });
 }

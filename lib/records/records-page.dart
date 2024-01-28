@@ -23,17 +23,17 @@ import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/i18n.dart';
 import 'dart:io';
 
-class RecordsPage extends StatefulWidget {
+class TabRecords extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
   /// It contains also buttons for filtering the list of movements and add a new movement.
 
-  RecordsPage({Key? key}) : super(key: key);
+  TabRecords({Key? key}) : super(key: key);
 
   @override
-  RecordsPageState createState() => RecordsPageState();
+  TabRecordsState createState() => TabRecordsState();
 }
 
-class RecordsPageState extends State<RecordsPage> {
+class TabRecordsState extends State<TabRecords> {
 
   Future<List<Record?>> getRecordsByInterval(DateTime? _from, DateTime? _to) async {
     return await database.getAllRecordsInInterval(_from, _to);
@@ -54,6 +54,8 @@ class RecordsPageState extends State<RecordsPage> {
   DateTime? _from;
   DateTime? _to;
   late String _header;
+
+  final GlobalKey<CategoryTabPageViewState> _categoryTabPageViewStateKey = GlobalKey();
 
   Future<bool> isThereSomeCategory() async {
     var categories = await database.getAllCategories();
@@ -249,12 +251,12 @@ class RecordsPageState extends State<RecordsPage> {
 
   navigateToAddNewMovementPage() async {
     /// Navigate to CategoryTabPageView (first step for adding new movement)
-    /// Refetch the movements from db where it returns.
+    /// Refresh the movements from db where it returns.
     var categoryIsSet = await isThereSomeCategory();
     if (categoryIsSet) {
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true,)),
+        MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true, key: _categoryTabPageViewStateKey,)),
       );
       await updateRecurrentRecordsAndFetchRecords();
     } else {
@@ -278,6 +280,7 @@ class RecordsPageState extends State<RecordsPage> {
   onTabChange() async {
     // Navigator.of(context).popUntil((route) => route.isFirst);
     await updateRecurrentRecordsAndFetchRecords();
+    await _categoryTabPageViewStateKey.currentState?.refreshCategories();
   }
 
   @override

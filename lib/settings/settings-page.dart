@@ -23,7 +23,7 @@ import 'feedback-page.dart';
 //https://flutter.dev/docs/cookbook/persistence/key-value
 //https://pub.dev/packages/shared_preferences
 
-class SettingsPage extends StatelessWidget {
+class TabSettings extends StatelessWidget {
   static const double kSettingsItemsExtent = 75.0;
   static const double kSettingsItemsIconPadding = 8.0;
   static const double kSettingsItemsIconElevation = 2.0;

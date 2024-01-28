@@ -35,6 +35,12 @@ class RecurrentRecordService {
       newRecurrentRecords.add(newRecord);
     }
     RecurrentPeriod? recurrentPeriod = recordPattern.recurrentPeriod;
+    // endDate should happen after lastUpdateTrimmed
+    // when the pattern is set with a record in the future
+    // this is not the case
+    if (difference(endDate, lastUpdateTrimmed).isNegative) {
+      return [];
+    }
     if (recurrentPeriod == RecurrentPeriod.EveryDay) {
       var numberOfRepetition = difference(endDate, lastUpdateTrimmed).abs().inDays;
       for (int i = 1; i < numberOfRepetition + 1; i++) {

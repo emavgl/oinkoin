@@ -177,8 +177,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     });
   }
 
-
-Widget _createAddNoteCard() {
+  Widget _createAddNoteCard() {
     return Card(
         elevation: 1,
         child: Container(
@@ -308,9 +307,9 @@ Widget _createAddNoteCard() {
             InkWell(
               onTap: () async {
                 FocusScope.of(context).unfocus();
-                DateTime now = DateTime.now();
+                DateTime initialDate = record!.dateTime ?? DateTime.now();
                 DateTime? result = await showDatePicker(context: context,
-                    initialDate: now,
+                    initialDate: initialDate,
                     firstDate: DateTime(1970),
                     lastDate: DateTime.now().add(new Duration(days: 365)));
                 if (result != null) {

@@ -9,18 +9,20 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/i18n.dart';
 
-class CategoryTabPageEdit extends StatefulWidget {
+class TabCategories extends StatefulWidget {
 
   /// The category page that you can select from the bottom navigation bar.
   /// It contains two tab, showing the categories for expenses and categories
   /// for incomes. It has a single Floating Button that, dependending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
+  TabCategories({Key? key}) : super(key: key);
+
   @override
-  CategoryTabPageEditState createState() => CategoryTabPageEditState();
+  TabCategoriesState createState() => TabCategoriesState();
 }
 
-class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTickerProviderStateMixin {
+class TabCategoriesState extends State<TabCategories> with SingleTickerProviderStateMixin {
 
   List<Category?>? _categories;
   CategoryType? categoryType;
@@ -54,6 +56,10 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
     if (_tabController!.index != destionationTabIndex) {
       _tabController!.animateTo(destionationTabIndex);
     }
+  }
+
+  onTabChange() async {
+    await refreshCategories();
   }
 
   @override
@@ -120,5 +126,6 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
       ),
     );
   }
+
 
 }

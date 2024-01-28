@@ -15,7 +15,8 @@ class Shell extends StatefulWidget {
 class ShellState extends State<Shell> {
   int _currentIndex = 0;
 
-  final GlobalKey<RecordsPageState> _recordPageKey = GlobalKey();
+  final GlobalKey<TabRecordsState> _tabRecordsKey = GlobalKey();
+  final GlobalKey<TabCategoriesState> _tabCategoriesKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -32,21 +33,21 @@ class ShellState extends State<Shell> {
             offstage: _currentIndex != 0,
             child: new TickerMode(
             enabled: _currentIndex == 0,
-            child: new MaterialApp(home: new RecordsPage(key: _recordPageKey), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
+            child: new MaterialApp(home: new TabRecords(key: _tabRecordsKey), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
           ),
           ),
           new Offstage(
             offstage: _currentIndex != 1,
             child: new TickerMode(
               enabled: _currentIndex == 1,
-              child: new MaterialApp(home: new CategoryTabPageEdit(), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
+              child: new MaterialApp(home: new TabCategories(key: _tabCategoriesKey), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
             ),
           ),
             new Offstage(
               offstage: _currentIndex != 2,
               child: new TickerMode(
                 enabled: _currentIndex == 2,
-                child: new MaterialApp(home: new SettingsPage(), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
+                child: new MaterialApp(home: new TabSettings(), title: "Oinkoin", theme: lightTheme, darkTheme: darkTheme, themeMode: themeMode,),
               ),
             ),
         ]
@@ -58,8 +59,12 @@ class ShellState extends State<Shell> {
             setState((){
               this._currentIndex = index; }
             );
+            // refresh data whenever changing the tab
             if (this._currentIndex == 0) {
-              await _recordPageKey.currentState!.onTabChange();
+              await _tabRecordsKey.currentState!.onTabChange();
+            }
+            if (this._currentIndex == 1) {
+              await _tabCategoriesKey.currentState!.onTabChange();
             }
           },
           destinations: [

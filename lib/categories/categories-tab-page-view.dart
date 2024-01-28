@@ -16,7 +16,8 @@ class CategoryTabPageView extends StatefulWidget {
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
   final bool? goToEditMovementPage;
-  CategoryTabPageView({this.goToEditMovementPage});
+
+  CategoryTabPageView({this.goToEditMovementPage, Key? key}) : super(key: key);
 
   @override
   CategoryTabPageViewState createState() => CategoryTabPageViewState();
