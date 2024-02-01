@@ -80,6 +80,7 @@ class OinkoinAppState extends State<OinkoinApp> {
           const Locale.fromSubtags(languageCode: 'es'),
           const Locale.fromSubtags(languageCode: 'ar'),
           const Locale.fromSubtags(languageCode: 'ru'),
+          const Locale.fromSubtags(languageCode: 'tr'),
           const Locale.fromSubtags(languageCode: 'zh', countryCode: "CN"),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "BR"),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "PT")
