@@ -53,10 +53,11 @@ class MaterialThemeInstance {
 
 
   static getMaterialThemeData(Brightness brightness) async {
+    var colorScheme = await getColorScheme(brightness);
     return ThemeData(
-        colorScheme: await getColorScheme(brightness),
+        colorScheme: colorScheme,
         useMaterial3: true,
-        brightness: brightness
+        brightness: brightness,
     );
   }
 

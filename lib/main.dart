@@ -67,9 +67,20 @@ class OinkoinAppState extends State<OinkoinApp> {
           // even if not supported. The user will still the english
           // translations, but it will be used for the currency format
 
-          Locale attemptedLocale = locales![0];
-          setCurrencyLocale(attemptedLocale);
+          Locale attemptedLocale = locales![0]; // Get device locale
 
+          // Check if user specified a locale
+          var userSpecifiedLocale = ServiceConfig.sharedPreferences?.getString("languageLocale");
+          if (userSpecifiedLocale != null && userSpecifiedLocale != "system") {
+            var split = userSpecifiedLocale.split("_");
+            if (split.length == 2) {
+              attemptedLocale = Locale.fromSubtags(languageCode: split[0], countryCode: split[1]);
+            } else if (split.length == 1) {
+              attemptedLocale = Locale.fromSubtags(languageCode: split[0]);
+            }
+          }
+
+          setCurrencyLocale(attemptedLocale);
           return attemptedLocale;
         },
         supportedLocales: [
