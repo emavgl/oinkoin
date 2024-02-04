@@ -1,4 +1,3 @@
-import 'package:deep_collection/deep_collection.dart';
 import 'package:flutter/material.dart';
 
 import '../services/service-config.dart';
@@ -105,10 +104,11 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 1,
       child: Column(
         children: [
           buildHeader(),
-          buildDropdownMenu()
+          buildDropdownMenu(),
         ],
       )
     );

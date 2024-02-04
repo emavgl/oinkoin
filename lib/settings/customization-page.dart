@@ -1,7 +1,4 @@
-
-import 'package:deep_collection/deep_collection.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
