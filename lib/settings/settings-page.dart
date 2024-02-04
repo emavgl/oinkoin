@@ -125,7 +125,6 @@ class TabSettings extends StatelessWidget {
         title: Text('Settings'.i18n),
       ),
       body: ListView(
-        itemExtent: kSettingsItemsExtent,
         children: <Widget>[
           SettingsItem(
               icon: Icon(

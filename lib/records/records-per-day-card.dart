@@ -155,6 +155,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                           child: Text(
                             getCurrencyValueString(widget._movementDay.balance),
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         )
                     ]

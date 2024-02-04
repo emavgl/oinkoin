@@ -19,9 +19,9 @@ class SettingsItem extends StatelessWidget {
     return RawMaterialButton(
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor:
-              iconBackgroundColor == null ? Colors.blue : iconBackgroundColor,
-          child: icon
+            backgroundColor:
+            iconBackgroundColor == null ? Colors.blue : iconBackgroundColor,
+            child: icon
         ),
         title: Text(title),
         subtitle: Text(subtitle),

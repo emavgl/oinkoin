@@ -54,11 +54,13 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                     Text(
                       "Income".i18n,
                       style: _subtitleFont,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 5), // spacing
                     Text(
                       getCurrencyValueString(totalIncome()),
                       style: _biggerFont,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -73,11 +75,13 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                     Text(
                       "Expenses".i18n,
                       style: _subtitleFont,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 5), // spacing
                     Text(
                       getCurrencyValueString(totalExpenses()),
                       style: _biggerFont,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -92,11 +96,13 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                     Text(
                       "Balance".i18n,
                       style: _subtitleFont,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 5), // spacing
                     Text(
                       getCurrencyValueString(totalBalance()),
                       style: _biggerFont,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),

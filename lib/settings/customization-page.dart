@@ -66,8 +66,8 @@ class CustomizationPageState extends State<CustomizationPage> {
   bool overwriteDotValueWithComma = true;
 
   Widget buildThemeStyleDropdownButton() {
-    return DropdownButton<String>(
-      padding: EdgeInsets.all(15),
+    return Expanded(child:     DropdownButton<String>(
+      padding: EdgeInsets.all(0),
       value: themeStyleDropdownValue,
       underline: SizedBox(),
       onChanged: (String? value) {
@@ -82,12 +82,12 @@ class CustomizationPageState extends State<CustomizationPage> {
           child: Text(value),
         );
       }).toList(),
-    );
+    ));
   }
 
   Widget buildThemeColorDropdownButton() {
     return DropdownButton<String>(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.all(0),
       underline: SizedBox(),
       value: themeColorDropdownValue,
       onChanged: (String? value) {
@@ -107,7 +107,7 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   Widget buildDecimalDigitsDropdownButton() {
     return DropdownButton<int>(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.all(0),
       underline: SizedBox(),
       value: decimalDigitsValue,
       onChanged: (int? value) {
@@ -127,7 +127,7 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   Widget buildGroupingSeparatorDropdownButton() {
     return DropdownButton<String>(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.all(0),
       underline: SizedBox(),
       value: groupSeparatorValue,
       onChanged: (String? value) {
@@ -152,64 +152,66 @@ class CustomizationPageState extends State<CustomizationPage> {
       appBar: AppBar(
         title: Text("Customization".i18n),
       ),
-      body: Column(
-        children: <Widget>[
-          ListTile(
-            trailing: buildThemeColorDropdownButton(),
-            title: Text("Colors".i18n),
-            subtitle: Text("Select the app theme color".i18n + " - " +  "Require App restart".i18n),
-          ),
-          ListTile(
-            trailing: buildThemeStyleDropdownButton(),
-            title: Text("Theme style".i18n),
-            subtitle: Text("Select the app theme style".i18n + " - " +  "Require App restart".i18n),
-          ),
-          ListTile(
-            trailing: buildDecimalDigitsDropdownButton(),
-            title: Text("Decimal digits".i18n),
-            subtitle: Text("Select the number of decimal digits".i18n),
-          ),
-          Visibility(
-            visible: getLocaleDecimalSeparator() == ",",
-            child: ListTile(
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              trailing: buildThemeColorDropdownButton(),
+              title: Text("Colors".i18n),
+              subtitle: Text("Select the app theme color".i18n + " - " +  "Require App restart".i18n),
+            ),
+            ListTile(
+              trailing: buildThemeStyleDropdownButton(),
+              title: Text("Theme style".i18n),
+              subtitle: Text("Select the app theme style".i18n + " - " +  "Require App restart".i18n),
+            ),
+            ListTile(
+              trailing: buildDecimalDigitsDropdownButton(),
+              title: Text("Decimal digits".i18n),
+              subtitle: Text("Select the number of decimal digits".i18n),
+            ),
+            Visibility(
+              visible: getLocaleDecimalSeparator() == ",",
+              child: ListTile(
+                trailing: Switch(
+                  // This bool value toggles the switch.
+                  value: overwriteDotValueWithComma,
+                  onChanged: (bool value) {
+                    setState(() {
+                      prefs.setBool("overwriteDotValueWithComma", value);
+                      overwriteDotValueWithComma = value;
+                    });
+                  },
+                ),
+                title: Text("Overwrite the `dot`".i18n),
+                subtitle: Text("Overwrite `dot` with `comma`".i18n),
+              ),
+            ),
+            ListTile(
               trailing: Switch(
                 // This bool value toggles the switch.
-                value: overwriteDotValueWithComma,
+                value: useGroupSeparator,
                 onChanged: (bool value) {
                   setState(() {
-                    prefs.setBool("overwriteDotValueWithComma", value);
-                    overwriteDotValueWithComma = value;
+                    prefs.setBool("useGroupSeparator", value);
+                    useGroupSeparator = value;
                   });
                 },
               ),
-              title: Text("Overwrite the `dot`".i18n),
-              subtitle: Text("Overwrite `dot` with `comma`".i18n),
+              title: Text("Use `Grouping separator`".i18n),
+              subtitle: Text("For example, 1000 -> 1,000".i18n),
             ),
-          ),
-          ListTile(
-            trailing: Switch(
-              // This bool value toggles the switch.
-              value: useGroupSeparator,
-              onChanged: (bool value) {
-                setState(() {
-                  prefs.setBool("useGroupSeparator", value);
-                  useGroupSeparator = value;
-                });
-              },
-            ),
-            title: Text("Use `Grouping separator`".i18n),
-            subtitle: Text("For example, 1000 -> 1,000".i18n),
-          ),
-          Visibility(
-            visible: useGroupSeparator,
-            child: ListTile(
-              trailing: buildGroupingSeparatorDropdownButton(),
-              title: Text("Grouping separator".i18n),
-              subtitle: Text("Overwrite grouping separator".i18n),
-            ),
-          )
-        ],
-      ),
+            Visibility(
+              visible: useGroupSeparator,
+              child: ListTile(
+                trailing: buildGroupingSeparatorDropdownButton(),
+                title: Text("Grouping separator".i18n),
+                subtitle: Text("Overwrite grouping separator".i18n),
+              ),
+            )
+          ],
+        ),
+      )
     );
   }
 }
