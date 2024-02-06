@@ -66,7 +66,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   bool overwriteDotValueWithComma = true;
 
   Widget buildThemeStyleDropdownButton() {
-    return Expanded(child:     DropdownButton<String>(
+    return DropdownButton<String>(
       padding: EdgeInsets.all(0),
       value: themeStyleDropdownValue,
       underline: SizedBox(),
@@ -82,7 +82,7 @@ class CustomizationPageState extends State<CustomizationPage> {
           child: Text(value),
         );
       }).toList(),
-    ));
+    );
   }
 
   Widget buildThemeColorDropdownButton() {
