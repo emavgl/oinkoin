@@ -19,6 +19,8 @@ import 'package:piggybank/i18n.dart';
 
 import 'package:function_tree/function_tree.dart';
 
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+
 class EditRecordPage extends StatefulWidget {
   /// EditMovementPage is a page containing forms for the editing of a Movement object.
   /// EditMovementPage can take the movement object to edit as a constructor parameters
@@ -204,31 +206,59 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
+  final TextEditingController _typeAheadController = TextEditingController();
   Widget _createTitleCard() {
     return Card(
       elevation: 1,
       child: Container(
         padding: const EdgeInsets.all(10),
-        child: TextFormField(
-            onChanged: (text) {
-              setState(() {
-                record!.title = text;
-              });
-            },
-            style: TextStyle(
-              fontSize: 22.0,
-            ),
-            maxLines: 1,
-            initialValue: record!.title,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                contentPadding: EdgeInsets.all(10),
-                border: InputBorder.none,
-                hintText: record!.category!.name,
-                labelText: "Record name".i18n)),
+        child: TypeAheadField<String>(
+          controller: _typeAheadController,
+          builder: (context, controller, focusNode) {
+            return TextFormField(
+                controller: controller,
+                focusNode: focusNode,
+                onChanged: (text) {
+                  setState(() {
+                    record!.title = text;
+                  });
+                },
+                style: TextStyle(
+                  fontSize: 22.0,
+                ),
+                maxLines: 1,
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    contentPadding: EdgeInsets.all(10),
+                    border: InputBorder.none,
+                    hintText: record!.category!.name,
+                    labelText: "Record name".i18n));
+          },
+          suggestionsCallback: (search) => suggestionsCallback(search),
+          itemBuilder: (context, record) {
+            return ListTile(
+              title: Text(record),
+            );
+          },
+          onSelected: (selectedRecord) =>
+              {_typeAheadController.text = selectedRecord},
+          hideOnEmpty: true,
+        ),
       ),
     );
+  }
+
+  Future<List<String>> suggestionsCallback(search) async {
+    var allRecords = await database.getAllRecords();
+    return allRecords.nonNulls
+        .where((element) => element.category!.name == record!.category!.name)
+        .where((element) => element.title != null)
+        .where((element) =>
+            element.title!.toLowerCase().contains(search.toLowerCase()))
+        .map((e) => e.title!)
+        .toSet()
+        .toList();
   }
 
   Widget _createCategoryCard() {
