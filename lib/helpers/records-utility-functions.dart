@@ -73,14 +73,21 @@ Locale getCurrencyLocale() {
 
 String fixNumberFormatPattern(Locale locale, String pattern) {
 
+  return pattern;
+
   var decimalSeparator = getDecimalSeparator();
   var groupingSeparator = getGroupingSeparator();
 
   NumberFormat numberFormat = new NumberFormat.currency(
       locale: locale.toString(), symbol: "", decimalDigits: 2);
 
+  if (groupingSeparator == "") {
+    pattern = pattern.replaceAll("#${numberFormat.symbols.GROUP_SEP}", "");
+  } else {
+    pattern = pattern.replaceAll(numberFormat.symbols.GROUP_SEP, groupingSeparator);
+  }
+
   return pattern
-      .replaceAll(numberFormat.symbols.GROUP_SEP, groupingSeparator)
       .replaceAll(numberFormat.symbols.DECIMAL_SEP, decimalSeparator);
 }
 
@@ -106,30 +113,42 @@ NumberFormat getNumberFormatWithCustomizations({ turnOffGrouping = false, locale
         locale = getCurrencyLocale();
       }
 
-      numberFormat = new NumberFormat.currency(
+      NumberFormat referenceNumberFormat = new NumberFormat.currency(
           locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
 
       numberFormatSymbols['custom_locale'] = new NumberSymbols(
           NAME: "custom_locale",
           DECIMAL_SEP: getDecimalSeparator(),
           GROUP_SEP: getGroupingSeparator(),
-          PERCENT: numberFormat.symbols.PERCENT,
-          ZERO_DIGIT: numberFormat.symbols.ZERO_DIGIT,
-          PLUS_SIGN: numberFormat.symbols.PLUS_SIGN,
-          MINUS_SIGN: numberFormat.symbols.MINUS_SIGN,
-          EXP_SYMBOL: numberFormat.symbols.EXP_SYMBOL,
-          PERMILL: numberFormat.symbols.PERMILL,
-          INFINITY: numberFormat.symbols.INFINITY,
-          NAN: numberFormat.symbols.NAN,
-          DECIMAL_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.DECIMAL_PATTERN),
-          SCIENTIFIC_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.SCIENTIFIC_PATTERN),
-          PERCENT_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.PERCENT_PATTERN),
-          CURRENCY_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.CURRENCY_PATTERN),
-          DEF_CURRENCY_CODE: numberFormat.symbols.DEF_CURRENCY_CODE
+          PERCENT: referenceNumberFormat.symbols.PERCENT,
+          ZERO_DIGIT: referenceNumberFormat.symbols.ZERO_DIGIT,
+          PLUS_SIGN: referenceNumberFormat.symbols.PLUS_SIGN,
+          MINUS_SIGN: referenceNumberFormat.symbols.MINUS_SIGN,
+          EXP_SYMBOL: referenceNumberFormat.symbols.EXP_SYMBOL,
+          PERMILL: referenceNumberFormat.symbols.PERMILL,
+          INFINITY: referenceNumberFormat.symbols.INFINITY,
+          NAN: referenceNumberFormat.symbols.NAN,
+          DECIMAL_PATTERN: referenceNumberFormat.symbols.DECIMAL_PATTERN,
+          SCIENTIFIC_PATTERN: referenceNumberFormat.symbols.SCIENTIFIC_PATTERN,
+          PERCENT_PATTERN: referenceNumberFormat.symbols.PERCENT_PATTERN,
+          CURRENCY_PATTERN: referenceNumberFormat.symbols.CURRENCY_PATTERN,
+          DEF_CURRENCY_CODE: referenceNumberFormat.symbols.DEF_CURRENCY_CODE
       );
 
       numberFormat = new NumberFormat.currency(
           locale: "custom_locale", symbol: "", decimalDigits: decimalDigits);
+
+      // Copy over some properties
+      numberFormat.maximumIntegerDigits = referenceNumberFormat.maximumIntegerDigits;
+      numberFormat.minimumIntegerDigits = referenceNumberFormat.minimumIntegerDigits;
+
+      numberFormat.minimumExponentDigits = referenceNumberFormat.minimumExponentDigits;
+
+      numberFormat.maximumFractionDigits = referenceNumberFormat.maximumFractionDigits;
+      numberFormat.minimumFractionDigits = referenceNumberFormat.minimumFractionDigits;
+
+      numberFormat.maximumSignificantDigits = referenceNumberFormat.maximumSignificantDigits;
+      numberFormat.minimumSignificantDigits = referenceNumberFormat.minimumSignificantDigits;
 
     } on Exception catch (_) {
       numberFormat = new NumberFormat.currency(

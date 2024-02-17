@@ -127,6 +127,8 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
                                       setSharedConfig(widget.dropdownValues[value]!);
                                     });
                                     setState(() {
+                                      // Make the currencyFormat invalid
+                                      ServiceConfig.currencyNumberFormat = null;
                                       selectedDropdownKey = value!;
                                     });
                                   },
