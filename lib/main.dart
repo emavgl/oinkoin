@@ -80,8 +80,8 @@ class OinkoinAppState extends State<OinkoinApp> {
             }
           }
 
-          setCurrencyLocale(attemptedLocale);
-          return attemptedLocale;
+          setCurrencyLocale(Locale.fromSubtags(languageCode: 'en'));
+          return Locale.fromSubtags(languageCode: 'en');
         },
         supportedLocales: [
           const Locale.fromSubtags(languageCode: 'en'),
@@ -125,6 +125,7 @@ class OinkoinAppState extends State<OinkoinApp> {
     }
     checkForSettingInconsistency(toSet);
     ServiceConfig.currencyLocale = toSet;
+    ServiceConfig.currencyNumberFormat = getNumberFormatWithCustomizations();
   }
 
   void checkForSettingInconsistency(Locale toSet) {

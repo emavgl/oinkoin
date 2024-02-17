@@ -41,7 +41,6 @@ dependencies:
   flutter_displaymode: ^0.6.0
   future_progress_dialog: ^0.2.1
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6

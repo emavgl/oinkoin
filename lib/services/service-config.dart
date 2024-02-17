@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'database/database-interface.dart';
@@ -17,4 +18,5 @@ class ServiceConfig {
   static String? packageName; // set in main.dart
   static String? version; // set in main.dart
   static Locale? currencyLocale; // set in main.dart
+  static NumberFormat? currencyNumberFormat; // set in main.dart
 }

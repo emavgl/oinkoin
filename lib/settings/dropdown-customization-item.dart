@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../services/service-config.dart';
@@ -6,8 +8,9 @@ class DropdownCustomizationItem<T> extends StatefulWidget {
   final String title;
   final String subtitle;
   final Map<String, T> dropdownValues;
-  String selectedDropdownKey;
+  final String selectedDropdownKey;
   final String sharedConfigKey;
+  final Function()? onChanged;
 
   DropdownCustomizationItem({
     required this.title,
@@ -15,6 +18,7 @@ class DropdownCustomizationItem<T> extends StatefulWidget {
     required this.dropdownValues,
     required this.selectedDropdownKey,
     required this.sharedConfigKey,
+    this.onChanged
   });
 
   @override
@@ -35,13 +39,14 @@ class UnsupportedTypeException implements Exception {
 
 class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem> {
 
-  String selectedDropdownKey;
+  late String selectedDropdownKey;
 
   DropdownCustomizationItemState(this.selectedDropdownKey);
 
   @override
   void initState() {
     super.initState();
+    selectedDropdownKey = widget.selectedDropdownKey;
   }
 
   Widget buildHeader() {
@@ -72,46 +77,107 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
     }
   }
 
-  Widget buildDropdownMenu() {
-    return Container(
-        alignment: AlignmentDirectional.topStart,
-        margin: EdgeInsets.only(left: 20),
-        child: DropdownButton<String>(
-            menuMaxHeight: 300,
-            dropdownColor: Theme.of(context).colorScheme.surfaceVariant,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            isExpanded: true,
-            padding: EdgeInsets.all(0),
-            value: selectedDropdownKey,
-            underline: SizedBox(),
-            onChanged: (String? value) {
-              setState(() {
-                selectedDropdownKey = value!;
-                setSharedConfig(widget.dropdownValues[value]);
-              });
-            },
-            items: widget.dropdownValues.keys
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value)
-              );
-            }).toList(),
-          )
+  void showSelectionDialog(BuildContext context) {
+    final double maxHeight = MediaQuery.of(context).size.height * 0.8; // Maximum height
+    final double itemHeight = 56.0; // Assuming the height of each RadioListTile
+    final double suggestedHeight =
+        widget.dropdownValues.keys.length * itemHeight + 160.0; // 160 is additional space
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            height: suggestedHeight > maxHeight ? maxHeight : suggestedHeight,
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(widget.title, style: Theme.of(context).textTheme.titleLarge),
+                      Text(widget.subtitle, style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setNewState) {
+                        return Column(
+                          children: [
+                            ...widget.dropdownValues.keys.map<Widget>((String value) {
+                              return Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                child: RadioListTile<String>(
+                                  title: Text(
+                                    value,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  value: value,
+                                  groupValue: selectedDropdownKey,
+                                  onChanged: (String? value) {
+                                    setNewState(() {
+                                      selectedDropdownKey = value!;
+                                      setSharedConfig(widget.dropdownValues[value]!);
+                                    });
+                                    setState(() {
+                                      selectedDropdownKey = value!;
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: TextButton(
+                      onPressed: () {
+                        widget.onChanged?.call();
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      child: Text('OK'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      child: Column(
-        children: [
-          buildHeader(),
-          buildDropdownMenu(),
-        ],
-      )
+    return ListTile(
+      onTap: () {
+        showSelectionDialog(context);
+      },
+      title: Text(
+        widget.title
+      ),
+      subtitle: Text(
+        selectedDropdownKey,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+      ),
+      contentPadding: EdgeInsets.fromLTRB(20, 8, 10, 10),
     );
   }
+
 }
 

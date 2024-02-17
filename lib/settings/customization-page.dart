@@ -13,38 +13,54 @@ class CustomizationPage extends StatefulWidget {
 
 class CustomizationPageState extends State<CustomizationPage> {
 
-  static String getKeyFromObject<T>(Map<String, T> originalMap, T searchValue, String defaultKey) {
+  static String getKeyFromObject<T>(Map<String, T> originalMap, T? searchValue, {String? defaultKey}) {
     final invertedMap = originalMap.map((key, value) => MapEntry(value, key));
-    return invertedMap[searchValue] ?? defaultKey;
+    if (invertedMap.containsKey(searchValue)) {
+      return invertedMap[searchValue]!;
+    }
+    if (defaultKey != null) {
+      return defaultKey;
+    }
+    return invertedMap.values.first;
   }
 
   Future<void> initializePreferences() async {
     prefs = await SharedPreferences.getInstance();
+    fetchAllThePreferences();
+  }
 
+  fetchAllThePreferences() {
     // Get theme color
     int themeColorDropdownValueIndex = prefs.getInt('themeColor') ?? 0;
-    themeColorDropdownValue = getKeyFromObject<int>(themeColorDropdownValues, themeColorDropdownValueIndex, "Default".i18n);
+    themeColorDropdownKey = getKeyFromObject<int>(themeColorDropdownValues, themeColorDropdownValueIndex);
 
     // Get theme style
     int themeStyleDropdownValueIndex = prefs.getInt('themeMode') ?? 0;
-    themeStyleDropdownValue = getKeyFromObject<int>(themeStyleDropdownValues, themeStyleDropdownValueIndex, "System".i18n);
+    themeStyleDropdownKey = getKeyFromObject<int>(themeStyleDropdownValues, themeStyleDropdownValueIndex);
 
     // Get languageLocale
     var userDefinedLanguageLocale = prefs.getString("languageLocale");
-    if (userDefinedLanguageLocale != null ) {
-      languageDropdownValue = getKeyFromObject<String>(languageToLocaleTranslation, userDefinedLanguageLocale, "System".i18n);
-    }
+    languageDropdownKey = getKeyFromObject<String>(languageToLocaleTranslation, userDefinedLanguageLocale);
 
-    decimalDigitsValue = prefs.getInt('numDecimalDigits') ?? 2;
-    useGroupSeparator = prefs.getBool("useGroupSeparator") ?? true;
-    groupSeparatorValue = prefs.getString("groupSeparator") ?? getLocaleGroupingSeparator();
-    if (!symbolsTranslations.containsKey(groupSeparatorValue)) {
-      // this happen when there are languages with different group separator
-      // like persian
-      symbolsTranslations[groupSeparatorValue] = groupSeparatorValue;
+    // Get Number of decimal digits
+    decimalDigitsValueDropdownKey = (prefs.getInt('numDecimalDigits') ?? 2).toString();
+
+    // Decimal separator
+    var usedDefinedDecimalSeparatorValue = prefs.getString("decimalSeparator") ?? getLocaleDecimalSeparator();
+    decimalSeparatorDropdownKey = getKeyFromObject<String>(decimalSeparatorValues, usedDefinedDecimalSeparatorValue);
+
+    // Grouping separator
+    var usedDefinedGroupSeparatorValue = prefs.getString("groupSeparator") ?? getLocaleGroupingSeparator();
+    if (!groupSeparatorsValues.containsValue(usedDefinedGroupSeparatorValue)) {
+      // It may happen with unsupported locales (persian)
+      groupSeparatorsValues[usedDefinedGroupSeparatorValue] = usedDefinedGroupSeparatorValue;
     }
-    groupSeparatorsValues.remove(getLocaleDecimalSeparator());
-    overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ?? getLocaleDecimalSeparator() == ",";
+    groupSeparatorDropdownKey = getKeyFromObject<String>(groupSeparatorsValues, usedDefinedGroupSeparatorValue);
+    allowedGroupSeparatorsValues = Map.from(groupSeparatorsValues);
+    allowedGroupSeparatorsValues.remove(decimalSeparatorDropdownKey);
+
+    // Overwrite dot
+    overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ?? getDecimalSeparator() == ",";
   }
 
   late SharedPreferences prefs;
@@ -55,7 +71,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     "Light".i18n: 1,
     "Dark".i18n: 2
   };
-  late String themeStyleDropdownValue;
+  late String themeStyleDropdownKey;
 
   // Theme color dropdown
   Map<String, int> themeColorDropdownValues = {
@@ -63,8 +79,9 @@ class CustomizationPageState extends State<CustomizationPage> {
     "System".i18n: 1,
     "Monthly Image".i18n: 2
   };
-  late String themeColorDropdownValue;
+  late String themeColorDropdownKey;
 
+  // Language dropdown
   Map<String, String> languageToLocaleTranslation = {
     "System".i18n: "system",
     "Deutsch": "de_DE",
@@ -79,64 +96,38 @@ class CustomizationPageState extends State<CustomizationPage> {
     "Veneto": "vec_IT",
     "简化字": "zh_CN",
   };
-  late String languageDropdownValue;
+  late String languageDropdownKey;
 
-  List<int> decimalDigitsValues = [0, 1, 2, 3, 4];
-  int decimalDigitsValue = 2;
-
-  bool useGroupSeparator = true;
-  Map<String, String> symbolsTranslations = {
-    ".": "dot".i18n,
-    ",": "comma".i18n,
-    "\u00A0": "space".i18n,
-    "_": "underscore".i18n,
-    "'": "apostrophe".i18n
+  // Decimal digits
+  Map<String, int> decimalDigitsValues = {
+    "0": 0,
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
   };
-  List<String> groupSeparatorsValues = [".", ",", "\u00A0", "_", "'"];
-  String groupSeparatorValue = ".";
+  late String decimalDigitsValueDropdownKey;
 
-  bool overwriteDotValueWithComma = true;
+  // Group separator
+  Map<String, String> groupSeparatorsValues = {
+    "none".i18n: "",
+    "dot".i18n: ".",
+    "comma".i18n: ",",
+    "space".i18n: "\u00A0",
+    "underscore".i18n: "_",
+    "apostrophe".i18n: "'",
+  };
+  late Map<String, String> allowedGroupSeparatorsValues;
+  late String groupSeparatorDropdownKey;
 
-  Widget buildDecimalDigitsDropdownButton() {
-    return DropdownButton<int>(
-      padding: EdgeInsets.all(0),
-      underline: SizedBox(),
-      value: decimalDigitsValue,
-      onChanged: (int? value) {
-        setState(() {
-          decimalDigitsValue = value!;
-          prefs.setInt("numDecimalDigits", value);
-        });
-      },
-      items: decimalDigitsValues.map<DropdownMenuItem<int>>((int value) {
-        return DropdownMenuItem<int>(
-          value: value,
-          child: Text(value.toString()),
-        );
-      }).toList(),
-    );
-  }
+  // Decimal separator
+  Map<String, String> decimalSeparatorValues = {
+    "dot".i18n: ".",
+    "comma".i18n: ",",
+  };
+  late String decimalSeparatorDropdownKey;
 
-  Widget buildGroupingSeparatorDropdownButton() {
-    return DropdownButton<String>(
-      padding: EdgeInsets.all(0),
-      underline: SizedBox(),
-      value: groupSeparatorValue,
-      onChanged: (String? value) {
-        setState(() {
-          groupSeparatorValue = value!;
-          prefs.setString("groupSeparator", value);
-          print("Selected Group Separator:" + symbolsTranslations[value]!);
-        });
-      },
-      items: groupSeparatorsValues.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(symbolsTranslations[value]!),
-        );
-      }).toList(),
-    );
-  }
+  late bool overwriteDotValueWithComma;
 
   @override
   Widget build(BuildContext context) {
@@ -155,30 +146,57 @@ class CustomizationPageState extends State<CustomizationPage> {
                     title: "Colors".i18n,
                     subtitle: "Select the app theme color".i18n + " - " +  "Require App restart".i18n,
                     dropdownValues: themeColorDropdownValues,
-                    selectedDropdownKey: themeColorDropdownValue,
+                    selectedDropdownKey: themeColorDropdownKey,
                     sharedConfigKey: "themeColor",
                   ),
                   DropdownCustomizationItem(
                     title: "Theme style".i18n,
                     subtitle: "Select the app theme style".i18n + " - " +  "Require App restart".i18n,
                     dropdownValues: themeStyleDropdownValues,
-                    selectedDropdownKey: themeStyleDropdownValue,
+                    selectedDropdownKey: themeStyleDropdownKey,
                     sharedConfigKey: "themeMode",
                   ),
                   DropdownCustomizationItem(
                     title: "Language".i18n,
                     subtitle: "Select the app language".i18n  + " - " +  "Require App restart".i18n,
                     dropdownValues: languageToLocaleTranslation,
-                    selectedDropdownKey: languageDropdownValue,
+                    selectedDropdownKey: languageDropdownKey,
                     sharedConfigKey: "languageLocale",
                   ),
-                  ListTile(
-                    trailing: buildDecimalDigitsDropdownButton(),
-                    title: Text("Decimal digits".i18n),
-                    subtitle: Text("Select the number of decimal digits".i18n),
+                  DropdownCustomizationItem(
+                    title: "Decimal digits".i18n,
+                    subtitle: "Select the number of decimal digits".i18n,
+                    dropdownValues: decimalDigitsValues,
+                    selectedDropdownKey: decimalDigitsValueDropdownKey,
+                    sharedConfigKey: "numDecimalDigits",
+                  ),
+                  DropdownCustomizationItem(
+                      title: "Decimal separator".i18n,
+                      subtitle: "Select the decimal separator".i18n,
+                      dropdownValues: decimalSeparatorValues,
+                      selectedDropdownKey: decimalSeparatorDropdownKey,
+                      sharedConfigKey: "decimalSeparator",
+                      onChanged: () {
+                        setState(() {
+                          fetchAllThePreferences();
+                          overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ?? getDecimalSeparator() == ",";
+                          if (decimalSeparatorDropdownKey == groupSeparatorDropdownKey) {
+                            // Inconsistency, disable group separator
+                            prefs.setString("groupSeparator", "");
+                          }
+                          fetchAllThePreferences();
+                        });
+                      }
+                  ),
+                  DropdownCustomizationItem(
+                    title: "Grouping separator".i18n,
+                    subtitle: "Select the grouping separator".i18n,
+                    dropdownValues: allowedGroupSeparatorsValues,
+                    selectedDropdownKey: groupSeparatorDropdownKey,
+                    sharedConfigKey: "groupSeparator",
                   ),
                   Visibility(
-                    visible: getLocaleDecimalSeparator() == ",",
+                    visible: getDecimalSeparator() == ",",
                     child: ListTile(
                       trailing: Switch(
                         // This bool value toggles the switch.
@@ -190,31 +208,18 @@ class CustomizationPageState extends State<CustomizationPage> {
                           });
                         },
                       ),
-                      title: Text("Overwrite the `dot`".i18n),
-                      subtitle: Text("Overwrite `dot` with `comma`".i18n),
+                      title: Text("Overwrite the key `dot`".i18n),
+                      subtitle: Text("When typing `dot`, it types `comma` instead".i18n),
                     ),
                   ),
                   ListTile(
-                    trailing: Switch(
-                      // This bool value toggles the switch.
-                      value: useGroupSeparator,
-                      onChanged: (bool value) {
-                        setState(() {
-                          prefs.setBool("useGroupSeparator", value);
-                          useGroupSeparator = value;
-                        });
-                      },
-                    ),
-                    title: Text("Use `Grouping separator`".i18n),
-                    subtitle: Text("For example, 1000 -> 1,000".i18n),
-                  ),
-                  Visibility(
-                    visible: useGroupSeparator,
-                    child: ListTile(
-                      trailing: buildGroupingSeparatorDropdownButton(),
-                      title: Text("Grouping separator".i18n),
-                      subtitle: Text("Overwrite grouping separator".i18n),
-                    ),
+                    onTap: () {
+                      setState(() {
+                        prefs.clear();
+                        fetchAllThePreferences();
+                      });
+                    },
+                    title: Text("Restore all the default configurations".i18n),
                   )
                 ],
               ),

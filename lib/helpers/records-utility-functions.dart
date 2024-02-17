@@ -7,7 +7,7 @@ import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:intl/src/intl_helpers.dart' as helpers;
-
+import 'package:intl/number_symbols.dart';
 import '../services/service-config.dart';
 
 
@@ -49,6 +49,10 @@ String getGroupingSeparator() {
   return ServiceConfig.sharedPreferences!.getString("groupSeparator") ?? getLocaleGroupingSeparator();
 }
 
+String getDecimalSeparator() {
+  return ServiceConfig.sharedPreferences!.getString("decimalSeparator") ?? getLocaleDecimalSeparator();
+}
+
 String getLocaleDecimalSeparator() {
   String myLocale = I18n.locale.toString();
   String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
@@ -59,60 +63,101 @@ String getLocaleDecimalSeparator() {
 }
 
 bool getOverwriteDotValue() {
-  if (getLocaleDecimalSeparator() == ".") return false;
-  return ServiceConfig.sharedPreferences?.getBool("overwriteDotValueWithComma") ?? getLocaleDecimalSeparator() == ",";
-}
-
-bool usesWesternArabicNumerals(Locale locale) {
-  return getCurrencyValueString(1234, locale: locale, turnOffGrouping: true).contains("1234");
+  if (getDecimalSeparator() == ".") return false;
+  return ServiceConfig.sharedPreferences?.getBool("overwriteDotValueWithComma") ?? getDecimalSeparator() == ",";
 }
 
 Locale getCurrencyLocale() {
   return ServiceConfig.currencyLocale!;
 }
 
+String fixNumberFormatPattern(Locale locale, String pattern) {
+
+  var decimalSeparator = getDecimalSeparator();
+  var groupingSeparator = getGroupingSeparator();
+
+  NumberFormat numberFormat = new NumberFormat.currency(
+      locale: locale.toString(), symbol: "", decimalDigits: 2);
+
+  return pattern
+      .replaceAll(numberFormat.symbols.GROUP_SEP, groupingSeparator)
+      .replaceAll(numberFormat.symbols.DECIMAL_SEP, decimalSeparator);
+}
+
+bool usesWesternArabicNumerals(Locale locale) {
+  NumberFormat numberFormat = new NumberFormat.currency(
+      locale: locale.toString(), symbol: "", decimalDigits: 2);
+
+  numberFormat.turnOffGrouping();
+
+  return numberFormat.format(1234).contains("1234");
+}
+
+NumberFormat getNumberFormatWithCustomizations({ turnOffGrouping = false, locale }) {
+  NumberFormat? numberFormat = ServiceConfig.currencyNumberFormat;
+
+  if (numberFormat == null) {
+    String? userDefinedGroupSeparator = ServiceConfig.sharedPreferences?.getString("groupSeparator");
+    int decimalDigits = ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
+
+    try {
+
+      if (locale == null) {
+        locale = getCurrencyLocale();
+      }
+
+      numberFormat = new NumberFormat.currency(
+          locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
+
+      numberFormatSymbols['custom_locale'] = new NumberSymbols(
+          NAME: "custom_locale",
+          DECIMAL_SEP: getDecimalSeparator(),
+          GROUP_SEP: getGroupingSeparator(),
+          PERCENT: numberFormat.symbols.PERCENT,
+          ZERO_DIGIT: numberFormat.symbols.ZERO_DIGIT,
+          PLUS_SIGN: numberFormat.symbols.PLUS_SIGN,
+          MINUS_SIGN: numberFormat.symbols.MINUS_SIGN,
+          EXP_SYMBOL: numberFormat.symbols.EXP_SYMBOL,
+          PERMILL: numberFormat.symbols.PERMILL,
+          INFINITY: numberFormat.symbols.INFINITY,
+          NAN: numberFormat.symbols.NAN,
+          DECIMAL_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.DECIMAL_PATTERN),
+          SCIENTIFIC_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.SCIENTIFIC_PATTERN),
+          PERCENT_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.PERCENT_PATTERN),
+          CURRENCY_PATTERN: fixNumberFormatPattern(locale, numberFormat.symbols.CURRENCY_PATTERN),
+          DEF_CURRENCY_CODE: numberFormat.symbols.DEF_CURRENCY_CODE
+      );
+
+      numberFormat = new NumberFormat.currency(
+          locale: "custom_locale", symbol: "", decimalDigits: decimalDigits);
+
+    } on Exception catch (_) {
+      numberFormat = new NumberFormat.currency(
+          locale: "en_US", symbol: "", decimalDigits: decimalDigits);
+    }
+
+    bool mustRemoveGrouping = (userDefinedGroupSeparator != null && userDefinedGroupSeparator.isEmpty) || turnOffGrouping;
+    if (mustRemoveGrouping) {
+      numberFormat.turnOffGrouping();
+    }
+
+    ServiceConfig.currencyNumberFormat = numberFormat;
+  }
+
+  return numberFormat;
+}
+
 String getCurrencyValueString(double? value, { turnOffGrouping = false, locale}) {
   if (value == null) return "";
-  NumberFormat numberFormat;
-  bool useGroupSeparator = ServiceConfig.sharedPreferences?.getBool("useGroupSeparator") ?? true;
-  int decimalDigits = ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
-  try {
-    if (locale == null) {
-      locale = getCurrencyLocale();
-    }
-    numberFormat = new NumberFormat.currency(
-        locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
-  } on Exception catch (_) {
-    numberFormat = new NumberFormat.currency(
-        locale: "en_US", symbol: "", decimalDigits: decimalDigits);
-  }
-  bool mustRemoveGrouping = !useGroupSeparator || turnOffGrouping;
-  if (mustRemoveGrouping) {
-    numberFormat.turnOffGrouping();
-  }
-  String result = numberFormat.format(value);
-  bool userDefinedGroupingSeparator = ServiceConfig.sharedPreferences!.containsKey("groupSeparator");
-  if (!mustRemoveGrouping && userDefinedGroupingSeparator) {
-    String localeGroupingSeparator = getLocaleGroupingSeparator();
-    String groupingSeparatorByTheUser = getUserDefinedGroupingSeparator()!;
-    result = result.replaceAll(localeGroupingSeparator, groupingSeparatorByTheUser);
-  }
-  return result;
+  NumberFormat numberFormat = getNumberFormatWithCustomizations(turnOffGrouping: turnOffGrouping, locale: locale);
+  return numberFormat.format(value);
 }
 
 double? tryParseCurrencyString(String toParse) {
   try {
-    Locale myLocale = getCurrencyLocale();
-
-    // Intl.defaultLocale = myLocale.toString();
-    // Clean up from user defined grouping separator if they ever
-    // end up here
-    var userDefinedGroupingSeparator = getUserDefinedGroupingSeparator();
-    if (userDefinedGroupingSeparator != null) {
-      toParse = toParse.replaceAll(userDefinedGroupingSeparator, "");
-    }
-    num f = NumberFormat(null, myLocale.toString()).parse(toParse);
-    return f.toDouble();
+    NumberFormat numberFormat = getNumberFormatWithCustomizations();
+    double r = numberFormat.parse(toParse).toDouble();
+    return r;
   } catch (e) {
     return null;
   }
