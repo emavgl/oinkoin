@@ -28,6 +28,7 @@ class EditRecordPage extends StatefulWidget {
 
   final Record? passedRecord;
   final Category? passedCategory;
+
   EditRecordPage({Key? key, this.passedRecord, this.passedCategory})
       : super(key: key);
 
@@ -207,6 +208,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   final TextEditingController _typeAheadController = TextEditingController();
+
   Widget _createTitleCard() {
     return Card(
       elevation: 1,
@@ -215,6 +217,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         child: TypeAheadField<String>(
           controller: _typeAheadController,
           builder: (context, controller, focusNode) {
+            controller.text = record?.title ?? "";
             return TextFormField(
                 controller: controller,
                 focusNode: focusNode,
@@ -235,30 +238,23 @@ class EditRecordPageState extends State<EditRecordPage> {
                     hintText: record!.category!.name,
                     labelText: "Record name".i18n));
           },
-          suggestionsCallback: (search) => suggestionsCallback(search),
+          suggestionsCallback: (search) =>
+              database.suggestedRecordTitles(search, record!.category!.name!),
           itemBuilder: (context, record) {
             return ListTile(
               title: Text(record),
             );
           },
-          onSelected: (selectedRecord) =>
-              {_typeAheadController.text = selectedRecord},
+          onSelected: (selectedTitle) => {
+            _typeAheadController.text = selectedTitle,
+            setState(() {
+              record!.title = selectedTitle;
+            })
+          },
           hideOnEmpty: true,
         ),
       ),
     );
-  }
-
-  Future<List<String>> suggestionsCallback(search) async {
-    var allRecords = await database.getAllRecords();
-    return allRecords.nonNulls
-        .where((element) => element.category!.name == record!.category!.name)
-        .where((element) => element.title != null)
-        .where((element) =>
-            element.title!.toLowerCase().contains(search.toLowerCase()))
-        .map((e) => e.title!)
-        .toSet()
-        .toList();
   }
 
   Widget _createCategoryCard() {
