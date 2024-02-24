@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:i18n_extension/i18n_widget.dart';
+import 'package:intl/number_symbols_data.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
@@ -19,6 +20,7 @@ main() async {
   ServiceConfig.version = packageInfo.version;
   ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro");
   ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
+  await MyI18n.loadTranslations();
   await FlutterDisplayMode.setHighRefreshRate();
   runApp(
     OinkoinApp(
@@ -45,8 +47,6 @@ class OinkoinApp extends StatefulWidget {
 
 class OinkoinAppState extends State<OinkoinApp> {
 
-  Future<void>? loadAsync;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -67,7 +67,9 @@ class OinkoinAppState extends State<OinkoinApp> {
           // even if not supported. The user will still the english
           // translations, but it will be used for the currency format
 
-          Locale attemptedLocale = locales![0]; // Get device locale
+          Locale deviceLocale = locales![0];
+          Locale attemptedLocale = deviceLocale; // Get device locale
+
 
           // Check if user specified a locale
           var userSpecifiedLocale = ServiceConfig.sharedPreferences?.getString("languageLocale");
@@ -80,8 +82,19 @@ class OinkoinAppState extends State<OinkoinApp> {
             }
           }
 
-          setCurrencyLocale(Locale.fromSubtags(languageCode: 'en'));
-          return Locale.fromSubtags(languageCode: 'en');
+          // Is there a currency locale for this? Probably it is a strange
+          // localization, for example, venetian. Take this workaround:
+          // replace the device locale translations with the attempted one
+          // (venetian).
+          if (attemptedLocale.toString() == "vec_IT") {
+            String localeToReplace = attemptedLocale.toString();
+            String supportedDeviceLocale = getEffectiveLocaleGivenTheDeviceLocale(supportedLocales, deviceLocale.toString());
+            MyI18n.replaceTranslations(supportedDeviceLocale, localeToReplace);
+            attemptedLocale = deviceLocale;
+          }
+
+          setCurrencyLocale(attemptedLocale);
+          return attemptedLocale;
         },
         supportedLocales: [
           const Locale.fromSubtags(languageCode: 'en'),
@@ -92,6 +105,7 @@ class OinkoinAppState extends State<OinkoinApp> {
           const Locale.fromSubtags(languageCode: 'ar'),
           const Locale.fromSubtags(languageCode: 'ru'),
           const Locale.fromSubtags(languageCode: 'tr'),
+          const Locale.fromSubtags(languageCode: 'vec', countryCode: "IT"),
           const Locale.fromSubtags(languageCode: 'zh', countryCode: "CN"),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "BR"),
           const Locale.fromSubtags(languageCode: 'pt', countryCode: "PT")
@@ -100,23 +114,30 @@ class OinkoinAppState extends State<OinkoinApp> {
         darkTheme: widget.darkTheme,
         themeMode: widget.themeMode,
         title: "Oinkoin", // DO NOT LOCALIZE THIS, YOU CAN'T.
-        home: FutureBuilder(
-          future: loadAsync,
-          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-            if (snapshot.connectionState == ConnectionState.done)
-              return I18n(
-                child: Shell(),
-              );
-            return Container();
-          },
+        home: I18n(
+          child: Shell(),
         )
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    loadAsync = MyI18n.loadTranslations();
+  String getEffectiveLocaleGivenTheDeviceLocale(Iterable<Locale> supportedLocales, String deviceLocale) {
+    var split = deviceLocale.split("_");
+    if (split.length == 2) {
+      Locale l = Locale.fromSubtags(languageCode: split[0], countryCode: split[1]);
+      if (supportedLocales.contains(l)) {
+        return l.toString();
+      }
+      l = Locale.fromSubtags(languageCode: split[0]);
+      if (supportedLocales.contains(l)) {
+        return l.toString();
+      }
+    } else if (split.length == 1) {
+      Locale l = Locale.fromSubtags(languageCode: split[0]);
+      if (supportedLocales.contains(l)) {
+        return l.toString();
+      }
+    }
+    return "en";
   }
 
   void setCurrencyLocale(Locale toSet) {

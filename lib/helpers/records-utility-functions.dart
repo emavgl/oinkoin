@@ -71,26 +71,6 @@ Locale getCurrencyLocale() {
   return ServiceConfig.currencyLocale!;
 }
 
-String fixNumberFormatPattern(Locale locale, String pattern) {
-
-  return pattern;
-
-  var decimalSeparator = getDecimalSeparator();
-  var groupingSeparator = getGroupingSeparator();
-
-  NumberFormat numberFormat = new NumberFormat.currency(
-      locale: locale.toString(), symbol: "", decimalDigits: 2);
-
-  if (groupingSeparator == "") {
-    pattern = pattern.replaceAll("#${numberFormat.symbols.GROUP_SEP}", "");
-  } else {
-    pattern = pattern.replaceAll(numberFormat.symbols.GROUP_SEP, groupingSeparator);
-  }
-
-  return pattern
-      .replaceAll(numberFormat.symbols.DECIMAL_SEP, decimalSeparator);
-}
-
 bool usesWesternArabicNumerals(Locale locale) {
   NumberFormat numberFormat = new NumberFormat.currency(
       locale: locale.toString(), symbol: "", decimalDigits: 2);
@@ -117,7 +97,7 @@ NumberFormat getNumberFormatWithCustomizations({ turnOffGrouping = false, locale
           locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
 
       numberFormatSymbols['custom_locale'] = new NumberSymbols(
-          NAME: "custom_locale",
+          NAME: "c",
           DECIMAL_SEP: getDecimalSeparator(),
           GROUP_SEP: getGroupingSeparator(),
           PERCENT: referenceNumberFormat.symbols.PERCENT,
