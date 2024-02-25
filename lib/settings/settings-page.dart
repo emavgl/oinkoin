@@ -39,26 +39,35 @@ class TabSettings extends StatelessWidget {
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    if(result != null) {
+    if (result != null) {
       File file = File(result.files.single.path!);
       bool successful = await showDialog(
         context: context,
-        builder: (context) => FutureProgressDialog(BackupService.importDataFromBackupFile(file)),
+        builder: (context) =>
+            FutureProgressDialog(BackupService.importDataFromBackupFile(file)),
       );
       if (successful) {
-        AlertDialogBuilder resultDialog = AlertDialogBuilder("Restore successful".i18n)
+        AlertDialogBuilder resultDialog = AlertDialogBuilder(
+                "Restore successful".i18n)
             .addSubtitle("The data from the backup file are now restored.".i18n)
             .addTrueButtonName("OK");
-        await showDialog(context: context, builder: (BuildContext context) {
-          return resultDialog.build(context);
-        });
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return resultDialog.build(context);
+            });
       } else {
-        AlertDialogBuilder resultDialog = AlertDialogBuilder("Restore unsuccessful".i18n)
-            .addSubtitle("Make sure you have the latest version of the app. If so, the backup file may be corrupted.".i18n)
+        AlertDialogBuilder resultDialog = AlertDialogBuilder(
+                "Restore unsuccessful".i18n)
+            .addSubtitle(
+                "Make sure you have the latest version of the app. If so, the backup file may be corrupted."
+                    .i18n)
             .addTrueButtonName("OK");
-        await showDialog(context: context, builder: (BuildContext context) {
-          return resultDialog.build(context);
-        });
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return resultDialog.build(context);
+            });
       }
     } else {
       // User has canceled the picker
@@ -66,20 +75,27 @@ class TabSettings extends StatelessWidget {
   }
 
   deleteAllData(BuildContext context) async {
-    AlertDialogBuilder premiumDialog = AlertDialogBuilder("Critical action".i18n)
-        .addSubtitle("Do you really want to delete all the data?".i18n)
-        .addTrueButtonName("Yes".i18n).addFalseButtonName("No".i18n);
-    var ok = await showDialog(context: context, builder: (BuildContext context) {
-      return premiumDialog.build(context);
-    });
+    AlertDialogBuilder premiumDialog =
+        AlertDialogBuilder("Critical action".i18n)
+            .addSubtitle("Do you really want to delete all the data?".i18n)
+            .addTrueButtonName("Yes".i18n)
+            .addFalseButtonName("No".i18n);
+    var ok = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return premiumDialog.build(context);
+        });
     if (ok) {
       await database.deleteDatabase();
-      AlertDialogBuilder resultDialog = AlertDialogBuilder("Data is deleted".i18n)
-          .addSubtitle("All the data has been deleted".i18n)
-          .addTrueButtonName("OK");
-      await showDialog(context: context, builder: (BuildContext context) {
-        return resultDialog.build(context);
-      });
+      AlertDialogBuilder resultDialog =
+          AlertDialogBuilder("Data is deleted".i18n)
+              .addSubtitle("All the data has been deleted".i18n)
+              .addTrueButtonName("OK");
+      await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return resultDialog.build(context);
+          });
     }
   }
 
@@ -134,8 +150,7 @@ class TabSettings extends StatelessWidget {
               iconBackgroundColor: Colors.blue.shade600,
               title: 'Customization'.i18n,
               subtitle: "Set visual preferences".i18n,
-              onPressed: () async => await goToCustomizationPage(context)
-          ),
+              onPressed: () async => await goToCustomizationPage(context)),
           SettingsItem(
               icon: Icon(
                 Icons.repeat,
@@ -144,18 +159,16 @@ class TabSettings extends StatelessWidget {
               iconBackgroundColor: Colors.pink.shade600,
               title: 'Recurrent Records'.i18n,
               subtitle: "View or delete recurrent records".i18n,
-              onPressed: () async => await goToRecurrentRecordPage(context)
-          ),
+              onPressed: () async => await goToRecurrentRecordPage(context)),
           SettingsItem(
-            icon: Icon(
-              Icons.backup,
-              color: Colors.white,
-            ),
-            iconBackgroundColor: Colors.orange.shade600,
-            title: 'Backup'.i18n,
-            subtitle: "Make a backup of all the data".i18n,
-            onPressed: () async => await createAndShareBackupFile()
-          ),
+              icon: Icon(
+                Icons.backup,
+                color: Colors.white,
+              ),
+              iconBackgroundColor: Colors.orange.shade600,
+              title: 'Backup'.i18n,
+              subtitle: "Make a backup of all the data".i18n,
+              onPressed: () async => await createAndShareBackupFile()),
           Stack(
             children: [
               SettingsItem(
@@ -166,17 +179,22 @@ class TabSettings extends StatelessWidget {
                 iconBackgroundColor: Colors.teal,
                 title: 'Restore Backup'.i18n,
                 subtitle: "Restore data from a backup file".i18n,
-                onPressed: ServiceConfig.isPremium ? () async => await importFromBackupFile(context) : () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
-                  );
-                },
+                onPressed: ServiceConfig.isPremium
+                    ? () async => await importFromBackupFile(context)
+                    : () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PremiumSplashScreen()),
+                        );
+                      },
               ),
-              !ServiceConfig.isPremium ? Container(
-                margin: EdgeInsets.fromLTRB(8, 8, 0, 0),
-                child:  getProLabel(labelFontSize: 10.0),
-              ) : Container()
+              !ServiceConfig.isPremium
+                  ? Container(
+                      margin: EdgeInsets.fromLTRB(8, 8, 0, 0),
+                      child: getProLabel(labelFontSize: 10.0),
+                    )
+                  : Container()
             ],
           ),
           SettingsItem(
@@ -197,7 +215,8 @@ class TabSettings extends StatelessWidget {
             iconBackgroundColor: Colors.tealAccent.shade700,
             title: 'Info'.i18n,
             subtitle: 'Privacy policy and credits'.i18n,
-            onPressed: () async => await _launchURL("https://github.com/emavgl/oinkoin/blob/master/privacy-policy.md"),
+            onPressed: () async => await _launchURL(
+                "https://github.com/emavgl/oinkoin/blob/master/privacy-policy.md"),
           ),
           SettingsItem(
             icon: Icon(
@@ -212,10 +231,10 @@ class TabSettings extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => FeedbackPage()),
               );
-            },          ),
+            },
+          ),
         ],
       ),
     ));
   }
-
 }

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Running pre-commit git-hooks"
+dart format lib

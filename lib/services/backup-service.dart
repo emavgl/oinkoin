@@ -31,7 +31,7 @@ class BackupService {
       Backup backup = Backup.fromMap(jsonMap);
 
       // Add categories
-      for(var backupCategory in backup.categories) {
+      for (var backupCategory in backup.categories) {
         try {
           await database.addCategory(backupCategory);
         } on ElementAlreadyExists {
@@ -40,32 +40,33 @@ class BackupService {
       }
 
       // Add records
-      for(var backupRecord in backup.records) {
-        if (await database.getMatchingRecord(backupRecord) == null){
+      for (var backupRecord in backup.records) {
+        if (await database.getMatchingRecord(backupRecord) == null) {
           // we need to strip the ID, since there could be another record
           // with the same ID, we want to ensure no collisions happen
           backupRecord?.id = null;
           await database.addRecord(backupRecord);
         } else {
-          print("${backupRecord!.category!.name} of value ${backupRecord
-              .value} already exists.");
+          print(
+              "${backupRecord!.category!.name} of value ${backupRecord.value} already exists.");
         }
       }
 
       // Add recurrent patterns
-      for(var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
+      for (var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
         String? recurrentPatternId = backupRecurrentPatterns.id;
-        if (await database.getRecurrentRecordPattern(recurrentPatternId) == null) {
+        if (await database.getRecurrentRecordPattern(recurrentPatternId) ==
+            null) {
           await database.addRecurrentRecordPattern(backupRecurrentPatterns);
         } else {
-          print("Recurrent pattern with id $recurrentPatternId already exists.");
+          print(
+              "Recurrent pattern with id $recurrentPatternId already exists.");
         }
       }
-    
+
       return true;
     } catch (err) {
-     return false;
+      return false;
     }
   }
-
 }

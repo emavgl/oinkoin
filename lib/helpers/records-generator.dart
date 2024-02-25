@@ -3,24 +3,38 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/category.dart';
 
 class RecordsGenerator {
-
   /// Methods for creating random Movements from a set of pre-defined data.
   /// Used in unit-tests.
 
   static Random random = new Random();
-  static var descriptions = ["Car", "Burritos", "Book", "Groceries", "Coffee", "Dinner"];
-  static var tags = [Category("Shopping"), Category("Food"), Category("Gift"), Category("Fun"), Category("Rent")];
+  static var descriptions = [
+    "Car",
+    "Burritos",
+    "Book",
+    "Groceries",
+    "Coffee",
+    "Dinner"
+  ];
+  static var tags = [
+    Category("Shopping"),
+    Category("Food"),
+    Category("Gift"),
+    Category("Fun"),
+    Category("Rent")
+  ];
   static var currentDate = DateTime.now();
 
   static Record getRandomRecord(recordDate) {
     // Create new double value, rounded to 2 digit precision
-    var mockValue = - (random.nextDouble() * 100);
+    var mockValue = -(random.nextDouble() * 100);
     mockValue = double.parse(mockValue.toStringAsPrecision(2));
 
     var mockDescription = _getRandomElement(descriptions);
-    List<Category> mockTags = _getRandomSubset(tags, minimum: 1).whereType<Category>().toList();
-    
-    return new Record(mockValue, mockDescription as String?, mockTags[0], recordDate);
+    List<Category> mockTags =
+        _getRandomSubset(tags, minimum: 1).whereType<Category>().toList();
+
+    return new Record(
+        mockValue, mockDescription as String?, mockTags[0], recordDate);
   }
 
   static List<Record> getRandomMovements(movementDate, {quantity = 100}) {
@@ -32,7 +46,7 @@ class RecordsGenerator {
     return randomMovements;
   }
 
- /*
+  /*
   Get a random subset of elements from the list
   Elements in the list can't repeat
  */

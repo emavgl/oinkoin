@@ -7,9 +7,7 @@ import 'package:piggybank/i18n.dart';
 
 import 'categories-grid.dart';
 
-
 class CategoryTabPageView extends StatefulWidget {
-
   /// The category page that you can select from the bottom navigation bar.
   /// It contains two tab, showing the categories for expenses and categories
   /// for incomes. It has a single Floating Button that, dependending from which
@@ -24,7 +22,6 @@ class CategoryTabPageView extends StatefulWidget {
 }
 
 class CategoryTabPageViewState extends State<CategoryTabPageView> {
-
   List<Category?>? _categories;
   CategoryType? categoryType;
 
@@ -34,10 +31,10 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   void initState() {
     super.initState();
     database.getAllCategories().then((categories) => {
-      setState(() {
-        _categories = categories;
-      })
-    });
+          setState(() {
+            _categories = categories;
+          })
+        });
   }
 
   refreshCategories() async {
@@ -55,21 +52,37 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         appBar: AppBar(
           bottom: TabBar(
             tabs: [
-              Tab(text: "Expenses".i18n.toUpperCase(),),
-              Tab(text: "Income".i18n.toUpperCase(),)
+              Tab(
+                text: "Expenses".i18n.toUpperCase(),
+              ),
+              Tab(
+                text: "Income".i18n.toUpperCase(),
+              )
             ],
           ),
           title: Text('Select the category'.i18n),
         ),
         body: TabBarView(
           children: [
-            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.expense).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
-            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.income).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
+            _categories != null
+                ? CategoriesGrid(
+                    _categories!
+                        .where((element) =>
+                            element!.categoryType == CategoryType.expense)
+                        .toList(),
+                    goToEditMovementPage: widget.goToEditMovementPage)
+                : Container(),
+            _categories != null
+                ? CategoriesGrid(
+                    _categories!
+                        .where((element) =>
+                            element!.categoryType == CategoryType.income)
+                        .toList(),
+                    goToEditMovementPage: widget.goToEditMovementPage)
+                : Container(),
           ],
         ),
       ),
     );
   }
-
-
 }

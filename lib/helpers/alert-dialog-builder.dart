@@ -1,9 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
 
 class AlertDialogBuilder {
-
   /// Utility class that simplify the creation of an alert dialog that return a boolean value.
   /// There are two buttons, trueButton and falseButton that return either true or false.
 
@@ -40,7 +38,6 @@ class AlertDialogBuilder {
   }
 
   AlertDialog build(BuildContext context) {
-
     // set up the button
     Widget trueButton = TextButton(
       child: Text(trueButtonName),
@@ -61,6 +58,5 @@ class AlertDialogBuilder {
         falseButton,
       ],
     );
-
   }
 }

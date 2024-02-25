@@ -14,7 +14,6 @@ class CategorySumTuple {
 }
 
 class CategoriesSummaryCard extends StatelessWidget {
-
   final List<Record?> records;
   final List<Record?>? aggregatedRecords;
   final AggregationMethod? aggregationMethod;
@@ -26,25 +25,30 @@ class CategoriesSummaryCard extends StatelessWidget {
   double? maxExpensesSum;
   final _biggerFont = const TextStyle(fontSize: 16.0);
 
-  CategoriesSummaryCard(this.from, this.to, this.records, this.aggregatedRecords, this.aggregationMethod) {
+  CategoriesSummaryCard(this.from, this.to, this.records,
+      this.aggregatedRecords, this.aggregationMethod) {
     if (records.length > 0) {
       categoriesAndSums = _aggregateRecordByCategory(records);
       totalExpensesSum = categoriesAndSums.fold(
-          0, ((previousValue , element) => previousValue! + element.value!));
+          0, ((previousValue, element) => previousValue! + element.value!));
       maxExpensesSum = categoriesAndSums[0].value;
     }
   }
 
   List<CategorySumTuple> _aggregateRecordByCategory(List<Record?> records) {
-    Map<String?, CategorySumTuple> aggregatedCategoriesValuesTemporaryMap = new Map();
+    Map<String?, CategorySumTuple> aggregatedCategoriesValuesTemporaryMap =
+        new Map();
     for (var record in records) {
       aggregatedCategoriesValuesTemporaryMap.update(
-          record!.category!.name, (tuple) => new CategorySumTuple(tuple.category, tuple.value! + record.value!),
+          record!.category!.name,
+          (tuple) => new CategorySumTuple(
+              tuple.category, tuple.value! + record.value!),
           ifAbsent: () => new CategorySumTuple(record.category, record.value));
     }
-    var aggregatedCategoriesAndValues = aggregatedCategoriesValuesTemporaryMap
-        .values.toList();
-    aggregatedCategoriesAndValues.sort((a, b) => a.value!.compareTo(b.value!)); // sort ascending
+    var aggregatedCategoriesAndValues =
+        aggregatedCategoriesValuesTemporaryMap.values.toList();
+    aggregatedCategoriesAndValues
+        .sort((a, b) => a.value!.compareTo(b.value!)); // sort ascending
     return aggregatedCategoriesAndValues;
   }
 
@@ -63,24 +67,27 @@ class CategoriesSummaryCard extends StatelessWidget {
         });
   }
 
-  Widget _buildCategoryStatsRow(BuildContext context, CategorySumTuple categoryAndSum) {
+  Widget _buildCategoryStatsRow(
+      BuildContext context, CategorySumTuple categoryAndSum) {
     double percentage = (100 * categoryAndSum.value!) / totalExpensesSum!;
     double percentageBar = categoryAndSum.value! / maxExpensesSum!;
     String percentageStrRepr = percentage.toStringAsFixed(2);
     String categorySumStr = getCurrencyValueString(categoryAndSum.value!.abs());
     Category category = categoryAndSum.category!;
+
     /// Returns a ListTile rendering the single movement row
     return Column(
       children: <Widget>[
         ListTile(
             onTap: () async {
-              var categoryRecords = records.where((element) => element!.category!.name == category.name).toList();
+              var categoryRecords = records
+                  .where((element) => element!.category!.name == category.name)
+                  .toList();
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CategoryStatisticPage(from, to, categoryRecords, aggregationMethod)
-                  )
-              );
+                      builder: (context) => CategoryStatisticPage(
+                          from, to, categoryRecords, aggregationMethod)));
             },
             title: Container(
               child: Column(
@@ -89,12 +96,10 @@ class CategoriesSummaryCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Flexible(
-                        child: Text(
-                            category.name!,
+                        child: Text(category.name!,
                             style: _biggerFont,
                             maxLines: 2,
-                            overflow: TextOverflow.ellipsis
-                        ),
+                            overflow: TextOverflow.ellipsis),
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 5),
@@ -106,27 +111,29 @@ class CategoriesSummaryCard extends StatelessWidget {
                     ],
                   ),
                   Container(
-                    padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child:
-                    SizedBox(
-                      height: 2,
-                      child: LinearProgressIndicator(value: percentageBar, backgroundColor: Colors.transparent,),
-                    )
-                  )
+                      padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                      child: SizedBox(
+                        height: 2,
+                        child: LinearProgressIndicator(
+                          value: percentageBar,
+                          backgroundColor: Colors.transparent,
+                        ),
+                      ))
                 ],
               ),
             ),
             leading: Container(
                 width: 40,
                 height: 40,
-                child: Icon(category.icon, size: 20, color: Colors.white,),
+                child: Icon(
+                  category.icon,
+                  size: 20,
+                  color: Colors.white,
+                ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: category.color,
-                )
-            )
-        ),
-
+                ))),
       ],
     );
   }
@@ -134,32 +141,28 @@ class CategoriesSummaryCard extends StatelessWidget {
   Widget _buildCategoryStatsCard() {
     return Container(
         child: new Card(
-          elevation: 0,
-          child: Column(
-            children: <Widget>[
-              Container(
-                  padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Entries grouped by category".i18n,
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          getCurrencyValueString(totalExpensesSum),
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ]
-                  )
-              ),
-              new Divider(),
-              CategoriesPieChart(records),
-              _buildCategoriesList()
-            ],
-          )
-        )
-    );
+            elevation: 0,
+            child: Column(
+              children: <Widget>[
+                Container(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Entries grouped by category".i18n,
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Text(
+                            getCurrencyValueString(totalExpensesSum),
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ])),
+                new Divider(),
+                CategoriesPieChart(records),
+                _buildCategoriesList()
+              ],
+            )));
   }
 
   @override

@@ -1,10 +1,7 @@
-
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 
-
 class RecordsPerCategory {
-
   List<Record>? records;
   Category? _category;
 
@@ -19,8 +16,7 @@ class RecordsPerCategory {
   double get expenses {
     double total = 0;
     for (var movement in this.records!) {
-      if (movement.value! < 0)
-        total += movement.value!;
+      if (movement.value! < 0) total += movement.value!;
     }
     return total;
   }
@@ -28,8 +24,7 @@ class RecordsPerCategory {
   double get income {
     double total = 0;
     for (var movement in this.records!) {
-      if (movement.value! > 0)
-        total += movement.value!;
+      if (movement.value! > 0) total += movement.value!;
     }
     return total;
   }
@@ -46,10 +41,7 @@ class RecordsPerCategory {
     records!.add(movement);
   }
 
-  static RecordsPerCategory fromMap(Map<String, dynamic> map)
-  {
-    return RecordsPerCategory(
-      map['category'],
-      records: map['movements']);
+  static RecordsPerCategory fromMap(Map<String, dynamic> map) {
+    return RecordsPerCategory(map['category'], records: map['movements']);
   }
 }

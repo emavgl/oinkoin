@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CategoryIcons {
-
   static List<IconData> free_category_icons = [
     // Other
     FontAwesomeIcons.question,
@@ -97,7 +96,6 @@ class CategoryIcons {
     FontAwesomeIcons.egg,
     FontAwesomeIcons.drumstickBite,
     FontAwesomeIcons.bacon,
-
 
     // Beverage
     FontAwesomeIcons.martiniGlassCitrus,
@@ -200,5 +198,4 @@ class CategoryIcons {
     FontAwesomeIcons.pumpSoap,
     FontAwesomeIcons.handsBubbles,
   ];
-
 }

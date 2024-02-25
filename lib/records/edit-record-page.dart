@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -20,23 +19,22 @@ import 'package:piggybank/i18n.dart';
 
 import 'package:function_tree/function_tree.dart';
 
-
 class EditRecordPage extends StatefulWidget {
-
   /// EditMovementPage is a page containing forms for the editing of a Movement object.
   /// EditMovementPage can take the movement object to edit as a constructor parameters
   /// or can create a new Movement otherwise.
 
   final Record? passedRecord;
   final Category? passedCategory;
-  EditRecordPage({Key? key, this.passedRecord, this.passedCategory}) : super(key: key);
+  EditRecordPage({Key? key, this.passedRecord, this.passedCategory})
+      : super(key: key);
 
   @override
-  EditRecordPageState createState() => EditRecordPageState(this.passedRecord, this.passedCategory);
+  EditRecordPageState createState() =>
+      EditRecordPageState(this.passedRecord, this.passedCategory);
 }
 
 class EditRecordPageState extends State<EditRecordPage> {
-
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _textEditingController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -53,17 +51,15 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   static final dropDownList = [
     new DropdownMenuItem<int>(
-      value: 0,
-      child: new Text("Every day".i18n, style: TextStyle(fontSize: 20.0))
-    ),
+        value: 0,
+        child: new Text("Every day".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
-      value: 1,
-      child: new Text("Every week".i18n, style: TextStyle(fontSize: 20.0))
-    ),
+        value: 1,
+        child: new Text("Every week".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
         value: 3,
-        child: new Text("Every two weeks".i18n, style: TextStyle(fontSize: 20.0))
-    ),
+        child:
+            new Text("Every two weeks".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
       value: 2,
       child: new Text("Every month".i18n, style: TextStyle(fontSize: 20.0)),
@@ -79,7 +75,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     containsOperator |= text.contains("%");
     return containsOperator;
   }
-  
+
   String? tryParseMathExpr(String text) {
     var groupingSeparator = getGroupingSeparator();
     var decimalSeparator = getLocaleDecimalSeparator();
@@ -113,7 +109,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
-        TextSelection(baseOffset: text.length, extentOffset: text.length),
+            TextSelection(baseOffset: text.length, extentOffset: text.length),
         composing: TextRange.empty,
       );
       changeRecordValue(_textEditingController.text.toLowerCase());
@@ -130,9 +126,12 @@ class EditRecordPageState extends State<EditRecordPage> {
     // Loading parameters passed to the page
     if (passedRecord != null) {
       record = passedRecord;
-      _textEditingController.text = getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
+      _textEditingController.text =
+          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
       if (record!.recurrencePatternId != null) {
-        database.getRecurrentRecordPattern(record!.recurrencePatternId).then((value) {
+        database
+            .getRecurrentRecordPattern(record!.recurrencePatternId)
+            .then((value) {
           if (value != null) {
             setState(() {
               recurrentPeriod = value.recurrentPeriod;
@@ -162,7 +161,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
-        TextSelection(baseOffset: text.length, extentOffset: text.length),
+            TextSelection(baseOffset: text.length, extentOffset: text.length),
         composing: TextRange.empty,
       );
     });
@@ -179,30 +178,29 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Widget _createAddNoteCard() {
     return Card(
-        elevation: 1,
-        child: Container(
-          padding: const EdgeInsets.only(bottom: 40.0, top: 10, right: 10, left: 10),
-          child: TextFormField(
-              onChanged: (text) {
-                setState(() {
-                  record!.description = text;
-                });
-              },
-              style: TextStyle(
-                  fontSize: 22.0,
-              ),
-              initialValue: record!.description,
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(
+      elevation: 1,
+      child: Container(
+        padding:
+            const EdgeInsets.only(bottom: 40.0, top: 10, right: 10, left: 10),
+        child: TextFormField(
+            onChanged: (text) {
+              setState(() {
+                record!.description = text;
+              });
+            },
+            style: TextStyle(
+              fontSize: 22.0,
+            ),
+            initialValue: record!.description,
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 hintText: "Add a note".i18n,
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.all(10),
-                label: Text("Note")
-              )
-          ),
-        ),
+                label: Text("Note"))),
+      ),
     );
   }
 
@@ -218,7 +216,7 @@ class EditRecordPageState extends State<EditRecordPage> {
               });
             },
             style: TextStyle(
-                fontSize: 22.0,
+              fontSize: 22.0,
             ),
             maxLines: 1,
             initialValue: record!.title,
@@ -228,9 +226,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
                 hintText: record!.category!.name,
-                labelText: "Record name".i18n
-            )
-        ),
+                labelText: "Record name".i18n)),
       ),
     );
   }
@@ -240,40 +236,48 @@ class EditRecordPageState extends State<EditRecordPage> {
       elevation: 1,
       child: Container(
           padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              InkWell(
-                onTap: () async {
-                  var selectedCategory = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CategoryTabPageView()),
-                  );
-                  if (selectedCategory != null) {
-                    setState(() {
-                      record!.category = selectedCategory;
-                      changeRecordValue(_textEditingController.text.toLowerCase()); // Handle sign change
-                    });
-                  }
-                },
-                child: Row(
-                  children: [
-                    _createCategoryCirclePreview(40.0),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                      child: Text(record!.category!.name!, style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),),
-                    )
-                  ],
-                ),
+          child: Column(children: [
+            InkWell(
+              onTap: () async {
+                var selectedCategory = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CategoryTabPageView()),
+                );
+                if (selectedCategory != null) {
+                  setState(() {
+                    record!.category = selectedCategory;
+                    changeRecordValue(_textEditingController.text
+                        .toLowerCase()); // Handle sign change
+                  });
+                }
+              },
+              child: Row(
+                children: [
+                  _createCategoryCirclePreview(40.0),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    child: Text(
+                      record!.category!.name!,
+                      style: TextStyle(
+                          fontSize: 20,
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                  )
+                ],
               ),
-            ]
-          )
-      ),
+            ),
+          ])),
     );
   }
 
   Widget _createCategoryCirclePreview(double size) {
-    Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender = (record!.category == null) ? defaultCategory : record!.category!;
+    Category defaultCategory = Category("Missing".i18n,
+        color: Category.colors[0],
+        iconCodePoint: FontAwesomeIcons.question.codePoint);
+    Category toRender =
+        (record!.category == null) ? defaultCategory : record!.category!;
     return Container(
         margin: EdgeInsets.all(10),
         child: ClipOval(
@@ -281,13 +285,16 @@ class EditRecordPageState extends State<EditRecordPage> {
                 color: toRender.color, // button color
                 child: InkWell(
                   splashColor: toRender.color, // inkwell color
-                  child: SizedBox(width: size, height: size,
-                    child: Icon(toRender.icon, color: Colors.white, size: size - 20,),
+                  child: SizedBox(
+                    width: size,
+                    height: size,
+                    child: Icon(
+                      toRender.icon,
+                      color: Colors.white,
+                      size: size - 20,
+                    ),
                   ),
-                )
-            )
-        )
-    );
+                ))));
   }
 
   goToPremiumSplashScreen() async {
@@ -301,171 +308,212 @@ class EditRecordPageState extends State<EditRecordPage> {
     return Card(
       elevation: 1,
       child: Container(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            InkWell(
-              onTap: () async {
-                FocusScope.of(context).unfocus();
-                DateTime initialDate = record!.dateTime ?? DateTime.now();
-                DateTime? result = await showDatePicker(context: context,
-                    initialDate: initialDate,
-                    firstDate: DateTime(1970),
-                    lastDate: DateTime.now().add(new Duration(days: 365)));
-                if (result != null) {
-                  setState(() {
-                    record!.dateTime = result;
-                  });
-                }
-              },
-              child: Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 28, color: Theme.of(context).colorScheme.onSurfaceVariant,),
-                    Container(
-                      margin: EdgeInsets.only(left: 20, right: 20),
-                      child: Text(getDateStr(record!.dateTime), style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),),
-                    )
-                  ],
-                )
-              )
-            ),
-            Visibility(
-              visible: record!.id == null || recurrentPeriod != null, // when record comes from recurrent record
-              child: Column(
-                children: [
-                  Divider(indent: 60, thickness: 1,),
-                  InkWell(
-                      child: Container(
-                          margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                          child: Row(
-                            children: [
-                              Icon(Icons.repeat, size: 28, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              Expanded(
-                                child: Container(
-                                  margin: EdgeInsets.only(left: 15, right: 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                          child: new DropdownButton<int>(
-                                            iconSize: 0.0,
-                                            items: dropDownList,
-                                            onChanged: ServiceConfig.isPremium && record!.id == null ? (value) {
-                                              setState(() {
-                                                recurrentPeriodIndex = value;
-                                                recurrentPeriod = RecurrentPeriod.values[value!];
-                                              });
-                                            } : null,
-                                            onTap: () {
-                                              FocusScope.of(context).unfocus();
-                                            },
-                                            value: recurrentPeriodIndex,
-                                            underline: SizedBox(),
-                                            isExpanded: true,
-                                            hint: recurrentPeriod == null ? Container(
-                                              margin: const EdgeInsets.only(left: 10.0),
-                                              child: Text(
-                                                "Not repeat".i18n,
-                                                style: TextStyle(fontSize: 20.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                              ),
-                                            ) : Container(
-                                              margin: const EdgeInsets.only(left: 10.0),
-                                              child: Text(
-                                                recurrentPeriodString(recurrentPeriod).i18n,
-                                                style: TextStyle(fontSize: 20.0),
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      Visibility(
-                                        child: getProLabel(labelFontSize: 12.0),
-                                        visible: !ServiceConfig.isPremium,
-                                      ),
-                                      Visibility(
-                                        child: new IconButton(
-                                          icon: new Icon(Icons.close, size: 28, color: Theme.of(context).colorScheme.onSurface),
-                                          onPressed: () {
-                                            setState(() {
-                                              recurrentPeriod = null;
-                                              recurrentPeriodIndex = null;
-                                            });
-                                          },
-                                        ),
-                                        visible: record!.id == null && recurrentPeriod != null,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              InkWell(
+                  onTap: () async {
+                    FocusScope.of(context).unfocus();
+                    DateTime initialDate = record!.dateTime ?? DateTime.now();
+                    DateTime? result = await showDatePicker(
+                        context: context,
+                        initialDate: initialDate,
+                        firstDate: DateTime(1970),
+                        lastDate: DateTime.now().add(new Duration(days: 365)));
+                    if (result != null) {
+                      setState(() {
+                        record!.dateTime = result;
+                      });
+                    }
+                  },
+                  child: Container(
+                      margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 28,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text(
+                              getDateStr(record!.dateTime),
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant),
+                            ),
                           )
-                      )
-                  ),
-                ],
-              ),
-            )
-          ],
-        )
-      ),
+                        ],
+                      ))),
+              Visibility(
+                visible: record!.id == null ||
+                    recurrentPeriod !=
+                        null, // when record comes from recurrent record
+                child: Column(
+                  children: [
+                    Divider(
+                      indent: 60,
+                      thickness: 1,
+                    ),
+                    InkWell(
+                        child: Container(
+                            margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.repeat,
+                                    size: 28,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant),
+                                Expanded(
+                                  child: Container(
+                                    margin:
+                                        EdgeInsets.only(left: 15, right: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                            child: new DropdownButton<int>(
+                                          iconSize: 0.0,
+                                          items: dropDownList,
+                                          onChanged: ServiceConfig.isPremium &&
+                                                  record!.id == null
+                                              ? (value) {
+                                                  setState(() {
+                                                    recurrentPeriodIndex =
+                                                        value;
+                                                    recurrentPeriod =
+                                                        RecurrentPeriod
+                                                            .values[value!];
+                                                  });
+                                                }
+                                              : null,
+                                          onTap: () {
+                                            FocusScope.of(context).unfocus();
+                                          },
+                                          value: recurrentPeriodIndex,
+                                          underline: SizedBox(),
+                                          isExpanded: true,
+                                          hint: recurrentPeriod == null
+                                              ? Container(
+                                                  margin: const EdgeInsets.only(
+                                                      left: 10.0),
+                                                  child: Text(
+                                                    "Not repeat".i18n,
+                                                    style: TextStyle(
+                                                        fontSize: 20.0,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant),
+                                                  ),
+                                                )
+                                              : Container(
+                                                  margin: const EdgeInsets.only(
+                                                      left: 10.0),
+                                                  child: Text(
+                                                    recurrentPeriodString(
+                                                            recurrentPeriod)
+                                                        .i18n,
+                                                    style: TextStyle(
+                                                        fontSize: 20.0),
+                                                  ),
+                                                ),
+                                        )),
+                                        Visibility(
+                                          child:
+                                              getProLabel(labelFontSize: 12.0),
+                                          visible: !ServiceConfig.isPremium,
+                                        ),
+                                        Visibility(
+                                          child: new IconButton(
+                                            icon: new Icon(Icons.close,
+                                                size: 28,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface),
+                                            onPressed: () {
+                                              setState(() {
+                                                recurrentPeriod = null;
+                                                recurrentPeriodIndex = null;
+                                              });
+                                            },
+                                          ),
+                                          visible: record!.id == null &&
+                                              recurrentPeriod != null,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ))),
+                  ],
+                ),
+              )
+            ],
+          )),
     );
   }
 
   Widget _createAmountCard() {
-    String categorySign = record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+    String categorySign =
+        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
     return Card(
       elevation: 1,
       child: Container(
-        child: IntrinsicHeight(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.only(left: 10, top: 25),
-                    child: Text(categorySign, style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
-                  ),
-                ),
-                Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      child: TextFormField(
-                          controller: _textEditingController,
-                          autofocus: record!.value == null,
-                          onChanged: (text) {
-                            changeRecordValue(text);
-                          },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Please enter a value".i18n;
-                            }
-                            var numericValue = tryParseCurrencyString(value);
-                            if (numericValue == null) {
-                              return "Not a valid format (use for example: %s)".i18n.fill([getCurrencyValueString(1234.20, turnOffGrouping: true)]);
-                            }
-                            return null;
-                          },
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                              fontSize: 32.0,
-                              color: Theme.of(context).colorScheme.onSurface
-                          ),
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            hintText: "0",
-                            labelText: "Amount".i18n
-                          )
-                      ),
-                    )
-                )
-              ],
-            )
-        )
-      ),
+          child: IntrinsicHeight(
+              child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.only(left: 10, top: 25),
+              child: Text(categorySign,
+                  style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
+            ),
+          ),
+          Expanded(
+              child: Container(
+            padding: EdgeInsets.all(10),
+            child: TextFormField(
+                controller: _textEditingController,
+                autofocus: record!.value == null,
+                onChanged: (text) {
+                  changeRecordValue(text);
+                },
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Please enter a value".i18n;
+                  }
+                  var numericValue = tryParseCurrencyString(value);
+                  if (numericValue == null) {
+                    return "Not a valid format (use for example: %s)"
+                        .i18n
+                        .fill([
+                      getCurrencyValueString(1234.20, turnOffGrouping: true)
+                    ]);
+                  }
+                  return null;
+                },
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                    fontSize: 32.0,
+                    color: Theme.of(context).colorScheme.onSurface),
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    hintText: "0",
+                    labelText: "Amount".i18n)),
+          ))
+        ],
+      ))),
     );
   }
 
@@ -491,37 +539,39 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   addRecurrentPattern() async {
-    RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(record!, recurrentPeriod);
+    RecurrentRecordPattern recordPattern =
+        RecurrentRecordPattern.fromRecord(record!, recurrentPeriod);
     await database.addRecurrentRecordPattern(recordPattern);
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   AppBar _getAppBar() {
-    return AppBar(
-        title: Text('Edit record'.i18n),
-        actions: <Widget>[
-          Visibility(
-              visible: widget.passedRecord != null,
-              child: IconButton(
-                icon: const Icon(Icons.delete),
-                tooltip: 'Delete'.i18n, onPressed: () async {
-                  AlertDialogBuilder deleteDialog = AlertDialogBuilder("Critical action".i18n)
-                      .addSubtitle("Do you really want to delete this record?".i18n)
-                      .addTrueButtonName("Yes".i18n)
-                      .addFalseButtonName("No".i18n);
+    return AppBar(title: Text('Edit record'.i18n), actions: <Widget>[
+      Visibility(
+          visible: widget.passedRecord != null,
+          child: IconButton(
+              icon: const Icon(Icons.delete),
+              tooltip: 'Delete'.i18n,
+              onPressed: () async {
+                AlertDialogBuilder deleteDialog =
+                    AlertDialogBuilder("Critical action".i18n)
+                        .addSubtitle(
+                            "Do you really want to delete this record?".i18n)
+                        .addTrueButtonName("Yes".i18n)
+                        .addFalseButtonName("No".i18n);
 
-                  var continueDelete = await showDialog(context: context, builder: (BuildContext context) {
-                    return deleteDialog.build(context);
-                  });
+                var continueDelete = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return deleteDialog.build(context);
+                    });
 
-                  if (continueDelete) {
-                      await database.deleteRecordById(record!.id);
-                      Navigator.pop(context);
-                  }
+                if (continueDelete) {
+                  await database.deleteRecordById(record!.id);
+                  Navigator.pop(context);
                 }
-              )
-          ),]
-    );
+              })),
+    ]);
   }
 
   Widget _getForm() {
@@ -530,20 +580,17 @@ class EditRecordPageState extends State<EditRecordPage> {
       child: Column(
         children: [
           Form(
-            key: _formKey,
-            child: Container(
-              child: Column(
-                  children: [
-                    _createAmountCard(),
-                    _createTitleCard(),
-                    _createCategoryCard(),
-                    _createDateAndRepeatCard(),
-                    _createAddNoteCard(),
-                  ]
-              ),
-            )
-        )
-      ],
+              key: _formKey,
+              child: Container(
+                child: Column(children: [
+                  _createAmountCard(),
+                  _createTitleCard(),
+                  _createCategoryCard(),
+                  _createDateAndRepeatCard(),
+                  _createAddNoteCard(),
+                ]),
+              ))
+        ],
       ),
     );
   }
@@ -555,29 +602,27 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: _getAppBar(),
-        resizeToAvoidBottomInset: false,
-        body: SingleChildScrollView(
-            child: _getForm()
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              if (isNewRecurrentPattern()) {
-                // A new recurrent pattern is defined
-                await addRecurrentPattern();
-              } else {
-                // it is a normal record, either single or it comes from a
-                // recurrent pattern. When saving the record, we need
-                // to add/update the single instance and never touch the pattern
-                // from this page
-                await addOrUpdateRecord();
-              }
+      appBar: _getAppBar(),
+      resizeToAvoidBottomInset: false,
+      body: SingleChildScrollView(child: _getForm()),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          if (_formKey.currentState!.validate()) {
+            if (isNewRecurrentPattern()) {
+              // A new recurrent pattern is defined
+              await addRecurrentPattern();
+            } else {
+              // it is a normal record, either single or it comes from a
+              // recurrent pattern. When saving the record, we need
+              // to add/update the single instance and never touch the pattern
+              // from this page
+              await addOrUpdateRecord();
             }
-          },
-          tooltip: 'Save'.i18n,
-          child: const Icon(Icons.save),
-        ),
-      );
+          }
+        },
+        tooltip: 'Save'.i18n,
+        child: const Icon(Icons.save),
+      ),
+    );
   }
 }

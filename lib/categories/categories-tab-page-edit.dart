@@ -10,7 +10,6 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/i18n.dart';
 
 class TabCategories extends StatefulWidget {
-
   /// The category page that you can select from the bottom navigation bar.
   /// It contains two tab, showing the categories for expenses and categories
   /// for incomes. It has a single Floating Button that, dependending from which
@@ -22,8 +21,8 @@ class TabCategories extends StatefulWidget {
   TabCategoriesState createState() => TabCategoriesState();
 }
 
-class TabCategoriesState extends State<TabCategories> with SingleTickerProviderStateMixin {
-
+class TabCategoriesState extends State<TabCategories>
+    with SingleTickerProviderStateMixin {
   List<Category?>? _categories;
   CategoryType? categoryType;
   TabController? _tabController;
@@ -34,10 +33,10 @@ class TabCategoriesState extends State<TabCategories> with SingleTickerProviderS
     super.initState();
     _tabController = new TabController(length: 2, vsync: this);
     database.getAllCategories().then((categories) => {
-      setState(() {
-        _categories = categories;
-      })
-    });
+          setState(() {
+            _categories = categories;
+          })
+        });
   }
 
   refreshCategories() async {
@@ -52,7 +51,7 @@ class TabCategoriesState extends State<TabCategories> with SingleTickerProviderS
     setState(() {
       _categories = newlyFetchedCategories;
     });
-    await Future.delayed(Duration(milliseconds:50));
+    await Future.delayed(Duration(milliseconds: 50));
     if (_tabController!.index != destionationTabIndex) {
       _tabController!.animateTo(destionationTabIndex);
     }
@@ -71,8 +70,12 @@ class TabCategoriesState extends State<TabCategories> with SingleTickerProviderS
           bottom: TabBar(
             controller: _tabController,
             tabs: [
-              Tab(text: "Expenses".i18n.toUpperCase(),),
-              Tab(text: "Income".i18n.toUpperCase(),),
+              Tab(
+                text: "Expenses".i18n.toUpperCase(),
+              ),
+              Tab(
+                text: "Income".i18n.toUpperCase(),
+              ),
             ],
           ),
           title: Text('Categories'.i18n),
@@ -80,8 +83,22 @@ class TabCategoriesState extends State<TabCategories> with SingleTickerProviderS
         body: TabBarView(
           controller: _tabController,
           children: [
-            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.expense).toList(), callback: refreshCategories) : Container(),
-            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.income).toList(), callback: refreshCategories) : Container(),
+            _categories != null
+                ? CategoriesList(
+                    _categories!
+                        .where((element) =>
+                            element!.categoryType == CategoryType.expense)
+                        .toList(),
+                    callback: refreshCategories)
+                : Container(),
+            _categories != null
+                ? CategoriesList(
+                    _categories!
+                        .where((element) =>
+                            element!.categoryType == CategoryType.income)
+                        .toList(),
+                    callback: refreshCategories)
+                : Container(),
           ],
         ),
         floatingActionButton: SpeedDial(
@@ -94,19 +111,20 @@ class TabCategoriesState extends State<TabCategories> with SingleTickerProviderS
           childPadding: EdgeInsets.fromLTRB(8, 8, 8, 8),
           children: [
             SpeedDialChild(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              child: Icon(FontAwesomeIcons.moneyBillWave),
-              label: "Add a new 'Expense' category".i18n,
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.expense)),
-                );
-                await refreshCategoriesAndHighlightsTab(0);
-              }
-            ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                child: Icon(FontAwesomeIcons.moneyBillWave),
+                label: "Add a new 'Expense' category".i18n,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EditCategoryPage(
+                            categoryType: CategoryType.expense)),
+                  );
+                  await refreshCategoriesAndHighlightsTab(0);
+                }),
             SpeedDialChild(
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -116,16 +134,15 @@ class TabCategoriesState extends State<TabCategories> with SingleTickerProviderS
                 onTap: () async {
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => EditCategoryPage(categoryType: CategoryType.income)),
+                    MaterialPageRoute(
+                        builder: (context) => EditCategoryPage(
+                            categoryType: CategoryType.income)),
                   );
                   await refreshCategoriesAndHighlightsTab(1);
-                }
-            ),
+                }),
           ],
         ),
       ),
     );
   }
-
-
 }

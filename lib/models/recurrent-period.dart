@@ -1,9 +1,4 @@
-enum RecurrentPeriod {
-  EveryDay,
-  EveryWeek,
-  EveryMonth,
-  EveryTwoWeeks
-}
+enum RecurrentPeriod { EveryDay, EveryWeek, EveryMonth, EveryTwoWeeks }
 
 String recurrentPeriodString(RecurrentPeriod? r) {
   if (r == RecurrentPeriod.EveryDay) return "Every day";

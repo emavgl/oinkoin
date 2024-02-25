@@ -5,8 +5,14 @@ class MyI18n {
   static TranslationsByLocale translations = Translations.byLocale("en_US");
 
   static Future<void> loadTranslations() async {
-    translations +=
-    await JSONImporter().fromAssetDirectory("assets/locales");
+    translations += await JSONImporter().fromAssetDirectory("assets/locales");
+  }
+
+  static void replaceTranslations(String replaceFrom, String replaceTo) {
+    var wordTranslations = translations.translations;
+    for (var wordTranslation in wordTranslations.values) {
+      wordTranslation[replaceFrom] = wordTranslation[replaceTo]!;
+    }
   }
 }
 

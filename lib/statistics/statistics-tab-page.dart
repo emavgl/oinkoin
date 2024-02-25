@@ -9,7 +9,6 @@ import 'categories-summary-card.dart';
 import 'package:piggybank/i18n.dart';
 
 class StatisticsTabPage extends StatefulWidget {
-
   /// The category page that you can select from the bottom navigation bar.
   /// It contains two tab, showing the categories for expenses and categories
   /// for incomes. It has a single Floating Button that, dependending from which
@@ -19,23 +18,22 @@ class StatisticsTabPage extends StatefulWidget {
   DateTime? from;
   DateTime? to;
 
-  StatisticsTabPage(this.from, this.to, this.records): super();
+  StatisticsTabPage(this.from, this.to, this.records) : super();
 
   @override
   StatisticsTabPageState createState() => StatisticsTabPageState();
 }
 
 class StatisticsTabPageState extends State<StatisticsTabPage> {
-
   int? indexTab;
   List<Record?>? aggregatedRecords;
   AggregationMethod? aggregationMethod;
 
-  AggregationMethod getAggregationMethodGivenTheTimeRange(DateTime from, DateTime to) {
+  AggregationMethod getAggregationMethodGivenTheTimeRange(
+      DateTime from, DateTime to) {
     if (from.year != to.year) {
       return AggregationMethod.YEAR;
-    }
-    else if (from.month == to.month) {
+    } else if (from.month == to.month) {
       return AggregationMethod.DAY;
     } else {
       return AggregationMethod.MONTH;
@@ -46,20 +44,26 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
   void initState() {
     super.initState();
     indexTab = 0; // index identifying the tab
-    this.aggregationMethod = getAggregationMethodGivenTheTimeRange(widget.from!, widget.to!);
-    this.aggregatedRecords = aggregateRecordsByDateAndCategory(widget.records, aggregationMethod);
+    this.aggregationMethod =
+        getAggregationMethodGivenTheTimeRange(widget.from!, widget.to!);
+    this.aggregatedRecords =
+        aggregateRecordsByDateAndCategory(widget.records, aggregationMethod);
   }
 
   Widget _buildNoRecordPage() {
     return new Column(
       children: <Widget>[
         Image.asset(
-          'assets/images/no_entry_3.png', width: 200,
+          'assets/images/no_entry_3.png',
+          width: 200,
         ),
-        Text("No entries to show.".i18n,
+        Text(
+          "No entries to show.".i18n,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 22.0,) ,)
+            fontSize: 22.0,
+          ),
+        )
       ],
     );
   }
@@ -68,9 +72,12 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
-          OverviewCard(widget.from, widget.to, widget.records, aggregationMethod),
-          BarChartCard(widget.from, widget.to, widget.records, aggregationMethod),
-          CategoriesSummaryCard(widget.from, widget.to, widget.records, aggregatedRecords, aggregationMethod),
+          OverviewCard(
+              widget.from, widget.to, widget.records, aggregationMethod),
+          BarChartCard(
+              widget.from, widget.to, widget.records, aggregationMethod),
+          CategoriesSummaryCard(widget.from, widget.to, widget.records,
+              aggregatedRecords, aggregationMethod),
         ],
       ),
     );
@@ -80,8 +87,8 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
   Widget build(BuildContext context) {
     return new Align(
         alignment: Alignment.topCenter,
-        child: widget.records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
-    );
+        child: widget.records.length > 0
+            ? _buildStatisticPage()
+            : _buildNoRecordPage());
   }
-
 }
