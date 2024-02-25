@@ -1,13 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/i18n.dart';
 
-
 class DaysSummaryBox extends StatefulWidget {
-  
   /// DaysSummaryBox is a card that, given a list of records,
   /// shows the total income, total expenses, total balance resulting from
   /// all the movements in input days.
@@ -24,11 +21,17 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   double totalIncome() {
-    return widget.records.where((record) => record!.category!.categoryType == CategoryType.income).fold(0.0, (previousValue, record) => previousValue + record!.value!);
+    return widget.records
+        .where(
+            (record) => record!.category!.categoryType == CategoryType.income)
+        .fold(0.0, (previousValue, record) => previousValue + record!.value!);
   }
 
   double totalExpenses() {
-    return widget.records.where((record) => record!.category!.categoryType == CategoryType.expense).fold(0.0, (previousValue, record) => previousValue + record!.value!);
+    return widget.records
+        .where(
+            (record) => record!.category!.categoryType == CategoryType.expense)
+        .fold(0.0, (previousValue, record) => previousValue + record!.value!);
   }
 
   double totalBalance() {
@@ -109,7 +112,6 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
               ),
             ],
           ),
-        )
-    );
+        ));
   }
 }

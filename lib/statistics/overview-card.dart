@@ -6,7 +6,6 @@ import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 
 class OverviewCard extends StatelessWidget {
-
   final List<Record?> records;
   final AggregationMethod? aggregationMethod;
   final DateTime? from;
@@ -32,10 +31,10 @@ class OverviewCard extends StatelessWidget {
     sumValues = this.records.fold(0, (dynamic acc, e) => acc + e!.value).abs();
     minAggregated = this.aggregatedRecords.first.value.abs();
     maxAggregated = this.aggregatedRecords.last.value.abs();
-    averageValue = (sumValues! /  this.aggregatedRecords.length);
+    averageValue = (sumValues! / this.aggregatedRecords.length);
   }
 
-  Widget _buildSecondRow () {
+  Widget _buildSecondRow() {
     return IntrinsicHeight(
       child: Row(
         children: <Widget>[
@@ -46,7 +45,12 @@ class OverviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Max".i18n + " (" + (aggregationMethod == AggregationMethod.MONTH? "Month".i18n : "Day".i18n) + ")",
+                  "Max".i18n +
+                      " (" +
+                      (aggregationMethod == AggregationMethod.MONTH
+                          ? "Month".i18n
+                          : "Day".i18n) +
+                      ")",
                   style: headerStyle,
                 ),
                 SizedBox(height: 5), // spacing
@@ -65,7 +69,12 @@ class OverviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Min".i18n + " (" + (aggregationMethod == AggregationMethod.MONTH? "Month".i18n : "Day".i18n) + ")",
+                  "Min".i18n +
+                      " (" +
+                      (aggregationMethod == AggregationMethod.MONTH
+                          ? "Month".i18n
+                          : "Day".i18n) +
+                      ")",
                   style: headerStyle,
                 ),
                 SizedBox(height: 5), // spacing
@@ -81,7 +90,7 @@ class OverviewCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFirstRow () {
+  Widget _buildFirstRow() {
     return IntrinsicHeight(
       child: Row(
         children: <Widget>[
@@ -131,24 +140,21 @@ class OverviewCard extends StatelessWidget {
     return Card(
         elevation: 0,
         child: Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: Column(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.all(10),
-                child:  _buildFirstRow(),
-              ),
-              Divider(endIndent: 10, indent: 10),
-              Container(
-                padding: EdgeInsets.all(10),
-                child:  _buildSecondRow(),
-              ),
-            ],
-          )
-        )
-    );
+            padding: const EdgeInsets.all(6.0),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.all(10),
+                  child: _buildFirstRow(),
+                ),
+                Divider(endIndent: 10, indent: 10),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  child: _buildSecondRow(),
+                ),
+              ],
+            )));
   }
-
 
   @override
   Widget build(BuildContext context) {

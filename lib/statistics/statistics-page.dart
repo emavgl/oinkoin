@@ -6,7 +6,6 @@ import 'package:piggybank/statistics/statistics-tab-page.dart';
 import 'package:piggybank/i18n.dart';
 
 class StatisticsPage extends StatelessWidget {
-
   /// Statistics Page
   /// It has takes the initial date, ending date and a list of records
   /// and shows widgets representing statistics of the given records
@@ -24,25 +23,38 @@ class StatisticsPage extends StatelessWidget {
         appBar: AppBar(
           bottom: TabBar(
             tabs: [
-              Tab(text: "Expenses".i18n.toUpperCase(),),
-              Tab(text: "Income".i18n.toUpperCase(),)
+              Tab(
+                text: "Expenses".i18n.toUpperCase(),
+              ),
+              Tab(
+                text: "Income".i18n.toUpperCase(),
+              )
             ],
           ),
           title: new Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(getDateRangeStr(from!, to!))
-            ],
+            children: <Widget>[Text(getDateRangeStr(from!, to!))],
           ),
         ),
         body: TabBarView(
           children: [
-            StatisticsTabPage(from, to, records.where((element) => element!.category!.categoryType == CategoryType.expense).toList()),
-            StatisticsTabPage(from, to, records.where((element) => element!.category!.categoryType == CategoryType.income).toList()),
+            StatisticsTabPage(
+                from,
+                to,
+                records
+                    .where((element) =>
+                        element!.category!.categoryType == CategoryType.expense)
+                    .toList()),
+            StatisticsTabPage(
+                from,
+                to,
+                records
+                    .where((element) =>
+                        element!.category!.categoryType == CategoryType.income)
+                    .toList()),
           ],
         ),
       ),
     );
   }
-
 }

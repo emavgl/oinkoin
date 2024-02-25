@@ -4,7 +4,6 @@ import 'package:piggybank/models/record.dart';
 import 'recurrent-period.dart';
 
 class RecurrentRecordPattern {
-
   // This class is used to create records based on this pattern.
   // It includes all the fields from Record + recurrent_period
   // that defines the time period of the recurrent event.
@@ -20,7 +19,9 @@ class RecurrentRecordPattern {
   RecurrentPeriod? recurrentPeriod;
   DateTime? lastUpdate;
 
-  RecurrentRecordPattern(this.value, this.title, this.category, this.dateTime, this.recurrentPeriod, {this.id, this.description, this.lastUpdate});
+  RecurrentRecordPattern(this.value, this.title, this.category, this.dateTime,
+      this.recurrentPeriod,
+      {this.id, this.description, this.lastUpdate});
 
   RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod) {
     this.value = record.value;
@@ -41,21 +42,26 @@ class RecurrentRecordPattern {
       'recurrent_period': recurrentPeriod!.index,
     };
 
-    if (this.id != null) { map['id'] = this.id; }
-    if (this.lastUpdate != null) { map['last_update'] = this.lastUpdate!.millisecondsSinceEpoch; }
+    if (this.id != null) {
+      map['id'] = this.id;
+    }
+    if (this.lastUpdate != null) {
+      map['last_update'] = this.lastUpdate!.millisecondsSinceEpoch;
+    }
     return map;
   }
 
   static RecurrentRecordPattern fromMap(Map<String, dynamic> map) {
     return RecurrentRecordPattern(
-      map['value'],
-      map['title'],
-      map['category'],
-      new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
-      RecurrentPeriod.values[map['recurrent_period']],
-      id: map['id'],
-      description: map['description'],
-      lastUpdate: map['last_update'] != null ? DateTime.fromMillisecondsSinceEpoch(map['last_update']) : null
-    );
+        map['value'],
+        map['title'],
+        map['category'],
+        new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
+        RecurrentPeriod.values[map['recurrent_period']],
+        id: map['id'],
+        description: map['description'],
+        lastUpdate: map['last_update'] != null
+            ? DateTime.fromMillisecondsSinceEpoch(map['last_update'])
+            : null);
   }
 }

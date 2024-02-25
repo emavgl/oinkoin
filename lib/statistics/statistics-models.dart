@@ -17,7 +17,8 @@ class StringSeriesRecord {
     this.key = this.formatter.format(this.timestamp!);
   }
 
-  StringSeriesRecordFromDateTimeSeriesRecord(DateTimeSeriesRecord dsr, DateFormat formatter) {
+  StringSeriesRecordFromDateTimeSeriesRecord(
+      DateTimeSeriesRecord dsr, DateFormat formatter) {
     this.timestamp = dsr.time;
     this.formatter = formatter;
     this.key = this.formatter.format(this.timestamp!);
@@ -25,9 +26,4 @@ class StringSeriesRecord {
   }
 }
 
-enum AggregationMethod {
-  DAY,
-  MONTH,
-  YEAR,
-  CUSTOM
-}
+enum AggregationMethod { DAY, MONTH, YEAR, CUSTOM }

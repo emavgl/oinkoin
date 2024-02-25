@@ -12,14 +12,13 @@ class DropdownCustomizationItem<T> extends StatefulWidget {
   final String sharedConfigKey;
   final Function()? onChanged;
 
-  DropdownCustomizationItem({
-    required this.title,
-    required this.subtitle,
-    required this.dropdownValues,
-    required this.selectedDropdownKey,
-    required this.sharedConfigKey,
-    this.onChanged
-  });
+  DropdownCustomizationItem(
+      {required this.title,
+      required this.subtitle,
+      required this.dropdownValues,
+      required this.selectedDropdownKey,
+      required this.sharedConfigKey,
+      this.onChanged});
 
   @override
   DropdownCustomizationItemState<T> createState() =>
@@ -37,8 +36,8 @@ class UnsupportedTypeException implements Exception {
   }
 }
 
-class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem> {
-
+class DropdownCustomizationItemState<T>
+    extends State<DropdownCustomizationItem> {
   late String selectedDropdownKey;
 
   DropdownCustomizationItemState(this.selectedDropdownKey);
@@ -67,21 +66,26 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
       ServiceConfig.sharedPreferences!.remove(sharedConfigKey);
     }
     if (T == String) {
-      ServiceConfig.sharedPreferences!.setString(sharedConfigKey, dropdownValue as String);
+      ServiceConfig.sharedPreferences!
+          .setString(sharedConfigKey, dropdownValue as String);
     } else if (T == int) {
-      ServiceConfig.sharedPreferences!.setInt(sharedConfigKey, dropdownValue as int);
+      ServiceConfig.sharedPreferences!
+          .setInt(sharedConfigKey, dropdownValue as int);
     } else if (T == bool) {
-      ServiceConfig.sharedPreferences!.setBool(sharedConfigKey, dropdownValue as bool);
+      ServiceConfig.sharedPreferences!
+          .setBool(sharedConfigKey, dropdownValue as bool);
     } else {
       throw UnsupportedTypeException("Unsupported type: ${T.toString()}");
     }
   }
 
   void showSelectionDialog(BuildContext context) {
-    final double maxHeight = MediaQuery.of(context).size.height * 0.8; // Maximum height
+    final double maxHeight =
+        MediaQuery.of(context).size.height * 0.8; // Maximum height
     final double itemHeight = 56.0; // Assuming the height of each RadioListTile
     final double suggestedHeight =
-        widget.dropdownValues.keys.length * itemHeight + 160.0; // 160 is additional space
+        widget.dropdownValues.keys.length * itemHeight +
+            160.0; // 160 is additional space
 
     showDialog(
       context: context,
@@ -100,8 +104,10 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.title, style: Theme.of(context).textTheme.titleLarge),
-                      Text(widget.subtitle, style: Theme.of(context).textTheme.bodySmall),
+                      Text(widget.title,
+                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(widget.subtitle,
+                          style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ),
@@ -111,7 +117,8 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
                       builder: (BuildContext context, StateSetter setNewState) {
                         return Column(
                           children: [
-                            ...widget.dropdownValues.keys.map<Widget>((String value) {
+                            ...widget.dropdownValues.keys
+                                .map<Widget>((String value) {
                               return Padding(
                                 padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
                                 child: RadioListTile<String>(
@@ -124,7 +131,8 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
                                   onChanged: (String? value) {
                                     setNewState(() {
                                       selectedDropdownKey = value!;
-                                      setSharedConfig(widget.dropdownValues[value]!);
+                                      setSharedConfig(
+                                          widget.dropdownValues[value]!);
                                     });
                                     setState(() {
                                       // Make the currencyFormat invalid
@@ -168,9 +176,7 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
       onTap: () {
         showSelectionDialog(context);
       },
-      title: Text(
-        widget.title
-      ),
+      title: Text(widget.title),
       subtitle: Text(
         selectedDropdownKey,
         style: TextStyle(
@@ -180,6 +186,4 @@ class DropdownCustomizationItemState<T> extends State<DropdownCustomizationItem>
       contentPadding: EdgeInsets.fromLTRB(20, 8, 10, 10),
     );
   }
-
 }
-

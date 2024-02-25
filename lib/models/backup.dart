@@ -17,9 +17,12 @@ class Backup extends Model {
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
-      'records': List.generate(records.length, (index) => records[index]!.toMap()),
-      'categories': List.generate(categories.length, (index) => categories[index]!.toMap()),
-      'recurrent_record_patterns': List.generate(recurrentRecordsPattern.length, (index) => recurrentRecordsPattern[index].toMap()),
+      'records':
+          List.generate(records.length, (index) => records[index]!.toMap()),
+      'categories': List.generate(
+          categories.length, (index) => categories[index]!.toMap()),
+      'recurrent_record_patterns': List.generate(recurrentRecordsPattern.length,
+          (index) => recurrentRecordsPattern[index].toMap()),
       'created_at': created_at,
     };
     return map;
@@ -33,25 +36,40 @@ class Backup extends Model {
 
     // Step 2: load records
     var records = List.generate(map["records"].length, (i) {
-      Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(map["records"][i]);
+      Map<String, dynamic> currentRowMap =
+          Map<String, dynamic>.from(map["records"][i]);
       String? categoryName = currentRowMap["category_name"];
-      CategoryType categoryType = CategoryType.values[currentRowMap["category_type"]];
-      Category matchingCategory = categories.firstWhere((element) => element.categoryType == categoryType && element.name == categoryName, orElse: null);
+      CategoryType categoryType =
+          CategoryType.values[currentRowMap["category_type"]];
+      Category matchingCategory = categories.firstWhere(
+          (element) =>
+              element.categoryType == categoryType &&
+              element.name == categoryName,
+          orElse: null);
       if (matchingCategory == null) {
-        throw Exception("Can't find category during the backup import. Backup file is corrupted.");
+        throw Exception(
+            "Can't find category during the backup import. Backup file is corrupted.");
       }
       currentRowMap["category"] = matchingCategory;
       return Record.fromMap(currentRowMap);
     });
 
     // Step 3: load recurrent record patterns
-    var recurrentRecordsPattern = List.generate(map["recurrent_record_patterns"].length, (i) {
-      Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(map["recurrent_record_patterns"][i]);
+    var recurrentRecordsPattern =
+        List.generate(map["recurrent_record_patterns"].length, (i) {
+      Map<String, dynamic> currentRowMap =
+          Map<String, dynamic>.from(map["recurrent_record_patterns"][i]);
       String? categoryName = currentRowMap["category_name"];
-      CategoryType categoryType = CategoryType.values[currentRowMap["category_type"]];
-      Category matchingCategory = categories.firstWhere((element) => element.categoryType == categoryType && element.name == categoryName, orElse: null);
+      CategoryType categoryType =
+          CategoryType.values[currentRowMap["category_type"]];
+      Category matchingCategory = categories.firstWhere(
+          (element) =>
+              element.categoryType == categoryType &&
+              element.name == categoryName,
+          orElse: null);
       if (matchingCategory == null) {
-        throw Exception("Can't find category during the backup import. Backup file is corrupted.");
+        throw Exception(
+            "Can't find category during the backup import. Backup file is corrupted.");
       }
       currentRowMap["category"] = matchingCategory;
       return RecurrentRecordPattern.fromMap(currentRowMap);
@@ -59,5 +77,4 @@ class Backup extends Model {
 
     return Backup(categories, records, recurrentRecordsPattern);
   }
-
 }

@@ -7,7 +7,6 @@ import 'package:piggybank/models/model.dart';
 import 'category-type.dart';
 
 class Category extends Model {
-
   /// Object representing a Category.
   /// A category has an name, type, icon and a color.
   /// The category type is used to discriminate between categories for expenses,
@@ -43,11 +42,13 @@ class Category extends Model {
       this.color = colors[randomColorIndex];
     }
 
-    if (this.iconCodePoint == null || categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
+    if (this.iconCodePoint == null ||
+        categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
       this.icon = FontAwesomeIcons.question;
       this.iconCodePoint = this.icon!.codePoint;
     } else {
-      this.icon = categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
+      this.icon =
+          categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
     }
 
     if (this.categoryType == null) {
@@ -58,8 +59,13 @@ class Category extends Model {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'name': name,
-      'color': color!.alpha.toString() + ":" + color!.red.toString() + ":"
-          + color!.green.toString() + ":" + color!.blue.toString(),
+      'color': color!.alpha.toString() +
+          ":" +
+          color!.red.toString() +
+          ":" +
+          color!.green.toString() +
+          ":" +
+          color!.blue.toString(),
       'icon': this.icon!.codePoint,
       'category_type': categoryType!.index
     };
@@ -70,15 +76,14 @@ class Category extends Model {
     String? serializedColor = map["color"] as String?;
     var color = colors[0];
     if (serializedColor != null) {
-      List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
-      color = Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);
+      List<int> colorComponents =
+          serializedColor.split(":").map(int.parse).toList();
+      color = Color.fromARGB(colorComponents[0], colorComponents[1],
+          colorComponents[2], colorComponents[3]);
     }
-    return Category(
-      map["name"],
-      color: color,
-      iconCodePoint: map["icon"],
-      categoryType: CategoryType.values[map['category_type']]
-    );
+    return Category(map["name"],
+        color: color,
+        iconCodePoint: map["icon"],
+        categoryType: CategoryType.values[map['category_type']]);
   }
-
 }

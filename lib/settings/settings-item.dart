@@ -20,9 +20,8 @@ class SettingsItem extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
             backgroundColor:
-            iconBackgroundColor == null ? Colors.blue : iconBackgroundColor,
-            child: icon
-        ),
+                iconBackgroundColor == null ? Colors.blue : iconBackgroundColor,
+            child: icon),
         title: Text(title),
         subtitle: Text(subtitle),
       ),

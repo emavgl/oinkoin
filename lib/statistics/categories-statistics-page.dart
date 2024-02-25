@@ -9,7 +9,6 @@ import 'barchart-card.dart';
 import 'category-summary-card.dart';
 
 class CategoryStatisticPage extends StatefulWidget {
-
   /// CategoryStatisticPage shows statistics of records belonging to
   /// the same category.
 
@@ -18,14 +17,15 @@ class CategoryStatisticPage extends StatefulWidget {
   DateTime? from;
   DateTime? to;
 
-  CategoryStatisticPage(this.from, this.to, this.records, this.aggregationMethod): super();
+  CategoryStatisticPage(
+      this.from, this.to, this.records, this.aggregationMethod)
+      : super();
 
   @override
   CategoryStatisticPageState createState() => CategoryStatisticPageState();
 }
 
 class CategoryStatisticPageState extends State<CategoryStatisticPage> {
-
   String? categoryName;
   List<DateTimeSeriesRecord>? aggregatedRecords;
 
@@ -39,12 +39,16 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
     return new Column(
       children: <Widget>[
         Image.asset(
-          'assets/images/no_entry_3.png', width: 200,
+          'assets/images/no_entry_3.png',
+          width: 200,
         ),
-        Text("No entries to show.".i18n,
+        Text(
+          "No entries to show.".i18n,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 22.0,) ,)
+            fontSize: 22.0,
+          ),
+        )
       ],
     );
   }
@@ -53,8 +57,10 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
-          OverviewCard(widget.from, widget.to, widget.records, widget.aggregationMethod),
-          BarChartCard(widget.from, widget.to, widget.records, widget.aggregationMethod),
+          OverviewCard(
+              widget.from, widget.to, widget.records, widget.aggregationMethod),
+          BarChartCard(
+              widget.from, widget.to, widget.records, widget.aggregationMethod),
           CategorySummaryCard(widget.records, widget.aggregationMethod),
         ],
       ),
@@ -76,7 +82,7 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
                 ),
               ),
               Container(
-                child:  Text(getDateRangeStr(widget.from!, widget.to!)),
+                child: Text(getDateRangeStr(widget.from!, widget.to!)),
                 margin: EdgeInsets.only(left: 10),
               )
             ],
@@ -84,9 +90,8 @@ class CategoryStatisticPageState extends State<CategoryStatisticPage> {
         ),
         body: new Align(
             alignment: Alignment.topCenter,
-            child: widget.records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
-        )
-    );
+            child: widget.records.length > 0
+                ? _buildStatisticPage()
+                : _buildNoRecordPage()));
   }
-
 }

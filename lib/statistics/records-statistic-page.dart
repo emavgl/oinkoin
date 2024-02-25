@@ -6,7 +6,6 @@ import 'package:piggybank/i18n.dart';
 import 'category-summary-card.dart';
 
 class RecordsStatisticPage extends StatelessWidget {
-
   /// CategoryStatisticPage shows statistics of records belonging to
   /// the same category.
 
@@ -16,7 +15,8 @@ class RecordsStatisticPage extends StatelessWidget {
   DateTime? from;
   DateTime? to;
 
-  RecordsStatisticPage(this.from, this.to, this.records, this.aggregationMethod) {
+  RecordsStatisticPage(
+      this.from, this.to, this.records, this.aggregationMethod) {
     categoryName = this.records[0]!.category!.name;
   }
 
@@ -24,12 +24,16 @@ class RecordsStatisticPage extends StatelessWidget {
     return new Column(
       children: <Widget>[
         Image.asset(
-          'assets/images/no_entry_3.png', width: 200,
+          'assets/images/no_entry_3.png',
+          width: 200,
         ),
-        Text("No entries to show.".i18n,
+        Text(
+          "No entries to show.".i18n,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 22.0,) ,)
+            fontSize: 22.0,
+          ),
+        )
       ],
     );
   }
@@ -60,7 +64,9 @@ class RecordsStatisticPage extends StatelessWidget {
                 ),
               ),
               Container(
-                child: isSameDay ? Text(getDateStr(from)) : Text(getDateRangeStr(from!, to!)),
+                child: isSameDay
+                    ? Text(getDateStr(from))
+                    : Text(getDateRangeStr(from!, to!)),
                 margin: EdgeInsets.only(left: 10),
               )
             ],
@@ -68,9 +74,8 @@ class RecordsStatisticPage extends StatelessWidget {
         ),
         body: new Align(
             alignment: Alignment.topCenter,
-            child: records.length > 0 ? _buildStatisticPage() : _buildNoRecordPage()
-        )
-    );
+            child: records.length > 0
+                ? _buildStatisticPage()
+                : _buildNoRecordPage()));
   }
-
 }

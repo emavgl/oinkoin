@@ -34,8 +34,8 @@ class TabRecords extends StatefulWidget {
 }
 
 class TabRecordsState extends State<TabRecords> {
-
-  Future<List<Record?>> getRecordsByInterval(DateTime? _from, DateTime? _to) async {
+  Future<List<Record?>> getRecordsByInterval(
+      DateTime? _from, DateTime? _to) async {
     return await database.getAllRecordsInInterval(_from, _to);
   }
 
@@ -43,11 +43,12 @@ class TabRecordsState extends State<TabRecords> {
     /// Returns the list of movements of a given month identified by
     /// :year and :month integers.
     _from = new DateTime(year, month, 1);
-    DateTime lastDayOfMonths = (_from!.month < 12) ? new DateTime(_from!.year, _from!.month + 1, 0) : new DateTime(_from!.year + 1, 1, 0);
+    DateTime lastDayOfMonths = (_from!.month < 12)
+        ? new DateTime(_from!.year, _from!.month + 1, 0)
+        : new DateTime(_from!.year + 1, 1, 0);
     _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
     return await getRecordsByInterval(_from, _to);
   }
-
 
   List<Record?> records = [];
   DatabaseInterface database = ServiceConfig.database;
@@ -55,7 +56,8 @@ class TabRecordsState extends State<TabRecords> {
   DateTime? _to;
   late String _header;
 
-  final GlobalKey<CategoryTabPageViewState> _categoryTabPageViewStateKey = GlobalKey();
+  final GlobalKey<CategoryTabPageViewState> _categoryTabPageViewStateKey =
+      GlobalKey();
 
   Future<bool> isThereSomeCategory() async {
     var categories = await database.getAllCategories();
@@ -80,7 +82,7 @@ class TabRecordsState extends State<TabRecords> {
   Future<void> _showSelectDateDialog() async {
     await showDialog(
         context: context,
-        builder:  (BuildContext context) {
+        builder: (BuildContext context) {
           return _buildSelectDateDialog();
         });
   }
@@ -103,7 +105,8 @@ class TabRecordsState extends State<TabRecords> {
         records = newRecords;
       });
     }
-    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+    Navigator.of(context, rootNavigator: true)
+        .pop('dialog'); // close the dialog
   }
 
   pickYear() async {
@@ -129,7 +132,8 @@ class TabRecordsState extends State<TabRecords> {
         records = newRecords;
       });
     }
-    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+    Navigator.of(context, rootNavigator: true)
+        .pop('dialog'); // close the dialog
   }
 
   pickDateRange() async {
@@ -137,17 +141,21 @@ class TabRecordsState extends State<TabRecords> {
     DateTime currentDate = DateTime.now();
     DateTime lastDate = DateTime(currentDate.year + 1, currentDate.month + 1);
     DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
-    DateTimeRange initialDateTimeRange = DateTimeRange(start: DateTime.now().subtract(Duration(days: 7)), end: currentDate);
+    DateTimeRange initialDateTimeRange = DateTimeRange(
+        start: DateTime.now().subtract(Duration(days: 7)), end: currentDate);
     DateTimeRange? dateTimeRange = await showDateRangePicker(
       context: context,
       firstDate: firstDate,
       lastDate: lastDate,
       initialDateRange: initialDateTimeRange,
-      locale: I18n.forcedLocale, // do not change, it has some bug if not used forced locale
+      locale: I18n
+          .forcedLocale, // do not change, it has some bug if not used forced locale
     );
     if (dateTimeRange != null) {
-      var startDate = DateTime(dateTimeRange.start.year, dateTimeRange.start.month, dateTimeRange.start.day);
-      var endDate = DateTime(dateTimeRange.end.year, dateTimeRange.end.month, dateTimeRange.end.day, 23, 59);
+      var startDate = DateTime(dateTimeRange.start.year,
+          dateTimeRange.start.month, dateTimeRange.start.day);
+      var endDate = DateTime(dateTimeRange.end.year, dateTimeRange.end.month,
+          dateTimeRange.end.day, 23, 59);
       var newRecords = await getRecordsByInterval(startDate, endDate);
       setState(() {
         _from = startDate;
@@ -156,11 +164,13 @@ class TabRecordsState extends State<TabRecords> {
         records = newRecords;
       });
     }
-    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+    Navigator.of(context, rootNavigator: true)
+        .pop('dialog'); // close the dialog
   }
 
   goToPremiumSplashScreen() async {
-    Navigator.of(context, rootNavigator: true).pop('dialog'); // close the dialog
+    Navigator.of(context, rootNavigator: true)
+        .pop('dialog'); // close the dialog
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
@@ -173,68 +183,74 @@ class TabRecordsState extends State<TabRecords> {
         ? Theme.of(context).colorScheme.primaryContainer
         : Theme.of(context).colorScheme.secondary;
     return SimpleDialog(
-        title: Text('Shows records per'.i18n),
-        children: <Widget>[
-          SimpleDialogOption(
-            onPressed: () async { return await pickMonth(); },
+      title: Text('Shows records per'.i18n),
+      children: <Widget>[
+        SimpleDialogOption(
+            onPressed: () async {
+              return await pickMonth();
+            },
             child: ListTile(
               title: Text("Month".i18n),
               leading: Container(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  FontAwesomeIcons.calendarDays,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: boxBackgroundColor,
-              )),
-            )
-          ),
-          SimpleDialogOption(
-              onPressed: ServiceConfig.isPremium ? pickYear : goToPremiumSplashScreen,
-              child: ListTile(
-                title: Text("Year".i18n),
-                subtitle: !ServiceConfig.isPremium ? Text("Available on Oinkoin Pro".i18n) : null,
-                enabled: ServiceConfig.isPremium,
-                leading: Container(
-                    width: 40,
-                    height: 40,
-                    child: Icon(
-                      FontAwesomeIcons.calendarDay,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: boxBackgroundColor,
-                    )),
-              )
-          ),
-          SimpleDialogOption(
-          onPressed: ServiceConfig.isPremium ? pickDateRange : goToPremiumSplashScreen,
-          child: ListTile(
-            title: Text("Date Range".i18n),
-            subtitle: !ServiceConfig.isPremium ? Text("Available on Oinkoin Pro".i18n) : null,
-            enabled: ServiceConfig.isPremium,
-            leading: Container(
-              width: 40,
-              height: 40,
-              child: Icon(
-              FontAwesomeIcons.calendarWeek,
-              size: 20,
-              color: Colors.white,
-              ),
-              decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: boxBackgroundColor,
-              )),
-            )
-          ),
-        ],
-      );
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    FontAwesomeIcons.calendarDays,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: boxBackgroundColor,
+                  )),
+            )),
+        SimpleDialogOption(
+            onPressed:
+                ServiceConfig.isPremium ? pickYear : goToPremiumSplashScreen,
+            child: ListTile(
+              title: Text("Year".i18n),
+              subtitle: !ServiceConfig.isPremium
+                  ? Text("Available on Oinkoin Pro".i18n)
+                  : null,
+              enabled: ServiceConfig.isPremium,
+              leading: Container(
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    FontAwesomeIcons.calendarDay,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: boxBackgroundColor,
+                  )),
+            )),
+        SimpleDialogOption(
+            onPressed: ServiceConfig.isPremium
+                ? pickDateRange
+                : goToPremiumSplashScreen,
+            child: ListTile(
+              title: Text("Date Range".i18n),
+              subtitle: !ServiceConfig.isPremium
+                  ? Text("Available on Oinkoin Pro".i18n)
+                  : null,
+              enabled: ServiceConfig.isPremium,
+              leading: Container(
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    FontAwesomeIcons.calendarWeek,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: boxBackgroundColor,
+                  )),
+            )),
+      ],
+    );
   }
 
   updateRecurrentRecordsAndFetchRecords() async {
@@ -256,16 +272,25 @@ class TabRecordsState extends State<TabRecords> {
     if (categoryIsSet) {
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CategoryTabPageView(goToEditMovementPage: true, key: _categoryTabPageViewStateKey,)),
+        MaterialPageRoute(
+            builder: (context) => CategoryTabPageView(
+                  goToEditMovementPage: true,
+                  key: _categoryTabPageViewStateKey,
+                )),
       );
       await updateRecurrentRecordsAndFetchRecords();
     } else {
-      AlertDialogBuilder noCategoryDialog = AlertDialogBuilder("No Category is set yet.".i18n)
+      AlertDialogBuilder noCategoryDialog = AlertDialogBuilder(
+              "No Category is set yet.".i18n)
           .addTrueButtonName("OK")
-          .addSubtitle("You need to set a category first. Go to Category tab and add a new category.".i18n);
-      await showDialog(context: context, builder: (BuildContext context) {
-        return noCategoryDialog.build(context);
-      });
+          .addSubtitle(
+              "You need to set a category first. Go to Category tab and add a new category."
+                  .i18n);
+      await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return noCategoryDialog.build(context);
+          });
     }
   }
 
@@ -273,7 +298,8 @@ class TabRecordsState extends State<TabRecords> {
     /// Navigate to the Statistics Page
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => StatisticsPage(_from, _to, records)),
+      MaterialPageRoute(
+          builder: (context) => StatisticsPage(_from, _to, records)),
     );
   }
 
@@ -294,10 +320,16 @@ class TabRecordsState extends State<TabRecords> {
             elevation: 0,
             backgroundColor: Theme.of(context).primaryColor,
             actions: <Widget>[
-              IconButton(icon: Icon(Icons.calendar_today), onPressed: () async => await _showSelectDateDialog(), color: Colors.white),
-              IconButton(icon: Icon(Icons.donut_small), onPressed: () => navigateToStatisticsPage(), color: Colors.white),
+              IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () async => await _showSelectDateDialog(),
+                  color: Colors.white),
+              IconButton(
+                  icon: Icon(Icons.donut_small),
+                  onPressed: () => navigateToStatisticsPage(),
+                  color: Colors.white),
               PopupMenuButton<int>(
-                icon: Icon(Icons.more_vert,color: Colors.white),
+                icon: Icon(Icons.more_vert, color: Colors.white),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(10.0),
@@ -305,7 +337,8 @@ class TabRecordsState extends State<TabRecords> {
                 ),
                 onSelected: (index) async {
                   if (index == 1) {
-                    var csvStr = CSVExporter.createCSVFromRecordList(this.records);
+                    var csvStr =
+                        CSVExporter.createCSVFromRecordList(this.records);
                     final path = await getApplicationDocumentsDirectory();
                     var backupJsonOnDisk = File(path.path + "/records.csv");
                     await backupJsonOnDisk.writeAsString(csvStr);
@@ -317,10 +350,10 @@ class TabRecordsState extends State<TabRecords> {
                     return PopupMenuItem<int>(
                       padding: EdgeInsets.all(20),
                       value: entry.value,
-                      child: Text(entry.key, style: TextStyle(
-                          fontSize: 16,
-                      )
-                      ),
+                      child: Text(entry.key,
+                          style: TextStyle(
+                            fontSize: 16,
+                          )),
                     );
                   }).toList();
                 },
@@ -329,25 +362,25 @@ class TabRecordsState extends State<TabRecords> {
             pinned: true,
             expandedHeight: 180,
             flexibleSpace: FlexibleSpaceBar(
-              stretchModes: <StretchMode>[
-                StretchMode.zoomBackground,
-                StretchMode.blurBackground,
-                StretchMode.fadeTitle,
-              ],
-              centerTitle: false,
-              titlePadding: EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
-              title: Text(_header, style: TextStyle(color: Colors.white, fontSize: headerFontSize)),
-              background: ColorFiltered(
-                  colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.1), BlendMode.srcATop),
-                  child: Container(
-                    decoration:
-                    BoxDecoration(
-                        image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: getBackgroundImage()))
-                  )
-              )
-            ),
+                stretchModes: <StretchMode>[
+                  StretchMode.zoomBackground,
+                  StretchMode.blurBackground,
+                  StretchMode.fadeTitle,
+                ],
+                centerTitle: false,
+                titlePadding:
+                    EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
+                title: Text(_header,
+                    style: TextStyle(
+                        color: Colors.white, fontSize: headerFontSize)),
+                background: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(0.1), BlendMode.srcATop),
+                    child: Container(
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: getBackgroundImage()))))),
           ),
           SliverToBoxAdapter(
             child: new ConstrainedBox(
@@ -357,24 +390,32 @@ class TabRecordsState extends State<TabRecords> {
                   Container(
                       margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
                       height: 100,
-                      child: DaysSummaryBox(records)
-                  ),
+                      child: DaysSummaryBox(records)),
                   Divider(indent: 50, endIndent: 50),
-                  records.length == 0 ? Container(
-                      child: Column(
-                        children: <Widget>[
-                          Image.asset(
-                              'assets/images/no_entry.png', width: 200,
+                  records.length == 0
+                      ? Container(
+                          child: Column(
+                          children: <Widget>[
+                            Image.asset(
+                              'assets/images/no_entry.png',
+                              width: 200,
+                            ),
+                            Text(
+                              "No entries yet.".i18n,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 22.0,
+                              ),
+                            )
+                          ],
+                        ))
+                      : Container(
+                          child: new RecordsDayList(
+                            records,
+                            onListBackCallback:
+                                updateRecurrentRecordsAndFetchRecords,
                           ),
-                          Text("No entries yet.".i18n,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 22.0,) ,)
-                        ],
-                      )
-                  ) : Container(
-                    child: new RecordsDayList(records, onListBackCallback: updateRecurrentRecordsAndFetchRecords,),
-                  ),
+                        ),
                   SizedBox(height: 75),
                 ],
               ),
@@ -383,11 +424,10 @@ class TabRecordsState extends State<TabRecords> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () async => await navigateToAddNewMovementPage(),
-          tooltip: 'Add a new record'.i18n,
-          child: const Icon(Icons.add),
-        ),
-      );
+        onPressed: () async => await navigateToAddNewMovementPage(),
+        tooltip: 'Add a new record'.i18n,
+        child: const Icon(Icons.add),
+      ),
+    );
   }
-
 }

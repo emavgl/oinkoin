@@ -12,18 +12,16 @@ import 'package:piggybank/services/service-config.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 
-
 class ViewRecurrentPatternPage extends StatefulWidget {
-
   final RecurrentRecordPattern? passedPattern;
   ViewRecurrentPatternPage({Key? key, this.passedPattern}) : super(key: key);
 
   @override
-  ViewRecurrentPatternPageState createState() => ViewRecurrentPatternPageState();
+  ViewRecurrentPatternPageState createState() =>
+      ViewRecurrentPatternPageState();
 }
 
 class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
-
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _textEditingController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -36,7 +34,8 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
     var numericValue = tryParseCurrencyString(text);
     if (numericValue != null) {
       numericValue = numericValue.abs();
-      if (widget.passedPattern!.category!.categoryType == CategoryType.expense) {
+      if (widget.passedPattern!.category!.categoryType ==
+          CategoryType.expense) {
         // value is an expenses, needs to be negative
         numericValue = numericValue * -1;
       }
@@ -51,7 +50,8 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
 
     recurrentPeriod = widget.passedPattern!.recurrentPeriod;
     _textEditingController.text = getCurrencyValueString(
-        widget.passedPattern!.value!.abs(), turnOffGrouping: true);
+        widget.passedPattern!.value!.abs(),
+        turnOffGrouping: true);
 
     // listeners for value validations
     _textEditingController.addListener(() {
@@ -66,7 +66,7 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection:
-        TextSelection(baseOffset: text.length, extentOffset: text.length),
+            TextSelection(baseOffset: text.length, extentOffset: text.length),
         composing: TextRange.empty,
       );
     });
@@ -78,7 +78,8 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
       child: Card(
         elevation: 2,
         child: Container(
-          padding: const EdgeInsets.only(bottom: 40.0, top: 10, right: 10, left: 10),
+          padding:
+              const EdgeInsets.only(bottom: 40.0, top: 10, right: 10, left: 10),
           child: TextFormField(
               enabled: false,
               onChanged: (text) {
@@ -88,16 +89,14 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
               },
               style: TextStyle(
                   fontSize: 22.0,
-                  color: Theme.of(context).colorScheme.onSurface
-              ),
+                  color: Theme.of(context).colorScheme.onSurface),
               initialValue: widget.passedPattern!.description,
               maxLines: null,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: "Add a note".i18n,
-              )
-          ),
+              )),
         ),
       ),
     );
@@ -116,19 +115,18 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
               });
             },
             style: TextStyle(
-                fontSize: 22.0,
-                color: Theme.of(context).colorScheme.onSurface
-            ),
+                fontSize: 22.0, color: Theme.of(context).colorScheme.onSurface),
             maxLines: 1,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 contentPadding: EdgeInsets.all(10),
                 border: InputBorder.none,
-                hintText: (widget.passedPattern!.title == null || widget.passedPattern!.title!.trim().isEmpty) ? widget.passedPattern!.category!.name! : widget.passedPattern!.title!,
-                labelText: "Record name".i18n
-            )
-        ),
+                hintText: (widget.passedPattern!.title == null ||
+                        widget.passedPattern!.title!.trim().isEmpty)
+                    ? widget.passedPattern!.category!.name!
+                    : widget.passedPattern!.title!,
+                labelText: "Record name".i18n)),
       ),
     );
   }
@@ -138,28 +136,35 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
       elevation: 2,
       child: Container(
           padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              InkWell(
-                child: Row(
-                  children: [
-                    _createCategoryCirclePreview(40.0),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                      child: Text(widget.passedPattern!.category!.name!, style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),),
-                    )
-                  ],
-                ),
+          child: Column(children: [
+            InkWell(
+              child: Row(
+                children: [
+                  _createCategoryCirclePreview(40.0),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    child: Text(
+                      widget.passedPattern!.category!.name!,
+                      style: TextStyle(
+                          fontSize: 20,
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                  )
+                ],
               ),
-            ]
-          )
-      ),
+            ),
+          ])),
     );
   }
 
   Widget _createCategoryCirclePreview(double size) {
-    Category defaultCategory = Category("Missing".i18n, color: Category.colors[0], iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender = (widget.passedPattern!.category == null) ? defaultCategory : widget.passedPattern!.category!;
+    Category defaultCategory = Category("Missing".i18n,
+        color: Category.colors[0],
+        iconCodePoint: FontAwesomeIcons.question.codePoint);
+    Category toRender = (widget.passedPattern!.category == null)
+        ? defaultCategory
+        : widget.passedPattern!.category!;
     return Container(
         margin: EdgeInsets.all(10),
         child: ClipOval(
@@ -167,13 +172,16 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
                 color: toRender.color, // button color
                 child: InkWell(
                   splashColor: toRender.color, // inkwell color
-                  child: SizedBox(width: size, height: size,
-                    child: Icon(toRender.icon, color: Colors.white, size: size - 20,),
+                  child: SizedBox(
+                    width: size,
+                    height: size,
+                    child: Icon(
+                      toRender.icon,
+                      color: Colors.white,
+                      size: size - 20,
+                    ),
                   ),
-                )
-            )
-        )
-    );
+                ))));
   }
 
   goToPremiumSplashScreen() async {
@@ -187,105 +195,122 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
     return Card(
       elevation: 2,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
-        child: Column(
-          children: [
-            InkWell(
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today, size: 28, color: Theme.of(context).colorScheme.onSurface,),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                    child: Row(
-                      children: [
-                        Text("From:".i18n, style: TextStyle(fontSize: 20)),
-                        Text(" ", style: TextStyle(fontSize: 20)),
-                        Text(getDateStr(widget.passedPattern!.dateTime), style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurface))
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Divider(),
-            InkWell(
+          padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
+          child: Column(
+            children: [
+              InkWell(
                 child: Row(
                   children: [
-                    Icon(Icons.repeat, size: 28, color: Theme.of(context).colorScheme.onSurface,),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 28,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
                       child: Row(
                         children: [
-                          Text("Repeat:".i18n, style: TextStyle(fontSize: 20)),
-                          Text(" ".i18n, style: TextStyle(fontSize: 20)),
-                          Text(recurrentPeriodString(recurrentPeriod).i18n, style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurface))
+                          Text("From:".i18n, style: TextStyle(fontSize: 20)),
+                          Text(" ", style: TextStyle(fontSize: 20)),
+                          Text(getDateStr(widget.passedPattern!.dateTime),
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface))
                         ],
                       ),
                     )
                   ],
-                )
-            ),
-          ],
-        )
-      ),
+                ),
+              ),
+              Divider(),
+              InkWell(
+                  child: Row(
+                children: [
+                  Icon(
+                    Icons.repeat,
+                    size: 28,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    child: Row(
+                      children: [
+                        Text("Repeat:".i18n, style: TextStyle(fontSize: 20)),
+                        Text(" ".i18n, style: TextStyle(fontSize: 20)),
+                        Text(recurrentPeriodString(recurrentPeriod).i18n,
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.onSurface))
+                      ],
+                    ),
+                  )
+                ],
+              )),
+            ],
+          )),
     );
   }
 
   Widget _createAmountCard() {
-    String categorySign = widget.passedPattern?.category?.categoryType == CategoryType.expense ? "-" : "+";
+    String categorySign =
+        widget.passedPattern?.category?.categoryType == CategoryType.expense
+            ? "-"
+            : "+";
     return Card(
       elevation: 2,
       child: Container(
-        child: IntrinsicHeight(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.only(left: 10, top: 25),
-                    child: Text(categorySign, style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
-                  ),
-                ),
-                Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.only(right: 20),
-                      child: TextFormField(
-                          enabled: true,
-                          controller: _textEditingController,
-                          autofocus: widget.passedPattern!.value == null,
-                          onChanged: (text) {
-                            changeRecordValue(text);
-                          },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Please enter a value".i18n;
-                            }
-                            var numericValue = tryParseCurrencyString(value);
-                            if (numericValue == null) {
-                              return "Not a valid format (use for example: %s)".i18n.fill([getCurrencyValueString(1234.20, turnOffGrouping: true)]);
-                            }
-                            return null;
-                          },
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                              fontSize: 32.0,
-                              color: Theme.of(context).colorScheme.onSurface
-                          ),
-                          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "0",
-                          )
-                      ),
-                    )
-                )
-              ],
-            )
-        )
-      ),
+          child: IntrinsicHeight(
+              child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.only(left: 10, top: 25),
+              child: Text(categorySign,
+                  style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
+            ),
+          ),
+          Expanded(
+              child: Container(
+            padding: EdgeInsets.all(10),
+            margin: EdgeInsets.only(right: 20),
+            child: TextFormField(
+                enabled: true,
+                controller: _textEditingController,
+                autofocus: widget.passedPattern!.value == null,
+                onChanged: (text) {
+                  changeRecordValue(text);
+                },
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Please enter a value".i18n;
+                  }
+                  var numericValue = tryParseCurrencyString(value);
+                  if (numericValue == null) {
+                    return "Not a valid format (use for example: %s)"
+                        .i18n
+                        .fill([
+                      getCurrencyValueString(1234.20, turnOffGrouping: true)
+                    ]);
+                  }
+                  return null;
+                },
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                    fontSize: 32.0,
+                    color: Theme.of(context).colorScheme.onSurface),
+                keyboardType: TextInputType.numberWithOptions(
+                    signed: false, decimal: true),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "0",
+                )),
+          ))
+        ],
+      ))),
     );
   }
 
@@ -296,23 +321,28 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
           Visibility(
               visible: widget.passedPattern != null,
               child: IconButton(
-                icon: const Icon(Icons.delete),
-                tooltip: 'Delete'.i18n, onPressed: () async {
-                  AlertDialogBuilder deleteDialog = AlertDialogBuilder("Critical action".i18n)
-                      .addSubtitle("Do you really want to delete this recurrent record?".i18n)
-                      .addTrueButtonName("Yes".i18n)
-                      .addFalseButtonName("No".i18n);
-                  var continueDelete = await showDialog(context: context, builder: (BuildContext context) {
-                    return deleteDialog.build(context);
-                  });
-                  if (continueDelete) {
-                      await database.deleteRecurrentRecordPatternById(widget.passedPattern!.id);
+                  icon: const Icon(Icons.delete),
+                  tooltip: 'Delete'.i18n,
+                  onPressed: () async {
+                    AlertDialogBuilder deleteDialog = AlertDialogBuilder(
+                            "Critical action".i18n)
+                        .addSubtitle(
+                            "Do you really want to delete this recurrent record?"
+                                .i18n)
+                        .addTrueButtonName("Yes".i18n)
+                        .addFalseButtonName("No".i18n);
+                    var continueDelete = await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return deleteDialog.build(context);
+                        });
+                    if (continueDelete) {
+                      await database.deleteRecurrentRecordPatternById(
+                          widget.passedPattern!.id);
                       Navigator.pop(context);
-                  }
-                }
-              )
-          ),]
-    );
+                    }
+                  })),
+        ]);
   }
 
   Widget _getForm() {
@@ -321,20 +351,17 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
       child: Column(
         children: [
           Form(
-            key: _formKey,
-            child: Container(
-              child: Column(
-                  children: [
-                    _createAmountCard(),
-                    _createCategoryCard(),
-                    _createTitleCard(),
-                    _createDateAndRepeatCard(),
-                    _createAddNoteCard()
-                  ]
-              ),
-            )
-        )
-      ],
+              key: _formKey,
+              child: Container(
+                child: Column(children: [
+                  _createAmountCard(),
+                  _createCategoryCard(),
+                  _createTitleCard(),
+                  _createDateAndRepeatCard(),
+                  _createAddNoteCard()
+                ]),
+              ))
+        ],
       ),
     );
   }
@@ -348,12 +375,10 @@ class ViewRecurrentPatternPageState extends State<ViewRecurrentPatternPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: _getAppBar(),
-        resizeToAvoidBottomInset: false,
-        body: SingleChildScrollView(
-            child: _getForm()
-        ),
-        floatingActionButton: FloatingActionButton(
+      appBar: _getAppBar(),
+      resizeToAvoidBottomInset: false,
+      body: SingleChildScrollView(child: _getForm()),
+      floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
             await updateRecurrentPattern();

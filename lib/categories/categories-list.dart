@@ -3,9 +3,7 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/i18n.dart';
 
-
 class CategoriesList extends StatefulWidget {
-
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
 
@@ -19,7 +17,6 @@ class CategoriesList extends StatefulWidget {
 }
 
 class CategoriesListState extends State<CategoriesList> {
-
   @override
   void initState() {
     super.initState();
@@ -29,7 +26,9 @@ class CategoriesListState extends State<CategoriesList> {
 
   Widget _buildCategories() {
     return ListView.separated(
-        separatorBuilder: (context, index) => Divider(thickness: 0.5,),
+        separatorBuilder: (context, index) => Divider(
+              thickness: 0.5,
+            ),
         itemCount: widget.categories.length,
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
@@ -46,8 +45,7 @@ class CategoriesListState extends State<CategoriesList> {
                 builder: (context) =>
                     EditCategoryPage(passedCategory: category)),
           );
-          if (widget.callback != null)
-            widget.callback!();
+          if (widget.callback != null) widget.callback!();
         },
         child: ListTile(
             leading: Container(
@@ -67,20 +65,26 @@ class CategoriesListState extends State<CategoriesList> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.categories != null ? new Container(
-        margin: EdgeInsets.all(15),
-        child: widget.categories.length == 0 ? new Column(
-          children: <Widget>[
-            Image.asset(
-              'assets/images/no_entry_2.png', width: 200,
-            ),
-            Text("No categories yet.".i18n,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22.0,) ,)
-          ],
-        ) : _buildCategories()
-    ) : new Container();
+    return widget.categories != null
+        ? new Container(
+            margin: EdgeInsets.all(15),
+            child: widget.categories.length == 0
+                ? new Column(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_entry_2.png',
+                        width: 200,
+                      ),
+                      Text(
+                        "No categories yet.".i18n,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22.0,
+                        ),
+                      )
+                    ],
+                  )
+                : _buildCategories())
+        : new Container();
   }
-
 }

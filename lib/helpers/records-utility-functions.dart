@@ -10,7 +10,6 @@ import 'package:intl/src/intl_helpers.dart' as helpers;
 import 'package:intl/number_symbols.dart';
 import '../services/service-config.dart';
 
-
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   /// Groups the record in days using the object MovementsPerDay.
   /// It returns a list of MovementsPerDay object, containing at least 1 movement.
@@ -19,7 +18,8 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   movementsGroups.forEach((k, groupedMovements) {
     if (groupedMovements.isNotEmpty) {
       DateTime? groupedDay = groupedMovements[0]!.dateTime;
-      movementsPerDay.addFirst(new RecordsPerDay(groupedDay, records: groupedMovements));
+      movementsPerDay
+          .addFirst(new RecordsPerDay(groupedDay, records: groupedMovements));
     }
   });
   var movementsDayList = movementsPerDay.toList();
@@ -46,11 +46,13 @@ String? getUserDefinedGroupingSeparator() {
 }
 
 String getGroupingSeparator() {
-  return ServiceConfig.sharedPreferences!.getString("groupSeparator") ?? getLocaleGroupingSeparator();
+  return ServiceConfig.sharedPreferences!.getString("groupSeparator") ??
+      getLocaleGroupingSeparator();
 }
 
 String getDecimalSeparator() {
-  return ServiceConfig.sharedPreferences!.getString("decimalSeparator") ?? getLocaleDecimalSeparator();
+  return ServiceConfig.sharedPreferences!.getString("decimalSeparator") ??
+      getLocaleDecimalSeparator();
 }
 
 String getLocaleDecimalSeparator() {
@@ -64,7 +66,9 @@ String getLocaleDecimalSeparator() {
 
 bool getOverwriteDotValue() {
   if (getDecimalSeparator() == ".") return false;
-  return ServiceConfig.sharedPreferences?.getBool("overwriteDotValueWithComma") ?? getDecimalSeparator() == ",";
+  return ServiceConfig.sharedPreferences
+          ?.getBool("overwriteDotValueWithComma") ??
+      getDecimalSeparator() == ",";
 }
 
 Locale getCurrencyLocale() {
@@ -80,15 +84,17 @@ bool usesWesternArabicNumerals(Locale locale) {
   return numberFormat.format(1234).contains("1234");
 }
 
-NumberFormat getNumberFormatWithCustomizations({ turnOffGrouping = false, locale }) {
+NumberFormat getNumberFormatWithCustomizations(
+    {turnOffGrouping = false, locale}) {
   NumberFormat? numberFormat = ServiceConfig.currencyNumberFormat;
 
   if (numberFormat == null) {
-    String? userDefinedGroupSeparator = ServiceConfig.sharedPreferences?.getString("groupSeparator");
-    int decimalDigits = ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
+    String? userDefinedGroupSeparator =
+        ServiceConfig.sharedPreferences?.getString("groupSeparator");
+    int decimalDigits =
+        ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
 
     try {
-
       if (locale == null) {
         locale = getCurrencyLocale();
       }
@@ -112,30 +118,37 @@ NumberFormat getNumberFormatWithCustomizations({ turnOffGrouping = false, locale
           SCIENTIFIC_PATTERN: referenceNumberFormat.symbols.SCIENTIFIC_PATTERN,
           PERCENT_PATTERN: referenceNumberFormat.symbols.PERCENT_PATTERN,
           CURRENCY_PATTERN: referenceNumberFormat.symbols.CURRENCY_PATTERN,
-          DEF_CURRENCY_CODE: referenceNumberFormat.symbols.DEF_CURRENCY_CODE
-      );
+          DEF_CURRENCY_CODE: referenceNumberFormat.symbols.DEF_CURRENCY_CODE);
 
       numberFormat = new NumberFormat.currency(
           locale: "custom_locale", symbol: "", decimalDigits: decimalDigits);
 
       // Copy over some properties
-      numberFormat.maximumIntegerDigits = referenceNumberFormat.maximumIntegerDigits;
-      numberFormat.minimumIntegerDigits = referenceNumberFormat.minimumIntegerDigits;
+      numberFormat.maximumIntegerDigits =
+          referenceNumberFormat.maximumIntegerDigits;
+      numberFormat.minimumIntegerDigits =
+          referenceNumberFormat.minimumIntegerDigits;
 
-      numberFormat.minimumExponentDigits = referenceNumberFormat.minimumExponentDigits;
+      numberFormat.minimumExponentDigits =
+          referenceNumberFormat.minimumExponentDigits;
 
-      numberFormat.maximumFractionDigits = referenceNumberFormat.maximumFractionDigits;
-      numberFormat.minimumFractionDigits = referenceNumberFormat.minimumFractionDigits;
+      numberFormat.maximumFractionDigits =
+          referenceNumberFormat.maximumFractionDigits;
+      numberFormat.minimumFractionDigits =
+          referenceNumberFormat.minimumFractionDigits;
 
-      numberFormat.maximumSignificantDigits = referenceNumberFormat.maximumSignificantDigits;
-      numberFormat.minimumSignificantDigits = referenceNumberFormat.minimumSignificantDigits;
-
+      numberFormat.maximumSignificantDigits =
+          referenceNumberFormat.maximumSignificantDigits;
+      numberFormat.minimumSignificantDigits =
+          referenceNumberFormat.minimumSignificantDigits;
     } on Exception catch (_) {
       numberFormat = new NumberFormat.currency(
           locale: "en_US", symbol: "", decimalDigits: decimalDigits);
     }
 
-    bool mustRemoveGrouping = (userDefinedGroupSeparator != null && userDefinedGroupSeparator.isEmpty) || turnOffGrouping;
+    bool mustRemoveGrouping = (userDefinedGroupSeparator != null &&
+            userDefinedGroupSeparator.isEmpty) ||
+        turnOffGrouping;
     if (mustRemoveGrouping) {
       numberFormat.turnOffGrouping();
     }
@@ -146,9 +159,11 @@ NumberFormat getNumberFormatWithCustomizations({ turnOffGrouping = false, locale
   return numberFormat;
 }
 
-String getCurrencyValueString(double? value, { turnOffGrouping = false, locale}) {
+String getCurrencyValueString(double? value,
+    {turnOffGrouping = false, locale}) {
   if (value == null) return "";
-  NumberFormat numberFormat = getNumberFormatWithCustomizations(turnOffGrouping: turnOffGrouping, locale: locale);
+  NumberFormat numberFormat = getNumberFormatWithCustomizations(
+      turnOffGrouping: turnOffGrouping, locale: locale);
   return numberFormat.format(value);
 }
 
