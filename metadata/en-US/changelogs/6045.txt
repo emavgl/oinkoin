@@ -1,0 +1,9 @@
+- New translations
+- New customization page
+- Change (hopefully in better) the locale support
+- Add the possibility to change from the app the language
+- Add the possibility to change the decimal and grouping separator
+- Add record name suggestions (thanks to @qvalentin)
+- Add Venetian language
+- Address androidSdk 34
+
