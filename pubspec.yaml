@@ -48,6 +48,7 @@ dependencies:
   intl: ^0.18.1
   function_tree: ^0.9.1
   system_theme: ^2.3.1
+  flutter_typeahead: ^5.2.0
 
 
 

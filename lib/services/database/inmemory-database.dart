@@ -185,4 +185,11 @@ class InMemoryDatabase implements DatabaseInterface {
     // TODO: implement updateRecordPatternById
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<String>> suggestedRecordTitles(
+      String search, String categoryName) {
+    // TODO: implement suggestedRecordTitles
+    throw UnimplementedError();
+  }
 }

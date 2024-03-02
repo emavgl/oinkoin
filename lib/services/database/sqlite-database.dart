@@ -253,6 +253,19 @@ class SqliteDatabase implements DatabaseInterface {
     });
   }
 
+  Future<List<String>> suggestedRecordTitles(
+      String search, String categoryName) async {
+    final db = (await database)!;
+    var maps = await db.rawQuery("""
+            SELECT DISTINCT m.title 
+            FROM records as m WHERE m.title LIKE ? AND m.category_name = ? 
+        """, ["%$search%", categoryName]);
+    return List.generate(maps.length, (i) {
+      Map<String, dynamic> currentRowMap = Map<String, String>.from(maps[i]);
+      return currentRowMap["title"];
+    });
+  }
+
   @override
   Future<List<Record>> getAllRecordsInInterval(
       DateTime? from, DateTime? to) async {

@@ -25,6 +25,8 @@ abstract class DatabaseInterface {
   Future<List<Record?>> getAllRecords();
   Future<List<Record?>> getAllRecordsInInterval(DateTime? from, DateTime? to);
   Future<Record?> getMatchingRecord(Record? record);
+  Future<List<String>> suggestedRecordTitles(String search,
+      String categoryName);
 
   // Recurrent Records Patterns CRUD
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();

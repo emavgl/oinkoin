@@ -19,6 +19,8 @@ import 'package:piggybank/i18n.dart';
 
 import 'package:function_tree/function_tree.dart';
 
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+
 class EditRecordPage extends StatefulWidget {
   /// EditMovementPage is a page containing forms for the editing of a Movement object.
   /// EditMovementPage can take the movement object to edit as a constructor parameters
@@ -26,6 +28,7 @@ class EditRecordPage extends StatefulWidget {
 
   final Record? passedRecord;
   final Category? passedCategory;
+
   EditRecordPage({Key? key, this.passedRecord, this.passedCategory})
       : super(key: key);
 
@@ -204,29 +207,52 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
+  final TextEditingController _typeAheadController = TextEditingController();
+
   Widget _createTitleCard() {
     return Card(
       elevation: 1,
       child: Container(
         padding: const EdgeInsets.all(10),
-        child: TextFormField(
-            onChanged: (text) {
-              setState(() {
-                record!.title = text;
-              });
-            },
-            style: TextStyle(
-              fontSize: 22.0,
-            ),
-            maxLines: 1,
-            initialValue: record!.title,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                contentPadding: EdgeInsets.all(10),
-                border: InputBorder.none,
-                hintText: record!.category!.name,
-                labelText: "Record name".i18n)),
+        child: TypeAheadField<String>(
+          controller: _typeAheadController,
+          builder: (context, controller, focusNode) {
+            controller.text = record?.title ?? "";
+            return TextFormField(
+                controller: controller,
+                focusNode: focusNode,
+                onChanged: (text) {
+                  setState(() {
+                    record!.title = text;
+                  });
+                },
+                style: TextStyle(
+                  fontSize: 22.0,
+                ),
+                maxLines: 1,
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    contentPadding: EdgeInsets.all(10),
+                    border: InputBorder.none,
+                    hintText: record!.category!.name,
+                    labelText: "Record name".i18n));
+          },
+          suggestionsCallback: (search) =>
+              database.suggestedRecordTitles(search, record!.category!.name!),
+          itemBuilder: (context, record) {
+            return ListTile(
+              title: Text(record),
+            );
+          },
+          onSelected: (selectedTitle) => {
+            _typeAheadController.text = selectedTitle,
+            setState(() {
+              record!.title = selectedTitle;
+            })
+          },
+          hideOnEmpty: true,
+        ),
       ),
     );
   }
