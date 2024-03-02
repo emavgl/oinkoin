@@ -49,6 +49,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   int? recurrentPeriodIndex;
   late String currency;
   DateTime? lastCharInsertedMillisecond;
+  late bool enableRecordNameSuggestions;
 
   EditRecordPageState(this.passedRecord, this.passedCategory);
 
@@ -125,6 +126,9 @@ class EditRecordPageState extends State<EditRecordPage> {
 
     // Loading preferences
     bool overwriteDotValue = getOverwriteDotValue();
+    enableRecordNameSuggestions = ServiceConfig.sharedPreferences
+            ?.getBool("enableRecordNameSuggestions") ??
+        true;
 
     // Loading parameters passed to the page
     if (passedRecord != null) {
@@ -238,8 +242,13 @@ class EditRecordPageState extends State<EditRecordPage> {
                     hintText: record!.category!.name,
                     labelText: "Record name".i18n));
           },
-          suggestionsCallback: (search) =>
-              database.suggestedRecordTitles(search, record!.category!.name!),
+          suggestionsCallback: (search) {
+            if (search.isNotEmpty && enableRecordNameSuggestions) {
+              return database.suggestedRecordTitles(
+                  search, record!.category!.name!);
+            }
+            return null;
+          },
           itemBuilder: (context, record) {
             return ListTile(
               title: Text(record),

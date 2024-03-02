@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
@@ -70,6 +71,10 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Overwrite dot
     overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ??
         getDecimalSeparator() == ",";
+
+    // Record's name suggestions
+    enableRecordNameSuggestions =
+        prefs.getBool("enableRecordNameSuggestions") ?? true;
   }
 
   late SharedPreferences prefs;
@@ -137,6 +142,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   late String decimalSeparatorDropdownKey;
 
   late bool overwriteDotValueWithComma;
+  late bool enableRecordNameSuggestions;
 
   @override
   Widget build(BuildContext context) {
@@ -214,22 +220,21 @@ class CustomizationPageState extends State<CustomizationPage> {
                     ),
                     Visibility(
                       visible: getDecimalSeparator() == ",",
-                      child: ListTile(
-                        trailing: Switch(
-                          // This bool value toggles the switch.
-                          value: overwriteDotValueWithComma,
-                          onChanged: (bool value) {
-                            setState(() {
-                              prefs.setBool(
-                                  "overwriteDotValueWithComma", value);
-                              overwriteDotValueWithComma = value;
-                            });
-                          },
-                        ),
-                        title: Text("Overwrite the key `dot`".i18n),
-                        subtitle: Text(
-                            "When typing `dot`, it types `comma` instead".i18n),
+                      child: SwitchCustomizationItem(
+                        title: "Overwrite the key `dot`".i18n,
+                        subtitle:
+                            "When typing `dot`, it types `comma` instead".i18n,
+                        switchValue: overwriteDotValueWithComma,
+                        sharedConfigKey: "overwriteDotValueWithComma",
                       ),
+                    ),
+                    SwitchCustomizationItem(
+                      title: "Enable record's name suggestions".i18n,
+                      subtitle:
+                          "If enabled, you get suggestions when typing the record's name"
+                              .i18n,
+                      switchValue: enableRecordNameSuggestions,
+                      sharedConfigKey: "enableRecordNameSuggestions",
                     ),
                     ListTile(
                       onTap: () {
