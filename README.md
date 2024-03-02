@@ -35,7 +35,7 @@ Oinkoin PRO comes with some additional features at a small costs:
 - Support the development
 
 <a href='https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro&pli=1&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150'/></a>
-<a href='https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/'><img alt='Get it on F-Droid' src='https://gitlab.com/fdroid/artwork/-/raw/master/badge/get-it-on-en-us.png' width='150'/></a>
+<a href='https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png' width='150'/></a>
 
 Oinkoin PRO is also available *for free* via [F-droid](https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/). However, F-droid can be very slow in updating the release to the latest available versions. If want the very last version, you can manually download the APK from [Github directly](https://github.com/emavgl/oinkoin/releases). You can add Oinkoin to [Obtainium](https://github.com/ImranR98/Obtainium) which will check and install the latest version from Github release directly.
 
@@ -64,6 +64,7 @@ Oinkoin is available in the following languages:
 - Russian, thanks to [Irina (volnairina)](https://crowdin.com/profile/volnairina), [alexk700i](https://crowdin.com/profile/alexk700i)
 - Chinese, thanks to [@Chzy2018](https://github.com/chzy2018)
 - Turkish, thanks to [@bkrucarci](https://github.com/bkrucarci)
+- Venetian, thanks to [AgGelmi](https://crowdin.com/profile/AgGelmi)
 
 ## How can I donate and sponsor the project?
 
