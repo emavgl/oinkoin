@@ -18,4 +18,5 @@ class ServiceConfig {
   static String? version; // set in main.dart
   static Locale? currencyLocale; // set in main.dart
   static NumberFormat? currencyNumberFormat; // set in main.dart
+  static NumberFormat? currencyNumberFormatWithoutGrouping; // set in main.dart
 }

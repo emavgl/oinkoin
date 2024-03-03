@@ -100,6 +100,7 @@ class OinkoinAppState extends State<OinkoinApp> {
           }
 
           setCurrencyLocale(attemptedLocale);
+
           return attemptedLocale;
         },
         supportedLocales: [
@@ -153,7 +154,8 @@ class OinkoinAppState extends State<OinkoinApp> {
     }
     checkForSettingInconsistency(toSet);
     ServiceConfig.currencyLocale = toSet;
-    ServiceConfig.currencyNumberFormat = getNumberFormatWithCustomizations();
+    ServiceConfig.currencyNumberFormat = getNumberFormatWithCustomizations(locale: toSet);
+    ServiceConfig.currencyNumberFormatWithoutGrouping = getNumberFormatWithCustomizations(locale: toSet, turnOffGrouping: true);
   }
 
   void checkForSettingInconsistency(Locale toSet) {
@@ -161,8 +163,8 @@ class OinkoinAppState extends State<OinkoinApp> {
     bool userDefinedGroupingSeparator =
         ServiceConfig.sharedPreferences!.containsKey("groupSeparator");
     if (userDefinedGroupingSeparator) {
-      String groupingSeparatorByTheUser = getUserDefinedGroupingSeparator()!;
-      if (groupingSeparatorByTheUser == getLocaleDecimalSeparator()) {
+      String groupingSeparatorByTheUser = getGroupingSeparator();
+      if (groupingSeparatorByTheUser == getDecimalSeparator()) {
         // It may happen when a custom groupSeparator is set
         // then the app language is changed
         // in this case, reset the user preferences
@@ -174,7 +176,7 @@ class OinkoinAppState extends State<OinkoinApp> {
     bool userDefinedOverwriteDotWithComma = ServiceConfig.sharedPreferences!
         .containsKey("overwriteDotValueWithComma");
     if (userDefinedOverwriteDotWithComma &&
-        getLocaleDecimalSeparator() != ",") {
+        getDecimalSeparator() != ",") {
       // overwriteDotValueWithComma possible just when decimal separator is ,
       ServiceConfig.sharedPreferences?.remove("overwriteDotValueWithComma");
     }

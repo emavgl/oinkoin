@@ -82,7 +82,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   String? tryParseMathExpr(String text) {
     var groupingSeparator = getGroupingSeparator();
-    var decimalSeparator = getLocaleDecimalSeparator();
+    var decimalSeparator = getDecimalSeparator();
     if (isMathExpression(text)) {
       try {
         text = text.replaceAll(groupingSeparator, "");

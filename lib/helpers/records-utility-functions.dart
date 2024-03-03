@@ -33,12 +33,15 @@ bool localeExists(String? localeName) {
 }
 
 String getLocaleGroupingSeparator() {
-  String myLocale = I18n.locale.toString();
-  String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
-  if (existingLocale == null) {
-    return ",";
-  }
-  return numberFormatSymbols[existingLocale]?.GROUP_SEP;
+  String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
+  NumberFormat currencyLocaleNumberFormat = new NumberFormat.currency(locale: existingCurrencyLocale);
+  return currencyLocaleNumberFormat.symbols.GROUP_SEP;
+}
+
+String getLocaleDecimalSeparator() {
+  String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
+  NumberFormat currencyLocaleNumberFormat = new NumberFormat.currency(locale: existingCurrencyLocale);
+  return currencyLocaleNumberFormat.symbols.DECIMAL_SEP;
 }
 
 String? getUserDefinedGroupingSeparator() {
@@ -46,22 +49,15 @@ String? getUserDefinedGroupingSeparator() {
 }
 
 String getGroupingSeparator() {
-  return ServiceConfig.sharedPreferences!.getString("groupSeparator") ??
+  String s = ServiceConfig.sharedPreferences!.getString("groupSeparator") ??
       getLocaleGroupingSeparator();
+  return s;
 }
 
 String getDecimalSeparator() {
-  return ServiceConfig.sharedPreferences!.getString("decimalSeparator") ??
+  String s = ServiceConfig.sharedPreferences!.getString("decimalSeparator") ??
       getLocaleDecimalSeparator();
-}
-
-String getLocaleDecimalSeparator() {
-  String myLocale = I18n.locale.toString();
-  String? existingLocale = helpers.verifiedLocale(myLocale, localeExists, null);
-  if (existingLocale == null) {
-    return ".";
-  }
-  return numberFormatSymbols[existingLocale]?.DECIMAL_SEP;
+  return s;
 }
 
 bool getOverwriteDotValue() {
@@ -86,90 +82,91 @@ bool usesWesternArabicNumerals(Locale locale) {
 
 NumberFormat getNumberFormatWithCustomizations(
     {turnOffGrouping = false, locale}) {
-  NumberFormat? numberFormat = ServiceConfig.currencyNumberFormat;
+  NumberFormat? numberFormat;
 
-  if (numberFormat == null) {
-    String? userDefinedGroupSeparator =
-        ServiceConfig.sharedPreferences?.getString("groupSeparator");
-    int decimalDigits =
-        ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
+  String? userDefinedGroupSeparator =
+  ServiceConfig.sharedPreferences?.getString("groupSeparator");
+  int decimalDigits =
+      ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
 
-    try {
-      if (locale == null) {
-        locale = getCurrencyLocale();
-      }
+  try {
 
-      NumberFormat referenceNumberFormat = new NumberFormat.currency(
-          locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
-
-      numberFormatSymbols['custom_locale'] = new NumberSymbols(
-          NAME: "c",
-          DECIMAL_SEP: getDecimalSeparator(),
-          GROUP_SEP: getGroupingSeparator(),
-          PERCENT: referenceNumberFormat.symbols.PERCENT,
-          ZERO_DIGIT: referenceNumberFormat.symbols.ZERO_DIGIT,
-          PLUS_SIGN: referenceNumberFormat.symbols.PLUS_SIGN,
-          MINUS_SIGN: referenceNumberFormat.symbols.MINUS_SIGN,
-          EXP_SYMBOL: referenceNumberFormat.symbols.EXP_SYMBOL,
-          PERMILL: referenceNumberFormat.symbols.PERMILL,
-          INFINITY: referenceNumberFormat.symbols.INFINITY,
-          NAN: referenceNumberFormat.symbols.NAN,
-          DECIMAL_PATTERN: referenceNumberFormat.symbols.DECIMAL_PATTERN,
-          SCIENTIFIC_PATTERN: referenceNumberFormat.symbols.SCIENTIFIC_PATTERN,
-          PERCENT_PATTERN: referenceNumberFormat.symbols.PERCENT_PATTERN,
-          CURRENCY_PATTERN: referenceNumberFormat.symbols.CURRENCY_PATTERN,
-          DEF_CURRENCY_CODE: referenceNumberFormat.symbols.DEF_CURRENCY_CODE);
-
-      numberFormat = new NumberFormat.currency(
-          locale: "custom_locale", symbol: "", decimalDigits: decimalDigits);
-
-      // Copy over some properties
-      numberFormat.maximumIntegerDigits =
-          referenceNumberFormat.maximumIntegerDigits;
-      numberFormat.minimumIntegerDigits =
-          referenceNumberFormat.minimumIntegerDigits;
-
-      numberFormat.minimumExponentDigits =
-          referenceNumberFormat.minimumExponentDigits;
-
-      numberFormat.maximumFractionDigits =
-          referenceNumberFormat.maximumFractionDigits;
-      numberFormat.minimumFractionDigits =
-          referenceNumberFormat.minimumFractionDigits;
-
-      numberFormat.maximumSignificantDigits =
-          referenceNumberFormat.maximumSignificantDigits;
-      numberFormat.minimumSignificantDigits =
-          referenceNumberFormat.minimumSignificantDigits;
-    } on Exception catch (_) {
-      numberFormat = new NumberFormat.currency(
-          locale: "en_US", symbol: "", decimalDigits: decimalDigits);
+    if (locale == null) {
+      locale = getCurrencyLocale();
     }
 
-    bool mustRemoveGrouping = (userDefinedGroupSeparator != null &&
-            userDefinedGroupSeparator.isEmpty) ||
-        turnOffGrouping;
-    if (mustRemoveGrouping) {
-      numberFormat.turnOffGrouping();
-    }
+    NumberFormat referenceNumberFormat = new NumberFormat.currency(
+        locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
 
-    ServiceConfig.currencyNumberFormat = numberFormat;
+    numberFormatSymbols['custom_locale'] = new NumberSymbols(
+        NAME: "c",
+        DECIMAL_SEP: getDecimalSeparator(),
+        GROUP_SEP: getGroupingSeparator(),
+        PERCENT: referenceNumberFormat.symbols.PERCENT,
+        ZERO_DIGIT: referenceNumberFormat.symbols.ZERO_DIGIT,
+        PLUS_SIGN: referenceNumberFormat.symbols.PLUS_SIGN,
+        MINUS_SIGN: referenceNumberFormat.symbols.MINUS_SIGN,
+        EXP_SYMBOL: referenceNumberFormat.symbols.EXP_SYMBOL,
+        PERMILL: referenceNumberFormat.symbols.PERMILL,
+        INFINITY: referenceNumberFormat.symbols.INFINITY,
+        NAN: referenceNumberFormat.symbols.NAN,
+        DECIMAL_PATTERN: referenceNumberFormat.symbols.DECIMAL_PATTERN,
+        SCIENTIFIC_PATTERN: referenceNumberFormat.symbols.SCIENTIFIC_PATTERN,
+        PERCENT_PATTERN: referenceNumberFormat.symbols.PERCENT_PATTERN,
+        CURRENCY_PATTERN: referenceNumberFormat.symbols.CURRENCY_PATTERN,
+        DEF_CURRENCY_CODE: referenceNumberFormat.symbols.DEF_CURRENCY_CODE);
+
+    numberFormat = new NumberFormat.currency(
+        locale: "custom_locale", symbol: "", decimalDigits: decimalDigits);
+
+    // Copy over some properties
+    numberFormat.maximumIntegerDigits =
+        referenceNumberFormat.maximumIntegerDigits;
+    numberFormat.minimumIntegerDigits =
+        referenceNumberFormat.minimumIntegerDigits;
+
+    numberFormat.minimumExponentDigits =
+        referenceNumberFormat.minimumExponentDigits;
+
+    numberFormat.maximumFractionDigits =
+        referenceNumberFormat.maximumFractionDigits;
+    numberFormat.minimumFractionDigits =
+        referenceNumberFormat.minimumFractionDigits;
+
+    numberFormat.maximumSignificantDigits =
+        referenceNumberFormat.maximumSignificantDigits;
+    numberFormat.minimumSignificantDigits =
+        referenceNumberFormat.minimumSignificantDigits;
+  } on Exception catch (_) {
+    numberFormat = new NumberFormat.currency(
+        locale: "en_US", symbol: "", decimalDigits: decimalDigits);
+  }
+
+  bool mustRemoveGrouping = (userDefinedGroupSeparator != null &&
+      userDefinedGroupSeparator.isEmpty) ||
+      turnOffGrouping;
+
+  if (mustRemoveGrouping) {
+    numberFormat.turnOffGrouping();
   }
 
   return numberFormat;
 }
 
-String getCurrencyValueString(double? value,
-    {turnOffGrouping = false, locale}) {
+String getCurrencyValueString(double? value, {turnOffGrouping = false}) {
   if (value == null) return "";
-  NumberFormat numberFormat = getNumberFormatWithCustomizations(
-      turnOffGrouping: turnOffGrouping, locale: locale);
+  NumberFormat numberFormat;
+  if (turnOffGrouping) {
+    numberFormat = ServiceConfig.currencyNumberFormatWithoutGrouping!;
+  } else {
+    numberFormat = ServiceConfig.currencyNumberFormat!;
+  }
   return numberFormat.format(value);
 }
 
 double? tryParseCurrencyString(String toParse) {
   try {
-    NumberFormat numberFormat = getNumberFormatWithCustomizations();
+    NumberFormat numberFormat = ServiceConfig.currencyNumberFormat!;
     double r = numberFormat.parse(toParse).toDouble();
     return r;
   } catch (e) {
