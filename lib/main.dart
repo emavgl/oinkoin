@@ -152,10 +152,10 @@ class OinkoinAppState extends State<OinkoinApp> {
     if (!usesWesternArabicNumerals(toSet)) {
       toSet = Locale.fromSubtags(languageCode: 'en', countryCode: "US");
     }
-    checkForSettingInconsistency(toSet);
     ServiceConfig.currencyLocale = toSet;
     ServiceConfig.currencyNumberFormat = getNumberFormatWithCustomizations(locale: toSet);
     ServiceConfig.currencyNumberFormatWithoutGrouping = getNumberFormatWithCustomizations(locale: toSet, turnOffGrouping: true);
+    checkForSettingInconsistency(toSet);
   }
 
   void checkForSettingInconsistency(Locale toSet) {
