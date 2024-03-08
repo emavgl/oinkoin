@@ -135,9 +135,6 @@ class DropdownCustomizationItemState<T>
                                           widget.dropdownValues[value]!);
                                     });
                                     setState(() {
-                                      // Make the currencyFormat invalid
-                                      ServiceConfig.currencyNumberFormat = null;
-                                      ServiceConfig.currencyNumberFormatWithoutGrouping = null;
                                       selectedDropdownKey = value!;
                                     });
                                   },
