@@ -74,8 +74,18 @@ class RecurrentRecordService {
             Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
         newRecurrentRecords.add(newRecord);
       }
-    } else if (recurrentPeriod == RecurrentPeriod.EveryMonth) {
-      int counter = 1;
+    } else {
+      int step = 1;
+      if (recurrentPeriod == RecurrentPeriod.EveryMonth) {
+        step = 1;
+      }
+      if (recurrentPeriod == RecurrentPeriod.EveryThreeMonths) {
+        step = 3;
+      }
+      if (recurrentPeriod == RecurrentPeriod.EveryFourMonths) {
+        step = 4;
+      }
+      int counter = step;
       while (true) {
         DateTime tmpDate = new DateTime(lastUpdateTrimmed.year,
             lastUpdateTrimmed.month + counter, lastUpdateTrimmed.day);
@@ -84,7 +94,7 @@ class RecurrentRecordService {
         }
         Record newRecord = Record.fromRecurrencePattern(recordPattern, tmpDate);
         newRecurrentRecords.add(newRecord);
-        counter++;
+        counter += step;
       }
     }
     return newRecurrentRecords;

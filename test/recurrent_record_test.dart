@@ -100,6 +100,38 @@ main() {
       expect(records[2].dateTime!.day, 29);
     });
 
+    test('three-months recurrent', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
+      Category category1 = new Category("testName1");
+      DateTime dateTime = new DateTime(2020, 1, 5);
+      DateTime endDate = new DateTime(2020, 12, 30);
+      RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Three-Months", category1, dateTime, RecurrentPeriod.EveryThreeMonths);
+      var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+      expect(records.length, 4);
+      expect(records[1].dateTime!.month, 4);
+      expect(records[1].dateTime!.day, 5);
+      expect(records[2].dateTime!.month, 7);
+      expect(records[2].dateTime!.day, 5);
+      expect(records[3].dateTime!.month, 10);
+      expect(records[3].dateTime!.day, 5);
+    });
+
+    test('four-months recurrent', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
+      Category category1 = new Category("testName1");
+      DateTime dateTime = new DateTime(2020, 1, 5);
+      DateTime endDate = new DateTime(2020, 12, 30);
+      RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Three-Months", category1, dateTime, RecurrentPeriod.EveryFourMonths);
+      var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+      expect(records.length, 3);
+      expect(records[1].dateTime!.month, 5);
+      expect(records[1].dateTime!.day, 5);
+      expect(records[2].dateTime!.month, 9);
+      expect(records[2].dateTime!.day, 5);
+    });
+
     test('recurrent pattern in the future must return no records', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
