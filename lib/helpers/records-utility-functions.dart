@@ -34,13 +34,15 @@ bool localeExists(String? localeName) {
 
 String getLocaleGroupingSeparator() {
   String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
-  NumberFormat currencyLocaleNumberFormat = new NumberFormat.currency(locale: existingCurrencyLocale);
+  NumberFormat currencyLocaleNumberFormat =
+      new NumberFormat.currency(locale: existingCurrencyLocale);
   return currencyLocaleNumberFormat.symbols.GROUP_SEP;
 }
 
 String getLocaleDecimalSeparator() {
   String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
-  NumberFormat currencyLocaleNumberFormat = new NumberFormat.currency(locale: existingCurrencyLocale);
+  NumberFormat currencyLocaleNumberFormat =
+      new NumberFormat.currency(locale: existingCurrencyLocale);
   return currencyLocaleNumberFormat.symbols.DECIMAL_SEP;
 }
 
@@ -85,12 +87,11 @@ NumberFormat getNumberFormatWithCustomizations(
   NumberFormat? numberFormat;
 
   String? userDefinedGroupSeparator =
-  ServiceConfig.sharedPreferences?.getString("groupSeparator");
+      ServiceConfig.sharedPreferences?.getString("groupSeparator");
   int decimalDigits =
       ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
 
   try {
-
     if (locale == null) {
       locale = getCurrencyLocale();
     }
@@ -143,7 +144,7 @@ NumberFormat getNumberFormatWithCustomizations(
   }
 
   bool mustRemoveGrouping = (userDefinedGroupSeparator != null &&
-      userDefinedGroupSeparator.isEmpty) ||
+          userDefinedGroupSeparator.isEmpty) ||
       turnOffGrouping;
 
   if (mustRemoveGrouping) {

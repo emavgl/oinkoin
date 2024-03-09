@@ -153,8 +153,10 @@ class OinkoinAppState extends State<OinkoinApp> {
       toSet = Locale.fromSubtags(languageCode: 'en', countryCode: "US");
     }
     ServiceConfig.currencyLocale = toSet;
-    ServiceConfig.currencyNumberFormat = getNumberFormatWithCustomizations(locale: toSet);
-    ServiceConfig.currencyNumberFormatWithoutGrouping = getNumberFormatWithCustomizations(locale: toSet, turnOffGrouping: true);
+    ServiceConfig.currencyNumberFormat =
+        getNumberFormatWithCustomizations(locale: toSet);
+    ServiceConfig.currencyNumberFormatWithoutGrouping =
+        getNumberFormatWithCustomizations(locale: toSet, turnOffGrouping: true);
     checkForSettingInconsistency(toSet);
   }
 
@@ -175,8 +177,7 @@ class OinkoinAppState extends State<OinkoinApp> {
     // Replace dot with comma inconsistency
     bool userDefinedOverwriteDotWithComma = ServiceConfig.sharedPreferences!
         .containsKey("overwriteDotValueWithComma");
-    if (userDefinedOverwriteDotWithComma &&
-        getDecimalSeparator() != ",") {
+    if (userDefinedOverwriteDotWithComma && getDecimalSeparator() != ",") {
       // overwriteDotValueWithComma possible just when decimal separator is ,
       ServiceConfig.sharedPreferences?.remove("overwriteDotValueWithComma");
     }

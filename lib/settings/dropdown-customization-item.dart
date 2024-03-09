@@ -84,8 +84,9 @@ class DropdownCustomizationItemState<T>
     final double maxHeight =
         MediaQuery.of(context).size.height * 0.8; // Maximum height
     final double itemHeight = 56.0; // Assuming the height of each RadioListTile
-    final double suggestedHeight =
-        widget.dropdownValues.keys.length * itemHeight + max(160, widget.title.length * 10); // used for the space in the header
+    final double suggestedHeight = widget.dropdownValues.keys.length *
+            itemHeight +
+        MediaQuery.of(context).textScaler.scale(170); // used for the space in the header
 
     showDialog(
       context: context,

@@ -6,17 +6,15 @@ import 'package:piggybank/statistics/statistics-models.dart';
 
 DateTime addDuration(DateTime start, Duration duration) {
   // Convert to UTC
-  DateTime utcDateTime = new DateTime.utc(
-      start.year, start.month, start.day,
+  DateTime utcDateTime = new DateTime.utc(start.year, start.month, start.day,
       start.hour, start.minute, start.second);
 
   // Add Duration
   DateTime endTime = utcDateTime.add(duration);
 
   // Convert back
-  return new DateTime(
-      endTime.year, endTime.month, endTime.day,
-      endTime.hour, endTime.minute, endTime.second);
+  return new DateTime(endTime.year, endTime.month, endTime.day, endTime.hour,
+      endTime.minute, endTime.second);
 }
 
 String getDateRangeStr(DateTime start, DateTime end) {
@@ -25,8 +23,8 @@ String getDateRangeStr(DateTime start, DateTime end) {
   DateTime lastDayOfTheMonth = (start.month < 12)
       ? new DateTime(start.year, start.month + 1, 0)
       : new DateTime(start.year + 1, 1, 0);
-  lastDayOfTheMonth = addDuration(lastDayOfTheMonth,
-      Duration(hours: 23, minutes: 59));
+  lastDayOfTheMonth =
+      addDuration(lastDayOfTheMonth, Duration(hours: 23, minutes: 59));
   if (lastDayOfTheMonth.isAtSameMomentAs(end)) {
     // Visualizing an entire month
     String localeRepr =
