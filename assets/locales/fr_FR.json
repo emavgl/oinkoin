@@ -105,6 +105,7 @@
     "Decimal separator": "Séparateur décimal",
     "Grouping separator": "Séparateur des milliers",
     "Overwrite grouping separator": "Remplacer le séparateur des milliers",
+    "none": "none",
     "dot": "point",
     "comma": "virgule",
     "space": "espace",
