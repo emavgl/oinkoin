@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -84,8 +85,7 @@ class DropdownCustomizationItemState<T>
         MediaQuery.of(context).size.height * 0.8; // Maximum height
     final double itemHeight = 56.0; // Assuming the height of each RadioListTile
     final double suggestedHeight =
-        widget.dropdownValues.keys.length * itemHeight +
-            160.0; // 160 is additional space
+        widget.dropdownValues.keys.length * itemHeight + max(160, widget.title.length * 10); // used for the space in the header
 
     showDialog(
       context: context,

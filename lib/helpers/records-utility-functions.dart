@@ -153,20 +153,40 @@ NumberFormat getNumberFormatWithCustomizations(
   return numberFormat;
 }
 
+void setNumberFormatCache() {
+  Locale toSet = ServiceConfig.currencyLocale!;
+  ServiceConfig.currencyNumberFormat =
+      getNumberFormatWithCustomizations(locale: toSet);
+  ServiceConfig.currencyNumberFormatWithoutGrouping =
+      getNumberFormatWithCustomizations(locale: toSet, turnOffGrouping: true);
+}
+
 String getCurrencyValueString(double? value, {turnOffGrouping = false}) {
   if (value == null) return "";
-  NumberFormat numberFormat;
+  NumberFormat? numberFormat;
   if (turnOffGrouping) {
-    numberFormat = ServiceConfig.currencyNumberFormatWithoutGrouping!;
+    numberFormat = ServiceConfig.currencyNumberFormatWithoutGrouping;
   } else {
-    numberFormat = ServiceConfig.currencyNumberFormat!;
+    numberFormat = ServiceConfig.currencyNumberFormat;
+  }
+  if (numberFormat == null) {
+    setNumberFormatCache();
+    if (turnOffGrouping) {
+      numberFormat = ServiceConfig.currencyNumberFormatWithoutGrouping!;
+    } else {
+      numberFormat = ServiceConfig.currencyNumberFormat!;
+    }
   }
   return numberFormat.format(value);
 }
 
 double? tryParseCurrencyString(String toParse) {
   try {
-    NumberFormat numberFormat = ServiceConfig.currencyNumberFormat!;
+    NumberFormat? numberFormat = ServiceConfig.currencyNumberFormat;
+    if (numberFormat == null) {
+      setNumberFormatCache();
+      numberFormat = ServiceConfig.currencyNumberFormat!;
+    }
     double r = numberFormat.parse(toParse).toDouble();
     return r;
   } catch (e) {

@@ -46,7 +46,7 @@ class TabRecordsState extends State<TabRecords> {
     DateTime lastDayOfMonths = (_from!.month < 12)
         ? new DateTime(_from!.year, _from!.month + 1, 0)
         : new DateTime(_from!.year + 1, 1, 0);
-    _to = lastDayOfMonths.add(Duration(hours: 23, minutes: 59));
+    _to = addDuration(lastDayOfMonths, Duration(hours: 23, minutes: 59));
     return await getRecordsByInterval(_from, _to);
   }
 

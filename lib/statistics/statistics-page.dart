@@ -17,6 +17,7 @@ class StatisticsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String title = getDateRangeStr(from!, to!);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -33,7 +34,7 @@ class StatisticsPage extends StatelessWidget {
           ),
           title: new Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[Text(getDateRangeStr(from!, to!))],
+            children: <Widget>[Text(title)],
           ),
         ),
         body: TabBarView(

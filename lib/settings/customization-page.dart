@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/records-utility-functions.dart';
@@ -144,6 +145,11 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool overwriteDotValueWithComma;
   late bool enableRecordNameSuggestions;
 
+  void invalidateNumberPatternCache() {
+    ServiceConfig.currencyNumberFormat = null;
+    ServiceConfig.currencyNumberFormatWithoutGrouping = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,6 +196,9 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues: decimalDigitsValues,
                       selectedDropdownKey: decimalDigitsValueDropdownKey,
                       sharedConfigKey: "numDecimalDigits",
+                      onChanged: () {
+                        invalidateNumberPatternCache();
+                      },
                     ),
                     DropdownCustomizationItem(
                         title: "Decimal separator".i18n,
@@ -198,6 +207,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                         selectedDropdownKey: decimalSeparatorDropdownKey,
                         sharedConfigKey: "decimalSeparator",
                         onChanged: () {
+                          invalidateNumberPatternCache();
                           setState(() {
                             fetchAllThePreferences();
                             overwriteDotValueWithComma =
@@ -217,6 +227,9 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues: allowedGroupSeparatorsValues,
                       selectedDropdownKey: groupSeparatorDropdownKey,
                       sharedConfigKey: "groupSeparator",
+                      onChanged: () {
+                        invalidateNumberPatternCache();
+                      },
                     ),
                     Visibility(
                       visible: getDecimalSeparator() == ",",
