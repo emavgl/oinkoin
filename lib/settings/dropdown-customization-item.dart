@@ -182,9 +182,8 @@ class DropdownCustomizationItemState<T>
       subtitle: Text(
         selectedDropdownKey,
         style: TextStyle(
-          color: Theme.of(context).colorScheme.secondary,
-          fontSize: subTitleFontSize
-        ),
+            color: Theme.of(context).colorScheme.secondary,
+            fontSize: subTitleFontSize),
       ),
       contentPadding: EdgeInsets.fromLTRB(20, 8, 10, 10),
     );

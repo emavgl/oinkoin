@@ -257,8 +257,8 @@ class CustomizationPageState extends State<CustomizationPage> {
                           fetchAllThePreferences();
                         });
                       },
-                      title:
-                          Text("Restore all the default configurations".i18n, style: titleTextStyle),
+                      title: Text("Restore all the default configurations".i18n,
+                          style: titleTextStyle),
                     )
                   ],
                 ),
