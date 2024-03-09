@@ -105,6 +105,7 @@
     "Decimal separator": "Decimal separator",
     "Grouping separator": "Gruplandırma ayracı",
     "Overwrite grouping separator": "Gruplandırma ayracının üzerine yaz",
+    "none": "none",
     "dot": "nokta",
     "comma": "virgül",
     "space": "boşluk",
