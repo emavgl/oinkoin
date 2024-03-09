@@ -105,6 +105,7 @@
     "Decimal separator": "Decimal separator",
     "Grouping separator": "Разделитель разрядов",
     "Overwrite grouping separator": "Заменить разделитель разрядов",
+    "none": "none",
     "dot": "точка",
     "comma": "запятая",
     "space": "пробел",
