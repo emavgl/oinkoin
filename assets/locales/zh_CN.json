@@ -105,6 +105,7 @@
     "Decimal separator": "Decimal separator",
     "Grouping separator": "千位分隔符样式",
     "Overwrite grouping separator": "自定义千位分隔符样式",
+    "none": "none",
     "dot": "点",
     "comma": "逗号",
     "space": "空格",
