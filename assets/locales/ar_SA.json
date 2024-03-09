@@ -105,6 +105,7 @@
     "Decimal separator": "الفاصل العشري",
     "Grouping separator": "فاصل التجميع",
     "Overwrite grouping separator": "تغيير فاصل التجميع",
+    "none": "none",
     "dot": "نقطة",
     "comma": "فاصلة",
     "space": "فضاء",
