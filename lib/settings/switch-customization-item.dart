@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/settings/style.dart';
 
 import '../services/service-config.dart';
 
@@ -70,8 +71,8 @@ class SwitchCustomizationItemState<T> extends State<SwitchCustomizationItem> {
           });
         },
       ),
-      title: Text(widget.title),
-      subtitle: Text(widget.subtitle),
+      title: Text(widget.title, style: titleTextStyle),
+      subtitle: Text(widget.subtitle, style: subtitleTextStyle),
     );
   }
 }

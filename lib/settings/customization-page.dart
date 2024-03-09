@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/style.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/records-utility-functions.dart';
@@ -257,7 +258,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                         });
                       },
                       title:
-                          Text("Restore all the default configurations".i18n),
+                          Text("Restore all the default configurations".i18n, style: titleTextStyle),
                     )
                   ],
                 ),

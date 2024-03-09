@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/settings/style.dart';
 
 class SettingsItem extends StatelessWidget {
   final Color? iconBackgroundColor;
@@ -22,8 +23,8 @@ class SettingsItem extends StatelessWidget {
             backgroundColor:
                 iconBackgroundColor == null ? Colors.blue : iconBackgroundColor,
             child: icon),
-        title: Text(title),
-        subtitle: Text(subtitle),
+        title: Text(title, style: titleTextStyle),
+        subtitle: Text(subtitle, style: subtitleTextStyle),
       ),
       onPressed: onPressed as void Function()?,
     );
