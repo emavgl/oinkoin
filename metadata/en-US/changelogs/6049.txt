@@ -1,0 +1,2 @@
+- Add new options for recurrent patterns: every 3 months, every 4 months
+- More options to edit existing recurrent patterns, change dates, value, category etc.
