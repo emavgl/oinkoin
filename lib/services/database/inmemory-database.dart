@@ -186,4 +186,16 @@ class InMemoryDatabase implements DatabaseInterface {
     // TODO: implement suggestedRecordTitles
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> deleteFutureRecordsByPatternId(String recurrentPatternId, DateTime startingTime) {
+    // TODO: implement deleteFutureRecordsByPatternId
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int> removeRecurrentPatternAssignment(String recurrentPatternId) {
+    // TODO: implement removeRecurrentPatternAssignment
+    throw UnimplementedError();
+  }
 }

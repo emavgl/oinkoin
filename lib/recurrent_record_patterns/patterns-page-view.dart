@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
-import 'package:piggybank/recurrent_record_patterns/view-recurrent-pattern-page.dart';
+import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
@@ -9,13 +9,6 @@ import '../models/recurrent-period.dart';
 import 'package:piggybank/i18n.dart';
 
 class PatternsPageView extends StatefulWidget {
-  /// The category page that you can select from the bottom navigation bar.
-  /// It contains two tab, showing the categories for expenses and categories
-  /// for incomes. It has a single Floating Button that, dependending from which
-  /// tab you clicked, it open the EditCategory page passing the selected Category type.
-
-  PatternsPageView();
-
   @override
   PatternsPageViewState createState() => PatternsPageViewState();
 }
@@ -55,9 +48,9 @@ class PatternsPageViewState extends State<PatternsPageView> {
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => ViewRecurrentPatternPage(
-                              passedPattern: pattern,
-                            )));
+                        builder: (context) => EditRecordPage(
+                              passedReccurrentRecordPattern: pattern,
+                        )));
                 await fetchRecurrentRecordPatternsFromDatabase();
               },
               title: Text(

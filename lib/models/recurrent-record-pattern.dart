@@ -23,12 +23,13 @@ class RecurrentRecordPattern {
       this.recurrentPeriod,
       {this.id, this.description, this.lastUpdate});
 
-  RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod) {
+  RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod, {this.id}) {
     this.value = record.value;
     this.title = record.title;
     this.category = record.category;
     this.dateTime = record.dateTime;
     this.description = record.description;
+    this.id = id;
   }
 
   Map<String, dynamic> toMap() {
@@ -41,12 +42,13 @@ class RecurrentRecordPattern {
       'description': description,
       'recurrent_period': recurrentPeriod!.index,
     };
-
     if (this.id != null) {
       map['id'] = this.id;
     }
     if (this.lastUpdate != null) {
       map['last_update'] = this.lastUpdate!.millisecondsSinceEpoch;
+    } else {
+      map['last_update'] = null;
     }
     return map;
   }

@@ -28,13 +28,14 @@ class EditRecordPage extends StatefulWidget {
 
   final Record? passedRecord;
   final Category? passedCategory;
+  final RecurrentRecordPattern? passedReccurrentRecordPattern;
 
-  EditRecordPage({Key? key, this.passedRecord, this.passedCategory})
+  EditRecordPage({Key? key, this.passedRecord, this.passedCategory, this.passedReccurrentRecordPattern})
       : super(key: key);
 
   @override
   EditRecordPageState createState() =>
-      EditRecordPageState(this.passedRecord, this.passedCategory);
+      EditRecordPageState(this.passedRecord, this.passedCategory, this.passedReccurrentRecordPattern);
 }
 
 class EditRecordPageState extends State<EditRecordPage> {
@@ -45,13 +46,16 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Record? passedRecord;
   Category? passedCategory;
+  RecurrentRecordPattern? passedReccurrentRecordPattern;
+
   RecurrentPeriod? recurrentPeriod;
   int? recurrentPeriodIndex;
+
   late String currency;
   DateTime? lastCharInsertedMillisecond;
   late bool enableRecordNameSuggestions;
 
-  EditRecordPageState(this.passedRecord, this.passedCategory);
+  EditRecordPageState(this.passedRecord, this.passedCategory, this.passedReccurrentRecordPattern);
 
   static final dropDownList = [
     new DropdownMenuItem<int>(
@@ -141,11 +145,14 @@ class EditRecordPageState extends State<EditRecordPage> {
         true;
 
     // Loading parameters passed to the page
+
     if (passedRecord != null) {
+      // I am editing an existing record
       record = passedRecord;
       _textEditingController.text =
           getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
       if (record!.recurrencePatternId != null) {
+        // the record I am editing comes from a recurrent pattern
         database
             .getRecurrentRecordPattern(record!.recurrencePatternId)
             .then((value) {
@@ -157,7 +164,23 @@ class EditRecordPageState extends State<EditRecordPage> {
           }
         });
       }
+    } else if (passedReccurrentRecordPattern != null) {
+      // I am editing a recurrent pattern
+      record = new Record(
+        passedReccurrentRecordPattern!.value,
+        passedReccurrentRecordPattern!.title,
+        passedReccurrentRecordPattern!.category,
+        passedReccurrentRecordPattern!.dateTime,
+        description: passedReccurrentRecordPattern!.description,
+      );
+      _textEditingController.text =
+          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
+      setState(() {
+        recurrentPeriod = passedReccurrentRecordPattern!.recurrentPeriod;
+        recurrentPeriodIndex = passedReccurrentRecordPattern!.recurrentPeriod!.index;
+      });
     } else {
+      // I am adding a new record
       record = new Record(null, null, passedCategory, DateTime.now());
     }
 
@@ -583,36 +606,67 @@ class EditRecordPageState extends State<EditRecordPage> {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
-  addRecurrentPattern() async {
+  recurrentPeriodHasBeenUpdated(RecurrentRecordPattern toSet) {
+    bool recurrentPeriodHasChanged = toSet.recurrentPeriod!.index != passedReccurrentRecordPattern!.recurrentPeriod!.index;
+    bool startingDateHasChanged = toSet.dateTime!.millisecondsSinceEpoch != passedReccurrentRecordPattern!.dateTime!.millisecondsSinceEpoch;
+    return recurrentPeriodHasChanged || startingDateHasChanged;
+  }
+
+  addOrUpdateRecurrentPattern({id}) async {
     RecurrentRecordPattern recordPattern =
-        RecurrentRecordPattern.fromRecord(record!, recurrentPeriod);
-    await database.addRecurrentRecordPattern(recordPattern);
+        RecurrentRecordPattern.fromRecord(record!, recurrentPeriod, id: id);
+    if (id != null) {
+      if (recurrentPeriodHasBeenUpdated(recordPattern)) {
+        // RecurrentPeriod or Dates have been updated
+        // The user will see old records with the new recurrent period
+        // For consistency reasons with the pre-existing generated records
+        // It is better to completely delete the pattern and create a new one
+        // In this case, the old record will lose the reference to the pattern
+        // and it will not create confusion.
+        await database.deleteFutureRecordsByPatternId(id, record!.dateTime!);
+        await database.deleteRecurrentRecordPatternById(id);
+        await database.addRecurrentRecordPattern(recordPattern);
+      } else {
+        // Value or some description has been updated
+        await database.deleteFutureRecordsByPatternId(id, record!.dateTime!);
+        await database.updateRecordPatternById(id, recordPattern);
+      }
+    } else {
+      // Since ID is null, a new recurrent pattern needs to be created
+      await database.addRecurrentRecordPattern(recordPattern);
+    }
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   AppBar _getAppBar() {
     return AppBar(title: Text('Edit record'.i18n), actions: <Widget>[
       Visibility(
-          visible: widget.passedRecord != null,
+          visible: widget.passedRecord != null || widget.passedReccurrentRecordPattern != null,
           child: IconButton(
               icon: const Icon(Icons.delete),
               tooltip: 'Delete'.i18n,
               onPressed: () async {
-                AlertDialogBuilder deleteDialog =
-                    AlertDialogBuilder("Critical action".i18n)
-                        .addSubtitle(
-                            "Do you really want to delete this record?".i18n)
-                        .addTrueButtonName("Yes".i18n)
-                        .addFalseButtonName("No".i18n);
-
+                AlertDialogBuilder deleteDialog = AlertDialogBuilder("Critical action".i18n)
+                    .addTrueButtonName("Yes".i18n)
+                    .addFalseButtonName("No".i18n);
+                if (widget.passedRecord != null) {
+                  deleteDialog = deleteDialog.addSubtitle("Do you really want to delete this record?".i18n);
+                } else {
+                  deleteDialog = deleteDialog.addSubtitle("Do you really want to delete this recurrent record?".i18n);
+                }
                 var continueDelete = await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return deleteDialog.build(context);
                     });
-
                 if (continueDelete) {
-                  await database.deleteRecordById(record!.id);
+                  if (widget.passedRecord != null) {
+                    await database.deleteRecordById(record!.id);
+                  } else {
+                    String patternId = widget.passedReccurrentRecordPattern!.id!;
+                    await database.deleteFutureRecordsByPatternId(patternId, DateTime.now());
+                    await database.deleteRecurrentRecordPatternById(patternId);
+                  }
                   Navigator.pop(context);
                 }
               })),
@@ -640,7 +694,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
-  isNewRecurrentPattern() {
+  isARecurrentPattern() {
     return recurrentPeriod != null && record?.recurrencePatternId == null;
   }
 
@@ -653,9 +707,14 @@ class EditRecordPageState extends State<EditRecordPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
-            if (isNewRecurrentPattern()) {
-              // A new recurrent pattern is defined
-              await addRecurrentPattern();
+            if (isARecurrentPattern()) {
+              String? recurrentPatternId;
+              if (passedReccurrentRecordPattern != null) {
+                recurrentPatternId = this.passedReccurrentRecordPattern!.id;
+              }
+              await addOrUpdateRecurrentPattern(
+                  id: recurrentPatternId,
+              );
             } else {
               // it is a normal record, either single or it comes from a
               // recurrent pattern. When saving the record, we need

@@ -341,6 +341,14 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
+  Future<void> deleteFutureRecordsByPatternId(
+      String recurrentPatternId, DateTime startingDate) async {
+    final db = (await database)!;
+    int millisecondsSinceEpoch = startingDate.millisecondsSinceEpoch;
+    await db.delete("records",  where: "recurrence_id = ? AND datetime >= ?", whereArgs: [recurrentPatternId, millisecondsSinceEpoch]);
+  }
+
+  @override
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
