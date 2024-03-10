@@ -46,10 +46,6 @@ class Backup extends Model {
               element.categoryType == categoryType &&
               element.name == categoryName,
           orElse: null);
-      if (matchingCategory == null) {
-        throw Exception(
-            "Can't find category during the backup import. Backup file is corrupted.");
-      }
       currentRowMap["category"] = matchingCategory;
       return Record.fromMap(currentRowMap);
     });
@@ -67,10 +63,6 @@ class Backup extends Model {
               element.categoryType == categoryType &&
               element.name == categoryName,
           orElse: null);
-      if (matchingCategory == null) {
-        throw Exception(
-            "Can't find category during the backup import. Backup file is corrupted.");
-      }
       currentRowMap["category"] = matchingCategory;
       return RecurrentRecordPattern.fromMap(currentRowMap);
     });

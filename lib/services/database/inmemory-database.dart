@@ -69,9 +69,6 @@ class InMemoryDatabase implements DatabaseInterface {
       CategoryType? existingCategoryType, Category? updatedCategory) async {
     var categoryWithTheSameName =
         await getCategory(existingCategoryName, existingCategoryType);
-    if (categoryWithTheSameName == null) {
-      throw NotFoundException();
-    }
     var index = _categories.indexOf(categoryWithTheSameName);
     _categories[index] = updatedCategory;
     return Future<int>.value(index);
@@ -136,9 +133,6 @@ class InMemoryDatabase implements DatabaseInterface {
   @override
   Future<int?> updateRecordById(int? movementId, Record? newMovement) async {
     var movementWithTheSameId = await getRecordById(movementId);
-    if (movementWithTheSameId == null) {
-      throw Exception("Movement ID `$movementId` does not exists.");
-    }
     _movements[_movements.indexOf(movementWithTheSameId)] = newMovement;
     return movementId;
   }

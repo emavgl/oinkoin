@@ -1,12 +1,10 @@
 import 'dart:collection';
 import "package:collection/collection.dart";
 import 'package:flutter/cupertino.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
-import 'package:intl/src/intl_helpers.dart' as helpers;
 import 'package:intl/number_symbols.dart';
 import '../services/service-config.dart';
 
