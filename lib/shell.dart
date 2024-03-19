@@ -82,11 +82,20 @@ class ShellState extends State<Shell> {
               }
             },
             destinations: [
-              NavigationDestination(label: "Home".i18n, icon: Icon(Icons.home)),
               NavigationDestination(
-                  label: "Categories".i18n, icon: Icon(Icons.category)),
+                  label: "Home".i18n,
+                  selectedIcon: Icon(Icons.home),
+                  icon: Icon(Icons.home_outlined)),
               NavigationDestination(
-                  label: "Settings".i18n, icon: Icon(Icons.settings)),
+                  label: "Categories".i18n,
+                  selectedIcon: Icon(Icons.category),
+                  icon: Icon(Icons.category_outlined)
+              ),
+              NavigationDestination(
+                  label: "Settings".i18n,
+                  selectedIcon: Icon(Icons.settings),
+                  icon: Icon(Icons.settings_outlined)
+              ),
             ]));
   }
 }

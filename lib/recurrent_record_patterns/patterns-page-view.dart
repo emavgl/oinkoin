@@ -50,7 +50,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
                     MaterialPageRoute(
                         builder: (context) => EditRecordPage(
                               passedReccurrentRecordPattern: pattern,
-                        )));
+                            )));
                 await fetchRecurrentRecordPatternsFromDatabase();
               },
               title: Text(

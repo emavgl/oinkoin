@@ -30,12 +30,16 @@ class EditRecordPage extends StatefulWidget {
   final Category? passedCategory;
   final RecurrentRecordPattern? passedReccurrentRecordPattern;
 
-  EditRecordPage({Key? key, this.passedRecord, this.passedCategory, this.passedReccurrentRecordPattern})
+  EditRecordPage(
+      {Key? key,
+      this.passedRecord,
+      this.passedCategory,
+      this.passedReccurrentRecordPattern})
       : super(key: key);
 
   @override
-  EditRecordPageState createState() =>
-      EditRecordPageState(this.passedRecord, this.passedCategory, this.passedReccurrentRecordPattern);
+  EditRecordPageState createState() => EditRecordPageState(this.passedRecord,
+      this.passedCategory, this.passedReccurrentRecordPattern);
 }
 
 class EditRecordPageState extends State<EditRecordPage> {
@@ -55,7 +59,8 @@ class EditRecordPageState extends State<EditRecordPage> {
   DateTime? lastCharInsertedMillisecond;
   late bool enableRecordNameSuggestions;
 
-  EditRecordPageState(this.passedRecord, this.passedCategory, this.passedReccurrentRecordPattern);
+  EditRecordPageState(this.passedRecord, this.passedCategory,
+      this.passedReccurrentRecordPattern);
 
   static final dropDownList = [
     new DropdownMenuItem<int>(
@@ -177,7 +182,8 @@ class EditRecordPageState extends State<EditRecordPage> {
           getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
       setState(() {
         recurrentPeriod = passedReccurrentRecordPattern!.recurrentPeriod;
-        recurrentPeriodIndex = passedReccurrentRecordPattern!.recurrentPeriod!.index;
+        recurrentPeriodIndex =
+            passedReccurrentRecordPattern!.recurrentPeriod!.index;
       });
     } else {
       // I am adding a new record
@@ -607,8 +613,10 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   recurrentPeriodHasBeenUpdated(RecurrentRecordPattern toSet) {
-    bool recurrentPeriodHasChanged = toSet.recurrentPeriod!.index != passedReccurrentRecordPattern!.recurrentPeriod!.index;
-    bool startingDateHasChanged = toSet.dateTime!.millisecondsSinceEpoch != passedReccurrentRecordPattern!.dateTime!.millisecondsSinceEpoch;
+    bool recurrentPeriodHasChanged = toSet.recurrentPeriod!.index !=
+        passedReccurrentRecordPattern!.recurrentPeriod!.index;
+    bool startingDateHasChanged = toSet.dateTime!.millisecondsSinceEpoch !=
+        passedReccurrentRecordPattern!.dateTime!.millisecondsSinceEpoch;
     return recurrentPeriodHasChanged || startingDateHasChanged;
   }
 
@@ -641,18 +649,23 @@ class EditRecordPageState extends State<EditRecordPage> {
   AppBar _getAppBar() {
     return AppBar(title: Text('Edit record'.i18n), actions: <Widget>[
       Visibility(
-          visible: widget.passedRecord != null || widget.passedReccurrentRecordPattern != null,
+          visible: widget.passedRecord != null ||
+              widget.passedReccurrentRecordPattern != null,
           child: IconButton(
               icon: const Icon(Icons.delete),
               tooltip: 'Delete'.i18n,
               onPressed: () async {
-                AlertDialogBuilder deleteDialog = AlertDialogBuilder("Critical action".i18n)
-                    .addTrueButtonName("Yes".i18n)
-                    .addFalseButtonName("No".i18n);
+                AlertDialogBuilder deleteDialog =
+                    AlertDialogBuilder("Critical action".i18n)
+                        .addTrueButtonName("Yes".i18n)
+                        .addFalseButtonName("No".i18n);
                 if (widget.passedRecord != null) {
-                  deleteDialog = deleteDialog.addSubtitle("Do you really want to delete this record?".i18n);
+                  deleteDialog = deleteDialog.addSubtitle(
+                      "Do you really want to delete this record?".i18n);
                 } else {
-                  deleteDialog = deleteDialog.addSubtitle("Do you really want to delete this recurrent record?".i18n);
+                  deleteDialog = deleteDialog.addSubtitle(
+                      "Do you really want to delete this recurrent record?"
+                          .i18n);
                 }
                 var continueDelete = await showDialog(
                     context: context,
@@ -663,8 +676,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                   if (widget.passedRecord != null) {
                     await database.deleteRecordById(record!.id);
                   } else {
-                    String patternId = widget.passedReccurrentRecordPattern!.id!;
-                    await database.deleteFutureRecordsByPatternId(patternId, DateTime.now());
+                    String patternId =
+                        widget.passedReccurrentRecordPattern!.id!;
+                    await database.deleteFutureRecordsByPatternId(
+                        patternId, DateTime.now());
                     await database.deleteRecurrentRecordPatternById(patternId);
                   }
                   Navigator.pop(context);
@@ -713,7 +728,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                 recurrentPatternId = this.passedReccurrentRecordPattern!.id;
               }
               await addOrUpdateRecurrentPattern(
-                  id: recurrentPatternId,
+                id: recurrentPatternId,
               );
             } else {
               // it is a normal record, either single or it comes from a

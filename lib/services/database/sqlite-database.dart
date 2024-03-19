@@ -345,7 +345,9 @@ class SqliteDatabase implements DatabaseInterface {
       String recurrentPatternId, DateTime startingDate) async {
     final db = (await database)!;
     int millisecondsSinceEpoch = startingDate.millisecondsSinceEpoch;
-    await db.delete("records",  where: "recurrence_id = ? AND datetime >= ?", whereArgs: [recurrentPatternId, millisecondsSinceEpoch]);
+    await db.delete("records",
+        where: "recurrence_id = ? AND datetime >= ?",
+        whereArgs: [recurrentPatternId, millisecondsSinceEpoch]);
   }
 
   @override

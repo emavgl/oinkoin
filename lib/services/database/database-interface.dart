@@ -25,7 +25,8 @@ abstract class DatabaseInterface {
   Future<List<Record?>> getAllRecords();
   Future<List<Record?>> getAllRecordsInInterval(DateTime? from, DateTime? to);
   Future<Record?> getMatchingRecord(Record? record);
-  Future<void> deleteFutureRecordsByPatternId(String recurrentPatternId, DateTime startingTime);
+  Future<void> deleteFutureRecordsByPatternId(
+      String recurrentPatternId, DateTime startingTime);
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName);
 

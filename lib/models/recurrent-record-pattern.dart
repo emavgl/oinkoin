@@ -23,7 +23,8 @@ class RecurrentRecordPattern {
       this.recurrentPeriod,
       {this.id, this.description, this.lastUpdate});
 
-  RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod, {this.id}) {
+  RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod,
+      {this.id}) {
     this.value = record.value;
     this.title = record.title;
     this.category = record.category;

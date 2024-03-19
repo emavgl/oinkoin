@@ -188,7 +188,8 @@ class InMemoryDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> deleteFutureRecordsByPatternId(String recurrentPatternId, DateTime startingTime) {
+  Future<void> deleteFutureRecordsByPatternId(
+      String recurrentPatternId, DateTime startingTime) {
     // TODO: implement deleteFutureRecordsByPatternId
     throw UnimplementedError();
   }
