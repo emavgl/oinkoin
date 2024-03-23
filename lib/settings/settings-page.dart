@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:piggybank/premium/splash-screen.dart';
@@ -35,6 +37,8 @@ class TabSettings extends StatelessWidget {
   }
 
   importFromBackupFile(BuildContext context) async {
+    var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
+    log("FilePicker has deleted cache: " + hasDeletedCache.toString());
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],

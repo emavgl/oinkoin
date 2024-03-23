@@ -382,46 +382,37 @@ class TabRecordsState extends State<TabRecords> {
                                 fit: BoxFit.cover,
                                 image: getBackgroundImage()))))),
           ),
-          SliverToBoxAdapter(
-            child: new ConstrainedBox(
-              constraints: new BoxConstraints(),
-              child: new Column(
-                children: <Widget>[
-                  Container(
-                      margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
-                      height: 100,
-                      child: DaysSummaryBox(records)),
-                  Divider(indent: 50, endIndent: 50),
-                  records.length == 0
-                      ? Container(
-                          child: Column(
-                          children: <Widget>[
-                            Image.asset(
-                              'assets/images/no_entry.png',
-                              width: 200,
-                            ),
-                            Text(
-                              "No entries yet.".i18n,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 22.0,
-                              ),
-                            )
-                          ],
-                        ))
-                      : Container(
-                          child: new RecordsDayList(
-                            records,
-                            onListBackCallback:
-                                updateRecurrentRecordsAndFetchRecords,
-                          ),
+          SliverList(delegate: SliverChildListDelegate(
+            [
+              Container(
+                  margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
+                  height: 100,
+                  child: DaysSummaryBox(records)),
+              Divider(indent: 50, endIndent: 50),
+              records.length == 0
+                  ? Container(
+                  child: Column(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_entry.png',
+                        width: 200,
+                      ),
+                      Text(
+                        "No entries yet.".i18n,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22.0,
                         ),
-                  SizedBox(height: 75),
-                ],
-              ),
-            ),
-          )
-        ],
+                      )
+                    ],
+                  )) : Container()
+            ],
+          )),
+          RecordsDayList(records, onListBackCallback: updateRecurrentRecordsAndFetchRecords,),
+          SliverList(delegate: SliverChildListDelegate([
+            SizedBox(height: 75,)
+          ]))
+        ]
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async => await navigateToAddNewMovementPage(),
