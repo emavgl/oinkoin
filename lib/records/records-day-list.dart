@@ -21,7 +21,7 @@ class RecordsDayList extends StatelessWidget {
     List<RecordsPerDay> _daysShown = groupRecordsByDay(records);
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
+        (BuildContext context, int index) {
           return RecordsPerDayCard(
             _daysShown[index],
             onListBackCallback: onListBackCallback,
