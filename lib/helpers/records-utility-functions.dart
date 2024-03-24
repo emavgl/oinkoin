@@ -6,7 +6,10 @@ import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:intl/number_symbols.dart';
+import '../services/database/database-interface.dart';
 import '../services/service-config.dart';
+import '../settings/homepage-time-interval.dart';
+import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   /// Groups the record in days using the object MovementsPerDay.
@@ -204,5 +207,48 @@ AssetImage getBackgroundImage() {
     } on Exception catch (_) {
       return AssetImage('assets/images/background.jpg');
     }
+  }
+}
+
+Future<List<Record?>> getAllRecords(DatabaseInterface database) async {
+  return await database.getAllRecords();
+}
+
+Future<List<Record?>> getRecordsByInterval(DatabaseInterface database,
+    DateTime? _from, DateTime? _to) async {
+  return await database.getAllRecordsInInterval(_from, _to);
+}
+
+Future<List<Record?>> getRecordsByMonth(DatabaseInterface database, int year, int month) async {
+  /// Returns the list of movements of a given month identified by
+  /// :year and :month integers.
+  DateTime _from = new DateTime(year, month, 1);
+  DateTime lastDayOfMonths = (_from.month < 12)
+      ? new DateTime(_from.year, _from.month + 1, 0)
+      : new DateTime(_from.year + 1, 1, 0);
+  DateTime _to = addDuration(lastDayOfMonths, Duration(hours: 23, minutes: 59));
+  return await getRecordsByInterval(database, _from, _to);
+}
+
+Future<List<Record?>> getRecordsByYear(DatabaseInterface database, int year) async {
+  /// Returns the list of movements of a given year identified by
+  /// :year integer.
+  return await getRecordsByInterval(database, new DateTime(year, 1, 1), new DateTime(year, 12, 31, 23, 59));
+}
+
+Future<List<Record?>> getRecordsByUserDefinedInterval(DatabaseInterface database) async {
+  var userDefinedHomepageIntervalIndex =
+      ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval")
+          ?? HomepageTimeInterval.CurrentMonth.index;
+  HomepageTimeInterval userDefinedInterval =
+  HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+  DateTime _now = DateTime.now();
+  switch (userDefinedInterval) {
+    case HomepageTimeInterval.CurrentMonth:
+      return getRecordsByMonth(database, _now.year, _now.month);
+    case HomepageTimeInterval.CurrentYear:
+      return getRecordsByYear(database, _now.year);
+    case HomepageTimeInterval.All:
+      return getAllRecords(database);
   }
 }

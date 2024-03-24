@@ -18,6 +18,7 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:share_plus/share_plus.dart';
 import '../helpers/records-utility-functions.dart';
+import '../settings/homepage-time-interval.dart';
 import 'days-summary-box-card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/i18n.dart';
@@ -34,21 +35,6 @@ class TabRecords extends StatefulWidget {
 }
 
 class TabRecordsState extends State<TabRecords> {
-  Future<List<Record?>> getRecordsByInterval(
-      DateTime? _from, DateTime? _to) async {
-    return await database.getAllRecordsInInterval(_from, _to);
-  }
-
-  Future<List<Record?>> getRecordsByMonth(int year, int month) async {
-    /// Returns the list of movements of a given month identified by
-    /// :year and :month integers.
-    _from = new DateTime(year, month, 1);
-    DateTime lastDayOfMonths = (_from!.month < 12)
-        ? new DateTime(_from!.year, _from!.month + 1, 0)
-        : new DateTime(_from!.year + 1, 1, 0);
-    _to = addDuration(lastDayOfMonths, Duration(hours: 23, minutes: 59));
-    return await getRecordsByInterval(_from, _to);
-  }
 
   List<Record?> records = [];
   DatabaseInterface database = ServiceConfig.database;
@@ -68,10 +54,8 @@ class TabRecordsState extends State<TabRecords> {
   void initState() {
     super.initState();
     DateTime _now = DateTime.now();
-    _header = getMonthStr(_now);
-
     RecurrentRecordService().updateRecurrentRecords().then((_) {
-      getRecordsByMonth(_now.year, _now.month).then((fetchedRecords) {
+      getRecordsByUserDefinedInterval(database).then((fetchedRecords) {
         setState(() {
           records = fetchedRecords;
         });
@@ -99,9 +83,11 @@ class TabRecordsState extends State<TabRecords> {
       locale: I18n.locale,
     );
     if (dateTime != null) {
-      var newRecords = await getRecordsByMonth(dateTime.year, dateTime.month);
+      var newRecords = await getRecordsByMonth(database,
+          dateTime.year,
+          dateTime.month);
       setState(() {
-        _header = getMonthStr(_from!);
+        _header = getMonthStr(dateTime);
         records = newRecords;
       });
     }
@@ -122,12 +108,8 @@ class TabRecordsState extends State<TabRecords> {
       context: context,
     );
     if (yearPicked != null) {
-      DateTime from = DateTime(yearPicked.year, 1, 1);
-      DateTime to = DateTime(yearPicked.year, 12, 31, 23, 59);
-      var newRecords = await getRecordsByInterval(from, to);
+      var newRecords = await getRecordsByYear(database, yearPicked.year);
       setState(() {
-        _from = from;
-        _to = to;
         _header = getDateRangeStr(_from!, _to!);
         records = newRecords;
       });
@@ -156,11 +138,9 @@ class TabRecordsState extends State<TabRecords> {
           dateTimeRange.start.month, dateTimeRange.start.day);
       var endDate = DateTime(dateTimeRange.end.year, dateTimeRange.end.month,
           dateTimeRange.end.day, 23, 59);
-      var newRecords = await getRecordsByInterval(startDate, endDate);
+      var newRecords = await getRecordsByInterval(database, startDate, endDate);
       setState(() {
-        _from = startDate;
-        _to = endDate;
-        _header = getDateRangeStr(_from!, _to!);
+        _header = getDateRangeStr(startDate, endDate);
         records = newRecords;
       });
     }
@@ -314,84 +294,84 @@ class TabRecordsState extends State<TabRecords> {
     double headerFontSize = _header.length > 13 ? 18 : 22;
     double headerPaddingBottom = _header.length > 13 ? 15 : 13;
     return Scaffold(
-      body: new CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            elevation: 0,
-            backgroundColor: Theme.of(context).primaryColor,
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () async => await _showSelectDateDialog(),
-                  color: Colors.white),
-              IconButton(
-                  icon: Icon(Icons.donut_small),
-                  onPressed: () => navigateToStatisticsPage(),
-                  color: Colors.white),
-              PopupMenuButton<int>(
-                icon: Icon(Icons.more_vert, color: Colors.white),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
+      body: new CustomScrollView(slivers: [
+        SliverAppBar(
+          elevation: 0,
+          backgroundColor: Theme.of(context).primaryColor,
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.calendar_today),
+                onPressed: () async => await _showSelectDateDialog(),
+                color: Colors.white),
+            IconButton(
+                icon: Icon(Icons.donut_small),
+                onPressed: () => navigateToStatisticsPage(),
+                color: Colors.white),
+            PopupMenuButton<int>(
+              icon: Icon(Icons.more_vert, color: Colors.white),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
                 ),
-                onSelected: (index) async {
-                  if (index == 1) {
-                    var csvStr =
-                        CSVExporter.createCSVFromRecordList(this.records);
-                    final path = await getApplicationDocumentsDirectory();
-                    var backupJsonOnDisk = File(path.path + "/records.csv");
-                    await backupJsonOnDisk.writeAsString(csvStr);
-                    Share.shareFiles([backupJsonOnDisk.path]);
-                  }
-                },
-                itemBuilder: (BuildContext context) {
-                  return {"Export CSV".i18n: 1}.entries.map((entry) {
-                    return PopupMenuItem<int>(
-                      padding: EdgeInsets.all(20),
-                      value: entry.value,
-                      child: Text(entry.key,
-                          style: TextStyle(
-                            fontSize: 16,
-                          )),
-                    );
-                  }).toList();
-                },
               ),
-            ],
-            pinned: true,
-            expandedHeight: 180,
-            flexibleSpace: FlexibleSpaceBar(
-                stretchModes: <StretchMode>[
-                  StretchMode.zoomBackground,
-                  StretchMode.blurBackground,
-                  StretchMode.fadeTitle,
-                ],
-                centerTitle: false,
-                titlePadding:
-                    EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
-                title: Text(_header,
-                    style: TextStyle(
-                        color: Colors.white, fontSize: headerFontSize)),
-                background: ColorFiltered(
-                    colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(0.1), BlendMode.srcATop),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: getBackgroundImage()))))),
-          ),
-          SliverList(delegate: SliverChildListDelegate(
-            [
-              Container(
-                  margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
-                  height: 100,
-                  child: DaysSummaryBox(records)),
-              Divider(indent: 50, endIndent: 50),
-              records.length == 0
-                  ? Container(
-                  child: Column(
+              onSelected: (index) async {
+                if (index == 1) {
+                  var csvStr =
+                      CSVExporter.createCSVFromRecordList(this.records);
+                  final path = await getApplicationDocumentsDirectory();
+                  var backupJsonOnDisk = File(path.path + "/records.csv");
+                  await backupJsonOnDisk.writeAsString(csvStr);
+                  Share.shareFiles([backupJsonOnDisk.path]);
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {"Export CSV".i18n: 1}.entries.map((entry) {
+                  return PopupMenuItem<int>(
+                    padding: EdgeInsets.all(20),
+                    value: entry.value,
+                    child: Text(entry.key,
+                        style: TextStyle(
+                          fontSize: 16,
+                        )),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+          pinned: true,
+          expandedHeight: 180,
+          flexibleSpace: FlexibleSpaceBar(
+              stretchModes: <StretchMode>[
+                StretchMode.zoomBackground,
+                StretchMode.blurBackground,
+                StretchMode.fadeTitle,
+              ],
+              centerTitle: false,
+              titlePadding:
+                  EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
+              title: Text(_header,
+                  style:
+                      TextStyle(color: Colors.white, fontSize: headerFontSize)),
+              background: ColorFiltered(
+                  colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(0.1), BlendMode.srcATop),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: getBackgroundImage()))))),
+        ),
+        SliverList(
+            delegate: SliverChildListDelegate(
+          [
+            Container(
+                margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
+                height: 100,
+                child: DaysSummaryBox(records)),
+            Divider(indent: 50, endIndent: 50),
+            records.length == 0
+                ? Container(
+                    child: Column(
                     children: <Widget>[
                       Image.asset(
                         'assets/images/no_entry.png',
@@ -405,15 +385,21 @@ class TabRecordsState extends State<TabRecords> {
                         ),
                       )
                     ],
-                  )) : Container()
-            ],
-          )),
-          RecordsDayList(records, onListBackCallback: updateRecurrentRecordsAndFetchRecords,),
-          SliverList(delegate: SliverChildListDelegate([
-            SizedBox(height: 75,)
-          ]))
-        ]
-      ),
+                  ))
+                : Container()
+          ],
+        )),
+        RecordsDayList(
+          records,
+          onListBackCallback: updateRecurrentRecordsAndFetchRecords,
+        ),
+        SliverList(
+            delegate: SliverChildListDelegate([
+          SizedBox(
+            height: 75,
+          )
+        ]))
+      ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () async => await navigateToAddNewMovementPage(),
         tooltip: 'Add a new record'.i18n,
