@@ -204,10 +204,13 @@ class EditRecordPageState extends State<EditRecordPage> {
         text = text.replaceAll(".", ",");
       }
 
+      // Get the current selection
+      TextSelection previousSelection = _textEditingController.selection;
+
+      // Update the text
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
-        selection:
-            TextSelection(baseOffset: text.length, extentOffset: text.length),
+        selection: previousSelection,
         composing: TextRange.empty,
       );
     });
@@ -220,6 +223,9 @@ class EditRecordPageState extends State<EditRecordPage> {
         solveMathExpressionAndUpdateText();
       }
     });
+
+    String initialValue = record?.title ?? "";
+    _typeAheadController.text = initialValue;
   }
 
   Widget _createAddNoteCard() {
@@ -260,7 +266,6 @@ class EditRecordPageState extends State<EditRecordPage> {
         child: TypeAheadField<String>(
           controller: _typeAheadController,
           builder: (context, controller, focusNode) {
-            controller.text = record?.title ?? "";
             return TextFormField(
                 controller: controller,
                 focusNode: focusNode,
