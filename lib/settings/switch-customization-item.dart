@@ -71,6 +71,7 @@ class SwitchCustomizationItemState<T> extends State<SwitchCustomizationItem> {
       ),
       title: Text(widget.title, style: titleTextStyle),
       subtitle: Text(widget.subtitle, style: subtitleTextStyle),
+      contentPadding: EdgeInsets.fromLTRB(16, 0, 10, 10),
     );
   }
 }

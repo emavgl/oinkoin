@@ -75,7 +75,7 @@ class BarChartCard extends StatelessWidget {
       end = DateTime(to!.year + 1);
       chartScope = DateFormat("yyyy").format(start) +
           " - " +
-          DateFormat("yyyy").format(end);
+          DateFormat("yyyy").format(DateTime(to!.year));
     } else {
       dateFormat = DateFormat("dd");
       start = DateTime(records[0]!.dateTime!.year, records[0]!.dateTime!.month);

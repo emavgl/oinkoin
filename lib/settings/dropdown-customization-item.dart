@@ -182,7 +182,7 @@ class DropdownCustomizationItemState<T>
             color: Theme.of(context).colorScheme.secondary,
             fontSize: subTitleFontSize),
       ),
-      contentPadding: EdgeInsets.fromLTRB(20, 8, 10, 10),
+      contentPadding: EdgeInsets.fromLTRB(16, 0, 10, 10),
     );
   }
 }
