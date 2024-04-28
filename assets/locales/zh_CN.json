@@ -151,5 +151,12 @@
     "Icon": "图标",
     "Add recurrent expenses": "添加定期支出",
     "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": "点击下方按钮发送反馈邮件，您宝贵的建议将帮助我们更好成长！",
-    "Select the currency": "Select the currency"
+    "Select the currency": "Select the currency",
+    "Reset to default dates": "Reset to default dates",
+    "Records of the current month": "Records of the current month",
+    "Records of the current year": "Records of the current year",
+    "All records": "All records",
+    "Homepage time interval": "Homepage time interval",
+    "Define the records to show in the app homepage": "Define the records to show in the app homepage",
+    "All records until %s": "All records until %s"
 }
