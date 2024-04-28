@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/homepage-time-interval.dart';
 import 'package:piggybank/settings/style.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -77,6 +78,12 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Record's name suggestions
     enableRecordNameSuggestions =
         prefs.getBool("enableRecordNameSuggestions") ?? true;
+
+    // Homepage time interval
+    var userDefinedHomepageInterval = prefs.getInt("homepageTimeInterval") ??
+        HomepageTimeInterval.CurrentMonth.index;
+    homepageTimeIntervalValue = getKeyFromObject<int>(
+        homepageTimeIntervalValues, userDefinedHomepageInterval);
   }
 
   late SharedPreferences prefs;
@@ -135,6 +142,15 @@ class CustomizationPageState extends State<CustomizationPage> {
   };
   late Map<String, String> allowedGroupSeparatorsValues;
   late String groupSeparatorDropdownKey;
+
+  // Time Interval
+  Map<String, int> homepageTimeIntervalValues = {
+    "Records of the current month".i18n:
+        HomepageTimeInterval.CurrentMonth.index,
+    "Records of the current year".i18n: HomepageTimeInterval.CurrentYear.index,
+    "All records".i18n: HomepageTimeInterval.All.index,
+  };
+  late String homepageTimeIntervalValue;
 
   // Decimal separator
   Map<String, String> decimalSeparatorValues = {
@@ -241,6 +257,14 @@ class CustomizationPageState extends State<CustomizationPage> {
                         switchValue: overwriteDotValueWithComma,
                         sharedConfigKey: "overwriteDotValueWithComma",
                       ),
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Homepage time interval".i18n,
+                      subtitle:
+                          "Define the records to show in the app homepage".i18n,
+                      dropdownValues: homepageTimeIntervalValues,
+                      selectedDropdownKey: homepageTimeIntervalValue,
+                      sharedConfigKey: "homepageTimeInterval",
                     ),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,

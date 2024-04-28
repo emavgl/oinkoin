@@ -89,13 +89,11 @@ class ShellState extends State<Shell> {
               NavigationDestination(
                   label: "Categories".i18n,
                   selectedIcon: Icon(Icons.category),
-                  icon: Icon(Icons.category_outlined)
-              ),
+                  icon: Icon(Icons.category_outlined)),
               NavigationDestination(
                   label: "Settings".i18n,
                   selectedIcon: Icon(Icons.settings),
-                  icon: Icon(Icons.settings_outlined)
-              ),
+                  icon: Icon(Icons.settings_outlined)),
             ]));
   }
 }
