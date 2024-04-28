@@ -35,12 +35,15 @@ class TabRecords extends StatefulWidget {
 }
 
 class TabRecordsState extends State<TabRecords> {
-
   List<Record?> records = [];
   DatabaseInterface database = ServiceConfig.database;
-  DateTime? _from;
-  DateTime? _to;
   late String _header;
+
+  // Datetime defining a custom time interval
+  // Normally null, but if the user change the interval
+  // they are set and eventually used in updateRecurrentRecordsAndFetchRecords
+  DateTime? _customIntervalFrom;
+  DateTime? _customIntervalTo;
 
   final GlobalKey<CategoryTabPageViewState> _categoryTabPageViewStateKey =
       GlobalKey();
@@ -53,11 +56,11 @@ class TabRecordsState extends State<TabRecords> {
   @override
   void initState() {
     super.initState();
-    DateTime _now = DateTime.now();
     RecurrentRecordService().updateRecurrentRecords().then((_) {
       getRecordsByUserDefinedInterval(database).then((fetchedRecords) {
         setState(() {
           records = fetchedRecords;
+          _header = getHeaderForUserDefinedInterval();
         });
       });
     });
@@ -73,7 +76,7 @@ class TabRecordsState extends State<TabRecords> {
 
   pickMonth() async {
     /// Open the dialog to pick a Month
-    DateTime? currentDate = _from;
+    DateTime? currentDate = _customIntervalFrom ?? DateTime.now();
     int currentYear = DateTime.now().year;
     DateTime? dateTime = await showMonthPicker(
       context: context,
@@ -83,9 +86,10 @@ class TabRecordsState extends State<TabRecords> {
       locale: I18n.locale,
     );
     if (dateTime != null) {
-      var newRecords = await getRecordsByMonth(database,
-          dateTime.year,
-          dateTime.month);
+      _customIntervalFrom = new DateTime(dateTime.year, dateTime.month, 1);
+      _customIntervalTo = getEndOfMonth(dateTime.year, dateTime.month);
+      var newRecords =
+          await getRecordsByMonth(database, dateTime.year, dateTime.month);
       setState(() {
         _header = getMonthStr(dateTime);
         records = newRecords;
@@ -108,9 +112,11 @@ class TabRecordsState extends State<TabRecords> {
       context: context,
     );
     if (yearPicked != null) {
+      _customIntervalFrom = new DateTime(yearPicked.year, 1, 1);
+      _customIntervalTo = new DateTime(yearPicked.year, 12, 31, 23, 59);
       var newRecords = await getRecordsByYear(database, yearPicked.year);
       setState(() {
-        _header = getDateRangeStr(_from!, _to!);
+        _header = getDateRangeStr(_customIntervalFrom!, _customIntervalTo!);
         records = newRecords;
       });
     }
@@ -134,13 +140,14 @@ class TabRecordsState extends State<TabRecords> {
           .forcedLocale, // do not change, it has some bug if not used forced locale
     );
     if (dateTimeRange != null) {
-      var startDate = DateTime(dateTimeRange.start.year,
+      _customIntervalFrom = DateTime(dateTimeRange.start.year,
           dateTimeRange.start.month, dateTimeRange.start.day);
-      var endDate = DateTime(dateTimeRange.end.year, dateTimeRange.end.month,
-          dateTimeRange.end.day, 23, 59);
-      var newRecords = await getRecordsByInterval(database, startDate, endDate);
+      _customIntervalTo = DateTime(dateTimeRange.end.year,
+          dateTimeRange.end.month, dateTimeRange.end.day, 23, 59);
+      var newRecords = await getRecordsByInterval(
+          database, _customIntervalFrom, _customIntervalTo);
       setState(() {
-        _header = getDateRangeStr(startDate, endDate);
+        _header = getDateRangeStr(_customIntervalFrom!, _customIntervalTo!);
         records = newRecords;
       });
     }
@@ -229,6 +236,32 @@ class TabRecordsState extends State<TabRecords> {
                     color: boxBackgroundColor,
                   )),
             )),
+        Visibility(
+          visible: _customIntervalFrom != null, // custom time was chosen
+          child: SimpleDialogOption(
+              onPressed: () async {
+                _customIntervalFrom = null;
+                _customIntervalTo = null;
+                await updateRecurrentRecordsAndFetchRecords();
+                Navigator.of(context, rootNavigator: true)
+                    .pop('dialog'); // close the dialog
+              },
+              child: ListTile(
+                title: Text("Reset to default dates".i18n),
+                leading: Container(
+                    width: 40,
+                    height: 40,
+                    child: Icon(
+                      FontAwesomeIcons.calendarXmark,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: boxBackgroundColor,
+                    )),
+              )),
+        )
       ],
     );
   }
@@ -239,7 +272,21 @@ class TabRecordsState extends State<TabRecords> {
     /// this page after have visited the page add-movement.
     var recurrentRecordService = RecurrentRecordService();
     await recurrentRecordService.updateRecurrentRecords();
-    var newRecords = await getRecordsByInterval(_from, _to);
+    List<Record?> newRecords;
+    if (_customIntervalFrom != null) {
+      // A custom interval got chosen
+      newRecords = await getRecordsByInterval(
+          database, _customIntervalFrom, _customIntervalTo);
+    } else {
+      // Use the pre-defined choice of the user
+      newRecords = await getRecordsByUserDefinedInterval(database);
+
+      // Need to change the header also here
+      // Since the user can define a new settings and come back to this page
+      setState(() {
+        _header = getHeaderForUserDefinedInterval();
+      });
+    }
     setState(() {
       records = newRecords;
     });
@@ -276,11 +323,23 @@ class TabRecordsState extends State<TabRecords> {
 
   navigateToStatisticsPage() {
     /// Navigate to the Statistics Page
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => StatisticsPage(_from, _to, records)),
-    );
+    if (_customIntervalTo == null) {
+      getUserDefinedInterval(database).then((userDefinedInterval) =>
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    StatisticsPage(userDefinedInterval[0], userDefinedInterval[1], records)),
+          )
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                StatisticsPage(_customIntervalFrom, _customIntervalTo, records)),
+      );
+    }
   }
 
   onTabChange() async {

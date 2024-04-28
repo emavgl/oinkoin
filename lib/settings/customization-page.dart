@@ -80,8 +80,10 @@ class CustomizationPageState extends State<CustomizationPage> {
         prefs.getBool("enableRecordNameSuggestions") ?? true;
 
     // Homepage time interval
-    var userDefinedHomepageInterval = prefs.getInt("homepageTimeInterval") ?? HomepageTimeInterval.CurrentMonth.index;
-    homepageTimeIntervalValue = getKeyFromObject<int>(homepageTimeIntervalValues, userDefinedHomepageInterval);
+    var userDefinedHomepageInterval = prefs.getInt("homepageTimeInterval") ??
+        HomepageTimeInterval.CurrentMonth.index;
+    homepageTimeIntervalValue = getKeyFromObject<int>(
+        homepageTimeIntervalValues, userDefinedHomepageInterval);
   }
 
   late SharedPreferences prefs;
@@ -143,7 +145,8 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   // Time Interval
   Map<String, int> homepageTimeIntervalValues = {
-    "Records of the current month".i18n: HomepageTimeInterval.CurrentMonth.index,
+    "Records of the current month".i18n:
+        HomepageTimeInterval.CurrentMonth.index,
     "Records of the current year".i18n: HomepageTimeInterval.CurrentYear.index,
     "All records".i18n: HomepageTimeInterval.All.index,
   };
@@ -257,7 +260,8 @@ class CustomizationPageState extends State<CustomizationPage> {
                     ),
                     DropdownCustomizationItem(
                       title: "Homepage time interval".i18n,
-                      subtitle: "Define the records to show in the app homepage".i18n,
+                      subtitle:
+                          "Define the records to show in the app homepage".i18n,
                       dropdownValues: homepageTimeIntervalValues,
                       selectedDropdownKey: homepageTimeIntervalValue,
                       sharedConfigKey: "homepageTimeInterval",

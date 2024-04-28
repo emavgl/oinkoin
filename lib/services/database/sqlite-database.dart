@@ -411,4 +411,23 @@ class SqliteDatabase implements DatabaseInterface {
     return await db.update("recurrent_record_patterns", patternMap,
         where: "id = ?", whereArgs: [recurrentPatternId]);
   }
+
+  @override
+  Future<DateTime?> getDateTimeFirstRecord() async {
+    final db = await database; // Assuming you have a database connection
+    final maps = await db?.rawQuery("""
+        SELECT m.*, c.name, c.color, c.category_type, c.icon
+        FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
+        ORDER BY m.datetime ASC
+        LIMIT 1
+      """);
+
+    var results = List.generate(maps!.length, (i) {
+      Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
+      currentRowMap["category"] = Category.fromMap(currentRowMap);
+      return Record.fromMap(currentRowMap);
+    });
+
+    return results.isNotEmpty ? results[0].dateTime : null;
+  }
 }

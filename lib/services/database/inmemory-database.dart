@@ -199,4 +199,10 @@ class InMemoryDatabase implements DatabaseInterface {
     // TODO: implement removeRecurrentPatternAssignment
     throw UnimplementedError();
   }
+
+  @override
+  Future<DateTime> getDateTimeFirstRecord() {
+    // TODO: implement getDateTimeFirstRecord
+    throw UnimplementedError();
+  }
 }

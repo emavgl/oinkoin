@@ -1,5 +1,1 @@
-enum HomepageTimeInterval {
-  CurrentMonth,
-  CurrentYear,
-  All
-}
+enum HomepageTimeInterval { CurrentMonth, CurrentYear, All }
