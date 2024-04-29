@@ -151,5 +151,12 @@
     "Icon": "Значок",
     "Add recurrent expenses": "Добавить регулярные расходы",
     "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": "Нажмите на кнопку, чтобы отправить сообщение по эл. почте. Обратная связь помогает нам становиться лучше.",
-    "Select the currency": "Выберите валюту"
+    "Select the currency": "Выберите валюту",
+    "Reset to default dates": "Reset to default dates",
+    "Records of the current month": "Records of the current month",
+    "Records of the current year": "Records of the current year",
+    "All records": "All records",
+    "Homepage time interval": "Homepage time interval",
+    "Define the records to show in the app homepage": "Define the records to show in the app homepage",
+    "All records until %s": "All records until %s"
 }

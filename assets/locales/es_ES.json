@@ -151,5 +151,12 @@
     "Icon": "Icono",
     "Add recurrent expenses": "Agregar gastos recurrentes",
     "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": "Al hacer clic en el botón de abajo puede enviarnos un correo con tus comentarios. ¡Sus comentarios son muy apreciados y nos ayudarán a crecer!",
-    "Select the currency": "Seleccione la divisa"
+    "Select the currency": "Seleccione la divisa",
+    "Reset to default dates": "Reset to default dates",
+    "Records of the current month": "Records of the current month",
+    "Records of the current year": "Records of the current year",
+    "All records": "All records",
+    "Homepage time interval": "Homepage time interval",
+    "Define the records to show in the app homepage": "Define the records to show in the app homepage",
+    "All records until %s": "All records until %s"
 }
