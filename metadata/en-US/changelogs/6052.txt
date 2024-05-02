@@ -1,0 +1,3 @@
+- Fix bug when importing a backup
+- Improve record list performance
+- Add the possibility to specify which data-range to visualize by default when opening the app: Current Month, Current Year, All Records
