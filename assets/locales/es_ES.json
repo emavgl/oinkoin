@@ -152,11 +152,11 @@
     "Add recurrent expenses": "Agregar gastos recurrentes",
     "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": "Al hacer clic en el botón de abajo puede enviarnos un correo con tus comentarios. ¡Sus comentarios son muy apreciados y nos ayudarán a crecer!",
     "Select the currency": "Seleccione la divisa",
-    "Reset to default dates": "Reset to default dates",
+    "Reset to default dates": "Restablecer a las fechas por defecto",
     "Records of the current month": "Registros del mes actual",
     "Records of the current year": "Registros del año actual",
-    "All records": "All records",
-    "Homepage time interval": "Homepage time interval",
-    "Define the records to show in the app homepage": "Define the records to show in the app homepage",
-    "All records until %s": "All records until %s"
+    "All records": "Todos los registros",
+    "Homepage time interval": "Intervalo de tiempo de la página de inicio",
+    "Define the records to show in the app homepage": "Definir los registros a mostrar en la página de inicio de la app",
+    "All records until %s": "Todos los registros hasta %s"
 }
