@@ -1,0 +1,1 @@
+- Bug fix: Line Average is now above the bar-chart
