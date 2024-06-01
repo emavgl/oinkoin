@@ -2,7 +2,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:i18n_extension/i18n_widget.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/components/year-picker.dart';
@@ -18,7 +18,6 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:share_plus/share_plus.dart';
 import '../helpers/records-utility-functions.dart';
-import '../settings/homepage-time-interval.dart';
 import 'days-summary-box-card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/i18n.dart';
@@ -37,7 +36,7 @@ class TabRecords extends StatefulWidget {
 class TabRecordsState extends State<TabRecords> {
   List<Record?> records = [];
   DatabaseInterface database = ServiceConfig.database;
-  late String _header;
+  String _header = "";
 
   // Datetime defining a custom time interval
   // Normally null, but if the user change the interval

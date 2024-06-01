@@ -14,14 +14,14 @@ description: The expenses under your control.
 version: 1.0.60+6054
 
 environment:
-  sdk: '>=2.17.0 <=3.3.4'
+  sdk: '>=2.17.0 <=3.4.1'
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:    # i18n
     sdk: flutter            # i18n
-  i18n_extension: ^10.0.1
+  i18n_extension: ^12.0.1
   i18n_extension_importer: 0.0.6
   sqflite: ^2.3.0
   path: ^1.8.3
@@ -30,7 +30,7 @@ dependencies:
   community_charts_common: ^1.0.2
   community_charts_flutter: ^1.0.2
   animations: ^2.0.10
-  month_picker_dialog: ^2.4.0
+  month_picker_dialog: ^3.0.0
   share_plus: ^7.2.1
   flutter_speed_dial: ^7.0.0
   url_launcher: ^6.2.2
@@ -46,7 +46,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   font_awesome_flutter: ^10.6.0
-  intl: ^0.18.1
+  intl: ^0.19.0
   function_tree: ^0.9.1
   system_theme: ^2.3.1
   flutter_typeahead: ^5.2.0
