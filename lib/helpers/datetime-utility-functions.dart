@@ -55,13 +55,13 @@ String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod}) {
   Locale myLocale = I18n.locale;
   if (aggregationMethod != null) {
     if (aggregationMethod == AggregationMethod.MONTH) {
-      return DateFormat.yM(myLocale.languageCode).format(dateTime!);
+      return DateFormat.yM(myLocale.toString()).format(dateTime!);
     }
     if (aggregationMethod == AggregationMethod.YEAR) {
-      return DateFormat.y(myLocale.languageCode).format(dateTime!);
+      return DateFormat.y(myLocale.toString()).format(dateTime!);
     }
   }
-  return DateFormat.yMd(myLocale.languageCode).format(dateTime!);
+  return DateFormat.yMd(myLocale.toString()).format(dateTime!);
 }
 
 String extractMonthString(DateTime dateTime) {
