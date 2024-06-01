@@ -108,7 +108,8 @@ class CustomizationPageState extends State<CustomizationPage> {
   Map<String, String> languageToLocaleTranslation = {
     "System".i18n: "system",
     "Deutsch": "de_DE",
-    "English": "en_US",
+    "English (US)": "en_US",
+    "English (UK)": "en_GB",
     "Español": "es_ES",
     "Français": "fr_FR",
     "Italiano": "it_IT",

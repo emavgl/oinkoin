@@ -103,7 +103,8 @@ class OinkoinAppState extends State<OinkoinApp> {
           return attemptedLocale;
         },
         supportedLocales: [
-          const Locale.fromSubtags(languageCode: 'en'),
+          const Locale.fromSubtags(languageCode: 'en', countryCode: "US"),
+          const Locale.fromSubtags(languageCode: 'en', countryCode: "GB"),
           const Locale.fromSubtags(languageCode: 'it'),
           const Locale.fromSubtags(languageCode: 'de'),
           const Locale.fromSubtags(languageCode: 'fr'),
