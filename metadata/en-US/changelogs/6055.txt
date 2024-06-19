@@ -1,0 +1,2 @@
+- Update translations
+- Added translation en_GB
