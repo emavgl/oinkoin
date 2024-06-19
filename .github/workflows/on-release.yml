@@ -81,8 +81,8 @@ jobs:
 
       - name: Build app bundle
         run: |
-          flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
-          flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
+          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
+          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
 
       - name: Publish on Google Play Free
         uses: r0adkll/upload-google-play@v1
