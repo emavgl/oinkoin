@@ -26,11 +26,17 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
 
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
+      # Navigate to the submodule and perform the necessary git operations
+      - name: Update flutter submodule to stable branch
+        run: |
+          git submodule update --init --recursive
+          cd submodules/flutter
+          git reset --merge
+          git checkout stable
+          git pull origin stable
+          cd ../..
 
-      - run: flutter pub get
+      - run: submodules/flutter/bin/flutter pub get
 
       - name: Set up signing config
         run: |
@@ -59,7 +65,7 @@ jobs:
           git push origin ${{ github.event.release.tag_name }}
 
       - name: Build APK
-        run: flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi
+        run: submodules/flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 

@@ -104,3 +104,15 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
+
+// F-droid requires variant.versionCode * 1000 + baseAbiVersionCode
+// instead of the flutter default: baseAbiVersionCode * 1000 + variant.versionCode
+// read more at: https://github.com/emavgl/oinkoin/issues/120
+android.applicationVariants.all { variant ->
+    variant.outputs.each { output ->
+        def baseAbiVersionCode = project.ext.abiCodes.get(output.getFilter(OutputFile.ABI))
+        if (baseAbiVersionCode != null) {
+            output.versionCodeOverride = variant.versionCode * 1000 + baseAbiVersionCode
+        }
+    }
+}
