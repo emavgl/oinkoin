@@ -79,7 +79,6 @@ class TabRecordsState extends State<TabRecords> {
     int currentYear = DateTime.now().year;
     DateTime? dateTime = await showMonthPicker(
       context: context,
-      firstDate: DateTime(2018, 1),
       lastDate: DateTime(currentYear + 1, 12),
       initialDate: currentDate,
       locale: I18n.locale,
@@ -103,7 +102,7 @@ class TabRecordsState extends State<TabRecords> {
     DateTime currentDate = DateTime.now();
     DateTime initialDate = DateTime(currentDate.year, 1);
     DateTime lastDate = DateTime(currentDate.year + 1, 1);
-    DateTime firstDate = DateTime(2018, currentDate.month);
+    DateTime firstDate = DateTime(1950, currentDate.month);
     DateTime? yearPicked = await showYearPicker(
       firstDate: firstDate,
       lastDate: lastDate,
