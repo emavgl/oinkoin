@@ -223,6 +223,7 @@ class _DatePickerDialog extends StatefulWidget {
 class _DatePickerDialogState extends State<_DatePickerDialog> {
   DatePickerEntryMode? _entryMode;
   DateTime? _selectedDate;
+  // ignore: unused_field
   bool? _autoValidate;
   final GlobalKey _calendarPickerKey = GlobalKey();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -265,7 +266,6 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
           case Orientation.landscape:
             return _calendarLandscapeDialogSize;
         }
-        break;
       case DatePickerEntryMode.input:
         switch (orientation) {
           case Orientation.portrait:
@@ -273,13 +273,14 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
           case Orientation.landscape:
             return _inputLandscapeDialogSize;
         }
-        break;
       case DatePickerEntryMode.calendarOnly:
         // TODO: Handle this case.
         break;
       case DatePickerEntryMode.inputOnly:
         // TODO: Handle this case.
         break;
+      case null:
+        return null;
     }
     return null;
   }

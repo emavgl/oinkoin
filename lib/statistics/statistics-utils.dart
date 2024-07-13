@@ -24,7 +24,6 @@ double? computeAverage(DateTime from, DateTime to,
       return sumValues /
           records
               .length; // divide for each entries (eg. 20), not for each days (30).
-      break;
     case AggregationMethod.MONTH:
       // Question here is: how much of the month I am covering.
       // If a new month is starting, I don't want the it counts as an entire
@@ -38,13 +37,10 @@ double? computeAverage(DateTime from, DateTime to,
       // But Am I counting the days with expenses, or all the days.
       // If a count just the days with expenses, how much sense has this ...
       return sumValues / computeNumberOfMonthsBetweenTwoDates(from, to);
-      break;
     case AggregationMethod.YEAR:
       return sumValues / computeNumberOfYearsBetweenTwoDates(from, to);
-      break;
     default:
       return sumValues / records.length;
-      break;
   }
 }
 

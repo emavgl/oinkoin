@@ -7,7 +7,6 @@ import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:intl/number_symbols.dart';
-import 'package:piggybank/statistics/statistics-models.dart';
 import '../services/database/database-interface.dart';
 import '../services/service-config.dart';
 import '../settings/homepage-time-interval.dart';
@@ -70,6 +69,13 @@ bool getOverwriteDotValue() {
   return ServiceConfig.sharedPreferences
           ?.getBool("overwriteDotValueWithComma") ??
       getDecimalSeparator() == ",";
+}
+
+bool getOverwriteCommaValue() {
+  if (getDecimalSeparator() == ",") return false;
+  return ServiceConfig.sharedPreferences
+      ?.getBool("overwriteCommaValueWithDot") ??
+      getDecimalSeparator() == ".";
 }
 
 Locale getCurrencyLocale() {
@@ -186,6 +192,11 @@ String getCurrencyValueString(double? value, {turnOffGrouping = false}) {
 
 double? tryParseCurrencyString(String toParse) {
   try {
+    // Apparently numberFormat.parse is very fragile if for some reason
+    // the string contains characters which are not the decimal or the
+    // group separator, for this reason, it is better to strip those characters
+    // in advance.
+    toParse = stripUnknownPatternCharacters(toParse);
     NumberFormat? numberFormat = ServiceConfig.currencyNumberFormat;
     if (numberFormat == null) {
       setNumberFormatCache();
@@ -196,6 +207,18 @@ double? tryParseCurrencyString(String toParse) {
   } catch (e) {
     return null;
   }
+}
+
+String stripUnknownPatternCharacters(String toParse) {
+  String decimalSeparator = getDecimalSeparator();
+  String groupingSeparator = getGroupingSeparator();
+  // Use a regular expression to keep only digits,
+  // the decimal separator, and the grouping separator
+  String pattern = '[0-9' +
+      RegExp.escape(decimalSeparator) + RegExp.escape(groupingSeparator) + ']';
+  RegExp regex = RegExp(pattern);
+  String result = toParse.split('').where((char) => regex.hasMatch(char)).join();
+  return result;
 }
 
 AssetImage getBackgroundImage() {

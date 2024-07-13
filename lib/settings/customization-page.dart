@@ -75,6 +75,10 @@ class CustomizationPageState extends State<CustomizationPage> {
     overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ??
         getDecimalSeparator() == ",";
 
+    // Overwrite comma
+    overwriteCommaValueWithDot = prefs.getBool("overwriteCommaValueWithDot") ??
+        getDecimalSeparator() == ".";
+
     // Record's name suggestions
     enableRecordNameSuggestions =
         prefs.getBool("enableRecordNameSuggestions") ?? true;
@@ -161,11 +165,23 @@ class CustomizationPageState extends State<CustomizationPage> {
   late String decimalSeparatorDropdownKey;
 
   late bool overwriteDotValueWithComma;
+  late bool overwriteCommaValueWithDot;
   late bool enableRecordNameSuggestions;
 
   void invalidateNumberPatternCache() {
     ServiceConfig.currencyNumberFormat = null;
     ServiceConfig.currencyNumberFormatWithoutGrouping = null;
+  }
+
+  void invalidateOverwritePreferences() async {
+    if (ServiceConfig.sharedPreferences!
+        .containsKey("overwriteDotValueWithComma")) {
+      await ServiceConfig.sharedPreferences?.remove("overwriteDotValueWithComma");
+    }
+    if (ServiceConfig.sharedPreferences!
+        .containsKey("overwriteCommaValueWithDot")) {
+      await ServiceConfig.sharedPreferences?.remove("overwriteCommaValueWithDot");
+    }
   }
 
   @override
@@ -226,11 +242,9 @@ class CustomizationPageState extends State<CustomizationPage> {
                         sharedConfigKey: "decimalSeparator",
                         onChanged: () {
                           invalidateNumberPatternCache();
+                          invalidateOverwritePreferences();
                           setState(() {
                             fetchAllThePreferences();
-                            overwriteDotValueWithComma =
-                                prefs.getBool("overwriteDotValueWithComma") ??
-                                    getDecimalSeparator() == ",";
                             if (decimalSeparatorDropdownKey ==
                                 groupSeparatorDropdownKey) {
                               // Inconsistency, disable group separator
@@ -257,6 +271,16 @@ class CustomizationPageState extends State<CustomizationPage> {
                             "When typing `dot`, it types `comma` instead".i18n,
                         switchValue: overwriteDotValueWithComma,
                         sharedConfigKey: "overwriteDotValueWithComma",
+                      ),
+                    ),
+                    Visibility(
+                      visible: getDecimalSeparator() == ".",
+                      child: SwitchCustomizationItem(
+                        title: "Overwrite the key `comma`".i18n,
+                        subtitle:
+                        "When typing `comma`, it types `dot` instead".i18n,
+                        switchValue: overwriteCommaValueWithDot,
+                        sharedConfigKey: "overwriteCommaValueWithDot",
                       ),
                     ),
                     DropdownCustomizationItem(

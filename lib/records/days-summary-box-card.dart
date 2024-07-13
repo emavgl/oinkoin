@@ -9,7 +9,7 @@ class DaysSummaryBox extends StatefulWidget {
   /// shows the total income, total expenses, total balance resulting from
   /// all the movements in input days.
 
-  List<Record?> records;
+  final List<Record?> records;
   DaysSummaryBox(this.records);
 
   @override

@@ -87,6 +87,7 @@ class InMemoryDatabase implements DatabaseInterface {
   }
 
   @override
+  @deprecated
   Future<int> addCategory(Category? category) async {
     Category foundCategory =
         await this.getCategory(category!.name, category.categoryType);

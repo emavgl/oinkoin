@@ -65,6 +65,7 @@ class CategoriesListState extends State<CategoriesList> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unnecessary_null_comparison
     return widget.categories != null
         ? new Container(
             margin: EdgeInsets.all(15),

@@ -118,24 +118,22 @@ class EditRecordPageState extends State<EditRecordPage> {
     var text = _textEditingController.text.toLowerCase();
     var newNum;
     String? mathExpr = tryParseMathExpr(text);
-    if (mathExpr == null) {
-      stderr.writeln("Can't parse the expression: $text");
-      return; // abort!
-    }
-    try {
-      newNum = mathExpr.interpret();
-    } catch (e) {
-      stderr.writeln("Can't parse the expression: $text");
-    }
-    if (newNum != null) {
-      text = getCurrencyValueString(newNum, turnOffGrouping: true);
-      _textEditingController.value = _textEditingController.value.copyWith(
-        text: text,
-        selection:
-            TextSelection(baseOffset: text.length, extentOffset: text.length),
-        composing: TextRange.empty,
-      );
-      changeRecordValue(_textEditingController.text.toLowerCase());
+    if (mathExpr != null) {
+      try {
+        newNum = mathExpr.interpret();
+      } catch (e) {
+        stderr.writeln("Can't parse the expression: $text");
+      }
+      if (newNum != null) {
+        text = getCurrencyValueString(newNum, turnOffGrouping: true);
+        _textEditingController.value = _textEditingController.value.copyWith(
+          text: text,
+          selection:
+          TextSelection(baseOffset: text.length, extentOffset: text.length),
+          composing: TextRange.empty,
+        );
+        changeRecordValue(_textEditingController.text.toLowerCase());
+      }
     }
   }
 
@@ -145,6 +143,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
     // Loading preferences
     bool overwriteDotValue = getOverwriteDotValue();
+    bool overwriteCommaValue = getOverwriteCommaValue();
     enableRecordNameSuggestions = ServiceConfig.sharedPreferences
             ?.getBool("enableRecordNameSuggestions") ??
         true;
@@ -202,6 +201,10 @@ class EditRecordPageState extends State<EditRecordPage> {
 
       if (overwriteDotValue) {
         text = text.replaceAll(".", ",");
+      }
+
+      if (overwriteCommaValue) {
+        text = text.replaceAll(",", ".");
       }
 
       // Get the current selection
