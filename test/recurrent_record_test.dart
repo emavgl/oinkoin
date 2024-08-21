@@ -132,6 +132,23 @@ main() {
       expect(records[2].dateTime!.day, 5);
     });
 
+    test('every year recurrent', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
+      Category category1 = new Category("testName1");
+      DateTime dateTime = new DateTime(2020, 1, 5);
+      DateTime endDate = new DateTime(2022, 12, 30);
+      RecurrentRecordPattern recordPattern = RecurrentRecordPattern(1, "Every-Year", category1, dateTime, RecurrentPeriod.EveryYear);
+      var records = recurrentRecordService.generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+      expect(records.length, 3);
+      expect(records[1].dateTime!.year, 2021);
+      expect(records[1].dateTime!.month, 1);
+      expect(records[1].dateTime!.day, 5);
+      expect(records[2].dateTime!.year, 2022);
+      expect(records[2].dateTime!.month, 1);
+      expect(records[2].dateTime!.day, 5);
+    });
+
     test('recurrent pattern in the future must return no records', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       RecurrentRecordService recurrentRecordService = new RecurrentRecordService();

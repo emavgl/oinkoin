@@ -86,6 +86,11 @@ class EditRecordPageState extends State<EditRecordPage> {
       value: 5,
       child:
           new Text("Every four months".i18n, style: TextStyle(fontSize: 20.0)),
+    ),
+    new DropdownMenuItem<int>(
+      value: 6,
+      child:
+      new Text("Every year".i18n, style: TextStyle(fontSize: 20.0)),
     )
   ];
 

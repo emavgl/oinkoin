@@ -4,7 +4,8 @@ enum RecurrentPeriod {
   EveryMonth,
   EveryTwoWeeks,
   EveryThreeMonths,
-  EveryFourMonths
+  EveryFourMonths,
+  EveryYear,
 }
 
 String recurrentPeriodString(RecurrentPeriod? r) {
@@ -14,6 +15,7 @@ String recurrentPeriodString(RecurrentPeriod? r) {
   if (r == RecurrentPeriod.EveryTwoWeeks) return "Every two weeks";
   if (r == RecurrentPeriod.EveryThreeMonths) return "Every three months";
   if (r == RecurrentPeriod.EveryFourMonths) return "Every four months";
+  if (r == RecurrentPeriod.EveryYear) return "Every year";
   new Exception("Unexpected value");
   return "";
 }
