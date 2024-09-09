@@ -25,36 +25,6 @@ void main() {
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    testDir = Directory("tests/temp");
-    const MethodChannel channel =
-        MethodChannel('dev.fluttercommunity.plus/package_info');
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-      if (methodCall.method == 'getAll') {
-        return <String, dynamic>{
-          'appName': 'ABC',
-          'packageName': 'A.B.C',
-          'version': '1.0.0',
-          'buildNumber': '67'
-        };
-      }
-    });
-    const MethodChannel channel2 =
-        MethodChannel('plugins.flutter.io/path_provider');
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel2, (MethodCall methodCall) async {
-      return testDir;
-    });
-  });
-
-  tearDownAll(() async {
-    if (await testDir.exists()) {
-      await testDir.delete(recursive: true);
-    }
-  });
-
-  testlib.setUp(() async {
-    TestWidgetsFlutterBinding.ensureInitialized();
     mockDatabase = MockDatabaseInterface();
 
     // Mock data
@@ -108,9 +78,43 @@ void main() {
 
     // Swap database
     BackupService.database = mockDatabase;
+
+    testDir = Directory("test/temp");
+    const MethodChannel channel =
+        MethodChannel('dev.fluttercommunity.plus/package_info');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+      if (methodCall.method == 'getAll') {
+        return <String, dynamic>{
+          'appName': 'ABC',
+          'packageName': 'A.B.C',
+          'version': '1.0.0',
+          'buildNumber': '67'
+        };
+      }
+    });
+    const MethodChannel channel2 =
+        MethodChannel('plugins.flutter.io/path_provider');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel2, (MethodCall methodCall) async {
+      return testDir;
+    });
   });
 
-    test('encryptData encrypts the data correctly', () {
+  tearDownAll(() async {
+    if (await testDir.exists()) {
+      await testDir.delete(recursive: true);
+    }
+  });
+
+  testlib.setUp(() async {
+    if (await testDir.exists()) {
+      await testDir.delete(recursive: true);
+    }
+    await testDir.create(recursive: true);
+  });
+
+  test('encryptData encrypts the data correctly', () {
     const data = 'This is a test string';
     const password = 'testpassword';
 
@@ -216,5 +220,55 @@ void main() {
     );
 
     expect(result, isFalse);
+  });
+
+    testlib.test('removeOldBackups removes files older than one week', () async {
+    // Create test files
+    final now = DateTime.now();
+    final oldFile = File('${testDir.path}/old_backup.json');
+    final newFile = File('${testDir.path}/new_backup.json');
+
+    await oldFile.writeAsString('Old backup');
+    await newFile.writeAsString('New backup');
+
+    // Set the creation date of the old file to more than one week ago
+    final oldFileCreationDate = now.subtract(Duration(days: 8));
+    await oldFile.setLastModified(oldFileCreationDate);
+
+    // Ensure files exist
+    expect(await oldFile.exists(), isTrue);
+    expect(await newFile.exists(), isTrue);
+
+    // Call the method
+    await BackupService.removeOldBackups(BackupRetentionPeriod.WEEK, testDir);
+
+    // Check results
+    expect(await oldFile.exists(), isFalse);
+    expect(await newFile.exists(), isTrue);
+  });
+
+  testlib.test('removeOldBackups removes files older than one month', () async {
+    // Create test files
+    final now = DateTime.now();
+    final oldFile = File('${testDir.path}/old_backup.json');
+    final newFile = File('${testDir.path}/new_backup.json');
+
+    await oldFile.writeAsString('Old backup');
+    await newFile.writeAsString('New backup');
+
+    // Set the creation date of the old file to more than one month ago
+    final oldFileCreationDate = now.subtract(Duration(days: 31));
+    await oldFile.setLastModified(oldFileCreationDate);
+
+    // Ensure files exist
+    expect(await oldFile.exists(), isTrue);
+    expect(await newFile.exists(), isTrue);
+
+    // Call the method
+    await BackupService.removeOldBackups(BackupRetentionPeriod.MONTH, testDir);
+
+    // Check results
+    expect(await oldFile.exists(), isFalse);
+    expect(await newFile.exists(), isTrue);
   });
 }

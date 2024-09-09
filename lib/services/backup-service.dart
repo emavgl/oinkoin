@@ -11,9 +11,11 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 
 import 'database/database-interface.dart';
 
+enum BackupRetentionPeriod { WEEK, MONTH }
+
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
-
+  
   // not final because it is swapped in the tests
   static DatabaseInterface database = ServiceConfig.database;
 
@@ -149,5 +151,30 @@ class BackupService {
     
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     return encrypter.decrypt(encryptedData, iv: iv);
+  }
+
+  /// Removes old backup files based on the specified retention period.
+  /// [retentionPeriod] - the retention period to determine which files to delete.
+  /// [directory] - the directory where the backup files are stored.
+  static Future<bool> removeOldBackups(BackupRetentionPeriod retentionPeriod, Directory directory) async {
+    final now = DateTime.now();
+    final duration = retentionPeriod == BackupRetentionPeriod.WEEK
+        ? Duration(days: 7)
+        : Duration(days: 30);
+
+    final files = directory.listSync().whereType<File>().where((file) {
+      final fileStat = file.statSync();
+      final modifiedDate = fileStat.modified;
+      return now.difference(modifiedDate) > duration;
+    });
+
+    for (final file in files) {
+      try {
+        await file.delete();
+      } catch (e) {
+        print(e);
+      }
+    }
+    return true;
   }
 }
