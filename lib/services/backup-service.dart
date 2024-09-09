@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
 import 'package:piggybank/services/database/exceptions.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:encrypt/encrypt.dart' as encrypt; // Import the encrypt package
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 import 'database/database-interface.dart';
 
@@ -60,11 +61,7 @@ class BackupService {
 
     // Encrypt the backup JSON string if an encryption password is provided
     if (encryptionPassword != null && encryptionPassword.isNotEmpty) {
-      final key = encrypt.Key.fromUtf8(encryptionPassword.padRight(32, '*').substring(0, 32)); // Ensure the key length is 32 bytes
-      final iv = encrypt.IV.fromLength(16); // AES uses a 16 bytes IV
-      final encrypter = encrypt.Encrypter(encrypt.AES(key));
-      final encrypted = encrypter.encrypt(backupJsonStr, iv: iv);
-      backupJsonStr = encrypted.base64; // Save the encrypted data as Base64
+      backupJsonStr = encryptData(backupJsonStr, encryptionPassword);
     }
 
     // Write on disk
@@ -83,17 +80,7 @@ class BackupService {
 
       // Decrypt the file content if an encryption password is provided
       if (encryptionPassword != null && encryptionPassword.isNotEmpty) {
-        final key = encrypt.Key.fromUtf8(encryptionPassword.padRight(32, '*').substring(0, 32)); // Ensure the key length is 32 bytes
-        final iv = encrypt.IV.fromLength(16); // AES uses a 16 bytes IV
-        final encrypter = encrypt.Encrypter(encrypt.AES(key));
-
-        try {
-          final decrypted = encrypter.decrypt64(fileContent, iv: iv);
-          fileContent = decrypted;
-        } catch (e) {
-          print('Decryption failed: $e');
-          return false; // Return false if decryption fails
-        }
+        fileContent = decryptData(fileContent, encryptionPassword);
       }
 
       var jsonMap = jsonDecode(fileContent);
@@ -137,5 +124,30 @@ class BackupService {
     } catch (err) {
       return false;
     }
+  }
+
+  /// Encrypts the given data using the provided password.
+  static String encryptData(String data, String password) {
+    final key = encrypt.Key.fromUtf8(password.padRight(32, '*').substring(0, 32)); // Ensure the key length is 32 bytes
+    final iv = encrypt.IV.fromLength(16); // AES uses a 16 bytes IV
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+    final encrypted = encrypter.encrypt(data, iv: iv);
+
+    // Combine IV and encrypted data
+    final combined = Uint8List.fromList(iv.bytes + encrypted.bytes);
+    return encrypt.Encrypted(combined).base64; // Save the combined data as Base64
+  }
+
+  /// Decrypts the given data using the provided password.
+  static String decryptData(String data, String password) {
+    final key = encrypt.Key.fromUtf8(password.padRight(32, '*').substring(0, 32)); // Ensure the key length is 32 bytes
+    final encrypted = encrypt.Encrypted.fromBase64(data);
+
+    // Extract IV and encrypted data
+    final iv = encrypt.IV(Uint8List.fromList(encrypted.bytes.sublist(0, 16))); // First 16 bytes are the IV
+    final encryptedData = encrypt.Encrypted(Uint8List.fromList(encrypted.bytes.sublist(16))); // Remaining bytes are the encrypted data
+    
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+    return encrypter.decrypt(encryptedData, iv: iv);
   }
 }
