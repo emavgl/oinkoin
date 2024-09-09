@@ -8,10 +8,9 @@ import 'package:piggybank/models/backup.dart';
 import 'package:piggybank/services/database/exceptions.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:piggybank/settings/backup-retention-period.dart';
 
 import 'database/database-interface.dart';
-
-enum BackupRetentionPeriod { WEEK, MONTH }
 
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
@@ -157,6 +156,10 @@ class BackupService {
   /// [retentionPeriod] - the retention period to determine which files to delete.
   /// [directory] - the directory where the backup files are stored.
   static Future<bool> removeOldBackups(BackupRetentionPeriod retentionPeriod, Directory directory) async {
+    if (retentionPeriod == BackupRetentionPeriod.ALWAYS) {
+      return true;
+    }
+
     final now = DateTime.now();
     final duration = retentionPeriod == BackupRetentionPeriod.WEEK
         ? Duration(days: 7)

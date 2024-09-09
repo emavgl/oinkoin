@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/homepage-time-interval.dart';
 import 'package:piggybank/settings/style.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
@@ -88,6 +89,16 @@ class CustomizationPageState extends State<CustomizationPage> {
         HomepageTimeInterval.CurrentMonth.index;
     homepageTimeIntervalValue = getKeyFromObject<int>(
         homepageTimeIntervalValues, userDefinedHomepageInterval);
+
+    // Backup related
+    enableAutomaticBackup =
+        prefs.getBool("enableAutomaticBackup") ?? false;
+    var backupRetentionIntervalIndex = prefs.getInt("backupRetentionIntervalIndex") ??
+        BackupRetentionPeriod.ALWAYS.index;
+    backupRetentionPeriodValue = getKeyFromObject<int>(
+        backupRetentionPeriodsValues, backupRetentionIntervalIndex);
+    backupPassword = prefs.getString("backupPassword") ?? "";
+    backupFolderPath = prefs.getString("backupFolderPath");
   }
 
   late SharedPreferences prefs;
@@ -167,6 +178,17 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool overwriteDotValueWithComma;
   late bool overwriteCommaValueWithDot;
   late bool enableRecordNameSuggestions;
+
+  // Backup related
+  Map<String, int> backupRetentionPeriodsValues = {
+    "Never delete".i18n: BackupRetentionPeriod.ALWAYS.index,
+    "Weekly".i18n: BackupRetentionPeriod.WEEK.index,
+    "Monthly".i18n: BackupRetentionPeriod.MONTH.index,
+  };
+  late bool enableAutomaticBackup;
+  late String backupRetentionPeriodValue;
+  late String? backupFolderPath;
+  late String backupPassword;
 
   void invalidateNumberPatternCache() {
     ServiceConfig.currencyNumberFormat = null;
