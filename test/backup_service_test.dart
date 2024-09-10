@@ -10,6 +10,7 @@ import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:test/test.dart' as testlib;
 import 'package:mockito/annotations.dart';
 import 'backup_service_test.mocks.dart';

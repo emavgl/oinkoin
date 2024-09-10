@@ -8,7 +8,7 @@ class SwitchCustomizationItem<T> extends StatefulWidget {
   final String subtitle;
   final bool switchValue;
   final String sharedConfigKey;
-  final Function()? onChanged;
+  final Function(bool)? onChanged;
 
   SwitchCustomizationItem(
       {required this.title,
@@ -67,6 +67,9 @@ class SwitchCustomizationItemState<T> extends State<SwitchCustomizationItem> {
                 .setBool(widget.sharedConfigKey, value);
             switchValue = value;
           });
+          if (widget.onChanged != null) {
+            widget.onChanged!(value);
+          }
         },
       ),
       title: Text(widget.title, style: titleTextStyle),

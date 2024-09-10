@@ -6,6 +6,7 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
 import 'package:piggybank/services/backup-service.dart';
+import 'package:piggybank/settings/backup-page.dart';
 import 'package:piggybank/settings/customization-page.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
@@ -30,11 +31,6 @@ class TabSettings extends StatelessWidget {
   static const double kSettingsItemsIconPadding = 8.0;
   static const double kSettingsItemsIconElevation = 2.0;
   final DatabaseInterface database = ServiceConfig.database;
-
-  createAndShareBackupFile() async {
-    File backupFile = await BackupService.createJsonBackupFile();
-    Share.shareXFiles([XFile(backupFile.path)]);
-  }
 
   importFromBackupFile(BuildContext context) async {
     var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
@@ -124,6 +120,13 @@ class TabSettings extends StatelessWidget {
     );
   }
 
+  goToBackupPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BackupPage()),
+    );
+  }
+
   goToFeedbackPage(BuildContext context) async {
     await Navigator.push(
       context,
@@ -171,8 +174,8 @@ class TabSettings extends StatelessWidget {
               ),
               iconBackgroundColor: Colors.orange.shade600,
               title: 'Backup'.i18n,
-              subtitle: "Make a backup of all the data".i18n,
-              onPressed: () async => await createAndShareBackupFile()),
+              subtitle: "Create and change backup settings".i18n,
+              onPressed: () async => await goToBackupPage(context)),
           Stack(
             children: [
               SettingsItem(
