@@ -316,8 +316,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
                       subtitle:
-                          "If enabled, you get suggestions when typing the record's name"
-                              .i18n,
+                          "If enabled, you get suggestions when typing the record's name".i18n,
                       switchValue: enableRecordNameSuggestions,
                       sharedConfigKey: "enableRecordNameSuggestions",
                     ),

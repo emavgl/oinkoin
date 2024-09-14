@@ -328,8 +328,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               AlertDialogBuilder deleteDialog = AlertDialogBuilder(
                       "Do you really want to delete the category?".i18n)
                   .addSubtitle(
-                      "Deleting the category you will remove all the associated records"
-                          .i18n)
+                      "Deleting the category you will remove all the associated records".i18n)
                   .addTrueButtonName("Yes".i18n)
                   .addFalseButtonName("No".i18n);
 

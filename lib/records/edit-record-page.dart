@@ -504,8 +504,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                                       left: 10.0),
                                                   child: Text(
                                                     recurrentPeriodString(
-                                                            recurrentPeriod)
-                                                        .i18n,
+                                                            recurrentPeriod),
                                                     style: TextStyle(
                                                         fontSize: 20.0),
                                                   ),
@@ -581,8 +580,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   }
                   var numericValue = tryParseCurrencyString(value);
                   if (numericValue == null) {
-                    return "Not a valid format (use for example: %s)"
-                        .i18n
+                    return "Not a valid format (use for example: %s)".i18n
                         .fill([
                       getCurrencyValueString(1234.20, turnOffGrouping: true)
                     ]);
@@ -677,8 +675,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                       "Do you really want to delete this record?".i18n);
                 } else {
                   deleteDialog = deleteDialog.addSubtitle(
-                      "Do you really want to delete this recurrent record?"
-                          .i18n);
+                      "Do you really want to delete this recurrent record?".i18n);
                 }
                 var continueDelete = await showDialog(
                     context: context,

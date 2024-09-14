@@ -6,12 +6,12 @@ import '../services/service-config.dart';
 class ClickableCustomizationItem<T> extends StatelessWidget {
   final String title;
   final String subtitle;
-  final Function()? action;
+  final bool enabled;
 
   ClickableCustomizationItem(
       {required this.title,
         required this.subtitle,
-        this.action});
+        required this.enabled});
 
   Widget buildHeader() {
     return Column(
@@ -28,7 +28,7 @@ class ClickableCustomizationItem<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: action,
+      enabled: enabled,
       title: Text(title, style: titleTextStyle),
       subtitle: Text(subtitle, style: subtitleTextStyle),
       contentPadding: EdgeInsets.fromLTRB(16, 0, 10, 10),

@@ -3,17 +3,15 @@ import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:crypto/crypto.dart';
 import 'package:piggybank/i18n.dart';
 
 import '../services/backup-service.dart';
+import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
 import 'dropdown-customization-item.dart';
 
@@ -35,23 +33,34 @@ class BackupPageState extends State<BackupPage> {
     return invertedMap.values.first;
   }
 
-  String getDefaultDirectory() {
-    return "/storage/emulated/0/Documents/oinkoin";
-  }
-
   Future<void> initializePreferences() async {
     prefs = await SharedPreferences.getInstance();
-    defaultDirectory = getDefaultDirectory();
+    defaultDirectory = BackupService.DEFAULT_STORAGE_DIR;
     fetchAllThePreferences();
+    String? l = await BackupService.getDateLatestBackup();
+    if (l != null) {
+      lastBackupDataStr = l;
+    }
   }
 
   createAndShareBackupFile() async {
-    File backupFile = await BackupService.createJsonBackupFile();
+    String? filename = await BackupService.getDefaultFileName();
+    if (enableVersionAndDateInBackupName) {
+      filename = null;
+    }
+    File backupFile = await BackupService.createJsonBackupFile(
+        backupFileName: filename
+    );
     Share.shareXFiles([XFile(backupFile.path)]);
   }
 
   storeBackupFile() async {
+    String? filename = await BackupService.getDefaultFileName();
+    if (enableVersionAndDateInBackupName) {
+      filename = null;
+    }
     File backupFile = await BackupService.createJsonBackupFile(
+      backupFileName: filename,
       directoryPath: backupFolderPath,
       encryptionPassword: enableEncryptedBackup ? backupPassword : null
     );
@@ -59,6 +68,10 @@ class BackupPageState extends State<BackupPage> {
       content: Text('File stored in ' + backupFile.path),
       )
     );
+    String? l = await BackupService.getDateLatestBackup();
+    if (l != null) {
+      lastBackupDataStr = l;
+    }
   }
 
   late SharedPreferences prefs;
@@ -71,12 +84,16 @@ class BackupPageState extends State<BackupPage> {
     "Monthly".i18n: BackupRetentionPeriod.MONTH.index,
   };
   late bool enableAutomaticBackup;
+  late bool enableVersionAndDateInBackupName;
   late bool enableEncryptedBackup;
   late String backupRetentionPeriodValue;
   late String backupFolderPath;
   late String backupPassword;
+  String lastBackupDataStr = "-";
 
   fetchAllThePreferences() {
+    enableVersionAndDateInBackupName =
+        prefs.getBool("enableVersionAndDateInBackupName") ?? true;
     enableAutomaticBackup =
         prefs.getBool("enableAutomaticBackup") ?? false;
     enableEncryptedBackup =
@@ -86,7 +103,7 @@ class BackupPageState extends State<BackupPage> {
     backupRetentionPeriodValue = getKeyFromObject<int>(
         backupRetentionPeriodsValues, backupRetentionIntervalIndex);
     backupPassword = prefs.getString("backupPassword") ?? "";
-    backupFolderPath = prefs.getString("backupFolderPath") ?? defaultDirectory;
+    backupFolderPath = defaultDirectory;
   }
 
   resetEnableEncryptedBackup() {
@@ -99,15 +116,7 @@ class BackupPageState extends State<BackupPage> {
   }
 
   setPasswordInPreferences(String password) {
-    // Compute the SHA-256 hash of the password
-    var bytes = utf8.encode(password); // Convert password to bytes
-    var digest = sha256.convert(bytes); // Perform SHA-256 hash
-
-    // Convert the digest to a string and take the first 32 characters
-    String hashedPassword = digest.toString().substring(0, 32);
-
-    // Store the hashed password in shared preferences
-    prefs.setString('backupPassword', hashedPassword);
+    prefs.setString('backupPassword', BackupService.hashPassword(password));
   }
 
   final _textController = TextEditingController();
@@ -190,7 +199,7 @@ class BackupPageState extends State<BackupPage> {
                         ),
                         iconBackgroundColor: Colors.orange.shade600,
                         title: 'Export Backup'.i18n,
-                        subtitle: "Make a backup of all the data".i18n,
+                        subtitle: "Share the backup file".i18n,
                         onPressed: () async => await createAndShareBackupFile()),
                     SettingsItem(
                         icon: Icon(
@@ -201,66 +210,76 @@ class BackupPageState extends State<BackupPage> {
                         title: 'Store the Backup on disk'.i18n,
                         onPressed: () async => await storeBackupFile()),
                     ClickableCustomizationItem(
-                        title: "Set destination folder".i18n,
+                        title: "Destination folder".i18n,
                         subtitle: backupFolderPath,
-                        action: () async {
-                          final String? directoryPath = await getDirectoryPath(
-                            confirmButtonText: "Confirm".i18n,
-                          );
-                          if (directoryPath != null) {
-                            prefs.setString("backupFolderPath", directoryPath);
-                            setState(() {
-                              fetchAllThePreferences();
-                            });
-                          }
-                        }
+                        enabled: false
                     ),
                     SwitchCustomizationItem(
-                      title: "Enable automatic backup".i18n,
-                      subtitle:
-                      "Enable to automatic backup at every access"
-                          .i18n,
-                      switchValue: enableAutomaticBackup,
-                      sharedConfigKey: "enableAutomaticBackup",
+                      title: "Backup encryption".i18n,
+                      subtitle: "Enable if you want to have encrypted backups".i18n,
+                      switchValue: enableEncryptedBackup,
+                      sharedConfigKey: "enableEncryptedBackup",
+                      onChanged: (value) async {
+                        if (value) {
+                          String? password =
+                          await showPasswordInputDialog(context);
+                          if (password != null) {
+                            setPasswordInPreferences(password);
+                          } else {
+                            resetEnableEncryptedBackup();
+                          }
+                          _textController.clear();
+                        }
+                      },
+                    ),
+                    SwitchCustomizationItem(
+                      title: "Include version and date in the name".i18n,
+                      subtitle: "File will have an unique name".i18n,
+                      switchValue: enableVersionAndDateInBackupName,
+                      sharedConfigKey: "enableVersionAndDateInBackupName",
                       onChanged: (value) => {
                         setState(() {
                           fetchAllThePreferences();
                         })
                       },
                     ),
+                    SwitchCustomizationItem(
+                      title: "Enable automatic backup".i18n,
+                      enabled: ServiceConfig.isPremium,
+                      subtitle: !ServiceConfig.isPremium
+                          ? "Available on Oinkoin Pro".i18n
+                          : "Enable to automatic backup at every access".i18n,
+                      switchValue: enableAutomaticBackup,
+                      sharedConfigKey: "enableAutomaticBackup",
+                      onChanged: (value) {
+                        if (value == false) {
+                          prefs.remove("backupRetentionIntervalIndex");
+                        }
+                        setState(() {
+                          fetchAllThePreferences();
+                        });
+                      },
+                    ),
                     Visibility(
                       visible: enableAutomaticBackup,
                       child: Column(
                         children: [
-                          DropdownCustomizationItem(
-                            title: "Automatic backup retention".i18n,
-                            subtitle: "How long do you want to keep backups".i18n,
-                            dropdownValues: backupRetentionPeriodsValues,
-                            selectedDropdownKey: backupRetentionPeriodValue,
-                            sharedConfigKey: "backupRetentionIntervalIndex",
-                          ),
-                          SwitchCustomizationItem(
-                            title: "Automatic backup encryption".i18n,
-                            subtitle: "Enable if you want to have encrypted backups"
-                                .i18n,
-                            switchValue: enableEncryptedBackup,
-                            sharedConfigKey: "enableEncryptedBackup",
-                            onChanged: (value) async {
-                              if (value) {
-                                String? password =
-                                  await showPasswordInputDialog(context);
-                                if (password != null) {
-                                  setPasswordInPreferences(password);
-                                } else {
-                                  resetEnableEncryptedBackup();
-                                }
-                                _textController.clear();
-                              }
-                            },
+                          Visibility(
+                            visible: enableVersionAndDateInBackupName,
+                            child: DropdownCustomizationItem(
+                              title: "Automatic backup retention".i18n,
+                              subtitle: "How long do you want to keep backups".i18n,
+                              dropdownValues: backupRetentionPeriodsValues,
+                              selectedDropdownKey: backupRetentionPeriodValue,
+                              sharedConfigKey: "backupRetentionIntervalIndex",
+                            ),
                           ),
                         ],
                       ),
                     ),
+                    Center(
+                      child: Text("Last backup: ".i18n + lastBackupDataStr)
+                    )
                   ],
                 ),
               );

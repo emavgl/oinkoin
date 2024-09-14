@@ -9,12 +9,14 @@ class SwitchCustomizationItem<T> extends StatefulWidget {
   final bool switchValue;
   final String sharedConfigKey;
   final Function(bool)? onChanged;
+  final bool enabled;
 
   SwitchCustomizationItem(
       {required this.title,
       required this.subtitle,
       required this.switchValue,
       required this.sharedConfigKey,
+      this.enabled = true,
       this.onChanged});
 
   @override
@@ -61,7 +63,7 @@ class SwitchCustomizationItemState<T> extends State<SwitchCustomizationItem> {
     return ListTile(
       trailing: Switch(
         value: switchValue,
-        onChanged: (bool value) {
+        onChanged: (widget.enabled) ? (bool value) {
           setState(() {
             ServiceConfig.sharedPreferences!
                 .setBool(widget.sharedConfigKey, value);
@@ -70,8 +72,9 @@ class SwitchCustomizationItemState<T> extends State<SwitchCustomizationItem> {
           if (widget.onChanged != null) {
             widget.onChanged!(value);
           }
-        },
+        } : null,
       ),
+      enabled: widget.enabled,
       title: Text(widget.title, style: titleTextStyle),
       subtitle: Text(widget.subtitle, style: subtitleTextStyle),
       contentPadding: EdgeInsets.fromLTRB(16, 0, 10, 10),
