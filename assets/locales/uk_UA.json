@@ -153,13 +153,13 @@
     "Cancel": "Скасувати",
     "Icon": "Піктограма",
     "Add recurrent expenses": "Додати періодичні витрати",
-    "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!",
-    "Select the currency": "Select the currency",
-    "Reset to default dates": "Reset to default dates",
-    "Records of the current month": "Records of the current month",
-    "Records of the current year": "Records of the current year",
-    "All records": "All records",
-    "Homepage time interval": "Homepage time interval",
-    "Define the records to show in the app homepage": "Define the records to show in the app homepage",
-    "All records until %s": "All records until %s"
+    "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": "Натискаючи кнопку нижче, ви можете надіслати нам відгук. Ваш відгук дуже цінний і допоможе нам розвиватись!",
+    "Select the currency": "Оберіть валюту",
+    "Reset to default dates": "Відновити дати за замовчуванням",
+    "Records of the current month": "Записи поточного місяця",
+    "Records of the current year": "Записи поточного року",
+    "All records": "Усі записи",
+    "Homepage time interval": "Часовий інтервал домашньої сторінки",
+    "Define the records to show in the app homepage": "Визначте записи, які відображатимуться на домашній сторінці додатка",
+    "All records until %s": "Усі записи до %s"
 }
