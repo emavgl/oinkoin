@@ -47,18 +47,6 @@ class DropdownCustomizationItemState<T>
     selectedDropdownKey = widget.selectedDropdownKey;
   }
 
-  Widget buildHeader() {
-    return Column(
-      children: [
-        ListTile(
-          title: Text(widget.title),
-          subtitle: Text(widget.subtitle),
-        ),
-        Divider()
-      ],
-    );
-  }
-
   void setSharedConfig(T dropdownValue) {
     var sharedConfigKey = widget.sharedConfigKey;
     if (dropdownValue == null) {

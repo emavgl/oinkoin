@@ -62,7 +62,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
-                recurrentPeriodString(pattern.recurrentPeriod).i18n,
+                recurrentPeriodString(pattern.recurrentPeriod),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: _subtitleFontSize,

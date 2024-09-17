@@ -19,7 +19,6 @@ class OverviewCard extends StatelessWidget {
   int? numberOfRecords;
   double? sumValues;
   late double averageValue;
-  double? median;
 
   final headerStyle = const TextStyle(fontSize: 13.0);
   final valueStyle = const TextStyle(fontSize: 18.0);
