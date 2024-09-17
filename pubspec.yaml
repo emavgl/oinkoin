@@ -41,6 +41,7 @@ dependencies:
   flutter_displaymode: ^0.6.0
   future_progress_dialog: ^0.2.1
   csv: ^6.0.0
+  encrypt: ^5.0.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -50,6 +51,7 @@ dependencies:
   function_tree: ^0.9.1
   system_theme: ^2.3.1
   flutter_typeahead: ^5.2.0
+  file_selector: ^1.0.3
 
 
 
@@ -58,6 +60,7 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.4.7
   test: ^1.24.9
+  mockito: ^5.0.17
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

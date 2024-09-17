@@ -6,6 +6,8 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
 import 'package:piggybank/services/backup-service.dart';
+import 'package:piggybank/settings/backup-page.dart';
+import 'package:piggybank/settings/backup-restore-dialogs.dart';
 import 'package:piggybank/settings/customization-page.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
@@ -30,53 +32,6 @@ class TabSettings extends StatelessWidget {
   static const double kSettingsItemsIconPadding = 8.0;
   static const double kSettingsItemsIconElevation = 2.0;
   final DatabaseInterface database = ServiceConfig.database;
-
-  createAndShareBackupFile() async {
-    File backupFile = await BackupService.createJsonBackupFile();
-    Share.shareXFiles([XFile(backupFile.path)]);
-  }
-
-  importFromBackupFile(BuildContext context) async {
-    var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
-    log("FilePicker has deleted cache: " + hasDeletedCache.toString());
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      bool successful = await showDialog(
-        context: context,
-        builder: (context) =>
-            FutureProgressDialog(BackupService.importDataFromBackupFile(file)),
-      );
-      if (successful) {
-        AlertDialogBuilder resultDialog = AlertDialogBuilder(
-                "Restore successful".i18n)
-            .addSubtitle("The data from the backup file are now restored.".i18n)
-            .addTrueButtonName("OK");
-        await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return resultDialog.build(context);
-            });
-      } else {
-        AlertDialogBuilder resultDialog = AlertDialogBuilder(
-                "Restore unsuccessful".i18n)
-            .addSubtitle(
-                "Make sure you have the latest version of the app. If so, the backup file may be corrupted."
-                    .i18n)
-            .addTrueButtonName("OK");
-        await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return resultDialog.build(context);
-            });
-      }
-    } else {
-      // User has canceled the picker
-    }
-  }
 
   deleteAllData(BuildContext context) async {
     AlertDialogBuilder premiumDialog =
@@ -124,6 +79,13 @@ class TabSettings extends StatelessWidget {
     );
   }
 
+  goToBackupPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BackupPage()),
+    );
+  }
+
   goToFeedbackPage(BuildContext context) async {
     await Navigator.push(
       context,
@@ -153,7 +115,7 @@ class TabSettings extends StatelessWidget {
               ),
               iconBackgroundColor: Colors.blue.shade600,
               title: 'Customization'.i18n,
-              subtitle: "Set visual preferences".i18n,
+              subtitle: "Visual settings and more".i18n,
               onPressed: () async => await goToCustomizationPage(context)),
           SettingsItem(
               icon: Icon(
@@ -171,8 +133,8 @@ class TabSettings extends StatelessWidget {
               ),
               iconBackgroundColor: Colors.orange.shade600,
               title: 'Backup'.i18n,
-              subtitle: "Make a backup of all the data".i18n,
-              onPressed: () async => await createAndShareBackupFile()),
+              subtitle: "Create backup and change settings".i18n,
+              onPressed: () async => await goToBackupPage(context)),
           Stack(
             children: [
               SettingsItem(
@@ -184,7 +146,8 @@ class TabSettings extends StatelessWidget {
                 title: 'Restore Backup'.i18n,
                 subtitle: "Restore data from a backup file".i18n,
                 onPressed: ServiceConfig.isPremium
-                    ? () async => await importFromBackupFile(context)
+                    ? () async => await BackupRestoreDialog
+                    .importFromBackupFile(context)
                     : () async {
                         await Navigator.push(
                           context,

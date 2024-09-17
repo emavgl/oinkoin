@@ -11,6 +11,7 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/records/records-day-list.dart';
+import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/recurrent-record-service.dart';
@@ -60,6 +61,9 @@ class TabRecordsState extends State<TabRecords> {
         setState(() {
           records = fetchedRecords;
           _header = getHeaderForUserDefinedInterval();
+        });
+        BackupService.createAutomaticBackup().then((_) {
+          BackupService.removeOldAutomaticBackups();
         });
       });
     });
@@ -309,8 +313,7 @@ class TabRecordsState extends State<TabRecords> {
               "No Category is set yet.".i18n)
           .addTrueButtonName("OK")
           .addSubtitle(
-              "You need to set a category first. Go to Category tab and add a new category."
-                  .i18n);
+              "You need to set a category first. Go to Category tab and add a new category.".i18n);
       await showDialog(
           context: context,
           builder: (BuildContext context) {
