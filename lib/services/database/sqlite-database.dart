@@ -108,7 +108,7 @@ class SqliteDatabase implements DatabaseInterface {
         color: Category.colors[0],
         iconCodePoint: FontAwesomeIcons.house.codePoint,
         categoryType: CategoryType.expense));
-    defaultCategories.add(new Category("Transports".i18n,
+    defaultCategories.add(new Category("Transport".i18n,
         color: Category.colors[1],
         iconCodePoint: FontAwesomeIcons.bus.codePoint,
         categoryType: CategoryType.expense));

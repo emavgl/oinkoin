@@ -66,7 +66,7 @@ DateTime? truncateDateTime(
 
 List<DateTimeSeriesRecord> aggregateRecordsByDate(
     List<Record?> records, AggregationMethod? aggregationMethod) {
-  /// Record Day 1: 100 euro Food, 20 euro Food, 30 euro Transports
+  /// Record Day 1: 100 euro Food, 20 euro Food, 30 euro Transport
   /// Record Day 1: 150 euro,
   /// Available grouping: by day, month, year.
   Map<DateTime?, DateTimeSeriesRecord> aggregatedByDay = new Map();
@@ -86,7 +86,7 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
 
 List<Record?> aggregateRecordsByDateAndCategory(
     List<Record?> records, AggregationMethod? aggregationMethod) {
-  /// Record Day 1: 100 euro Food, 20 euro Food, 30 euro Transports
+  /// Record Day 1: 100 euro Food, 20 euro Food, 30 euro Transport
   /// Record Day 1: 120 euro food, 30 euro transports.
   /// Available grouping: by day, month, year.
   if (aggregationMethod == AggregationMethod.CUSTOM)
