@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
-import 'package:i18n_extension/default.i18n.dart';
+import 'package:piggybank/i18n.dart';
 
 import '../helpers/alert-dialog-builder.dart';
 import '../services/backup-service.dart';
@@ -102,7 +102,7 @@ class BackupRestoreDialog {
   static Future<void> showBackupRestoreDialog(BuildContext context, String title, String subtitle) async {
     AlertDialogBuilder resultDialog = AlertDialogBuilder(title)
         .addSubtitle(subtitle)
-        .addTrueButtonName("OK");
+        .addTrueButtonName("OK".i18n);
     await showDialog(
         context: context,
         builder: (BuildContext context) {

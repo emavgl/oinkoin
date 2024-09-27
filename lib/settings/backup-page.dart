@@ -70,7 +70,9 @@ class BackupPageState extends State<BackupPage> {
     );
     String? l = await BackupService.getDateLatestBackup();
     if (l != null) {
-      lastBackupDataStr = l;
+      setState(() {
+        lastBackupDataStr = l;
+      });
     }
   }
 
@@ -145,7 +147,7 @@ class BackupPageState extends State<BackupPage> {
                     autocorrect: false,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'Enter your password here',
+                      hintText: 'Enter your password here'.i18n,
                     ),
                     onChanged: (value) {
                       // Update the state of the OK button based on input text

@@ -37,7 +37,8 @@ class BackupService {
 
     // Get current date and time
     final now = DateTime.now();
-    final formattedDate = now.toIso8601String().replaceAll(":", "-"); // Replace colon to avoid issues in file naming
+    final dateStr = now.toIso8601String().split(".")[0]; // Strip milliseconds
+    final formattedDate = dateStr.replaceAll(":", "-"); // Replace colon to avoid issues in file naming
 
     // Construct the file name
     return "${appName}_${version}_${formattedDate}_${MANDATORY_BACKUP_SUFFIX}";
@@ -94,6 +95,7 @@ class BackupService {
         prefs.getBool("enableAutomaticBackup") ?? false;
     if (!enableAutomaticBackup) {
       log("No automatic backup set");
+      return false;
     }
     bool enableEncryptedBackup = prefs.getBool("enableEncryptedBackup") ?? false;
     String? backupPassword = prefs.getString("backupPassword") ?? null;

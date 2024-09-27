@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i18n_extension/default.i18n.dart';
 import 'package:piggybank/settings/style.dart';
 
 import '../services/service-config.dart';
@@ -53,7 +54,7 @@ class _TextInputCustomizationItemState
                 autocorrect: false,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Enter your password here',
+                  hintText: 'Enter your password here'.i18n,
                 ),
               ),
             ],
@@ -63,7 +64,7 @@ class _TextInputCustomizationItemState
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: Text('Cancel'.i18n),
             ),
             TextButton(
               onPressed: () {
@@ -75,7 +76,7 @@ class _TextInputCustomizationItemState
                 setSharedConfig(_textController.text);
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('OK'),
+              child: Text('OK'.i18n),
             ),
           ],
         );
