@@ -63,10 +63,6 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-
-            // https://stackoverflow.com/a/63787347
-            shrinkResources false
-            minifyEnabled false
         }
     }
 
