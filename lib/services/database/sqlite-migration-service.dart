@@ -1,4 +1,4 @@
-
+// TODO Implement this library.
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:sqflite/sqflite.dart';
@@ -18,7 +18,7 @@ class SqliteMigrationService {
             category_type INTEGER,
             last_used INTEGER,
             record_count INTEGER DEFAULT 0,
-            monthly_budget INTEGER DEFAULT 0,
+            is_archived INTEGER DEFAULT 0,
             PRIMARY KEY (name, category_type)
         );
         """;
@@ -141,24 +141,20 @@ class SqliteMigrationService {
     List<Category> defaultCategories = <Category>[];
     defaultCategories.add(new Category("House".i18n,
         color: Category.colors[0],
-        iconCodePoint: FontAwesomeIcons.home.codePoint,
-        categoryType: CategoryType.expense
-    ));
-    defaultCategories.add(new Category("Transports".i18n,
+        iconCodePoint: FontAwesomeIcons.house.codePoint,
+        categoryType: CategoryType.expense));
+    defaultCategories.add(new Category("Transport".i18n,
         color: Category.colors[1],
         iconCodePoint: FontAwesomeIcons.bus.codePoint,
-        categoryType: CategoryType.expense
-    ));
+        categoryType: CategoryType.expense));
     defaultCategories.add(new Category("Food".i18n,
         color: Category.colors[2],
-        iconCodePoint: FontAwesomeIcons.hamburger.codePoint,
-        categoryType: CategoryType.expense
-    ));
+        iconCodePoint: FontAwesomeIcons.burger.codePoint,
+        categoryType: CategoryType.expense));
     defaultCategories.add(new Category("Salary".i18n,
         color: Category.colors[3],
         iconCodePoint: FontAwesomeIcons.wallet.codePoint,
-        categoryType: CategoryType.income
-    ));
+        categoryType: CategoryType.income));
     return defaultCategories;
   }
 
@@ -186,8 +182,8 @@ class SqliteMigrationService {
 
   static void _migrateTo7(Database db) async {
     safeAlterTable(db, "ALTER TABLE categories ADD COLUMN last_used INTEGER;");
+    safeAlterTable(db, "ALTER TABLE categories ADD COLUMN is_archived INTEGER DEFAULT 0;");
     safeAlterTable(db, "ALTER TABLE categories ADD COLUMN record_count INTEGER DEFAULT 0;");
-    safeAlterTable(db, "ALTER TABLE categories ADD COLUMN monthly_budget REAL;");
 
     var batch = db.batch();
     try {
