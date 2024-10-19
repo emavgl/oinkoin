@@ -321,6 +321,47 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       Visibility(
           visible: widget.passedCategory != null,
           child: IconButton(
+            icon: widget.passedCategory == null ? const Icon(Icons.archive) :
+            !(widget.passedCategory!.isArchived) ? const Icon(Icons.archive)
+                : const Icon(Icons.unarchive),
+            tooltip: widget.passedCategory == null ? "" :
+            !(widget.passedCategory!.isArchived) ? "Archive".i18n : "Unarchive".i18n,
+            onPressed: () async {
+
+              bool isCurrentlyArchived = widget.passedCategory!.isArchived;
+
+              String dialogMessage = !isCurrentlyArchived ?
+              "Do you really want to archive the category?".i18n :
+              "Do you really want to unarchive the category?".i18n;
+
+              // Prompt confirmation
+              AlertDialogBuilder archiveDialog = AlertDialogBuilder(
+                  dialogMessage)
+                  .addTrueButtonName("Yes".i18n)
+                  .addFalseButtonName("No".i18n);
+
+              if (!isCurrentlyArchived) {
+                archiveDialog
+                    .addSubtitle("Archiving the category you will NOT remove the associated records".i18n);
+              }
+
+              var continueArchivingAction = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return archiveDialog.build(context);
+                  });
+
+              if (continueArchivingAction) {
+                await database.setIsArchived(widget.passedCategory!.name!,
+                    widget.passedCategory!.categoryType!,
+                    !isCurrentlyArchived);
+                Navigator.pop(context);
+              }
+            },
+          )),
+      Visibility(
+          visible: widget.passedCategory != null,
+          child: IconButton(
             icon: const Icon(Icons.delete),
             tooltip: "Delete".i18n,
             onPressed: () async {
@@ -345,44 +386,6 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               }
             },
           )),
-      Visibility(
-          visible: widget.passedCategory != null,
-          child: IconButton(
-            icon: const Icon(Icons.archive),
-            tooltip: !(widget.passedCategory!.isArchived) ? "Archive".i18n : "Unarchive".i18n,
-            onPressed: () async {
-
-              bool isCurrentlyArchived = widget.passedCategory!.isArchived;
-
-              String dialogMessage = !isCurrentlyArchived ?
-                  "Do you really want to archive the category?".i18n :
-                  "Do you really want to unarchive the category?".i18n;
-
-              // Prompt confirmation
-              AlertDialogBuilder archiveDialog = AlertDialogBuilder(
-                  dialogMessage)
-                  .addTrueButtonName("Yes".i18n)
-                  .addFalseButtonName("No".i18n);
-
-              if (!isCurrentlyArchived) {
-                archiveDialog
-                    .addSubtitle("Archiving the category you will NOT remove the associated records".i18n);
-              }
-
-              var continueArchivingAction = await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return archiveDialog.build(context);
-                  });
-
-              if (continueArchivingAction) {
-                database.setIsArchived(widget.passedCategory!.name!,
-                    widget.passedCategory!.categoryType!,
-                    !isCurrentlyArchived);
-                Navigator.pop(context);
-              }
-            },
-          ))
     ]);
   }
 

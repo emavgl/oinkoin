@@ -96,6 +96,7 @@ class SqliteMigrationService {
       AFTER UPDATE ON records
       FOR EACH ROW
       BEGIN
+          -- Increment the record count and update the last_used timestamp for the new category
           UPDATE categories
           SET 
               record_count = record_count + 1,
@@ -104,15 +105,14 @@ class SqliteMigrationService {
               name = NEW.category_name AND
               category_type = NEW.category_type;
       
-          -- Decrement record_count for the old category if the category is changed
-          IF (NEW.category_name IS NOT OLD.category_name OR NEW.category_type IS NOT OLD.category_type) THEN
-              UPDATE categories
-              SET
-                  record_count = record_count - 1
-              WHERE
-                  name = OLD.category_name AND
-                  category_type = OLD.category_type;
-          END IF;
+          -- Decrement the record count for the old category only if the category has changed
+          UPDATE categories
+          SET
+              record_count = record_count - 1
+          WHERE
+              name = OLD.category_name AND
+              category_type = OLD.category_type
+              AND (NEW.category_name != OLD.category_name OR NEW.category_type != OLD.category_type);
       END;
     """;
     batch.execute(addRecordTriggerQuery);
