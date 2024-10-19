@@ -76,29 +76,37 @@ class Category extends Model {
   }
 
   static Category fromMap(Map<String, dynamic> map) {
+    // Handle color deserialization
     String? serializedColor = map["color"] as String?;
-    var color = colors[0];
+    var color = colors[0]; // Default color if not provided
     if (serializedColor != null) {
       List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
       color = Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);
     }
 
+    // Handle last_used with default value of null if missing
     int? lastUsed = map["last_used"] as int?;
     DateTime? lastUsedFromMap;
     if (lastUsed != null) {
-      lastUsedFromMap = new DateTime.fromMillisecondsSinceEpoch(lastUsed);
+      lastUsedFromMap = DateTime.fromMillisecondsSinceEpoch(lastUsed);
     }
 
-    bool isArchivedFromMap = (map['is_archived'] as int) == 1;
+    // Handle is_archived with default value of false if missing
+    bool isArchivedFromMap = (map['is_archived'] != null) ? (map['is_archived'] as int) == 1 : false;
 
+    // Handle record_count with default value of 0 if missing
+    int recordCountFromMap = (map['record_count'] != null) ? map['record_count'] as int : 0;
+
+    // Return the Category object
     return Category(
-        map["name"],
-        color: color,
-        iconCodePoint: map["icon"],
-        categoryType: CategoryType.values[map['category_type']],
-        lastUsed: lastUsedFromMap,
-        recordCount: map['record_count'],
-        isArchived: isArchivedFromMap
+      map["name"],
+      color: color,
+      iconCodePoint: map["icon"],
+      categoryType: CategoryType.values[map['category_type']],
+      lastUsed: lastUsedFromMap,
+      recordCount: recordCountFromMap,
+      isArchived: isArchivedFromMap,
     );
   }
+
 }
