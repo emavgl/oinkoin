@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:i18n_extension/i18n_widget.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 

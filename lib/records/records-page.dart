@@ -2,10 +2,9 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:i18n_extension/i18n_widget.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
-import 'package:piggybank/components/year-picker.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
@@ -16,6 +15,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/recurrent-record-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
+import 'package:piggybank/components/year-picker.dart' as custom;
 import 'package:share_plus/share_plus.dart';
 import '../helpers/records-utility-functions.dart';
 import 'days-summary-box-card.dart';
@@ -92,7 +92,6 @@ class RecordsPageState extends State<RecordsPage> {
       firstDate: DateTime(2018, 1),
       lastDate: DateTime(currentYear + 1, 12),
       initialDate: currentDate,
-      locale: I18n.locale,
     );
     if (dateTime != null) {
       var newRecords = await getRecordsByMonth(dateTime.year, dateTime.month);
@@ -110,7 +109,7 @@ class RecordsPageState extends State<RecordsPage> {
     DateTime initialDate = DateTime(currentDate.year, 1);
     DateTime lastDate = DateTime(currentDate.year + 1, 1);
     DateTime firstDate = DateTime(2018, currentDate.month);
-    DateTime? yearPicked = await showYearPicker(
+    DateTime? yearPicked = await custom.showYearPicker(
       firstDate: firstDate,
       lastDate: lastDate,
       initialDate: initialDate,
