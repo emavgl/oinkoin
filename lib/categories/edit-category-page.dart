@@ -76,6 +76,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     if (chosenColorIndex == -1) {
       pickedColor = category!.color;
     }
+    if (chosenColorIndex == -2) {
+      pickedColor = null;
+    }
   }
 
   Widget _getPageSeparatorLabel(String labelText) {
@@ -167,10 +170,52 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             height: 90,
             child: Row(
               children: [
+                //_createNoColorCircle(),
                 _createColorPickerCircle(),
                 _buildColorList(),
               ],
             )));
+  }
+
+  Widget _createNoColorCircle() {
+    return Container(
+      margin: EdgeInsets.all(10),
+      child: Stack(
+        children: [
+          ClipOval(
+            child: Material(
+              color: Colors.transparent, // Ensure no background color for the Material
+              child: InkWell(
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle, // Ensure the shape is a circle
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8), // Light grey border
+                      width: 2.0, // Border width
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.not_interested,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 30,
+                  ),
+                ),
+                onTap: () async {
+                  setState(() {
+                    pickedColor = null;
+                    category!.color = null;
+                    chosenColorIndex = -2;
+                  });
+                },
+              ),
+            ),
+          ),
+          ServiceConfig.isPremium ? Container() : getProLabel(),
+        ],
+      ),
+    );
   }
 
   Widget _createCategoryCirclePreview() {
@@ -186,7 +231,10 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                     height: 70,
                     child: Icon(
                       category!.icon,
-                      color: Colors.white,
+                      color:
+                          chosenColorIndex != -2 ?
+                              Colors.white :
+                              Theme.of(context).colorScheme.onSurface,
                       size: 30,
                     ),
                   ),
@@ -269,7 +317,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
           contentPadding: const EdgeInsets.all(0.0),
           content: SingleChildScrollView(
             child: MaterialPicker(
-              pickerColor: category!.color!,
+              pickerColor: Category.colors[0]!,
               onColorChanged: (newColor) {
                 setState(() {
                   pickedColor = newColor;

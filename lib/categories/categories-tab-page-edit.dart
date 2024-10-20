@@ -26,6 +26,7 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
   CategoryType? categoryType;
   TabController? _tabController;
   DatabaseInterface database = ServiceConfig.database;
+  bool showArchived = false;
 
   @override
   void initState() {
@@ -70,12 +71,44 @@ class CategoryTabPageEditState extends State<CategoryTabPageEdit> with SingleTic
             ],
           ),
           title: Text('Categories'.i18n),
+          actions: [
+            PopupMenuButton<int>(
+              icon: Icon(Icons.more_vert),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              onSelected: (index) async {
+                if (index == 1) {
+                  setState(() {
+                    showArchived = !showArchived;
+                  });
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                var archivedOptionStr = showArchived ?
+                    "Show active categories".i18n :
+                    "Show archived categories".i18n;
+                return {archivedOptionStr: 1}.entries.map((entry) {
+                  return PopupMenuItem<int>(
+                    padding: EdgeInsets.all(20),
+                    value: entry.value,
+                    child: Text(entry.key, style: TextStyle(
+                      fontSize: 16,
+                    )
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ]
         ),
         body: TabBarView(
           controller: _tabController,
           children: [
-            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.expense).toList(), callback: refreshCategories) : Container(),
-            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.income).toList(), callback: refreshCategories) : Container(),
+            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.expense && element.isArchived == showArchived).toList(), callback: refreshCategories) : Container(),
+            _categories != null ? CategoriesList(_categories!.where((element) => element!.categoryType == CategoryType.income && element.isArchived == showArchived).toList(), callback: refreshCategories) : Container(),
           ],
         ),
         floatingActionButton: SpeedDial(

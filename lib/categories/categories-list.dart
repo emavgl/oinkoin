@@ -49,20 +49,42 @@ class CategoriesListState extends State<CategoriesList> {
           if (widget.callback != null)
             widget.callback!();
         },
-        child: ListTile(
-            leading: Container(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  category.icon,
-                  size: 20,
-                  color: Colors.white,
+        child: Opacity(
+          opacity: category.isArchived ? 0.8 : 1.0, // Dim the tile
+          child: ListTile(
+            leading: Stack(
+              children: [
+                Container(
+                    width: 40,
+                    height: 40,
+                    child: Icon(category.icon, size: 20, color: Colors.white,),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: category.color,
+                    )
                 ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: category.color,
-                )),
-            title: Text(category.name!, style: _biggerFont)));
+                Visibility(
+                    visible: category.isArchived,
+                    child: Container(
+                        margin: EdgeInsets.only(left: 30, top: 20),
+                        width: 20,
+                        height: 20,
+                        child: Icon(Icons.archive, size: 14, color: Theme.of(context).colorScheme.onSurface,),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).colorScheme.surface,
+                        )
+                    )
+                )
+              ],
+            ),
+            title: Text(
+              category.name!,
+              style: _biggerFont
+            ),
+          ),
+        ),
+    );
   }
 
   @override

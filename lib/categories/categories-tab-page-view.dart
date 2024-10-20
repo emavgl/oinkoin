@@ -62,8 +62,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         ),
         body: TabBarView(
           children: [
-            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.expense).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
-            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.income).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
+            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.expense && !element.isArchived).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
+            _categories != null ? CategoriesGrid(_categories!.where((element) => element!.categoryType == CategoryType.income  && !element.isArchived).toList(), goToEditMovementPage: widget.goToEditMovementPage) : Container(),
           ],
         ),
       ),
