@@ -57,7 +57,13 @@ class CategoriesListState extends State<CategoriesList> {
                 Container(
                     width: 40,
                     height: 40,
-                    child: Icon(category.icon, size: 20, color: Colors.white,),
+                    child: Icon(
+                      category.icon,
+                      size: 20,
+                      color: category.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: category.color,

@@ -170,7 +170,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             height: 90,
             child: Row(
               children: [
-                //_createNoColorCircle(),
+                _createNoColorCircle(),
                 _createColorPickerCircle(),
                 _buildColorList(),
               ],
@@ -232,7 +232,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                     child: Icon(
                       category!.icon,
                       color:
-                          chosenColorIndex != -2 ?
+                          category!.color != null ?
                               Colors.white :
                               Theme.of(context).colorScheme.onSurface,
                       size: 30,

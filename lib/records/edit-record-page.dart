@@ -283,7 +283,11 @@ Widget _createAddNoteCard() {
                 child: InkWell(
                   splashColor: toRender.color, // inkwell color
                   child: SizedBox(width: size, height: size,
-                    child: Icon(toRender.icon, color: Colors.white, size: size - 20,),
+                    child: Icon(toRender.icon,
+                      color: toRender.color != null
+                    ? Colors.white
+                        : Theme.of(context).colorScheme.onSurface,
+                      size: size - 20,),
                   ),
                 )
             )

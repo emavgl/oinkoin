@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category-icons.dart';
@@ -25,8 +24,6 @@ class Category extends Model {
     Colors.black,
   ];
 
-  static Random _random = new Random();
-
   String? name;
   Color? color;
   int? iconCodePoint;
@@ -40,12 +37,6 @@ class Category extends Model {
   Category(String? name, {this.color, this.iconCodePoint, this.categoryType, this.lastUsed, this.recordCount, this.isArchived = false}) {
     this.name = name;
     var categoryIcons = CategoryIcons.pro_category_icons;
-
-    // Assign a random color if none is provided
-    if (this.color == null) {
-      var randomColorIndex = _random.nextInt(colors.length);
-      this.color = colors[randomColorIndex];
-    }
 
     // Assign a default icon if none is provided or the provided one is invalid
     if (this.iconCodePoint == null || categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
@@ -64,21 +55,26 @@ class Category extends Model {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'name': name,
-      'color': color!.alpha.toString() + ":" + color!.red.toString() + ":"
-          + color!.green.toString() + ":" + color!.blue.toString(),
       'icon': this.icon!.codePoint,
       'category_type': categoryType!.index,
       'last_used': lastUsed?.millisecondsSinceEpoch,
       'record_count': recordCount,
+      'color': null,
       'is_archived': isArchived ? 1 : 0
     };
+    if (color != null) {
+      map['color'] =
+          color!.alpha.toString() + ":" + color!.red.toString() + ":"
+    + color!.green.toString() + ":" + color!.blue.toString();
+    }
     return map;
   }
 
   static Category fromMap(Map<String, dynamic> map) {
     // Handle color deserialization
+    // If not provided, null is assigned as a valid color (blank)
     String? serializedColor = map["color"] as String?;
-    var color = colors[0]; // Default color if not provided
+    Color? color;
     if (serializedColor != null) {
       List<int> colorComponents = serializedColor.split(":").map(int.parse).toList();
       color = Color.fromARGB(colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);

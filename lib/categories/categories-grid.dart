@@ -73,7 +73,9 @@ class CategoriesGridState extends State<CategoriesGrid> {
                       child: Icon(
                         category.icon,
                         size: 20,
-                        color: Colors.white,
+                        color: category.color != null
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.onSurface,
                       ),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,

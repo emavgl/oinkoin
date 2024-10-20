@@ -50,7 +50,11 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         Container(
             width: 40,
             height: 40,
-            child: Icon(movement.category!.icon, size: 20, color: Colors.white,),
+            child: Icon(movement.category!.icon, size: 20,
+              color: movement.category!.color != null
+                  ? Colors.white
+                  : Theme.of(context).colorScheme.onSurface,
+            ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: movement.category!.color,
@@ -76,7 +80,11 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         margin: EdgeInsets.only(right: 10),
         width: 40,
         height: 40,
-        child: Icon(movement.category!.icon, size: 20, color: Colors.white,),
+        child: Icon(movement.category!.icon, size: 20,
+          color: movement.category!.color != null
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurface,
+        ),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: movement.category!.color,
