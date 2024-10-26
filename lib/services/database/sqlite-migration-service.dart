@@ -19,6 +19,7 @@ class SqliteMigrationService {
             last_used INTEGER,
             record_count INTEGER DEFAULT 0,
             is_archived INTEGER DEFAULT 0,
+            order INTEGER DEFAULT 0,
             PRIMARY KEY (name, category_type)
         );
         """;
@@ -223,9 +224,14 @@ class SqliteMigrationService {
     }
   }
 
+  static void _migrateTo8(Database db) async {
+    safeAlterTable(db, "ALTER TABLE categories ADD COLUMN order INTEGER DEFAULT 0;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
-    7: SqliteMigrationService._migrateTo7
+    7: SqliteMigrationService._migrateTo7,
+    8: SqliteMigrationService._migrateTo8
   };
 
   // Public Methods
