@@ -30,6 +30,8 @@ abstract class DatabaseInterface {
       String recurrentPatternId, DateTime startingTime);
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName);
+  Future<void> setIsArchived(
+      String categoryName, CategoryType categoryType, bool isArchived);
 
   // Recurrent Records Patterns CRUD
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();

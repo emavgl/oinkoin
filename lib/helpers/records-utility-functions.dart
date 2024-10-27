@@ -74,7 +74,7 @@ bool getOverwriteDotValue() {
 bool getOverwriteCommaValue() {
   if (getDecimalSeparator() == ",") return false;
   return ServiceConfig.sharedPreferences
-      ?.getBool("overwriteCommaValueWithDot") ??
+          ?.getBool("overwriteCommaValueWithDot") ??
       getDecimalSeparator() == ".";
 }
 
@@ -215,9 +215,12 @@ String stripUnknownPatternCharacters(String toParse) {
   // Use a regular expression to keep only digits,
   // the decimal separator, and the grouping separator
   String pattern = '[0-9' +
-      RegExp.escape(decimalSeparator) + RegExp.escape(groupingSeparator) + ']';
+      RegExp.escape(decimalSeparator) +
+      RegExp.escape(groupingSeparator) +
+      ']';
   RegExp regex = RegExp(pattern);
-  String result = toParse.split('').where((char) => regex.hasMatch(char)).join();
+  String result =
+      toParse.split('').where((char) => regex.hasMatch(char)).join();
   return result;
 }
 
@@ -271,25 +274,26 @@ String getHeaderForUserDefinedInterval() {
       ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval") ??
           HomepageTimeInterval.CurrentMonth.index;
   HomepageTimeInterval userDefinedInterval =
-  HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+      HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
   DateTime _now = DateTime.now();
   switch (userDefinedInterval) {
     case HomepageTimeInterval.CurrentMonth:
       return getMonthStr(_now);
     case HomepageTimeInterval.CurrentYear:
       return "${"Year".i18n} ${_now.year}";
-      case HomepageTimeInterval.All:
+    case HomepageTimeInterval.All:
       var monthStr = getMonthStr(_now);
       return "All records until %s".i18n.fill([monthStr]);
   }
 }
 
-Future<List<DateTime>> getUserDefinedInterval(DatabaseInterface database) async {
+Future<List<DateTime>> getUserDefinedInterval(
+    DatabaseInterface database) async {
   var userDefinedHomepageIntervalIndex =
       ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval") ??
           HomepageTimeInterval.CurrentMonth.index;
   HomepageTimeInterval userDefinedInterval =
-  HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+      HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
   DateTime _now = DateTime.now();
   switch (userDefinedInterval) {
     case HomepageTimeInterval.CurrentMonth:
@@ -327,5 +331,4 @@ Future<List<Record?>> getRecordsByUserDefinedInterval(
     case HomepageTimeInterval.All:
       return await getAllRecords(database);
   }
-
 }

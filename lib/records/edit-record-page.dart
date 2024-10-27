@@ -89,8 +89,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     ),
     new DropdownMenuItem<int>(
       value: 6,
-      child:
-      new Text("Every year".i18n, style: TextStyle(fontSize: 20.0)),
+      child: new Text("Every year".i18n, style: TextStyle(fontSize: 20.0)),
     )
   ];
 
@@ -134,7 +133,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         _textEditingController.value = _textEditingController.value.copyWith(
           text: text,
           selection:
-          TextSelection(baseOffset: text.length, extentOffset: text.length),
+              TextSelection(baseOffset: text.length, extentOffset: text.length),
           composing: TextRange.empty,
         );
         changeRecordValue(_textEditingController.text.toLowerCase());
@@ -377,7 +376,9 @@ class EditRecordPageState extends State<EditRecordPage> {
                     height: size,
                     child: Icon(
                       toRender.icon,
-                      color: Colors.white,
+                      color: toRender.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
                       size: size - 20,
                     ),
                   ),
@@ -504,7 +505,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                                       left: 10.0),
                                                   child: Text(
                                                     recurrentPeriodString(
-                                                            recurrentPeriod),
+                                                        recurrentPeriod),
                                                     style: TextStyle(
                                                         fontSize: 20.0),
                                                   ),
@@ -580,7 +581,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                   }
                   var numericValue = tryParseCurrencyString(value);
                   if (numericValue == null) {
-                    return "Not a valid format (use for example: %s)".i18n
+                    return "Not a valid format (use for example: %s)"
+                        .i18n
                         .fill([
                       getCurrencyValueString(1234.20, turnOffGrouping: true)
                     ]);
@@ -675,7 +677,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                       "Do you really want to delete this record?".i18n);
                 } else {
                   deleteDialog = deleteDialog.addSubtitle(
-                      "Do you really want to delete this recurrent record?".i18n);
+                      "Do you really want to delete this recurrent record?"
+                          .i18n);
                 }
                 var continueDelete = await showDialog(
                     context: context,

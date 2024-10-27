@@ -57,7 +57,9 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             child: Icon(
               movement.category!.icon,
               size: 20,
-              color: Colors.white,
+              color: movement.category!.color != null
+                  ? Colors.white
+                  : Theme.of(context).colorScheme.onSurface,
             ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -89,7 +91,9 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         child: Icon(
           movement.category!.icon,
           size: 20,
-          color: Colors.white,
+          color: movement.category!.color != null
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurface,
         ),
         decoration: BoxDecoration(
           shape: BoxShape.circle,

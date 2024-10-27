@@ -20,7 +20,6 @@ import 'package:crypto/crypto.dart';
 
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
-
   static String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
 
   static String MANDATORY_BACKUP_SUFFIX = "obackup.json";
@@ -32,13 +31,14 @@ class BackupService {
   static Future<String> generateBackupFileName() async {
     // Get app information
     final packageInfo = await PackageInfo.fromPlatform();
-    final appName = packageInfo.packageName.split(".").last;  // The package name
-    final version = packageInfo.version;      // The app version
+    final appName = packageInfo.packageName.split(".").last; // The package name
+    final version = packageInfo.version; // The app version
 
     // Get current date and time
     final now = DateTime.now();
     final dateStr = now.toIso8601String().split(".")[0]; // Strip milliseconds
-    final formattedDate = dateStr.replaceAll(":", "-"); // Replace colon to avoid issues in file naming
+    final formattedDate = dateStr.replaceAll(
+        ":", "-"); // Replace colon to avoid issues in file naming
 
     // Construct the file name
     return "${appName}_${version}_${formattedDate}_${MANDATORY_BACKUP_SUFFIX}";
@@ -47,7 +47,7 @@ class BackupService {
   /// Generates a backup file name containing the app package name, version, and current time.
   static Future<String> getDefaultFileName() async {
     final packageInfo = await PackageInfo.fromPlatform();
-    final appName = packageInfo.packageName.split(".").last;  // The package name
+    final appName = packageInfo.packageName.split(".").last; // The package name
     return "${appName}_${MANDATORY_BACKUP_SUFFIX}";
   }
 
@@ -97,36 +97,35 @@ class BackupService {
       log("No automatic backup set");
       return false;
     }
-    bool enableEncryptedBackup = prefs.getBool("enableEncryptedBackup") ?? false;
+    bool enableEncryptedBackup =
+        prefs.getBool("enableEncryptedBackup") ?? false;
     String? backupPassword = prefs.getString("backupPassword") ?? null;
     bool enableVersionAndDateInBackupName =
         prefs.getBool("enableVersionAndDateInBackupName") ?? true;
-    String? filename = !enableVersionAndDateInBackupName
-        ? await getDefaultFileName() : null;
+    String? filename =
+        !enableVersionAndDateInBackupName ? await getDefaultFileName() : null;
     try {
       File backupFile = await BackupService.createJsonBackupFile(
           backupFileName: filename,
           directoryPath: DEFAULT_STORAGE_DIR,
-          encryptionPassword: enableEncryptedBackup ? backupPassword : null
-      );
+          encryptionPassword: enableEncryptedBackup ? backupPassword : null);
       log("${backupFile.path} successfully created");
       return true;
-    } catch(e) {
-     return false;
+    } catch (e) {
+      return false;
     }
   }
 
   static Future<bool> removeOldAutomaticBackups() async {
     var prefs = await SharedPreferences.getInstance();
-    bool enableEncryptedBackup = prefs.getBool("enableEncryptedBackup") ?? false;
-    var backupRetentionIntervalIndex = prefs.getInt("backupRetentionIntervalIndex");
+    bool enableEncryptedBackup =
+        prefs.getBool("enableEncryptedBackup") ?? false;
+    var backupRetentionIntervalIndex =
+        prefs.getInt("backupRetentionIntervalIndex");
     if (enableEncryptedBackup && backupRetentionIntervalIndex != null) {
       var period = BackupRetentionPeriod.values[backupRetentionIntervalIndex];
       if (period != BackupRetentionPeriod.ALWAYS) {
-        return await removeOldBackups(
-            period,
-            Directory(DEFAULT_STORAGE_DIR)
-        );
+        return await removeOldBackups(period, Directory(DEFAULT_STORAGE_DIR));
       }
     }
     return false;
@@ -137,7 +136,8 @@ class BackupService {
   ///
   /// [inputFile] - the backup file to import.
   /// [encryptionPassword] - optional, if provided, attempts to decrypt the backup file content.
-  static Future<bool> importDataFromBackupFile(File inputFile, {String? encryptionPassword}) async {
+  static Future<bool> importDataFromBackupFile(File inputFile,
+      {String? encryptionPassword}) async {
     try {
       String fileContent = await inputFile.readAsString();
 
@@ -191,14 +191,17 @@ class BackupService {
 
   /// Encrypts the given data using the provided password.
   static String encryptData(String data, String password) {
-    final key = encrypt.Key.fromUtf8(password.padRight(32, '*').substring(0, 32)); // Ensure the key length is 32 bytes
+    final key = encrypt.Key.fromUtf8(password
+        .padRight(32, '*')
+        .substring(0, 32)); // Ensure the key length is 32 bytes
     final iv = encrypt.IV.fromLength(16); // AES uses a 16 bytes IV
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     final encrypted = encrypter.encrypt(data, iv: iv);
 
     // Combine IV and encrypted data
     final combined = Uint8List.fromList(iv.bytes + encrypted.bytes);
-    return encrypt.Encrypted(combined).base64; // Save the combined data as Base64
+    return encrypt.Encrypted(combined)
+        .base64; // Save the combined data as Base64
   }
 
   static String hashPassword(String password) {
@@ -228,13 +231,17 @@ class BackupService {
 
   /// Decrypts the given data using the provided password.
   static String decryptData(String data, String password) {
-    final key = encrypt.Key.fromUtf8(password.padRight(32, '*').substring(0, 32)); // Ensure the key length is 32 bytes
+    final key = encrypt.Key.fromUtf8(password
+        .padRight(32, '*')
+        .substring(0, 32)); // Ensure the key length is 32 bytes
     final encrypted = encrypt.Encrypted.fromBase64(data);
 
     // Extract IV and encrypted data
-    final iv = encrypt.IV(Uint8List.fromList(encrypted.bytes.sublist(0, 16))); // First 16 bytes are the IV
-    final encryptedData = encrypt.Encrypted(Uint8List.fromList(encrypted.bytes.sublist(16))); // Remaining bytes are the encrypted data
-    
+    final iv = encrypt.IV(Uint8List.fromList(
+        encrypted.bytes.sublist(0, 16))); // First 16 bytes are the IV
+    final encryptedData = encrypt.Encrypted(Uint8List.fromList(
+        encrypted.bytes.sublist(16))); // Remaining bytes are the encrypted data
+
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     return encrypter.decrypt(encryptedData, iv: iv);
   }
@@ -242,7 +249,8 @@ class BackupService {
   /// Removes old backup files based on the specified retention period.
   /// [retentionPeriod] - the retention period to determine which files to delete.
   /// [directory] - the directory where the backup files are stored.
-  static Future<bool> removeOldBackups(BackupRetentionPeriod retentionPeriod, Directory directory) async {
+  static Future<bool> removeOldBackups(
+      BackupRetentionPeriod retentionPeriod, Directory directory) async {
     if (retentionPeriod == BackupRetentionPeriod.ALWAYS) {
       return true;
     }
@@ -255,7 +263,8 @@ class BackupService {
     final files = directory.listSync().whereType<File>().where((file) {
       if (!file.path.endsWith(MANDATORY_BACKUP_SUFFIX)) {
         return false;
-      };
+      }
+      ;
       final fileStat = file.statSync();
       final modifiedDate = fileStat.modified;
       return now.difference(modifiedDate) > duration;
@@ -298,8 +307,8 @@ class BackupService {
 
     for (final file in backupFiles) {
       final fileStat = file.statSync();
-      if (latestModifiedDate == null
-          || fileStat.modified.isAfter(latestModifiedDate)) {
+      if (latestModifiedDate == null ||
+          fileStat.modified.isAfter(latestModifiedDate)) {
         latestModifiedDate = fileStat.modified;
       }
     }
@@ -311,5 +320,4 @@ class BackupService {
     final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
     return formatter.format(latestModifiedDate);
   }
-
 }

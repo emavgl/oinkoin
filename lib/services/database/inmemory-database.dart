@@ -206,4 +206,20 @@ class InMemoryDatabase implements DatabaseInterface {
     // TODO: implement getDateTimeFirstRecord
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> setIsArchived(
+      String categoryName, CategoryType categoryType, bool isArchived) {
+    // Find the matching category in the in-memory list (_categories)
+    var matching = _categories
+        .where((x) => x!.name == categoryName && x.categoryType == categoryType)
+        .toList();
+
+    // If a matching category is found, update the isArchived property
+    if (matching.isNotEmpty) {
+      matching[0]!.isArchived = isArchived;
+    }
+
+    return Future<void>.value();
+  }
 }

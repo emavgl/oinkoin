@@ -27,6 +27,7 @@ class TabCategoriesState extends State<TabCategories>
   CategoryType? categoryType;
   TabController? _tabController;
   DatabaseInterface database = ServiceConfig.database;
+  bool showArchived = false;
 
   @override
   void initState() {
@@ -67,19 +68,50 @@ class TabCategoriesState extends State<TabCategories>
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(
-                text: "Expenses".i18n.toUpperCase(),
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(
+                  text: "Expenses".i18n.toUpperCase(),
+                ),
+                Tab(
+                  text: "Income".i18n.toUpperCase(),
+                ),
+              ],
+            ),
+            title: Text('Categories'.i18n),
+            actions: [
+              PopupMenuButton<int>(
+                icon: Icon(Icons.more_vert),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ),
+                onSelected: (index) async {
+                  if (index == 1) {
+                    setState(() {
+                      showArchived = !showArchived;
+                    });
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  var archivedOptionStr = showArchived
+                      ? "Show active categories".i18n
+                      : "Show archived categories".i18n;
+                  return {archivedOptionStr: 1}.entries.map((entry) {
+                    return PopupMenuItem<int>(
+                      padding: EdgeInsets.all(20),
+                      value: entry.value,
+                      child: Text(entry.key,
+                          style: TextStyle(
+                            fontSize: 16,
+                          )),
+                    );
+                  }).toList();
+                },
               ),
-              Tab(
-                text: "Income".i18n.toUpperCase(),
-              ),
-            ],
-          ),
-          title: Text('Categories'.i18n),
-        ),
+            ]),
         body: TabBarView(
           controller: _tabController,
           children: [
@@ -87,7 +119,8 @@ class TabCategoriesState extends State<TabCategories>
                 ? CategoriesList(
                     _categories!
                         .where((element) =>
-                            element!.categoryType == CategoryType.expense)
+                            element!.categoryType == CategoryType.expense &&
+                            element.isArchived == showArchived)
                         .toList(),
                     callback: refreshCategories)
                 : Container(),
@@ -95,7 +128,8 @@ class TabCategoriesState extends State<TabCategories>
                 ? CategoriesList(
                     _categories!
                         .where((element) =>
-                            element!.categoryType == CategoryType.income)
+                            element!.categoryType == CategoryType.income &&
+                            element.isArchived == showArchived)
                         .toList(),
                     callback: refreshCategories)
                 : Container(),

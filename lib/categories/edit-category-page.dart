@@ -76,6 +76,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     if (chosenColorIndex == -1) {
       pickedColor = category!.color;
     }
+    if (chosenColorIndex == -2) {
+      pickedColor = null;
+    }
   }
 
   Widget _getPageSeparatorLabel(String labelText) {
@@ -167,10 +170,56 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             height: 90,
             child: Row(
               children: [
+                _createNoColorCircle(),
                 _createColorPickerCircle(),
                 _buildColorList(),
               ],
             )));
+  }
+
+  Widget _createNoColorCircle() {
+    return Container(
+      margin: EdgeInsets.all(10),
+      child: Stack(
+        children: [
+          ClipOval(
+            child: Material(
+              color: Colors
+                  .transparent, // Ensure no background color for the Material
+              child: InkWell(
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle, // Ensure the shape is a circle
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.8), // Light grey border
+                      width: 2.0, // Border width
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.not_interested,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 30,
+                  ),
+                ),
+                onTap: () async {
+                  setState(() {
+                    pickedColor = null;
+                    category!.color = null;
+                    chosenColorIndex = -2;
+                  });
+                },
+              ),
+            ),
+          ),
+          ServiceConfig.isPremium ? Container() : getProLabel(),
+        ],
+      ),
+    );
   }
 
   Widget _createCategoryCirclePreview() {
@@ -186,7 +235,9 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                     height: 70,
                     child: Icon(
                       category!.icon,
-                      color: Colors.white,
+                      color: category!.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
                       size: 30,
                     ),
                   ),
@@ -269,7 +320,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
           contentPadding: const EdgeInsets.all(0.0),
           content: SingleChildScrollView(
             child: MaterialPicker(
-              pickerColor: category!.color!,
+              pickerColor: Category.colors[0]!,
               onColorChanged: (newColor) {
                 setState(() {
                   pickedColor = newColor;
@@ -321,6 +372,51 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       Visibility(
           visible: widget.passedCategory != null,
           child: IconButton(
+            icon: widget.passedCategory == null
+                ? const Icon(Icons.archive)
+                : !(widget.passedCategory!.isArchived)
+                    ? const Icon(Icons.archive)
+                    : const Icon(Icons.unarchive),
+            tooltip: widget.passedCategory == null
+                ? ""
+                : !(widget.passedCategory!.isArchived)
+                    ? "Archive".i18n
+                    : "Unarchive".i18n,
+            onPressed: () async {
+              bool isCurrentlyArchived = widget.passedCategory!.isArchived;
+
+              String dialogMessage = !isCurrentlyArchived
+                  ? "Do you really want to archive the category?".i18n
+                  : "Do you really want to unarchive the category?".i18n;
+
+              // Prompt confirmation
+              AlertDialogBuilder archiveDialog =
+                  AlertDialogBuilder(dialogMessage)
+                      .addTrueButtonName("Yes".i18n)
+                      .addFalseButtonName("No".i18n);
+
+              if (!isCurrentlyArchived) {
+                archiveDialog.addSubtitle(
+                    "Archiving the category you will NOT remove the associated records"
+                        .i18n);
+              }
+
+              var continueArchivingAction = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return archiveDialog.build(context);
+                  });
+
+              if (continueArchivingAction) {
+                await database.setIsArchived(widget.passedCategory!.name!,
+                    widget.passedCategory!.categoryType!, !isCurrentlyArchived);
+                Navigator.pop(context);
+              }
+            },
+          )),
+      Visibility(
+          visible: widget.passedCategory != null,
+          child: IconButton(
             icon: const Icon(Icons.delete),
             tooltip: "Delete".i18n,
             onPressed: () async {
@@ -328,7 +424,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               AlertDialogBuilder deleteDialog = AlertDialogBuilder(
                       "Do you really want to delete the category?".i18n)
                   .addSubtitle(
-                      "Deleting the category you will remove all the associated records".i18n)
+                      "Deleting the category you will remove all the associated records"
+                          .i18n)
                   .addTrueButtonName("Yes".i18n)
                   .addFalseButtonName("No".i18n);
 
@@ -344,7 +441,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                 Navigator.pop(context);
               }
             },
-          ))
+          )),
     ]);
   }
 

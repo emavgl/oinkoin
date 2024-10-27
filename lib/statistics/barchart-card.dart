@@ -165,8 +165,7 @@ class BarChartCard extends StatelessWidget {
                     fontSize: 12, // size in Pts.
                     color: labelAxesColor),
               ),
-            ],
-            layoutPaintOrder: 100),
+            ], layoutPaintOrder: 100),
           ],
           selectionModels: [
             SelectionModelConfig(changedListener: (SelectionModel model) {
