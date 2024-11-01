@@ -5,6 +5,8 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 
+import 'components/leading_icon.dart';
+
 class RecordsPerDayCard extends StatefulWidget {
   /// RecordsCard renders a MovementPerDay object as a Card
   /// The card contains an header with date and the balance of the day
@@ -48,59 +50,6 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         });
   }
 
-  Widget _buildLeadingIconRecurrentMovement(Record movement) {
-    return Stack(
-      children: [
-        Container(
-            width: 40,
-            height: 40,
-            child: Icon(
-              movement.category!.icon,
-              size: 20,
-              color: movement.category!.color != null
-                  ? Colors.white
-                  : Theme.of(context).colorScheme.onSurface,
-            ),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: movement.category!.color,
-            )),
-        Container(
-            margin: EdgeInsets.only(left: 30, top: 20),
-            width: 20,
-            height: 20,
-            child: Icon(
-              Icons.repeat,
-              size: 10,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            decoration: BoxDecoration(
-//              border: Border.all(color: Colors.black),
-              shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.surface,
-            ))
-      ],
-    );
-  }
-
-  Widget _buildLeadingIconMovement(Record movement) {
-    return Container(
-        margin: EdgeInsets.only(right: 10),
-        width: 40,
-        height: 40,
-        child: Icon(
-          movement.category!.icon,
-          size: 20,
-          color: movement.category!.color != null
-              ? Colors.white
-              : Theme.of(context).colorScheme.onSurface,
-        ),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: movement.category!.color,
-        ));
-  }
-
   Widget _buildMovementRow(Record movement) {
     /// Returns a ListTile rendering the single movement row
     return ListTile(
@@ -126,9 +75,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           getCurrencyValueString(movement.value),
           style: _trailingBiggerFont,
         ),
-        leading: movement.recurrencePatternId == null
-            ? _buildLeadingIconMovement(movement)
-            : _buildLeadingIconRecurrentMovement(movement));
+        leading: LeadingIcon(movement: movement)
+    );
   }
 
   @override

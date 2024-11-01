@@ -56,6 +56,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       category.categoryType = categoryType;
     } else {
       category = Category.fromMap(passedCategory!.toMap());
+      categoryName = passedCategory!.name;
     }
     return category;
   }

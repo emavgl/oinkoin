@@ -200,7 +200,7 @@ class SqliteDatabase implements DatabaseInterface {
     final toUnix = to!.millisecondsSinceEpoch;
 
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [fromUnix, toUnix]);
@@ -238,7 +238,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<Record?> getRecordById(int id) async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [id]);
@@ -280,7 +280,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.is_archived
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
 
