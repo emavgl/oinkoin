@@ -238,6 +238,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.7"
+  emoji_picker_flutter:
+    dependency: "direct main"
+    description:
+      name: emoji_picker_flutter
+      sha256: "7c6681783e06710608df27be0e38aa4ba73ca1ccac370bb0e7a1320723ae4bca"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   encrypt:
     dependency: "direct main"
     description:
@@ -440,6 +448,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.22"
+  flutter_reorderable_grid_view:
+    dependency: "direct main"
+    description:
+      name: flutter_reorderable_grid_view
+      sha256: "93a2b9e279bf40b9333428a67e70e520ca1528554984eb6f6304538400897e64"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.2"
   flutter_speed_dial:
     dependency: "direct main"
     description:

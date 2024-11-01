@@ -136,9 +136,7 @@ class OverviewCard extends StatelessWidget {
   }
 
   Widget _buildCard() {
-    return Card(
-        elevation: 0,
-        child: Padding(
+    return Padding(
             padding: const EdgeInsets.all(6.0),
             child: Column(
               children: <Widget>[
@@ -152,7 +150,8 @@ class OverviewCard extends StatelessWidget {
                   child: _buildSecondRow(),
                 ),
               ],
-            )));
+            )
+    );
   }
 
   @override

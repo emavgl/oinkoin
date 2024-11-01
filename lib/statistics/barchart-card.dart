@@ -208,9 +208,7 @@ class BarChartCard extends StatelessWidget {
     return Container(
         height: 250,
         margin: EdgeInsets.only(top: 10, bottom: 10),
-        child: new Card(
-            elevation: 0,
-            child: Column(
+        child: Column(
               children: <Widget>[
                 Container(
                     padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
@@ -226,7 +224,8 @@ class BarChartCard extends StatelessWidget {
                   child: _buildLineChart(context),
                 )
               ],
-            )));
+            )
+    );
   }
 
   @override

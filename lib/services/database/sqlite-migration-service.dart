@@ -18,6 +18,7 @@ class SqliteMigrationService {
             record_count INTEGER DEFAULT 0,
             is_archived INTEGER DEFAULT 0,
             sort_order INTEGER DEFAULT 0,
+            icon_emoji TEXT,
             PRIMARY KEY (name, category_type)
         );
         """;
@@ -229,10 +230,16 @@ class SqliteMigrationService {
         db, "ALTER TABLE categories ADD COLUMN sort_order INTEGER DEFAULT 0;");
   }
 
+  static void _migrateTo9(Database db) async {
+    safeAlterTable(
+        db, "ALTER TABLE categories ADD COLUMN icon_emoji TEXT;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
-    8: SqliteMigrationService._migrateTo8
+    8: SqliteMigrationService._migrateTo8,
+    9: SqliteMigrationService._migrateTo9
   };
 
   // Public Methods

@@ -22,12 +22,14 @@ class Category extends Model {
     Colors.purple[200],
     Colors.grey[400],
     Colors.black,
+    Colors.white,
   ];
 
   String? name;
   Color? color;
   int? iconCodePoint;
   IconData? icon;
+  String? iconEmoji;
   DateTime? lastUsed;
   int? recordCount;
   CategoryType? categoryType; // 0 for expenses, 1 for income
@@ -40,18 +42,21 @@ class Category extends Model {
       this.categoryType,
       this.lastUsed,
       this.recordCount,
+      this.iconEmoji,
       this.isArchived = false}) {
     this.name = name;
     var categoryIcons = CategoryIcons.pro_category_icons;
 
-    // Assign a default icon if none is provided or the provided one is invalid
-    if (this.iconCodePoint == null ||
-        categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
-      this.icon = FontAwesomeIcons.question;
-      this.iconCodePoint = this.icon!.codePoint;
-    } else {
-      this.icon =
-          categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
+    if (iconEmoji == null) {
+      // Assign a default icon if none is provided or the provided one is invalid
+      if (this.iconCodePoint == null ||
+          categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
+        this.icon = FontAwesomeIcons.question;
+        this.iconCodePoint = this.icon!.codePoint;
+      } else {
+        this.icon =
+            categoryIcons.where((i) => i.codePoint == this.iconCodePoint).first;
+      }
     }
 
     // Set default category type to expense if not provided
@@ -63,12 +68,12 @@ class Category extends Model {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'name': name,
-      'icon': this.icon!.codePoint,
       'category_type': categoryType!.index,
       'last_used': lastUsed?.millisecondsSinceEpoch,
       'record_count': recordCount,
       'color': null,
-      'is_archived': isArchived ? 1 : 0
+      'is_archived': isArchived ? 1 : 0,
+      'icon_emoji': iconEmoji
     };
     if (color != null) {
       map['color'] = color!.alpha.toString() +
@@ -79,17 +84,19 @@ class Category extends Model {
           ":" +
           color!.blue.toString();
     }
+    if (this.icon != null) {
+      map['icon'] = this.icon!.codePoint;
+    }
     return map;
   }
 
   static Category fromMap(Map<String, dynamic> map) {
     // Handle color deserialization
-    // If not provided, null is assigned as a valid color (blank)
     String? serializedColor = map["color"] as String?;
     Color? color;
     if (serializedColor != null) {
       List<int> colorComponents =
-          serializedColor.split(":").map(int.parse).toList();
+      serializedColor.split(":").map(int.parse).toList();
       color = Color.fromARGB(colorComponents[0], colorComponents[1],
           colorComponents[2], colorComponents[3]);
     }
@@ -103,20 +110,27 @@ class Category extends Model {
 
     // Handle is_archived with default value of false if missing
     bool isArchivedFromMap =
-        (map['is_archived'] != null) ? (map['is_archived'] as int) == 1 : false;
+    (map['is_archived'] != null) ? (map['is_archived'] as int) == 1 : false;
 
     // Handle record_count with default value of 0 if missing
     int recordCountFromMap =
-        (map['record_count'] != null) ? map['record_count'] as int : 0;
+    (map['record_count'] != null) ? map['record_count'] as int : 0;
+
+    // Handle icon_emoji deserialization with default value of null if missing
+    String? iconEmojiFromMap = map['icon_emoji'] as String?;
+
+    // Handle icon_emoji deserialization with default value of null if missing
+    int? icon = map['icon'] as int?;
 
     // Return the Category object
     return Category(
       map["name"],
       color: color,
-      iconCodePoint: map["icon"],
+      iconCodePoint: icon,
       categoryType: CategoryType.values[map['category_type']],
       lastUsed: lastUsedFromMap,
       recordCount: recordCountFromMap,
+      iconEmoji: iconEmojiFromMap,
       isArchived: isArchivedFromMap,
     );
   }

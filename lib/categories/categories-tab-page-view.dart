@@ -173,7 +173,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   void _sortByMostUsed() {
     setState(() {
       _selectedSortOption = SortOption.mostUsed;
-      _categories?.sort((a, b) => a!.recordCount!.compareTo(b!.recordCount!));
+      _categories?.sort((a, b) => b!.recordCount!.compareTo(a!.recordCount!));
     });
     storeOnUserPreferences();
   }

@@ -5,6 +5,9 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/i18n.dart';
 
+import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+
 class CategoriesGrid extends StatefulWidget {
   /// CategoriesGrid fetches the categories of a given Category type
   /// and renders them using a GridView. By default, it returns the
@@ -47,54 +50,66 @@ class CategoriesGridState extends State<CategoriesGrid> {
 
   Widget _buildCategory(Category category) {
     return Container(
-        child: Center(
-            child: InkWell(
-      onTap: () async {
-        if (widget.goToEditMovementPage != null &&
-            widget.goToEditMovementPage!) {
-          // navigate to EditMovementPage
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      EditRecordPage(passedCategory: category)));
-        } else {
-          // navigate back to the caller, passing the selected Category
-          Navigator.pop(context, category);
-        }
-      },
-      child: Container(
-        child: Column(
-          children: [
-            Container(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  category.icon,
-                  size: 20,
-                  color: category.color != null
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.onSurface,
+      child: Center(
+        child: InkWell(
+          onTap: () async {
+            if (widget.goToEditMovementPage != null && widget.goToEditMovementPage!) {
+              // Navigate to EditMovementPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditRecordPage(passedCategory: category),
                 ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: category.color,
-                )),
-            Flexible(
-              child: Container(
-                margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                child: Text(
-                  category.name!,
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
+              );
+            } else {
+              // Navigate back to the caller, passing the selected Category
+              Navigator.pop(context, category);
+            }
+          },
+          child: Container(
+            child: Column(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  child: Center(
+                    child: category.iconEmoji != null
+                        ? Text(
+                      category.iconEmoji!, // Display the emoji
+                      style: TextStyle(
+                        fontSize: 20, // Adjust the size as needed
+                      ),
+                    )
+                        : Icon(
+                      category.icon,
+                      size: 20,
+                      color: category.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: category.color,
+                  ),
                 ),
-              ),
-            )
-          ],
+                Flexible(
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: Text(
+                      category.name!,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
       ),
-    )));
+    );
   }
 
   @override

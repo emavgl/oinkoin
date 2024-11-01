@@ -1,3 +1,4 @@
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emojipicker;
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
@@ -42,6 +43,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       chosenIconIndex; // Index of the Category.icons list for showing the selected color in the list
   Color? pickedColor;
   String? categoryName;
+  String currentEmoji = '😎'; // Default emoji
 
   DatabaseInterface database = ServiceConfig.database;
 
@@ -68,7 +70,15 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     icons = ServiceConfig.isPremium
         ? CategoryIcons.pro_category_icons
         : CategoryIcons.free_category_icons;
-    chosenIconIndex = icons.indexOf(category!.icon);
+
+    // Icon
+    if (category!.icon == null && category!.iconEmoji != null) {
+      chosenIconIndex = -1;
+      currentEmoji = category!.iconEmoji!;
+    } else {
+      chosenIconIndex = icons.indexOf(category!.icon);
+    }
+
     chosenColorIndex = Category.colors.indexOf(category!.color);
     if (chosenColorIndex == -1) {
       pickedColor = category!.color;
@@ -94,31 +104,121 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     );
   }
 
+  bool _emojiShowing = false;
+  TextEditingController _controller = TextEditingController();
+
   Widget _getIconsGrid() {
-    return GridView.count(
-      // Create a grid with 2 columns. If you change the scrollDirection to
-      // horizontal, this produces 2 rows
-      padding: EdgeInsets.all(0),
-      crossAxisCount: 5,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      // Generate 100 widgets that display their index in the List.
-      children: List.generate(icons.length, (index) {
-        return Container(
-            child: IconButton(
-                // Use the FaIcon Widget + FontAwesomeIcons class for the IconData
-                icon: FaIcon(icons[index]),
-                color: ((chosenIconIndex == index)
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                onPressed: () {
-                  setState(() {
-                    category!.icon = icons[index];
-                    category!.iconCodePoint = category!.icon!.codePoint;
-                    chosenIconIndex = index;
-                  });
-                }));
-      }),
+    var surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
+    var bottonActionColor = Theme.of(context).colorScheme.surfaceContainerLow;
+    var buttonColors = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
+    return Column(
+      children: [
+        Offstage(
+          offstage: !_emojiShowing,
+          child: emojipicker.EmojiPicker(
+            textEditingController: _controller,
+            config: emojipicker.Config(
+              height: 256,
+              checkPlatformCompatibility: true,
+              emojiViewConfig: emojipicker.EmojiViewConfig(
+                emojiSizeMax: 28,
+                backgroundColor: surfaceContainer
+              ),
+              categoryViewConfig: emojipicker.CategoryViewConfig(
+                backgroundColor: bottonActionColor,
+                iconColorSelected: buttonColors,
+              ),
+              bottomActionBarConfig: emojipicker.BottomActionBarConfig(
+                backgroundColor: bottonActionColor,
+                buttonColor: buttonColors,
+                showBackspaceButton: false,
+              ),
+              searchViewConfig: emojipicker.SearchViewConfig(
+                backgroundColor: Colors.white,
+              ),
+            ),
+            onEmojiSelected: (c, emoji) {
+              setState(() {
+                _emojiShowing = false; // Hide the emoji picker after selection
+                _controller.text = emoji.emoji; // Display the emoji
+                chosenIconIndex = -1; // Use -1 to indicate an emoji was chosen
+                currentEmoji = emoji.emoji; // Update the current emoji
+                category!.iconCodePoint = null;
+                category!.icon = null;
+                category!.iconEmoji = currentEmoji;
+              });
+            },
+          ),
+        ),
+        GridView.count(
+          padding: EdgeInsets.all(0),
+          crossAxisCount: 5,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          children: [
+            // First IconButton with emoji
+            Container(
+              alignment: Alignment.center,
+              child: IconButton(
+                icon: ServiceConfig.isPremium ? Text(
+                  currentEmoji, // Display an emoji as text
+                  style: TextStyle(
+                    fontSize: 24, // Set the emoji size
+                  ),
+                )
+                : Stack(
+                  children: [
+                    Text(
+                      currentEmoji, // Display an emoji as text
+                      style: TextStyle(
+                        fontSize: 24, // Set the emoji size
+                      ),
+                    ),
+                    !ServiceConfig.isPremium
+                        ? Container(
+                      margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
+                      child: getProLabel(labelFontSize: 10.0),
+                    )
+                        : Container()
+                  ],
+                ), onPressed: ServiceConfig.isPremium
+                    ? () {
+                      setState(() {
+                        _emojiShowing = !_emojiShowing; // Toggle the emoji picker
+                      });
+                    }
+                    : () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PremiumSplashScreen()),
+                  );
+                },
+              ),
+            ),
+            // Other icons
+            ...List.generate(icons.length, (index) {
+              return Container(
+                child: IconButton(
+                  icon: FaIcon(icons[index]),
+                  color: (chosenIconIndex == index)
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  onPressed: () {
+                    setState(() {
+                      _emojiShowing = false; // Hide emoji picker if open
+                      category!.icon = icons[index];
+                      category!.iconCodePoint = category!.icon!.codePoint;
+                      category!.iconEmoji = null;
+                      chosenIconIndex = index;
+                    });
+                  },
+                ),
+              );
+            }),
+          ],
+        ),
+      ],
     );
   }
 
@@ -221,25 +321,37 @@ class EditCategoryPageState extends State<EditCategoryPage> {
 
   Widget _createCategoryCirclePreview() {
     return Container(
-        margin: EdgeInsets.all(10),
-        child: ClipOval(
-            child: Material(
-                color: category!.color, // button color
-                child: InkWell(
-                  splashColor: category!.color, // inkwell color
-                  child: SizedBox(
-                    width: 70,
-                    height: 70,
-                    child: Icon(
-                      category!.icon,
-                      color: category!.color != null
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onSurface,
-                      size: 30,
-                    ),
+      margin: EdgeInsets.all(10),
+      child: ClipOval(
+        child: Material(
+          color: category!.color, // Button color
+          child: InkWell(
+            splashColor: category!.color, // InkWell color
+            child: SizedBox(
+              width: 70,
+              height: 70,
+              child: Center( // Center the content
+                child: category!.iconEmoji != null // Check for iconEmoji
+                    ? Text(
+                  category!.iconEmoji!, // Display the emoji
+                  style: TextStyle(
+                    fontSize: 30, // Adjust the font size for the emoji
                   ),
-                  onTap: () {},
-                ))));
+                )
+                    : Icon(
+                  category!.icon, // Fallback to the icon
+                  color: category!.color != null
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurface,
+                  size: 30,
+                ),
+              ),
+            ),
+            onTap: () {},
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _createColorPickerCircle() {

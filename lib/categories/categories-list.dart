@@ -52,34 +52,46 @@ class CategoriesListState extends State<CategoriesList> {
           leading: Stack(
             children: [
               Container(
-                  width: 40,
-                  height: 40,
-                  child: Icon(
+                width: 40,
+                height: 40,
+                child: Center(
+                  child: category.iconEmoji != null
+                      ? Text(
+                    category.iconEmoji!, // Display the emoji
+                    style: TextStyle(
+                      fontSize: 20, // Adjust the size as needed
+                    ),
+                  )
+                      : Icon(
                     category.icon,
                     size: 20,
                     color: category.color != null
                         ? Colors.white
                         : Theme.of(context).colorScheme.onSurface,
                   ),
+                ),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: category.color,
+                ),
+              ),
+              Visibility(
+                visible: category.isArchived,
+                child: Container(
+                  margin: EdgeInsets.only(left: 30, top: 20),
+                  width: 20,
+                  height: 20,
+                  child: Icon(
+                    Icons.archive,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: category.color,
-                  )),
-              Visibility(
-                  visible: category.isArchived,
-                  child: Container(
-                      margin: EdgeInsets.only(left: 30, top: 20),
-                      width: 20,
-                      height: 20,
-                      child: Icon(
-                        Icons.archive,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.surface,
-                      )))
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                ),
+              )
             ],
           ),
           title: Text(category.name!, style: _biggerFont),
@@ -87,6 +99,7 @@ class CategoriesListState extends State<CategoriesList> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

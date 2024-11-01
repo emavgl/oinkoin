@@ -52,6 +52,8 @@ dependencies:
   system_theme: ^2.3.1
   flutter_typeahead: ^5.2.0
   file_selector: ^1.0.3
+  emoji_picker_flutter: ^2.1.1
+  flutter_reorderable_grid_view: ^5.3.2
 
 
 

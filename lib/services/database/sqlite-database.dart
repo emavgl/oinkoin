@@ -23,7 +23,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get _version => 7;
+  static int get _version => 9;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -140,7 +140,7 @@ class SqliteDatabase implements DatabaseInterface {
     var maps;
     if (sameTitle != null) {
       maps = await db!.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title = ? AND c.name = ? AND c.category_type = ?
         """, [
@@ -152,7 +152,7 @@ class SqliteDatabase implements DatabaseInterface {
       ]);
     } else {
       maps = await db!.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title IS NULL AND c.name = ? AND c.category_type = ?
         """, [sameDateTime, sameValue, sameCategoryName, sameCategoryType]);
@@ -169,7 +169,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<Record>> getAllRecords() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
     return List.generate(maps.length, (i) {
@@ -200,7 +200,7 @@ class SqliteDatabase implements DatabaseInterface {
     final toUnix = to!.millisecondsSinceEpoch;
 
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.is_archived
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [fromUnix, toUnix]);
@@ -238,7 +238,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<Record?> getRecordById(int id) async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.is_archived
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [id]);
@@ -280,7 +280,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.is_archived
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
 
@@ -298,7 +298,7 @@ class SqliteDatabase implements DatabaseInterface {
       String? recurrentPatternId) async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [recurrentPatternId]);
@@ -342,7 +342,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<DateTime?> getDateTimeFirstRecord() async {
     final db = await database; // Assuming you have a database connection
     final maps = await db?.rawQuery("""
-        SELECT m.*, c.name, c.color, c.category_type, c.icon
+        SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
         FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         ORDER BY m.datetime ASC
         LIMIT 1
