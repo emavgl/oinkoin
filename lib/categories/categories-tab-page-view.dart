@@ -11,7 +11,7 @@ enum SortOption { original, lastUsed, mostUsed }
 
 class CategoryTabPageView extends StatefulWidget {
   final bool? goToEditMovementPage;
-  CategoryTabPageView({this.goToEditMovementPage});
+  CategoryTabPageView({this.goToEditMovementPage, Key? key}) : super(key: key);
 
   @override
   CategoryTabPageViewState createState() => CategoryTabPageViewState();
@@ -176,6 +176,11 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
       _categories?.sort((a, b) => a!.recordCount!.compareTo(b!.recordCount!));
     });
     storeOnUserPreferences();
+  }
+
+  refreshCategories() async {
+    await _initializeSortPreference();
+    await _fetchCategories();
   }
 
   @override

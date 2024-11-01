@@ -28,10 +28,13 @@ class TabCategoriesState extends State<TabCategories>
   TabController? _tabController;
   DatabaseInterface database = ServiceConfig.database;
   bool showArchived = false;
+  String activeCategoryTitle = 'Categories'.i18n;
+  late String titleBarStr;
 
   @override
   void initState() {
     super.initState();
+    titleBarStr = activeCategoryTitle;
     _tabController = new TabController(length: 2, vsync: this);
     database.getAllCategories().then((categories) => {
           setState(() {
@@ -79,7 +82,7 @@ class TabCategoriesState extends State<TabCategories>
                 ),
               ],
             ),
-            title: Text('Categories'.i18n),
+            title: Text(titleBarStr),
             actions: [
               PopupMenuButton<int>(
                 icon: Icon(Icons.more_vert),
@@ -92,6 +95,11 @@ class TabCategoriesState extends State<TabCategories>
                   if (index == 1) {
                     setState(() {
                       showArchived = !showArchived;
+                      if (showArchived) {
+                        titleBarStr = "Archived Categories".i18n;
+                      } else {
+                        titleBarStr = activeCategoryTitle;
+                      }
                     });
                   }
                 },

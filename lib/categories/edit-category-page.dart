@@ -55,11 +55,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
       category.iconCodePoint = category.icon!.codePoint;
       category.categoryType = categoryType;
     } else {
-      category.icon = passedCategory!.icon;
-      category.name = passedCategory!.name;
-      categoryName = passedCategory!.name;
-      category.color = passedCategory!.color;
-      category.categoryType = passedCategory!.categoryType;
+      category = Category.fromMap(passedCategory!.toMap());
     }
     return category;
   }
