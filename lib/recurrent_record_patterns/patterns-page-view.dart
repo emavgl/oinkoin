@@ -79,17 +79,18 @@ class PatternsPageViewState extends State<PatternsPageView> {
             child: Center(
               child: pattern.category!.iconEmoji != null
                   ? Text(
-                pattern.category!.iconEmoji!, // Display the emoji
-                style: TextStyle(
-                  fontSize: 20, // Adjust size as needed
-                ),
-              )
+                      pattern.category!.iconEmoji!, // Display the emoji
+                      style: TextStyle(
+                        fontSize: 20, // Adjust size as needed
+                      ),
+                    )
                   : Icon(
-                pattern.category!.icon,
-                size: 20,
-                color: pattern.category!.color != null ? Colors.white :
-                Theme.of(context).colorScheme.onSurface,
-              ),
+                      pattern.category!.icon,
+                      size: 20,
+                      color: pattern.category!.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
             ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,

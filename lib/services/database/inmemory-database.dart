@@ -208,7 +208,7 @@ class InMemoryDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> setIsArchived(
+  Future<void> archiveCategory(
       String categoryName, CategoryType categoryType, bool isArchived) {
     // Find the matching category in the in-memory list (_categories)
     var matching = _categories
@@ -220,6 +220,18 @@ class InMemoryDatabase implements DatabaseInterface {
       matching[0]!.isArchived = isArchived;
     }
 
+    return Future<void>.value();
+  }
+
+  @override
+  Future<void> resetCategoryOrderIndexes(
+      List<Category> orderedCategories) async {
+    _categories.clear();
+    for (int i = 0; i < orderedCategories.length; i++) {
+      orderedCategories[i].sortOrder =
+          i; // Set orderIndex according to new order
+    }
+    _categories.addAll(orderedCategories);
     return Future<void>.value();
   }
 }

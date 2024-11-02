@@ -357,7 +357,7 @@ class SqliteDatabase implements DatabaseInterface {
     return results.isNotEmpty ? results[0].dateTime : null;
   }
 
-  Future<void> setIsArchived(
+  Future<void> archiveCategory(
       String categoryName, CategoryType categoryType, bool isArchived) async {
     final db = (await database)!;
 
@@ -371,5 +371,25 @@ class SqliteDatabase implements DatabaseInterface {
       where: "name = ? AND category_type = ?",
       whereArgs: [categoryName, categoryType.index],
     );
+  }
+
+  @override
+  Future<void> resetCategoryOrderIndexes(
+      List<Category> orderedCategories) async {
+    final db = (await database)!;
+
+    // Update the sortOrder of each category based on its index in the ordered list
+    for (int i = 0; i < orderedCategories.length; i++) {
+      Category category = orderedCategories[i];
+      int sortOrder =
+          i; // Index of category in the ordered list is the sortOrder
+
+      await db.update(
+        "categories",
+        {"sort_order": sortOrder},
+        where: "name = ? AND category_type = ?",
+        whereArgs: [category.name, category.categoryType!.index],
+      );
+    }
   }
 }

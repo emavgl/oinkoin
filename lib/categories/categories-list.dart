@@ -57,18 +57,18 @@ class CategoriesListState extends State<CategoriesList> {
                 child: Center(
                   child: category.iconEmoji != null
                       ? Text(
-                    category.iconEmoji!, // Display the emoji
-                    style: TextStyle(
-                      fontSize: 20, // Adjust the size as needed
-                    ),
-                  )
+                          category.iconEmoji!, // Display the emoji
+                          style: TextStyle(
+                            fontSize: 20, // Adjust the size as needed
+                          ),
+                        )
                       : Icon(
-                    category.icon,
-                    size: 20,
-                    color: category.color != null
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.onSurface,
-                  ),
+                          category.icon,
+                          size: 20,
+                          color: category.color != null
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -99,7 +99,6 @@ class CategoriesListState extends State<CategoriesList> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

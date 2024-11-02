@@ -231,8 +231,7 @@ class SqliteMigrationService {
   }
 
   static void _migrateTo9(Database db) async {
-    safeAlterTable(
-        db, "ALTER TABLE categories ADD COLUMN icon_emoji TEXT;");
+    safeAlterTable(db, "ALTER TABLE categories ADD COLUMN icon_emoji TEXT;");
   }
 
   static Map<int, Function(Database)?> migrationFunctions = {

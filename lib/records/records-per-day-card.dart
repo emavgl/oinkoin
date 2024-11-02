@@ -75,8 +75,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           getCurrencyValueString(movement.value),
           style: _trailingBiggerFont,
         ),
-        leading: LeadingIcon(movement: movement)
-    );
+        leading: LeadingIcon(movement: movement));
   }
 
   @override

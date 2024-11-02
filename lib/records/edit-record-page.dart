@@ -380,7 +380,8 @@ class EditRecordPageState extends State<EditRecordPage> {
     Category defaultCategory = Category("Missing".i18n,
         color: Category.colors[0],
         iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender = (record!.category == null) ? defaultCategory : record!.category!;
+    Category toRender =
+        (record!.category == null) ? defaultCategory : record!.category!;
 
     return Container(
       margin: EdgeInsets.all(10),
@@ -397,18 +398,18 @@ class EditRecordPageState extends State<EditRecordPage> {
                   child: Center(
                     child: toRender.iconEmoji != null
                         ? Text(
-                      toRender.iconEmoji!, // Display the emoji
-                      style: TextStyle(
-                        fontSize: size - 20, // Adjust the emoji size
-                      ),
-                    )
+                            toRender.iconEmoji!, // Display the emoji
+                            style: TextStyle(
+                              fontSize: size - 20, // Adjust the emoji size
+                            ),
+                          )
                         : Icon(
-                      toRender.icon, // Fallback to the icon
-                      color: toRender.color != null
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onSurface,
-                      size: size - 20,
-                    ),
+                            toRender.icon, // Fallback to the icon
+                            color: toRender.color != null
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.onSurface,
+                            size: size - 20,
+                          ),
                   ),
                 ),
               ),
@@ -419,7 +420,6 @@ class EditRecordPageState extends State<EditRecordPage> {
       ),
     );
   }
-
 
   goToPremiumSplashScreen() async {
     await Navigator.push(

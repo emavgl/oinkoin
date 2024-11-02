@@ -10,9 +10,6 @@ class Category extends Model {
   /// The category type is used to discriminate between categories for expenses,
   /// and categories for incomes.
 
-  /// List of icons.
-  /// These are the only colors that can be used in the Category.
-  /// The order matters in the way they are shown in the list.
   static final List<Color?> colors = [
     Colors.green[300],
     Colors.red[300],
@@ -32,10 +29,11 @@ class Category extends Model {
   String? iconEmoji;
   DateTime? lastUsed;
   int? recordCount;
-  CategoryType? categoryType; // 0 for expenses, 1 for income
+  CategoryType? categoryType;
   bool isArchived;
+  int? sortOrder; // New field to track the order of categories
 
-  // Updated constructor to include the isArchived field
+  // Updated constructor to include the sortOrder field
   Category(String? name,
       {this.color,
       this.iconCodePoint,
@@ -43,14 +41,17 @@ class Category extends Model {
       this.lastUsed,
       this.recordCount,
       this.iconEmoji,
-      this.isArchived = false}) {
+      this.isArchived = false,
+      this.sortOrder = 0}) {
+    // Initialize sortOrder in constructor
     this.name = name;
     var categoryIcons = CategoryIcons.pro_category_icons;
 
     if (iconEmoji == null) {
-      // Assign a default icon if none is provided or the provided one is invalid
       if (this.iconCodePoint == null ||
-          categoryIcons.where((i) => i.codePoint == this.iconCodePoint).isEmpty) {
+          categoryIcons
+              .where((i) => i.codePoint == this.iconCodePoint)
+              .isEmpty) {
         this.icon = FontAwesomeIcons.question;
         this.iconCodePoint = this.icon!.codePoint;
       } else {
@@ -59,12 +60,12 @@ class Category extends Model {
       }
     }
 
-    // Set default category type to expense if not provided
     if (this.categoryType == null) {
       categoryType = CategoryType.expense;
     }
   }
 
+  /// Converts the Category object to a Map
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'name': name,
@@ -73,7 +74,8 @@ class Category extends Model {
       'record_count': recordCount,
       'color': null,
       'is_archived': isArchived ? 1 : 0,
-      'icon_emoji': iconEmoji
+      'icon_emoji': iconEmoji,
+      'sort_order': sortOrder, // Add sortOrder to the map
     };
     if (color != null) {
       map['color'] = color!.alpha.toString() +
@@ -90,37 +92,33 @@ class Category extends Model {
     return map;
   }
 
+  /// Creates a Category object from a Map
   static Category fromMap(Map<String, dynamic> map) {
-    // Handle color deserialization
+    // Deserialize color
     String? serializedColor = map["color"] as String?;
     Color? color;
     if (serializedColor != null) {
       List<int> colorComponents =
-      serializedColor.split(":").map(int.parse).toList();
+          serializedColor.split(":").map(int.parse).toList();
       color = Color.fromARGB(colorComponents[0], colorComponents[1],
           colorComponents[2], colorComponents[3]);
     }
 
-    // Handle last_used with default value of null if missing
+    // Deserialize last_used
     int? lastUsed = map["last_used"] as int?;
     DateTime? lastUsedFromMap;
     if (lastUsed != null) {
       lastUsedFromMap = DateTime.fromMillisecondsSinceEpoch(lastUsed);
     }
 
-    // Handle is_archived with default value of false if missing
+    // Deserialize other fields
     bool isArchivedFromMap =
-    (map['is_archived'] != null) ? (map['is_archived'] as int) == 1 : false;
-
-    // Handle record_count with default value of 0 if missing
+        (map['is_archived'] != null) ? (map['is_archived'] as int) == 1 : false;
     int recordCountFromMap =
-    (map['record_count'] != null) ? map['record_count'] as int : 0;
-
-    // Handle icon_emoji deserialization with default value of null if missing
+        (map['record_count'] != null) ? map['record_count'] as int : 0;
     String? iconEmojiFromMap = map['icon_emoji'] as String?;
-
-    // Handle icon_emoji deserialization with default value of null if missing
     int? icon = map['icon'] as int?;
+    int sortOrder = (map['sort_order'] != null) ? map['sort_order'] as int : 0;
 
     // Return the Category object
     return Category(
@@ -132,6 +130,7 @@ class Category extends Model {
       recordCount: recordCountFromMap,
       iconEmoji: iconEmojiFromMap,
       isArchived: isArchivedFromMap,
+      sortOrder: sortOrder, // Initialize sortOrder
     );
   }
 }

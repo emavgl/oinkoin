@@ -68,10 +68,9 @@ class CategorySummaryCard extends StatelessWidget {
         ListTile(
           onLongPress: () async {
             // Record has no aggregated records inside, show info
-            String infoMessage = (record.title == null
-                ? record.category!.name
-                : record.title)! +
-                " ($value)";
+            String infoMessage =
+                (record.title == null ? record.category!.name : record.title)! +
+                    " ($value)";
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 elevation: 6,
                 behavior: SnackBarBehavior.floating,
@@ -92,15 +91,17 @@ class CategorySummaryCard extends StatelessWidget {
             }
             if (aggregationMethod == AggregationMethod.MONTH) {
               var formatter = DateFormat("yy/MM");
-              var categoryRecords = records.where((element) =>
-              element!.category!.name == record.category!.name &&
-                  formatter.format(element.dateTime!) ==
-                      formatter.format(record.dateTime!)).toList();
+              var categoryRecords = records
+                  .where((element) =>
+                      element!.category!.name == record.category!.name &&
+                      formatter.format(element.dateTime!) ==
+                          formatter.format(record.dateTime!))
+                  .toList();
               DateTime from =
-              DateTime(record.dateTime!.year, record.dateTime!.month);
+                  DateTime(record.dateTime!.year, record.dateTime!.month);
               DateTime to =
-              DateTime(record.dateTime!.year, record.dateTime!.month + 1)
-                  .subtract(Duration(minutes: 1));
+                  DateTime(record.dateTime!.year, record.dateTime!.month + 1)
+                      .subtract(Duration(minutes: 1));
               await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -108,8 +109,10 @@ class CategorySummaryCard extends StatelessWidget {
                           from, to, categoryRecords, AggregationMethod.DAY)));
             }
             if (aggregationMethod == AggregationMethod.DAY) {
-              var categoryRecords = records.where((element) =>
-              element!.dateTime!.day == record.dateTime!.day).toList();
+              var categoryRecords = records
+                  .where((element) =>
+                      element!.dateTime!.day == record.dateTime!.day)
+                  .toList();
               DateTime? from = categoryRecords[0]!.dateTime;
               DateTime? to = from;
               await Navigator.push(
@@ -128,8 +131,8 @@ class CategorySummaryCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         (record.aggregatedValues > 1
-                            ? "(${record.aggregatedValues}) "
-                            : "") +
+                                ? "(${record.aggregatedValues}) "
+                                : "") +
                             (record.title != null
                                 ? record.title!
                                 : record.category!.name!),
@@ -174,18 +177,18 @@ class CategorySummaryCard extends StatelessWidget {
             child: Center(
               child: record.category!.iconEmoji != null
                   ? Text(
-                record.category!.iconEmoji!, // Display the emoji
-                style: TextStyle(
-                  fontSize: 20, // Adjust the size as needed
-                ),
-              )
+                      record.category!.iconEmoji!, // Display the emoji
+                      style: TextStyle(
+                        fontSize: 20, // Adjust the size as needed
+                      ),
+                    )
                   : Icon(
-                record.category!.icon,
-                size: 20,
-                color: record.category!.color != null
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
+                      record.category!.icon,
+                      size: 20,
+                      color: record.category!.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
             ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -200,42 +203,40 @@ class CategorySummaryCard extends StatelessWidget {
   Widget _buildCategoryStatsCard() {
     return Container(
         child: Column(
-              children: <Widget>[
-                Container(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              "Entries for category: ".i18n +
-                                  category!.name! +
-                                  (aggregationMethod != AggregationMethod.CUSTOM
-                                      ? (" (per " +
-                                          (aggregationMethod ==
-                                                  AggregationMethod.MONTH
-                                              ? "Month".i18n
-                                              : "Day".i18n) +
-                                          ")")
-                                      : ""),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          Container(
-                            child: Text(
-                              totalCategoryValue.toStringAsFixed(2),
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            margin: EdgeInsets.only(left: 15),
-                          )
-                        ])),
-                new Divider(),
-                _buildRecordsStatList()
-              ],
-            )
-    );
+      children: <Widget>[
+        Container(
+            padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      "Entries for category: ".i18n +
+                          category!.name! +
+                          (aggregationMethod != AggregationMethod.CUSTOM
+                              ? (" (per " +
+                                  (aggregationMethod == AggregationMethod.MONTH
+                                      ? "Month".i18n
+                                      : "Day".i18n) +
+                                  ")")
+                              : ""),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  Container(
+                    child: Text(
+                      totalCategoryValue.toStringAsFixed(2),
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    margin: EdgeInsets.only(left: 15),
+                  )
+                ])),
+        new Divider(),
+        _buildRecordsStatList()
+      ],
+    ));
   }
 
   @override

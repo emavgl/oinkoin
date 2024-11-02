@@ -16,6 +16,9 @@ abstract class DatabaseInterface {
   Future<int> updateCategory(String? existingCategoryName,
       CategoryType? existingCategoryType, Category? updatedCategory);
   Future<void> deleteCategory(String? name, CategoryType? categoryType);
+  Future<void> archiveCategory(
+      String categoryName, CategoryType categoryType, bool isArchived);
+  Future<void> resetCategoryOrderIndexes(List<Category> orderedCategories);
 
   /// Record CRUD
   Future<Record?> getRecordById(int id);
@@ -30,8 +33,6 @@ abstract class DatabaseInterface {
       String recurrentPatternId, DateTime startingTime);
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName);
-  Future<void> setIsArchived(
-      String categoryName, CategoryType categoryType, bool isArchived);
 
   // Recurrent Records Patterns CRUD
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();

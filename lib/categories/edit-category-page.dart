@@ -121,9 +121,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               height: 256,
               checkPlatformCompatibility: true,
               emojiViewConfig: emojipicker.EmojiViewConfig(
-                emojiSizeMax: 28,
-                backgroundColor: surfaceContainer
-              ),
+                  emojiSizeMax: 28, backgroundColor: surfaceContainer),
               categoryViewConfig: emojipicker.CategoryViewConfig(
                 backgroundColor: bottonActionColor,
                 iconColorSelected: buttonColors,
@@ -160,40 +158,43 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             Container(
               alignment: Alignment.center,
               child: IconButton(
-                icon: ServiceConfig.isPremium ? Text(
-                  currentEmoji, // Display an emoji as text
-                  style: TextStyle(
-                    fontSize: 24, // Set the emoji size
-                  ),
-                )
-                : Stack(
-                  children: [
-                    Text(
-                      currentEmoji, // Display an emoji as text
-                      style: TextStyle(
-                        fontSize: 24, // Set the emoji size
+                icon: ServiceConfig.isPremium
+                    ? Text(
+                        currentEmoji, // Display an emoji as text
+                        style: TextStyle(
+                          fontSize: 24, // Set the emoji size
+                        ),
+                      )
+                    : Stack(
+                        children: [
+                          Text(
+                            currentEmoji, // Display an emoji as text
+                            style: TextStyle(
+                              fontSize: 24, // Set the emoji size
+                            ),
+                          ),
+                          !ServiceConfig.isPremium
+                              ? Container(
+                                  margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
+                                  child: getProLabel(labelFontSize: 10.0),
+                                )
+                              : Container()
+                        ],
                       ),
-                    ),
-                    !ServiceConfig.isPremium
-                        ? Container(
-                      margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
-                      child: getProLabel(labelFontSize: 10.0),
-                    )
-                        : Container()
-                  ],
-                ), onPressed: ServiceConfig.isPremium
+                onPressed: ServiceConfig.isPremium
                     ? () {
-                      setState(() {
-                        _emojiShowing = !_emojiShowing; // Toggle the emoji picker
-                      });
-                    }
+                        setState(() {
+                          _emojiShowing =
+                              !_emojiShowing; // Toggle the emoji picker
+                        });
+                      }
                     : () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => PremiumSplashScreen()),
-                  );
-                },
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PremiumSplashScreen()),
+                        );
+                      },
               ),
             ),
             // Other icons
@@ -203,7 +204,10 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                   icon: FaIcon(icons[index]),
                   color: (chosenIconIndex == index)
                       ? Theme.of(context).colorScheme.error
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6),
                   onPressed: () {
                     setState(() {
                       _emojiShowing = false; // Hide emoji picker if open
@@ -330,22 +334,22 @@ class EditCategoryPageState extends State<EditCategoryPage> {
             child: SizedBox(
               width: 70,
               height: 70,
-              child: Center( // Center the content
-                child: category!.iconEmoji != null // Check for iconEmoji
-                    ? Text(
-                  category!.iconEmoji!, // Display the emoji
-                  style: TextStyle(
-                    fontSize: 30, // Adjust the font size for the emoji
-                  ),
-                )
-                    : Icon(
-                  category!.icon, // Fallback to the icon
-                  color: category!.color != null
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.onSurface,
-                  size: 30,
-                ),
-              ),
+              child: category!.iconEmoji != null
+                  ? Center(
+                      // Center the content
+                      child: Text(
+                      category!.iconEmoji!, // Display the emoji
+                      style: TextStyle(
+                        fontSize: 30, // Adjust the font size for the emoji
+                      ),
+                    ))
+                  : Icon(
+                      category!.icon, // Fallback to the icon
+                      color: category!.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                      size: 30,
+                    ),
             ),
             onTap: () {},
           ),
@@ -517,18 +521,23 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                   });
 
               if (continueArchivingAction) {
-                await database.setIsArchived(widget.passedCategory!.name!,
+                await database.archiveCategory(widget.passedCategory!.name!,
                     widget.passedCategory!.categoryType!, !isCurrentlyArchived);
                 Navigator.pop(context);
               }
             },
           )),
       Visibility(
-          visible: widget.passedCategory != null,
-          child: IconButton(
-            icon: const Icon(Icons.delete),
-            tooltip: "Delete".i18n,
-            onPressed: () async {
+        visible: widget.passedCategory != null,
+        child: PopupMenuButton<int>(
+          icon: Icon(Icons.more_vert),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10.0),
+            ),
+          ),
+          onSelected: (index) async {
+            if (index == 1) {
               // Prompt confirmation
               AlertDialogBuilder deleteDialog = AlertDialogBuilder(
                       "Do you really want to delete the category?".i18n)
@@ -549,8 +558,23 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                     widget.passedCategory!.categoryType);
                 Navigator.pop(context);
               }
-            },
-          )),
+            }
+          },
+          itemBuilder: (BuildContext context) {
+            var deleteStr = "Delete".i18n;
+            return {deleteStr: 1}.entries.map((entry) {
+              return PopupMenuItem<int>(
+                padding: EdgeInsets.all(20),
+                value: entry.value,
+                child: Text(entry.key,
+                    style: TextStyle(
+                      fontSize: 16,
+                    )),
+              );
+            }).toList();
+          },
+        ),
+      ),
     ]);
   }
 

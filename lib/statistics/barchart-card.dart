@@ -209,23 +209,22 @@ class BarChartCard extends StatelessWidget {
         height: 250,
         margin: EdgeInsets.only(top: 10, bottom: 10),
         child: Column(
-              children: <Widget>[
-                Container(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                    child: Align(
-                      alignment: fmaterial.Alignment.centerLeft,
-                      child: Text(
-                        "Trend in".i18n + " " + chartScope,
-                        style: fmaterial.TextStyle(fontSize: 14),
-                      ),
-                    )),
-                new Divider(),
-                fmaterial.Expanded(
-                  child: _buildLineChart(context),
-                )
-              ],
+          children: <Widget>[
+            Container(
+                padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+                child: Align(
+                  alignment: fmaterial.Alignment.centerLeft,
+                  child: Text(
+                    "Trend in".i18n + " " + chartScope,
+                    style: fmaterial.TextStyle(fontSize: 14),
+                  ),
+                )),
+            new Divider(),
+            fmaterial.Expanded(
+              child: _buildLineChart(context),
             )
-    );
+          ],
+        ));
   }
 
   @override

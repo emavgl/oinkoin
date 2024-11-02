@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -27,12 +28,15 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   @override
   void initState() {
     super.initState();
-    _initializeSortPreference();
-    _fetchCategories();
+    _fetchCategories().then((_) {
+      _initializeSortPreference();
+    });
   }
 
   Future<void> _fetchCategories() async {
-    var categories = await database.getAllCategories();
+    List<Category?> categories = await database.getAllCategories();
+    categories = categories.where((element) => !element!.isArchived).toList();
+    categories.sort((a, b) => a!.sortOrder!.compareTo(b!.sortOrder!));
     setState(() {
       _categories = categories;
     });
@@ -40,6 +44,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
 
   // Load the user's preferred sorting order from shared preferences
   Future<void> _initializeSortPreference() async {
+    _selectedSortOption = SortOption.original;
     String key = 'defaultCategorySortOption';
     if (ServiceConfig.sharedPreferences!.containsKey(key)) {
       final savedSortIndex = ServiceConfig.sharedPreferences?.getInt(key);
@@ -50,7 +55,6 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         _applySort(_selectedSortOption);
       }
     }
-    _selectedSortOption = SortOption.original;
   }
 
   // Store the user's selected sort option in shared preferences
@@ -117,32 +121,73 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                 Divider(),
                 ListTile(
                   leading: Icon(Icons.update),
-                  title: Text("Last Used".i18n),
+                  title: Text(
+                    "Last Used".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.lastUsed
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  trailing: _selectedSortOption == SortOption.lastUsed
+                      ? Icon(Icons.check,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
                   onTap: () {
-                    _sortByLastUsed();
+                    setModalState(() {
+                      _selectedSortOption = SortOption.lastUsed;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
                     Navigator.pop(context);
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.trending_up),
-                  title: Text("Most Used".i18n),
+                  title: Text(
+                    "Most Used".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.mostUsed
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  trailing: _selectedSortOption == SortOption.mostUsed
+                      ? Icon(Icons.check,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
                   onTap: () {
-                    _sortByMostUsed();
+                    setModalState(() {
+                      _selectedSortOption = SortOption.mostUsed;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
                     Navigator.pop(context);
                   },
                 ),
-                if (_selectedSortOption !=
-                    SortOption.original) // Show Original Order conditionally
-                  ListTile(
-                    leading: Icon(Icons.reorder),
-                    title: Text("Original Order".i18n),
-                    onTap: () {
-                      _selectedSortOption = SortOption.original;
-                      _fetchCategories();
-                      storeOnUserPreferences();
-                      Navigator.pop(context);
-                    },
+                ListTile(
+                  leading: Icon(Icons.reorder),
+                  title: Text(
+                    "Original Order".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.original
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
                   ),
+                  trailing: _selectedSortOption == SortOption.original
+                      ? Icon(Icons.check,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
+                  onTap: () {
+                    setModalState(() {
+                      _selectedSortOption = SortOption.original;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
               ],
             );
           },
@@ -167,7 +212,6 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
             .compareTo(aLastUsed); // Regular comparison if both are non-null
       });
     });
-    storeOnUserPreferences();
   }
 
   void _sortByMostUsed() {
@@ -175,12 +219,37 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
       _selectedSortOption = SortOption.mostUsed;
       _categories?.sort((a, b) => b!.recordCount!.compareTo(a!.recordCount!));
     });
-    storeOnUserPreferences();
   }
 
   refreshCategories() async {
     await _initializeSortPreference();
     await _fetchCategories();
+  }
+
+  Future<void> onCategoriesReorder(List<Category?> reorderedCategories) async {
+    if (reorderedCategories.isEmpty) {
+      return;
+    }
+
+    var categoryType = reorderedCategories.first!.categoryType;
+    var originalOrder = _categories!
+        .where((element) => element!.categoryType == categoryType)
+        .toList();
+
+    // Check if the order of the elements in `_categories` matches `reorderedCategories`
+    bool hasChanged = false;
+    for (int i = 0; i < reorderedCategories.length; i++) {
+      if (originalOrder[i]?.name != reorderedCategories[i]?.name) {
+        hasChanged = true;
+        break;
+      }
+    }
+
+    // If order has changed, update the database
+    if (hasChanged) {
+      await database.resetCategoryOrderIndexes(
+          reorderedCategories.whereType<Category>().toList());
+    }
   }
 
   @override
@@ -209,21 +278,23 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                 ? CategoriesGrid(
                     _categories!
                         .where((element) =>
-                            element!.categoryType == CategoryType.expense &&
-                            !element.isArchived)
+                            element!.categoryType == CategoryType.expense)
                         .toList(),
                     goToEditMovementPage: widget.goToEditMovementPage,
-                  )
+                    enableManualSorting:
+                        _selectedSortOption == SortOption.original,
+                    onChangeOrder: onCategoriesReorder)
                 : Container(),
             _categories != null
                 ? CategoriesGrid(
                     _categories!
                         .where((element) =>
-                            element!.categoryType == CategoryType.income &&
-                            !element.isArchived)
+                            element!.categoryType == CategoryType.income)
                         .toList(),
                     goToEditMovementPage: widget.goToEditMovementPage,
-                  )
+                    enableManualSorting:
+                        _selectedSortOption == SortOption.original,
+                    onChangeOrder: onCategoriesReorder)
                 : Container(),
           ],
         ),

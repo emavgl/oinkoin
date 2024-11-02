@@ -131,18 +131,18 @@ class CategoriesSummaryCard extends StatelessWidget {
             child: Center(
               child: category.iconEmoji != null
                   ? Text(
-                category.iconEmoji!, // Display the emoji
-                style: TextStyle(
-                  fontSize: 20, // Adjust the size as needed
-                ),
-              )
+                      category.iconEmoji!, // Display the emoji
+                      style: TextStyle(
+                        fontSize: 20, // Adjust the size as needed
+                      ),
+                    )
                   : Icon(
-                category.icon,
-                size: 20,
-                color: category.color != null
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
+                      category.icon,
+                      size: 20,
+                      color: category.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
             ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -154,31 +154,29 @@ class CategoriesSummaryCard extends StatelessWidget {
     );
   }
 
-
   Widget _buildCategoryStatsCard() {
     return Container(
         child: Column(
-              children: <Widget>[
-                Container(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Entries grouped by category".i18n,
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            getCurrencyValueString(totalExpensesSum),
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ])),
-                new Divider(),
-                CategoriesPieChart(records),
-                _buildCategoriesList()
-              ],
-            )
-    );
+      children: <Widget>[
+        Container(
+            padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Entries grouped by category".i18n,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    getCurrencyValueString(totalExpensesSum),
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ])),
+        new Divider(),
+        CategoriesPieChart(records),
+        _buildCategoriesList()
+      ],
+    ));
   }
 
   @override
