@@ -410,8 +410,11 @@ class TabRecordsState extends State<TabRecords> {
               titlePadding:
                   EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
               title: Text(_header,
+                  overflow: TextOverflow.ellipsis,
                   style:
-                      TextStyle(color: Colors.white, fontSize: headerFontSize)),
+                      TextStyle(color: Colors.white,
+                          fontSize: headerFontSize,
+                      )),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(
                       Colors.black.withOpacity(0.1), BlendMode.srcATop),

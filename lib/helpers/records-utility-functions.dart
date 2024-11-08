@@ -13,19 +13,36 @@ import '../settings/homepage-time-interval.dart';
 import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
-  /// Groups the record in days using the object MovementsPerDay.
-  /// It returns a list of MovementsPerDay object, containing at least 1 movement.
-  var movementsGroups = groupBy(records, (dynamic records) => records.date);
+  /// Groups the records by days using a Map<DateTime, List<Record>>.
+  /// It returns a list of RecordsPerDay objects, each containing at least 1 record.
+  Map<DateTime, List<Record?>> movementsGroups = {};
+
+  // Iterate over each record and group them by date (year, month, day).
+  for (var record in records) {
+    if (record != null) {
+      DateTime dateKey = DateTime(record.dateTime!.year,
+          record.dateTime!.month,
+          record.dateTime!.day);
+
+      if (!movementsGroups.containsKey(dateKey)) {
+        movementsGroups[dateKey] = [];
+      }
+      movementsGroups[dateKey]!.add(record);
+    }
+  }
+
+  // Convert the map to a queue of RecordsPerDay objects.
   Queue<RecordsPerDay> movementsPerDay = Queue();
-  movementsGroups.forEach((k, groupedMovements) {
+  movementsGroups.forEach((date, groupedMovements) {
     if (groupedMovements.isNotEmpty) {
-      DateTime? groupedDay = groupedMovements[0]!.dateTime;
-      movementsPerDay
-          .addFirst(new RecordsPerDay(groupedDay, records: groupedMovements));
+      movementsPerDay.addFirst(RecordsPerDay(date, records: groupedMovements));
     }
   });
+
+  // Convert the queue to a list and sort it in descending order by date.
   var movementsDayList = movementsPerDay.toList();
   movementsDayList.sort((b, a) => a.dateTime!.compareTo(b.dateTime!));
+
   return movementsDayList;
 }
 
@@ -282,8 +299,7 @@ String getHeaderForUserDefinedInterval() {
     case HomepageTimeInterval.CurrentYear:
       return "${"Year".i18n} ${_now.year}";
     case HomepageTimeInterval.All:
-      var monthStr = getMonthStr(_now);
-      return "All records until %s".i18n.fill([monthStr]);
+      return "All records".i18n;
   }
 }
 
