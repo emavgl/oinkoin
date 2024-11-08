@@ -23,7 +23,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get _version => 9;
+  static int get version => 9;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -43,7 +43,7 @@ class SqliteDatabase implements DatabaseInterface {
     return await factoryWithLogs.openDatabase(
       _path,
       options: OpenDatabaseOptions(
-          version: _version,
+          version: version,
           onCreate: SqliteMigrationService.onCreate,
           onUpgrade: SqliteMigrationService.onUpgrade),
     );

@@ -18,6 +18,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'database/database-interface.dart';
 import 'package:crypto/crypto.dart';
 
+import 'database/sqlite-database.dart';
+
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
   static String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
@@ -71,11 +73,16 @@ class BackupService {
     // Ensure the directory exists
     await path.create(recursive: true);
 
+    final packageInfo = await PackageInfo.fromPlatform();
+    final appName = packageInfo.packageName; // The package name
+    final version = packageInfo.version; // The app version
+    final databaseVersion = SqliteDatabase.version.toString();
+
     // Create the backup
     var records = await database.getAllRecords();
     var categories = await database.getAllCategories();
     var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
-    var backup = Backup(categories, records, recurrentRecordPatterns);
+    var backup = Backup(appName, version, databaseVersion, categories, records, recurrentRecordPatterns);
     var backupJsonStr = jsonEncode(backup.toMap());
 
     // Encrypt the backup JSON string if an encryption password is provided
