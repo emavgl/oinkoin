@@ -1,9 +1,8 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/i18n.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+import 'package:reorderable_grid/reorderable_grid.dart';
 
 class CategoriesGrid extends StatefulWidget {
   final List<Category?> categories;
@@ -21,7 +20,6 @@ class CategoriesGrid extends StatefulWidget {
 }
 
 class CategoriesGridState extends State<CategoriesGrid> {
-  final ScrollController _scrollController = ScrollController();
 
   List<Category?> orderedCategories = [];
   bool enableManualSorting = false;
@@ -115,7 +113,6 @@ class CategoriesGridState extends State<CategoriesGrid> {
     final double itemHeight = 250;
     final double itemWidth = size.width / 2;
 
-    // Generate the list of reorderable children with unique keys
     final generatedChildren = List.generate(orderedCategories.length, (index) {
       final category = orderedCategories[index];
       return Container(
@@ -124,32 +121,23 @@ class CategoriesGridState extends State<CategoriesGrid> {
       );
     });
 
-    return ReorderableBuilder(
-      scrollController: _scrollController,
-      onReorder: (ReorderedListFunction reorderedListFunction) async {
-        var reordered =
-            reorderedListFunction(orderedCategories) as List<Category?>;
+    return ReorderableGridView.extent(
+      onReorder: (int oldIndex, int newIndex) async {
         setState(() {
-          orderedCategories = reordered;
+          final item = orderedCategories.removeAt(oldIndex);
+          orderedCategories.insert(newIndex, item);
         });
         await widget.onChangeOrder(orderedCategories);
       },
-      enableDraggable: enableManualSorting,
-      enableLongPress: enableManualSorting,
-      builder: (children) {
-        return GridView.count(
-          key: GlobalKey(), // Assign a global key to the grid view
-          controller: _scrollController,
-          childAspectRatio: (itemWidth / itemHeight),
-          padding: EdgeInsets.only(top: 10),
-          crossAxisSpacing: 0,
-          mainAxisSpacing: 5.0,
-          crossAxisCount:
-              min(4, 6 - MediaQuery.of(context).devicePixelRatio.floor()),
-          shrinkWrap: false,
-          children: children,
-        );
+      itemDragEnable: (index) {
+        return enableManualSorting;
       },
+      key: GlobalKey(), // Assign a global key to the grid view
+      childAspectRatio: (itemWidth / itemHeight),
+      padding: EdgeInsets.only(top: 10),
+      crossAxisSpacing: 5.0,
+      mainAxisSpacing: 5.0,
+      maxCrossAxisExtent: size.width / 4,
       children: generatedChildren,
     );
   }
