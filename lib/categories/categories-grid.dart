@@ -25,10 +25,18 @@ class CategoriesGridState extends State<CategoriesGrid> {
 
   List<Category?> orderedCategories = [];
   bool enableManualSorting = false;
+  late ScrollController _scrollController;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     enableManualSorting = widget.enableManualSorting;
     orderedCategories = List.from(
         widget.categories); // Initialize with a copy of the categories list
@@ -107,6 +115,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
     });
 
     return ReorderableGridView.extent(
+      controller: _scrollController,
       onReorder: (int oldIndex, int newIndex) async {
         setState(() {
           final item = orderedCategories.removeAt(oldIndex);
@@ -117,7 +126,6 @@ class CategoriesGridState extends State<CategoriesGrid> {
       itemDragEnable: (index) {
         return enableManualSorting;
       },
-      key: GlobalKey(), // Assign a global key to the grid view
       childAspectRatio: (itemWidth / itemHeight),
       padding: EdgeInsets.only(top: 10),
       crossAxisSpacing: 5.0,
