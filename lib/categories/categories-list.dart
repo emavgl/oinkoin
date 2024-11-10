@@ -3,6 +3,8 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/i18n.dart';
 
+import '../components/category_icon_circle.dart';
+
 class CategoriesList extends StatefulWidget {
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
@@ -49,50 +51,11 @@ class CategoriesListState extends State<CategoriesList> {
       child: Opacity(
         opacity: category.isArchived ? 0.8 : 1.0, // Dim the tile
         child: ListTile(
-          leading: Stack(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                child: Center(
-                  child: category.iconEmoji != null
-                      ? Text(
-                          category.iconEmoji!, // Display the emoji
-                          style: TextStyle(
-                            fontSize: 20, // Adjust the size as needed
-                          ),
-                        )
-                      : Icon(
-                          category.icon,
-                          size: 20,
-                          color: category.color != null
-                              ? Colors.white
-                              : Theme.of(context).colorScheme.onSurface,
-                        ),
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: category.color,
-                ),
-              ),
-              Visibility(
-                visible: category.isArchived,
-                child: Container(
-                  margin: EdgeInsets.only(left: 30, top: 20),
-                  width: 20,
-                  height: 20,
-                  child: Icon(
-                    Icons.archive,
-                    size: 14,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                ),
-              )
-            ],
+          leading: CategoryIconCircle(
+              iconEmoji: category.iconEmoji,
+              iconDataFromDefaultIconSet: category.icon,
+              backgroundColor: category.color,
+              overlayIcon: category.isArchived ? Icons.archive : null
           ),
           title: Text(category.name!, style: _biggerFont),
         ),

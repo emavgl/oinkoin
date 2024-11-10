@@ -4,6 +4,8 @@ import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:reorderable_grid/reorderable_grid.dart';
 
+import '../components/category_icon_circle.dart';
+
 class CategoriesGrid extends StatefulWidget {
   final List<Category?> categories;
   final bool? goToEditMovementPage;
@@ -66,27 +68,10 @@ class CategoriesGridState extends State<CategoriesGrid> {
           child: Container(
             child: Column(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  child: Center(
-                    child: category.iconEmoji != null
-                        ? Text(
-                            category.iconEmoji!,
-                            style: TextStyle(fontSize: 20),
-                          )
-                        : Icon(
-                            category.icon,
-                            size: 20,
-                            color: category.color != null
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.onSurface,
-                          ),
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: category.color,
-                  ),
+                  CategoryIconCircle(
+                  iconEmoji: category.iconEmoji,
+                  iconDataFromDefaultIconSet: category.icon,
+                  backgroundColor: category.color,
                 ),
                 Flexible(
                   child: Container(

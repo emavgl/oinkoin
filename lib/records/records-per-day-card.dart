@@ -5,7 +5,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 
-import 'components/leading_icon.dart';
+import '../components/category_icon_circle.dart';
 
 class RecordsPerDayCard extends StatefulWidget {
   /// RecordsCard renders a MovementPerDay object as a Card
@@ -27,7 +27,6 @@ class MovementGroupState extends State<RecordsPerDayCard> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final _trailingBiggerFont =
       const TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal);
-  final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   Widget _buildMovements() {
     /// Returns a ListView with all the movements contained in the MovementPerDay object
@@ -75,7 +74,12 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           getCurrencyValueString(movement.value),
           style: _trailingBiggerFont,
         ),
-        leading: LeadingIcon(movement: movement));
+        leading: CategoryIconCircle(
+            iconEmoji: movement.category?.iconEmoji,
+            iconDataFromDefaultIconSet: movement.category?.icon,
+            backgroundColor: movement.category?.color,
+            overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null
+        ));
   }
 
   @override

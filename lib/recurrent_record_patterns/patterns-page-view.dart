@@ -5,6 +5,7 @@ import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
+import '../components/category_icon_circle.dart';
 import '../models/recurrent-period.dart';
 import 'package:piggybank/i18n.dart';
 
@@ -73,29 +74,10 @@ class PatternsPageViewState extends State<PatternsPageView> {
             getCurrencyValueString(pattern.value),
             style: _biggerFont,
           ),
-          leading: Container(
-            width: 40,
-            height: 40,
-            child: Center(
-              child: pattern.category!.iconEmoji != null
-                  ? Text(
-                      pattern.category!.iconEmoji!, // Display the emoji
-                      style: TextStyle(
-                        fontSize: 20, // Adjust size as needed
-                      ),
-                    )
-                  : Icon(
-                      pattern.category!.icon,
-                      size: 20,
-                      color: pattern.category!.color != null
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onSurface,
-                    ),
-            ),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: pattern.category!.color ?? null,
-            ),
+          leading: CategoryIconCircle(
+            iconEmoji: pattern.category?.iconEmoji,
+            iconDataFromDefaultIconSet: pattern.category?.icon,
+            backgroundColor: pattern.category?.color,
           ),
         ),
       ),
