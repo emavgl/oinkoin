@@ -8,8 +8,7 @@ repositories {
 
 dependencies {
     implementation 'io.appium:java-client:9.3.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.testng:testng:7.10.2'
 }
 
 java {
@@ -19,5 +18,5 @@ java {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useTestNG()
 }

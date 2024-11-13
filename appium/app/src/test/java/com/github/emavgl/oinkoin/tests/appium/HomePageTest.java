@@ -2,15 +2,15 @@ package com.github.emavgl.oinkoin.tests.appium;
 
 import com.github.emavgl.oinkoin.tests.appium.pages.HomePage;
 import io.appium.java_client.AppiumBy;
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebElement;
+import org.testng.annotations.Test;
 
 import java.time.LocalDate;
 
 import static com.github.emavgl.oinkoin.tests.appium.pages.HomePage.formatDayOfWeek;
 import static com.github.emavgl.oinkoin.tests.appium.pages.HomePage.formatMonth;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
 
 public class HomePageTest extends BaseTest {
 

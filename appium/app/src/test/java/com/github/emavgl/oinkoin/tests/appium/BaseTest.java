@@ -1,11 +1,12 @@
 package com.github.emavgl.oinkoin.tests.appium;
 
-import com.github.emavgl.oinkoin.tests.appium.pages.HomePage;
 import com.github.emavgl.oinkoin.tests.appium.utils.Constants;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,7 +15,7 @@ import java.time.Duration;
 public class BaseTest {
     protected AndroidDriver driver;
 
-    @BeforeEach
+    @BeforeMethod
     public void setUp() {
         UiAutomator2Options options = new UiAutomator2Options()
                 .setAutomationName("UiAutomator2")
@@ -40,7 +41,7 @@ public class BaseTest {
         }
     }
 
-    @AfterEach
+    @AfterMethod
     public void tearDown() {
         if (driver != null) {
             driver.quit();
