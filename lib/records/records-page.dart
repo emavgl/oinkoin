@@ -417,9 +417,12 @@ class TabRecordsState extends State<TabRecords> {
               centerTitle: false,
               titlePadding:
                   EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
-              title: Text(_header,
-                  style:
-                      TextStyle(color: Colors.white, fontSize: headerFontSize)),
+              title: Semantics(
+                identifier: 'date-text',
+                child: Text(_header,
+                    style:
+                        TextStyle(color: Colors.white, fontSize: headerFontSize)),
+              ),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(
                       Colors.black.withOpacity(0.1), BlendMode.srcATop),

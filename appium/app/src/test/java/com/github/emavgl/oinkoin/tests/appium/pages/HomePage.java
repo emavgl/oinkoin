@@ -6,6 +6,9 @@ import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebElement;
 
+import java.time.LocalDate;
+import java.time.Month;
+
 public class HomePage {
     private final AndroidDriver driver;
 
@@ -35,5 +38,21 @@ public class HomePage {
 
     public WebElement getAddRecordButton() {
         return driver.findElement(AppiumBy.id(HomeIdentifiers.ADD_RECORD_BUTTON_ID));
+    }
+
+    public WebElement getDateTextElement() {
+        return driver.findElement(AppiumBy.id(HomeIdentifiers.DATE_TEXT_ID));
+    }
+
+    // Helper method to format month to have the first letter capitalized
+    public static String formatMonth(Month month) {
+        String monthString = month.toString();
+        return monthString.charAt(0) + monthString.substring(1).toLowerCase();
+    }
+
+    // Helper method to format the day of the week to have the first letter capitalized
+    public static String formatDayOfWeek(LocalDate date) {
+        String dayOfWeek = date.getDayOfWeek().toString();
+        return dayOfWeek.charAt(0) + dayOfWeek.substring(1).toLowerCase();
     }
 }
