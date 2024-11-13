@@ -1,6 +1,6 @@
 package com.github.emavgl.oinkoin.tests.appium.utils.identifiers;
 
-public class NavigationConstants {
+public class NavigationIdentifiers {
     public static final String HOME_TAB_ID = "home-tab";
     public static final String HOME_TAB_SELECTED_ID = "home-tab-selected";
     public static final String CATEGORIES_TAB_ID = "categories-tab";
