@@ -3,9 +3,7 @@ package com.github.emavgl.oinkoin.tests.appium;
 import com.github.emavgl.oinkoin.tests.appium.utils.Constants;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import java.net.MalformedURLException;
@@ -15,7 +13,7 @@ import java.time.Duration;
 public class BaseTest {
     protected AndroidDriver driver;
 
-    @BeforeMethod
+    @BeforeSuite
     public void setUp() {
         UiAutomator2Options options = new UiAutomator2Options()
                 .setAutomationName("UiAutomator2")
@@ -24,7 +22,7 @@ public class BaseTest {
                 .setUdid(Constants.UDID)
                 .setApp(Constants.APP_PATH)
                 .setAppPackage(Constants.APP_PACKAGE)
-                .setFullReset(true)
+                .setFullReset(false)
                 .amend("appium:settings[disableIdLocatorAutocompletion]", true)
                 .amend("appium:newCommandTimeout", 3600)
                 .amend("appium:connectHardwareKeyboard", true);
@@ -41,7 +39,7 @@ public class BaseTest {
         }
     }
 
-    @AfterMethod
+    @AfterSuite
     public void tearDown() {
         if (driver != null) {
             driver.quit();

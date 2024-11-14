@@ -1,58 +1,77 @@
 package com.github.emavgl.oinkoin.tests.appium.pages;
 
-import com.github.emavgl.oinkoin.tests.appium.utils.identifiers.HomeIdentifiers;
-import com.github.emavgl.oinkoin.tests.appium.utils.identifiers.NavigationIdentifiers;
 import io.appium.java_client.AppiumBy;
-import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
 
-public class HomePage {
-    private final AndroidDriver driver;
+import static com.github.emavgl.oinkoin.tests.appium.utils.Utils.capitalizeFirstLetter;
 
-    public HomePage(AndroidDriver driver) {
-        this.driver = driver;
+public class HomePage extends BasePage {
+
+    @FindBy(id = "select-date")
+    private WebElement showRecordsPerButton;
+    @FindBy(id = "statistics")
+    private WebElement statisticsButton;
+    @FindBy(id = "three-dots")
+    private WebElement threeDotsButton;
+    @FindBy(id = "date-text")
+    private WebElement dateRangeText;
+    @FindBy(id = "add-record")
+    private WebElement addRecordButton;
+
+    public HomePage(AppiumDriver driver) {
+        super(driver);
     }
 
-    public WebElement getHomeTab() {
-        return driver.findElement(AppiumBy.id(NavigationIdentifiers.HOME_TAB_ID));
+    public String dateRangeText() {
+        return dateRangeText.getAttribute("content-desc");
     }
 
-    public boolean isHomeTabHighlighted() {
-        return driver.findElement(AppiumBy.id(NavigationIdentifiers.HOME_TAB_SELECTED_ID)).isDisplayed();
+    public void showRecordsPerMonth(Month month) {
+        openHomeTab();
+        showRecordsPerButton.click();
+
+        driver.findElement(AppiumBy.accessibilityId("Month")).click();
+        driver.findElement(AppiumBy.accessibilityId(capitalizeFirstLetter(month.toString()).substring(0, 3))).click();
+        driver.findElement(AppiumBy.accessibilityId("OK")).click();
     }
 
-    public WebElement getShowRecordButton() {
-        return driver.findElement(AppiumBy.id(HomeIdentifiers.SHOW_RECORDS_PER_BUTTON_ID));
+    public void showRecordsPerYearChangeText(Year year) {
+        openHomeTab();
+        showRecordsPerButton.click();
+
+        driver.findElement(AppiumBy.accessibilityId("Year")).click();
+        driver.findElement(AppiumBy.accessibilityId(year.toString())).click();
+        driver.findElement(AppiumBy.accessibilityId("OK")).click();
     }
 
-    public WebElement getStatisticsButton() {
-        return driver.findElement(AppiumBy.id(HomeIdentifiers.STATISTICS_BUTTON_ID));
-    }
+    public void showRecordPerDateRangeChangeText(LocalDate startDate, LocalDate endDate) {
+        openHomeTab();
+        showRecordsPerButton.click();
 
-    public WebElement getThreeDotsButton() {
-        return driver.findElement(AppiumBy.id(HomeIdentifiers.THREE_DOTS_BUTTON_ID));
-    }
+        driver.findElement(AppiumBy.accessibilityId("Date Range")).click();
 
-    public WebElement getAddRecordButton() {
-        return driver.findElement(AppiumBy.id(HomeIdentifiers.ADD_RECORD_BUTTON_ID));
-    }
+        // Edit button
+        driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.Button\").instance(2)")).click();
 
-    public WebElement getDateTextElement() {
-        return driver.findElement(AppiumBy.id(HomeIdentifiers.DATE_TEXT_ID));
-    }
+        // Start Date (first EditText)
+        WebElement startDateField = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(0)"));
+        startDateField.click();
+        startDateField.clear();
+        startDateField.sendKeys(startDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
 
-    // Helper method to format month to have the first letter capitalized
-    public static String formatMonth(Month month) {
-        String monthString = month.toString();
-        return monthString.charAt(0) + monthString.substring(1).toLowerCase();
-    }
+        // End Date (second EditText)
+        WebElement endDateField = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(1)"));
+        endDateField.click();
+        endDateField.clear();
+        endDateField.sendKeys(endDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
 
-    // Helper method to format the day of the week to have the first letter capitalized
-    public static String formatDayOfWeek(LocalDate date) {
-        String dayOfWeek = date.getDayOfWeek().toString();
-        return dayOfWeek.charAt(0) + dayOfWeek.substring(1).toLowerCase();
+        driver.findElement(AppiumBy.accessibilityId("OK")).click();
     }
 }
