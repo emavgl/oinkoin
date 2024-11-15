@@ -22,7 +22,7 @@ public class BaseTest {
                 .setUdid(Constants.UDID)
                 .setApp(Constants.APP_PATH)
                 .setAppPackage(Constants.APP_PACKAGE)
-                .setFullReset(false)
+                .setFullReset(true)
                 .amend("appium:settings[disableIdLocatorAutocompletion]", true)
                 .amend("appium:newCommandTimeout", 3600)
                 .amend("appium:connectHardwareKeyboard", true);

@@ -1,6 +1,9 @@
 package com.github.emavgl.oinkoin.tests.appium;
 
 import com.github.emavgl.oinkoin.tests.appium.pages.HomePage;
+import com.github.emavgl.oinkoin.tests.appium.utils.CategoryType;
+import com.github.emavgl.oinkoin.tests.appium.utils.RecordData;
+import com.github.emavgl.oinkoin.tests.appium.utils.RepeatOption;
 import org.testng.annotations.Test;
 
 import java.time.LocalDate;
@@ -42,5 +45,26 @@ public class HomePageTest extends BaseTest {
 
         String expectedText = formatRangeDateText(startDate, endDate);
         assertEquals(homePage.dateRangeText(), expectedText);
+    }
+
+    @Test
+    public void addAndRemoveExpenseRecord() {
+        HomePage homePage = new HomePage(driver);
+
+        RecordData expenseRecord = new RecordData(
+                "Groceries",
+                50.25,
+                CategoryType.EXPENSE,
+                "Food",
+                LocalDate.now(),
+                RepeatOption.NOT_REPEAT,
+                "Grocery shopping"
+        );
+
+        homePage.addRecord(expenseRecord);
+        RecordData savedRecord = homePage.getRecord(expenseRecord.name(), expenseRecord.categoryType(), expenseRecord.amount());
+        homePage.deleteRecord(expenseRecord.name(), expenseRecord.categoryType(), expenseRecord.amount());
+
+        assertEquals(expenseRecord, savedRecord);
     }
 }

@@ -1,7 +1,10 @@
 package com.github.emavgl.oinkoin.tests.appium.pages;
 
+import com.github.emavgl.oinkoin.tests.appium.utils.CategoryType;
+import com.github.emavgl.oinkoin.tests.appium.utils.RecordData;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -9,6 +12,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import static com.github.emavgl.oinkoin.tests.appium.utils.Utils.capitalizeFirstLetter;
 
@@ -73,5 +77,38 @@ public class HomePage extends BasePage {
         endDateField.sendKeys(endDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
 
         driver.findElement(AppiumBy.accessibilityId("OK")).click();
+    }
+
+    public void addRecord(RecordData recordData) {
+        openHomeTab();
+        addRecordButton.click();
+
+        CategorySelectionPage categorySelectionPage = new CategorySelectionPage(driver);
+        categorySelectionPage.selectCategory(recordData.categoryType(), recordData.category());
+
+        EditRecordPage editRecordPage = new EditRecordPage(driver);
+        editRecordPage.addRecord(recordData);
+    }
+
+    public void openRecord(String name, CategoryType categoryType, double amount) {
+        String sign = categoryType.getDisplayName().equals("Expense") ? "-" : "+";
+        String accessibilityId = String.format(Locale.US, "%s\n%s%.2f", name, sign, amount);
+        try {
+            driver.findElement(AppiumBy.accessibilityId(accessibilityId)).click();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Record " + name + " of " + String.format(Locale.US, "%.2f", amount) + " not found. Web element not found.", e);
+        }
+    }
+
+    public RecordData getRecord(String name, CategoryType categoryType, double amount) {
+        openRecord(name, categoryType, amount);
+        EditRecordPage editRecordPage = new EditRecordPage(driver);
+        return editRecordPage.getRecord();
+    }
+
+    public void deleteRecord(String name, CategoryType categoryType, double amount) {
+        openRecord(name, categoryType, amount);
+        EditRecordPage editRecordPage = new EditRecordPage(driver);
+        editRecordPage.delete();
     }
 }
