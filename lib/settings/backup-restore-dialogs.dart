@@ -10,7 +10,6 @@ import '../helpers/alert-dialog-builder.dart';
 import '../services/backup-service.dart';
 
 class BackupRestoreDialog {
-
   static Future<String?> showRestoreBackupDialog(BuildContext context) {
     TextEditingController passwordController = TextEditingController();
     return showDialog(
@@ -21,7 +20,8 @@ class BackupRestoreDialog {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("It appears the file has been encrypted. Enter the password:".i18n),
+              Text("It appears the file has been encrypted. Enter the password:"
+                  .i18n),
               SizedBox(height: 10),
               TextField(
                 controller: passwordController,
@@ -42,7 +42,8 @@ class BackupRestoreDialog {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(passwordController.text); // Return password if provided
+                Navigator.of(context).pop(
+                    passwordController.text); // Return password if provided
               },
               child: Text("Load".i18n),
             ),
@@ -67,31 +68,26 @@ class BackupRestoreDialog {
         if (password != null && password.isNotEmpty) {
           password = BackupService.hashPassword(password);
         } else {
-          await showBackupRestoreDialog(context,
-              "Restore unsuccessful".i18n,
-              "Can't decrypt without a password".i18n
-          );
+          await showBackupRestoreDialog(context, "Restore unsuccessful".i18n,
+              "Can't decrypt without a password".i18n);
           return;
         }
       }
       bool successful = await showDialog(
         context: context,
-        builder: (context) =>
-            FutureProgressDialog(
-                BackupService.importDataFromBackupFile(file,
-                    encryptionPassword: password)
-            ),
+        builder: (context) => FutureProgressDialog(
+            BackupService.importDataFromBackupFile(file,
+                encryptionPassword: password)),
       );
       if (successful) {
-        await showBackupRestoreDialog(context,
-            "Restore successful".i18n,
-            "The data from the backup file are now restored.".i18n
-        );
+        await showBackupRestoreDialog(context, "Restore successful".i18n,
+            "The data from the backup file are now restored.".i18n);
       } else {
-        await showBackupRestoreDialog(context,
+        await showBackupRestoreDialog(
+            context,
             "Restore unsuccessful".i18n,
-            "Make sure you have the latest version of the app. If so, the backup file may be corrupted.".i18n
-        );
+            "Make sure you have the latest version of the app. If so, the backup file may be corrupted."
+                .i18n);
       }
     } else {
       // User has canceled the picker
@@ -99,7 +95,8 @@ class BackupRestoreDialog {
     }
   }
 
-  static Future<void> showBackupRestoreDialog(BuildContext context, String title, String subtitle) async {
+  static Future<void> showBackupRestoreDialog(
+      BuildContext context, String title, String subtitle) async {
     AlertDialogBuilder resultDialog = AlertDialogBuilder(title)
         .addSubtitle(subtitle)
         .addTrueButtonName("OK".i18n);

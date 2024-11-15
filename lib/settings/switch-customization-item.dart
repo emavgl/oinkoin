@@ -63,16 +63,18 @@ class SwitchCustomizationItemState<T> extends State<SwitchCustomizationItem> {
     return ListTile(
       trailing: Switch(
         value: switchValue,
-        onChanged: (widget.enabled) ? (bool value) {
-          setState(() {
-            ServiceConfig.sharedPreferences!
-                .setBool(widget.sharedConfigKey, value);
-            switchValue = value;
-          });
-          if (widget.onChanged != null) {
-            widget.onChanged!(value);
-          }
-        } : null,
+        onChanged: (widget.enabled)
+            ? (bool value) {
+                setState(() {
+                  ServiceConfig.sharedPreferences!
+                      .setBool(widget.sharedConfigKey, value);
+                  switchValue = value;
+                });
+                if (widget.onChanged != null) {
+                  widget.onChanged!(value);
+                }
+              }
+            : null,
       ),
       enabled: widget.enabled,
       title: Text(widget.title, style: titleTextStyle),

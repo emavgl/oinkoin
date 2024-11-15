@@ -165,8 +165,7 @@ class BarChartCard extends StatelessWidget {
                     fontSize: 12, // size in Pts.
                     color: labelAxesColor),
               ),
-            ],
-            layoutPaintOrder: 100),
+            ], layoutPaintOrder: 100),
           ],
           selectionModels: [
             SelectionModelConfig(changedListener: (SelectionModel model) {
@@ -209,25 +208,23 @@ class BarChartCard extends StatelessWidget {
     return Container(
         height: 250,
         margin: EdgeInsets.only(top: 10, bottom: 10),
-        child: new Card(
-            elevation: 0,
-            child: Column(
-              children: <Widget>[
-                Container(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                    child: Align(
-                      alignment: fmaterial.Alignment.centerLeft,
-                      child: Text(
-                        "Trend in".i18n + " " + chartScope,
-                        style: fmaterial.TextStyle(fontSize: 14),
-                      ),
-                    )),
-                new Divider(),
-                fmaterial.Expanded(
-                  child: _buildLineChart(context),
-                )
-              ],
-            )));
+        child: Column(
+          children: <Widget>[
+            Container(
+                padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+                child: Align(
+                  alignment: fmaterial.Alignment.centerLeft,
+                  child: Text(
+                    "Trend in".i18n + " " + chartScope,
+                    style: fmaterial.TextStyle(fontSize: 14),
+                  ),
+                )),
+            new Divider(),
+            fmaterial.Expanded(
+              child: _buildLineChart(context),
+            )
+          ],
+        ));
   }
 
   @override

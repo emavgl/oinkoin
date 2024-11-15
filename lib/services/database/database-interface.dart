@@ -16,6 +16,9 @@ abstract class DatabaseInterface {
   Future<int> updateCategory(String? existingCategoryName,
       CategoryType? existingCategoryType, Category? updatedCategory);
   Future<void> deleteCategory(String? name, CategoryType? categoryType);
+  Future<void> archiveCategory(
+      String categoryName, CategoryType categoryType, bool isArchived);
+  Future<void> resetCategoryOrderIndexes(List<Category> orderedCategories);
 
   /// Record CRUD
   Future<Record?> getRecordById(int id);

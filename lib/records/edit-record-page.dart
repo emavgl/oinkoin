@@ -89,8 +89,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     ),
     new DropdownMenuItem<int>(
       value: 6,
-      child:
-      new Text("Every year".i18n, style: TextStyle(fontSize: 20.0)),
+      child: new Text("Every year".i18n, style: TextStyle(fontSize: 20.0)),
     )
   ];
 
@@ -134,7 +133,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         _textEditingController.value = _textEditingController.value.copyWith(
           text: text,
           selection:
-          TextSelection(baseOffset: text.length, extentOffset: text.length),
+              TextSelection(baseOffset: text.length, extentOffset: text.length),
           composing: TextRange.empty,
         );
         changeRecordValue(_textEditingController.text.toLowerCase());
@@ -359,29 +358,67 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
+  // Helper function to build the overlay icon container
+  Widget _buildOverlayIcon(BuildContext context, IconData overlayIcon) {
+    return Container(
+      margin: EdgeInsets.only(left: 32, top: 22),
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Theme.of(context).colorScheme.surface,
+      ),
+      child: Icon(
+        overlayIcon,
+        size: 15,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+
   Widget _createCategoryCirclePreview(double size) {
     Category defaultCategory = Category("Missing".i18n,
         color: Category.colors[0],
         iconCodePoint: FontAwesomeIcons.question.codePoint);
     Category toRender =
         (record!.category == null) ? defaultCategory : record!.category!;
+
     return Container(
-        margin: EdgeInsets.all(10),
-        child: ClipOval(
+      margin: EdgeInsets.all(10),
+      child: Stack(
+        children: [
+          ClipOval(
             child: Material(
-                color: toRender.color, // button color
-                child: InkWell(
-                  splashColor: toRender.color, // inkwell color
-                  child: SizedBox(
-                    width: size,
-                    height: size,
-                    child: Icon(
-                      toRender.icon,
-                      color: Colors.white,
-                      size: size - 20,
-                    ),
+              color: toRender.color, // Button color
+              child: InkWell(
+                splashColor: toRender.color, // InkWell color
+                child: SizedBox(
+                  width: size,
+                  height: size,
+                  child: Center(
+                    child: toRender.iconEmoji != null
+                        ? Text(
+                            toRender.iconEmoji!, // Display the emoji
+                            style: TextStyle(
+                              fontSize: size - 20, // Adjust the emoji size
+                            ),
+                          )
+                        : Icon(
+                            toRender.icon, // Fallback to the icon
+                            color: toRender.color != null
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.onSurface,
+                            size: size - 20,
+                          ),
                   ),
-                ))));
+                ),
+              ),
+            ),
+          ),
+          if (toRender.isArchived) _buildOverlayIcon(context, Icons.archive)
+        ],
+      ),
+    );
   }
 
   goToPremiumSplashScreen() async {
@@ -504,7 +541,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                                       left: 10.0),
                                                   child: Text(
                                                     recurrentPeriodString(
-                                                            recurrentPeriod),
+                                                        recurrentPeriod),
                                                     style: TextStyle(
                                                         fontSize: 20.0),
                                                   ),
@@ -580,7 +617,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                   }
                   var numericValue = tryParseCurrencyString(value);
                   if (numericValue == null) {
-                    return "Not a valid format (use for example: %s)".i18n
+                    return "Not a valid format (use for example: %s)"
+                        .i18n
                         .fill([
                       getCurrencyValueString(1234.20, turnOffGrouping: true)
                     ]);
@@ -675,7 +713,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                       "Do you really want to delete this record?".i18n);
                 } else {
                   deleteDialog = deleteDialog.addSubtitle(
-                      "Do you really want to delete this recurrent record?".i18n);
+                      "Do you really want to delete this recurrent record?"
+                          .i18n);
                 }
                 var continueDelete = await showDialog(
                     context: context,

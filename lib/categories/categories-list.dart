@@ -3,6 +3,8 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/i18n.dart';
 
+import '../components/category_icon_circle.dart';
+
 class CategoriesList extends StatefulWidget {
   /// CategoriesList fetches the categories of a given categoryType (input parameter)
   /// and renders them using a vertical ListView.
@@ -38,29 +40,27 @@ class CategoriesListState extends State<CategoriesList> {
 
   Widget _buildCategory(Category category) {
     return InkWell(
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    EditCategoryPage(passedCategory: category)),
-          );
-          if (widget.callback != null) widget.callback!();
-        },
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EditCategoryPage(passedCategory: category)),
+        );
+        if (widget.callback != null) widget.callback!();
+      },
+      child: Opacity(
+        opacity: category.isArchived ? 0.8 : 1.0, // Dim the tile
         child: ListTile(
-            leading: Container(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  category.icon,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: category.color,
-                )),
-            title: Text(category.name!, style: _biggerFont)));
+          leading: CategoryIconCircle(
+              iconEmoji: category.iconEmoji,
+              iconDataFromDefaultIconSet: category.icon,
+              backgroundColor: category.color,
+              overlayIcon: category.isArchived ? Icons.archive : null
+          ),
+          title: Text(category.name!, style: _biggerFont),
+        ),
+      ),
+    );
   }
 
   @override

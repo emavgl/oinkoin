@@ -66,166 +66,177 @@ class CategorySummaryCard extends StatelessWidget {
     return Column(
       children: <Widget>[
         ListTile(
-            onLongPress: () async {
-              // Record has no aggregated records inside, show info
-              String infoMessage = (record.title == null
-                      ? record.category!.name
-                      : record.title)! +
-                  " ($value)";
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  elevation: 6,
-                  behavior: SnackBarBehavior.floating,
-                  content: Text(
-                    infoMessage,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  action: SnackBarAction(
-                    label: 'Dismiss'.i18n,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    },
-                  )));
-            },
-            onTap: () async {
-              if (record.aggregatedValues == 1) {
-                return;
-              }
-              if (aggregationMethod == AggregationMethod.MONTH) {
-                var formatter = DateFormat("yy/MM");
-                var categoryRecords = records
-                    .where((element) =>
-                        element!.category!.name == record.category!.name &&
-                        formatter.format(element.dateTime!) ==
-                            formatter.format(record.dateTime!))
-                    .toList();
-                DateTime from =
-                    DateTime(record.dateTime!.year, record.dateTime!.month);
-                DateTime to =
-                    DateTime(record.dateTime!.year, record.dateTime!.month + 1)
-                        .subtract(Duration(minutes: 1));
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CategoryStatisticPage(
-                            from, to, categoryRecords, AggregationMethod.DAY)));
-              }
-              if (aggregationMethod == AggregationMethod.DAY) {
-                var categoryRecords = records
-                    .where((element) =>
-                        element!.dateTime!.day == record.dateTime!.day)
-                    .toList();
-                DateTime? from = categoryRecords[0]!.dateTime;
-                DateTime? to = from;
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => RecordsStatisticPage(from, to,
-                            categoryRecords, AggregationMethod.CUSTOM)));
-              }
-            },
-            title: Container(
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(
-                          (record.aggregatedValues > 1
-                                  ? "(${record.aggregatedValues}) "
-                                  : "") +
-                              (record.title != null
-                                  ? record.title!
-                                  : category!.name!),
-                          style: _biggerFont,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Container(
-                        child: Text(
-                          "$value ($percentageStrRepr%)",
-                          style: _biggerFont,
-                        ),
-                        margin: EdgeInsets.only(left: 10),
-                      )
-                    ],
-                  ),
-                  Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        getDateStr(record.dateTime,
-                            aggregationMethod: aggregationMethod),
-                        style: _dateFont,
-                      )),
-                  Container(
-                      padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
-                      child: SizedBox(
-                        height: 2,
-                        child: LinearProgressIndicator(
-                          value: percentageBar,
-                          backgroundColor: Colors.transparent,
-                        ),
-                      ))
-                ],
-              ),
-            ),
-            leading: Container(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  record.category!.icon,
-                  size: 20,
-                  color: Colors.white,
+          onLongPress: () async {
+            // Record has no aggregated records inside, show info
+            String infoMessage =
+                (record.title == null ? record.category!.name : record.title)! +
+                    " ($value)";
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                elevation: 6,
+                behavior: SnackBarBehavior.floating,
+                content: Text(
+                  infoMessage,
+                  style: TextStyle(fontSize: 20),
                 ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: record.category!.color,
-                ))),
+                action: SnackBarAction(
+                  label: 'Dismiss'.i18n,
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                )));
+          },
+          onTap: () async {
+            if (record.aggregatedValues == 1) {
+              return;
+            }
+            if (aggregationMethod == AggregationMethod.MONTH) {
+              var formatter = DateFormat("yy/MM");
+              var categoryRecords = records
+                  .where((element) =>
+                      element!.category!.name == record.category!.name &&
+                      formatter.format(element.dateTime!) ==
+                          formatter.format(record.dateTime!))
+                  .toList();
+              DateTime from =
+                  DateTime(record.dateTime!.year, record.dateTime!.month);
+              DateTime to =
+                  DateTime(record.dateTime!.year, record.dateTime!.month + 1)
+                      .subtract(Duration(minutes: 1));
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CategoryStatisticPage(
+                          from, to, categoryRecords, AggregationMethod.DAY)));
+            }
+            if (aggregationMethod == AggregationMethod.DAY) {
+              var categoryRecords = records
+                  .where((element) =>
+                      element!.dateTime!.day == record.dateTime!.day)
+                  .toList();
+              DateTime? from = categoryRecords[0]!.dateTime;
+              DateTime? to = from;
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => RecordsStatisticPage(from, to,
+                          categoryRecords, AggregationMethod.CUSTOM)));
+            }
+          },
+          title: Container(
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Flexible(
+                      child: Text(
+                        (record.aggregatedValues > 1
+                                ? "(${record.aggregatedValues}) "
+                                : "") +
+                            (record.title != null
+                                ? record.title!
+                                : record.category!.name!),
+                        style: _biggerFont,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Container(
+                      child: Text(
+                        "$value ($percentageStrRepr%)",
+                        style: _biggerFont,
+                      ),
+                      margin: EdgeInsets.only(left: 10),
+                    )
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    getDateStr(record.dateTime,
+                        aggregationMethod: aggregationMethod),
+                    style: _dateFont,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: SizedBox(
+                    height: 2,
+                    child: LinearProgressIndicator(
+                      value: percentageBar,
+                      backgroundColor: Colors.transparent,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          leading: Container(
+            width: 40,
+            height: 40,
+            child: Center(
+              child: record.category!.iconEmoji != null
+                  ? Text(
+                      record.category!.iconEmoji!, // Display the emoji
+                      style: TextStyle(
+                        fontSize: 20, // Adjust the size as needed
+                      ),
+                    )
+                  : Icon(
+                      record.category!.icon,
+                      size: 20,
+                      color: record.category!.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
+            ),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: record.category!.color,
+            ),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildCategoryStatsCard() {
     return Container(
-        child: new Card(
-            elevation: 0,
-            child: Column(
-              children: <Widget>[
-                Container(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              "Entries for category: ".i18n +
-                                  category!.name! +
-                                  (aggregationMethod != AggregationMethod.CUSTOM
-                                      ? (" (per " +
-                                          (aggregationMethod ==
-                                                  AggregationMethod.MONTH
-                                              ? "Month".i18n
-                                              : "Day".i18n) +
-                                          ")")
-                                      : ""),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          Container(
-                            child: Text(
-                              totalCategoryValue.toStringAsFixed(2),
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            margin: EdgeInsets.only(left: 15),
-                          )
-                        ])),
-                new Divider(),
-                _buildRecordsStatList()
-              ],
-            )));
+        child: Column(
+      children: <Widget>[
+        Container(
+            padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      "Entries for category: ".i18n +
+                          category!.name! +
+                          (aggregationMethod != AggregationMethod.CUSTOM
+                              ? (" (per " +
+                                  (aggregationMethod == AggregationMethod.MONTH
+                                      ? "Month".i18n
+                                      : "Day".i18n) +
+                                  ")")
+                              : ""),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  Container(
+                    child: Text(
+                      totalCategoryValue.toStringAsFixed(2),
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    margin: EdgeInsets.only(left: 15),
+                  )
+                ])),
+        new Divider(),
+        _buildRecordsStatList()
+      ],
+    ));
   }
 
   @override

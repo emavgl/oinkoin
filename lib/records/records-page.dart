@@ -313,7 +313,8 @@ class TabRecordsState extends State<TabRecords> {
               "No Category is set yet.".i18n)
           .addTrueButtonName("OK")
           .addSubtitle(
-              "You need to set a category first. Go to Category tab and add a new category.".i18n);
+              "You need to set a category first. Go to Category tab and add a new category."
+                  .i18n);
       await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -325,20 +326,19 @@ class TabRecordsState extends State<TabRecords> {
   navigateToStatisticsPage() {
     /// Navigate to the Statistics Page
     if (_customIntervalTo == null) {
-      getUserDefinedInterval(database).then((userDefinedInterval) =>
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    StatisticsPage(userDefinedInterval[0], userDefinedInterval[1], records)),
-          )
-      );
+      getUserDefinedInterval(database)
+          .then((userDefinedInterval) => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => StatisticsPage(userDefinedInterval[0],
+                        userDefinedInterval[1], records)),
+              ));
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                StatisticsPage(_customIntervalFrom, _customIntervalTo, records)),
+            builder: (context) => StatisticsPage(
+                _customIntervalFrom, _customIntervalTo, records)),
       );
     }
   }
@@ -410,8 +410,11 @@ class TabRecordsState extends State<TabRecords> {
               titlePadding:
                   EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
               title: Text(_header,
+                  overflow: TextOverflow.ellipsis,
                   style:
-                      TextStyle(color: Colors.white, fontSize: headerFontSize)),
+                      TextStyle(color: Colors.white,
+                          fontSize: headerFontSize,
+                      )),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(
                       Colors.black.withOpacity(0.1), BlendMode.srcATop),

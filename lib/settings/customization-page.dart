@@ -91,10 +91,10 @@ class CustomizationPageState extends State<CustomizationPage> {
         homepageTimeIntervalValues, userDefinedHomepageInterval);
 
     // Backup related
-    enableAutomaticBackup =
-        prefs.getBool("enableAutomaticBackup") ?? false;
-    var backupRetentionIntervalIndex = prefs.getInt("backupRetentionIntervalIndex") ??
-        BackupRetentionPeriod.ALWAYS.index;
+    enableAutomaticBackup = prefs.getBool("enableAutomaticBackup") ?? false;
+    var backupRetentionIntervalIndex =
+        prefs.getInt("backupRetentionIntervalIndex") ??
+            BackupRetentionPeriod.ALWAYS.index;
     backupRetentionPeriodValue = getKeyFromObject<int>(
         backupRetentionPeriodsValues, backupRetentionIntervalIndex);
     backupPassword = prefs.getString("backupPassword") ?? "";
@@ -198,11 +198,13 @@ class CustomizationPageState extends State<CustomizationPage> {
   void invalidateOverwritePreferences() async {
     if (ServiceConfig.sharedPreferences!
         .containsKey("overwriteDotValueWithComma")) {
-      await ServiceConfig.sharedPreferences?.remove("overwriteDotValueWithComma");
+      await ServiceConfig.sharedPreferences
+          ?.remove("overwriteDotValueWithComma");
     }
     if (ServiceConfig.sharedPreferences!
         .containsKey("overwriteCommaValueWithDot")) {
-      await ServiceConfig.sharedPreferences?.remove("overwriteCommaValueWithDot");
+      await ServiceConfig.sharedPreferences
+          ?.remove("overwriteCommaValueWithDot");
     }
   }
 
@@ -300,7 +302,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                       child: SwitchCustomizationItem(
                         title: "Overwrite the key `comma`".i18n,
                         subtitle:
-                        "When typing `comma`, it types `dot` instead".i18n,
+                            "When typing `comma`, it types `dot` instead".i18n,
                         switchValue: overwriteCommaValueWithDot,
                         sharedConfigKey: "overwriteCommaValueWithDot",
                       ),
@@ -316,7 +318,8 @@ class CustomizationPageState extends State<CustomizationPage> {
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
                       subtitle:
-                          "If enabled, you get suggestions when typing the record's name".i18n,
+                          "If enabled, you get suggestions when typing the record's name"
+                              .i18n,
                       switchValue: enableRecordNameSuggestions,
                       sharedConfigKey: "enableRecordNameSuggestions",
                     ),

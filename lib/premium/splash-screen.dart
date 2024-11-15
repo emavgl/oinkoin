@@ -53,25 +53,30 @@ class PremiumSplashScreen extends StatelessWidget {
                       children: <Widget>[
                         Expanded(
                             child: Row(
-                              children: <Widget>[
-                                Container(
-                                    height: 10,
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.amber,
-                                    )),
-                                SizedBox(width: 8), // Add some space between the circle and text
-                                Expanded( // Wrap the text widget with Flexible
-                                  child: Text(
-                                    "Filter records by year or custom date range".i18n,
-                                    style: _biggerFont,
-                                    overflow: TextOverflow.visible, // Ensure text can wrap
-                                    softWrap: true, // Enable soft wrapping
-                                  ),
-                                ),
-                              ],
-                            )),
+                          children: <Widget>[
+                            Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.amber,
+                                )),
+                            SizedBox(
+                                width:
+                                    8), // Add some space between the circle and text
+                            Expanded(
+                              // Wrap the text widget with Flexible
+                              child: Text(
+                                "Filter records by year or custom date range"
+                                    .i18n,
+                                style: _biggerFont,
+                                overflow: TextOverflow
+                                    .visible, // Ensure text can wrap
+                                softWrap: true, // Enable soft wrapping
+                              ),
+                            ),
+                          ],
+                        )),
                       ],
                     ),
                     new Row(
@@ -79,24 +84,26 @@ class PremiumSplashScreen extends StatelessWidget {
                       children: <Widget>[
                         Expanded(
                             child: Row(
-                              children: <Widget>[
-                                Container(
-                                    height: 10,
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.amber,
-                                    )),
-                                SizedBox(width: 8), // Add some space between the circle and text
-                                Expanded( // Wrap the text widget with Flexible
-                                  child: Text(
-                                    "Full category icon pack and color picker"
-                                        .i18n,
-                                    style: _biggerFont,
-                                  ),
-                                ),
-                              ],
-                            )),
+                          children: <Widget>[
+                            Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.amber,
+                                )),
+                            SizedBox(
+                                width:
+                                    8), // Add some space between the circle and text
+                            Expanded(
+                              // Wrap the text widget with Flexible
+                              child: Text(
+                                "Full category icon pack and color picker".i18n,
+                                style: _biggerFont,
+                              ),
+                            ),
+                          ],
+                        )),
                       ],
                     ),
                     new Row(
@@ -104,23 +111,26 @@ class PremiumSplashScreen extends StatelessWidget {
                       children: <Widget>[
                         Expanded(
                             child: Row(
-                              children: <Widget>[
-                                Container(
-                                    height: 10,
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.amber,
-                                    )),
-                                SizedBox(width: 8), // Add some space between the circle and text
-                                Expanded( // Wrap the text widget with Flexible
-                                  child: Text(
-                                    "Backup/Restore the application data".i18n,
-                                    style: _biggerFont,
-                                  ),
-                                ),
-                              ],
-                            )),
+                          children: <Widget>[
+                            Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.amber,
+                                )),
+                            SizedBox(
+                                width:
+                                    8), // Add some space between the circle and text
+                            Expanded(
+                              // Wrap the text widget with Flexible
+                              child: Text(
+                                "Backup/Restore the application data".i18n,
+                                style: _biggerFont,
+                              ),
+                            ),
+                          ],
+                        )),
                       ],
                     ),
                     new Row(
@@ -128,23 +138,26 @@ class PremiumSplashScreen extends StatelessWidget {
                       children: <Widget>[
                         Expanded(
                             child: Row(
-                              children: <Widget>[
-                                Container(
-                                    height: 10,
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.amber,
-                                    )),
-                                SizedBox(width: 8), // Add some space between the circle and text
-                                Expanded( // Wrap the text widget with Flexible
-                                  child: Text(
-                                    "Add recurrent expenses".i18n,
-                                    style: _biggerFont,
-                                  ),
-                                ),
-                              ],
-                            )),
+                          children: <Widget>[
+                            Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.amber,
+                                )),
+                            SizedBox(
+                                width:
+                                    8), // Add some space between the circle and text
+                            Expanded(
+                              // Wrap the text widget with Flexible
+                              child: Text(
+                                "Add recurrent expenses".i18n,
+                                style: _biggerFont,
+                              ),
+                            ),
+                          ],
+                        )),
                       ],
                     )
                   ],

@@ -48,9 +48,8 @@ class BackupPageState extends State<BackupPage> {
     if (enableVersionAndDateInBackupName) {
       filename = null;
     }
-    File backupFile = await BackupService.createJsonBackupFile(
-        backupFileName: filename
-    );
+    File backupFile =
+        await BackupService.createJsonBackupFile(backupFileName: filename);
     Share.shareXFiles([XFile(backupFile.path)]);
   }
 
@@ -60,14 +59,12 @@ class BackupPageState extends State<BackupPage> {
       filename = null;
     }
     File backupFile = await BackupService.createJsonBackupFile(
-      backupFileName: filename,
-      directoryPath: backupFolderPath,
-      encryptionPassword: enableEncryptedBackup ? backupPassword : null
-    );
+        backupFileName: filename,
+        directoryPath: backupFolderPath,
+        encryptionPassword: enableEncryptedBackup ? backupPassword : null);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('File stored in ' + backupFile.path),
-      )
-    );
+    ));
     String? l = await BackupService.getDateLatestBackup();
     if (l != null) {
       setState(() {
@@ -96,12 +93,11 @@ class BackupPageState extends State<BackupPage> {
   fetchAllThePreferences() {
     enableVersionAndDateInBackupName =
         prefs.getBool("enableVersionAndDateInBackupName") ?? true;
-    enableAutomaticBackup =
-        prefs.getBool("enableAutomaticBackup") ?? false;
-    enableEncryptedBackup =
-        prefs.getBool("enableEncryptedBackup") ?? false;
-    var backupRetentionIntervalIndex = prefs.getInt("backupRetentionIntervalIndex") ??
-        BackupRetentionPeriod.ALWAYS.index;
+    enableAutomaticBackup = prefs.getBool("enableAutomaticBackup") ?? false;
+    enableEncryptedBackup = prefs.getBool("enableEncryptedBackup") ?? false;
+    var backupRetentionIntervalIndex =
+        prefs.getInt("backupRetentionIntervalIndex") ??
+            BackupRetentionPeriod.ALWAYS.index;
     backupRetentionPeriodValue = getKeyFromObject<int>(
         backupRetentionPeriodsValues, backupRetentionIntervalIndex);
     backupPassword = prefs.getString("backupPassword") ?? "";
@@ -152,7 +148,8 @@ class BackupPageState extends State<BackupPage> {
                     onChanged: (value) {
                       // Update the state of the OK button based on input text
                       setState(() {
-                        _isOkButtonEnabled = _textController.text.trim().isNotEmpty;
+                        _isOkButtonEnabled =
+                            _textController.text.trim().isNotEmpty;
                       });
                     },
                   ),
@@ -168,8 +165,8 @@ class BackupPageState extends State<BackupPage> {
                 TextButton(
                   onPressed: _isOkButtonEnabled
                       ? () {
-                    Navigator.pop(context, _textController.text.trim());
-                  }
+                          Navigator.pop(context, _textController.text.trim());
+                        }
                       : null, // Disable if text is empty
                   child: Text('OK'),
                 ),
@@ -202,7 +199,8 @@ class BackupPageState extends State<BackupPage> {
                         iconBackgroundColor: Colors.orange.shade600,
                         title: 'Export Backup'.i18n,
                         subtitle: "Share the backup file".i18n,
-                        onPressed: () async => await createAndShareBackupFile()),
+                        onPressed: () async =>
+                            await createAndShareBackupFile()),
                     SettingsItem(
                         icon: Icon(
                           Icons.save_alt,
@@ -214,17 +212,17 @@ class BackupPageState extends State<BackupPage> {
                     ClickableCustomizationItem(
                         title: "Destination folder".i18n,
                         subtitle: backupFolderPath,
-                        enabled: false
-                    ),
+                        enabled: false),
                     SwitchCustomizationItem(
                       title: "Backup encryption".i18n,
-                      subtitle: "Enable if you want to have encrypted backups".i18n,
+                      subtitle:
+                          "Enable if you want to have encrypted backups".i18n,
                       switchValue: enableEncryptedBackup,
                       sharedConfigKey: "enableEncryptedBackup",
                       onChanged: (value) async {
                         if (value) {
                           String? password =
-                          await showPasswordInputDialog(context);
+                              await showPasswordInputDialog(context);
                           if (password != null) {
                             setPasswordInPreferences(password);
                           } else {
@@ -270,7 +268,8 @@ class BackupPageState extends State<BackupPage> {
                             visible: enableVersionAndDateInBackupName,
                             child: DropdownCustomizationItem(
                               title: "Automatic backup retention".i18n,
-                              subtitle: "How long do you want to keep backups".i18n,
+                              subtitle:
+                                  "How long do you want to keep backups".i18n,
                               dropdownValues: backupRetentionPeriodsValues,
                               selectedDropdownKey: backupRetentionPeriodValue,
                               sharedConfigKey: "backupRetentionIntervalIndex",
@@ -280,8 +279,7 @@ class BackupPageState extends State<BackupPage> {
                       ),
                     ),
                     Center(
-                      child: Text("Last backup: ".i18n + lastBackupDataStr)
-                    )
+                        child: Text("Last backup: ".i18n + lastBackupDataStr))
                   ],
                 ),
               );

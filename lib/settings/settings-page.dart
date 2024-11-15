@@ -146,8 +146,8 @@ class TabSettings extends StatelessWidget {
                 title: 'Restore Backup'.i18n,
                 subtitle: "Restore data from a backup file".i18n,
                 onPressed: ServiceConfig.isPremium
-                    ? () async => await BackupRestoreDialog
-                    .importFromBackupFile(context)
+                    ? () async =>
+                        await BackupRestoreDialog.importFromBackupFile(context)
                     : () async {
                         await Navigator.push(
                           context,
