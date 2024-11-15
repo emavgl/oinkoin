@@ -7,7 +7,9 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:uuid/uuid.dart';
 
 import 'exceptions.dart';
@@ -16,9 +18,12 @@ class SqliteDatabase implements DatabaseInterface {
   /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
   /// It is implemented using Singleton pattern.
 
+  /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
+  /// It is implemented using Singleton pattern.
+
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get _version => 6;
+  static int get version => 9;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -32,95 +37,16 @@ class SqliteDatabase implements DatabaseInterface {
   Future<Database> init() async {
     String databasePath = await getDatabasesPath();
     String _path = join(databasePath, 'movements.db');
-    return await openDatabase(_path,
-        version: _version, onCreate: onCreate, onUpgrade: onUpgrade);
-  }
-
-  static void onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (newVersion == 6) {
-      await db.execute("""
-                CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
-                    id          TEXT  PRIMARY KEY,
-                    datetime    INTEGER,
-                    value       REAL,
-                    title       TEXT,
-                    description TEXT,
-                    category_name TEXT,
-                    category_type INTEGER,
-                    last_update INTEGER,
-                    recurrent_period INTEGER
-                );
-            """);
-      try {
-        await db.execute("ALTER TABLE records ADD COLUMN recurrence_id TEXT;");
-      } catch (DatabaseException) {
-        // so that this method is idempotent
-      }
-    }
-  }
-
-  static void onCreate(Database db, int version) async {
-    await db.execute("""CREATE TABLE IF NOT EXISTS categories (
-            name  TEXT,
-            color TEXT,
-            icon INTEGER,
-            category_type INTEGER,
-            PRIMARY KEY (name, category_type)
-        );
-        """);
-
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS  records (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                datetime    INTEGER,
-                value       REAL,
-                title       TEXT,
-                description TEXT,
-                category_name TEXT,
-                category_type INTEGER,
-                recurrence_id TEXT
-            );
-        """);
-
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
-                id          TEXT  PRIMARY KEY,
-                datetime    INTEGER,
-                value       REAL,
-                title       TEXT,
-                description TEXT,
-                category_name TEXT,
-                category_type INTEGER,
-                last_update INTEGER,
-                recurrent_period INTEGER
-            );
-        """);
-
-    List<Category> defaultCategories = getDefaultCategories();
-    for (var defaultCategory in defaultCategories) {
-      await db.insert("categories", defaultCategory.toMap());
-    }
-  }
-
-  static List<Category> getDefaultCategories() {
-    List<Category> defaultCategories = <Category>[];
-    defaultCategories.add(new Category("House".i18n,
-        color: Category.colors[0],
-        iconCodePoint: FontAwesomeIcons.house.codePoint,
-        categoryType: CategoryType.expense));
-    defaultCategories.add(new Category("Transport".i18n,
-        color: Category.colors[1],
-        iconCodePoint: FontAwesomeIcons.bus.codePoint,
-        categoryType: CategoryType.expense));
-    defaultCategories.add(new Category("Food".i18n,
-        color: Category.colors[2],
-        iconCodePoint: FontAwesomeIcons.burger.codePoint,
-        categoryType: CategoryType.expense));
-    defaultCategories.add(new Category("Salary".i18n,
-        color: Category.colors[3],
-        iconCodePoint: FontAwesomeIcons.wallet.codePoint,
-        categoryType: CategoryType.income));
-    return defaultCategories;
+    var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
+        options:
+            SqfliteLoggerOptions(type: SqfliteDatabaseFactoryLoggerType.all));
+    return await factoryWithLogs.openDatabase(
+      _path,
+      options: OpenDatabaseOptions(
+          version: version,
+          onCreate: SqliteMigrationService.onCreate,
+          onUpgrade: SqliteMigrationService.onUpgrade),
+    );
   }
 
   // Category implementation
@@ -214,7 +140,7 @@ class SqliteDatabase implements DatabaseInterface {
     var maps;
     if (sameTitle != null) {
       maps = await db!.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title = ? AND c.name = ? AND c.category_type = ?
         """, [
@@ -226,7 +152,7 @@ class SqliteDatabase implements DatabaseInterface {
       ]);
     } else {
       maps = await db!.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name
             WHERE m.datetime = ? AND m.value = ? AND m.title IS NULL AND c.name = ? AND c.category_type = ?
         """, [sameDateTime, sameValue, sameCategoryName, sameCategoryType]);
@@ -243,7 +169,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<Record>> getAllRecords() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
     return List.generate(maps.length, (i) {
@@ -274,7 +200,7 @@ class SqliteDatabase implements DatabaseInterface {
     final toUnix = to!.millisecondsSinceEpoch;
 
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [fromUnix, toUnix]);
@@ -312,7 +238,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<Record?> getRecordById(int id) async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [id]);
@@ -354,7 +280,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
 
@@ -372,7 +298,7 @@ class SqliteDatabase implements DatabaseInterface {
       String? recurrentPatternId) async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [recurrentPatternId]);
@@ -416,7 +342,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<DateTime?> getDateTimeFirstRecord() async {
     final db = await database; // Assuming you have a database connection
     final maps = await db?.rawQuery("""
-        SELECT m.*, c.name, c.color, c.category_type, c.icon
+        SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
         FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         ORDER BY m.datetime ASC
         LIMIT 1
@@ -429,5 +355,41 @@ class SqliteDatabase implements DatabaseInterface {
     });
 
     return results.isNotEmpty ? results[0].dateTime : null;
+  }
+
+  Future<void> archiveCategory(
+      String categoryName, CategoryType categoryType, bool isArchived) async {
+    final db = (await database)!;
+
+    // Convert the boolean `isArchived` to integer (1 for true, 0 for false)
+    int isArchivedInt = isArchived ? 1 : 0;
+
+    // Update the category in the database
+    await db.update(
+      "categories",
+      {"is_archived": isArchivedInt},
+      where: "name = ? AND category_type = ?",
+      whereArgs: [categoryName, categoryType.index],
+    );
+  }
+
+  @override
+  Future<void> resetCategoryOrderIndexes(
+      List<Category> orderedCategories) async {
+    final db = (await database)!;
+
+    // Update the sortOrder of each category based on its index in the ordered list
+    for (int i = 0; i < orderedCategories.length; i++) {
+      Category category = orderedCategories[i];
+      int sortOrder =
+          i; // Index of category in the ordered list is the sortOrder
+
+      await db.update(
+        "categories",
+        {"sort_order": sortOrder},
+        where: "name = ? AND category_type = ?",
+        whereArgs: [category.name, category.categoryType!.index],
+      );
+    }
   }
 }

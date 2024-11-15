@@ -74,8 +74,10 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
         children: <Widget>[
           OverviewCard(
               widget.from, widget.to, widget.records, aggregationMethod),
+          SizedBox(height: 10),
           BarChartCard(
               widget.from, widget.to, widget.records, aggregationMethod),
+          SizedBox(height: 10),
           CategoriesSummaryCard(widget.from, widget.to, widget.records,
               aggregatedRecords, aggregationMethod),
         ],

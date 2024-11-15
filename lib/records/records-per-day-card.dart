@@ -5,6 +5,8 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 
+import '../components/category_icon_circle.dart';
+
 class RecordsPerDayCard extends StatefulWidget {
   /// RecordsCard renders a MovementPerDay object as a Card
   /// The card contains an header with date and the balance of the day
@@ -25,7 +27,6 @@ class MovementGroupState extends State<RecordsPerDayCard> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final _trailingBiggerFont =
       const TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal);
-  final _subtitleFont = const TextStyle(fontSize: 13.0);
 
   Widget _buildMovements() {
     /// Returns a ListView with all the movements contained in the MovementPerDay object
@@ -46,55 +47,6 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           return _buildMovementRow(
               widget._movementDay.records![reversedIndex]!);
         });
-  }
-
-  Widget _buildLeadingIconRecurrentMovement(Record movement) {
-    return Stack(
-      children: [
-        Container(
-            width: 40,
-            height: 40,
-            child: Icon(
-              movement.category!.icon,
-              size: 20,
-              color: Colors.white,
-            ),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: movement.category!.color,
-            )),
-        Container(
-            margin: EdgeInsets.only(left: 30, top: 20),
-            width: 20,
-            height: 20,
-            child: Icon(
-              Icons.repeat,
-              size: 10,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            decoration: BoxDecoration(
-//              border: Border.all(color: Colors.black),
-              shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.surface,
-            ))
-      ],
-    );
-  }
-
-  Widget _buildLeadingIconMovement(Record movement) {
-    return Container(
-        margin: EdgeInsets.only(right: 10),
-        width: 40,
-        height: 40,
-        child: Icon(
-          movement.category!.icon,
-          size: 20,
-          color: Colors.white,
-        ),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: movement.category!.color,
-        ));
   }
 
   Widget _buildMovementRow(Record movement) {
@@ -122,9 +74,12 @@ class MovementGroupState extends State<RecordsPerDayCard> {
           getCurrencyValueString(movement.value),
           style: _trailingBiggerFont,
         ),
-        leading: movement.recurrencePatternId == null
-            ? _buildLeadingIconMovement(movement)
-            : _buildLeadingIconRecurrentMovement(movement));
+        leading: CategoryIconCircle(
+            iconEmoji: movement.category?.iconEmoji,
+            iconDataFromDefaultIconSet: movement.category?.icon,
+            backgroundColor: movement.category?.color,
+            overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null
+        ));
   }
 
   @override

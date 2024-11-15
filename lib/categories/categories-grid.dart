@@ -1,98 +1,138 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:reorderable_grid/reorderable_grid.dart';
+
+import '../components/category_icon_circle.dart';
 
 class CategoriesGrid extends StatefulWidget {
-  /// CategoriesGrid fetches the categories of a given Category type
-  /// and renders them using a GridView. By default, it returns the
-  /// selected category. If you pass the parameter goToEditMovementPage=true
-  /// when selecting a category, it will go to EditMovementPage.
-
-  /// CategoriesList fetches the categories of a given categoryType (input parameter)
-  /// and renders them using a vertical ListView.
-
   final List<Category?> categories;
-
   final bool? goToEditMovementPage;
+  final bool enableManualSorting;
+  final Function(List<Category?>) onChangeOrder;
 
-  CategoriesGrid(this.categories, {this.goToEditMovementPage});
+  CategoriesGrid(this.categories,
+      {this.goToEditMovementPage,
+      required this.enableManualSorting,
+      required this.onChangeOrder});
 
   @override
   CategoriesGridState createState() => CategoriesGridState();
 }
 
 class CategoriesGridState extends State<CategoriesGrid> {
+
+  List<Category?> orderedCategories = [];
+  bool enableManualSorting = false;
+  late ScrollController _scrollController;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    enableManualSorting = widget.enableManualSorting;
+    orderedCategories = List.from(
+        widget.categories); // Initialize with a copy of the categories list
+  }
+
+  @override
+  void didUpdateWidget(covariant CategoriesGrid oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Check if the categories list has been updated and update orderedCategories accordingly
+    if (oldWidget.categories != widget.categories) {
+      setState(() {
+        orderedCategories = List.from(widget.categories);
+        enableManualSorting = widget.enableManualSorting;
+      });
+    }
+  }
+
+  /// Builds a single category item
+  Widget _buildCategory(Category category) {
+    return Container(
+      child: Center(
+        child: InkWell(
+          onTap: () async {
+            if (widget.goToEditMovementPage != null &&
+                widget.goToEditMovementPage!) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      EditRecordPage(passedCategory: category),
+                ),
+              );
+            } else {
+              Navigator.pop(context, category);
+            }
+          },
+          child: Container(
+            child: Column(
+              children: [
+                  CategoryIconCircle(
+                  iconEmoji: category.iconEmoji,
+                  iconDataFromDefaultIconSet: category.icon,
+                  backgroundColor: category.color,
+                ),
+                Flexible(
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: Text(
+                      category.name!,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the grid of categories with reordering capability
   Widget _buildCategories() {
     var size = MediaQuery.of(context).size;
     final double itemHeight = 250;
     final double itemWidth = size.width / 2;
-    return GridView.count(
+
+    final generatedChildren = List.generate(orderedCategories.length, (index) {
+      final category = orderedCategories[index];
+      return Container(
+        key: ValueKey(index.toString()), // Ensure each item has a unique key
+        child: _buildCategory(category!),
+      );
+    });
+
+    return ReorderableGridView.extent(
+      controller: _scrollController,
+      onReorder: (int oldIndex, int newIndex) async {
+        setState(() {
+          final item = orderedCategories.removeAt(oldIndex);
+          orderedCategories.insert(newIndex, item);
+        });
+        await widget.onChangeOrder(orderedCategories);
+      },
+      itemDragEnable: (index) {
+        return enableManualSorting;
+      },
       childAspectRatio: (itemWidth / itemHeight),
       padding: EdgeInsets.only(top: 10),
-      crossAxisSpacing: 0,
+      crossAxisSpacing: 5.0,
       mainAxisSpacing: 5.0,
-      crossAxisCount:
-          min(4, 6 - MediaQuery.of(context).devicePixelRatio.floor()),
-      shrinkWrap: false,
-      children: List.generate(widget.categories.length, (index) {
-        return Container(
-          child: _buildCategory(widget.categories[index]!),
-        );
-      }),
+      maxCrossAxisExtent: size.width / 4,
+      children: generatedChildren,
     );
-  }
-
-  Widget _buildCategory(Category category) {
-    return Container(
-        child: Center(
-            child: InkWell(
-      onTap: () async {
-        if (widget.goToEditMovementPage != null &&
-            widget.goToEditMovementPage!) {
-          // navigate to EditMovementPage
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      EditRecordPage(passedCategory: category)));
-        } else {
-          // navigate back to the caller, passing the selected Category
-          Navigator.pop(context, category);
-        }
-      },
-      child: Container(
-        child: Column(
-          children: [
-            Container(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  category.icon,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: category.color,
-                )),
-            Flexible(
-              child: Container(
-                margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                child: Text(
-                  category.name!,
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    )));
   }
 
   @override

@@ -79,90 +79,104 @@ class CategoriesSummaryCard extends StatelessWidget {
     return Column(
       children: <Widget>[
         ListTile(
-            onTap: () async {
-              var categoryRecords = records
-                  .where((element) => element!.category!.name == category.name)
-                  .toList();
-              await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CategoryStatisticPage(
-                          from, to, categoryRecords, aggregationMethod)));
-            },
-            title: Container(
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(category.name!,
-                            style: _biggerFont,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis),
+          onTap: () async {
+            var categoryRecords = records
+                .where((element) => element!.category!.name == category.name)
+                .toList();
+            await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CategoryStatisticPage(
+                        from, to, categoryRecords, aggregationMethod)));
+          },
+          title: Container(
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Flexible(
+                      child: Text(
+                        category.name!,
+                        style: _biggerFont,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      Container(
-                        margin: EdgeInsets.only(left: 5),
-                        child: Text(
-                          "$categorySumStr ($percentageStrRepr%)",
-                          style: _biggerFont,
-                        ),
-                      )
-                    ],
-                  ),
-                  Container(
-                      padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
-                      child: SizedBox(
-                        height: 2,
-                        child: LinearProgressIndicator(
-                          value: percentageBar,
-                          backgroundColor: Colors.transparent,
-                        ),
-                      ))
-                ],
-              ),
-            ),
-            leading: Container(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  category.icon,
-                  size: 20,
-                  color: Colors.white,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 5),
+                      child: Text(
+                        "$categorySumStr ($percentageStrRepr%)",
+                        style: _biggerFont,
+                      ),
+                    )
+                  ],
                 ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: category.color,
-                ))),
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: SizedBox(
+                    height: 2,
+                    child: LinearProgressIndicator(
+                      value: percentageBar,
+                      backgroundColor: Colors.transparent,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          leading: Container(
+            width: 40,
+            height: 40,
+            child: Center(
+              child: category.iconEmoji != null
+                  ? Text(
+                      category.iconEmoji!, // Display the emoji
+                      style: TextStyle(
+                        fontSize: 20, // Adjust the size as needed
+                      ),
+                    )
+                  : Icon(
+                      category.icon,
+                      size: 20,
+                      color: category.color != null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
+            ),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: category.color,
+            ),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildCategoryStatsCard() {
     return Container(
-        child: new Card(
-            elevation: 0,
-            child: Column(
-              children: <Widget>[
-                Container(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Entries grouped by category".i18n,
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            getCurrencyValueString(totalExpensesSum),
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ])),
-                new Divider(),
-                CategoriesPieChart(records),
-                _buildCategoriesList()
-              ],
-            )));
+        child: Column(
+      children: <Widget>[
+        Container(
+            padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Entries grouped by category".i18n,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    getCurrencyValueString(totalExpensesSum),
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ])),
+        new Divider(),
+        CategoriesPieChart(records),
+        _buildCategoriesList()
+      ],
+    ));
   }
 
   @override

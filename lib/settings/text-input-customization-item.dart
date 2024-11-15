@@ -46,7 +46,8 @@ class _TextInputCustomizationItemState
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.dialogSubtitle, style: Theme.of(context).textTheme.bodySmall),
+              Text(widget.dialogSubtitle,
+                  style: Theme.of(context).textTheme.bodySmall),
               SizedBox(height: 20),
               TextField(
                 controller: _textController,

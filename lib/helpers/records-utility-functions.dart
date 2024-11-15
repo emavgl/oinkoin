@@ -13,19 +13,36 @@ import '../settings/homepage-time-interval.dart';
 import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
-  /// Groups the record in days using the object MovementsPerDay.
-  /// It returns a list of MovementsPerDay object, containing at least 1 movement.
-  var movementsGroups = groupBy(records, (dynamic records) => records.date);
+  /// Groups the records by days using a Map<DateTime, List<Record>>.
+  /// It returns a list of RecordsPerDay objects, each containing at least 1 record.
+  Map<DateTime, List<Record?>> movementsGroups = {};
+
+  // Iterate over each record and group them by date (year, month, day).
+  for (var record in records) {
+    if (record != null) {
+      DateTime dateKey = DateTime(record.dateTime!.year,
+          record.dateTime!.month,
+          record.dateTime!.day);
+
+      if (!movementsGroups.containsKey(dateKey)) {
+        movementsGroups[dateKey] = [];
+      }
+      movementsGroups[dateKey]!.add(record);
+    }
+  }
+
+  // Convert the map to a queue of RecordsPerDay objects.
   Queue<RecordsPerDay> movementsPerDay = Queue();
-  movementsGroups.forEach((k, groupedMovements) {
+  movementsGroups.forEach((date, groupedMovements) {
     if (groupedMovements.isNotEmpty) {
-      DateTime? groupedDay = groupedMovements[0]!.dateTime;
-      movementsPerDay
-          .addFirst(new RecordsPerDay(groupedDay, records: groupedMovements));
+      movementsPerDay.addFirst(RecordsPerDay(date, records: groupedMovements));
     }
   });
+
+  // Convert the queue to a list and sort it in descending order by date.
   var movementsDayList = movementsPerDay.toList();
   movementsDayList.sort((b, a) => a.dateTime!.compareTo(b.dateTime!));
+
   return movementsDayList;
 }
 
@@ -74,7 +91,7 @@ bool getOverwriteDotValue() {
 bool getOverwriteCommaValue() {
   if (getDecimalSeparator() == ",") return false;
   return ServiceConfig.sharedPreferences
-      ?.getBool("overwriteCommaValueWithDot") ??
+          ?.getBool("overwriteCommaValueWithDot") ??
       getDecimalSeparator() == ".";
 }
 
@@ -215,9 +232,12 @@ String stripUnknownPatternCharacters(String toParse) {
   // Use a regular expression to keep only digits,
   // the decimal separator, and the grouping separator
   String pattern = '[0-9' +
-      RegExp.escape(decimalSeparator) + RegExp.escape(groupingSeparator) + ']';
+      RegExp.escape(decimalSeparator) +
+      RegExp.escape(groupingSeparator) +
+      ']';
   RegExp regex = RegExp(pattern);
-  String result = toParse.split('').where((char) => regex.hasMatch(char)).join();
+  String result =
+      toParse.split('').where((char) => regex.hasMatch(char)).join();
   return result;
 }
 
@@ -271,25 +291,25 @@ String getHeaderForUserDefinedInterval() {
       ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval") ??
           HomepageTimeInterval.CurrentMonth.index;
   HomepageTimeInterval userDefinedInterval =
-  HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+      HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
   DateTime _now = DateTime.now();
   switch (userDefinedInterval) {
     case HomepageTimeInterval.CurrentMonth:
       return getMonthStr(_now);
     case HomepageTimeInterval.CurrentYear:
       return "${"Year".i18n} ${_now.year}";
-      case HomepageTimeInterval.All:
-      var monthStr = getMonthStr(_now);
-      return "All records until %s".i18n.fill([monthStr]);
+    case HomepageTimeInterval.All:
+      return "All records".i18n;
   }
 }
 
-Future<List<DateTime>> getUserDefinedInterval(DatabaseInterface database) async {
+Future<List<DateTime>> getUserDefinedInterval(
+    DatabaseInterface database) async {
   var userDefinedHomepageIntervalIndex =
       ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval") ??
           HomepageTimeInterval.CurrentMonth.index;
   HomepageTimeInterval userDefinedInterval =
-  HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+      HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
   DateTime _now = DateTime.now();
   switch (userDefinedInterval) {
     case HomepageTimeInterval.CurrentMonth:
@@ -327,5 +347,4 @@ Future<List<Record?>> getRecordsByUserDefinedInterval(
     case HomepageTimeInterval.All:
       return await getAllRecords(database);
   }
-
 }

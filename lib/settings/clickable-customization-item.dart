@@ -9,9 +9,7 @@ class ClickableCustomizationItem<T> extends StatelessWidget {
   final bool enabled;
 
   ClickableCustomizationItem(
-      {required this.title,
-        required this.subtitle,
-        required this.enabled});
+      {required this.title, required this.subtitle, required this.enabled});
 
   Widget buildHeader() {
     return Column(

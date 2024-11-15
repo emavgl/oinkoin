@@ -136,23 +136,21 @@ class OverviewCard extends StatelessWidget {
   }
 
   Widget _buildCard() {
-    return Card(
-        elevation: 0,
-        child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.all(10),
-                  child: _buildFirstRow(),
-                ),
-                Divider(endIndent: 10, indent: 10),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  child: _buildSecondRow(),
-                ),
-              ],
-            )));
+    return Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: Column(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(10),
+              child: _buildFirstRow(),
+            ),
+            Divider(endIndent: 10, indent: 10),
+            Container(
+              padding: EdgeInsets.all(10),
+              child: _buildSecondRow(),
+            ),
+          ],
+        ));
   }
 
   @override

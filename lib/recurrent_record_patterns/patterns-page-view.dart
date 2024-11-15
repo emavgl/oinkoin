@@ -5,6 +5,7 @@ import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
+import '../components/category_icon_circle.dart';
 import '../models/recurrent-period.dart';
 import 'package:piggybank/i18n.dart';
 
@@ -40,50 +41,47 @@ class PatternsPageViewState extends State<PatternsPageView> {
   Widget _buildRecurrentPatternRow(RecurrentRecordPattern pattern) {
     /// Returns a ListTile rendering the single movement row
     return Card(
-        elevation: 0,
-        child: Container(
-          margin: EdgeInsets.only(top: 10, bottom: 10),
-          child: ListTile(
-              onTap: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EditRecordPage(
-                              passedReccurrentRecordPattern: pattern,
-                            )));
-                await fetchRecurrentRecordPatternsFromDatabase();
-              },
-              title: Text(
-                pattern.title == null || pattern.title!.trim().isEmpty
-                    ? pattern.category!.name!
-                    : pattern.title!,
-                style: _biggerFont,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+      elevation: 0,
+      child: Container(
+        margin: EdgeInsets.only(top: 10, bottom: 10),
+        child: ListTile(
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditRecordPage(
+                  passedReccurrentRecordPattern: pattern,
+                ),
               ),
-              subtitle: Text(
-                recurrentPeriodString(pattern.recurrentPeriod),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: _subtitleFontSize,
-              ),
-              trailing: Text(
-                getCurrencyValueString(pattern.value),
-                style: _biggerFont,
-              ),
-              leading: Container(
-                  width: 40,
-                  height: 40,
-                  child: Icon(
-                    pattern.category!.icon,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: pattern.category!.color,
-                  ))),
-        ));
+            );
+            await fetchRecurrentRecordPatternsFromDatabase();
+          },
+          title: Text(
+            pattern.title == null || pattern.title!.trim().isEmpty
+                ? pattern.category!.name!
+                : pattern.title!,
+            style: _biggerFont,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            recurrentPeriodString(pattern.recurrentPeriod),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: _subtitleFontSize,
+          ),
+          trailing: Text(
+            getCurrencyValueString(pattern.value),
+            style: _biggerFont,
+          ),
+          leading: CategoryIconCircle(
+            iconEmoji: pattern.category?.iconEmoji,
+            iconDataFromDefaultIconSet: pattern.category?.icon,
+            backgroundColor: pattern.category?.color,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget buildRecurrentRecordPatternsList() {
