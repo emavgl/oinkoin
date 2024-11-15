@@ -27,7 +27,12 @@ public class Utils {
     public static RepeatOption extractRepeatOption(String input) {
         String[] parts = input.split("\n");
         if (parts.length > 1) {
-            return RepeatOption.valueOf(parts[1]);
+            String repeatText = parts[1].trim();
+            for (RepeatOption option : RepeatOption.values()) {
+                if (option.getDisplayName().equalsIgnoreCase(repeatText)) {
+                    return option;
+                }
+            }
         }
         return RepeatOption.NOT_REPEAT;
     }

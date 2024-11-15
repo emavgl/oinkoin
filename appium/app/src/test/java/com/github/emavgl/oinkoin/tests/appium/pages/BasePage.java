@@ -32,7 +32,6 @@ public abstract class BasePage {
         try {
             return webElement.isDisplayed();
         } catch (NoSuchElementException e) {
-            System.err.println("Web element not found.");
             return false;
         }
     }

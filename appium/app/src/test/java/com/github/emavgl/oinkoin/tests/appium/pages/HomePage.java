@@ -8,6 +8,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
@@ -17,6 +18,8 @@ import java.util.Locale;
 import static com.github.emavgl.oinkoin.tests.appium.utils.Utils.capitalizeFirstLetter;
 
 public class HomePage extends BasePage {
+
+    private static final String DATE_FORMAT = "MM/dd/yyyy";
 
     @FindBy(id = "select-date")
     private WebElement showRecordsPerButton;
@@ -37,78 +40,91 @@ public class HomePage extends BasePage {
         return dateRangeText.getAttribute("content-desc");
     }
 
+    public void showRecordsPer(String option, String value) {
+        openHomeTab();
+        showRecordsPerButton.click();
+        driver.findElement(AppiumBy.accessibilityId(option)).click();
+        driver.findElement(AppiumBy.accessibilityId(value)).click();
+        driver.findElement(AppiumBy.accessibilityId("OK")).click();
+    }
+
     public void showRecordsPerMonth(Month month) {
-        openHomeTab();
-        showRecordsPerButton.click();
-
-        driver.findElement(AppiumBy.accessibilityId("Month")).click();
-        driver.findElement(AppiumBy.accessibilityId(capitalizeFirstLetter(month.toString()).substring(0, 3))).click();
-        driver.findElement(AppiumBy.accessibilityId("OK")).click();
+        String shortMonth = capitalizeFirstLetter(month.toString()).substring(0, 3);
+        showRecordsPer("Month", shortMonth);
     }
 
-    public void showRecordsPerYearChangeText(Year year) {
-        openHomeTab();
-        showRecordsPerButton.click();
-
-        driver.findElement(AppiumBy.accessibilityId("Year")).click();
-        driver.findElement(AppiumBy.accessibilityId(year.toString())).click();
-        driver.findElement(AppiumBy.accessibilityId("OK")).click();
+    public void showRecordsPerYear(Year year) {
+        showRecordsPer("Year", year.toString());
     }
 
-    public void showRecordPerDateRangeChangeText(LocalDate startDate, LocalDate endDate) {
+    public void showRecordPerDateRange(LocalDate startDate, LocalDate endDate) {
         openHomeTab();
         showRecordsPerButton.click();
 
         driver.findElement(AppiumBy.accessibilityId("Date Range")).click();
-
-        // Edit button
         driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.Button\").instance(2)")).click();
-
-        // Start Date (first EditText)
-        WebElement startDateField = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(0)"));
-        startDateField.click();
-        startDateField.clear();
-        startDateField.sendKeys(startDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
-
-        // End Date (second EditText)
-        WebElement endDateField = driver.findElement(AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(1)"));
-        endDateField.click();
-        endDateField.clear();
-        endDateField.sendKeys(endDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
-
+        setDateRange(startDate, endDate);
         driver.findElement(AppiumBy.accessibilityId("OK")).click();
+    }
+
+    private void setDateRange(LocalDate startDate, LocalDate endDate) {
+        setDateField(0, startDate);
+        setDateField(1, endDate);
+    }
+
+    private void setDateField(int fieldIndex, LocalDate date) {
+        WebElement dateField = driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().className(\"android.widget.EditText\").instance(" + fieldIndex + ")"
+        ));
+        dateField.click();
+        dateField.clear();
+        dateField.sendKeys(date.format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
     }
 
     public void addRecord(RecordData recordData) {
         openHomeTab();
         addRecordButton.click();
 
-        CategorySelectionPage categorySelectionPage = new CategorySelectionPage(driver);
-        categorySelectionPage.selectCategory(recordData.categoryType(), recordData.category());
-
-        EditRecordPage editRecordPage = new EditRecordPage(driver);
-        editRecordPage.addRecord(recordData);
+        new CategorySelectionPage(driver).selectCategory(recordData.categoryType(), recordData.category());
+        new EditRecordPage(driver).addRecord(recordData);
     }
 
-    public void openRecord(String name, CategoryType categoryType, double amount) {
-        String sign = categoryType.getDisplayName().equals("Expense") ? "-" : "+";
-        String accessibilityId = String.format(Locale.US, "%s\n%s%.2f", name, sign, amount);
+    public boolean isRecordDisplayedInCurrentView(String name, CategoryType categoryType, double amount) {
+        String accessibilityId = generateRecordAccessibilityId(name, categoryType, amount);
+        return !driver.findElements(AppiumBy.accessibilityId(accessibilityId)).isEmpty();
+    }
+
+    public void openRecord(String name, CategoryType categoryType, double amount, LocalDate date) {
+        showRecordsPerYear(Year.of(date.getYear()));
+        showRecordsPerMonth(date.getMonth());
+        String accessibilityId = generateRecordAccessibilityId(name, categoryType, amount);
         try {
             driver.findElement(AppiumBy.accessibilityId(accessibilityId)).click();
         } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Record " + name + " of " + String.format(Locale.US, "%.2f", amount) + " not found. Web element not found.", e);
+            throw new NoSuchElementException(
+                    String.format("Record not found: %s. Year: %d, Month: %s", accessibilityId, date.getYear(), date.getMonth()), e
+            );
         }
     }
 
-    public RecordData getRecord(String name, CategoryType categoryType, double amount) {
-        openRecord(name, categoryType, amount);
-        EditRecordPage editRecordPage = new EditRecordPage(driver);
-        return editRecordPage.getRecord();
+    private String generateRecordAccessibilityId(String name, CategoryType categoryType, double amount) {
+        String sign = categoryType.getDisplayName().equals("Expense") ? "-" : "";
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        numberFormat.setMinimumFractionDigits(2);
+        numberFormat.setMaximumFractionDigits(2);
+        String formattedAmount = numberFormat.format(amount);
+
+        return String.format(Locale.US, "%s\n%s%s", name, sign, formattedAmount);
     }
 
-    public void deleteRecord(String name, CategoryType categoryType, double amount) {
-        openRecord(name, categoryType, amount);
-        EditRecordPage editRecordPage = new EditRecordPage(driver);
-        editRecordPage.delete();
+    public RecordData getRecord(String name, CategoryType categoryType, double amount, LocalDate date) {
+        openRecord(name, categoryType, amount, date);
+        return new EditRecordPage(driver).getRecord();
+    }
+
+    public void deleteRecord(String name, CategoryType categoryType, double amount, LocalDate date) {
+        openRecord(name, categoryType, amount, date);
+        new EditRecordPage(driver).delete();
     }
 }

@@ -5,8 +5,6 @@ import com.github.emavgl.oinkoin.tests.appium.utils.RecordData;
 import com.github.emavgl.oinkoin.tests.appium.utils.RepeatOption;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.pagefactory.AndroidBy;
-import io.appium.java_client.pagefactory.AndroidFindBy;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
