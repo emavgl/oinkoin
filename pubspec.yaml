@@ -37,7 +37,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   file_picker: ^6.1.1
   uuid: ^4.2.2
-  package_info_plus: ^5.0.1
+  package_info_plus: ^8.1.1
   flutter_displaymode: ^0.6.0
   future_progress_dialog: ^0.2.1
   csv: ^6.0.0
@@ -52,7 +52,7 @@ dependencies:
   system_theme: ^2.3.1
   flutter_typeahead: ^5.2.0
   file_selector: ^1.0.3
-  emoji_picker_flutter: ^2.1.1
+  emoji_picker_flutter: ^4.0.0-dev.2
   reorderable_grid: ^1.0.10
 
 

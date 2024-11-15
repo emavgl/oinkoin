@@ -1,6 +1,7 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emojipicker;
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/category-type.dart';
@@ -118,6 +119,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
           child: emojipicker.EmojiPicker(
             textEditingController: _controller,
             config: emojipicker.Config(
+              locale: I18n.locale,
               height: 256,
               checkPlatformCompatibility: true,
               emojiViewConfig: emojipicker.EmojiViewConfig(
