@@ -1,4 +1,4 @@
-name: Build for Android
+name: Build Apk manual workflow
 
 on: workflow_dispatch
 
