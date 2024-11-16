@@ -24,8 +24,7 @@ public class BaseTest {
                 .setAppPackage(Constants.APP_PACKAGE)
                 .setFullReset(true)
                 .amend("appium:settings[disableIdLocatorAutocompletion]", true)
-                .amend("appium:newCommandTimeout", 3600)
-                .amend("appium:connectHardwareKeyboard", true);
+                .amend("appium:newCommandTimeout", 3600);
 
         driver = new AndroidDriver(getAppiumServerUrl(), options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));

@@ -16,6 +16,9 @@ import static com.github.emavgl.oinkoin.tests.appium.utils.Utils.extractDate;
 import static com.github.emavgl.oinkoin.tests.appium.utils.Utils.extractRepeatOption;
 
 public class EditRecordPage extends BasePage {
+
+    private static final String DATE_FORMAT = "MM/dd/yyyy";
+
     @FindBy(id = "amount-field")
     private WebElement amountField;
 
@@ -77,7 +80,6 @@ public class EditRecordPage extends BasePage {
         return extractDate(dateField.getAttribute("content-desc"));
     }
 
-    // TODO: improve using identifiers or elements
     public void setDate(LocalDate date) {
         dateField.click();
 
@@ -86,7 +88,7 @@ public class EditRecordPage extends BasePage {
         WebElement editPicker = driver.findElement(AppiumBy.className("android.widget.EditText"));
         editPicker.click();
         editPicker.clear();
-        editPicker.sendKeys(date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+        editPicker.sendKeys(date.format(DateTimeFormatter.ofPattern(DATE_FORMAT)));
         driver.findElement(AppiumBy.accessibilityId("OK")).click();
     }
 

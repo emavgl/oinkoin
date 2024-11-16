@@ -32,7 +32,7 @@ public class HomePageTest extends BaseTest {
         homePage.showRecordsPerYear(Year.of(2020));
 
         String expectedText = "Jan 1 - Dec 31, 2020";
-        assertEquals(homePage.dateRangeText(), expectedText);
+        assertEquals(expectedText, homePage.dateRangeText());
     }
 
     @Test

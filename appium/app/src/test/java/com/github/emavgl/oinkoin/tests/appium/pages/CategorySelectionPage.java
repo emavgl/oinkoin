@@ -28,16 +28,17 @@ public class CategorySelectionPage extends BasePage {
     }
 
     public void selectCategory(CategoryType categoryType, String categoryName) {
-
         if (categoryType.equals(CategoryType.EXPENSE))
             selectExpensesTab();
         else
             selectIncomeTab();
-
         try {
             driver.findElement(AppiumBy.accessibilityId(categoryName)).click();
         } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Category not found. Web element not found.", e);
+            throw new NoSuchElementException(
+                    String.format("Category not found: Type: %s, Name: %s", categoryType.getDisplayName(), categoryName),
+                    e
+            );
         }
     }
 }
