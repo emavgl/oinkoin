@@ -83,17 +83,38 @@ class ShellState extends State<Shell> {
             },
             destinations: [
               NavigationDestination(
-                  label: "Home".i18n,
-                  selectedIcon: Icon(Icons.home),
-                  icon: Icon(Icons.home_outlined)),
+                label: "Home".i18n,
+                icon: Semantics(
+                  identifier: 'home-tab',
+                  child: Icon(Icons.home_outlined),
+                ),
+                selectedIcon: Semantics(
+                  identifier: 'home-tab-selected',
+                  child: Icon(Icons.home),
+                ),
+              ),
               NavigationDestination(
-                  label: "Categories".i18n,
-                  selectedIcon: Icon(Icons.category),
-                  icon: Icon(Icons.category_outlined)),
+                label: "Categories".i18n,
+                icon: Semantics(
+                  identifier: 'categories-tab',
+                  child: Icon(Icons.category_outlined),
+                ),
+                selectedIcon: Semantics(
+                  identifier: 'categories-tab-selected',
+                  child: Icon(Icons.category),
+                ),
+              ),
               NavigationDestination(
-                  label: "Settings".i18n,
-                  selectedIcon: Icon(Icons.settings),
-                  icon: Icon(Icons.settings_outlined)),
+                label: "Settings".i18n,
+                icon: Semantics(
+                  identifier: 'settings-tab',
+                  child: Icon(Icons.settings_outlined),
+                ),
+                selectedIcon: Semantics(
+                  identifier: 'settings-tab-selected',
+                  child: Icon(Icons.settings),
+                ),
+              ),
             ]));
   }
 }

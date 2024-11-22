@@ -267,8 +267,18 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
           ],
           bottom: TabBar(
             tabs: [
-              Tab(text: "Expenses".i18n.toUpperCase()),
-              Tab(text: "Income".i18n.toUpperCase()),
+              Semantics(
+                identifier: 'expenses-tab',
+                child: Tab(
+                    text: "Expenses".i18n.toUpperCase()
+                ),
+              ),
+              Semantics(
+                identifier: 'income-tab',
+                child: Tab(
+                  text: "Income".i18n.toUpperCase(),
+                ),
+              )
             ],
           ),
         ),
