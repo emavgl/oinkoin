@@ -339,7 +339,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                       child: SwitchCustomizationItem(
                         title: "Lock the app".i18n,
                         subtitle:
-                        "Open the app after inserting PIN/Biometrics".i18n,
+                        "App protected by PIN on biometric check".i18n,
                         switchValue: enableAppLock,
                         sharedConfigKey: "enableAppLock",
                         proLabel: !ServiceConfig.isPremium,
