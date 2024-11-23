@@ -40,9 +40,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
 
   Widget _buildRecurrentPatternRow(RecurrentRecordPattern pattern) {
     /// Returns a ListTile rendering the single movement row
-    return Card(
-      elevation: 0,
-      child: Container(
+    return Container(
         margin: EdgeInsets.only(top: 10, bottom: 10),
         child: ListTile(
           onTap: () async {
@@ -80,7 +78,6 @@ class PatternsPageViewState extends State<PatternsPageView> {
             backgroundColor: pattern.category?.color,
           ),
         ),
-      ),
     );
   }
 

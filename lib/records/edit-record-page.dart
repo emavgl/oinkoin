@@ -14,6 +14,7 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import '../components/category_icon_circle.dart';
 import '../models/recurrent-record-pattern.dart';
 import 'package:piggybank/i18n.dart';
 
@@ -321,7 +322,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     return Card(
       elevation: 1,
       child: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(15),
           child: Column(children: [
             InkWell(
               onTap: () async {
@@ -340,7 +341,11 @@ class EditRecordPageState extends State<EditRecordPage> {
               },
               child: Row(
                 children: [
-                  _createCategoryCirclePreview(40.0),
+                  CategoryIconCircle(
+                      iconEmoji: record!.category!.iconEmoji,
+                      iconDataFromDefaultIconSet: record!.category!.icon,
+                      backgroundColor: record!.category!.color
+                  ),
                   Container(
                     margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
                     child: Text(
@@ -372,51 +377,6 @@ class EditRecordPageState extends State<EditRecordPage> {
         overlayIcon,
         size: 15,
         color: Theme.of(context).colorScheme.onSurface,
-      ),
-    );
-  }
-
-  Widget _createCategoryCirclePreview(double size) {
-    Category defaultCategory = Category("Missing".i18n,
-        color: Category.colors[0],
-        iconCodePoint: FontAwesomeIcons.question.codePoint);
-    Category toRender =
-        (record!.category == null) ? defaultCategory : record!.category!;
-
-    return Container(
-      margin: EdgeInsets.all(10),
-      child: Stack(
-        children: [
-          ClipOval(
-            child: Material(
-              color: toRender.color, // Button color
-              child: InkWell(
-                splashColor: toRender.color, // InkWell color
-                child: SizedBox(
-                  width: size,
-                  height: size,
-                  child: Center(
-                    child: toRender.iconEmoji != null
-                        ? Text(
-                            toRender.iconEmoji!, // Display the emoji
-                            style: TextStyle(
-                              fontSize: size - 20, // Adjust the emoji size
-                            ),
-                          )
-                        : Icon(
-                            toRender.icon, // Fallback to the icon
-                            color: toRender.color != null
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.onSurface,
-                            size: size - 20,
-                          ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (toRender.isArchived) _buildOverlayIcon(context, Icons.archive)
-        ],
       ),
     );
   }
