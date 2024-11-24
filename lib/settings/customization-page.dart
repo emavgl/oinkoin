@@ -337,9 +337,9 @@ class CustomizationPageState extends State<CustomizationPage> {
                     Visibility(
                       visible: appLockIsAvailable,
                       child: SwitchCustomizationItem(
-                        title: "Lock the app".i18n,
+                        title: "Protect access to the app".i18n,
                         subtitle:
-                        "App protected by PIN on biometric check".i18n,
+                        "App protected by PIN or biometric check".i18n,
                         switchValue: enableAppLock,
                         sharedConfigKey: "enableAppLock",
                         proLabel: !ServiceConfig.isPremium,
