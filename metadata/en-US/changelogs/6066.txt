@@ -1,0 +1,2 @@
+- Bug fixes
+- Include a new setting: Access the app after inserting PIN or biometric check
