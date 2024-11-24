@@ -5,6 +5,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/i18n.dart';
+import '../components/category_icon_circle.dart';
 import 'categories-piechart.dart';
 
 class CategorySumTuple {
@@ -48,7 +49,7 @@ class CategoriesSummaryCard extends StatelessWidget {
     var aggregatedCategoriesAndValues =
         aggregatedCategoriesValuesTemporaryMap.values.toList();
     aggregatedCategoriesAndValues
-        .sort((a, b) => a.value!.compareTo(b.value!)); // sort ascending
+        .sort((a, b) => b.value!.abs().compareTo(a.value!.abs()));
     return aggregatedCategoriesAndValues;
   }
 
@@ -125,29 +126,11 @@ class CategoriesSummaryCard extends StatelessWidget {
               ],
             ),
           ),
-          leading: Container(
-            width: 40,
-            height: 40,
-            child: Center(
-              child: category.iconEmoji != null
-                  ? Text(
-                      category.iconEmoji!, // Display the emoji
-                      style: TextStyle(
-                        fontSize: 20, // Adjust the size as needed
-                      ),
-                    )
-                  : Icon(
-                      category.icon,
-                      size: 20,
-                      color: category.color != null
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onSurface,
-                    ),
-            ),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: category.color,
-            ),
+          leading: CategoryIconCircle(
+              iconEmoji: category.iconEmoji,
+              iconDataFromDefaultIconSet: category.icon,
+              backgroundColor: category.color,
+              overlayIcon: category.isArchived ? Icons.archive : null
           ),
         ),
       ],

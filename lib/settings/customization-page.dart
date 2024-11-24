@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/homepage-time-interval.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 
+import '../premium/util-widgets.dart';
 import 'dropdown-customization-item.dart';
 
 class CustomizationPage extends StatefulWidget {
@@ -30,10 +32,10 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   Future<void> initializePreferences() async {
     prefs = await SharedPreferences.getInstance();
-    fetchAllThePreferences();
+    await fetchAllThePreferences();
   }
 
-  fetchAllThePreferences() {
+  fetchAllThePreferences() async {
     // Get theme color
     int themeColorDropdownValueIndex = prefs.getInt('themeColor') ?? 0;
     themeColorDropdownKey = getKeyFromObject<int>(
@@ -83,6 +85,12 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Record's name suggestions
     enableRecordNameSuggestions =
         prefs.getBool("enableRecordNameSuggestions") ?? true;
+
+    // App Lock
+    var auth = LocalAuthentication();
+    appLockIsAvailable = await auth.isDeviceSupported();
+    enableAppLock =
+        prefs.getBool("enableAppLock") ?? false;
 
     // Homepage time interval
     var userDefinedHomepageInterval = prefs.getInt("homepageTimeInterval") ??
@@ -178,6 +186,9 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool overwriteDotValueWithComma;
   late bool overwriteCommaValueWithDot;
   late bool enableRecordNameSuggestions;
+
+  late bool appLockIsAvailable;
+  late bool enableAppLock;
 
   // Backup related
   Map<String, int> backupRetentionPeriodsValues = {
@@ -322,6 +333,18 @@ class CustomizationPageState extends State<CustomizationPage> {
                               .i18n,
                       switchValue: enableRecordNameSuggestions,
                       sharedConfigKey: "enableRecordNameSuggestions",
+                    ),
+                    Visibility(
+                      visible: appLockIsAvailable,
+                      child: SwitchCustomizationItem(
+                        title: "Protect access to the app".i18n,
+                        subtitle:
+                        "App protected by PIN or biometric check".i18n,
+                        switchValue: enableAppLock,
+                        sharedConfigKey: "enableAppLock",
+                        proLabel: !ServiceConfig.isPremium,
+                        enabled: ServiceConfig.isPremium,
+                      ),
                     ),
                     ListTile(
                       onTap: () {

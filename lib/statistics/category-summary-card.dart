@@ -8,6 +8,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/records-statistic-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
+import '../components/category_icon_circle.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/statistics/categories-statistics-page.dart';
@@ -171,29 +172,11 @@ class CategorySummaryCard extends StatelessWidget {
               ],
             ),
           ),
-          leading: Container(
-            width: 40,
-            height: 40,
-            child: Center(
-              child: record.category!.iconEmoji != null
-                  ? Text(
-                      record.category!.iconEmoji!, // Display the emoji
-                      style: TextStyle(
-                        fontSize: 20, // Adjust the size as needed
-                      ),
-                    )
-                  : Icon(
-                      record.category!.icon,
-                      size: 20,
-                      color: record.category!.color != null
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.onSurface,
-                    ),
-            ),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: record.category!.color,
-            ),
+          leading: CategoryIconCircle(
+              iconEmoji: category!.iconEmoji,
+              iconDataFromDefaultIconSet: category!.icon,
+              backgroundColor: category!.color,
+              overlayIcon: category!.isArchived ? Icons.archive : null
           ),
         ),
       ],
