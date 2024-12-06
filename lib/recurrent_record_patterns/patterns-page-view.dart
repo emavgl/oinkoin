@@ -89,20 +89,24 @@ class PatternsPageViewState extends State<PatternsPageView> {
                 ? new Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      new Column(
-                        children: <Widget>[
-                          Image.asset(
-                            'assets/images/no_entry_2.png',
-                            width: 200,
-                          ),
-                          Text(
-                            "No recurrent records yet.".i18n,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 22.0,
+                      Flexible(
+                        child: new Column(
+                          children: <Widget>[
+                            Image.asset(
+                              'assets/images/no_entry_2.png',
+                              width: 200,
                             ),
-                          )
-                        ],
+                            Container(
+                                child: Text(
+                                  "No recurrent records yet.".i18n,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 22.0,
+                                  ),
+                                )
+                            )
+                          ],
+                        )
                       )
                     ],
                   )
