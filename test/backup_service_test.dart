@@ -226,8 +226,8 @@ void main() {
     testlib.test('removeOldBackups removes files older than one week', () async {
     // Create test files
     final now = DateTime.now();
-    final oldFile = File('${testDir.path}/old_backup.json');
-    final newFile = File('${testDir.path}/new_backup.json');
+    final oldFile = File('${testDir.path}/old_obackup.json');
+    final newFile = File('${testDir.path}/new_obackup.json');
 
     await oldFile.writeAsString('Old backup');
     await newFile.writeAsString('New backup');
@@ -251,8 +251,8 @@ void main() {
   testlib.test('removeOldBackups removes files older than one month', () async {
     // Create test files
     final now = DateTime.now();
-    final oldFile = File('${testDir.path}/old_backup.json');
-    final newFile = File('${testDir.path}/new_backup.json');
+    final oldFile = File('${testDir.path}/old_obackup.json');
+    final newFile = File('${testDir.path}/new_obackup.json');
 
     await oldFile.writeAsString('Old backup');
     await newFile.writeAsString('New backup');

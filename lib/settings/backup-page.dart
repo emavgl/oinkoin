@@ -38,7 +38,7 @@ class BackupPageState extends State<BackupPage> {
     prefs = await SharedPreferences.getInstance();
     defaultDirectory = BackupService.DEFAULT_STORAGE_DIR;
     fetchAllThePreferences();
-    String? l = await BackupService.getDateLatestBackup();
+    String? l = await BackupService.getStringDateLatestBackup();
     if (l != null) {
       lastBackupDataStr = l;
     }
@@ -68,7 +68,7 @@ class BackupPageState extends State<BackupPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('File stored in ' + backupFile.path),
       ));
-      String? l = await BackupService.getDateLatestBackup();
+      String? l = await BackupService.getStringDateLatestBackup();
       if (l != null) {
         setState(() {
           lastBackupDataStr = l;

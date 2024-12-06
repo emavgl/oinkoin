@@ -3,9 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:i18n_extension/default.i18n.dart';
-import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,11 +21,14 @@ import 'database/sqlite-database.dart';
 
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
-  static String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
 
-  static String MANDATORY_BACKUP_SUFFIX = "obackup.json";
+  static const String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
+
+  static const String MANDATORY_BACKUP_SUFFIX = "obackup.json";
 
   static String ERROR_MSG = "Unable to create a backup: please, delete manually the old backup".i18n;
+
+  static const Duration AUTOMATIC_BACKUP_THRESHOLD = Duration(hours: 1);
 
   // not final because it is swapped in the tests
   static DatabaseInterface database = ServiceConfig.database;
@@ -96,6 +97,30 @@ class BackupService {
     // Write on disk
     var backupJsonOnDisk = File("${path.path}/$backupFileName");
     return await backupJsonOnDisk.writeAsString(backupJsonStr);
+  }
+
+  /// Determines if an automatic backup should be created.
+  /// Returns true if the latest backup was created more than 1 hour ago, false otherwise.
+  static Future<bool> shouldCreateAutomaticBackup() async {
+    var prefs = await SharedPreferences.getInstance();
+    bool enableAutomaticBackup =
+        prefs.getBool("enableAutomaticBackup") ?? false;
+
+    if (!enableAutomaticBackup) {
+      log("No automatic backup set");
+      return false;
+    }
+
+    final latestBackupDate = await getDateLatestBackup();
+
+    // If no backups exist, return true to create a backup
+    if (latestBackupDate == null) {
+      return true;
+    }
+
+    // Check if the time since the latest backup exceeds the threshold
+    final now = DateTime.now();
+    return now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
   }
 
   /// Creates an automatic backup, given the settings in the preferences
@@ -292,9 +317,23 @@ class BackupService {
   }
 
   /// Returns the date of the latest backup file in the DEFAULT_STORAGE_DIR.
-  /// Looks for files that end with "_oinkoin_backup" and returns the modified date of the latest backup as a string.
+  /// Looks for files that end with MANDATORY_BACKUP_SUFFIX
+  /// and returns the modified date of the latest backup as String.
   /// Returns null if no backup file is found.
-  static Future<String?> getDateLatestBackup() async {
+  static Future<String?> getStringDateLatestBackup() async {
+    var dateLatestBackup = await getDateLatestBackup();
+    if (dateLatestBackup == null) {
+      return null;
+    }
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    return formatter.format(dateLatestBackup);
+  }
+
+  /// Returns the date of the latest backup file in the DEFAULT_STORAGE_DIR.
+  /// Looks for files that end with MANDATORY_BACKUP_SUFFIX
+  /// and returns the modified date of the latest backup as DateTime.
+  /// Returns null if no backup file is found.
+  static Future<DateTime?> getDateLatestBackup() async {
     final backupDir = Directory(DEFAULT_STORAGE_DIR);
 
     // Check if the directory exists, return null if it doesn't exist
@@ -323,11 +362,6 @@ class BackupService {
       }
     }
 
-    if (latestModifiedDate == null) {
-      return null;
-    }
-
-    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
-    return formatter.format(latestModifiedDate);
+    return latestModifiedDate;
   }
 }

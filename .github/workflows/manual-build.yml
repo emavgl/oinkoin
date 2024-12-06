@@ -36,6 +36,9 @@ jobs:
 
       - run: submodules/flutter/bin/flutter pub get
 
+      - name: Run Flutter tests
+        run: submodules/flutter/bin/flutter test
+
       - name: Set up signing config
         run: |
           echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
