@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:i18n_extension/default.i18n.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -25,6 +26,8 @@ class BackupService {
   static String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
 
   static String MANDATORY_BACKUP_SUFFIX = "obackup.json";
+
+  static String ERROR_MSG = "Unable to create a backup: please, delete manually the old backup".i18n;
 
   // not final because it is swapped in the tests
   static DatabaseInterface database = ServiceConfig.database;

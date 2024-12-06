@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
@@ -58,18 +59,25 @@ class BackupPageState extends State<BackupPage> {
     if (enableVersionAndDateInBackupName) {
       filename = null;
     }
-    File backupFile = await BackupService.createJsonBackupFile(
-        backupFileName: filename,
-        directoryPath: backupFolderPath,
-        encryptionPassword: enableEncryptedBackup ? backupPassword : null);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('File stored in ' + backupFile.path),
-    ));
-    String? l = await BackupService.getDateLatestBackup();
-    if (l != null) {
-      setState(() {
-        lastBackupDataStr = l;
-      });
+    try {
+      File backupFile = await BackupService.createJsonBackupFile(
+          backupFileName: filename,
+          directoryPath: backupFolderPath,
+          encryptionPassword: enableEncryptedBackup ? backupPassword : null);
+      log("${backupFile.path} successfully created");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('File stored in ' + backupFile.path),
+      ));
+      String? l = await BackupService.getDateLatestBackup();
+      if (l != null) {
+        setState(() {
+          lastBackupDataStr = l;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(BackupService.ERROR_MSG),
+      ));
     }
   }
 

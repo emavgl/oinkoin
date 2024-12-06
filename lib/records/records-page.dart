@@ -62,8 +62,14 @@ class TabRecordsState extends State<TabRecords> {
           records = fetchedRecords;
           _header = getHeaderForUserDefinedInterval();
         });
-        BackupService.createAutomaticBackup().then((_) {
-          BackupService.removeOldAutomaticBackups();
+        BackupService.createAutomaticBackup().then((operationSuccess) {
+          if (!operationSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(BackupService.ERROR_MSG),
+            ));
+          } else {
+            BackupService.removeOldAutomaticBackups();
+          }
         });
       });
     });
