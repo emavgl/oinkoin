@@ -66,6 +66,7 @@ Oinkoin is available in the following languages:
 - Turkish, thanks to [@bkrucarci](https://github.com/bkrucarci)
 - Venetian, thanks to [AgGelmi](https://crowdin.com/profile/AgGelmi)
 - Croatian, thanks to [ashune](https://crowdin.com/profile/ashune)
+- Polish, thanks to [Smuuuko](https://github.com/Smuuuko)
 
 ## How can I donate and sponsor the project?
 
