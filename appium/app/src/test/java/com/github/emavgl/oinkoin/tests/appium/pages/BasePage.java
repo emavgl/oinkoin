@@ -1,6 +1,7 @@
 package com.github.emavgl.oinkoin.tests.appium.pages;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.AppiumFieldDecorator;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -25,7 +26,7 @@ public abstract class BasePage {
 
     public BasePage(AppiumDriver driver) {
         this.driver = driver;
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
     }
 
     public boolean isDisplayed(WebElement webElement) {
