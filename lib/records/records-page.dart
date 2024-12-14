@@ -405,15 +405,23 @@ class TabRecordsState extends State<TabRecords> {
           backgroundColor: Theme.of(context).primaryColor,
           actions: <Widget>[
             IconButton(
-                icon: Icon(Icons.calendar_today),
+                icon: Semantics(
+                    identifier: 'select-date',
+                    child: Icon(Icons.calendar_today)
+                ),
                 onPressed: () async => await _showSelectDateDialog(),
                 color: Colors.white),
             IconButton(
-                icon: Icon(Icons.donut_small),
+                icon: Semantics(
+                    identifier: 'statistics',
+                    child: Icon(Icons.donut_small)
+                ),
                 onPressed: () => navigateToStatisticsPage(),
                 color: Colors.white),
             PopupMenuButton<int>(
-              icon: Icon(Icons.more_vert, color: Colors.white),
+              icon: Semantics(
+                  identifier: 'three-dots',
+                  child: Icon(Icons.more_vert, color: Colors.white)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
@@ -454,12 +462,13 @@ class TabRecordsState extends State<TabRecords> {
               centerTitle: false,
               titlePadding:
                   EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
-              title: Text(_header,
-                  overflow: TextOverflow.ellipsis,
-                  style:
-                      TextStyle(color: Colors.white,
-                          fontSize: headerFontSize,
-                      )),
+              title: Semantics(
+                identifier: 'date-text',
+                child: Text(_header,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.white, fontSize: headerFontSize,
+                    )),
+              ),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(
                       Colors.black.withOpacity(0.1), BlendMode.srcATop),
@@ -511,7 +520,10 @@ class TabRecordsState extends State<TabRecords> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async => await navigateToAddNewMovementPage(),
         tooltip: 'Add a new record'.i18n,
-        child: const Icon(Icons.add),
+        child: Semantics(
+          identifier: 'add-record',
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
