@@ -345,24 +345,27 @@ class EditRecordPageState extends State<EditRecordPage> {
                   });
                 }
               },
-              child: Row(
-                children: [
-                  CategoryIconCircle(
-                      iconEmoji: record!.category!.iconEmoji,
-                      iconDataFromDefaultIconSet: record!.category!.icon,
-                      backgroundColor: record!.category!.color
-                  ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                    child: Text(
-                      record!.category!.name!,
-                      style: TextStyle(
-                          fontSize: 20,
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant),
+              child: Semantics(
+                identifier: 'category-field',
+                child: Row(
+                  children: [
+                    CategoryIconCircle(
+                        iconEmoji: record!.category!.iconEmoji,
+                        iconDataFromDefaultIconSet: record!.category!.icon,
+                        backgroundColor: record!.category!.color
                     ),
-                  )
-                ],
+                    Container(
+                      margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                      child: Text(
+                        record!.category!.name!,
+                        style: TextStyle(
+                            fontSize: 20,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ])),
