@@ -1,0 +1,6 @@
+  - Add emoji as icons
+  - Archive / Unarchive Categories
+  - Add Blank and White background in Category
+  - Add the possibility to change order of categories, most_used, last_used and custom by drag-and-drop categories
+  - Add metadata in Backup
+  - Bug fixes

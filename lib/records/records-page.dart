@@ -1,6 +1,8 @@
 import 'dart:core';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -53,19 +55,62 @@ class TabRecordsState extends State<TabRecords> {
     return categories.length > 0;
   }
 
+  late final AppLifecycleListener _listener;
+  late AppLifecycleState? _state;
+
   @override
   void initState() {
     super.initState();
+    _state = SchedulerBinding.instance.lifecycleState;
+    _listener = AppLifecycleListener(
+      onStateChange: _handleOnResume,
+    );
     RecurrentRecordService().updateRecurrentRecords().then((_) {
       getRecordsByUserDefinedInterval(database).then((fetchedRecords) {
         setState(() {
           records = fetchedRecords;
           _header = getHeaderForUserDefinedInterval();
         });
-        BackupService.createAutomaticBackup().then((_) {
-          BackupService.removeOldAutomaticBackups();
-        });
       });
+    });
+  }
+
+  // Should handle state change, in particular resumed
+  // Reason: if the user keep the app in background for long time
+  // but the app it does not close, initState is not fired again
+  // and the backup will not be created. So it is important to run
+  // also the automaticBackup()
+  void _handleOnResume(AppLifecycleState value) {
+    if (value == AppLifecycleState.resumed) {
+      updateRecurrentRecordsAndFetchRecords().then((_) {
+        runAutomaticBackup();
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    runAutomaticBackup();
+  }
+
+  void runAutomaticBackup() {
+    log("Checking if automatic backup should be fired!");
+    BackupService.shouldCreateAutomaticBackup().then((shouldBackup) {
+      if (shouldBackup) {
+        log("Automatic backup fired!");
+        BackupService.createAutomaticBackup().then((operationSuccess) {
+          if (!operationSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(BackupService.ERROR_MSG),
+            ));
+          } else {
+            BackupService.removeOldAutomaticBackups();
+          }
+        });
+      } else {
+        log("Automatic backup not needed.");
+      }
     });
   }
 

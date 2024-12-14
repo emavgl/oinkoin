@@ -66,6 +66,7 @@ Oinkoin is available in the following languages:
 - Turkish, thanks to [@bkrucarci](https://github.com/bkrucarci)
 - Venetian, thanks to [AgGelmi](https://crowdin.com/profile/AgGelmi)
 - Croatian, thanks to [ashune](https://crowdin.com/profile/ashune)
+- Polish, thanks to [Smuuuko](https://github.com/Smuuuko)
 
 ## How can I donate and sponsor the project?
 
@@ -74,7 +75,6 @@ Any donation is welcome, thanks for your support! If you wish to donate, you can
 - Buy [Oinkoin PRO on Google Play Store](https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro)
 - Bitcoin `bc1qscnas903lcycrkaw7ztflskwld87k8wxgc0sx8`
 - Monero `44LmMThH7jMgi5pGpRtQVxCXUr9tNSenhSm97g3zgXQZPS1bwMMqxSR7M7yFcbQ9uUJAwHTJ4gXENKXZdaTDopv9QU2aGni`
-- [liberapay.com](https://liberapay.com/emavgl)
 - [buymeacoffe.com](https://www.buymeacoffee.com/emavgl)
 
 With your donation you support the work I do, also helping to keep this project alive. 

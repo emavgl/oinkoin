@@ -11,7 +11,9 @@ class MyI18n {
   static void replaceTranslations(String replaceFrom, String replaceTo) {
     var wordTranslations = translations.translationByLocale_ByTranslationKey;
     for (var wordTranslation in wordTranslations.values) {
-      wordTranslation[replaceFrom] = wordTranslation[replaceTo]!;
+      if (wordTranslation.containsKey(replaceTo)) {
+        wordTranslation[replaceFrom] = wordTranslation[replaceTo]!;
+      }
     }
   }
 }

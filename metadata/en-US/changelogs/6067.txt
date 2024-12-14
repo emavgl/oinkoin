@@ -1,0 +1,4 @@
+- Backup Error Handling: Added notifications for automatic backup write failures, e.g., after app reinstall. Manual deletion of old backups may be needed. There are no problems in restoring from a backup instead.
+- Improved Backup Timing: Automatic backups now trigger only after 1 hour, providing a window to restore data after accidental changes.
+- Enhanced Backup Triggers: Automatic backups now run after restoring the app from suspension, not just at startup.
+- Bug Fixes: General improvements and issue resolutions.

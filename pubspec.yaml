@@ -11,7 +11,7 @@ description: The expenses under your control.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.69+6062
+version: 1.0.75+6068
 
 environment:
   sdk: '>=2.17.0 <=3.22.1'
@@ -54,6 +54,7 @@ dependencies:
   file_selector: ^1.0.3
   emoji_picker_flutter: ^4.0.0-dev.2
   reorderable_grid: ^1.0.10
+  local_auth: ^2.3.0
 
 
 dev_dependencies:
