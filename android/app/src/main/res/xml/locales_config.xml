@@ -8,6 +8,7 @@
     <locale android:name="ar"/>
     <locale android:name="de"/>
     <locale android:name="ru"/>
+    <locale android:name="ta-IN"/>
     <locale android:name="tr"/>
     <locale android:name="vec-IT"/>
     <locale android:name="zh-CN"/>
