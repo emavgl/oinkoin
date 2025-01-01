@@ -130,16 +130,22 @@ class CustomizationPageState extends State<CustomizationPage> {
   // Language dropdown
   Map<String, String> languageToLocaleTranslation = {
     "System".i18n: "system",
+    "Arabic (Saudi Arabia)": "ar_SA",
     "Deutsch": "de_DE",
     "English (US)": "en_US",
     "English (UK)": "en_GB",
     "Español": "es_ES",
     "Français": "fr_FR",
+    "hrvatski (Hrvatska)": "hr_HR",
     "Italiano": "it_IT",
+    "ଓଡ଼ିଆ (ଭାରତ)": "or_IN",
+    "polski (Polska)": "pl_PL",
     "Português (Brazil)": "pt_BR",
-    "Português (Portugal)": "pr_PT",
+    "Português (Portugal)": "pt_PT",
     "Pусский язык": "ru_RU",
     "Türkçe": "tr_TR",
+    "தமிழ் (இந்தியா)": "ta_IN",
+    "Україна": "uk_UA",
     "Veneto": "vec_IT",
     "简化字": "zh_CN",
   };
