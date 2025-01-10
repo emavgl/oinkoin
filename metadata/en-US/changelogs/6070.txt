@@ -1,0 +1,2 @@
+- Add Tamil and other languages in Language selectors
+- Fix bug which closes the app instead of going back to the previous page in certain situation
