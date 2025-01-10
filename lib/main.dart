@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -54,6 +55,7 @@ class OinkoinAppState extends State<OinkoinApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      onNavigationNotification: _defaultOnNavigationNotification,
         debugShowCheckedModeBanner: false,
         // these are the app-specific localization delegates that collectively
         // define the localized resources for this application's Localizations widget
@@ -149,6 +151,22 @@ class OinkoinAppState extends State<OinkoinApp> {
       }
     }
     return "en";
+  }
+
+  bool _defaultOnNavigationNotification(NavigationNotification _) {
+    // https://github.com/flutter/flutter/issues/153672#issuecomment-2583262294
+    switch (WidgetsBinding.instance.lifecycleState) {
+      case null:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.inactive:
+      // Avoid updating the engine when the app isn't ready.
+        return true;
+      case AppLifecycleState.resumed:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        SystemNavigator.setFrameworkHandlesBack(true); /// This must be `true` instead of `notification.canHandlePop`, otherwise application closes on back gesture.
+        return true;
+    }
   }
 
   void setCurrencyLocale(Locale toSet) {
