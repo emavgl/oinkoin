@@ -28,16 +28,16 @@ jobs:
       - name: Update flutter submodule to stable branch
         run: |
           git submodule update --init --recursive
-          cd submodules/flutter
+          cd .flutter
           git reset --merge
           git checkout stable
           git pull origin stable
           cd ../..
 
-      - run: submodules/flutter/bin/flutter pub get
+      - run: .flutter/bin/flutter pub get
 
       - name: Run Flutter tests
-        run: submodules/flutter/bin/flutter test
+        run: .flutter/bin/flutter test
 
       - name: Set up signing config
         run: |
@@ -53,11 +53,11 @@ jobs:
           python bump_new_version.py ${{ github.event.release.tag_name }} changelog.temp
 
       - name: Build APK
-        run: submodules/flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi
+        run: .flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
       - name: Build app bundle
         run: |
-          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
-          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
+          .flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
+          .flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
