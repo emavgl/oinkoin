@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
@@ -30,17 +29,19 @@ class EditRecordPage extends StatefulWidget {
   final Record? passedRecord;
   final Category? passedCategory;
   final RecurrentRecordPattern? passedReccurrentRecordPattern;
+  final bool readOnly;
 
   EditRecordPage(
       {Key? key,
       this.passedRecord,
       this.passedCategory,
-      this.passedReccurrentRecordPattern})
+      this.passedReccurrentRecordPattern,
+      this.readOnly = false})
       : super(key: key);
 
   @override
   EditRecordPageState createState() => EditRecordPageState(this.passedRecord,
-      this.passedCategory, this.passedReccurrentRecordPattern);
+      this.passedCategory, this.passedReccurrentRecordPattern, this.readOnly);
 }
 
 class EditRecordPageState extends State<EditRecordPage> {
@@ -51,6 +52,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Record? passedRecord;
   Category? passedCategory;
+  bool readOnly = false;
   RecurrentRecordPattern? passedReccurrentRecordPattern;
 
   RecurrentPeriod? recurrentPeriod;
@@ -61,7 +63,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   late bool enableRecordNameSuggestions;
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
-      this.passedReccurrentRecordPattern);
+      this.passedReccurrentRecordPattern, this.readOnly);
 
   static final dropDownList = [
     new DropdownMenuItem<int>(
@@ -237,6 +239,9 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createAddNoteCard() {
+    if (readOnly && record!.description == null) {
+      return Container();
+    }
     return Card(
       elevation: 1,
       child: Container(
@@ -250,8 +255,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                   record!.description = text;
                 });
               },
+              enabled: !readOnly,
               style: TextStyle(
                 fontSize: 22.0,
+                color: Theme.of(context).colorScheme.onSurface
               ),
               initialValue: record!.description,
               maxLines: null,
@@ -280,6 +287,7 @@ class EditRecordPageState extends State<EditRecordPage> {
             return Semantics(
               identifier: 'record-name-field',
               child: TextFormField(
+                  enabled: !readOnly,
                   controller: controller,
                   focusNode: focusNode,
                   onChanged: (text) {
@@ -289,6 +297,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   },
                   style: TextStyle(
                     fontSize: 22.0,
+                      color: Theme.of(context).colorScheme.onSurface
                   ),
                   maxLines: 1,
                   keyboardType: TextInputType.text,
@@ -332,6 +341,9 @@ class EditRecordPageState extends State<EditRecordPage> {
           child: Column(children: [
             InkWell(
               onTap: () async {
+                if (readOnly) {
+                  return; // do nothing
+                }
                 var selectedCategory = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -372,24 +384,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
-  // Helper function to build the overlay icon container
-  Widget _buildOverlayIcon(BuildContext context, IconData overlayIcon) {
-    return Container(
-      margin: EdgeInsets.only(left: 32, top: 22),
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Theme.of(context).colorScheme.surface,
-      ),
-      child: Icon(
-        overlayIcon,
-        size: 15,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-    );
-  }
-
   goToPremiumSplashScreen() async {
     await Navigator.push(
       context,
@@ -408,6 +402,9 @@ class EditRecordPageState extends State<EditRecordPage> {
                 identifier: 'date-field',
                 child: InkWell(
                     onTap: () async {
+                      if (readOnly) {
+                        return; // do nothing!
+                      }
                       FocusScope.of(context).unfocus();
                       DateTime initialDate = record!.dateTime ?? DateTime.now();
                       DateTime? result = await showDatePicker(
@@ -583,6 +580,7 @@ class EditRecordPageState extends State<EditRecordPage> {
             child: Semantics(
               identifier: 'amount-field',
               child: TextFormField(
+                  enabled: !readOnly,
                   controller: _textEditingController,
                   autofocus: record!.value == null,
                   onChanged: (text) {
@@ -674,10 +672,14 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   AppBar _getAppBar() {
-    return AppBar(title: Text('Edit record'.i18n), actions: <Widget>[
+    return AppBar(
+        title: Text(
+          readOnly ? 'View record'.i18n : 'Edit record'.i18n,
+        ), actions: <Widget>[
       Visibility(
-          visible: widget.passedRecord != null ||
-              widget.passedReccurrentRecordPattern != null,
+          visible:
+            (widget.passedRecord != null ||
+            widget.passedReccurrentRecordPattern != null) && !readOnly,
           child: IconButton(
               icon: Semantics(
                   identifier: "delete-button",
@@ -748,7 +750,9 @@ class EditRecordPageState extends State<EditRecordPage> {
       appBar: _getAppBar(),
       resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(child: _getForm()),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: readOnly
+          ? null
+          : FloatingActionButton(
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
             if (isARecurrentPattern()) {
@@ -760,10 +764,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                 id: recurrentPatternId,
               );
             } else {
-              // it is a normal record, either single or it comes from a
+              // It is a normal record, either single or it comes from a
               // recurrent pattern. When saving the record, we need
               // to add/update the single instance and never touch the pattern
-              // from this page
+              // from this page.
               await addOrUpdateRecord();
             }
           }
@@ -775,4 +779,5 @@ class EditRecordPageState extends State<EditRecordPage> {
       ),
     );
   }
+
 }

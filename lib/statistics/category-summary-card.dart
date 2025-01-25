@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/statistics/records-statistic-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
@@ -87,9 +88,6 @@ class CategorySummaryCard extends StatelessWidget {
                 )));
           },
           onTap: () async {
-            if (record.aggregatedValues == 1) {
-              return;
-            }
             if (aggregationMethod == AggregationMethod.MONTH) {
               var formatter = DateFormat("yy/MM");
               var categoryRecords = records
@@ -110,6 +108,8 @@ class CategorySummaryCard extends StatelessWidget {
                           from, to, categoryRecords, AggregationMethod.DAY)));
             }
             if (aggregationMethod == AggregationMethod.DAY) {
+              // Tapped on a day aggregated record
+              // -> show a page of the included records
               var categoryRecords = records
                   .where((element) =>
                       element!.dateTime!.day == record.dateTime!.day)
@@ -120,7 +120,18 @@ class CategorySummaryCard extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => RecordsStatisticPage(from, to,
-                          categoryRecords, AggregationMethod.CUSTOM)));
+                          categoryRecords, AggregationMethod.NOT_AGGREGATED)));
+            }
+            if (aggregationMethod == AggregationMethod.NOT_AGGREGATED) {
+              // Tapped on a single-record, show it in edit record page
+              // as readonly
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EditRecordPage(
+                        passedRecord: record,
+                        readOnly: true,
+                  )));
             }
           },
           title: Container(
@@ -196,7 +207,7 @@ class CategorySummaryCard extends StatelessWidget {
                     child: Text(
                       "Entries for category: ".i18n +
                           category!.name! +
-                          (aggregationMethod != AggregationMethod.CUSTOM
+                          (aggregationMethod != AggregationMethod.NOT_AGGREGATED
                               ? (" (per " +
                                   (aggregationMethod == AggregationMethod.MONTH
                                       ? "Month".i18n

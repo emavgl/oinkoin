@@ -57,7 +57,7 @@ DateTime? truncateDateTime(
     case AggregationMethod.YEAR:
       newDateTime = new DateTime(dateTime!.year);
       break;
-    case AggregationMethod.CUSTOM:
+    case AggregationMethod.NOT_AGGREGATED:
       newDateTime = dateTime;
       break;
   }
@@ -89,7 +89,7 @@ List<Record?> aggregateRecordsByDateAndCategory(
   /// Record Day 1: 100 euro Food, 20 euro Food, 30 euro Transport
   /// Record Day 1: 120 euro food, 30 euro transports.
   /// Available grouping: by day, month, year.
-  if (aggregationMethod == AggregationMethod.CUSTOM)
+  if (aggregationMethod == AggregationMethod.NOT_AGGREGATED)
     return records; // don't aggregate
   List<Record?> newAggregatedRecords = [];
   Map<DateTime?, List<Record?>> mapDateTimeRecords = groupBy(records,
