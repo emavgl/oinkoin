@@ -14,6 +14,8 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../settings/constants/preferences-keys.dart';
+import '../settings/preferences-utils.dart';
 import 'database/database-interface.dart';
 import 'package:crypto/crypto.dart';
 
@@ -103,8 +105,10 @@ class BackupService {
   /// Returns true if the latest backup was created more than 1 hour ago, false otherwise.
   static Future<bool> shouldCreateAutomaticBackup() async {
     var prefs = await SharedPreferences.getInstance();
-    bool enableAutomaticBackup =
-        prefs.getBool("enableAutomaticBackup") ?? false;
+
+    // Use PreferencesUtils for enableAutomaticBackup
+    bool enableAutomaticBackup = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableAutomaticBackup)!;
 
     if (!enableAutomaticBackup) {
       log("No automatic backup set");
@@ -123,22 +127,29 @@ class BackupService {
     return now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
   }
 
-  /// Creates an automatic backup, given the settings in the preferences
+  /// Creates an automatic backup, given the settings in the preferences.
   static Future<bool> createAutomaticBackup() async {
     var prefs = await SharedPreferences.getInstance();
-    bool enableAutomaticBackup =
-        prefs.getBool("enableAutomaticBackup") ?? false;
+
+    // Retrieve preferences using PreferencesUtils
+    bool enableAutomaticBackup = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableAutomaticBackup)!;
     if (!enableAutomaticBackup) {
       log("No automatic backup set");
       return false;
     }
-    bool enableEncryptedBackup =
-        prefs.getBool("enableEncryptedBackup") ?? false;
-    String? backupPassword = prefs.getString("backupPassword") ?? null;
-    bool enableVersionAndDateInBackupName =
-        prefs.getBool("enableVersionAndDateInBackupName") ?? true;
-    String? filename =
-        !enableVersionAndDateInBackupName ? await getDefaultFileName() : null;
+
+    bool enableEncryptedBackup = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableEncryptedBackup)!;
+    String? backupPassword = PreferencesUtils.getOrDefault<String?>(
+        prefs, PreferencesKeys.backupPassword);
+    bool enableVersionAndDateInBackupName = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableVersionAndDateInBackupName)!;
+
+    String? filename = !enableVersionAndDateInBackupName
+        ? await getDefaultFileName()
+        : null;
+
     try {
       File backupFile = await BackupService.createJsonBackupFile(
           backupFileName: filename,
@@ -151,20 +162,26 @@ class BackupService {
     }
   }
 
+  /// Removes old automatic backups based on the retention policy.
   static Future<bool> removeOldAutomaticBackups() async {
     var prefs = await SharedPreferences.getInstance();
-    bool enableEncryptedBackup =
-        prefs.getBool("enableEncryptedBackup") ?? false;
-    var backupRetentionIntervalIndex =
-        prefs.getInt("backupRetentionIntervalIndex");
+
+    // Retrieve preferences using PreferencesUtils
+    bool enableEncryptedBackup = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableEncryptedBackup)!;
+    int? backupRetentionIntervalIndex = PreferencesUtils.getOrDefault<int?>(
+        prefs, PreferencesKeys.backupRetentionIntervalIndex);
+
     if (enableEncryptedBackup && backupRetentionIntervalIndex != null) {
-      var period = BackupRetentionPeriod.values[backupRetentionIntervalIndex];
+      var period =
+      BackupRetentionPeriod.values[backupRetentionIntervalIndex];
       if (period != BackupRetentionPeriod.ALWAYS) {
         return await removeOldBackups(period, Directory(DEFAULT_STORAGE_DIR));
       }
     }
     return false;
   }
+
 
   /// Imports data from a backup file. If an encryption password is provided,
   /// it attempts to decrypt the file content before importing.

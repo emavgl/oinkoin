@@ -9,7 +9,9 @@ import 'package:piggybank/models/records-per-day.dart';
 import 'package:intl/number_symbols.dart';
 import '../services/database/database-interface.dart';
 import '../services/service-config.dart';
+import '../settings/constants/preferences-keys.dart';
 import '../settings/homepage-time-interval.dart';
+import '../settings/preferences-utils.dart';
 import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
@@ -46,53 +48,28 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   return movementsDayList;
 }
 
-bool localeExists(String? localeName) {
-  if (localeName == null) return false;
-  return numberFormatSymbols.containsKey(localeName);
-}
-
-String getLocaleGroupingSeparator() {
-  String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
-  NumberFormat currencyLocaleNumberFormat =
-      new NumberFormat.currency(locale: existingCurrencyLocale);
-  return currencyLocaleNumberFormat.symbols.GROUP_SEP;
-}
-
-String getLocaleDecimalSeparator() {
-  String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
-  NumberFormat currencyLocaleNumberFormat =
-      new NumberFormat.currency(locale: existingCurrencyLocale);
-  return currencyLocaleNumberFormat.symbols.DECIMAL_SEP;
-}
-
-String? getUserDefinedGroupingSeparator() {
-  return ServiceConfig.sharedPreferences!.getString("groupSeparator");
-}
-
 String getGroupingSeparator() {
-  String s = ServiceConfig.sharedPreferences!.getString("groupSeparator") ??
-      getLocaleGroupingSeparator();
-  return s;
+  return PreferencesUtils.getOrDefault<String>(
+      ServiceConfig.sharedPreferences!, PreferencesKeys.groupSeparator)!;
 }
 
 String getDecimalSeparator() {
-  String s = ServiceConfig.sharedPreferences!.getString("decimalSeparator") ??
-      getLocaleDecimalSeparator();
-  return s;
+  return PreferencesUtils.getOrDefault<String>(
+      ServiceConfig.sharedPreferences!, PreferencesKeys.decimalSeparator)!;
 }
 
 bool getOverwriteDotValue() {
   if (getDecimalSeparator() == ".") return false;
-  return ServiceConfig.sharedPreferences
-          ?.getBool("overwriteDotValueWithComma") ??
-      getDecimalSeparator() == ",";
+  return PreferencesUtils.getOrDefault<bool>(
+      ServiceConfig.sharedPreferences!,
+      PreferencesKeys.overwriteDotValueWithComma)!;
 }
 
 bool getOverwriteCommaValue() {
   if (getDecimalSeparator() == ",") return false;
-  return ServiceConfig.sharedPreferences
-          ?.getBool("overwriteCommaValueWithDot") ??
-      getDecimalSeparator() == ".";
+  return PreferencesUtils.getOrDefault<bool>(
+      ServiceConfig.sharedPreferences!,
+      PreferencesKeys.overwriteCommaValueWithDot)!;
 }
 
 Locale getCurrencyLocale() {
@@ -112,10 +89,11 @@ NumberFormat getNumberFormatWithCustomizations(
     {turnOffGrouping = false, locale}) {
   NumberFormat? numberFormat;
 
-  String? userDefinedGroupSeparator =
-      ServiceConfig.sharedPreferences?.getString("groupSeparator");
-  int decimalDigits =
-      ServiceConfig.sharedPreferences?.getInt("numDecimalDigits") ?? 2;
+  String? userDefinedGroupSeparator = PreferencesUtils.getOrDefault<String?>(
+      ServiceConfig.sharedPreferences!, PreferencesKeys.groupSeparator);
+
+  int decimalDigits = PreferencesUtils.getOrDefault<int>(
+      ServiceConfig.sharedPreferences!, PreferencesKeys.numberDecimalDigits)!;
 
   try {
     if (locale == null) {
@@ -286,12 +264,15 @@ Future<List<Record?>> getRecordsByYear(
   return await getRecordsByInterval(database, _from, _to);
 }
 
+HomepageTimeInterval getUserDefinedHomePageInterval() {
+  var userDefinedHomepageIntervalIndex = PreferencesUtils.getOrDefault<int>(
+      ServiceConfig.sharedPreferences!,
+      PreferencesKeys.homepageTimeInterval)!;
+  return HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+}
+
 String getHeaderForUserDefinedInterval() {
-  var userDefinedHomepageIntervalIndex =
-      ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval") ??
-          HomepageTimeInterval.CurrentMonth.index;
-  HomepageTimeInterval userDefinedInterval =
-      HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+  var userDefinedInterval = getUserDefinedHomePageInterval();
   DateTime _now = DateTime.now();
   switch (userDefinedInterval) {
     case HomepageTimeInterval.CurrentMonth:
@@ -305,11 +286,7 @@ String getHeaderForUserDefinedInterval() {
 
 Future<List<DateTime>> getUserDefinedInterval(
     DatabaseInterface database) async {
-  var userDefinedHomepageIntervalIndex =
-      ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval") ??
-          HomepageTimeInterval.CurrentMonth.index;
-  HomepageTimeInterval userDefinedInterval =
-      HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+  var userDefinedInterval = getUserDefinedHomePageInterval();
   DateTime _now = DateTime.now();
   switch (userDefinedInterval) {
     case HomepageTimeInterval.CurrentMonth:
@@ -333,11 +310,7 @@ Future<List<DateTime>> getUserDefinedInterval(
 
 Future<List<Record?>> getRecordsByUserDefinedInterval(
     DatabaseInterface database) async {
-  var userDefinedHomepageIntervalIndex =
-      ServiceConfig.sharedPreferences?.getInt("homepageTimeInterval") ??
-          HomepageTimeInterval.CurrentMonth.index;
-  HomepageTimeInterval userDefinedInterval =
-      HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
+  var userDefinedInterval = getUserDefinedHomePageInterval();
   DateTime _now = DateTime.now();
   switch (userDefinedInterval) {
     case HomepageTimeInterval.CurrentMonth:

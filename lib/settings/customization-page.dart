@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:piggybank/settings/backup-retention-period.dart';
-import 'package:piggybank/settings/homepage-time-interval.dart';
+import 'package:piggybank/settings/components/setting-separator.dart';
+import 'package:piggybank/settings/constants/preferences-options.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/style.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 
-import '../premium/util-widgets.dart';
 import 'dropdown-customization-item.dart';
 
 class CustomizationPage extends StatefulWidget {
@@ -18,210 +19,167 @@ class CustomizationPage extends StatefulWidget {
 }
 
 class CustomizationPageState extends State<CustomizationPage> {
-  static String getKeyFromObject<T>(Map<String, T> originalMap, T? searchValue,
-      {String? defaultKey}) {
-    final invertedMap = originalMap.map((key, value) => MapEntry(value, key));
-    if (invertedMap.containsKey(searchValue)) {
-      return invertedMap[searchValue]!;
-    }
-    if (defaultKey != null) {
-      return defaultKey;
-    }
-    return invertedMap.values.first;
+
+  late SharedPreferences prefs;
+
+  static String getKeyFromObject<T>(Map<String, T> originalMap, T? searchValue, {String? defaultKey}) {
+    return originalMap.entries
+        .firstWhere((entry) => entry.value == searchValue,
+          orElse: () => MapEntry(defaultKey ?? originalMap.keys.first, searchValue as T))
+        .key;
   }
+
+  T getPreferenceValue<T>(String key, T defaultValue) {
+    if (T == int) {
+      return (prefs.getInt(key) ?? defaultValue) as T;
+    } else if (T == String) {
+      return (prefs.getString(key) ?? defaultValue) as T;
+    } else if (T == bool) {
+      return (prefs.getBool(key) ?? defaultValue) as T;
+    }
+    throw UnsupportedError("Unsupported preference type for key: $key");
+  }
+
+  // Init
 
   Future<void> initializePreferences() async {
     prefs = await SharedPreferences.getInstance();
     await fetchAllThePreferences();
   }
 
-  fetchAllThePreferences() async {
+  Future<void> fetchAllThePreferences() async {
+    await fetchThemePreferences();
+    await fetchLanguagePreferences();
+    await fetchNumberFormattingPreferences();
+    await fetchAppLockPreferences();
+    await fetchMiscPreferences();
+  }
+
+  // All fetch preferences methods
+
+  Future<void> fetchAppLockPreferences() async {
+    var auth = LocalAuthentication();
+    appLockIsAvailable = await auth.isDeviceSupported();
+    enableAppLock = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableAppLock)!;
+  }
+
+  Future<void> fetchThemePreferences() async {
     // Get theme color
-    int themeColorDropdownValueIndex = prefs.getInt('themeColor') ?? 0;
+    int themeColorIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.themeColor)!;
+
     themeColorDropdownKey = getKeyFromObject<int>(
-        themeColorDropdownValues, themeColorDropdownValueIndex);
+        PreferencesOptions.themeColorDropdown, themeColorIndex);
 
     // Get theme style
-    int themeStyleDropdownValueIndex = prefs.getInt('themeMode') ?? 0;
+    int themeStyleIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.themeMode)!;
+
     themeStyleDropdownKey = getKeyFromObject<int>(
-        themeStyleDropdownValues, themeStyleDropdownValueIndex);
+        PreferencesOptions.themeStyleDropdown, themeStyleIndex);
+  }
 
-    // Get languageLocale
-    var userDefinedLanguageLocale = prefs.getString("languageLocale");
+  Future<void> fetchLanguagePreferences() async {
+    var userDefinedLanguageLocale = PreferencesUtils.getOrDefault<String?>(
+        prefs, PreferencesKeys.languageLocale);
+
     languageDropdownKey = getKeyFromObject<String>(
-        languageToLocaleTranslation, userDefinedLanguageLocale);
+        PreferencesOptions.languageDropdown, userDefinedLanguageLocale);
+  }
 
+  Future<void> fetchNumberFormattingPreferences() async {
     // Get Number of decimal digits
-    decimalDigitsValueDropdownKey =
-        (prefs.getInt('numDecimalDigits') ?? 2).toString();
+    decimalDigitsValueDropdownKey = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.numberDecimalDigits)
+        .toString();
 
     // Decimal separator
-    var usedDefinedDecimalSeparatorValue =
-        prefs.getString("decimalSeparator") ?? getLocaleDecimalSeparator();
+    var usedDefinedDecimalSeparatorValue = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.decimalSeparator);
+
     decimalSeparatorDropdownKey = getKeyFromObject<String>(
-        decimalSeparatorValues, usedDefinedDecimalSeparatorValue);
+        PreferencesOptions.decimalSeparators, usedDefinedDecimalSeparatorValue);
 
     // Grouping separator
-    var usedDefinedGroupSeparatorValue =
-        prefs.getString("groupSeparator") ?? getLocaleGroupingSeparator();
-    if (!groupSeparatorsValues.containsValue(usedDefinedGroupSeparatorValue)) {
-      // It may happen with unsupported locales (persian)
-      groupSeparatorsValues[usedDefinedGroupSeparatorValue] =
+    String usedDefinedGroupSeparatorValue = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.groupSeparator)!;
+
+    if (!PreferencesOptions.groupSeparators
+        .containsValue(usedDefinedGroupSeparatorValue)) {
+      // Handle unsupported locales (e.g., Persian)
+      PreferencesOptions.groupSeparators[usedDefinedGroupSeparatorValue] =
           usedDefinedGroupSeparatorValue;
     }
+
     groupSeparatorDropdownKey = getKeyFromObject<String>(
-        groupSeparatorsValues, usedDefinedGroupSeparatorValue);
-    allowedGroupSeparatorsValues = Map.from(groupSeparatorsValues);
+        PreferencesOptions.groupSeparators, usedDefinedGroupSeparatorValue);
+
+    allowedGroupSeparatorsValues = Map.from(PreferencesOptions.groupSeparators);
     allowedGroupSeparatorsValues.remove(decimalSeparatorDropdownKey);
 
     // Overwrite dot
-    overwriteDotValueWithComma = prefs.getBool("overwriteDotValueWithComma") ??
-        getDecimalSeparator() == ",";
+    overwriteDotValueWithComma = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.overwriteDotValueWithComma)!;
 
     // Overwrite comma
-    overwriteCommaValueWithDot = prefs.getBool("overwriteCommaValueWithDot") ??
-        getDecimalSeparator() == ".";
-
-    // Record's name suggestions
-    enableRecordNameSuggestions =
-        prefs.getBool("enableRecordNameSuggestions") ?? true;
-
-    // App Lock
-    var auth = LocalAuthentication();
-    appLockIsAvailable = await auth.isDeviceSupported();
-    enableAppLock =
-        prefs.getBool("enableAppLock") ?? false;
-
-    // Homepage time interval
-    var userDefinedHomepageInterval = prefs.getInt("homepageTimeInterval") ??
-        HomepageTimeInterval.CurrentMonth.index;
-    homepageTimeIntervalValue = getKeyFromObject<int>(
-        homepageTimeIntervalValues, userDefinedHomepageInterval);
-
-    // Backup related
-    enableAutomaticBackup = prefs.getBool("enableAutomaticBackup") ?? false;
-    var backupRetentionIntervalIndex =
-        prefs.getInt("backupRetentionIntervalIndex") ??
-            BackupRetentionPeriod.ALWAYS.index;
-    backupRetentionPeriodValue = getKeyFromObject<int>(
-        backupRetentionPeriodsValues, backupRetentionIntervalIndex);
-    backupPassword = prefs.getString("backupPassword") ?? "";
-    backupFolderPath = prefs.getString("backupFolderPath");
+    overwriteCommaValueWithDot = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.overwriteCommaValueWithDot)!;
   }
 
-  late SharedPreferences prefs;
+  Future<void> fetchMiscPreferences() async {
+    // Record's name suggestions
+    enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableRecordNameSuggestions)!;
+
+    // Homepage time interval
+    var userDefinedHomepageInterval = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.homepageTimeInterval);
+
+    homepageTimeIntervalValue = getKeyFromObject<int>(
+        PreferencesOptions.homepageTimeInterval, userDefinedHomepageInterval);
+  }
 
   // Style dropdown
-  Map<String, int> themeStyleDropdownValues = {
-    "System".i18n: 0,
-    "Light".i18n: 1,
-    "Dark".i18n: 2
-  };
   late String themeStyleDropdownKey;
 
-  // Theme color dropdown
-  Map<String, int> themeColorDropdownValues = {
-    "Default".i18n: 0,
-    "System".i18n: 1,
-    "Monthly Image".i18n: 2
-  };
+  // Theme color
   late String themeColorDropdownKey;
 
-  // Language dropdown
-  Map<String, String> languageToLocaleTranslation = {
-    "System".i18n: "system",
-    "Arabic (Saudi Arabia)": "ar_SA",
-    "Deutsch": "de_DE",
-    "English (US)": "en_US",
-    "English (UK)": "en_GB",
-    "Español": "es_ES",
-    "Français": "fr_FR",
-    "hrvatski (Hrvatska)": "hr_HR",
-    "Italiano": "it_IT",
-    "ଓଡ଼ିଆ (ଭାରତ)": "or_IN",
-    "polski (Polska)": "pl_PL",
-    "Português (Brazil)": "pt_BR",
-    "Português (Portugal)": "pt_PT",
-    "Pусский язык": "ru_RU",
-    "Türkçe": "tr_TR",
-    "தமிழ் (இந்தியா)": "ta_IN",
-    "Україна": "uk_UA",
-    "Veneto": "vec_IT",
-    "简化字": "zh_CN",
-  };
+  // Language
   late String languageDropdownKey;
 
-  // Decimal digits
-  Map<String, int> decimalDigitsValues = {
-    "0": 0,
-    "1": 1,
-    "2": 2,
-    "3": 3,
-    "4": 4,
-  };
-  late String decimalDigitsValueDropdownKey;
-
-  // Group separator
-  Map<String, String> groupSeparatorsValues = {
-    "none".i18n: "",
-    "dot".i18n: ".",
-    "comma".i18n: ",",
-    "space".i18n: "\u00A0",
-    "underscore".i18n: "_",
-    "apostrophe".i18n: "'",
-  };
-  late Map<String, String> allowedGroupSeparatorsValues;
-  late String groupSeparatorDropdownKey;
-
   // Time Interval
-  Map<String, int> homepageTimeIntervalValues = {
-    "Records of the current month".i18n:
-        HomepageTimeInterval.CurrentMonth.index,
-    "Records of the current year".i18n: HomepageTimeInterval.CurrentYear.index,
-    "All records".i18n: HomepageTimeInterval.All.index,
-  };
   late String homepageTimeIntervalValue;
 
-  // Decimal separator
-  Map<String, String> decimalSeparatorValues = {
-    "dot".i18n: ".",
-    "comma".i18n: ",",
-  };
+  // Number formatting
+  late String decimalDigitsValueDropdownKey;
   late String decimalSeparatorDropdownKey;
-
   late bool overwriteDotValueWithComma;
   late bool overwriteCommaValueWithDot;
   late bool enableRecordNameSuggestions;
+  late Map<String, String> allowedGroupSeparatorsValues;
+  late String groupSeparatorDropdownKey;
 
+  // Locks
   late bool appLockIsAvailable;
   late bool enableAppLock;
 
-  // Backup related
-  Map<String, int> backupRetentionPeriodsValues = {
-    "Never delete".i18n: BackupRetentionPeriod.ALWAYS.index,
-    "Weekly".i18n: BackupRetentionPeriod.WEEK.index,
-    "Monthly".i18n: BackupRetentionPeriod.MONTH.index,
-  };
-  late bool enableAutomaticBackup;
-  late String backupRetentionPeriodValue;
-  late String? backupFolderPath;
-  late String backupPassword;
-
-  void invalidateNumberPatternCache() {
+  static void invalidateNumberPatternCache() {
     ServiceConfig.currencyNumberFormat = null;
     ServiceConfig.currencyNumberFormatWithoutGrouping = null;
   }
 
-  void invalidateOverwritePreferences() async {
+  static void invalidateOverwritePreferences() async {
     if (ServiceConfig.sharedPreferences!
-        .containsKey("overwriteDotValueWithComma")) {
+        .containsKey(PreferencesKeys.overwriteDotValueWithComma)) {
       await ServiceConfig.sharedPreferences
-          ?.remove("overwriteDotValueWithComma");
+          ?.remove(PreferencesKeys.overwriteDotValueWithComma);
     }
     if (ServiceConfig.sharedPreferences!
-        .containsKey("overwriteCommaValueWithDot")) {
+        .containsKey(PreferencesKeys.overwriteCommaValueWithDot)) {
       await ServiceConfig.sharedPreferences
-          ?.remove("overwriteCommaValueWithDot");
+          ?.remove(PreferencesKeys.overwriteCommaValueWithDot);
     }
   }
 
@@ -238,39 +196,42 @@ class CustomizationPageState extends State<CustomizationPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
+                    SettingSeparator(title: "Localization".i18n),
+                    DropdownCustomizationItem(
+                      title: "Language".i18n,
+                      subtitle: "Select the app language".i18n +
+                          " - " +
+                          "Require App restart".i18n,
+                      dropdownValues: PreferencesOptions.languageDropdown,
+                      selectedDropdownKey: languageDropdownKey,
+                      sharedConfigKey: PreferencesKeys.languageLocale,
+                    ),
+                    SettingSeparator(title: "Appearance".i18n),
                     DropdownCustomizationItem(
                       title: "Colors".i18n,
                       subtitle: "Select the app theme color".i18n +
                           " - " +
                           "Require App restart".i18n,
-                      dropdownValues: themeColorDropdownValues,
+                      dropdownValues: PreferencesOptions.themeColorDropdown,
                       selectedDropdownKey: themeColorDropdownKey,
-                      sharedConfigKey: "themeColor",
+                      sharedConfigKey: PreferencesKeys.themeColor,
                     ),
                     DropdownCustomizationItem(
                       title: "Theme style".i18n,
                       subtitle: "Select the app theme style".i18n +
                           " - " +
                           "Require App restart".i18n,
-                      dropdownValues: themeStyleDropdownValues,
+                      dropdownValues: PreferencesOptions.themeStyleDropdown,
                       selectedDropdownKey: themeStyleDropdownKey,
-                      sharedConfigKey: "themeMode",
+                      sharedConfigKey: PreferencesKeys.themeMode,
                     ),
-                    DropdownCustomizationItem(
-                      title: "Language".i18n,
-                      subtitle: "Select the app language".i18n +
-                          " - " +
-                          "Require App restart".i18n,
-                      dropdownValues: languageToLocaleTranslation,
-                      selectedDropdownKey: languageDropdownKey,
-                      sharedConfigKey: "languageLocale",
-                    ),
+                    SettingSeparator(title: "Number & Formatting".i18n),
                     DropdownCustomizationItem(
                       title: "Decimal digits".i18n,
                       subtitle: "Select the number of decimal digits".i18n,
-                      dropdownValues: decimalDigitsValues,
+                      dropdownValues: PreferencesOptions.decimalDigits,
                       selectedDropdownKey: decimalDigitsValueDropdownKey,
-                      sharedConfigKey: "numDecimalDigits",
+                      sharedConfigKey: PreferencesKeys.numberDecimalDigits,
                       onChanged: () {
                         invalidateNumberPatternCache();
                       },
@@ -278,9 +239,9 @@ class CustomizationPageState extends State<CustomizationPage> {
                     DropdownCustomizationItem(
                         title: "Decimal separator".i18n,
                         subtitle: "Select the decimal separator".i18n,
-                        dropdownValues: decimalSeparatorValues,
+                        dropdownValues: PreferencesOptions.decimalSeparators,
                         selectedDropdownKey: decimalSeparatorDropdownKey,
-                        sharedConfigKey: "decimalSeparator",
+                        sharedConfigKey: PreferencesKeys.decimalSeparator,
                         onChanged: () {
                           invalidateNumberPatternCache();
                           invalidateOverwritePreferences();
@@ -299,7 +260,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                       subtitle: "Select the grouping separator".i18n,
                       dropdownValues: allowedGroupSeparatorsValues,
                       selectedDropdownKey: groupSeparatorDropdownKey,
-                      sharedConfigKey: "groupSeparator",
+                      sharedConfigKey: PreferencesKeys.groupSeparator,
                       onChanged: () {
                         invalidateNumberPatternCache();
                       },
@@ -311,7 +272,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                         subtitle:
                             "When typing `dot`, it types `comma` instead".i18n,
                         switchValue: overwriteDotValueWithComma,
-                        sharedConfigKey: "overwriteDotValueWithComma",
+                        sharedConfigKey: PreferencesKeys.overwriteDotValueWithComma,
                       ),
                     ),
                     Visibility(
@@ -321,16 +282,17 @@ class CustomizationPageState extends State<CustomizationPage> {
                         subtitle:
                             "When typing `comma`, it types `dot` instead".i18n,
                         switchValue: overwriteCommaValueWithDot,
-                        sharedConfigKey: "overwriteCommaValueWithDot",
+                        sharedConfigKey: PreferencesKeys.overwriteCommaValueWithDot,
                       ),
                     ),
+                    SettingSeparator(title: "Additional Settings".i18n),
                     DropdownCustomizationItem(
                       title: "Homepage time interval".i18n,
                       subtitle:
                           "Define the records to show in the app homepage".i18n,
-                      dropdownValues: homepageTimeIntervalValues,
+                      dropdownValues: PreferencesOptions.homepageTimeInterval,
                       selectedDropdownKey: homepageTimeIntervalValue,
-                      sharedConfigKey: "homepageTimeInterval",
+                      sharedConfigKey: PreferencesKeys.homepageTimeInterval,
                     ),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
@@ -338,7 +300,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                           "If enabled, you get suggestions when typing the record's name"
                               .i18n,
                       switchValue: enableRecordNameSuggestions,
-                      sharedConfigKey: "enableRecordNameSuggestions",
+                      sharedConfigKey: PreferencesKeys.enableRecordNameSuggestions,
                     ),
                     Visibility(
                       visible: appLockIsAvailable,
@@ -347,11 +309,12 @@ class CustomizationPageState extends State<CustomizationPage> {
                         subtitle:
                         "App protected by PIN or biometric check".i18n,
                         switchValue: enableAppLock,
-                        sharedConfigKey: "enableAppLock",
+                        sharedConfigKey: PreferencesKeys.enableAppLock,
                         proLabel: !ServiceConfig.isPremium,
                         enabled: ServiceConfig.isPremium,
                       ),
                     ),
+                    const Divider(thickness: 1.5),
                     ListTile(
                       onTap: () {
                         setState(() {

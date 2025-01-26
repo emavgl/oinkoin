@@ -7,6 +7,8 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/shell.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:piggybank/style.dart';
@@ -78,8 +80,9 @@ class OinkoinAppState extends State<OinkoinApp> {
           Locale attemptedLocale = deviceLocale; // Get device locale
 
           // Check if user specified a locale
-          var userSpecifiedLocale =
-              ServiceConfig.sharedPreferences?.getString("languageLocale");
+          var userSpecifiedLocale = PreferencesUtils
+              .getOrDefault<String>(ServiceConfig.sharedPreferences!,
+              PreferencesKeys.languageLocale);
           if (userSpecifiedLocale != null && userSpecifiedLocale != "system") {
             var split = userSpecifiedLocale.split("_");
             if (split.length == 2) {
@@ -184,23 +187,23 @@ class OinkoinAppState extends State<OinkoinApp> {
   void checkForSettingInconsistency(Locale toSet) {
     // Custom Group Separator Inconsistency
     bool userDefinedGroupingSeparator =
-        ServiceConfig.sharedPreferences!.containsKey("groupSeparator");
+        ServiceConfig.sharedPreferences!.containsKey(PreferencesKeys.groupSeparator);
     if (userDefinedGroupingSeparator) {
       String groupingSeparatorByTheUser = getGroupingSeparator();
       if (groupingSeparatorByTheUser == getDecimalSeparator()) {
         // It may happen when a custom groupSeparator is set
         // then the app language is changed
         // in this case, reset the user preferences
-        ServiceConfig.sharedPreferences?.remove("groupSeparator");
+        ServiceConfig.sharedPreferences?.remove(PreferencesKeys.groupSeparator);
       }
     }
 
     // Replace dot with comma inconsistency
     bool userDefinedOverwriteDotWithComma = ServiceConfig.sharedPreferences!
-        .containsKey("overwriteDotValueWithComma");
+        .containsKey(PreferencesKeys.overwriteDotValueWithComma);
     if (userDefinedOverwriteDotWithComma && getDecimalSeparator() != ",") {
       // overwriteDotValueWithComma possible just when decimal separator is ,
-      ServiceConfig.sharedPreferences?.remove("overwriteDotValueWithComma");
+      ServiceConfig.sharedPreferences?.remove(PreferencesKeys.overwriteDotValueWithComma);
     }
   }
 }

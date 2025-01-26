@@ -1,6 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/settings/constants/preferences-defaults-values.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_theme/system_theme.dart';
 
@@ -23,7 +26,8 @@ class MaterialThemeInstance {
 
   static Future<ColorScheme> getColorScheme(Brightness brightness) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int dynamicColorScheme = prefs.getInt("themeColor") ?? 0;
+    int? dynamicColorScheme =
+      PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeColor);
 
     switch (dynamicColorScheme) {
       case 1:
@@ -67,8 +71,8 @@ class MaterialThemeInstance {
 
   static Future<ThemeMode> getThemeMode() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int themeModeIndex = prefs.getInt("themeMode") ?? 0;
-    themeMode = ThemeMode.values[themeModeIndex];
+    int? themeModeIndex = PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeMode);
+    themeMode = ThemeMode.values[themeModeIndex!];
     return themeMode!;
   }
 

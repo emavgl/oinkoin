@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,6 +15,7 @@ import 'package:piggybank/i18n.dart';
 import '../services/backup-service.dart';
 import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
+import 'constants/preferences-keys.dart';
 import 'dropdown-customization-item.dart';
 
 class BackupPage extends StatefulWidget {
@@ -45,20 +47,18 @@ class BackupPageState extends State<BackupPage> {
   }
 
   createAndShareBackupFile() async {
-    String? filename = await BackupService.getDefaultFileName();
-    if (enableVersionAndDateInBackupName) {
-      filename = null;
-    }
+    String? filename = enableVersionAndDateInBackupName
+        ? null
+        : await BackupService.getDefaultFileName();
     File backupFile =
-        await BackupService.createJsonBackupFile(backupFileName: filename);
+    await BackupService.createJsonBackupFile(backupFileName: filename);
     Share.shareXFiles([XFile(backupFile.path)]);
   }
 
   storeBackupFile() async {
-    String? filename = await BackupService.getDefaultFileName();
-    if (enableVersionAndDateInBackupName) {
-      filename = null;
-    }
+    String? filename = enableVersionAndDateInBackupName
+        ? null
+        : await BackupService.getDefaultFileName();
     try {
       File backupFile = await BackupService.createJsonBackupFile(
           backupFileName: filename,
@@ -66,7 +66,7 @@ class BackupPageState extends State<BackupPage> {
           encryptionPassword: enableEncryptedBackup ? backupPassword : null);
       log("${backupFile.path} successfully created");
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('File stored in ' + backupFile.path),
+        content: Text('File stored in ${backupFile.path}'),
       ));
       String? l = await BackupService.getStringDateLatestBackup();
       if (l != null) {
@@ -85,7 +85,7 @@ class BackupPageState extends State<BackupPage> {
   late String defaultDirectory;
 
   // Backup related
-  Map<String, int> backupRetentionPeriodsValues = {
+  final Map<String, int> backupRetentionPeriodsValues = {
     "Never delete".i18n: BackupRetentionPeriod.ALWAYS.index,
     "Weekly".i18n: BackupRetentionPeriod.WEEK.index,
     "Monthly".i18n: BackupRetentionPeriod.MONTH.index,
@@ -99,22 +99,25 @@ class BackupPageState extends State<BackupPage> {
   String lastBackupDataStr = "-";
 
   fetchAllThePreferences() {
-    enableVersionAndDateInBackupName =
-        prefs.getBool("enableVersionAndDateInBackupName") ?? true;
-    enableAutomaticBackup = prefs.getBool("enableAutomaticBackup") ?? false;
-    enableEncryptedBackup = prefs.getBool("enableEncryptedBackup") ?? false;
-    var backupRetentionIntervalIndex =
-        prefs.getInt("backupRetentionIntervalIndex") ??
-            BackupRetentionPeriod.ALWAYS.index;
+    enableVersionAndDateInBackupName = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableVersionAndDateInBackupName)!;
+    enableAutomaticBackup = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableAutomaticBackup)!;
+    enableEncryptedBackup = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.enableEncryptedBackup)!;
+    int backupRetentionIntervalIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.backupRetentionIntervalIndex)!;
     backupRetentionPeriodValue = getKeyFromObject<int>(
         backupRetentionPeriodsValues, backupRetentionIntervalIndex);
-    backupPassword = prefs.getString("backupPassword") ?? "";
+    backupPassword =
+        PreferencesUtils.getOrDefault<String>(prefs,
+            PreferencesKeys.backupPassword)!;
     backupFolderPath = defaultDirectory;
   }
 
   resetEnableEncryptedBackup() {
-    prefs.remove("enableEncryptedBackup");
-    prefs.remove("backupPassword");
+    prefs.remove(PreferencesKeys.enableEncryptedBackup);
+    prefs.remove(PreferencesKeys.backupPassword);
     setState(() {
       enableEncryptedBackup = false;
       backupPassword = "";
@@ -122,11 +125,13 @@ class BackupPageState extends State<BackupPage> {
   }
 
   setPasswordInPreferences(String password) {
-    prefs.setString('backupPassword', BackupService.hashPassword(password));
+    prefs.setString(
+        PreferencesKeys.backupPassword, BackupService.hashPassword(password));
   }
 
   final _textController = TextEditingController();
   bool _isOkButtonEnabled = false;
+
   Future<String?> showPasswordInputDialog(BuildContext context) async {
     return await showDialog(
       context: context,
@@ -166,7 +171,7 @@ class BackupPageState extends State<BackupPage> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.of(context).pop();
                   },
                   child: Text('Cancel'),
                 ),
@@ -200,20 +205,14 @@ class BackupPageState extends State<BackupPage> {
                 child: Column(
                   children: <Widget>[
                     SettingsItem(
-                        icon: Icon(
-                          Icons.backup,
-                          color: Colors.white,
-                        ),
+                        icon: Icon(Icons.backup, color: Colors.white),
                         iconBackgroundColor: Colors.orange.shade600,
                         title: 'Export Backup'.i18n,
                         subtitle: "Share the backup file".i18n,
                         onPressed: () async =>
                             await createAndShareBackupFile()),
                     SettingsItem(
-                        icon: Icon(
-                          Icons.save_alt,
-                          color: Colors.white,
-                        ),
+                        icon: Icon(Icons.save_alt, color: Colors.white),
                         iconBackgroundColor: Colors.lightBlue.shade600,
                         title: 'Store the Backup on disk'.i18n,
                         onPressed: () async => await storeBackupFile()),
@@ -226,11 +225,11 @@ class BackupPageState extends State<BackupPage> {
                       subtitle:
                           "Enable if you want to have encrypted backups".i18n,
                       switchValue: enableEncryptedBackup,
-                      sharedConfigKey: "enableEncryptedBackup",
+                      sharedConfigKey: PreferencesKeys.enableEncryptedBackup,
                       onChanged: (value) async {
                         if (value) {
                           String? password =
-                              await showPasswordInputDialog(context);
+                          await showPasswordInputDialog(context);
                           if (password != null) {
                             setPasswordInPreferences(password);
                           } else {
@@ -242,9 +241,10 @@ class BackupPageState extends State<BackupPage> {
                     ),
                     SwitchCustomizationItem(
                       title: "Include version and date in the name".i18n,
-                      subtitle: "File will have an unique name".i18n,
+                      subtitle: "File will have a unique name".i18n,
                       switchValue: enableVersionAndDateInBackupName,
-                      sharedConfigKey: "enableVersionAndDateInBackupName",
+                      sharedConfigKey:
+                      PreferencesKeys.enableVersionAndDateInBackupName,
                       onChanged: (value) => {
                         setState(() {
                           fetchAllThePreferences();
@@ -256,12 +256,13 @@ class BackupPageState extends State<BackupPage> {
                       enabled: ServiceConfig.isPremium,
                       subtitle: !ServiceConfig.isPremium
                           ? "Available on Oinkoin Pro".i18n
-                          : "Enable to automatic backup at every access".i18n,
+                          : "Enable to automatically backup at every access"
+                          .i18n,
                       switchValue: enableAutomaticBackup,
-                      sharedConfigKey: "enableAutomaticBackup",
+                      sharedConfigKey: PreferencesKeys.enableAutomaticBackup,
                       onChanged: (value) {
-                        if (value == false) {
-                          prefs.remove("backupRetentionIntervalIndex");
+                        if (!value) {
+                          prefs.remove(PreferencesKeys.backupRetentionIntervalIndex);
                         }
                         setState(() {
                           fetchAllThePreferences();
