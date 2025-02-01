@@ -62,18 +62,21 @@ jobs:
           submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
           submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
 
-      - name: Upload APK as Release asset
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/app/outputs/flutter-apk/app-armeabi-v7a-pro-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-pro-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-pro-release.apk
-          body: ${{ github.event.release.body }}
-          tag_name: ${{ github.event.release.tag_name }}
-
-      - name: Upload APK to Artifacts
+      - name: Upload APK app-x86_64-pro-release.apk
         uses: actions/upload-artifact@v4
         with:
-          name: apks
-          path: build/app/outputs/flutter-apk/*.apk
+          name: app-x86_64-pro-release.apk
+          path: build/app/outputs/flutter-apk/app-x86_64-pro-release.apk
+
+      - name: Upload APK app-arm64-v8a-pro-release.apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-arm64-v8a-pro-release.apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-pro-release.apk
+
+
+      - name: Upload APK app-armeabi-v7a-pro-release
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-armeabi-v7a-pro-release.apk
+          path: build/app/outputs/flutter-apk/app-armeabi-v7a-pro-release.apk
