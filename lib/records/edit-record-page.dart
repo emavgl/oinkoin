@@ -21,6 +21,9 @@ import 'package:function_tree/function_tree.dart';
 
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
+import '../settings/constants/preferences-keys.dart';
+import '../settings/preferences-utils.dart';
+
 class EditRecordPage extends StatefulWidget {
   /// EditMovementPage is a page containing forms for the editing of a Movement object.
   /// EditMovementPage can take the movement object to edit as a constructor parameters
@@ -151,9 +154,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     // Loading preferences
     bool overwriteDotValue = getOverwriteDotValue();
     bool overwriteCommaValue = getOverwriteCommaValue();
-    enableRecordNameSuggestions = ServiceConfig.sharedPreferences
-            ?.getBool("enableRecordNameSuggestions") ??
-        true;
+    enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.enableRecordNameSuggestions)!;
 
     // Loading parameters passed to the page
 

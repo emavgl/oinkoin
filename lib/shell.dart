@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For PlatformException
 import 'package:local_auth/local_auth.dart'; // Ensure this is added in pubspec.yaml
 import 'package:piggybank/records/records-page.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/settings-page.dart';
 import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,7 +25,8 @@ class ShellState extends State<Shell> {
 
   Future<bool> _authenticate() async {
     var pref = await SharedPreferences.getInstance();
-    var enableAppLock = pref.getBool("enableAppLock") ?? false;
+    var enableAppLock = PreferencesUtils.getOrDefault<bool>(
+        pref, PreferencesKeys.enableAppLock)!;
     if (enableAppLock) {
       try {
         var authResult = await auth.authenticate(
