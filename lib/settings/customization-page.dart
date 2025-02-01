@@ -53,6 +53,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     await fetchNumberFormattingPreferences();
     await fetchAppLockPreferences();
     await fetchMiscPreferences();
+    await fetchHomepagePreferences();
   }
 
   // All fetch preferences methods
@@ -127,17 +128,29 @@ class CustomizationPageState extends State<CustomizationPage> {
         prefs, PreferencesKeys.overwriteCommaValueWithDot)!;
   }
 
+  Future<void> fetchHomepagePreferences() async {
+    // Homepage time interval
+    var userDefinedHomepageIntervalEnumIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.homepageTimeInterval);
+
+    homepageTimeIntervalValue = getKeyFromObject<int>(
+        PreferencesOptions.homepageTimeInterval,
+        userDefinedHomepageIntervalEnumIndex);
+
+    // Homepage overview widget
+    var userDefinedHomepageOverviewIntervalEnumIndex = PreferencesUtils
+        .getOrDefault<int>(prefs,
+        PreferencesKeys.homepageOverviewWidgetTimeInterval);
+
+    homepageOverviewWidgetTimeInterval = getKeyFromObject<int>(
+        PreferencesOptions.homepageOverviewWidgetTimeInterval,
+        userDefinedHomepageOverviewIntervalEnumIndex);
+  }
+
   Future<void> fetchMiscPreferences() async {
     // Record's name suggestions
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableRecordNameSuggestions)!;
-
-    // Homepage time interval
-    var userDefinedHomepageInterval = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.homepageTimeInterval);
-
-    homepageTimeIntervalValue = getKeyFromObject<int>(
-        PreferencesOptions.homepageTimeInterval, userDefinedHomepageInterval);
   }
 
   // Style dropdown
@@ -149,8 +162,9 @@ class CustomizationPageState extends State<CustomizationPage> {
   // Language
   late String languageDropdownKey;
 
-  // Time Interval
+  // Homepage
   late String homepageTimeIntervalValue;
+  late String homepageOverviewWidgetTimeInterval;
 
   // Number formatting
   late String decimalDigitsValueDropdownKey;
@@ -285,7 +299,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                         sharedConfigKey: PreferencesKeys.overwriteCommaValueWithDot,
                       ),
                     ),
-                    SettingSeparator(title: "Additional Settings".i18n),
+                    SettingSeparator(title: "Homepage settings".i18n),
                     DropdownCustomizationItem(
                       title: "Homepage time interval".i18n,
                       subtitle:
@@ -294,6 +308,16 @@ class CustomizationPageState extends State<CustomizationPage> {
                       selectedDropdownKey: homepageTimeIntervalValue,
                       sharedConfigKey: PreferencesKeys.homepageTimeInterval,
                     ),
+                    DropdownCustomizationItem(
+                      title: "What should the 'Overview widget' summarize?".i18n,
+                      subtitle:
+                        "Define what to summarize".i18n + " - " +
+                      "Require App restart".i18n,
+                      dropdownValues: PreferencesOptions.homepageOverviewWidgetTimeInterval,
+                      selectedDropdownKey: homepageOverviewWidgetTimeInterval,
+                      sharedConfigKey: PreferencesKeys.homepageOverviewWidgetTimeInterval,
+                    ),
+                    SettingSeparator(title: "Additional Settings".i18n),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
                       subtitle:

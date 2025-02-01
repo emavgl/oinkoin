@@ -18,6 +18,8 @@ import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/recurrent-record-service.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/homepage-time-interval.dart';
+import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:share_plus/share_plus.dart';
 import '../helpers/records-utility-functions.dart';
@@ -37,7 +39,11 @@ class TabRecords extends StatefulWidget {
 }
 
 class TabRecordsState extends State<TabRecords> {
+
   List<Record?> records = [];
+  List<Record?>? overviewRecords = null; // it is important this to be null, meaning records will be used!
+
+
   DatabaseInterface database = ServiceConfig.database;
   String _header = "";
 
@@ -66,12 +72,23 @@ class TabRecordsState extends State<TabRecords> {
       onStateChange: _handleOnResume,
     );
     RecurrentRecordService().updateRecurrentRecords().then((_) {
-      getRecordsByUserDefinedInterval(database).then((fetchedRecords) {
+      HomepageTimeInterval recordTimeIntervalEnum = getHomepageTimeIntervalEnumSetting();
+      OverviewTimeInterval overviewTimeIntervalEnum = getHomepageOverviewWidgetTimeIntervalEnumSetting();
+      getRecordsByHomepageTimeInterval(database, recordTimeIntervalEnum).then((fetchedRecords) {
         setState(() {
           records = fetchedRecords;
-          _header = getHeaderForUserDefinedInterval();
+          _header = getHeaderFromHomepageTimeInterval(recordTimeIntervalEnum);
         });
       });
+      if (overviewTimeIntervalEnum != OverviewTimeInterval.DisplayedRecords) {
+        HomepageTimeInterval recordTimeIntervalEnum
+          = mapOverviewTimeIntervalToHomepageTimeInterval(overviewTimeIntervalEnum);
+        getRecordsByHomepageTimeInterval(database, recordTimeIntervalEnum).then((fetchedRecords) {
+          setState(() {
+            overviewRecords = fetchedRecords;
+          });
+        });
+      }
     });
   }
 
@@ -325,13 +342,15 @@ class TabRecordsState extends State<TabRecords> {
       newRecords = await getRecordsByInterval(
           database, _customIntervalFrom, _customIntervalTo);
     } else {
+      var hti = getHomepageTimeIntervalEnumSetting();
+
       // Use the pre-defined choice of the user
-      newRecords = await getRecordsByUserDefinedInterval(database);
+      newRecords = await getRecordsByHomepageTimeInterval(database, hti);
 
       // Need to change the header also here
       // Since the user can define a new settings and come back to this page
       setState(() {
-        _header = getHeaderForUserDefinedInterval();
+        _header = getHeaderFromHomepageTimeInterval(hti);
       });
     }
     setState(() {
@@ -371,7 +390,8 @@ class TabRecordsState extends State<TabRecords> {
   navigateToStatisticsPage() {
     /// Navigate to the Statistics Page
     if (_customIntervalTo == null) {
-      getUserDefinedInterval(database)
+      var hti = getHomepageTimeIntervalEnumSetting();
+      getTimeIntervalFromHomepageTimeInterval(database, hti)
           .then((userDefinedInterval) => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -434,7 +454,7 @@ class TabRecordsState extends State<TabRecords> {
                   final path = await getApplicationDocumentsDirectory();
                   var backupJsonOnDisk = File(path.path + "/records.csv");
                   await backupJsonOnDisk.writeAsString(csvStr);
-                  Share.shareFiles([backupJsonOnDisk.path]);
+                  Share.shareXFiles([XFile(backupJsonOnDisk.path)]);
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -484,7 +504,7 @@ class TabRecordsState extends State<TabRecords> {
             Container(
                 margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
                 height: 100,
-                child: DaysSummaryBox(records)),
+                child: DaysSummaryBox(overviewRecords ?? records)),
             Divider(indent: 50, endIndent: 50),
             records.length == 0
                 ? Container(

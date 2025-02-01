@@ -1,5 +1,4 @@
 import 'dart:collection';
-import "package:collection/collection.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/number_symbols_data.dart';
@@ -7,10 +6,11 @@ import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:intl/number_symbols.dart';
+import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import '../services/database/database-interface.dart';
 import '../services/service-config.dart';
 import '../settings/constants/preferences-keys.dart';
-import '../settings/homepage-time-interval.dart';
+import '../settings/constants/homepage-time-interval.dart';
 import '../settings/preferences-utils.dart';
 import 'datetime-utility-functions.dart';
 
@@ -264,17 +264,23 @@ Future<List<Record?>> getRecordsByYear(
   return await getRecordsByInterval(database, _from, _to);
 }
 
-HomepageTimeInterval getUserDefinedHomePageInterval() {
+HomepageTimeInterval getHomepageTimeIntervalEnumSetting() {
   var userDefinedHomepageIntervalIndex = PreferencesUtils.getOrDefault<int>(
       ServiceConfig.sharedPreferences!,
       PreferencesKeys.homepageTimeInterval)!;
   return HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
 }
 
-String getHeaderForUserDefinedInterval() {
-  var userDefinedInterval = getUserDefinedHomePageInterval();
+OverviewTimeInterval getHomepageOverviewWidgetTimeIntervalEnumSetting() {
+  var userDefinedHomepageIntervalIndex = PreferencesUtils.getOrDefault<int>(
+      ServiceConfig.sharedPreferences!,
+      PreferencesKeys.homepageOverviewWidgetTimeInterval)!;
+  return OverviewTimeInterval.values[userDefinedHomepageIntervalIndex];
+}
+
+String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
   DateTime _now = DateTime.now();
-  switch (userDefinedInterval) {
+  switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
       return getMonthStr(_now);
     case HomepageTimeInterval.CurrentYear:
@@ -284,11 +290,10 @@ String getHeaderForUserDefinedInterval() {
   }
 }
 
-Future<List<DateTime>> getUserDefinedInterval(
-    DatabaseInterface database) async {
-  var userDefinedInterval = getUserDefinedHomePageInterval();
+Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
+    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
   DateTime _now = DateTime.now();
-  switch (userDefinedInterval) {
+  switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
       DateTime _from = new DateTime(_now.year, _now.month, 1);
       DateTime _to = getEndOfMonth(_now.year, _now.month);
@@ -308,11 +313,23 @@ Future<List<DateTime>> getUserDefinedInterval(
   }
 }
 
-Future<List<Record?>> getRecordsByUserDefinedInterval(
-    DatabaseInterface database) async {
-  var userDefinedInterval = getUserDefinedHomePageInterval();
+HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(OverviewTimeInterval overviewTimeInterval) {
+  if (overviewTimeInterval == OverviewTimeInterval.FixAllRecords) {
+    return HomepageTimeInterval.All;
+  }
+  if (overviewTimeInterval == OverviewTimeInterval.FixCurrentYear) {
+    return HomepageTimeInterval.CurrentYear;
+  }
+  if (overviewTimeInterval == OverviewTimeInterval.FixCurrentMonth) {
+    return HomepageTimeInterval.CurrentMonth;
+  }
+  return HomepageTimeInterval.CurrentMonth;
+}
+
+Future<List<Record?>> getRecordsByHomepageTimeInterval(
+    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
   DateTime _now = DateTime.now();
-  switch (userDefinedInterval) {
+  switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
       return await getRecordsByMonth(database, _now.year, _now.month);
     case HomepageTimeInterval.CurrentYear:
@@ -320,4 +337,5 @@ Future<List<Record?>> getRecordsByUserDefinedInterval(
     case HomepageTimeInterval.All:
       return await getAllRecords(database);
   }
+
 }
