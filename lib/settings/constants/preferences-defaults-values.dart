@@ -1,9 +1,10 @@
 import 'package:intl/intl.dart';
+import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 
 import '../../services/service-config.dart';
 import '../backup-retention-period.dart';
-import '../homepage-time-interval.dart';
+import 'homepage-time-interval.dart';
 
 class PreferencesDefaultValues {
 
@@ -24,6 +25,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.enableAppLock: false, // Default to disabled
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
     PreferencesKeys.homepageTimeInterval: HomepageTimeInterval.CurrentMonth.index, // Default interval (e.g., current month)
+    PreferencesKeys.homepageOverviewWidgetTimeInterval: OverviewTimeInterval.DisplayedRecords.index, // Default interval (e.g., current month)
   };
 
   static String getLocaleGroupingSeparator() {

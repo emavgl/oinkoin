@@ -1,7 +1,8 @@
 import 'package:i18n_extension/default.i18n.dart';
+import 'package:piggybank/settings/constants/overview-time-interval.dart';
 
 import '../backup-retention-period.dart';
-import '../homepage-time-interval.dart';
+import 'homepage-time-interval.dart';
 
 class PreferencesOptions {
 
@@ -66,6 +67,14 @@ class PreferencesOptions {
     "Records of the current year".i18n: HomepageTimeInterval.CurrentYear.index,
     "All records".i18n: HomepageTimeInterval.All.index,
   };
+
+  static final Map<String, int> homepageOverviewWidgetTimeInterval = {
+    "Displayed records".i18n: OverviewTimeInterval.DisplayedRecords.index,
+    "Records of the current month".i18n: OverviewTimeInterval.FixCurrentMonth.index,
+    "Records of the current year": OverviewTimeInterval.FixCurrentYear.index,
+    "All records".i18n: OverviewTimeInterval.FixAllRecords.index,
+  };
+
 
   static final Map<String, int> backupRetentionPeriods = {
     "Never delete".i18n: BackupRetentionPeriod.ALWAYS.index,

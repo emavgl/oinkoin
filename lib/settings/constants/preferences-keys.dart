@@ -21,10 +21,14 @@ class PreferencesKeys {
   static const backupPassword = 'backupPassword';
   static const enableVersionAndDateInBackupName = 'enableVersionAndDateInBackupName';
 
+  // Homepage
+  static const homepageTimeInterval = 'homepageTimeInterval';
+  static const homepageOverviewWidgetTimeInterval = 'homepageOverviewWidgetTimeInterval';
+
   // Lock
   static const enableAppLock = 'enableAppLock';
 
   // Mics
   static const enableRecordNameSuggestions = 'enableRecordNameSuggestions';
-  static const homepageTimeInterval = 'homepageTimeInterval';
+
 }
