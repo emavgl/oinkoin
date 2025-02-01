@@ -62,16 +62,6 @@ jobs:
           submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
           submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
 
-      - name: Upload APK as Release asset
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/app/outputs/flutter-apk/app-armeabi-v7a-pro-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-pro-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-pro-release.apk
-          body: ${{ github.event.release.body }}
-          tag_name: ${{ github.event.release.tag_name }}
-
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
