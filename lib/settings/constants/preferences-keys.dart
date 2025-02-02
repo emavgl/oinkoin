@@ -24,6 +24,7 @@ class PreferencesKeys {
   // Homepage
   static const homepageTimeInterval = 'homepageTimeInterval';
   static const homepageOverviewWidgetTimeInterval = 'homepageOverviewWidgetTimeInterval';
+  static const homepageRecordNotesVisible = 'homepageRecordNotesVisibleRows';
 
   // Lock
   static const enableAppLock = 'enableAppLock';

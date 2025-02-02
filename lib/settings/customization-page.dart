@@ -145,6 +145,15 @@ class CustomizationPageState extends State<CustomizationPage> {
     homepageOverviewWidgetTimeInterval = getKeyFromObject<int>(
         PreferencesOptions.homepageOverviewWidgetTimeInterval,
         userDefinedHomepageOverviewIntervalEnumIndex);
+
+    // Note visible
+    var noteVisibleIndex = PreferencesUtils
+        .getOrDefault<int>(prefs,
+        PreferencesKeys.homepageRecordNotesVisible);
+
+    homepageRecordNotesVisible = getKeyFromObject<int>(
+        PreferencesOptions.showNotesOnHomepage,
+        noteVisibleIndex);
   }
 
   Future<void> fetchMiscPreferences() async {
@@ -165,6 +174,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   // Homepage
   late String homepageTimeIntervalValue;
   late String homepageOverviewWidgetTimeInterval;
+  late String homepageRecordNotesVisible;
 
   // Number formatting
   late String decimalDigitsValueDropdownKey;
@@ -316,6 +326,13 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues: PreferencesOptions.homepageOverviewWidgetTimeInterval,
                       selectedDropdownKey: homepageOverviewWidgetTimeInterval,
                       sharedConfigKey: PreferencesKeys.homepageOverviewWidgetTimeInterval,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Show records' notes on the homepage".i18n,
+                      subtitle: "Number of rows to display".i18n,
+                      dropdownValues: PreferencesOptions.showNotesOnHomepage,
+                      selectedDropdownKey: homepageRecordNotesVisible,
+                      sharedConfigKey: PreferencesKeys.homepageRecordNotesVisible,
                     ),
                     SettingSeparator(title: "Additional Settings".i18n),
                     SwitchCustomizationItem(

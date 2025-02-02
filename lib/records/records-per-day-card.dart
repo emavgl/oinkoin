@@ -1,11 +1,17 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:shared_preferences/src/shared_preferences_legacy.dart';
 
 import '../components/category_icon_circle.dart';
+import '../settings/constants/preferences-keys.dart';
+import '../settings/preferences-utils.dart';
 
 class RecordsPerDayCard extends StatefulWidget {
   /// RecordsCard renders a MovementPerDay object as a Card
@@ -24,8 +30,8 @@ class RecordsPerDayCard extends StatefulWidget {
 }
 
 class MovementGroupState extends State<RecordsPerDayCard> {
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-  final _trailingBiggerFont =
+  final _titleFontStyle = const TextStyle(fontSize: 18.0);
+  final _currencyFontStyle =
       const TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal);
 
   Widget _buildMovements() {
@@ -51,35 +57,57 @@ class MovementGroupState extends State<RecordsPerDayCard> {
 
   Widget _buildMovementRow(Record movement) {
     /// Returns a ListTile rendering the single movement row
+    int numberOfNoteLinesToShow = PreferencesUtils.getOrDefault<int>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.homepageRecordNotesVisible)!;
     return ListTile(
-        onTap: () async {
-          await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => EditRecordPage(
-                        passedRecord: movement,
-                      )));
-          if (widget.onListBackCallback != null)
-            await widget.onListBackCallback!();
-        },
-        title: Text(
-          movement.title == null || movement.title!.trim().isEmpty
-              ? movement.category!.name!
-              : movement.title!,
-          style: _biggerFont,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Text(
-          getCurrencyValueString(movement.value),
-          style: _trailingBiggerFont,
-        ),
-        leading: CategoryIconCircle(
-            iconEmoji: movement.category?.iconEmoji,
-            iconDataFromDefaultIconSet: movement.category?.icon,
-            backgroundColor: movement.category?.color,
-            overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null
-        ));
+      onTap: () async {
+        await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => EditRecordPage(
+                  passedRecord: movement,
+                )));
+        if (widget.onListBackCallback != null) await widget.onListBackCallback!();
+      },
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            movement.title == null || movement.title!.trim().isEmpty
+                ? movement.category!.name!
+                : movement.title!,
+            style: _titleFontStyle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (numberOfNoteLinesToShow > 0 && movement.description != null && movement.description!.trim().isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Text(
+                movement.description!,
+                style: TextStyle(
+                  fontSize: 14.0, // Slightly smaller than title
+                  color: Theme.of(context).textTheme.bodySmall?.color, // Lighter color
+                ),
+                softWrap: true,
+                maxLines: numberOfNoteLinesToShow, // if index is 4, do not wrap
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+        ],
+      ),
+      trailing: Text(
+        getCurrencyValueString(movement.value),
+        style: _currencyFontStyle,
+      ),
+      leading: CategoryIconCircle(
+        iconEmoji: movement.category?.iconEmoji,
+        iconDataFromDefaultIconSet: movement.category?.icon,
+        backgroundColor: movement.category?.color,
+        overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null,
+      ),
+    );
   }
 
   @override

@@ -82,4 +82,12 @@ class PreferencesOptions {
     "Monthly".i18n: BackupRetentionPeriod.MONTH.index,
   };
 
+  static final Map<String, int> showNotesOnHomepage = {
+    "Don't show".i18n: 0,
+    "Show at most one row".i18n: 1,
+    "Show at most two rows".i18n: 2,
+    "Show at most three rows".i18n: 3,
+    "Show all rows".i18n: 1000,
+  };
+
 }
