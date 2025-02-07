@@ -27,6 +27,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.homepageTimeInterval: HomepageTimeInterval.CurrentMonth.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageOverviewWidgetTimeInterval: OverviewTimeInterval.DisplayedRecords.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordNotesVisible: 0,
+    PreferencesKeys.statisticsUseCategoryColorsOnPieChart: false,
   };
 
   static String getLocaleGroupingSeparator() {

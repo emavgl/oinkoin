@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
 import 'package:piggybank/i18n.dart';
+
+import '../services/service-config.dart';
+import '../settings/constants/preferences-keys.dart';
+import '../settings/preferences-utils.dart';
 
 class LinearRecord {
   final String? category;
@@ -11,75 +16,116 @@ class LinearRecord {
   LinearRecord(this.category, this.value);
 }
 
+class ChartData {
+  final List<charts.Series<LinearRecord, String>> series;
+  final List<charts.Color> colors;
+
+  ChartData(this.series, this.colors);
+}
+
 class CategoriesPieChart extends StatelessWidget {
   final List<Record?> records;
-  late List<LinearRecord> linearRecords;
-  late List<charts.Series<LinearRecord, String>> seriesList;
+  late final List<LinearRecord> linearRecords;
+  late final List<charts.Series<LinearRecord, String>> seriesList;
+
+  final bool animate = true;
+  final Color otherCategoryColor = Colors.blueGrey;
+  static final categoryCount = 4;
+  static final defaultColorsPalette =
+    charts.MaterialPalette.getOrderedPalettes(categoryCount + 1)
+        .map((palette) => palette.shadeDefault).toList();
+  late final colorPalette;
 
   CategoriesPieChart(this.records) {
-    seriesList = _prepareData(records);
+    ChartData chartData = _prepareData(records);
+    seriesList = chartData.series;
+    colorPalette = chartData.colors;
   }
 
-  List<charts.Series<LinearRecord, String>> _prepareData(
-      List<Record?> records) {
-    Map<String, double> aggregatedCategoriesValuesTemporaryMap = new Map();
+  ChartData _prepareData(List<Record?> records) {
+    Map<Category, double> aggregatedCategoriesValuesTemporaryMap = {};
     double totalSum = 0;
+
     for (var record in records) {
       totalSum += record!.value!.abs();
       aggregatedCategoriesValuesTemporaryMap.update(
-          record.category!.name!, (value) => value + record.value!.abs(),
-          ifAbsent: () => record.value!.abs());
+        record.category!,
+        (value) => value + record.value!.abs(),
+        ifAbsent: () => record.value!.abs(),
+      );
     }
+
     var aggregatedCategoriesAndValues =
         aggregatedCategoriesValuesTemporaryMap.entries.toList();
-    aggregatedCategoriesAndValues
-        .sort((b, a) => a.value.compareTo(b.value)); // sort descending
+    aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
 
-    var limit = aggregatedCategoriesAndValues.length > categoryCount
-        ? categoryCount
-        : aggregatedCategoriesAndValues.length;
+    var limit =
+        aggregatedCategoriesAndValues.length > categoryCount + 1
+            ? categoryCount
+            : aggregatedCategoriesAndValues.length;
 
     var topCategoriesAndValue = aggregatedCategoriesAndValues.sublist(0, limit);
 
-    // add top categories
+    // Store data and colors
     List<LinearRecord> data = [];
+    List<Color> linearRecordsColors = [];
+
     for (var categoryAndValue in topCategoriesAndValue) {
       var percentage = (100 * categoryAndValue.value) / totalSum;
-      var lr = LinearRecord(categoryAndValue.key, percentage);
+      var lr = LinearRecord(categoryAndValue.key.name!, percentage);
       data.add(lr);
+      linearRecordsColors.add(categoryAndValue.key.color!);
     }
 
-    // if visualized categories are less than the total amount of categories
-    // aggregated the reaming category as a mock category name "Other"
+    // Handle "Others" category
     if (limit < aggregatedCategoriesAndValues.length) {
-      var remainingCategoriesAndValue =
-          aggregatedCategoriesAndValues.sublist(limit);
+      var remainingCategoriesAndValue = aggregatedCategoriesAndValues.sublist(
+        limit,
+      );
       var sumOfRemainingCategories = remainingCategoriesAndValue.fold(
-          0, (dynamic value, element) => value + element.value);
+        0,
+        (dynamic value, element) => value + element.value,
+      );
       var remainingCategoryKey = "Others".i18n;
       var percentage = (100 * sumOfRemainingCategories) / totalSum;
       var lr = LinearRecord(remainingCategoryKey, percentage);
       data.add(lr);
+      linearRecordsColors.add(otherCategoryColor);
     }
 
     linearRecords = data;
 
-    return [
-      new charts.Series<LinearRecord, String>(
-        id: 'Expenses'.i18n,
-        colorFn: (LinearRecord sales, i) => palette[i!].shadeDefault,
-        domainFn: (LinearRecord records, _) => records.category!,
-        measureFn: (LinearRecord records, _) => records.value,
-        labelAccessorFn: (LinearRecord row, _) => row.category!,
-        data: data,
-      )
-    ];
-  }
+    // Color palette to use
+    bool useCategoriesColor = PreferencesUtils.getOrDefault<bool>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.statisticsUseCategoryColorsOnPieChart)!;
+    List<charts.Color> colorsToUse = [];
+    if (useCategoriesColor) {
+      colorsToUse = linearRecordsColors.map((f) => charts.ColorUtil.fromDartColor(f)).toList();
+    } else {
+      colorsToUse = defaultColorsPalette;
+    }
 
-  bool animate = true;
-  static final categoryCount = 4;
-  static final palette =
-      charts.MaterialPalette.getOrderedPalettes(categoryCount + 1);
+    var seriesList = [
+      charts.Series<LinearRecord, String>(
+        id: 'Expenses'.i18n,
+        colorFn:
+            (LinearRecord recordsUnderCategory, i) =>
+            colorsToUse[i!],
+        domainFn:
+            (LinearRecord recordsUnderCategory, _) =>
+                recordsUnderCategory.category!,
+        measureFn:
+            (LinearRecord recordsUnderCategory, _) => recordsUnderCategory.value,
+        labelAccessorFn:
+            (LinearRecord recordsUnderCategory, _) =>
+                recordsUnderCategory.category!,
+        data: data,
+      ),
+    ];
+
+    return ChartData(seriesList, colorsToUse);
+  }
 
   Widget _buildPieChart() {
     return new Container(
@@ -99,7 +145,7 @@ class CategoriesPieChart extends StatelessWidget {
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
           var linearRecord = linearRecords[i];
-          var recordColor = palette[i].shadeDefault;
+          var recordColor = colorPalette[i];
           return Container(
               margin: EdgeInsets.fromLTRB(0, 0, 8, 8),
               child: new Row(

@@ -160,6 +160,8 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Record's name suggestions
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableRecordNameSuggestions)!;
+    statisticsUseCategoryColor = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.statisticsUseCategoryColorsOnPieChart)!;
   }
 
   // Style dropdown
@@ -188,6 +190,9 @@ class CustomizationPageState extends State<CustomizationPage> {
   // Locks
   late bool appLockIsAvailable;
   late bool enableAppLock;
+
+  // Statistics
+  late bool statisticsUseCategoryColor;
 
   static void invalidateNumberPatternCache() {
     ServiceConfig.currencyNumberFormat = null;
@@ -342,6 +347,12 @@ class CustomizationPageState extends State<CustomizationPage> {
                               .i18n,
                       switchValue: enableRecordNameSuggestions,
                       sharedConfigKey: PreferencesKeys.enableRecordNameSuggestions,
+                    ),
+                    SwitchCustomizationItem(
+                      title: "Use Category Colors in Pie Chart".i18n,
+                      subtitle: "Show categories with their own colors instead of the default palette".i18n,
+                      switchValue: statisticsUseCategoryColor,
+                      sharedConfigKey: PreferencesKeys.statisticsUseCategoryColorsOnPieChart,
                     ),
                     Visibility(
                       visible: appLockIsAvailable,
