@@ -1,0 +1,3 @@
+* Redesigned the preferences page
+* Add the possibility to define what to visualize in the overview widget
+* Add an option to visualize Record's Notes directly in the homepage
