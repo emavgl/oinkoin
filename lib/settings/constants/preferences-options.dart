@@ -92,6 +92,7 @@ class PreferencesOptions {
 
   static final Map<String, int> numberOfCategoriesForPieChart = {
     "4": 4,
+    "5": 5,
     "6": 6,
     "8": 8,
     "10": 10,

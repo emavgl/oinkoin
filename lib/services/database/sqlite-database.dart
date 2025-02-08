@@ -128,6 +128,51 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
+  Future<void> addRecordsInBatch(List<Record?> records) async {
+    final db = (await database)!;
+    Batch batch = db.batch(); // Start batch operation
+
+    for (var record in records) {
+      if (record == null) {
+        continue;
+      }
+
+      record.id = null; // Strip ID to avoid collision
+
+      batch.rawInsert("""
+      INSERT OR IGNORE INTO records (title, value, datetime, category_name, category_type, description, recurrence_id) 
+      SELECT ?, ?, ?, ?, ?, ?, ? 
+      WHERE NOT EXISTS (
+        SELECT 1 FROM records 
+        WHERE datetime = ? 
+          AND value = ? 
+          AND (title IS NULL OR title = ?) 
+          AND category_name = ? 
+          AND category_type = ?
+      )
+    """, [
+        record.title,
+        record.value,
+        record.dateTime!.millisecondsSinceEpoch,
+        record.category!.name,
+        record.category!.categoryType!.index,
+        record.description,
+        record.recurrencePatternId,
+
+        // Duplicate check values
+        record.dateTime!.millisecondsSinceEpoch,
+        record.value,
+        record.title,
+        record.category!.name,
+        record.category!.categoryType!.index,
+      ]);
+    }
+
+    await batch.commit(noResult: true); // Commit batch for performance
+  }
+
+
+  @override
   Future<Record?> getMatchingRecord(Record? record) async {
     /// Check if there are records with the same title, value, category on the same day of :record
     /// If yes, return the first match. If no, null is returned.

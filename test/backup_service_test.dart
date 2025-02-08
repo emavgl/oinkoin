@@ -186,7 +186,7 @@ void main() {
 
     expect(result, isTrue);
     verify(mockDatabase.addCategory(any)).called(categories.length);
-    verify(mockDatabase.addRecord(any)).called(records.length);
+    verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>()))).called(1);
     verify(mockDatabase.addRecurrentRecordPattern(any)).called(recurrentPatterns.length);
   });
 
@@ -204,7 +204,7 @@ void main() {
 
     expect(result, isTrue);
     verify(mockDatabase.addCategory(any)).called(categories.length);
-    verify(mockDatabase.addRecord(any)).called(records.length);
+    verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>()))).called(1);
     verify(mockDatabase.addRecurrentRecordPattern(any)).called(recurrentPatterns.length);
   });
 

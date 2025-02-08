@@ -87,6 +87,15 @@ class InMemoryDatabase implements DatabaseInterface {
   }
 
   @override
+  Future<void> addRecordsInBatch(List<Record?> records) async {
+    for (var record in records) {
+      if (record != null) {
+        addRecord(record);
+      }
+    }
+  }
+
+  @override
   @deprecated
   Future<int> addCategory(Category? category) async {
     Category foundCategory =
