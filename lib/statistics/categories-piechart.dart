@@ -4,6 +4,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/statistics/statistics-utils.dart';
 
 import '../services/service-config.dart';
 import '../settings/constants/preferences-keys.dart';
@@ -30,13 +31,17 @@ class CategoriesPieChart extends StatelessWidget {
 
   final bool animate = true;
   final Color otherCategoryColor = Colors.blueGrey;
-  static final categoryCount = 4;
-  static final defaultColorsPalette =
-    charts.MaterialPalette.getOrderedPalettes(categoryCount + 1)
-        .map((palette) => palette.shadeDefault).toList();
+  late final categoryCount;
+  late List<charts.Color> defaultColorsPalette;
   late final colorPalette;
 
   CategoriesPieChart(this.records) {
+    categoryCount = PreferencesUtils.getOrDefault<int>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
+    defaultColorsPalette = charts.MaterialPalette.getOrderedPalettes(categoryCount)
+        .map((palette) => palette.shadeDefault).toList();
+    defaultColorsPalette.add(charts.ColorUtil.fromDartColor(otherCategoryColor));
     ChartData chartData = _prepareData(records);
     seriesList = chartData.series;
     colorPalette = chartData.colors;
@@ -55,9 +60,44 @@ class CategoriesPieChart extends StatelessWidget {
       );
     }
 
+    bool useCategoriesColor = PreferencesUtils.getOrDefault<bool>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.statisticsPieChartUseCategoryColors)!;
+
     var aggregatedCategoriesAndValues =
         aggregatedCategoriesValuesTemporaryMap.entries.toList();
-    aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
+
+    if (useCategoriesColor) {
+      Map<int, double> colorSumMap = {};
+
+      for (var entry in aggregatedCategoriesValuesTemporaryMap.entries) {
+        int colorKey = getColorSortValue(entry.key.color!);
+        colorSumMap.update(colorKey, (sum) => sum + entry.value, ifAbsent: () => entry.value);
+      }
+
+      aggregatedCategoriesAndValues.sort((a, b) {
+        int colorA = getColorSortValue(a.key.color!);
+        int colorB = getColorSortValue(b.key.color!);
+
+        // Compare by total sum of the color group (Descending)
+        int totalSumComparison = colorSumMap[colorB]!.compareTo(colorSumMap[colorA]!);
+        if (totalSumComparison != 0) {
+          return totalSumComparison;
+        }
+
+        // If total sum is the same, compare by color value (Ascending)
+        int colorComparison = colorA.compareTo(colorB);
+        if (colorComparison != 0) {
+          return colorComparison;
+        }
+
+        // If color is the same, sort by individual value (Descending)
+        return b.value.compareTo(a.value);
+      });
+    } else {
+      // Default sorting by value in descending order
+      aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
+    }
 
     var limit =
         aggregatedCategoriesAndValues.length > categoryCount + 1
@@ -96,9 +136,6 @@ class CategoriesPieChart extends StatelessWidget {
     linearRecords = data;
 
     // Color palette to use
-    bool useCategoriesColor = PreferencesUtils.getOrDefault<bool>(
-        ServiceConfig.sharedPreferences!,
-        PreferencesKeys.statisticsUseCategoryColorsOnPieChart)!;
     List<charts.Color> colorsToUse = [];
     if (useCategoriesColor) {
       colorsToUse = linearRecordsColors.map((f) => charts.ColorUtil.fromDartColor(f)).toList();

@@ -90,4 +90,11 @@ class PreferencesOptions {
     "Show all rows".i18n: 1000,
   };
 
+  static final Map<String, int> numberOfCategoriesForPieChart = {
+    "4": 4,
+    "6": 6,
+    "8": 8,
+    "10": 10,
+  };
+
 }

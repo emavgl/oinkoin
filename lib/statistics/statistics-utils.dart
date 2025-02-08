@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
@@ -114,4 +116,11 @@ List<Record?> aggregateRecordsByDateAndCategory(
     }
   }
   return newAggregatedRecords;
+}
+
+int getColorSortValue(Color color) {
+  int red = (color.r * 255).toInt();
+  int green = (color.g * 255).toInt();
+  int blue = (color.b * 255).toInt();
+  return (red << 16) | (green << 8) | blue;
 }

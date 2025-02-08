@@ -33,5 +33,6 @@ class PreferencesKeys {
   static const enableRecordNameSuggestions = 'enableRecordNameSuggestions';
 
   // Statistics
-  static var statisticsUseCategoryColorsOnPieChart = "statisticsUseCategoryColorsOnPieChart";
+  static var statisticsPieChartUseCategoryColors = "statisticsPieChartUseCategoryColors";
+  static var statisticsPieChartNumberOfCategoriesToDisplay = "statisticsPieChartNumberOfCategoriesToDisplay";
 }

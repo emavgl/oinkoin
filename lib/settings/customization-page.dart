@@ -53,6 +53,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     await fetchNumberFormattingPreferences();
     await fetchAppLockPreferences();
     await fetchMiscPreferences();
+    await fetchStatisticsPreferences();
     await fetchHomepagePreferences();
   }
 
@@ -160,8 +161,19 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Record's name suggestions
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableRecordNameSuggestions)!;
-    statisticsUseCategoryColor = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.statisticsUseCategoryColorsOnPieChart)!;
+  }
+
+  Future<void> fetchStatisticsPreferences() async {
+    statisticsPieChartUseCategoryColors =  PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.statisticsPieChartUseCategoryColors)!;
+
+    var numberOfCategoriesToDisplayIndex = PreferencesUtils
+        .getOrDefault<int>(prefs,
+        PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay);
+
+    statisticsPieChartNumberOfCategoriesToDisplay = getKeyFromObject<int>(
+        PreferencesOptions.numberOfCategoriesForPieChart,
+        numberOfCategoriesToDisplayIndex);
   }
 
   // Style dropdown
@@ -192,7 +204,8 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool enableAppLock;
 
   // Statistics
-  late bool statisticsUseCategoryColor;
+  late bool statisticsPieChartUseCategoryColors;
+  late String statisticsPieChartNumberOfCategoriesToDisplay;
 
   static void invalidateNumberPatternCache() {
     ServiceConfig.currencyNumberFormat = null;
@@ -339,6 +352,20 @@ class CustomizationPageState extends State<CustomizationPage> {
                       selectedDropdownKey: homepageRecordNotesVisible,
                       sharedConfigKey: PreferencesKeys.homepageRecordNotesVisible,
                     ),
+                    SettingSeparator(title: "Statistics".i18n),
+                    DropdownCustomizationItem(
+                      title: "Number of categories in Pie Chart".i18n,
+                      subtitle: "How many categories to be displayed".i18n,
+                      dropdownValues: PreferencesOptions.numberOfCategoriesForPieChart,
+                      selectedDropdownKey: statisticsPieChartNumberOfCategoriesToDisplay,
+                      sharedConfigKey: PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay,
+                    ),
+                    SwitchCustomizationItem(
+                      title: "Use Category Colors in Pie Chart".i18n,
+                      subtitle: "Show categories with their own colors instead of the default palette".i18n,
+                      switchValue: statisticsPieChartUseCategoryColors,
+                      sharedConfigKey: PreferencesKeys.statisticsPieChartUseCategoryColors,
+                    ),
                     SettingSeparator(title: "Additional Settings".i18n),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
@@ -347,12 +374,6 @@ class CustomizationPageState extends State<CustomizationPage> {
                               .i18n,
                       switchValue: enableRecordNameSuggestions,
                       sharedConfigKey: PreferencesKeys.enableRecordNameSuggestions,
-                    ),
-                    SwitchCustomizationItem(
-                      title: "Use Category Colors in Pie Chart".i18n,
-                      subtitle: "Show categories with their own colors instead of the default palette".i18n,
-                      switchValue: statisticsUseCategoryColor,
-                      sharedConfigKey: PreferencesKeys.statisticsUseCategoryColorsOnPieChart,
                     ),
                     Visibility(
                       visible: appLockIsAvailable,
