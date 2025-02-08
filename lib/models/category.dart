@@ -133,4 +133,14 @@ class Category extends Model {
       sortOrder: sortOrder, // Initialize sortOrder
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          (other is Category &&
+              other.name == name &&
+              other.categoryType == categoryType);
+
+  @override
+  int get hashCode => Object.hash(name, categoryType);
 }
