@@ -8,7 +8,7 @@ import 'package:piggybank/i18n.dart';
 
 import 'categories-grid.dart';
 
-enum SortOption { original, lastUsed, mostUsed }
+enum SortOption { original, lastUsed, mostUsed, alphabetical }
 
 class CategoryTabPageView extends StatefulWidget {
   final bool? goToEditMovementPage;
@@ -22,6 +22,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   List<Category?>? _categories;
   CategoryType? categoryType;
   SortOption _selectedSortOption = SortOption.original;
+  SortOption _storedDefaultOption = SortOption.original;
   bool _isDefaultOrder = false;
   DatabaseInterface database = ServiceConfig.database;
 
@@ -50,6 +51,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
       final savedSortIndex = ServiceConfig.sharedPreferences?.getInt(key);
       if (savedSortIndex != null) {
         setState(() {
+          _storedDefaultOption = SortOption.values[savedSortIndex];
           _selectedSortOption = SortOption.values[savedSortIndex];
         });
         _applySort(_selectedSortOption);
@@ -62,6 +64,9 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
     if (_isDefaultOrder) {
       await ServiceConfig.sharedPreferences
           ?.setInt('defaultCategorySortOption', _selectedSortOption.index);
+      setState(() {
+        _storedDefaultOption = _selectedSortOption;
+      });
     }
     _isDefaultOrder = false;
   }
@@ -77,6 +82,9 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
         break;
       case SortOption.original:
         _fetchCategories();
+        break;
+      case SortOption.alphabetical:
+        _sortAlphabetically();
         break;
     }
   }
@@ -105,11 +113,12 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                       Row(
                         children: [
                           Checkbox(
-                            value: _isDefaultOrder,
+                            value: _isDefaultOrder || _selectedSortOption == _storedDefaultOption,
                             onChanged: (value) {
                               setModalState(() {
                                 _isDefaultOrder = value ?? false;
                               });
+                              storeOnUserPreferences();
                             },
                           ),
                           Text("Make it default".i18n),
@@ -136,6 +145,29 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                   onTap: () {
                     setModalState(() {
                       _selectedSortOption = SortOption.lastUsed;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.abc),
+                  title: Text(
+                    "Name (Alphabetically)".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.alphabetical
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  trailing: _selectedSortOption == SortOption.alphabetical
+                      ? Icon(Icons.check,
+                      color: Theme.of(context).colorScheme.primary)
+                      : null,
+                  onTap: () {
+                    setModalState(() {
+                      _selectedSortOption = SortOption.alphabetical;
                       _applySort(_selectedSortOption);
                       storeOnUserPreferences();
                     });
@@ -218,6 +250,13 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
     setState(() {
       _selectedSortOption = SortOption.mostUsed;
       _categories?.sort((a, b) => b!.recordCount!.compareTo(a!.recordCount!));
+    });
+  }
+
+  void _sortAlphabetically() {
+    setState(() {
+      _selectedSortOption = SortOption.alphabetical;
+      _categories?.sort((a, b) => a!.name!.compareTo(b!.name!));
     });
   }
 

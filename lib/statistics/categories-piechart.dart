@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
@@ -164,13 +165,46 @@ class CategoriesPieChart extends StatelessWidget {
     return ChartData(seriesList, colorsToUse);
   }
 
-  Widget _buildPieChart() {
-    return new Container(
-        child: new charts.PieChart<String>(
-      seriesList,
-      animate: animate,
-      defaultRenderer: new charts.ArcRendererConfig(arcWidth: 35),
-    ));
+  Widget _buildPieChart(BuildContext context) { // Pass BuildContext
+    return Container(
+      child: charts.PieChart<String>(
+        seriesList,
+        animate: animate,
+        defaultRenderer: charts.ArcRendererConfig(arcWidth: 35),
+        behaviors: [
+          charts.SelectNearest(),
+        ],
+        selectionModels: [
+          charts.SelectionModelConfig(
+            type: charts.SelectionModelType.info,
+            changedListener: (charts.SelectionModel model) {
+              if (model.hasDatumSelection) {
+                final selectedDatum = model.selectedDatum;
+                if (selectedDatum.isNotEmpty) {
+                  LinearRecord linearRecord = selectedDatum.first.datum; // Get the clicked data
+                  var percentageText = linearRecord.value.toStringAsFixed(2) + "%";
+                  var categoryName = linearRecord.category;
+
+                  // Show SnackBar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      elevation: 6,
+                      content: Text("($percentageText) $categoryName"),
+                      action: SnackBarAction(
+                          label: 'Dismiss'.i18n,
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          },
+                        )
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildLegend() {
@@ -219,13 +253,13 @@ class CategoriesPieChart extends StatelessWidget {
         });
   }
 
-  Widget _buildCard() {
+  Widget _buildCard(BuildContext context) {
     return Container(
         padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
         height: 200,
         child: new Row(
           children: <Widget>[
-            Expanded(child: _buildPieChart()),
+            Expanded(child: _buildPieChart(context)),
             Expanded(child: _buildLegend())
           ],
         ));
@@ -233,6 +267,6 @@ class CategoriesPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCard();
+    return _buildCard(context);
   }
 }
