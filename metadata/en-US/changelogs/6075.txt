@@ -1,0 +1,3 @@
+- Bug fixes
+- Pie-chart can be clickable and show categories' name
+- Add option to order category by name
