@@ -71,24 +71,8 @@ class TabRecordsState extends State<TabRecords> {
     _listener = AppLifecycleListener(
       onStateChange: _handleOnResume,
     );
-    RecurrentRecordService().updateRecurrentRecords().then((_) {
-      HomepageTimeInterval recordTimeIntervalEnum = getHomepageTimeIntervalEnumSetting();
-      OverviewTimeInterval overviewTimeIntervalEnum = getHomepageOverviewWidgetTimeIntervalEnumSetting();
-      getRecordsByHomepageTimeInterval(database, recordTimeIntervalEnum).then((fetchedRecords) {
-        setState(() {
-          records = fetchedRecords;
-          _header = getHeaderFromHomepageTimeInterval(recordTimeIntervalEnum);
-        });
-      });
-      if (overviewTimeIntervalEnum != OverviewTimeInterval.DisplayedRecords) {
-        HomepageTimeInterval recordTimeIntervalEnum
-          = mapOverviewTimeIntervalToHomepageTimeInterval(overviewTimeIntervalEnum);
-        getRecordsByHomepageTimeInterval(database, recordTimeIntervalEnum).then((fetchedRecords) {
-          setState(() {
-            overviewRecords = fetchedRecords;
-          });
-        });
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      updateRecurrentRecordsAndFetchRecords();
     });
   }
 
@@ -103,6 +87,12 @@ class TabRecordsState extends State<TabRecords> {
         runAutomaticBackup();
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _listener.dispose();
+    super.dispose();
   }
 
   @override
@@ -356,6 +346,14 @@ class TabRecordsState extends State<TabRecords> {
     setState(() {
       records = newRecords;
     });
+    OverviewTimeInterval overviewTimeIntervalEnum = getHomepageOverviewWidgetTimeIntervalEnumSetting();
+    if (overviewTimeIntervalEnum != OverviewTimeInterval.DisplayedRecords) {
+      HomepageTimeInterval recordTimeIntervalEnum = mapOverviewTimeIntervalToHomepageTimeInterval(overviewTimeIntervalEnum);
+      var fetchedRecords = await getRecordsByHomepageTimeInterval(database, recordTimeIntervalEnum);
+      setState(() {
+        overviewRecords = fetchedRecords;
+      });
+    }
   }
 
   navigateToAddNewMovementPage() async {

@@ -338,9 +338,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                     ),
                     DropdownCustomizationItem(
                       title: "What should the 'Overview widget' summarize?".i18n,
-                      subtitle:
-                        "Define what to summarize".i18n + " - " +
-                      "Require App restart".i18n,
+                      subtitle: "Define what to summarize".i18n,
                       dropdownValues: PreferencesOptions.homepageOverviewWidgetTimeInterval,
                       selectedDropdownKey: homepageOverviewWidgetTimeInterval,
                       sharedConfigKey: PreferencesKeys.homepageOverviewWidgetTimeInterval,
