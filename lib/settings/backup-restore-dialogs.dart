@@ -56,10 +56,16 @@ class BackupRestoreDialog {
   static Future<void> importFromBackupFile(BuildContext context) async {
     var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
     log("FilePicker has deleted cache: " + hasDeletedCache.toString());
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+    } catch (e) {
+      // strange issue on android-9 due to filter
+      result = await FilePicker.platform.pickFiles();
+    }
     if (result != null) {
       File file = File(result.files.single.path!);
       String? password;

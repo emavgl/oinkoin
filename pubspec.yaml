@@ -35,7 +35,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   url_launcher: ^6.2.2
   flutter_colorpicker: ^1.0.3
-  file_picker: ^6.1.1
+  file_picker: ^8.3.3
   uuid: ^4.2.2
   package_info_plus: ^8.1.1
   flutter_displaymode: ^0.6.0
