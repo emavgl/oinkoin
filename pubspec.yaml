@@ -55,6 +55,7 @@ dependencies:
   emoji_picker_flutter: ^4.0.0-dev.2
   reorderable_grid: ^1.0.10
   local_auth: ^2.3.0
+  sqflite_common_ffi: ^2.3.4+4
 
 
 dev_dependencies:

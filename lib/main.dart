@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -26,7 +27,7 @@ main() async {
   ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro");
   ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
   await MyI18n.loadTranslations();
-  await FlutterDisplayMode.setHighRefreshRate();
+  if (Platform.isAndroid) await FlutterDisplayMode.setHighRefreshRate();
   runApp(
     OinkoinApp(
         lightTheme: await MaterialThemeInstance.getLightTheme(),
