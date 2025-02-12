@@ -1,0 +1,1 @@
+- Bug fix when restoring a Backup in Android 9
