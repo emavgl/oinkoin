@@ -10,8 +10,9 @@ class RecurrentRecordService {
 
   // Helper methods, use these resistant to DayLight saving
   DateTime dateAddDays(DateTime origin, int daysToAdd) {
-    return DateTime.utc(origin.year, origin.month, origin.day)
+    var temp = DateTime.utc(origin.year, origin.month, origin.day)
         .add(new Duration(days: daysToAdd));
+    return DateTime(temp.year, temp.month, temp.day); // Use current timezone
   }
 
   Duration difference(DateTime dateTime1, DateTime dateTime2) {
