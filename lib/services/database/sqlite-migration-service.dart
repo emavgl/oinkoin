@@ -1,6 +1,7 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../models/category-type.dart';
 import '../../models/category.dart';
@@ -25,6 +26,18 @@ class SqliteMigrationService {
     batch.execute(query);
   }
 
+  static void _createAccountsTable(Batch batch) {
+    String query = """
+        CREATE TABLE IF NOT EXISTS accounts (
+            id          TEXT PRIMARY KEY,
+            name        TEXT,
+            currency    TEXT NULL,
+            is_default  INTEGER NOT NULL DEFAULT 0,
+        );
+        """;
+    batch.execute(query);
+  }
+
   static void _createRecordsTable(Batch batch) {
     String query = """
         CREATE TABLE IF NOT EXISTS  records (
@@ -35,7 +48,8 @@ class SqliteMigrationService {
                 description TEXT,
                 category_name TEXT,
                 category_type INTEGER,
-                recurrence_id TEXT
+                recurrence_id TEXT,
+                account_id TEXT
             );
         """;
     batch.execute(query);
@@ -64,10 +78,24 @@ class SqliteMigrationService {
                 category_type INTEGER,
                 last_update INTEGER,
                 recurrent_period INTEGER,
-                recurrence_id TEXT
+                recurrence_id TEXT,
+                account_id TEXT
             );
         """;
     batch.execute(query);
+  }
+
+  static void _createDefaultAccountTrigger(Batch batch) {
+    String triggerQuery = """
+      CREATE TRIGGER enforce_single_default_account
+      BEFORE INSERT OR UPDATE ON accounts
+      FOR EACH ROW
+      WHEN NEW.is_default = 1
+      BEGIN
+          UPDATE accounts SET is_default = 0 WHERE is_default = 1;
+      END;
+    """;
+    batch.execute(triggerQuery);
   }
 
   static void _createAddRecordTrigger(Batch batch) {
@@ -234,11 +262,41 @@ class SqliteMigrationService {
     safeAlterTable(db, "ALTER TABLE categories ADD COLUMN icon_emoji TEXT;");
   }
 
+  static void _migrateTo10(Database db) async {
+    safeAlterTable(db, "ALTER TABLE records ADD COLUMN account_id TEXT;");
+
+    var batch = db.batch();
+
+    // Create the accounts table
+    _createAccountsTable(batch);
+
+    // Generate a UUID for the default account
+    String defaultAccountId = Uuid().v4();
+
+    // Insert the default account (currency is NULL by default)
+    batch.insert("accounts", {
+      "id": defaultAccountId,
+      "name": "Default",
+      "currency": null,
+      "is_default": 1  // Mark as default
+    });
+
+    // Assign all existing records to the default account
+    String updateRecordsQuery = """
+      UPDATE records
+      SET account_id = '$defaultAccountId';
+    """;
+    batch.execute(updateRecordsQuery);
+
+    await batch.commit();
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
     8: SqliteMigrationService._migrateTo8,
-    9: SqliteMigrationService._migrateTo9
+    9: SqliteMigrationService._migrateTo9,
+    10: SqliteMigrationService._migrateTo10
   };
 
   // Public Methods
@@ -258,6 +316,7 @@ class SqliteMigrationService {
 
     // Create Tables
     _createCategoriesTable(batch);
+    _createAccountsTable(batch);
     _createRecordsTable(batch);
     _createRecordsTagsTable(batch);
     _createRecurrentRecordPatternsTable(batch);
@@ -266,6 +325,15 @@ class SqliteMigrationService {
     _createAddRecordTrigger(batch);
     _createUpdateRecordTrigger(batch);
     _createDeleteRecordTrigger(batch);
+    _createDefaultAccountTrigger(batch);
+
+    // Insert Default Account (currency is NULL)
+    batch.insert("accounts", {
+      "id": Uuid().v4(),
+      "name": "Default",
+      "currency": null,
+      "is_default": 1
+    });
 
     // Insert Default Categories
     List<Category> defaultCategories = getDefaultCategories();
