@@ -1,4 +1,4 @@
-import 'package:i18n_extension/default.i18n.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
 
 import '../backup-retention-period.dart';

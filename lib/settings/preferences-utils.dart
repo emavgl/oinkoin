@@ -8,6 +8,12 @@ class PreferencesUtils {
     if (retrievedValue != null) {
       return retrievedValue as T;
     }
-    return PreferencesDefaultValues.defaultValues[key];
+    var defaultValueOfFunction = PreferencesDefaultValues.defaultValues[key];
+
+    if (defaultValueOfFunction is Function) {
+      return defaultValueOfFunction() as T;
+    }
+
+    return defaultValueOfFunction as T?;
   }
 }
