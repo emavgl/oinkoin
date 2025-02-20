@@ -287,14 +287,13 @@ class CustomizationPageState extends State<CustomizationPage> {
                         onChanged: () {
                           invalidateNumberPatternCache();
                           invalidateOverwritePreferences();
+                          fetchNumberFormattingPreferences();
                           setState(() {
-                            fetchAllThePreferences();
-                            if (decimalSeparatorDropdownKey ==
-                                groupSeparatorDropdownKey) {
+                            if (decimalSeparatorDropdownKey == groupSeparatorDropdownKey) {
                               // Inconsistency, disable group separator
-                              prefs.setString("groupSeparator", "");
+                              prefs.setString(PreferencesKeys.groupSeparator, "");
                             }
-                            fetchAllThePreferences();
+                            fetchNumberFormattingPreferences();
                           });
                         }),
                     DropdownCustomizationItem(

@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 
+import '../../helpers/records-utility-functions.dart';
 import '../../services/service-config.dart';
 import '../backup-retention-period.dart';
 import 'homepage-time-interval.dart';
@@ -12,11 +13,11 @@ class PreferencesDefaultValues {
     PreferencesKeys.themeColor: 0, // Default theme color index
     PreferencesKeys.themeMode: 0, // Default theme mode index
     PreferencesKeys.languageLocale: "system",
-    PreferencesKeys.decimalSeparator: getLocaleDecimalSeparator(), // Default locale
-    PreferencesKeys.groupSeparator: getLocaleGroupingSeparator(), // Default locale
+    PreferencesKeys.decimalSeparator: getLocaleDecimalSeparator, // Default locale
+    PreferencesKeys.groupSeparator: getLocaleGroupingSeparator, // Default locale
     PreferencesKeys.numberDecimalDigits: 2, // Default to 2 decimal places
-    PreferencesKeys.overwriteDotValueWithComma: false, // Default to false
-    PreferencesKeys.overwriteCommaValueWithDot: false, // Default to false
+    PreferencesKeys.overwriteDotValueWithComma: getOverwriteDotValueWithCommaDefaultValue,
+    PreferencesKeys.overwriteCommaValueWithDot: getOverwriteCommaValueWithDotDefaultValue,
     PreferencesKeys.enableAutomaticBackup: false, // Default to disabled
     PreferencesKeys.enableEncryptedBackup: false,
     PreferencesKeys.enableVersionAndDateInBackupName: true,
@@ -51,6 +52,14 @@ class PreferencesDefaultValues {
     NumberFormat currencyLocaleNumberFormat =
     new NumberFormat.currency(locale: existingCurrencyLocale);
     return currencyLocaleNumberFormat.symbols.DECIMAL_SEP;
+  }
+
+  static bool getOverwriteDotValueWithCommaDefaultValue() {
+    return getDecimalSeparator() == ",";
+  }
+
+  static bool getOverwriteCommaValueWithDotDefaultValue() {
+    return getDecimalSeparator() == ".";
   }
 
 }

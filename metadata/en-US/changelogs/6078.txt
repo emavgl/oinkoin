@@ -1,0 +1,1 @@
+- Fix issues with settings and currency locale
