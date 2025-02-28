@@ -32,7 +32,7 @@ class CategoriesPieChart extends StatelessWidget {
 
   final bool animate = true;
   final Color otherCategoryColor = Colors.blueGrey;
-  final Color colorForUnassignedCategory = Colors.grey;
+  final Color chartColorForCategoryWithoutBackgroundColor = Colors.grey;
   late final categoryCount;
   late List<charts.Color> defaultColorsPalette;
   late final colorPalette;
@@ -85,13 +85,13 @@ class CategoriesPieChart extends StatelessWidget {
 
       // Compute sum per color
       for (var entry in topCategoriesAndValue) {
-        int colorKey = getColorSortValue(entry.key.color ?? colorForUnassignedCategory);
+        int colorKey = getColorSortValue(entry.key.color ?? chartColorForCategoryWithoutBackgroundColor);
         colorSumMap.update(colorKey, (sum) => sum + entry.value, ifAbsent: () => entry.value);
       }
 
       topCategoriesAndValue.sort((a, b) {
-        int colorA = getColorSortValue(a.key.color ?? colorForUnassignedCategory);
-        int colorB = getColorSortValue(b.key.color ?? colorForUnassignedCategory);
+        int colorA = getColorSortValue(a.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        int colorB = getColorSortValue(b.key.color ?? chartColorForCategoryWithoutBackgroundColor);
 
         // Compare by total sum of the color group (Descending)
         int totalSumComparison = colorSumMap[colorB]!.compareTo(colorSumMap[colorA]!);
@@ -118,7 +118,7 @@ class CategoriesPieChart extends StatelessWidget {
       var percentage = (100 * categoryAndValue.value) / totalSum;
       var lr = LinearRecord(categoryAndValue.key.name!, percentage);
       data.add(lr);
-      linearRecordsColors.add(categoryAndValue.key.color ?? colorForUnassignedCategory);
+      linearRecordsColors.add(categoryAndValue.key.color ?? chartColorForCategoryWithoutBackgroundColor);
     }
 
     // Handle "Others" category
