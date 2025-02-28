@@ -1,0 +1,1 @@
+- Fix pie-chart rendering of categories without color
