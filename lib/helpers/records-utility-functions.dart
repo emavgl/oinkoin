@@ -284,7 +284,7 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
       return getMonthStr(_now);
     case HomepageTimeInterval.CurrentYear:
-      return "${"Year".i18n} ${_now.year}";
+      return getYearStr(_now);
     case HomepageTimeInterval.All:
       return "All records".i18n;
   }
