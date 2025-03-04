@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart';
 import 'package:piggybank/i18n.dart';
@@ -8,7 +9,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,6 +36,8 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   Future<Database> init() async {
+    if (Platform.isWindows || Platform.isLinux) sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
     String databasePath = await getDatabasesPath();
     String _path = join(databasePath, 'movements.db');
     var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,

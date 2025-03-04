@@ -204,7 +204,7 @@ class BackupPageState extends State<BackupPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    SettingsItem(
+                    if (!Platform.isLinux) SettingsItem(
                         icon: Icon(Icons.backup, color: Colors.white),
                         iconBackgroundColor: Colors.orange.shade600,
                         title: 'Export Backup'.i18n,
