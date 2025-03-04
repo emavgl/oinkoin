@@ -32,6 +32,7 @@ class CategoriesPieChart extends StatelessWidget {
 
   final bool animate = true;
   final Color otherCategoryColor = Colors.blueGrey;
+  final Color chartColorForCategoryWithoutBackgroundColor = Colors.grey;
   late final categoryCount;
   late List<charts.Color> defaultColorsPalette;
   late final colorPalette;
@@ -65,20 +66,32 @@ class CategoriesPieChart extends StatelessWidget {
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.statisticsPieChartUseCategoryColors)!;
 
+    // Step 1: Sort by value descending (ignoring color)
     var aggregatedCategoriesAndValues =
-        aggregatedCategoriesValuesTemporaryMap.entries.toList();
+    aggregatedCategoriesValuesTemporaryMap.entries.toList();
+    aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
 
+    // Step 2: Apply the limit
+    var limit =
+    aggregatedCategoriesAndValues.length > categoryCount + 1
+        ? categoryCount
+        : aggregatedCategoriesAndValues.length;
+
+    var topCategoriesAndValue = aggregatedCategoriesAndValues.sublist(0, limit);
+
+    // Step 3: If color sorting is enabled, sort by color-related rules
     if (useCategoriesColor) {
       Map<int, double> colorSumMap = {};
 
-      for (var entry in aggregatedCategoriesValuesTemporaryMap.entries) {
-        int colorKey = getColorSortValue(entry.key.color!);
+      // Compute sum per color
+      for (var entry in topCategoriesAndValue) {
+        int colorKey = getColorSortValue(entry.key.color ?? chartColorForCategoryWithoutBackgroundColor);
         colorSumMap.update(colorKey, (sum) => sum + entry.value, ifAbsent: () => entry.value);
       }
 
-      aggregatedCategoriesAndValues.sort((a, b) {
-        int colorA = getColorSortValue(a.key.color!);
-        int colorB = getColorSortValue(b.key.color!);
+      topCategoriesAndValue.sort((a, b) {
+        int colorA = getColorSortValue(a.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        int colorB = getColorSortValue(b.key.color ?? chartColorForCategoryWithoutBackgroundColor);
 
         // Compare by total sum of the color group (Descending)
         int totalSumComparison = colorSumMap[colorB]!.compareTo(colorSumMap[colorA]!);
@@ -95,17 +108,7 @@ class CategoriesPieChart extends StatelessWidget {
         // If color is the same, sort by individual value (Descending)
         return b.value.compareTo(a.value);
       });
-    } else {
-      // Default sorting by value in descending order
-      aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
     }
-
-    var limit =
-        aggregatedCategoriesAndValues.length > categoryCount + 1
-            ? categoryCount
-            : aggregatedCategoriesAndValues.length;
-
-    var topCategoriesAndValue = aggregatedCategoriesAndValues.sublist(0, limit);
 
     // Store data and colors
     List<LinearRecord> data = [];
@@ -115,7 +118,7 @@ class CategoriesPieChart extends StatelessWidget {
       var percentage = (100 * categoryAndValue.value) / totalSum;
       var lr = LinearRecord(categoryAndValue.key.name!, percentage);
       data.add(lr);
-      linearRecordsColors.add(categoryAndValue.key.color!);
+      linearRecordsColors.add(categoryAndValue.key.color ?? chartColorForCategoryWithoutBackgroundColor);
     }
 
     // Handle "Others" category

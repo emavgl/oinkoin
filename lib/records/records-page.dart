@@ -170,7 +170,7 @@ class TabRecordsState extends State<TabRecords> {
       _customIntervalTo = new DateTime(yearPicked.year, 12, 31, 23, 59);
       var newRecords = await getRecordsByYear(database, yearPicked.year);
       setState(() {
-        _header = getDateRangeStr(_customIntervalFrom!, _customIntervalTo!);
+        _header = getYearStr(_customIntervalFrom!);
         records = newRecords;
       });
     }
@@ -412,65 +412,78 @@ class TabRecordsState extends State<TabRecords> {
     await _categoryTabPageViewStateKey.currentState?.refreshCategories();
   }
 
+  bool _isAppBarExpanded = true;
+
   @override
   Widget build(BuildContext context) {
     double headerFontSize = _header.length > 13 ? 18 : 22;
     double headerPaddingBottom = _header.length > 13 ? 15 : 13;
+
+    bool canShiftBack = canShift(-1, _customIntervalFrom, _customIntervalTo,
+        getHomepageTimeIntervalEnumSetting());
+
+    bool canShiftForward = canShift(1, _customIntervalFrom, _customIntervalTo,
+        getHomepageTimeIntervalEnumSetting());
+
     return Scaffold(
-      body: new CustomScrollView(slivers: [
-        SliverAppBar(
-          elevation: 0,
-          backgroundColor: Theme.of(context).primaryColor,
-          actions: <Widget>[
-            IconButton(
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          setState(() {
+            _isAppBarExpanded = scrollInfo.metrics.pixels < 100;
+          });
+          return true;
+        },
+        child: CustomScrollView(slivers: [
+          SliverAppBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).primaryColor,
+            actions: <Widget>[
+              IconButton(
+                  icon: Semantics(
+                      identifier: 'select-date',
+                      child: Icon(Icons.calendar_today)),
+                  onPressed: () async => await _showSelectDateDialog(),
+                  color: Colors.white),
+              IconButton(
+                  icon: Semantics(
+                      identifier: 'statistics',
+                      child: Icon(Icons.donut_small)),
+                  onPressed: () => navigateToStatisticsPage(),
+                  color: Colors.white),
+              PopupMenuButton<int>(
                 icon: Semantics(
-                    identifier: 'select-date',
-                    child: Icon(Icons.calendar_today)
+                    identifier: 'three-dots',
+                    child: Icon(Icons.more_vert, color: Colors.white)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
                 ),
-                onPressed: () async => await _showSelectDateDialog(),
-                color: Colors.white),
-            IconButton(
-                icon: Semantics(
-                    identifier: 'statistics',
-                    child: Icon(Icons.donut_small)
-                ),
-                onPressed: () => navigateToStatisticsPage(),
-                color: Colors.white),
-            PopupMenuButton<int>(
-              icon: Semantics(
-                  identifier: 'three-dots',
-                  child: Icon(Icons.more_vert, color: Colors.white)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
+                onSelected: (index) async {
+                  if (index == 1) {
+                    var csvStr = CSVExporter.createCSVFromRecordList(this.records);
+                    final path = await getApplicationDocumentsDirectory();
+                    var backupJsonOnDisk = File(path.path + "/records.csv");
+                    await backupJsonOnDisk.writeAsString(csvStr);
+                    Share.shareXFiles([XFile(backupJsonOnDisk.path)]);
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return {"Export CSV".i18n: 1}.entries.map((entry) {
+                    return PopupMenuItem<int>(
+                      padding: EdgeInsets.all(20),
+                      value: entry.value,
+                      child: Text(entry.key,
+                          style: TextStyle(
+                            fontSize: 16,
+                          )),
+                    );
+                  }).toList();
+                },
               ),
-              onSelected: (index) async {
-                if (index == 1) {
-                  var csvStr =
-                      CSVExporter.createCSVFromRecordList(this.records);
-                  final path = await getApplicationDocumentsDirectory();
-                  var backupJsonOnDisk = File(path.path + "/records.csv");
-                  await backupJsonOnDisk.writeAsString(csvStr);
-                  Share.shareXFiles([XFile(backupJsonOnDisk.path)]);
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return {"Export CSV".i18n: 1}.entries.map((entry) {
-                  return PopupMenuItem<int>(
-                    padding: EdgeInsets.all(20),
-                    value: entry.value,
-                    child: Text(entry.key,
-                        style: TextStyle(
-                          fontSize: 16,
-                        )),
-                  );
-                }).toList();
-              },
-            ),
-          ],
-          pinned: true,
-          expandedHeight: 180,
+            ],
+            pinned: true,
+            expandedHeight: 180,
           flexibleSpace: FlexibleSpaceBar(
               stretchModes: <StretchMode>[
                 StretchMode.zoomBackground,
@@ -478,14 +491,47 @@ class TabRecordsState extends State<TabRecords> {
                 StretchMode.fadeTitle,
               ],
               centerTitle: false,
-              titlePadding:
-                  EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom),
-              title: Semantics(
-                identifier: 'date-text',
-                child: Text(_header,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white, fontSize: headerFontSize,
-                    )),
+              titlePadding: !_isAppBarExpanded
+                  ? EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom)
+                  : EdgeInsets.fromLTRB(canShiftBack ? 0 : 15, 15, canShiftForward ? 0 : 15, headerPaddingBottom),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  if (_isAppBarExpanded && canShiftBack)
+                    SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_left, color: Colors.white, size: 24),
+                        onPressed: () async => shiftMonthOrYear(-1),
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(),
+                      ),
+                    ),
+                  Expanded(
+                    child: Semantics(
+                      identifier: 'date-text',
+                      child: Text(
+                        _header,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(color: Colors.white, fontSize: headerFontSize),
+                      ),
+                    ),
+                  ),
+                  if (_isAppBarExpanded
+                      && canShiftForward)
+                    SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_right, color: Colors.white, size: 24),
+                        onPressed: () async => shiftMonthOrYear(1),
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(),
+                      ),
+                    ),
+                ],
               ),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(
@@ -493,48 +539,46 @@ class TabRecordsState extends State<TabRecords> {
                   child: Container(
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: getBackgroundImage()))))),
-        ),
-        SliverList(
-            delegate: SliverChildListDelegate(
-          [
-            Container(
-                margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
-                height: 100,
-                child: DaysSummaryBox(overviewRecords ?? records)),
-            Divider(indent: 50, endIndent: 50),
-            records.length == 0
-                ? Container(
+                              fit: BoxFit.cover, image: getBackgroundImage()))))),
+          ),
+          SliverList(
+              delegate: SliverChildListDelegate([
+                Container(
+                    margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
+                    height: 100,
+                    child: DaysSummaryBox(overviewRecords ?? records)),
+                Divider(indent: 50, endIndent: 50),
+                records.length == 0
+                    ? Container(
                     child: Column(
-                    children: <Widget>[
-                      Image.asset(
-                        'assets/images/no_entry.png',
-                        width: 200,
-                      ),
-                      Text(
-                        "No entries yet.".i18n,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 22.0,
+                      children: <Widget>[
+                        Image.asset(
+                          'assets/images/no_entry.png',
+                          width: 200,
                         ),
-                      )
-                    ],
-                  ))
-                : Container()
-          ],
-        )),
-        RecordsDayList(
-          records,
-          onListBackCallback: updateRecurrentRecordsAndFetchRecords,
-        ),
-        SliverList(
-            delegate: SliverChildListDelegate([
-          SizedBox(
-            height: 75,
-          )
-        ]))
-      ]),
+                        Text(
+                          "No entries yet.".i18n,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 22.0,
+                          ),
+                        )
+                      ],
+                    ))
+                    : Container()
+              ])),
+          RecordsDayList(
+            records,
+            onListBackCallback: updateRecurrentRecordsAndFetchRecords,
+          ),
+          SliverList(
+              delegate: SliverChildListDelegate([
+                SizedBox(
+                  height: 75,
+                )
+              ]))
+        ]),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async => await navigateToAddNewMovementPage(),
         tooltip: 'Add a new record'.i18n,
@@ -544,5 +588,47 @@ class TabRecordsState extends State<TabRecords> {
         ),
       ),
     );
+  }
+
+  void shiftMonthOrYear(int shift) async {
+    DateTime newFrom;
+    DateTime newTo;
+    List<Record?> newRecords = [];
+    String newHeader;
+    if (_customIntervalFrom != null) {
+      if (isFullMonth(_customIntervalFrom!, _customIntervalTo!)) {
+        newFrom = DateTime(_customIntervalFrom!.year, _customIntervalFrom!.month + shift, 1);
+        newTo = getEndOfMonth(newFrom.year, newFrom.month);
+        newHeader = getMonthStr(newFrom);
+        newRecords = await getRecordsByMonth(database, newFrom.year, newFrom.month);
+      } else {
+        // Is full-year
+        newFrom = DateTime(_customIntervalFrom!.year + shift, 1, 1);
+        newTo = new DateTime(newFrom.year, 12, 31, 23, 59);
+        newRecords = await getRecordsByYear(database, newFrom.year);
+        newHeader = getYearStr(newFrom);
+      }
+    } else {
+      HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
+      DateTime d = DateTime.now();
+      if (hti == HomepageTimeInterval.CurrentMonth) {
+        newFrom = DateTime(d.year, d.month + shift, 1);
+        newTo = getEndOfMonth(newFrom.year, newFrom.month);
+        newHeader = getMonthStr(newFrom);
+        newRecords = await getRecordsByMonth(database, newFrom.year, newFrom.month);
+      } else {
+        // hti == CurrentYear
+        newFrom = DateTime(d.year + shift, 1, 1);
+        newTo = new DateTime(newFrom.year, 12, 31, 23, 59);
+        newRecords = await getRecordsByYear(database, newFrom.year);
+        newHeader = getYearStr(newFrom);
+      }
+    }
+    setState(() {
+      _customIntervalFrom = newFrom;
+      _customIntervalTo = newTo;
+      _header = newHeader;
+      records = newRecords;
+    });
   }
 }
