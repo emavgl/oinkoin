@@ -172,6 +172,70 @@ main() {
       expect(records.length, 5);
     });
 
+    test('generateRecurrentRecordsFromDateTime respects pattern timezone offset (local time)', () {
+      // Simulate a pattern created in UTC+3 (offset +180 minutes)
+      final patternUtcMillis = DateTime.utc(2025, 6, 1, 12, 0).millisecondsSinceEpoch;
+      final timezoneOffsetMinutes = 180; // UTC+3
+
+      // Create pattern's dateTime as local time (UTC + offset)
+      final patternDateTime =
+      DateTime.fromMillisecondsSinceEpoch(patternUtcMillis, isUtc: true)
+          .add(Duration(minutes: timezoneOffsetMinutes));
+
+      final recurrentPattern = RecurrentRecordPattern(
+        100.0,
+        "Monthly subscription",
+        null,
+        patternDateTime,
+        RecurrentPeriod.EveryMonth,
+        id: "pattern1",
+      );
+
+      // Device current time is UTC (offset 0) but we simulate endDate as UTC + 0
+      final deviceNowUtc = DateTime.utc(2025, 7, 1, 12, 0);
+
+      // Generate records up to deviceNowUtc adjusted to pattern timezone
+      // So convert deviceNowUtc to pattern local time:
+      final endDateLocal = deviceNowUtc.add(Duration(minutes: timezoneOffsetMinutes));
+
+      // Generate recurrent records using your method
+      RecurrentRecordService recurrentRecordService = new RecurrentRecordService();
+      var generatedRecords =
+      recurrentRecordService.
+      generateRecurrentRecordsFromDateTime(recurrentPattern, endDateLocal);
+
+      // Expect at least one record generated on or after patternDateTime (local)
+      expect(generatedRecords.isNotEmpty, true);
+
+      // The first generated record should have dateTime on the same year/month/day as patternDateTime,
+      // but hour is expected to be 0 (midnight local time)
+      final firstGenerated = generatedRecords.first.dateTime;
+      final expectedDate = patternDateTime;
+
+      expect(firstGenerated?.year, expectedDate.year);
+      expect(firstGenerated?.month, expectedDate.month);
+      expect(firstGenerated?.day, expectedDate.day);
+      expect(firstGenerated?.hour, 0);        // expect midnight
+      expect(firstGenerated?.minute, 0);
+      expect(firstGenerated?.second, 0);
+
+      // The next record should be one month after the first (local time, at midnight)
+      if (generatedRecords.length > 1) {
+        final nextGenerated = generatedRecords[1].dateTime;
+        final expectedNextMonth = DateTime(
+          expectedDate.year,
+          expectedDate.month + 1,
+          expectedDate.day,
+        );
+
+        expect(nextGenerated?.year, expectedNextMonth.year);
+        expect(nextGenerated?.month, expectedNextMonth.month);
+        expect(nextGenerated?.day, expectedNextMonth.day);
+        expect(nextGenerated?.hour, 0);
+        expect(nextGenerated?.minute, 0);
+        expect(nextGenerated?.second, 0);
+      }
+    });
 
   });
 }

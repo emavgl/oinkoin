@@ -97,6 +97,11 @@ bool isFullYear(DateTime from, DateTime to) {
       new DateTime(from.year, 12, 31, 23, 59).isAtSameMomentAs(to);
 }
 
+String toIso8601(DateTime d) {
+  final iso = d.toIso8601String();
+  return iso.endsWith('Z') ? iso.substring(0, iso.length - 1) : iso;
+}
+
 bool canShift(
   int shift,
   DateTime? customIntervalFrom,

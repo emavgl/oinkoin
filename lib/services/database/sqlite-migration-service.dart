@@ -2,6 +2,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../helpers/datetime-utility-functions.dart';
 import '../../models/category-type.dart';
 import '../../models/category.dart';
 
@@ -27,17 +28,19 @@ class SqliteMigrationService {
 
   static void _createRecordsTable(Batch batch) {
     String query = """
-        CREATE TABLE IF NOT EXISTS  records (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                datetime    INTEGER,
-                value       REAL,
-                title       TEXT,
-                description TEXT,
-                category_name TEXT,
-                category_type INTEGER,
-                recurrence_id TEXT
-            );
-        """;
+      CREATE TABLE IF NOT EXISTS records (
+              id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+              datetime    INTEGER,
+              timezone_offset INTEGER,
+              date_iso_str TEXT,           
+              value       REAL,
+              title       TEXT,
+              description TEXT,
+              category_name TEXT,
+              category_type INTEGER,
+              recurrence_id TEXT,
+          );
+      """;
     batch.execute(query);
   }
 
@@ -57,6 +60,8 @@ class SqliteMigrationService {
         CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
                 id          TEXT  PRIMARY KEY,
                 datetime    INTEGER,
+                timezone_offset INTEGER,
+                date_iso_str TEXT,        
                 value       REAL,
                 title       TEXT,
                 description TEXT,
@@ -64,7 +69,8 @@ class SqliteMigrationService {
                 category_type INTEGER,
                 last_update INTEGER,
                 recurrent_period INTEGER,
-                recurrence_id TEXT
+                recurrence_id TEXT,
+                date_str TEXT
             );
         """;
     batch.execute(query);
@@ -234,11 +240,65 @@ class SqliteMigrationService {
     safeAlterTable(db, "ALTER TABLE categories ADD COLUMN icon_emoji TEXT;");
   }
 
+  static void _migrateTo10(Database db) async {
+    // Schema migration
+    safeAlterTable(db, "ALTER TABLE records ADD COLUMN date_iso_str TEXT;");
+    safeAlterTable(db, "ALTER TABLE records ADD COLUMN timezone_offset INTEGER;");
+    safeAlterTable(db, "ALTER TABLE recurrent_record_patterns ADD COLUMN date_iso_str TEXT;");
+    safeAlterTable(db, "ALTER TABLE recurrent_record_patterns ADD COLUMN timezone_offset INTEGER;");
+
+    try {
+      final List<Map<String, dynamic>> records = await db.rawQuery('SELECT id, datetime FROM records');
+      final batch = db.batch();
+
+      for (var record in records) {
+        final DateTime localTime = DateTime.fromMillisecondsSinceEpoch(record['datetime']);
+        final String isoString = toIso8601(localTime);
+        final int offsetMinutes = localTime.timeZoneOffset.inMinutes;
+
+        batch.update(
+          'records',
+          {
+            'date_iso_str': isoString,
+            'timezone_offset': offsetMinutes,
+          },
+          where: 'id = ?',
+          whereArgs: [record['id']],
+        );
+      }
+
+      final List<Map<String, dynamic>> patterns =
+      await db.rawQuery('SELECT id, datetime FROM recurrent_record_patterns');
+
+      for (var pattern in patterns) {
+        final DateTime localTime = DateTime.fromMillisecondsSinceEpoch(pattern['datetime']);
+        final String isoString = toIso8601(localTime);
+        final int offsetMinutes = localTime.timeZoneOffset.inMinutes;
+
+        batch.update(
+          'recurrent_record_patterns',
+          {
+            'date_iso_str': isoString,
+            'timezone_offset': offsetMinutes,
+          },
+          where: 'id = ?',
+          whereArgs: [pattern['id']],
+        );
+      }
+
+      await batch.commit(noResult: true);
+    } catch (e) {
+      print("Migration to v10 failed using DateTime offset: $e");
+    }
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
     8: SqliteMigrationService._migrateTo8,
-    9: SqliteMigrationService._migrateTo9
+    9: SqliteMigrationService._migrateTo9,
+    10: SqliteMigrationService._migrateTo10,
+    11: SqliteMigrationService._migrateTo10,
   };
 
   // Public Methods

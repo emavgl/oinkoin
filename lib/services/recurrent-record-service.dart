@@ -25,92 +25,96 @@ class RecurrentRecordService {
 
   List<Record> generateRecurrentRecordsFromDateTime(
       RecurrentRecordPattern recordPattern, DateTime endDate) {
-    // Generate the records based on the recurrent pattern starting from last_updated date
-    // If the last_update field is null, it will start from the original date set in the pattern
-    // including it to the list of records to generate.
-    List<Record> newRecurrentRecords = [];
-    DateTime startDateTrimmed = new DateTime(recordPattern.dateTime!.year,
-        recordPattern.dateTime!.month, recordPattern.dateTime!.day);
-    DateTime lastUpdateTrimmed = startDateTrimmed;
-    if (recordPattern.lastUpdate != null) {
-      lastUpdateTrimmed = new DateTime(recordPattern.lastUpdate!.year,
-          recordPattern.lastUpdate!.month, recordPattern.lastUpdate!.day);
-    } else {
-      DateTime recurrentRecordDate = startDateTrimmed;
-      Record newRecord =
-          Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
-      newRecurrentRecords.add(newRecord);
+    final List<Record> newRecurrentRecords = [];
+
+    // Trim to local midnight
+    DateTime _atMidnight(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+
+    final startDateTrimmed = _atMidnight(recordPattern.dateTime!);
+    DateTime lastUpdateTrimmed = recordPattern.lastUpdate != null
+        ? _atMidnight(recordPattern.lastUpdate!)
+        : startDateTrimmed;
+
+    if (recordPattern.lastUpdate == null) {
+      newRecurrentRecords.add(
+        Record.fromRecurrencePattern(recordPattern, startDateTrimmed),
+      );
     }
-    RecurrentPeriod? recurrentPeriod = recordPattern.recurrentPeriod;
-    // endDate should happen after lastUpdateTrimmed
-    // when the pattern is set with a record in the future
-    // this is not the case
+
     if (difference(endDate, lastUpdateTrimmed).isNegative) {
       return [];
     }
-    if (recurrentPeriod == RecurrentPeriod.EveryDay) {
-      var numberOfRepetition =
-          difference(endDate, lastUpdateTrimmed).abs().inDays;
-      for (int i = 1; i < numberOfRepetition + 1; i++) {
-        DateTime recurrentRecordDate = dateAddDays(lastUpdateTrimmed, i);
-        Record newRecord =
-            Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
-        newRecurrentRecords.add(newRecord);
-      }
-    } else if (recurrentPeriod == RecurrentPeriod.EveryWeek) {
-      int numberOfWeeks =
-          (difference(endDate, lastUpdateTrimmed).abs().inDays / 7).floor();
-      for (int i = 1; i < numberOfWeeks + 1; i++) {
-        DateTime recurrentRecordDate = dateAddDays(lastUpdateTrimmed, i * 7);
-        Record newRecord =
-            Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
-        newRecurrentRecords.add(newRecord);
-      }
-    } else if (recurrentPeriod == RecurrentPeriod.EveryTwoWeeks) {
-      int numberOfTwoWeeks =
-          (difference(endDate, lastUpdateTrimmed).abs().inDays / 14).floor();
-      for (int i = 1; i < numberOfTwoWeeks + 1; i++) {
-        DateTime recurrentRecordDate = dateAddDays(lastUpdateTrimmed, i * 14);
-        Record newRecord =
-            Record.fromRecurrencePattern(recordPattern, recurrentRecordDate);
-        newRecurrentRecords.add(newRecord);
-      }
-    } else {
-      int numberOfMonths = 1;
-      if (recurrentPeriod == RecurrentPeriod.EveryMonth) {
-        numberOfMonths = 1;
-      }
-      if (recurrentPeriod == RecurrentPeriod.EveryThreeMonths) {
-        numberOfMonths = 3;
-      }
-      if (recurrentPeriod == RecurrentPeriod.EveryFourMonths) {
-        numberOfMonths = 4;
-      }
-      if (recurrentPeriod == RecurrentPeriod.EveryYear) {
-        numberOfMonths = 12;
-      }
-      int counter = numberOfMonths;
-      while (true) {
-        DateTime tmpDate = new DateTime(lastUpdateTrimmed.year,
-            lastUpdateTrimmed.month + counter, lastUpdateTrimmed.day);
-        if (!tmpDate.isBefore(endDate)) {
-          break;
-        }
-        Record newRecord = Record.fromRecurrencePattern(recordPattern, tmpDate);
-        newRecurrentRecords.add(newRecord);
-        counter += numberOfMonths;
+
+    void addRecordsByDayInterval(int intervalDays) {
+      final totalDays = difference(endDate, lastUpdateTrimmed).inDays;
+      final count = (totalDays / intervalDays).floor();
+      for (int i = 1; i <= count; i++) {
+        final nextDate = dateAddDays(lastUpdateTrimmed, i * intervalDays);
+        newRecurrentRecords.add(
+          Record.fromRecurrencePattern(recordPattern, nextDate),
+        );
       }
     }
+
+    void addRecordsByMonthInterval(int monthStep) {
+      int counter = monthStep;
+      while (true) {
+        final nextDate = DateTime(
+          lastUpdateTrimmed.year,
+          lastUpdateTrimmed.month + counter,
+          lastUpdateTrimmed.day,
+        );
+        if (!nextDate.isBefore(endDate)) break;
+        newRecurrentRecords.add(
+          Record.fromRecurrencePattern(recordPattern, nextDate),
+        );
+        counter += monthStep;
+      }
+    }
+
+    switch (recordPattern.recurrentPeriod) {
+      case RecurrentPeriod.EveryDay:
+        addRecordsByDayInterval(1);
+        break;
+      case RecurrentPeriod.EveryWeek:
+        addRecordsByDayInterval(7);
+        break;
+      case RecurrentPeriod.EveryTwoWeeks:
+        addRecordsByDayInterval(14);
+        break;
+      case RecurrentPeriod.EveryMonth:
+        addRecordsByMonthInterval(1);
+        break;
+      case RecurrentPeriod.EveryThreeMonths:
+        addRecordsByMonthInterval(3);
+        break;
+      case RecurrentPeriod.EveryFourMonths:
+        addRecordsByMonthInterval(4);
+        break;
+      case RecurrentPeriod.EveryYear:
+        addRecordsByMonthInterval(12);
+        break;
+      default:
+        break;
+    }
+
     return newRecurrentRecords;
   }
 
+
   Future<void> updateRecurrentRecords() async {
     List<RecurrentRecordPattern> patterns =
-        await database.getRecurrentRecordPatterns();
-    DateTime currentDate = new DateTime.now();
+    await database.getRecurrentRecordPatterns();
+
     for (var pattern in patterns) {
-      var records = generateRecurrentRecordsFromDateTime(pattern, currentDate);
-      if (records.length > 0) {
+      // Now, adjusted to the local of the pattern origin
+      final int offsetMinutes = pattern.timezoneOffset ?? 0;
+      final DateTime currentUtc = DateTime.now().toUtc();
+      final DateTime currentLocal = currentUtc.add(Duration(minutes: offsetMinutes));
+
+      var records = generateRecurrentRecordsFromDateTime(pattern, currentLocal);
+
+      if (records.isNotEmpty) {
         for (var record in records) {
           await database.addRecord(record);
         }
@@ -119,4 +123,5 @@ class RecurrentRecordService {
       }
     }
   }
+
 }

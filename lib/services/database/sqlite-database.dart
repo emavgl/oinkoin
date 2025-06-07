@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart';
-import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
@@ -12,6 +10,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../helpers/datetime-utility-functions.dart';
 import 'exceptions.dart';
 
 class SqliteDatabase implements DatabaseInterface {
@@ -23,7 +22,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 9;
+  static int get version => 11;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -130,37 +129,45 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<void> addRecordsInBatch(List<Record?> records) async {
     final db = (await database)!;
-    Batch batch = db.batch(); // Start batch operation
+    final batch = db.batch();
 
     for (var record in records) {
-      if (record == null) {
-        continue;
+      if (record == null || record.dateTime == null || record.category == null || record.category!.categoryType == null) {
+        continue; // Skip invalid records
       }
 
-      record.id = null; // Strip ID to avoid collision
+      record.id = null; // Clear ID to avoid conflict on insert
+
+      final dateMillis = record.dateTime!.millisecondsSinceEpoch;
+      final dateIso = toIso8601(record.dateTime!);
 
       batch.rawInsert("""
-      INSERT OR IGNORE INTO records (title, value, datetime, category_name, category_type, description, recurrence_id) 
-      SELECT ?, ?, ?, ?, ?, ?, ? 
+      INSERT OR IGNORE INTO records (
+        title, value, datetime, date_iso_str, timezone_offset,
+        category_name, category_type, description, recurrence_id
+      )
+      SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
       WHERE NOT EXISTS (
-        SELECT 1 FROM records 
-        WHERE datetime = ? 
-          AND value = ? 
-          AND (title IS NULL OR title = ?) 
-          AND category_name = ? 
+        SELECT 1 FROM records
+        WHERE datetime = ?
+          AND value = ?
+          AND (title IS NULL OR title = ?)
+          AND category_name = ?
           AND category_type = ?
       )
     """, [
         record.title,
         record.value,
-        record.dateTime!.millisecondsSinceEpoch,
+        dateMillis,
+        dateIso,
+        record.timezoneOffset,
         record.category!.name,
         record.category!.categoryType!.index,
         record.description,
         record.recurrencePatternId,
 
-        // Duplicate check values
-        record.dateTime!.millisecondsSinceEpoch,
+        // Duplicate check
+        dateMillis,
         record.value,
         record.title,
         record.category!.name,
@@ -168,7 +175,7 @@ class SqliteDatabase implements DatabaseInterface {
       ]);
     }
 
-    await batch.commit(noResult: true); // Commit batch for performance
+    await batch.commit(noResult: true);
   }
 
 
@@ -241,13 +248,13 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<Record>> getAllRecordsInInterval(
       DateTime? from, DateTime? to) async {
     final db = (await database)!;
-    final fromUnix = from!.millisecondsSinceEpoch;
-    final toUnix = to!.millisecondsSinceEpoch;
+    final fromUnix = toIso8601(from!);
+    final toUnix = toIso8601(to!);
 
     var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
-            WHERE m.datetime >= ? AND m.datetime <= ? 
+            WHERE m.date_iso_str >= ? AND m.date_iso_str <= ? 
         """, [fromUnix, toUnix]);
 
     return List.generate(maps.length, (i) {
@@ -315,10 +322,10 @@ class SqliteDatabase implements DatabaseInterface {
   Future<void> deleteFutureRecordsByPatternId(
       String recurrentPatternId, DateTime startingDate) async {
     final db = (await database)!;
-    int millisecondsSinceEpoch = startingDate.millisecondsSinceEpoch;
+    String starting_date = toIso8601(startingDate);
     await db.delete("records",
-        where: "recurrence_id = ? AND datetime >= ?",
-        whereArgs: [recurrentPatternId, millisecondsSinceEpoch]);
+        where: "recurrence_id = ? AND date_iso_str >= ?",
+        whereArgs: [recurrentPatternId, starting_date]);
   }
 
   @override
@@ -389,7 +396,7 @@ class SqliteDatabase implements DatabaseInterface {
     final maps = await db?.rawQuery("""
         SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
         FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
-        ORDER BY m.datetime ASC
+        ORDER BY m.date_iso_str ASC
         LIMIT 1
       """);
 
