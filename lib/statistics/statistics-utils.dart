@@ -1,9 +1,9 @@
 import 'dart:ui';
 
+import "package:collection/collection.dart";
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import "package:collection/collection.dart";
 
 double computeNumberOfMonthsBetweenTwoDates(DateTime from, DateTime to) {
   var apprxSizeOfMonth = 30;
@@ -46,18 +46,18 @@ double? computeAverage(DateTime from, DateTime to,
   }
 }
 
-DateTime? truncateDateTime(
-    DateTime? dateTime, AggregationMethod? aggregationMethod) {
-  DateTime? newDateTime;
+DateTime truncateDateTime(
+    DateTime dateTime, AggregationMethod? aggregationMethod) {
+  DateTime newDateTime;
   switch (aggregationMethod!) {
     case AggregationMethod.DAY:
-      newDateTime = new DateTime(dateTime!.year, dateTime.month, dateTime.day);
+      newDateTime = new DateTime(dateTime.year, dateTime.month, dateTime.day);
       break;
     case AggregationMethod.MONTH:
-      newDateTime = new DateTime(dateTime!.year, dateTime.month);
+      newDateTime = new DateTime(dateTime.year, dateTime.month);
       break;
     case AggregationMethod.YEAR:
-      newDateTime = new DateTime(dateTime!.year);
+      newDateTime = new DateTime(dateTime.year);
       break;
     case AggregationMethod.NOT_AGGREGATED:
       newDateTime = dateTime;
@@ -106,7 +106,7 @@ List<Record?> aggregateRecordsByDateAndCategory(
         var value = recordsSameDateTimeSameCategory.value.fold(0,
             (dynamic previousValue, element) => previousValue + element!.value);
         aggregatedRecord = new Record(value, category.name, category,
-            truncateDateTime(recordsByDatetime.key, aggregationMethod));
+            truncateDateTime(recordsByDatetime.key!, aggregationMethod));
         aggregatedRecord.aggregatedValues =
             recordsSameDateTimeSameCategory.value.length;
       } else {

@@ -1,3 +1,5 @@
+// file: edit-record-page.dart
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -23,10 +25,6 @@ import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
 
 class EditRecordPage extends StatefulWidget {
-  /// EditMovementPage is a page containing forms for the editing of a Movement object.
-  /// EditMovementPage can take the movement object to edit as a constructor parameters
-  /// or can create a new Movement otherwise.
-
   final Record? passedRecord;
   final Category? passedCategory;
   final RecurrentRecordPattern? passedReccurrentRecordPattern;
@@ -62,6 +60,8 @@ class EditRecordPageState extends State<EditRecordPage> {
   late String currency;
   DateTime? lastCharInsertedMillisecond;
   late bool enableRecordNameSuggestions;
+
+  DateTime? localDisplayDate;
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
@@ -161,10 +161,11 @@ class EditRecordPageState extends State<EditRecordPage> {
     if (passedRecord != null) {
       // I am editing an existing record
       record = passedRecord;
+      // Use the localDateTime getter for display purposes
+      localDisplayDate = passedRecord!.localDateTime;
       _textEditingController.text =
           getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
       if (record!.recurrencePatternId != null) {
-        // the record I am editing comes from a recurrent pattern
         database
             .getRecurrentRecordPattern(record!.recurrencePatternId)
             .then((value) {
@@ -178,13 +179,20 @@ class EditRecordPageState extends State<EditRecordPage> {
       }
     } else if (passedReccurrentRecordPattern != null) {
       // I am editing a recurrent pattern
-      record = new Record(
+      // Instantiate a new Record object from the pattern
+      record = Record(
         passedReccurrentRecordPattern!.value,
         passedReccurrentRecordPattern!.title,
         passedReccurrentRecordPattern!.category,
-        passedReccurrentRecordPattern!.dateTime,
+        // The record's utcDateTime is from the pattern's utcDateTime
+        passedReccurrentRecordPattern!.utcDateTime,
+        // The record's timezone name is from the pattern's timezone name
+        timeZoneName: passedReccurrentRecordPattern!.timeZoneName,
         description: passedReccurrentRecordPattern!.description,
       );
+      // Use the localDateTime for display
+      localDisplayDate = passedReccurrentRecordPattern!.localDateTime;
+
       _textEditingController.text =
           getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
       setState(() {
@@ -194,12 +202,12 @@ class EditRecordPageState extends State<EditRecordPage> {
       });
     } else {
       // I am adding a new record
-      record = new Record(null, null, passedCategory, DateTime.now());
+      // Create a new record with a UTC timestamp and the current local timezone
+      record = Record(null, null, passedCategory, DateTime.now().toUtc());
+      localDisplayDate = record!.localDateTime;
     }
 
-    // Keyboard listeners initializations
-
-    // char validation
+    // Keyboard listeners initializations (the same as before)
     _textEditingController.addListener(() {
       lastCharInsertedMillisecond = DateTime.now();
       var text = _textEditingController.text.toLowerCase();
@@ -214,11 +222,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       if (overwriteCommaValue) {
         text = text.replaceAll(",", ".");
       }
-
-      // Get the current selection
       TextSelection previousSelection = _textEditingController.selection;
-
-      // Update the text
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
         selection: previousSelection,
@@ -237,6 +241,13 @@ class EditRecordPageState extends State<EditRecordPage> {
 
     String initialValue = record?.title ?? "";
     _typeAheadController.text = initialValue;
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    _typeAheadController.dispose();
+    super.dispose();
   }
 
   Widget _createAddNoteCard() {
@@ -404,7 +415,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                         return; // do nothing!
                       }
                       FocusScope.of(context).unfocus();
-                      DateTime initialDate = record!.dateTime ?? DateTime.now();
+                      // Use the localDisplayDate for the initial date
+                      DateTime initialDate = localDisplayDate ?? DateTime.now();
                       DateTime? result = await showDatePicker(
                           context: context,
                           initialDate: initialDate,
@@ -413,7 +425,11 @@ class EditRecordPageState extends State<EditRecordPage> {
                               DateTime.now().add(new Duration(days: 365)));
                       if (result != null) {
                         setState(() {
-                          record!.dateTime = result;
+                          // Update the localDisplayDate
+                          localDisplayDate = result;
+                          // Convert the selected local date to a UTC date
+                          record!.utcDateTime = result.toUtc();
+                          record!.timeZoneName = ServiceConfig.localTimezone;
                         });
                       }
                     },
@@ -431,7 +447,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                             Container(
                               margin: EdgeInsets.only(left: 20, right: 20),
                               child: Text(
-                                getDateStr(record!.dateTime),
+                                // Use the localDisplayDate for display
+                                getDateStr(localDisplayDate),
                                 style: TextStyle(
                                     fontSize: 20,
                                     color: Theme.of(context)
@@ -443,9 +460,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                         ))),
               ),
               Visibility(
-                visible: record!.id == null ||
-                    recurrentPeriod !=
-                        null, // when record comes from recurrent record
+                visible: record!.id == null || recurrentPeriod != null,
                 child: Column(
                   children: [
                     Divider(
@@ -625,7 +640,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     if (numericValue != null) {
       numericValue = numericValue.abs();
       if (record!.category!.categoryType == CategoryType.expense) {
-        // value is an expenses, needs to be negative
         numericValue = numericValue * -1;
       }
       record!.value = numericValue;
@@ -644,32 +658,26 @@ class EditRecordPageState extends State<EditRecordPage> {
   recurrentPeriodHasBeenUpdated(RecurrentRecordPattern toSet) {
     bool recurrentPeriodHasChanged = toSet.recurrentPeriod!.index !=
         passedReccurrentRecordPattern!.recurrentPeriod!.index;
-    bool startingDateHasChanged = toSet.dateTime!.millisecondsSinceEpoch !=
-        passedReccurrentRecordPattern!.dateTime!.millisecondsSinceEpoch;
+    // Compare the UTC timestamps
+    bool startingDateHasChanged = toSet.utcDateTime.millisecondsSinceEpoch !=
+        passedReccurrentRecordPattern!.utcDateTime.millisecondsSinceEpoch;
     return recurrentPeriodHasChanged || startingDateHasChanged;
   }
 
   addOrUpdateRecurrentPattern({id}) async {
+    // Create a new recurrent pattern from the updated record
     RecurrentRecordPattern recordPattern =
-        RecurrentRecordPattern.fromRecord(record!, recurrentPeriod, id: id);
+        RecurrentRecordPattern.fromRecord(record!, recurrentPeriod!, id: id);
     if (id != null) {
       if (recurrentPeriodHasBeenUpdated(recordPattern)) {
-        // RecurrentPeriod or Dates have been updated
-        // The user will see old records with the new recurrent period
-        // For consistency reasons with the pre-existing generated records
-        // It is better to completely delete the pattern and create a new one
-        // In this case, the old record will lose the reference to the pattern
-        // and it will not create confusion.
-        await database.deleteFutureRecordsByPatternId(id, record!.dateTime!);
+        await database.deleteFutureRecordsByPatternId(id, record!.utcDateTime);
         await database.deleteRecurrentRecordPatternById(id);
         await database.addRecurrentRecordPattern(recordPattern);
       } else {
-        // Value or some description has been updated
-        await database.deleteFutureRecordsByPatternId(id, record!.dateTime!);
+        await database.deleteFutureRecordsByPatternId(id, record!.utcDateTime);
         await database.updateRecordPatternById(id, recordPattern);
       }
     } else {
-      // Since ID is null, a new recurrent pattern needs to be created
       await database.addRecurrentRecordPattern(recordPattern);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
@@ -714,8 +722,9 @@ class EditRecordPageState extends State<EditRecordPage> {
                       } else {
                         String patternId =
                             widget.passedReccurrentRecordPattern!.id!;
+                        // Use the current UTC time when deleting future records
                         await database.deleteFutureRecordsByPatternId(
-                            patternId, DateTime.now());
+                            patternId, DateTime.now().toUtc());
                         await database
                             .deleteRecurrentRecordPatternById(patternId);
                       }
@@ -771,10 +780,6 @@ class EditRecordPageState extends State<EditRecordPage> {
                       id: recurrentPatternId,
                     );
                   } else {
-                    // It is a normal record, either single or it comes from a
-                    // recurrent pattern. When saving the record, we need
-                    // to add/update the single instance and never touch the pattern
-                    // from this page.
                     await addOrUpdateRecord();
                   }
                 }
