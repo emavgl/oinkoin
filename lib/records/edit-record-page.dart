@@ -607,7 +607,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                   style: TextStyle(
                       fontSize: 32.0,
                       color: Theme.of(context).colorScheme.onSurface),
-                  keyboardType: TextInputType.phone,
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: true,
+                      decimal: true,
+                  ),
                   decoration: InputDecoration(
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       hintText: "0",
