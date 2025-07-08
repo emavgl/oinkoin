@@ -78,13 +78,13 @@ class Category extends Model {
       'sort_order': sortOrder, // Add sortOrder to the map
     };
     if (color != null) {
-      map['color'] = color!.alpha.toString() +
+      map['color'] = color!.a.toInt().toString() +
           ":" +
-          color!.red.toString() +
+          color!.r.toInt().toString() +
           ":" +
-          color!.green.toString() +
+          color!.g.toInt().toString() +
           ":" +
-          color!.blue.toString();
+          color!.b.toInt().toString();
     }
     if (this.icon != null) {
       map['icon'] = this.icon!.codePoint;

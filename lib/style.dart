@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:piggybank/settings/constants/preferences-defaults-values.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
