@@ -26,7 +26,7 @@ class MaterialThemeInstance {
   static Future<ColorScheme> getColorScheme(Brightness brightness) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? dynamicColorScheme =
-      PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeColor);
+        PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeColor);
 
     switch (dynamicColorScheme) {
       case 1:
@@ -53,7 +53,6 @@ class MaterialThemeInstance {
 
       default:
         {
-          log("Using default colors");
           return getDefaultColorScheme(brightness);
         }
     }
@@ -70,7 +69,8 @@ class MaterialThemeInstance {
 
   static Future<ThemeMode> getThemeMode() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? themeModeIndex = PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeMode);
+    int? themeModeIndex =
+        PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeMode);
     themeMode = ThemeMode.values[themeModeIndex!];
     return themeMode!;
   }

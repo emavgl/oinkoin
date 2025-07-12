@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/model.dart';
+
+import '../helpers/color-utils.dart';
 import 'category-type.dart';
 
 class Category extends Model {
@@ -78,13 +80,7 @@ class Category extends Model {
       'sort_order': sortOrder, // Add sortOrder to the map
     };
     if (color != null) {
-      map['color'] = color!.a.toInt().toString() +
-          ":" +
-          color!.r.toInt().toString() +
-          ":" +
-          color!.g.toInt().toString() +
-          ":" +
-          color!.b.toInt().toString();
+      map['color'] = serializeColorToString(color!);
     }
     if (this.icon != null) {
       map['icon'] = this.icon!.codePoint;
@@ -137,9 +133,9 @@ class Category extends Model {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          (other is Category &&
-              other.name == name &&
-              other.categoryType == categoryType);
+      (other is Category &&
+          other.name == name &&
+          other.categoryType == categoryType);
 
   @override
   int get hashCode => Object.hash(name, categoryType);
