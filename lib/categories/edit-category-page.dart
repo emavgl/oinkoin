@@ -111,7 +111,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   Widget _getIconsGrid() {
     var surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
     var bottonActionColor = Theme.of(context).colorScheme.surfaceContainerLow;
-    var buttonColors = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
+    var buttonColors = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     return Column(
       children: [
         Offstage(
@@ -209,7 +209,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                       : Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.6),
+                          .withValues(alpha: 0.6),
                   onPressed: () {
                     setState(() {
                       _emojiShowing = false; // Hide emoji picker if open
@@ -299,7 +299,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.8), // Light grey border
+                          .withValues(alpha: 0.8), // Light grey border
                       width: 2.0, // Border width
                     ),
                   ),

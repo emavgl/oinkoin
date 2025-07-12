@@ -13,11 +13,7 @@ import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:piggybank/i18n.dart';
-
-import 'dart:io';
-import 'package:future_progress_dialog/future_progress_dialog.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -94,8 +90,8 @@ class TabSettings extends StatelessWidget {
   }
 
   _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
     }
   }
 

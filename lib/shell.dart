@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For PlatformException
 import 'package:local_auth/local_auth.dart'; // Ensure this is added in pubspec.yaml
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/records-page.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/settings-page.dart';
 import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'categories/categories-tab-page-edit.dart';
-import 'package:piggybank/i18n.dart';
 
 class Shell extends StatefulWidget {
   @override
@@ -50,6 +51,7 @@ class ShellState extends State<Shell> {
 
   @override
   Widget build(BuildContext context) {
+    print("Shell build called");
     return FutureBuilder<bool>(
       future: authFuture,
       builder: (context, snapshot) {
@@ -94,7 +96,6 @@ class ShellState extends State<Shell> {
       },
     );
   }
-
 
   Widget _buildMainUI(BuildContext context) {
     ThemeData themeData = Theme.of(context);

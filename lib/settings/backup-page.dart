@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
@@ -52,7 +50,7 @@ class BackupPageState extends State<BackupPage> {
         : await BackupService.getDefaultFileName();
     File backupFile =
     await BackupService.createJsonBackupFile(backupFileName: filename);
-    Share.shareXFiles([XFile(backupFile.path)]);
+    SharePlus.instance.share(ShareParams(files: [XFile(backupFile.path)]));
   }
 
   storeBackupFile() async {

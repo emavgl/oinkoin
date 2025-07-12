@@ -14,10 +14,10 @@ class InMemoryDatabase implements DatabaseInterface {
 
   static List<Category?> _categories = [
     Category("Rent",
-        iconCodePoint: FontAwesomeIcons.home.codePoint,
+        iconCodePoint: FontAwesomeIcons.house.codePoint,
         categoryType: CategoryType.expense),
     Category("Food",
-        iconCodePoint: FontAwesomeIcons.hamburger.codePoint,
+        iconCodePoint: FontAwesomeIcons.burger.codePoint,
         categoryType: CategoryType.expense),
     Category("Salary",
         iconCodePoint: FontAwesomeIcons.wallet.codePoint,
