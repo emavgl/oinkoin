@@ -1,0 +1,75 @@
+name: Release internal channel
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[auto]')"
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # Navigate to the submodule and perform the necessary git operations
+      - name: Update flutter submodule to stable branch
+        run: |
+          git submodule update --init --recursive
+          cd submodules/flutter
+          git reset --merge
+          git checkout stable
+          git pull origin stable
+          cd ../..
+
+      - run: submodules/flutter/bin/flutter pub get
+
+      - name: Run Flutter tests
+        run: submodules/flutter/bin/flutter test
+
+      - name: Set up signing config
+        run: |
+          echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
+          echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" | base64 -d - > key.properties
+          export X_KEYSTORE_PATH="$(pwd)/upload-keystore.jks"
+          echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
+          cp key.properties android/key.properties
+
+      - name: Bump new version
+        run: |
+          echo "Internal" > changelog.temp
+          python bump_new_version.py keep changelog.temp
+
+      # Commit all changed files back to the repository
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: master
+          commit_message: "[auto] version bump"
+          file_pattern: 'pubspec.* *.txt'
+
+      - name: Build app bundle
+        run: |
+          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
+
+      - name: Publish on Google Play Pro
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_DEV_CONSOLE_SERVICE_ACCOUNT_JSON }}
+          packageName: com.github.emavgl.piggybankpro
+          releaseFiles: build/app/outputs/bundle/proRelease/app-pro-release.aab
+          whatsNewDirectory: metadata/en-US
+          track: alpha
