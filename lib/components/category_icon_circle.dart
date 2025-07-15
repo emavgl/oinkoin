@@ -60,7 +60,7 @@ class CategoryIconCircle extends StatelessWidget {
         shape: BoxShape.circle,
         color: iconBackground
             ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surfaceContainer.withOpacity(0.8),
+            : Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.8),
       ),
       child: Icon(
         overlayIcon,

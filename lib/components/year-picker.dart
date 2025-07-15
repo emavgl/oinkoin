@@ -656,11 +656,11 @@ class YearPickerState extends State<CustomYearPicker> {
     if (isSelected) {
       textColor = colorScheme.onPrimary;
     } else if (isDisabled) {
-      textColor = colorScheme.onSurface.withOpacity(0.38);
+      textColor = colorScheme.onSurface.withValues(alpha: 0.38);
     } else if (isCurrentYear) {
       textColor = colorScheme.primary;
     } else {
-      textColor = colorScheme.onSurface.withOpacity(0.87);
+      textColor = colorScheme.onSurface.withValues(alpha: 0.87);
     }
     final TextStyle? itemStyle = textTheme.bodyLarge?.apply(color: textColor);
 

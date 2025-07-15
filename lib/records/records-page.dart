@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
-import 'package:piggybank/components/year-picker.dart';
+import 'package:piggybank/components/year-picker.dart' as yp;
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
@@ -136,8 +136,7 @@ class TabRecordsState extends State<TabRecords> {
     DateTime? dateTime = await showMonthPicker(
       context: context,
       lastDate: DateTime(currentYear + 1, 12),
-      initialDate: currentDate,
-      locale: I18n.locale,
+      initialDate: currentDate
     );
     if (dateTime != null) {
       _customIntervalFrom = new DateTime(dateTime.year, dateTime.month, 1);
@@ -159,7 +158,7 @@ class TabRecordsState extends State<TabRecords> {
     DateTime initialDate = DateTime(currentDate.year, 1);
     DateTime lastDate = DateTime(currentDate.year + 1, 1);
     DateTime firstDate = DateTime(1950, currentDate.month);
-    DateTime? yearPicked = await showYearPicker(
+    DateTime? yearPicked = await yp.showYearPicker(
       firstDate: firstDate,
       lastDate: lastDate,
       initialDate: initialDate,
@@ -465,7 +464,7 @@ class TabRecordsState extends State<TabRecords> {
                     final path = await getApplicationDocumentsDirectory();
                     var backupJsonOnDisk = File(path.path + "/records.csv");
                     await backupJsonOnDisk.writeAsString(csvStr);
-                    Share.shareXFiles([XFile(backupJsonOnDisk.path)]);
+                    SharePlus.instance.share(ShareParams(files: [XFile(backupJsonOnDisk.path)]));
                   }
                 },
                 itemBuilder: (BuildContext context) {
@@ -535,7 +534,7 @@ class TabRecordsState extends State<TabRecords> {
               ),
               background: ColorFiltered(
                   colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.1), BlendMode.srcATop),
+                      Colors.black.withValues(alpha: 0.1), BlendMode.srcATop),
                   child: Container(
                       decoration: BoxDecoration(
                           image: DecorationImage(
