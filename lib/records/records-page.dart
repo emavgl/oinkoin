@@ -1,15 +1,18 @@
 import 'dart:core';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:piggybank/components/year-picker.dart' as yp;
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/records/records-day-list.dart';
@@ -22,11 +25,9 @@ import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:share_plus/share_plus.dart';
+
 import '../helpers/records-utility-functions.dart';
 import 'days-summary-box-card.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:piggybank/i18n.dart';
-import 'dart:io';
 
 class TabRecords extends StatefulWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
@@ -39,10 +40,9 @@ class TabRecords extends StatefulWidget {
 }
 
 class TabRecordsState extends State<TabRecords> {
-
   List<Record?> records = [];
-  List<Record?>? overviewRecords = null; // it is important this to be null, meaning records will be used!
-
+  List<Record?>? overviewRecords =
+      null; // it is important this to be null, meaning records will be used!
 
   DatabaseInterface database = ServiceConfig.database;
   String _header = "";
@@ -71,7 +71,7 @@ class TabRecordsState extends State<TabRecords> {
     _listener = AppLifecycleListener(
       onStateChange: _handleOnResume,
     );
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       updateRecurrentRecordsAndFetchRecords();
     });
   }
@@ -134,10 +134,9 @@ class TabRecordsState extends State<TabRecords> {
     DateTime? currentDate = _customIntervalFrom ?? DateTime.now();
     int currentYear = DateTime.now().year;
     DateTime? dateTime = await showMonthPicker(
-      context: context,
-      lastDate: DateTime(currentYear + 1, 12),
-      initialDate: currentDate
-    );
+        context: context,
+        lastDate: DateTime(currentYear + 1, 12),
+        initialDate: currentDate);
     if (dateTime != null) {
       _customIntervalFrom = new DateTime(dateTime.year, dateTime.month, 1);
       _customIntervalTo = getEndOfMonth(dateTime.year, dateTime.month);
@@ -185,13 +184,11 @@ class TabRecordsState extends State<TabRecords> {
     DateTimeRange initialDateTimeRange = DateTimeRange(
         start: DateTime.now().subtract(Duration(days: 7)), end: currentDate);
     DateTimeRange? dateTimeRange = await showDateRangePicker(
-      context: context,
-      firstDate: firstDate,
-      lastDate: lastDate,
-      initialDateRange: initialDateTimeRange,
-      locale: I18n
-          .forcedLocale, // do not change, it has some bug if not used forced locale
-    );
+        context: context,
+        firstDate: firstDate,
+        lastDate: lastDate,
+        initialDateRange: initialDateTimeRange,
+        locale: I18n.locale);
     if (dateTimeRange != null) {
       _customIntervalFrom = DateTime(dateTimeRange.start.year,
           dateTimeRange.start.month, dateTimeRange.start.day);
@@ -345,10 +342,14 @@ class TabRecordsState extends State<TabRecords> {
     setState(() {
       records = newRecords;
     });
-    OverviewTimeInterval overviewTimeIntervalEnum = getHomepageOverviewWidgetTimeIntervalEnumSetting();
+    OverviewTimeInterval overviewTimeIntervalEnum =
+        getHomepageOverviewWidgetTimeIntervalEnumSetting();
     if (overviewTimeIntervalEnum != OverviewTimeInterval.DisplayedRecords) {
-      HomepageTimeInterval recordTimeIntervalEnum = mapOverviewTimeIntervalToHomepageTimeInterval(overviewTimeIntervalEnum);
-      var fetchedRecords = await getRecordsByHomepageTimeInterval(database, recordTimeIntervalEnum);
+      HomepageTimeInterval recordTimeIntervalEnum =
+          mapOverviewTimeIntervalToHomepageTimeInterval(
+              overviewTimeIntervalEnum);
+      var fetchedRecords = await getRecordsByHomepageTimeInterval(
+          database, recordTimeIntervalEnum);
       setState(() {
         overviewRecords = fetchedRecords;
       });
@@ -445,8 +446,7 @@ class TabRecordsState extends State<TabRecords> {
                   color: Colors.white),
               IconButton(
                   icon: Semantics(
-                      identifier: 'statistics',
-                      child: Icon(Icons.donut_small)),
+                      identifier: 'statistics', child: Icon(Icons.donut_small)),
                   onPressed: () => navigateToStatisticsPage(),
                   color: Colors.white),
               PopupMenuButton<int>(
@@ -460,11 +460,13 @@ class TabRecordsState extends State<TabRecords> {
                 ),
                 onSelected: (index) async {
                   if (index == 1) {
-                    var csvStr = CSVExporter.createCSVFromRecordList(this.records);
+                    var csvStr =
+                        CSVExporter.createCSVFromRecordList(this.records);
                     final path = await getApplicationDocumentsDirectory();
                     var backupJsonOnDisk = File(path.path + "/records.csv");
                     await backupJsonOnDisk.writeAsString(csvStr);
-                    SharePlus.instance.share(ShareParams(files: [XFile(backupJsonOnDisk.path)]));
+                    SharePlus.instance.share(
+                        ShareParams(files: [XFile(backupJsonOnDisk.path)]));
                   }
                 },
                 itemBuilder: (BuildContext context) {
@@ -483,99 +485,103 @@ class TabRecordsState extends State<TabRecords> {
             ],
             pinned: true,
             expandedHeight: 180,
-          flexibleSpace: FlexibleSpaceBar(
-              stretchModes: <StretchMode>[
-                StretchMode.zoomBackground,
-                StretchMode.blurBackground,
-                StretchMode.fadeTitle,
-              ],
-              centerTitle: false,
-              titlePadding: !_isAppBarExpanded
-                  ? EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom)
-                  : EdgeInsets.fromLTRB(canShiftBack ? 0 : 15, 15, canShiftForward ? 0 : 15, headerPaddingBottom),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  if (_isAppBarExpanded && canShiftBack)
-                    SizedBox(
-                      height: 30,
-                      width: 30,
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_left, color: Colors.white, size: 24),
-                        onPressed: () async => shiftMonthOrYear(-1),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
-                      ),
-                    ),
-                  Expanded(
-                    child: Semantics(
-                      identifier: 'date-text',
-                      child: Text(
-                        _header,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(color: Colors.white, fontSize: headerFontSize),
-                      ),
-                    ),
-                  ),
-                  if (_isAppBarExpanded
-                      && canShiftForward)
-                    SizedBox(
-                      height: 30,
-                      width: 30,
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_right, color: Colors.white, size: 24),
-                        onPressed: () async => shiftMonthOrYear(1),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
-                      ),
-                    ),
+            flexibleSpace: FlexibleSpaceBar(
+                stretchModes: <StretchMode>[
+                  StretchMode.zoomBackground,
+                  StretchMode.blurBackground,
+                  StretchMode.fadeTitle,
                 ],
-              ),
-              background: ColorFiltered(
-                  colorFilter: ColorFilter.mode(
-                      Colors.black.withValues(alpha: 0.1), BlendMode.srcATop),
-                  child: Container(
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              fit: BoxFit.cover, image: getBackgroundImage()))))),
+                centerTitle: false,
+                titlePadding: !_isAppBarExpanded
+                    ? EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom)
+                    : EdgeInsets.fromLTRB(canShiftBack ? 0 : 15, 15,
+                        canShiftForward ? 0 : 15, headerPaddingBottom),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    if (_isAppBarExpanded && canShiftBack)
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_left,
+                              color: Colors.white, size: 24),
+                          onPressed: () async => shiftMonthOrYear(-1),
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
+                      ),
+                    Expanded(
+                      child: Semantics(
+                        identifier: 'date-text',
+                        child: Text(
+                          _header,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: Colors.white, fontSize: headerFontSize),
+                        ),
+                      ),
+                    ),
+                    if (_isAppBarExpanded && canShiftForward)
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_right,
+                              color: Colors.white, size: 24),
+                          onPressed: () async => shiftMonthOrYear(1),
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
+                      ),
+                  ],
+                ),
+                background: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                        Colors.black.withValues(alpha: 0.1), BlendMode.srcATop),
+                    child: Container(
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: getBackgroundImage()))))),
           ),
           SliverList(
               delegate: SliverChildListDelegate([
-                Container(
-                    margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
-                    height: 100,
-                    child: DaysSummaryBox(overviewRecords ?? records)),
-                Divider(indent: 50, endIndent: 50),
-                records.length == 0
-                    ? Container(
+            Container(
+                margin: const EdgeInsets.fromLTRB(6, 10, 6, 5),
+                height: 100,
+                child: DaysSummaryBox(overviewRecords ?? records)),
+            Divider(indent: 50, endIndent: 50),
+            records.length == 0
+                ? Container(
                     child: Column(
-                      children: <Widget>[
-                        Image.asset(
-                          'assets/images/no_entry.png',
-                          width: 200,
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/no_entry.png',
+                        width: 200,
+                      ),
+                      Text(
+                        "No entries yet.".i18n,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22.0,
                         ),
-                        Text(
-                          "No entries yet.".i18n,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 22.0,
-                          ),
-                        )
-                      ],
-                    ))
-                    : Container()
-              ])),
+                      )
+                    ],
+                  ))
+                : Container()
+          ])),
           RecordsDayList(
             records,
             onListBackCallback: updateRecurrentRecordsAndFetchRecords,
           ),
           SliverList(
               delegate: SliverChildListDelegate([
-                SizedBox(
-                  height: 75,
-                )
-              ]))
+            SizedBox(
+              height: 75,
+            )
+          ]))
         ]),
       ),
       floatingActionButton: FloatingActionButton(
@@ -596,10 +602,12 @@ class TabRecordsState extends State<TabRecords> {
     String newHeader;
     if (_customIntervalFrom != null) {
       if (isFullMonth(_customIntervalFrom!, _customIntervalTo!)) {
-        newFrom = DateTime(_customIntervalFrom!.year, _customIntervalFrom!.month + shift, 1);
+        newFrom = DateTime(
+            _customIntervalFrom!.year, _customIntervalFrom!.month + shift, 1);
         newTo = getEndOfMonth(newFrom.year, newFrom.month);
         newHeader = getMonthStr(newFrom);
-        newRecords = await getRecordsByMonth(database, newFrom.year, newFrom.month);
+        newRecords =
+            await getRecordsByMonth(database, newFrom.year, newFrom.month);
       } else {
         // Is full-year
         newFrom = DateTime(_customIntervalFrom!.year + shift, 1, 1);
@@ -614,7 +622,8 @@ class TabRecordsState extends State<TabRecords> {
         newFrom = DateTime(d.year, d.month + shift, 1);
         newTo = getEndOfMonth(newFrom.year, newFrom.month);
         newHeader = getMonthStr(newFrom);
-        newRecords = await getRecordsByMonth(database, newFrom.year, newFrom.month);
+        newRecords =
+            await getRecordsByMonth(database, newFrom.year, newFrom.month);
       } else {
         // hti == CurrentYear
         newFrom = DateTime(d.year + shift, 1, 1);

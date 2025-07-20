@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For PlatformException
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:local_auth/local_auth.dart'; // Ensure this is added in pubspec.yaml
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/records-page.dart';
@@ -112,6 +113,7 @@ class ShellState extends State<Shell> {
             enabled: _currentIndex == 0,
             child: MaterialApp(
               home: TabRecords(key: _tabRecordsKey),
+              localizationsDelegates: I18n.localizationsDelegates,
               title: "Oinkoin",
               theme: lightTheme,
               darkTheme: darkTheme,
@@ -126,6 +128,7 @@ class ShellState extends State<Shell> {
             child: MaterialApp(
               home: TabCategories(key: _tabCategoriesKey),
               title: "Oinkoin",
+              localizationsDelegates: I18n.localizationsDelegates,
               theme: lightTheme,
               darkTheme: darkTheme,
               themeMode: themeMode,
@@ -138,6 +141,7 @@ class ShellState extends State<Shell> {
             enabled: _currentIndex == 2,
             child: MaterialApp(
               home: TabSettings(),
+              localizationsDelegates: I18n.localizationsDelegates,
               title: "Oinkoin",
               theme: lightTheme,
               darkTheme: darkTheme,

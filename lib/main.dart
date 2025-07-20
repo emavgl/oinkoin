@@ -34,29 +34,72 @@ main() async {
   final darkTheme = await MaterialThemeInstance.getDarkTheme();
   final themeMode = await MaterialThemeInstance.getThemeMode();
 
-  runApp(
-    I18n(
+  runApp(MyApp(
+      languageLocale: languageLocale,
+      lightTheme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode));
+}
+
+class MyApp extends StatelessWidget {
+  // Declare languageLocale as a final instance variable
+  final Locale languageLocale;
+  final ThemeData lightTheme;
+  final ThemeData darkTheme;
+  final ThemeMode themeMode;
+
+  // Constructor to initialize the instance variables
+  MyApp({
+    required this.languageLocale,
+    required this.lightTheme,
+    required this.darkTheme,
+    required this.themeMode,
+  });
+
+  Widget build(BuildContext context) {
+    return I18n(
       initialLocale: languageLocale,
-      child: MaterialApp(
-        locale: I18n.locale,
-        debugShowCheckedModeBanner: false,
-        onNavigationNotification: _defaultOnNavigationNotification,
-        localizationsDelegates: [
-          DefaultMaterialLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          DefaultCupertinoLocalizations.delegate
-        ],
-        supportedLocales: LocaleService.supportedLocales,
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode: themeMode,
-        title: "Oinkoin",
-        home: Shell(),
-      ),
-    ),
-  );
+      supportedLocales: LocaleService.supportedLocales,
+      localizationsDelegates: [
+        DefaultMaterialLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate
+      ],
+      child: AppCore(
+          lightTheme: lightTheme, darkTheme: darkTheme, themeMode: themeMode),
+    );
+  }
+}
+
+class AppCore extends StatelessWidget {
+  // Declare languageLocale as a final instance variable
+  final ThemeData lightTheme;
+  final ThemeData darkTheme;
+  final ThemeMode themeMode;
+
+  // Constructor to initialize the instance variables
+  AppCore({
+    required this.lightTheme,
+    required this.darkTheme,
+    required this.themeMode,
+  });
+
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      locale: I18n.locale,
+      localizationsDelegates: I18n.localizationsDelegates,
+      supportedLocales: I18n.supportedLocales,
+      debugShowCheckedModeBanner: false,
+      onNavigationNotification: _defaultOnNavigationNotification,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
+      title: "Oinkoin",
+      home: Shell(),
+    );
+  }
 }
 
 bool _defaultOnNavigationNotification(NavigationNotification _) {
