@@ -58,7 +58,7 @@ jobs:
         with:
           branch: master
           commit_message: "[auto] version bump"
-          file_pattern: 'pubspec.* *.txt submobules/*'
+          file_pattern: 'pubspec.* *.txt submodules/*'
 
       - name: Update the tag
         run: |
