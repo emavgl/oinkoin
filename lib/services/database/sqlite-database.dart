@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:path/path.dart';
-import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
@@ -10,6 +9,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common/sqflite_logger.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
 import 'exceptions.dart';
@@ -23,7 +23,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 9;
+  static int get version => 11;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -130,18 +130,18 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<void> addRecordsInBatch(List<Record?> records) async {
     final db = (await database)!;
-    Batch batch = db.batch(); // Start batch operation
+    Batch batch = db.batch();
 
     for (var record in records) {
       if (record == null) {
         continue;
       }
+      record.id = null;
 
-      record.id = null; // Strip ID to avoid collision
-
+      // Update the INSERT statement to include the new column `time_zone_name`
       batch.rawInsert("""
-      INSERT OR IGNORE INTO records (title, value, datetime, category_name, category_type, description, recurrence_id) 
-      SELECT ?, ?, ?, ?, ?, ?, ? 
+      INSERT OR IGNORE INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id) 
+      SELECT ?, ?, ?, ?, ?, ?, ?, ?
       WHERE NOT EXISTS (
         SELECT 1 FROM records 
         WHERE datetime = ? 
@@ -153,14 +153,15 @@ class SqliteDatabase implements DatabaseInterface {
     """, [
         record.title,
         record.value,
-        record.dateTime!.millisecondsSinceEpoch,
+        record.utcDateTime.millisecondsSinceEpoch, // Use utcDateTime
+        record.timeZoneName, // Store the timezone name
         record.category!.name,
         record.category!.categoryType!.index,
         record.description,
         record.recurrencePatternId,
 
         // Duplicate check values
-        record.dateTime!.millisecondsSinceEpoch,
+        record.utcDateTime.millisecondsSinceEpoch,
         record.value,
         record.title,
         record.category!.name,
@@ -168,16 +169,13 @@ class SqliteDatabase implements DatabaseInterface {
       ]);
     }
 
-    await batch.commit(noResult: true); // Commit batch for performance
+    await batch.commit(noResult: true);
   }
-
 
   @override
   Future<Record?> getMatchingRecord(Record? record) async {
-    /// Check if there are records with the same title, value, category on the same day of :record
-    /// If yes, return the first match. If no, null is returned.
     final db = await database;
-    var sameDateTime = record!.dateTime!.millisecondsSinceEpoch;
+    var sameDateTime = record!.utcDateTime.millisecondsSinceEpoch;
     var sameValue = record.value;
     var sameTitle = record.title;
     var sameCategoryName = record.category!.name;
@@ -239,10 +237,15 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<List<Record>> getAllRecordsInInterval(
-      DateTime? from, DateTime? to) async {
+      DateTime? localDateTimeFrom, DateTime? localDateTimeTo) async {
     final db = (await database)!;
-    final fromUnix = from!.millisecondsSinceEpoch;
-    final toUnix = to!.millisecondsSinceEpoch;
+
+    final fromUtc =
+        localDateTimeFrom!.subtract(const Duration(days: 1)).toUtc();
+    final toUtc = localDateTimeTo!.add(const Duration(days: 1)).toUtc();
+
+    final fromUnix = fromUtc.millisecondsSinceEpoch;
+    final toUnix = toUtc.millisecondsSinceEpoch;
 
     var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
@@ -250,11 +253,24 @@ class SqliteDatabase implements DatabaseInterface {
             WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [fromUnix, toUnix]);
 
-    return List.generate(maps.length, (i) {
+    final records = List.generate(maps.length, (i) {
       Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
       currentRowMap["category"] = Category.fromMap(currentRowMap);
       return Record.fromMap(currentRowMap);
     });
+
+    final filteredRecords = records.where((record) {
+      // Get the record's local date based on its stored timeZoneName.
+      final recordLocation = tz.getLocation(record.timeZoneName!);
+      final recordLocalTime =
+          tz.TZDateTime.from(record.utcDateTime, recordLocation);
+      final recordDate = DateTime(recordLocalTime.year, recordLocalTime.month,
+          recordLocalTime.day, recordLocalTime.hour, recordLocalTime.minute);
+      return !recordDate.isBefore(localDateTimeFrom) &&
+          !recordDate.isAfter(localDateTimeTo);
+    }).toList();
+
+    return filteredRecords;
   }
 
   Future<void> deleteDatabase() async {
@@ -301,6 +317,9 @@ class SqliteDatabase implements DatabaseInterface {
   Future<int> updateRecordById(int? movementId, Record? newMovement) async {
     final db = (await database)!;
     var recordMap = newMovement!.toMap();
+    if (recordMap['id'] == null) {
+      recordMap['id'] = movementId;
+    }
     return await db
         .update("records", recordMap, where: "id = ?", whereArgs: [movementId]);
   }
@@ -385,7 +404,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<DateTime?> getDateTimeFirstRecord() async {
-    final db = await database; // Assuming you have a database connection
+    final db = await database;
     final maps = await db?.rawQuery("""
         SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
         FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
@@ -399,7 +418,7 @@ class SqliteDatabase implements DatabaseInterface {
       return Record.fromMap(currentRowMap);
     });
 
-    return results.isNotEmpty ? results[0].dateTime : null;
+    return results.isNotEmpty ? results[0].utcDateTime : null;
   }
 
   Future<void> archiveCategory(

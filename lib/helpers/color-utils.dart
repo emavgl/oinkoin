@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
+
 String serializeColorToString(Color color) {
   return colorComponentToInteger(color.a).toString() +
       ":" +

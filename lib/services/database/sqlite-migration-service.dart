@@ -27,17 +27,18 @@ class SqliteMigrationService {
 
   static void _createRecordsTable(Batch batch) {
     String query = """
-        CREATE TABLE IF NOT EXISTS  records (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                datetime    INTEGER,
-                value       REAL,
-                title       TEXT,
-                description TEXT,
-                category_name TEXT,
-                category_type INTEGER,
-                recurrence_id TEXT
-            );
-        """;
+      CREATE TABLE IF NOT EXISTS records (
+              id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+              datetime    INTEGER,
+              timezone     TEXT,
+              value       REAL,
+              title       TEXT,
+              description TEXT,
+              category_name TEXT,
+              category_type INTEGER,
+              recurrence_id TEXT
+          );
+      """;
     batch.execute(query);
   }
 
@@ -57,6 +58,7 @@ class SqliteMigrationService {
         CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
                 id          TEXT  PRIMARY KEY,
                 datetime    INTEGER,
+                timezone     TEXT,
                 value       REAL,
                 title       TEXT,
                 description TEXT,
@@ -64,7 +66,8 @@ class SqliteMigrationService {
                 category_type INTEGER,
                 last_update INTEGER,
                 recurrent_period INTEGER,
-                recurrence_id TEXT
+                recurrence_id TEXT,
+                date_str TEXT
             );
         """;
     batch.execute(query);
@@ -234,11 +237,19 @@ class SqliteMigrationService {
     safeAlterTable(db, "ALTER TABLE categories ADD COLUMN icon_emoji TEXT;");
   }
 
+  static void _migrateTo10(Database db) async {
+    // Schema migration
+    safeAlterTable(db, "ALTER TABLE records ADD COLUMN timezone TEXT;");
+    safeAlterTable(
+        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN timezone TEXT;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
     8: SqliteMigrationService._migrateTo8,
-    9: SqliteMigrationService._migrateTo9
+    9: SqliteMigrationService._migrateTo9,
+    10: SqliteMigrationService._migrateTo10,
   };
 
   // Public Methods

@@ -13,6 +13,7 @@ class ServiceConfig {
   static final DatabaseInterface database = SqliteDatabase.instance;
   static bool isPremium = false; // set in main.dart
   static SharedPreferences? sharedPreferences;
+  static String localTimezone = "Europe/London"; // set in main
 
   static String? packageName; // set in main.dart
   static String? version; // set in main.dart

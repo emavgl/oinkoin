@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
@@ -12,8 +14,8 @@ import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:test/test.dart' as testlib;
-import 'package:mockito/annotations.dart';
-import 'backup_service_test.mocks.dart';
+
+import './backup_service_test.mocks.dart';
 
 @GenerateMocks([DatabaseInterface])
 void main() {
@@ -30,15 +32,9 @@ void main() {
 
     // Mock data
     categories = [
-      Category("Rent",
-          iconCodePoint: 1,
-          categoryType: CategoryType.expense),
-      Category("Food",
-          iconCodePoint: 2,
-          categoryType: CategoryType.expense),
-      Category("Salary",
-          iconCodePoint: 3,
-          categoryType: CategoryType.income)
+      Category("Rent", iconCodePoint: 1, categoryType: CategoryType.expense),
+      Category("Food", iconCodePoint: 2, categoryType: CategoryType.expense),
+      Category("Salary", iconCodePoint: 3, categoryType: CategoryType.income)
     ];
     records = [
       Record(-300, "April Rent", categories[0],
@@ -47,11 +43,10 @@ void main() {
       Record(-300, "May Rent", categories[0],
           DateTime.parse("2020-05-01 10:30:00"),
           id: 2),
-      Record(-30, "Pizza", categories[1],
-          DateTime.parse("2020-05-01 09:30:00"),
+      Record(-30, "Pizza", categories[1], DateTime.parse("2020-05-01 09:30:00"),
           id: 3),
-      Record(1700, "Salary", categories[2],
-          DateTime.parse("2020-05-02 09:30:00"),
+      Record(
+          1700, "Salary", categories[2], DateTime.parse("2020-05-02 09:30:00"),
           id: 4),
       Record(-30, "Restaurant", categories[1],
           DateTime.parse("2020-05-02 10:30:00"),
@@ -61,8 +56,8 @@ void main() {
           id: 6),
     ];
     recurrentPatterns = [
-      RecurrentRecordPattern(1, "Rent", categories[0], DateTime.parse("2020-05-03 10:30:00"),
-       RecurrentPeriod.EveryMonth)
+      RecurrentRecordPattern(1, "Rent", categories[0],
+          DateTime.parse("2020-05-03 10:30:00"), RecurrentPeriod.EveryMonth)
     ];
 
     when(mockDatabase.getAllRecords()).thenAnswer((_) async => records);
@@ -72,9 +67,11 @@ void main() {
 
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
     when(mockDatabase.addRecord(any)).thenAnswer((_) async => 0);
-    when(mockDatabase.addRecurrentRecordPattern(any)).thenAnswer((_) async => null);
+    when(mockDatabase.addRecurrentRecordPattern(any))
+        .thenAnswer((_) async => null);
 
-    when(mockDatabase.getRecurrentRecordPattern(any)).thenAnswer((_) async => null);
+    when(mockDatabase.getRecurrentRecordPattern(any))
+        .thenAnswer((_) async => null);
     when(mockDatabase.getMatchingRecord(any)).thenAnswer((_) async => null);
 
     // Swap database
@@ -146,7 +143,8 @@ void main() {
     final encryptedData = BackupService.encryptData(data, password);
 
     // Ensure decryption fails with the wrong password
-    expect(() => BackupService.decryptData(encryptedData, wrongPassword), throwsA(isA<ArgumentError>()));
+    expect(() => BackupService.decryptData(encryptedData, wrongPassword),
+        throwsA(isA<ArgumentError>()));
   });
 
   testlib.test('createJsonBackupFile creates a backup file', () async {
@@ -160,7 +158,8 @@ void main() {
 
     expect(backupMap['categories'].length, categories.length);
     expect(backupMap['records'].length, records.length);
-    expect(backupMap['recurrent_record_patterns'].length, recurrentPatterns.length);
+    expect(backupMap['recurrent_record_patterns'].length,
+        recurrentPatterns.length);
   });
 
   testlib.test('createJsonBackupFile encrypts the backup file', () async {
@@ -177,7 +176,8 @@ void main() {
     expect(() => jsonDecode(backupContent), throwsFormatException);
   });
 
-  testlib.test('importDataFromBackupFile imports data from a backup file', () async {
+  testlib.test('importDataFromBackupFile imports data from a backup file',
+      () async {
     final backupFile = await BackupService.createJsonBackupFile(
       directoryPath: testDir.path,
     );
@@ -186,11 +186,15 @@ void main() {
 
     expect(result, isTrue);
     verify(mockDatabase.addCategory(any)).called(categories.length);
-    verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>()))).called(1);
-    verify(mockDatabase.addRecurrentRecordPattern(any)).called(recurrentPatterns.length);
+    verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>())))
+        .called(1);
+    verify(mockDatabase.addRecurrentRecordPattern(any))
+        .called(recurrentPatterns.length);
   });
 
-  testlib.test('importDataFromBackupFile decrypts and imports data from an encrypted backup file', () async {
+  testlib.test(
+      'importDataFromBackupFile decrypts and imports data from an encrypted backup file',
+      () async {
     const encryptionPassword = 'testpassword';
     final backupFile = await BackupService.createJsonBackupFile(
       directoryPath: testDir.path,
@@ -204,11 +208,15 @@ void main() {
 
     expect(result, isTrue);
     verify(mockDatabase.addCategory(any)).called(categories.length);
-    verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>()))).called(1);
-    verify(mockDatabase.addRecurrentRecordPattern(any)).called(recurrentPatterns.length);
+    verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>())))
+        .called(1);
+    verify(mockDatabase.addRecurrentRecordPattern(any))
+        .called(recurrentPatterns.length);
   });
 
-  testlib.test('importDataFromBackupFile fails with incorrect decryption password', () async {
+  testlib
+      .test('importDataFromBackupFile fails with incorrect decryption password',
+          () async {
     const encryptionPassword = 'testpassword';
     final backupFile = await BackupService.createJsonBackupFile(
       directoryPath: testDir.path,
@@ -223,7 +231,7 @@ void main() {
     expect(result, isFalse);
   });
 
-    testlib.test('removeOldBackups removes files older than one week', () async {
+  testlib.test('removeOldBackups removes files older than one week', () async {
     // Create test files
     final now = DateTime.now();
     final oldFile = File('${testDir.path}/old_obackup.json');
