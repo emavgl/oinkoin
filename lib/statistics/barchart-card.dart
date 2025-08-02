@@ -1,17 +1,17 @@
+import 'dart:math';
+
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
 import 'package:community_charts_flutter/community_charts_flutter.dart';
+import 'package:community_charts_flutter/src/text_element.dart' as ChartText;
+import 'package:community_charts_flutter/src/text_style.dart' as style;
 import 'package:flutter/material.dart' as fmaterial;
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
-import 'package:piggybank/i18n.dart';
-import 'package:community_charts_flutter/src/text_style.dart' as style;
-import 'package:community_charts_flutter/src/text_element.dart' as ChartText;
-import 'dart:math';
-
-import 'package:flutter/material.dart';
 
 class CustomCircleSymbolRenderer extends CircleSymbolRenderer {
   Color textColor = Color.black;
@@ -104,9 +104,9 @@ class BarChartCard extends StatelessWidget {
     Map<DateTime?, StringSeriesRecord> aggregatedByDay = new Map();
     for (var d in dateTimeSeriesRecords) {
       aggregatedByDay.putIfAbsent(
-          truncateDateTime(d.time, aggregationMethod),
-          () => StringSeriesRecord(
-              truncateDateTime(d.time, aggregationMethod), d.value, formatter));
+          truncateDateTime(d.time!, aggregationMethod),
+          () => StringSeriesRecord(truncateDateTime(d.time!, aggregationMethod),
+              d.value, formatter));
     }
     while (start.isBefore(end)) {
       aggregatedByDay.putIfAbsent(truncateDateTime(start, aggregationMethod),

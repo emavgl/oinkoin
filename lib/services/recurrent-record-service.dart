@@ -2,97 +2,161 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:timezone/timezone.dart' as tz; // Import the timezone package
 
 import 'database/database-interface.dart';
 
 class RecurrentRecordService {
   DatabaseInterface database = ServiceConfig.database;
 
-  // Helper methods, use these resistant to DayLight saving
-  DateTime dateAddDays(DateTime origin, int daysToAdd) {
-    var temp = DateTime.utc(origin.year, origin.month, origin.day)
-        .add(new Duration(days: daysToAdd));
-    return DateTime(temp.year, temp.month, temp.day); // Use current timezone
-  }
-
-  Duration difference(DateTime dateTime1, DateTime dateTime2) {
-    DateTime dateTimeUtc1 =
-        DateTime.utc(dateTime1.year, dateTime1.month, dateTime1.day);
-    DateTime dateTimeUtc2 =
-        DateTime.utc(dateTime2.year, dateTime2.month, dateTime2.day);
-    return dateTimeUtc1.difference(dateTimeUtc2);
-  }
-
   List<Record> generateRecurrentRecordsFromDateTime(
-      RecurrentRecordPattern recordPattern, DateTime endDate) {
+      RecurrentRecordPattern recordPattern, DateTime utcEndDate) {
     final List<Record> newRecurrentRecords = [];
 
-    // Trim to local midnight
-    DateTime _atMidnight(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+    // 1. Get the TZLocation for the pattern's original timezone
+    final tz.Location patternLocation =
+        tz.getLocation(recordPattern.timeZoneName!);
 
-    final startDateTrimmed = _atMidnight(recordPattern.dateTime!);
-    DateTime lastUpdateTrimmed = recordPattern.lastUpdate != null
-        ? _atMidnight(recordPattern.lastUpdate!)
-        : startDateTrimmed;
+    // 2. Convert the start and end dates to TZDateTime objects
+    final tz.TZDateTime startDate =
+        tz.TZDateTime.from(recordPattern.utcDateTime, patternLocation);
+    final tz.TZDateTime endDateTz =
+        tz.TZDateTime.from(utcEndDate, patternLocation);
 
-    if (recordPattern.lastUpdate == null) {
-      newRecurrentRecords.add(
-        Record.fromRecurrencePattern(recordPattern, startDateTrimmed),
+    // 3. Determine the last update date in the pattern's timezone
+    tz.TZDateTime? lastUpdateTz = recordPattern.utcLastUpdate != null
+        ? tz.TZDateTime.from(recordPattern.utcLastUpdate!, patternLocation)
+        : null;
+
+    if (lastUpdateTz == null) {
+      // If there's no last update, add the initial record.
+      final newRecord = Record(
+        recordPattern.value,
+        recordPattern.title,
+        recordPattern.category,
+        startDate.toUtc(),
+        timeZoneName: patternLocation.name,
+        description: recordPattern.description,
+        recurrencePatternId: recordPattern.id,
       );
+      newRecurrentRecords.add(newRecord);
+      lastUpdateTz = startDate;
     }
 
-    if (difference(endDate, lastUpdateTrimmed).isNegative) {
+    if (endDateTz.isBefore(lastUpdateTz)) {
       return [];
     }
 
-    void addRecordsByDayInterval(int intervalDays) {
-      final totalDays = difference(endDate, lastUpdateTrimmed).inDays;
-      final count = (totalDays / intervalDays).floor();
-      for (int i = 1; i <= count; i++) {
-        final nextDate = dateAddDays(lastUpdateTrimmed, i * intervalDays);
-        newRecurrentRecords.add(
-          Record.fromRecurrencePattern(recordPattern, nextDate),
-        );
-      }
-    }
+    // Helper function to add records with a given interval
+    void addRecordsByPeriod(int periodValue, {bool isMonth = false}) {
+      tz.TZDateTime currentDate = lastUpdateTz!;
 
-    void addRecordsByMonthInterval(int monthStep) {
-      int counter = monthStep;
+      // Store the original day, hour, minute, and second from the pattern's start date.
+      // This is crucial for maintaining consistency across DST changes and month-end rollovers.
+      final int originalStartDay = recordPattern.localDateTime.day;
+      final int originalHour = recordPattern.localDateTime.hour;
+      final int originalMinute = recordPattern.localDateTime.minute;
+      final int originalSecond = recordPattern.localDateTime.second;
+
+      // Now, calculate and add the subsequent records.
       while (true) {
-        final nextDate = DateTime(
-          lastUpdateTrimmed.year,
-          lastUpdateTrimmed.month + counter,
-          lastUpdateTrimmed.day,
-        );
-        if (!nextDate.isBefore(endDate)) break;
-        newRecurrentRecords.add(
-          Record.fromRecurrencePattern(recordPattern, nextDate),
-        );
-        counter += monthStep;
+        tz.TZDateTime nextDate;
+
+        // Calculate the next date.
+        if (isMonth) {
+          // Get the target year and month after adding the period value.
+          int targetYear = currentDate.year;
+          int targetMonth = currentDate.month + periodValue;
+
+          if (targetMonth > 12) {
+            targetYear += (targetMonth - 1) ~/ 12;
+            targetMonth = (targetMonth - 1) % 12 + 1;
+          }
+
+          // Create a candidate date using the original start day.
+          tz.TZDateTime candidateDate = tz.TZDateTime(
+            currentDate.location,
+            targetYear,
+            targetMonth,
+            originalStartDay,
+            originalHour,
+            originalMinute,
+            originalSecond,
+          );
+
+          // Explicitly check for a month rollover. If the original day was invalid
+          // (e.g., day 30 in February), the new date will be in the next month.
+          if (candidateDate.month != targetMonth) {
+            // If a rollover occurred, set the date to the last day of the target month.
+            nextDate = tz.TZDateTime(
+              currentDate.location,
+              targetYear,
+              targetMonth + 1,
+              0,
+              originalHour,
+              originalMinute,
+              originalSecond,
+            );
+          } else {
+            // Otherwise, the candidate date is correct.
+            nextDate = candidateDate;
+          }
+        } else {
+          // Logic for non-monthly recurrence, manually incrementing the calendar day
+          // to avoid time drift issues caused by Daylight Saving Time (DST) changes.
+          nextDate = tz.TZDateTime(
+            currentDate.location,
+            currentDate.year,
+            currentDate.month,
+            currentDate.day + periodValue,
+            originalHour,
+            originalMinute,
+            originalSecond,
+          );
+        }
+
+        // Check if the newly calculated date is within the bounds.
+        if (nextDate.isBefore(endDateTz) ||
+            nextDate.isAtSameMomentAs(endDateTz)) {
+          final newRecord = Record(
+            recordPattern.value,
+            recordPattern.title,
+            recordPattern.category,
+            nextDate.toUtc(),
+            timeZoneName: patternLocation.name,
+            description: recordPattern.description,
+            recurrencePatternId: recordPattern.id,
+          );
+          newRecurrentRecords.add(newRecord);
+          currentDate = nextDate;
+        } else {
+          // We've gone past the end date, so stop.
+          break;
+        }
       }
     }
 
     switch (recordPattern.recurrentPeriod) {
       case RecurrentPeriod.EveryDay:
-        addRecordsByDayInterval(1);
+        addRecordsByPeriod(1);
         break;
       case RecurrentPeriod.EveryWeek:
-        addRecordsByDayInterval(7);
+        addRecordsByPeriod(7);
         break;
       case RecurrentPeriod.EveryTwoWeeks:
-        addRecordsByDayInterval(14);
+        addRecordsByPeriod(14);
         break;
       case RecurrentPeriod.EveryMonth:
-        addRecordsByMonthInterval(1);
+        addRecordsByPeriod(1, isMonth: true);
         break;
       case RecurrentPeriod.EveryThreeMonths:
-        addRecordsByMonthInterval(3);
+        addRecordsByPeriod(3, isMonth: true);
         break;
       case RecurrentPeriod.EveryFourMonths:
-        addRecordsByMonthInterval(4);
+        addRecordsByPeriod(4, isMonth: true);
         break;
       case RecurrentPeriod.EveryYear:
-        addRecordsByMonthInterval(12);
+        addRecordsByPeriod(12, isMonth: true);
         break;
       default:
         break;
@@ -101,27 +165,25 @@ class RecurrentRecordService {
     return newRecurrentRecords;
   }
 
-
   Future<void> updateRecurrentRecords() async {
     List<RecurrentRecordPattern> patterns =
-    await database.getRecurrentRecordPatterns();
+        await database.getRecurrentRecordPatterns();
 
     for (var pattern in patterns) {
-      // Now, adjusted to the local of the pattern origin
-      final int offsetMinutes = pattern.timezoneOffset ?? 0;
-      final DateTime currentUtc = DateTime.now().toUtc();
-      final DateTime currentLocal = currentUtc.add(Duration(minutes: offsetMinutes));
+      // The endDate for the generation is the current UTC time.
+      final DateTime endDate = DateTime.now().toUtc();
 
-      var records = generateRecurrentRecordsFromDateTime(pattern, currentLocal);
+      var records = generateRecurrentRecordsFromDateTime(pattern, endDate);
 
       if (records.isNotEmpty) {
-        for (var record in records) {
-          await database.addRecord(record);
-        }
-        pattern.lastUpdate = records.last.dateTime;
+        // Add records to the database
+        await database.addRecordsInBatch(records);
+
+        // Update the last update date of the pattern with the latest UTC time.
+        // We use the UTC time from the last generated record.
+        pattern.utcLastUpdate = records.last.utcDateTime;
         await database.updateRecordPatternById(pattern.id, pattern);
       }
     }
   }
-
 }

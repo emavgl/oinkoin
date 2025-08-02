@@ -1,5 +1,8 @@
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:timezone/timezone.dart' as tz;
+
 import '../helpers/datetime-utility-functions.dart';
 import 'recurrent-period.dart';
 
@@ -9,52 +12,42 @@ class RecurrentRecordPattern {
   String? title;
   String? description;
   Category? category;
-  DateTime? _dateTime; // Local time (UTC + offset)
-  int? timezoneOffset;
+  DateTime utcDateTime;
+  String? timeZoneName;
   RecurrentPeriod? recurrentPeriod;
-  DateTime? lastUpdate; // Last update in local time (UTC + offset)
+  DateTime? utcLastUpdate;
 
-  RecurrentRecordPattern(
-      this.value,
-      this.title,
-      this.category,
-      this._dateTime,
-      this.recurrentPeriod, {
-        this.id,
-        this.description,
-        this.lastUpdate,
-        this.timezoneOffset
-      });
+  RecurrentRecordPattern(this.value, this.title, this.category,
+      this.utcDateTime, this.recurrentPeriod,
+      {this.id, this.description, this.utcLastUpdate, this.timeZoneName}) {
+    if (timeZoneName == null) {
+      timeZoneName = ServiceConfig.localTimezone;
+    }
+  }
 
   RecurrentRecordPattern.fromRecord(
-      Record record,
-      this.recurrentPeriod, {
-        this.id,
-      }) {
-    value = record.value;
-    title = record.title;
-    category = record.category;
-    _dateTime = record.dateTime;
-    description = record.description;
-    timezoneOffset = record.timezoneOffset;
-  }
+    Record record,
+    this.recurrentPeriod, {
+    this.id,
+  })  : value = record.value,
+        title = record.title,
+        category = record.category,
+        utcDateTime = record.utcDateTime,
+        description = record.description,
+        timeZoneName = record.timeZoneName;
 
   /// Serialize to database
   Map<String, dynamic> toMap() {
-    if (timezoneOffset == null) {
-      timezoneOffset = _dateTime!.timeZoneOffset.inMinutes;
-    }
     final map = {
       'title': title,
       'value': value,
-      'datetime': _dateTime?.millisecondsSinceEpoch,
-      'timezone_offset': timezoneOffset,
-      'date_iso_str': toIso8601(_dateTime!),
+      'datetime': utcDateTime.millisecondsSinceEpoch,
+      'timezone': timeZoneName,
       'category_name': category?.name,
       'category_type': category?.categoryType?.index,
       'description': description,
       'recurrent_period': recurrentPeriod?.index,
-      'last_update': lastUpdate?.millisecondsSinceEpoch,
+      'last_update': utcLastUpdate?.millisecondsSinceEpoch,
     };
     if (id != null) map['id'] = id;
     return map;
@@ -63,61 +56,35 @@ class RecurrentRecordPattern {
   /// Deserialize from database
   static RecurrentRecordPattern fromMap(Map<String, dynamic> map) {
     final int? utcMillis = map['datetime'];
-    final int? offsetMinutes = map['timezone_offset'];
-    DateTime? localDateTime;
+    final utcDateTime =
+        DateTime.fromMillisecondsSinceEpoch(utcMillis!, isUtc: true);
 
-    if (utcMillis != null) {
-      final utc = DateTime.fromMillisecondsSinceEpoch(utcMillis, isUtc: true);
-      localDateTime = offsetMinutes != null
-          ? utc.add(Duration(minutes: offsetMinutes))
-          : utc.toLocal(); // fallback
+    String? timezone = map['timezone'];
+    if (timezone == null) {
+      timezone = ServiceConfig.localTimezone;
     }
 
-    DateTime? lastUpdateLocal;
-    final int? lastUpdateUtc = map['last_update'];
-    final int? lastUpdateOffset = map['timezone_offset'];
-
-    DateTime currentTimeZoneLocalTime = DateTime(
-        localDateTime!.year,
-        localDateTime.month,
-        localDateTime.day,
-        localDateTime.hour,
-        localDateTime.minute
-    );
-
-    if (lastUpdateUtc != null) {
-      final utc = DateTime.fromMillisecondsSinceEpoch(lastUpdateUtc, isUtc: true);
-      lastUpdateLocal = lastUpdateOffset != null
-          ? utc.add(Duration(minutes: lastUpdateOffset))
-          : utc.toLocal(); // fallback
-      lastUpdateLocal = DateTime(
-          lastUpdateLocal.year,
-          lastUpdateLocal.month,
-          lastUpdateLocal.day,
-          lastUpdateLocal.hour,
-          lastUpdateLocal.minute
-      );
+    DateTime? utcLastUpdate;
+    final int? lastUpdateMillis = map['last_update'];
+    if (lastUpdateMillis != null) {
+      utcLastUpdate =
+          DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis, isUtc: true);
     }
 
     return RecurrentRecordPattern(
       map['value'],
       map['title'],
       map['category'],
-      currentTimeZoneLocalTime,
-      timezoneOffset: offsetMinutes,
+      utcDateTime,
+      timeZoneName: timezone,
       RecurrentPeriod.values[map['recurrent_period']],
       id: map['id'],
       description: map['description'],
-      lastUpdate: lastUpdateLocal,
+      utcLastUpdate: utcLastUpdate,
     );
   }
 
-  // setter for datetime, change datetime and timezoneOffset
-  set dateTime(DateTime? value) {
-    _dateTime = value;
-    timezoneOffset = _dateTime!.timeZoneOffset.inMinutes;
+  tz.TZDateTime get localDateTime {
+    return createTzDateTime(utcDateTime, timeZoneName!);
   }
-
-  DateTime? get dateTime => _dateTime;
-
 }

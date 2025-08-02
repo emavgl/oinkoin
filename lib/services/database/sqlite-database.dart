@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:path/path.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
@@ -8,9 +9,9 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common/sqflite_logger.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
-import '../../helpers/datetime-utility-functions.dart';
 import 'exceptions.dart';
 
 class SqliteDatabase implements DatabaseInterface {
@@ -129,45 +130,38 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<void> addRecordsInBatch(List<Record?> records) async {
     final db = (await database)!;
-    final batch = db.batch();
+    Batch batch = db.batch();
 
     for (var record in records) {
-      if (record == null || record.dateTime == null || record.category == null || record.category!.categoryType == null) {
-        continue; // Skip invalid records
+      if (record == null) {
+        continue;
       }
+      record.id = null;
 
-      record.id = null; // Clear ID to avoid conflict on insert
-
-      final dateMillis = record.dateTime!.millisecondsSinceEpoch;
-      final dateIso = toIso8601(record.dateTime!);
-
+      // Update the INSERT statement to include the new column `time_zone_name`
       batch.rawInsert("""
-      INSERT OR IGNORE INTO records (
-        title, value, datetime, date_iso_str, timezone_offset,
-        category_name, category_type, description, recurrence_id
-      )
-      SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
+      INSERT OR IGNORE INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id) 
+      SELECT ?, ?, ?, ?, ?, ?, ?, ?
       WHERE NOT EXISTS (
-        SELECT 1 FROM records
-        WHERE datetime = ?
-          AND value = ?
-          AND (title IS NULL OR title = ?)
-          AND category_name = ?
+        SELECT 1 FROM records 
+        WHERE datetime = ? 
+          AND value = ? 
+          AND (title IS NULL OR title = ?) 
+          AND category_name = ? 
           AND category_type = ?
       )
     """, [
         record.title,
         record.value,
-        dateMillis,
-        dateIso,
-        record.timezoneOffset,
+        record.utcDateTime.millisecondsSinceEpoch, // Use utcDateTime
+        record.timeZoneName, // Store the timezone name
         record.category!.name,
         record.category!.categoryType!.index,
         record.description,
         record.recurrencePatternId,
 
-        // Duplicate check
-        dateMillis,
+        // Duplicate check values
+        record.utcDateTime.millisecondsSinceEpoch,
         record.value,
         record.title,
         record.category!.name,
@@ -178,13 +172,10 @@ class SqliteDatabase implements DatabaseInterface {
     await batch.commit(noResult: true);
   }
 
-
   @override
   Future<Record?> getMatchingRecord(Record? record) async {
-    /// Check if there are records with the same title, value, category on the same day of :record
-    /// If yes, return the first match. If no, null is returned.
     final db = await database;
-    var sameDateTime = record!.dateTime!.millisecondsSinceEpoch;
+    var sameDateTime = record!.utcDateTime.millisecondsSinceEpoch;
     var sameValue = record.value;
     var sameTitle = record.title;
     var sameCategoryName = record.category!.name;
@@ -246,22 +237,40 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<List<Record>> getAllRecordsInInterval(
-      DateTime? from, DateTime? to) async {
+      DateTime? localDateTimeFrom, DateTime? localDateTimeTo) async {
     final db = (await database)!;
-    final fromUnix = toIso8601(from!);
-    final toUnix = toIso8601(to!);
+
+    final fromUtc =
+        localDateTimeFrom!.subtract(const Duration(days: 1)).toUtc();
+    final toUtc = localDateTimeTo!.add(const Duration(days: 1)).toUtc();
+
+    final fromUnix = fromUtc.millisecondsSinceEpoch;
+    final toUnix = toUtc.millisecondsSinceEpoch;
 
     var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
             FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
-            WHERE m.date_iso_str >= ? AND m.date_iso_str <= ? 
+            WHERE m.datetime >= ? AND m.datetime <= ? 
         """, [fromUnix, toUnix]);
 
-    return List.generate(maps.length, (i) {
+    final records = List.generate(maps.length, (i) {
       Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
       currentRowMap["category"] = Category.fromMap(currentRowMap);
       return Record.fromMap(currentRowMap);
     });
+
+    final filteredRecords = records.where((record) {
+      // Get the record's local date based on its stored timeZoneName.
+      final recordLocation = tz.getLocation(record.timeZoneName!);
+      final recordLocalTime =
+          tz.TZDateTime.from(record.utcDateTime, recordLocation);
+      final recordDate = DateTime(recordLocalTime.year, recordLocalTime.month,
+          recordLocalTime.day, recordLocalTime.hour, recordLocalTime.minute);
+      return !recordDate.isBefore(localDateTimeFrom) &&
+          !recordDate.isAfter(localDateTimeTo);
+    }).toList();
+
+    return filteredRecords;
   }
 
   Future<void> deleteDatabase() async {
@@ -308,6 +317,9 @@ class SqliteDatabase implements DatabaseInterface {
   Future<int> updateRecordById(int? movementId, Record? newMovement) async {
     final db = (await database)!;
     var recordMap = newMovement!.toMap();
+    if (recordMap['id'] == null) {
+      recordMap['id'] = movementId;
+    }
     return await db
         .update("records", recordMap, where: "id = ?", whereArgs: [movementId]);
   }
@@ -322,10 +334,10 @@ class SqliteDatabase implements DatabaseInterface {
   Future<void> deleteFutureRecordsByPatternId(
       String recurrentPatternId, DateTime startingDate) async {
     final db = (await database)!;
-    String starting_date = toIso8601(startingDate);
+    int millisecondsSinceEpoch = startingDate.millisecondsSinceEpoch;
     await db.delete("records",
-        where: "recurrence_id = ? AND date_iso_str >= ?",
-        whereArgs: [recurrentPatternId, starting_date]);
+        where: "recurrence_id = ? AND datetime >= ?",
+        whereArgs: [recurrentPatternId, millisecondsSinceEpoch]);
   }
 
   @override
@@ -392,11 +404,11 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<DateTime?> getDateTimeFirstRecord() async {
-    final db = await database; // Assuming you have a database connection
+    final db = await database;
     final maps = await db?.rawQuery("""
         SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
         FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
-        ORDER BY m.date_iso_str ASC
+        ORDER BY m.datetime ASC
         LIMIT 1
       """);
 
@@ -406,7 +418,7 @@ class SqliteDatabase implements DatabaseInterface {
       return Record.fromMap(currentRowMap);
     });
 
-    return results.isNotEmpty ? results[0].dateTime : null;
+    return results.isNotEmpty ? results[0].utcDateTime : null;
   }
 
   Future<void> archiveCategory(

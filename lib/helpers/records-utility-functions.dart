@@ -1,16 +1,18 @@
 import 'dart:collection';
+
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
-import 'package:intl/number_symbols.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
+
 import '../services/database/database-interface.dart';
 import '../services/service-config.dart';
-import '../settings/constants/preferences-keys.dart';
 import '../settings/constants/homepage-time-interval.dart';
+import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
 import 'datetime-utility-functions.dart';
 
@@ -22,9 +24,8 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   // Iterate over each record and group them by date (year, month, day).
   for (var record in records) {
     if (record != null) {
-      DateTime dateKey = DateTime(record.dateTime!.year,
-          record.dateTime!.month,
-          record.dateTime!.day);
+      DateTime dateKey = DateTime(
+          record.dateTime.year, record.dateTime.month, record.dateTime.day);
 
       if (!movementsGroups.containsKey(dateKey)) {
         movementsGroups[dateKey] = [];
@@ -60,15 +61,13 @@ String getDecimalSeparator() {
 
 bool getOverwriteDotValue() {
   if (getDecimalSeparator() == ".") return false;
-  return PreferencesUtils.getOrDefault<bool>(
-      ServiceConfig.sharedPreferences!,
+  return PreferencesUtils.getOrDefault<bool>(ServiceConfig.sharedPreferences!,
       PreferencesKeys.overwriteDotValueWithComma)!;
 }
 
 bool getOverwriteCommaValue() {
   if (getDecimalSeparator() == ",") return false;
-  return PreferencesUtils.getOrDefault<bool>(
-      ServiceConfig.sharedPreferences!,
+  return PreferencesUtils.getOrDefault<bool>(ServiceConfig.sharedPreferences!,
       PreferencesKeys.overwriteCommaValueWithDot)!;
 }
 
@@ -266,8 +265,7 @@ Future<List<Record?>> getRecordsByYear(
 
 HomepageTimeInterval getHomepageTimeIntervalEnumSetting() {
   var userDefinedHomepageIntervalIndex = PreferencesUtils.getOrDefault<int>(
-      ServiceConfig.sharedPreferences!,
-      PreferencesKeys.homepageTimeInterval)!;
+      ServiceConfig.sharedPreferences!, PreferencesKeys.homepageTimeInterval)!;
   return HomepageTimeInterval.values[userDefinedHomepageIntervalIndex];
 }
 
@@ -313,7 +311,8 @@ Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
   }
 }
 
-HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(OverviewTimeInterval overviewTimeInterval) {
+HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
+    OverviewTimeInterval overviewTimeInterval) {
   if (overviewTimeInterval == OverviewTimeInterval.FixAllRecords) {
     return HomepageTimeInterval.All;
   }
@@ -337,5 +336,4 @@ Future<List<Record?>> getRecordsByHomepageTimeInterval(
     case HomepageTimeInterval.All:
       return await getAllRecords(database);
   }
-
 }

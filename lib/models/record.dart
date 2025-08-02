@@ -1,6 +1,8 @@
-import 'package:piggybank/models/model.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/model.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../helpers/datetime-utility-functions.dart';
 
@@ -10,69 +12,57 @@ class Record extends Model {
   String? title;
   String? description;
   Category? category;
-  DateTime? _dateTime;             // Local time (UTC + offset) -> translated to current time-zone
-  int? timezoneOffset;
+
+  DateTime utcDateTime;
+  String? timeZoneName;
+
   String? recurrencePatternId;
   int aggregatedValues =
       1; // internal variables - used to identified an aggregated records (statistics)
 
   Record(
-      this.value,
-      this.title,
-      this.category,
-      this._dateTime, {
-        this.id,
-        this.description,
-        this.recurrencePatternId,
-        int? timezoneOffset,
-      });
+    this.value,
+    this.title,
+    this.category,
+    this.utcDateTime, {
+    this.id,
+    this.description,
+    this.recurrencePatternId,
+    this.timeZoneName,
+  }) {
+    if (timeZoneName == null) {
+      timeZoneName = ServiceConfig.localTimezone;
+    }
+  }
 
   Record.fromRecurrencePattern(
-      RecurrentRecordPattern recordPattern,
-      DateTime dateTime,
-      ) {
-    value = recordPattern.value;
-    title = recordPattern.title;
-    category = recordPattern.category;
-    this._dateTime = dateTime;
-    recurrencePatternId = recordPattern.id;
-    description = recordPattern.description;
-    timezoneOffset = recordPattern.timezoneOffset;
-  }
+    RecurrentRecordPattern recordPattern,
+    DateTime dateTime,
+  )   : value = recordPattern.value,
+        title = recordPattern.title,
+        category = recordPattern.category,
+        utcDateTime = dateTime,
+        recurrencePatternId = recordPattern.id,
+        description = recordPattern.description,
+        timeZoneName = recordPattern.timeZoneName;
 
   /// Deserialize from database
   static Record fromMap(Map<String, dynamic> map) {
-    DateTime? localDateTime;
-
     final int? utcMillis = map['datetime'];
-    final int? offsetMinutes = map['timezone_offset'];
+    final utcDateTime =
+        DateTime.fromMillisecondsSinceEpoch(utcMillis!, isUtc: true);
 
-    if (utcMillis != null) {
-      final utc = DateTime.fromMillisecondsSinceEpoch(utcMillis, isUtc: true);
-      localDateTime = offsetMinutes != null
-          ? utc.add(Duration(minutes: offsetMinutes))
-          : utc.toLocal(); // fallback if no offset
+    String? timezone = map['timezone'];
+    if (timezone == null) {
+      timezone = ServiceConfig.localTimezone;
     }
-
-    // localDateTime is in the time of the actual insertion timezone
-    // we would like to map 1:1 and fake it that the record happened
-    // at the exact same time, but in the current timezone
-    // For example, insertion at 10:00 UTC, but I am at UTC+2
-    // record will appear at 10:00 UTC+2
-    DateTime currentTimeZoneLocalTime = DateTime(
-        localDateTime!.year,
-        localDateTime.month,
-        localDateTime.day,
-        localDateTime.hour,
-        localDateTime.minute
-    );
 
     return Record(
       map['value'],
       map['title'],
       map['category'],
-      currentTimeZoneLocalTime,
-      timezoneOffset: offsetMinutes,
+      utcDateTime,
+      timeZoneName: timezone,
       id: map['id'],
       description: map['description'],
       recurrencePatternId: map['recurrence_id'],
@@ -85,9 +75,9 @@ class Record extends Model {
       'id': id,
       'title': title,
       'value': value,
-      'datetime': _dateTime?.millisecondsSinceEpoch, // this will be same as the original
-      'date_iso_str': toIso8601(_dateTime!), // this will be same as the original
-      'timezone_offset': timezoneOffset, // to keep the original timezone at insertion time
+      'datetime': utcDateTime
+          .millisecondsSinceEpoch, // this will be same as the original
+      'timezone': timeZoneName,
       'category_name': category?.name,
       'category_type': category?.categoryType?.index,
       'description': description,
@@ -95,21 +85,18 @@ class Record extends Model {
     };
   }
 
-  // setter for datetime, change datetime and timezoneOffset
-  set dateTime(DateTime? value) {
-    _dateTime = value;
-    timezoneOffset = _dateTime!.timeZoneOffset.inMinutes;
+  tz.TZDateTime get localDateTime {
+    return createTzDateTime(utcDateTime, timeZoneName!);
   }
 
-  DateTime? get dateTime => _dateTime;
+  tz.TZDateTime get dateTime {
+    return createTzDateTime(utcDateTime, timeZoneName!);
+  }
 
   /// YYYYMMDD string for grouping/sorting
   String get date {
-    final d = _dateTime;
-    if (d == null) return '';
-    return d.year.toString().padLeft(4, '0') +
-        d.month.toString().padLeft(2, '0') +
-        d.day.toString().padLeft(2, '0');
+    return localDateTime.year.toString().padLeft(4, '0') +
+        localDateTime.month.toString().padLeft(2, '0') +
+        localDateTime.day.toString().padLeft(2, '0');
   }
 }
-
