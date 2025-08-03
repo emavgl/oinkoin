@@ -1,70 +1,90 @@
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:timezone/timezone.dart' as tz;
 
+import '../helpers/datetime-utility-functions.dart';
 import 'recurrent-period.dart';
 
 class RecurrentRecordPattern {
-  // This class is used to create records based on this pattern.
-  // It includes all the fields from Record + recurrent_period
-  // that defines the time period of the recurrent event.
-  // It does not inherit from Record because, although it share a lot of fields
-  // the context is different and their logic is separated.
-
   String? id;
   double? value;
   String? title;
   String? description;
   Category? category;
-  DateTime? dateTime;
+  DateTime utcDateTime;
+  String? timeZoneName;
   RecurrentPeriod? recurrentPeriod;
-  DateTime? lastUpdate;
+  DateTime? utcLastUpdate;
 
-  RecurrentRecordPattern(this.value, this.title, this.category, this.dateTime,
-      this.recurrentPeriod,
-      {this.id, this.description, this.lastUpdate});
-
-  RecurrentRecordPattern.fromRecord(Record record, this.recurrentPeriod,
-      {this.id}) {
-    this.value = record.value;
-    this.title = record.title;
-    this.category = record.category;
-    this.dateTime = record.dateTime;
-    this.description = record.description;
-    this.id = id;
+  RecurrentRecordPattern(this.value, this.title, this.category,
+      this.utcDateTime, this.recurrentPeriod,
+      {this.id, this.description, this.utcLastUpdate, this.timeZoneName}) {
+    if (timeZoneName == null) {
+      timeZoneName = ServiceConfig.localTimezone;
+    }
   }
 
+  RecurrentRecordPattern.fromRecord(
+    Record record,
+    this.recurrentPeriod, {
+    this.id,
+  })  : value = record.value,
+        title = record.title,
+        category = record.category,
+        utcDateTime = record.utcDateTime,
+        description = record.description,
+        timeZoneName = record.timeZoneName;
+
+  /// Serialize to database
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = {
+    final map = {
       'title': title,
       'value': value,
-      'datetime': dateTime!.millisecondsSinceEpoch,
-      'category_name': category!.name,
-      'category_type': category!.categoryType!.index,
+      'datetime': utcDateTime.millisecondsSinceEpoch,
+      'timezone': timeZoneName,
+      'category_name': category?.name,
+      'category_type': category?.categoryType?.index,
       'description': description,
-      'recurrent_period': recurrentPeriod!.index,
+      'recurrent_period': recurrentPeriod?.index,
+      'last_update': utcLastUpdate?.millisecondsSinceEpoch,
     };
-    if (this.id != null) {
-      map['id'] = this.id;
-    }
-    if (this.lastUpdate != null) {
-      map['last_update'] = this.lastUpdate!.millisecondsSinceEpoch;
-    } else {
-      map['last_update'] = null;
-    }
+    if (id != null) map['id'] = id;
     return map;
   }
 
+  /// Deserialize from database
   static RecurrentRecordPattern fromMap(Map<String, dynamic> map) {
+    final int? utcMillis = map['datetime'];
+    final utcDateTime =
+        DateTime.fromMillisecondsSinceEpoch(utcMillis!, isUtc: true);
+
+    String? timezone = map['timezone'];
+    if (timezone == null) {
+      timezone = ServiceConfig.localTimezone;
+    }
+
+    DateTime? utcLastUpdate;
+    final int? lastUpdateMillis = map['last_update'];
+    if (lastUpdateMillis != null) {
+      utcLastUpdate =
+          DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis, isUtc: true);
+    }
+
     return RecurrentRecordPattern(
-        map['value'],
-        map['title'],
-        map['category'],
-        new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
-        RecurrentPeriod.values[map['recurrent_period']],
-        id: map['id'],
-        description: map['description'],
-        lastUpdate: map['last_update'] != null
-            ? DateTime.fromMillisecondsSinceEpoch(map['last_update'])
-            : null);
+      map['value'],
+      map['title'],
+      map['category'],
+      utcDateTime,
+      timeZoneName: timezone,
+      RecurrentPeriod.values[map['recurrent_period']],
+      id: map['id'],
+      description: map['description'],
+      utcLastUpdate: utcLastUpdate,
+    );
+  }
+
+  tz.TZDateTime get localDateTime {
+    return createTzDateTime(utcDateTime, timeZoneName!);
   }
 }

@@ -4,6 +4,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../settings/constants/homepage-time-interval.dart';
 
@@ -95,6 +96,20 @@ bool isFullYear(DateTime from, DateTime to) {
   return from.month == 1 &&
       from.day == 1 &&
       new DateTime(from.year, 12, 31, 23, 59).isAtSameMomentAs(to);
+}
+
+tz.TZDateTime createTzDateTime(DateTime utcDateTime, String timeZoneName) {
+  tz.Location location;
+  try {
+    // Use the stored timezone name
+    location = tz.getLocation(timeZoneName);
+  } catch (e) {
+    // Fallback if the stored name is invalid or the timezone database isn't loaded
+    print(
+        'Warning: Could not find timezone $timeZoneName. Falling back to local.');
+    location = tz.local;
+  }
+  return tz.TZDateTime.from(utcDateTime, location);
 }
 
 bool canShift(

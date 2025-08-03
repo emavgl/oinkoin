@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/locale-service.dart';
@@ -12,12 +13,17 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
 import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
 
 import 'i18n.dart';
 
 main() async {
   DartPluginRegistrant.ensureInitialized();
   WidgetsFlutterBinding.ensureInitialized();
+
+  tz_data.initializeTimeZones();
+  ServiceConfig.localTimezone = await FlutterTimezone.getLocalTimezone();
+
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   ServiceConfig.packageName = packageInfo.packageName;
   ServiceConfig.version = packageInfo.version;
