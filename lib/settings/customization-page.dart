@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/components/setting-separator.dart';
-import 'package:piggybank/settings/constants/preferences-options.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/constants/preferences-options.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/style.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../helpers/records-utility-functions.dart';
-import 'package:piggybank/i18n.dart';
 
+import '../helpers/records-utility-functions.dart';
 import 'dropdown-customization-item.dart';
 
 class CustomizationPage extends StatefulWidget {
@@ -19,13 +19,14 @@ class CustomizationPage extends StatefulWidget {
 }
 
 class CustomizationPageState extends State<CustomizationPage> {
-
   late SharedPreferences prefs;
 
-  static String getKeyFromObject<T>(Map<String, T> originalMap, T? searchValue, {String? defaultKey}) {
+  static String getKeyFromObject<T>(Map<String, T> originalMap, T? searchValue,
+      {String? defaultKey}) {
     return originalMap.entries
         .firstWhere((entry) => entry.value == searchValue,
-          orElse: () => MapEntry(defaultKey ?? originalMap.keys.first, searchValue as T))
+            orElse: () => MapEntry(
+                defaultKey ?? originalMap.keys.first, searchValue as T))
         .key;
   }
 
@@ -68,15 +69,15 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   Future<void> fetchThemePreferences() async {
     // Get theme color
-    int themeColorIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.themeColor)!;
+    int themeColorIndex =
+        PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeColor)!;
 
     themeColorDropdownKey = getKeyFromObject<int>(
         PreferencesOptions.themeColorDropdown, themeColorIndex);
 
     // Get theme style
-    int themeStyleIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.themeMode)!;
+    int themeStyleIndex =
+        PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeMode)!;
 
     themeStyleDropdownKey = getKeyFromObject<int>(
         PreferencesOptions.themeStyleDropdown, themeStyleIndex);
@@ -93,19 +94,21 @@ class CustomizationPageState extends State<CustomizationPage> {
   Future<void> fetchNumberFormattingPreferences() async {
     // Get Number of decimal digits
     decimalDigitsValueDropdownKey = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.numberDecimalDigits)
+            prefs, PreferencesKeys.numberDecimalDigits)
         .toString();
 
     // Decimal separator
-    var usedDefinedDecimalSeparatorValue = PreferencesUtils.getOrDefault<String>(
-        prefs, PreferencesKeys.decimalSeparator);
+    var usedDefinedDecimalSeparatorValue =
+        PreferencesUtils.getOrDefault<String>(
+            prefs, PreferencesKeys.decimalSeparator);
 
     decimalSeparatorDropdownKey = getKeyFromObject<String>(
         PreferencesOptions.decimalSeparators, usedDefinedDecimalSeparatorValue);
 
     // Grouping separator
-    String usedDefinedGroupSeparatorValue = PreferencesUtils.getOrDefault<String>(
-        prefs, PreferencesKeys.groupSeparator)!;
+    String usedDefinedGroupSeparatorValue =
+        PreferencesUtils.getOrDefault<String>(
+            prefs, PreferencesKeys.groupSeparator)!;
 
     if (!PreferencesOptions.groupSeparators
         .containsValue(usedDefinedGroupSeparatorValue)) {
@@ -131,30 +134,29 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   Future<void> fetchHomepagePreferences() async {
     // Homepage time interval
-    var userDefinedHomepageIntervalEnumIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.homepageTimeInterval);
+    var userDefinedHomepageIntervalEnumIndex =
+        PreferencesUtils.getOrDefault<int>(
+            prefs, PreferencesKeys.homepageTimeInterval);
 
     homepageTimeIntervalValue = getKeyFromObject<int>(
         PreferencesOptions.homepageTimeInterval,
         userDefinedHomepageIntervalEnumIndex);
 
     // Homepage overview widget
-    var userDefinedHomepageOverviewIntervalEnumIndex = PreferencesUtils
-        .getOrDefault<int>(prefs,
-        PreferencesKeys.homepageOverviewWidgetTimeInterval);
+    var userDefinedHomepageOverviewIntervalEnumIndex =
+        PreferencesUtils.getOrDefault<int>(
+            prefs, PreferencesKeys.homepageOverviewWidgetTimeInterval);
 
     homepageOverviewWidgetTimeInterval = getKeyFromObject<int>(
         PreferencesOptions.homepageOverviewWidgetTimeInterval,
         userDefinedHomepageOverviewIntervalEnumIndex);
 
     // Note visible
-    var noteVisibleIndex = PreferencesUtils
-        .getOrDefault<int>(prefs,
-        PreferencesKeys.homepageRecordNotesVisible);
+    var noteVisibleIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.homepageRecordNotesVisible);
 
     homepageRecordNotesVisible = getKeyFromObject<int>(
-        PreferencesOptions.showNotesOnHomepage,
-        noteVisibleIndex);
+        PreferencesOptions.showNotesOnHomepage, noteVisibleIndex);
   }
 
   Future<void> fetchMiscPreferences() async {
@@ -164,12 +166,11 @@ class CustomizationPageState extends State<CustomizationPage> {
   }
 
   Future<void> fetchStatisticsPreferences() async {
-    statisticsPieChartUseCategoryColors =  PreferencesUtils.getOrDefault<bool>(
+    statisticsPieChartUseCategoryColors = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.statisticsPieChartUseCategoryColors)!;
 
-    var numberOfCategoriesToDisplayIndex = PreferencesUtils
-        .getOrDefault<int>(prefs,
-        PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay);
+    var numberOfCategoriesToDisplayIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay);
 
     statisticsPieChartNumberOfCategoriesToDisplay = getKeyFromObject<int>(
         PreferencesOptions.numberOfCategoriesForPieChart,
@@ -289,9 +290,11 @@ class CustomizationPageState extends State<CustomizationPage> {
                           invalidateOverwritePreferences();
                           fetchNumberFormattingPreferences();
                           setState(() {
-                            if (decimalSeparatorDropdownKey == groupSeparatorDropdownKey) {
+                            if (decimalSeparatorDropdownKey ==
+                                groupSeparatorDropdownKey) {
                               // Inconsistency, disable group separator
-                              prefs.setString(PreferencesKeys.groupSeparator, "");
+                              prefs.setString(
+                                  PreferencesKeys.groupSeparator, "");
                             }
                             fetchNumberFormattingPreferences();
                           });
@@ -313,7 +316,8 @@ class CustomizationPageState extends State<CustomizationPage> {
                         subtitle:
                             "When typing `dot`, it types `comma` instead".i18n,
                         switchValue: overwriteDotValueWithComma,
-                        sharedConfigKey: PreferencesKeys.overwriteDotValueWithComma,
+                        sharedConfigKey:
+                            PreferencesKeys.overwriteDotValueWithComma,
                       ),
                     ),
                     Visibility(
@@ -323,7 +327,8 @@ class CustomizationPageState extends State<CustomizationPage> {
                         subtitle:
                             "When typing `comma`, it types `dot` instead".i18n,
                         switchValue: overwriteCommaValueWithDot,
-                        sharedConfigKey: PreferencesKeys.overwriteCommaValueWithDot,
+                        sharedConfigKey:
+                            PreferencesKeys.overwriteCommaValueWithDot,
                       ),
                     ),
                     SettingSeparator(title: "Homepage settings".i18n),
@@ -336,38 +341,49 @@ class CustomizationPageState extends State<CustomizationPage> {
                       sharedConfigKey: PreferencesKeys.homepageTimeInterval,
                     ),
                     DropdownCustomizationItem(
-                      title: "What should the 'Overview widget' summarize?".i18n,
+                      title:
+                          "What should the 'Overview widget' summarize?".i18n,
                       subtitle: "Define what to summarize".i18n,
-                      dropdownValues: PreferencesOptions.homepageOverviewWidgetTimeInterval,
+                      dropdownValues:
+                          PreferencesOptions.homepageOverviewWidgetTimeInterval,
                       selectedDropdownKey: homepageOverviewWidgetTimeInterval,
-                      sharedConfigKey: PreferencesKeys.homepageOverviewWidgetTimeInterval,
+                      sharedConfigKey:
+                          PreferencesKeys.homepageOverviewWidgetTimeInterval,
                     ),
                     DropdownCustomizationItem(
                       title: "Show records' notes on the homepage".i18n,
                       subtitle: "Number of rows to display".i18n,
                       dropdownValues: PreferencesOptions.showNotesOnHomepage,
                       selectedDropdownKey: homepageRecordNotesVisible,
-                      sharedConfigKey: PreferencesKeys.homepageRecordNotesVisible,
+                      sharedConfigKey:
+                          PreferencesKeys.homepageRecordNotesVisible,
                     ),
                     SwitchCustomizationItem(
                       title: "Visualise tags in the main page".i18n,
                       subtitle: "Show or hide tags in the record list".i18n,
-                      switchValue: PreferencesUtils.getOrDefault<bool>(prefs, PreferencesKeys.visualiseTagsInMainPage)!,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(
+                          prefs, PreferencesKeys.visualiseTagsInMainPage)!,
                       sharedConfigKey: PreferencesKeys.visualiseTagsInMainPage,
                     ),
                     SettingSeparator(title: "Statistics".i18n),
                     DropdownCustomizationItem(
-                      title: "Number of categories in Pie Chart".i18n,
-                      subtitle: "How many categories to be displayed".i18n,
-                      dropdownValues: PreferencesOptions.numberOfCategoriesForPieChart,
-                      selectedDropdownKey: statisticsPieChartNumberOfCategoriesToDisplay,
-                      sharedConfigKey: PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay,
+                      title: "Number of categories/tags in Pie Chart".i18n,
+                      subtitle: "How many categories/tags to be displayed".i18n,
+                      dropdownValues:
+                          PreferencesOptions.numberOfCategoriesForPieChart,
+                      selectedDropdownKey:
+                          statisticsPieChartNumberOfCategoriesToDisplay,
+                      sharedConfigKey: PreferencesKeys
+                          .statisticsPieChartNumberOfCategoriesToDisplay,
                     ),
                     SwitchCustomizationItem(
                       title: "Use Category Colors in Pie Chart".i18n,
-                      subtitle: "Show categories with their own colors instead of the default palette".i18n,
+                      subtitle:
+                          "Show categories with their own colors instead of the default palette"
+                              .i18n,
                       switchValue: statisticsPieChartUseCategoryColors,
-                      sharedConfigKey: PreferencesKeys.statisticsPieChartUseCategoryColors,
+                      sharedConfigKey:
+                          PreferencesKeys.statisticsPieChartUseCategoryColors,
                     ),
                     SettingSeparator(title: "Additional Settings".i18n),
                     SwitchCustomizationItem(
@@ -376,14 +392,15 @@ class CustomizationPageState extends State<CustomizationPage> {
                           "If enabled, you get suggestions when typing the record's name"
                               .i18n,
                       switchValue: enableRecordNameSuggestions,
-                      sharedConfigKey: PreferencesKeys.enableRecordNameSuggestions,
+                      sharedConfigKey:
+                          PreferencesKeys.enableRecordNameSuggestions,
                     ),
                     Visibility(
                       visible: appLockIsAvailable,
                       child: SwitchCustomizationItem(
                         title: "Protect access to the app".i18n,
                         subtitle:
-                        "App protected by PIN or biometric check".i18n,
+                            "App protected by PIN or biometric check".i18n,
                         switchValue: enableAppLock,
                         sharedConfigKey: PreferencesKeys.enableAppLock,
                         proLabel: !ServiceConfig.isPremium,

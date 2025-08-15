@@ -262,4 +262,11 @@ class InMemoryDatabase implements DatabaseInterface {
     // TODO: implement getTagsForRecord
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(
+      DateTime? from, DateTime? to) {
+    // TODO: implement getAggregatedRecordsByTagInInterval
+    throw UnimplementedError();
+  }
 }

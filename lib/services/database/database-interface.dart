@@ -38,6 +38,7 @@ abstract class DatabaseInterface {
   Future<List<String>> getTagsForRecord(int recordId);
   Future<List<String>> getAllTags();
   Future<List<String>> getMostUsedTagsForCategory(String categoryName, CategoryType categoryType);
+  Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(DateTime? from, DateTime? to);
 
   // Recurrent Records Patterns CRUD
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();

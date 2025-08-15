@@ -357,6 +357,31 @@ class SqliteDatabase implements DatabaseInterface {
     return filteredRecords;
   }
 
+  @override
+  Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(
+      DateTime? from, DateTime? to) async {
+    final db = (await database)!;
+
+    final fromUtc = from!.subtract(const Duration(days: 1)).toUtc();
+    final toUtc = to!.add(const Duration(days: 1)).toUtc();
+
+    final fromUnix = fromUtc.millisecondsSinceEpoch;
+    final toUnix = toUtc.millisecondsSinceEpoch;
+
+    final List<Map<String, dynamic>> maps = await db.rawQuery("""
+      SELECT
+        rt.tag_name AS key,
+        SUM(r.value) AS value
+      FROM records_tags AS rt
+      INNER JOIN records AS r
+        ON rt.record_id = r.id
+      WHERE r.datetime >= ? AND r.datetime <= ?
+      GROUP BY rt.tag_name
+      ORDER BY value DESC
+    """, [fromUnix, toUnix]);
+    return maps;
+  }
+
   Future<void> deleteDatabase() async {
     final db = (await database)!;
     await db.execute("DELETE FROM records");

@@ -367,6 +367,45 @@ Future main() async {
       expect(records.length, 1);
       expect(records[0]!.title, contains("Record 1"));
     });
+
+    test('getAggregatedRecordsByTagInInterval should return aggregated values by tag', () async {
+      DatabaseInterface db = ServiceConfig.database;
+      await db.addCategory(testCategoryExpense);
+      await db.addCategory(testCategoryIncome);
+
+      // Create records with different tags and dates
+      var record1 = Record(10.0, "Groceries", testCategoryExpense, DateTime.utc(2023, 1, 1), tags: ['food', 'shopping']);
+      var record2 = Record(20.0, "Dinner", testCategoryExpense, DateTime.utc(2023, 1, 15), tags: ['food', 'restaurant']);
+      var record3 = Record(15.0, "Gas", testCategoryExpense, DateTime.utc(2023, 1, 20), tags: ['transport', 'car']);
+      var record4 = Record(50.0, "Salary", testCategoryIncome, DateTime.utc(2023, 1, 10), tags: ['income', 'work']);
+      var record5 = Record(30.0, "Lunch", testCategoryExpense, DateTime.utc(2023, 2, 1), tags: ['food']);
+
+      await db.addRecordsInBatch([record1, record2, record3, record4, record5]);
+
+      // Test for January records
+      var from = DateTime.utc(2023, 1, 1);
+      var to = DateTime.utc(2023, 1, 31);
+      var aggregatedTags = await db.getAggregatedRecordsByTagInInterval(from, to);
+
+      expect(aggregatedTags.length, 5); // food, shopping, restaurant, transport, car, income, work
+
+      // Verify specific tag aggregations
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'food')['value'], 30.0); // 10 (record1) + 20 (record2)
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'shopping')['value'], 10.0);
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'restaurant')['value'], 20.0);
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'transport')['value'], 15.0);
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'car')['value'], 15.0);
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'income')['value'], 50.0);
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'work')['value'], 50.0);
+
+      // Test for February records
+      from = DateTime.utc(2023, 2, 1);
+      to = DateTime.utc(2023, 2, 28);
+      aggregatedTags = await db.getAggregatedRecordsByTagInInterval(from, to);
+
+      expect(aggregatedTags.length, 1);
+      expect(aggregatedTags.firstWhere((element) => element['key'] == 'food')['value'], 30.0);
+    });
   });
 
   group('Recurrent Records Patterns CRUD', () {
