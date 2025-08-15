@@ -349,6 +349,12 @@ class CustomizationPageState extends State<CustomizationPage> {
                       selectedDropdownKey: homepageRecordNotesVisible,
                       sharedConfigKey: PreferencesKeys.homepageRecordNotesVisible,
                     ),
+                    SwitchCustomizationItem(
+                      title: "Visualise tags in the main page".i18n,
+                      subtitle: "Show or hide tags in the record list".i18n,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(prefs, PreferencesKeys.visualiseTagsInMainPage)!,
+                      sharedConfigKey: PreferencesKeys.visualiseTagsInMainPage,
+                    ),
                     SettingSeparator(title: "Statistics".i18n),
                     DropdownCustomizationItem(
                       title: "Number of categories in Pie Chart".i18n,

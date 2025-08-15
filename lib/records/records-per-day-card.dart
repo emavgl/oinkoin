@@ -57,6 +57,11 @@ class MovementGroupState extends State<RecordsPerDayCard> {
     int numberOfNoteLinesToShow = PreferencesUtils.getOrDefault<int>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.homepageRecordNotesVisible)!;
+
+    bool visualiseTags = PreferencesUtils.getOrDefault<bool>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.visualiseTagsInMainPage)!;
+
     return ListTile(
       onTap: () async {
         await Navigator.push(
@@ -98,7 +103,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          if (movement.tags.isNotEmpty) _buildTagChipsRow(movement.tags),
+          if (visualiseTags && movement.tags.isNotEmpty) _buildTagChipsRow(movement.tags),
         ],
       ),
       trailing: Text(
@@ -119,23 +124,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
       padding: const EdgeInsets.only(top: 6.0),
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          final TextPainter textPainter = TextPainter(
-            text: TextSpan(
-              text: '+', // Dummy text for chip size estimation
-              style:
-                  TextStyle(fontSize: 12.0), // Adjust as per chip label style
-            ),
-            textDirection: TextDirection.ltr,
-          );
-          textPainter.layout();
-          final double chipHeight = textPainter.height +
-              12; // Estimate chip height (label height + padding)
-          final double chipSpacing = 8.0; // From Wrap spacing
-
-          double currentWidth = 0;
-          int visibleTagsCount = 0;
           List<Widget> tagChips = [];
-
           for (int i = 0; i < tags.length; i++) {
             final tag = tags[i];
             final chip = Chip(
@@ -143,36 +132,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               visualDensity: VisualDensity.compact,
             );
-
-            // This is still an approximation for chip width. For more accurate measurement, consider using a GlobalKey after the widget is laid out.
-            final double chipWidth = tag.length * 8.0 +
-                24; // A rough estimate based on character count and padding/margin
-
-            if (currentWidth +
-                    chipWidth +
-                    (visibleTagsCount > 0 ? chipSpacing : 0) <=
-                constraints.maxWidth) {
-              currentWidth +=
-                  chipWidth + (visibleTagsCount > 0 ? chipSpacing : 0);
-              tagChips.add(chip);
-              visibleTagsCount++;
-            } else {
-              break;
-            }
+            tagChips.add(chip);
           }
-
-          final remainingTagsCount = tags.length - visibleTagsCount;
-          if (remainingTagsCount > 0) {
-            tagChips.add(
-              Chip(
-                label: Text('[+$remainingTagsCount]',
-                    style: TextStyle(fontSize: 12.0)),
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-              ),
-            );
-          }
-
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
