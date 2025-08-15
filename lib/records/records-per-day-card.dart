@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
@@ -7,7 +5,6 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:shared_preferences/src/shared_preferences_legacy.dart';
 
 import '../components/category_icon_circle.dart';
 import '../settings/constants/preferences-keys.dart';
@@ -66,9 +63,10 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             context,
             MaterialPageRoute(
                 builder: (context) => EditRecordPage(
-                  passedRecord: movement,
-                )));
-        if (widget.onListBackCallback != null) await widget.onListBackCallback!();
+                      passedRecord: movement,
+                    )));
+        if (widget.onListBackCallback != null)
+          await widget.onListBackCallback!();
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,20 +79,26 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          if (numberOfNoteLinesToShow > 0 && movement.description != null && movement.description!.trim().isNotEmpty)
+          if (numberOfNoteLinesToShow > 0 &&
+              movement.description != null &&
+              movement.description!.trim().isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4.0),
               child: Text(
                 movement.description!,
                 style: TextStyle(
-                  fontSize: 14.0, // Slightly smaller than title
-                  color: Theme.of(context).textTheme.bodySmall?.color, // Lighter color
+                  fontSize: 15.0, // Slightly smaller than title
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.color, // Lighter color
                 ),
                 softWrap: true,
                 maxLines: numberOfNoteLinesToShow, // if index is 4, do not wrap
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+          if (movement.tags.isNotEmpty) _buildTagChipsRow(movement.tags),
         ],
       ),
       trailing: Text(
@@ -106,6 +110,76 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         iconDataFromDefaultIconSet: movement.category?.icon,
         backgroundColor: movement.category?.color,
         overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null,
+      ),
+    );
+  }
+
+  Widget _buildTagChipsRow(List<String> tags) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6.0),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final TextPainter textPainter = TextPainter(
+            text: TextSpan(
+              text: '+', // Dummy text for chip size estimation
+              style:
+                  TextStyle(fontSize: 12.0), // Adjust as per chip label style
+            ),
+            textDirection: TextDirection.ltr,
+          );
+          textPainter.layout();
+          final double chipHeight = textPainter.height +
+              12; // Estimate chip height (label height + padding)
+          final double chipSpacing = 8.0; // From Wrap spacing
+
+          double currentWidth = 0;
+          int visibleTagsCount = 0;
+          List<Widget> tagChips = [];
+
+          for (int i = 0; i < tags.length; i++) {
+            final tag = tags[i];
+            final chip = Chip(
+              label: Text(tag, style: TextStyle(fontSize: 12.0)),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            );
+
+            // This is still an approximation for chip width. For more accurate measurement, consider using a GlobalKey after the widget is laid out.
+            final double chipWidth = tag.length * 8.0 +
+                24; // A rough estimate based on character count and padding/margin
+
+            if (currentWidth +
+                    chipWidth +
+                    (visibleTagsCount > 0 ? chipSpacing : 0) <=
+                constraints.maxWidth) {
+              currentWidth +=
+                  chipWidth + (visibleTagsCount > 0 ? chipSpacing : 0);
+              tagChips.add(chip);
+              visibleTagsCount++;
+            } else {
+              break;
+            }
+          }
+
+          final remainingTagsCount = tags.length - visibleTagsCount;
+          if (remainingTagsCount > 0) {
+            tagChips.add(
+              Chip(
+                label: Text('[+$remainingTagsCount]',
+                    style: TextStyle(fontSize: 12.0)),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: tagChips,
+            ),
+          );
+        },
       ),
     );
   }

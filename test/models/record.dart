@@ -35,6 +35,7 @@ void main() {
         id: 1,
         description: 'Lunch at the cafe',
         recurrencePatternId: 'pattern-1',
+        tags: ['food', 'lunch'],
       );
 
       expect(record.id, 1);
@@ -47,6 +48,7 @@ void main() {
       expect(record.timeZoneName, timeZoneName);
       expect(record.description, 'Lunch at the cafe');
       expect(record.recurrencePatternId, 'pattern-1');
+      expect(record.tags, ['food', 'lunch']);
 
       // We can also test the localDateTime getter
       final expectedLocal =
@@ -129,6 +131,7 @@ void main() {
           id: 10,
           description: 'Monthly internet provider bill',
           recurrencePatternId: 'internet-pattern-1',
+          tags: ['bill', 'home'],
         );
 
         final map = record.toMap();
@@ -145,6 +148,7 @@ void main() {
             testCategoryForMap.categoryType);
         expect(decodedRecord.description, 'Monthly internet provider bill');
         expect(decodedRecord.recurrencePatternId, 'internet-pattern-1');
+        expect(decodedRecord.tags, ['bill', 'home']);
 
         // Crucial test for UTC datetime and timezone name
         expect(decodedRecord.utcDateTime, fixedUtcTime);

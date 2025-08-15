@@ -35,6 +35,9 @@ abstract class DatabaseInterface {
       String recurrentPatternId, DateTime startingTime);
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName);
+  Future<List<String>> getTagsForRecord(int recordId);
+  Future<List<String>> getAllTags();
+  Future<List<String>> getMostUsedTagsForCategory(String categoryName, CategoryType categoryType);
 
   // Recurrent Records Patterns CRUD
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();

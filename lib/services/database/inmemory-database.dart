@@ -243,4 +243,23 @@ class InMemoryDatabase implements DatabaseInterface {
     _categories.addAll(orderedCategories);
     return Future<void>.value();
   }
+
+  @override
+  Future<List<String>> getAllTags() {
+    // TODO: implement getAllTags
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<String>> getMostUsedTagsForCategory(
+      String categoryName, CategoryType categoryType) {
+    // TODO: implement getMostUsedTagsForCategory
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<String>> getTagsForRecord(int recordId) {
+    // TODO: implement getTagsForRecord
+    throw UnimplementedError();
+  }
 }

@@ -12,6 +12,7 @@ class Record extends Model {
   String? title;
   String? description;
   Category? category;
+  List<String> tags = [];
 
   DateTime utcDateTime;
   String? timeZoneName;
@@ -29,9 +30,13 @@ class Record extends Model {
     this.description,
     this.recurrencePatternId,
     this.timeZoneName,
+    List<String>? tags,
   }) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
+    }
+    if (tags != null) {
+      this.tags = tags;
     }
   }
 
@@ -66,6 +71,7 @@ class Record extends Model {
       id: map['id'],
       description: map['description'],
       recurrencePatternId: map['recurrence_id'],
+      tags: map['tags'] != null ? (map['tags'] as String).split(',') : [],
     );
   }
 
@@ -81,7 +87,7 @@ class Record extends Model {
       'category_name': category?.name,
       'category_type': category?.categoryType?.index,
       'description': description,
-      'recurrence_id': recurrencePatternId,
+      'recurrence_id': recurrencePatternId
     };
   }
 

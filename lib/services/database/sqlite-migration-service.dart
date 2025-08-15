@@ -67,7 +67,8 @@ class SqliteMigrationService {
                 last_update INTEGER,
                 recurrent_period INTEGER,
                 recurrence_id TEXT,
-                date_str TEXT
+                date_str TEXT,
+                tags TEXT
             );
         """;
     batch.execute(query);
@@ -244,12 +245,19 @@ class SqliteMigrationService {
         db, "ALTER TABLE recurrent_record_patterns ADD COLUMN timezone TEXT;");
   }
 
+  static void _migrateTo11(Database db) async {
+    safeAlterTable(
+        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN tags TEXT;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
     8: SqliteMigrationService._migrateTo8,
     9: SqliteMigrationService._migrateTo9,
     10: SqliteMigrationService._migrateTo10,
+    11: SqliteMigrationService._migrateTo11,
+    12: SqliteMigrationService._migrateTo11,
   };
 
   // Public Methods

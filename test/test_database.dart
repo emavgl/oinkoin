@@ -176,9 +176,14 @@ Future main() async {
         "Test Record",
         testCategoryExpense,
         DateTime.now().toUtc(),
+        tags: ['test-tag-1', 'test-tag-2'],
       );
       var recordId = await db.addRecord(record);
       expect(recordId, isNotNull);
+
+      // Verify tags are stored
+      var retrievedRecord = await db.getRecordById(recordId);
+      expect(retrievedRecord?.tags, containsAll(['test-tag-1', 'test-tag-2']));
     });
 
     test('getRecordById should retrieve a record by its id', () async {
@@ -189,30 +194,34 @@ Future main() async {
         "Test Record",
         testCategoryExpense,
         DateTime.now().toUtc(),
+        tags: ['initial-tag'],
       );
       var recordId = await db.addRecord(record);
       var retrievedRecord = await db.getRecordById(recordId);
       expect(retrievedRecord?.id, recordId);
       expect(retrievedRecord?.title, "Test Record");
+      expect(retrievedRecord?.tags, containsAll(['initial-tag']));
     });
 
     test('addRecordsInBatch should insert multiple records at once', () async {
       DatabaseInterface db = ServiceConfig.database;
       await db.addCategory(testCategoryExpense);
       var record1 =
-          Record(10.0, "Coffee", testCategoryExpense, DateTime.now().toUtc());
+          Record(10.0, "Coffee", testCategoryExpense, DateTime.now().toUtc(), tags: ['morning']);
       var record2 =
-          Record(20.0, "Tea", testCategoryExpense, DateTime.now().toUtc());
+          Record(20.0, "Tea", testCategoryExpense, DateTime.now().toUtc(), tags: ['evening', 'drink']);
       await db.addRecordsInBatch([record1, record2]);
       var allRecords = await db.getAllRecords();
       expect(allRecords.length, 2);
+      expect(allRecords[0]?.tags, containsAll(['morning']));
+      expect(allRecords[1]?.tags, containsAll(['evening', 'drink']));
     });
 
     test('updateRecordById should modify an existing record', () async {
       DatabaseInterface db = ServiceConfig.database;
       await db.addCategory(testCategoryExpense);
       var record = Record(
-          100.0, "Test Record", testCategoryExpense, DateTime.now().toUtc());
+          100.0, "Test Record", testCategoryExpense, DateTime.now().toUtc(), tags: ['old-tag']);
       var recordId = await db.addRecord(record);
 
       var newRecord = Record(
@@ -220,11 +229,13 @@ Future main() async {
         "Updated Record",
         testCategoryExpense,
         DateTime.now().toUtc(),
+        tags: ['new-tag-1', 'new-tag-2'],
       );
       await db.updateRecordById(recordId, newRecord);
       var retrievedRecord = await db.getRecordById(recordId);
       expect(retrievedRecord?.value, 200.0);
       expect(retrievedRecord?.title, "Updated Record");
+      expect(retrievedRecord?.tags, containsAll(['new-tag-1', 'new-tag-2']));
     });
 
     test('deleteRecordById should remove a record from the database', () async {
@@ -243,11 +254,11 @@ Future main() async {
       DatabaseInterface db = ServiceConfig.database;
       await db.addCategory(testCategoryExpense);
       var record1 = Record(
-          10.0, "Record 1", testCategoryExpense, DateTime.utc(2023, 1, 1));
+          10.0, "Record 1", testCategoryExpense, DateTime.utc(2023, 1, 1), tags: ['tag1']);
       var record2 = Record(
-          20.0, "Record 2", testCategoryExpense, DateTime.utc(2023, 1, 15));
+          20.0, "Record 2", testCategoryExpense, DateTime.utc(2023, 1, 15), tags: ['tag2', 'tag3']);
       var record3 = Record(
-          30.0, "Record 3", testCategoryExpense, DateTime.utc(2023, 2, 1));
+          30.0, "Record 3", testCategoryExpense, DateTime.utc(2023, 2, 1), tags: ['tag4']);
       await db.addRecordsInBatch([record1, record2, record3]);
 
       var from = DateTime.utc(2023, 1, 10);
@@ -255,6 +266,7 @@ Future main() async {
       var recordsInInterval = await db.getAllRecordsInInterval(from, to);
       expect(recordsInInterval.length, 1);
       expect(recordsInInterval[0]?.title, "Record 2");
+      expect(recordsInInterval[0]?.tags, containsAll(['tag2', 'tag3']));
     });
 
     test('getDateTimeFirstRecord should return the earliest record date',
@@ -276,12 +288,13 @@ Future main() async {
       DatabaseInterface db = ServiceConfig.database;
       await db.addCategory(testCategoryExpense);
       var record = Record(100.0, "Test Record", testCategoryExpense,
-          DateTime.utc(2023, 10, 26, 12, 0, 0));
+          DateTime.utc(2023, 10, 26, 12, 0, 0), tags: ['match-tag']);
       await db.addRecord(record);
 
       var matchingRecord = await db.getMatchingRecord(record);
       expect(matchingRecord?.title, record.title);
       expect(matchingRecord?.value, record.value);
+      expect(matchingRecord?.tags, containsAll(['match-tag']));
     });
 
     test(
@@ -365,6 +378,7 @@ Future main() async {
       DateTime.utc(2023, 1, 1), // utcDateTime
       RecurrentPeriod.EveryMonth, // recurrentPeriod
       id: "pattern-1", // optional id
+      tags: ['home', 'rent'],
     );
 
     test('addRecurrentRecordPattern should insert a pattern', () async {
@@ -375,6 +389,7 @@ Future main() async {
           await db.getRecurrentRecordPattern(testRecurrentPattern.id);
       expect(retrievedPattern, isNotNull);
       expect(retrievedPattern?.title, "Monthly Rent");
+      expect(retrievedPattern?.tags, containsAll(['home', 'rent']));
     });
 
     test('getRecurrentRecordPattern should retrieve a specific pattern by id',
@@ -385,6 +400,7 @@ Future main() async {
       var retrievedPattern =
           await db.getRecurrentRecordPattern(testRecurrentPattern.id);
       expect(retrievedPattern?.id, testRecurrentPattern.id);
+      expect(retrievedPattern?.tags, containsAll(['home', 'rent']));
     });
 
     test('getRecurrentRecordPatterns should return all patterns', () async {
@@ -399,6 +415,7 @@ Future main() async {
         DateTime.utc(2023, 1, 1),
         RecurrentPeriod.EveryWeek,
         id: "pattern-2",
+        tags: ['work', 'income'],
       );
 
       await db.addRecurrentRecordPattern(testRecurrentPattern);
@@ -406,6 +423,8 @@ Future main() async {
 
       var allPatterns = await db.getRecurrentRecordPatterns();
       expect(allPatterns.length, 2);
+      expect(allPatterns[0]?.tags, containsAll(['home', 'rent']));
+      expect(allPatterns[1]?.tags, containsAll(['work', 'income']));
     });
 
     test('updateRecordPatternById should modify an existing pattern', () async {
@@ -420,6 +439,7 @@ Future main() async {
         DateTime.utc(2023, 2, 1),
         RecurrentPeriod.EveryMonth,
         id: testRecurrentPattern.id,
+        tags: ['new-home', 'new-rent', 'updated'],
       );
 
       await db.updateRecordPatternById(testRecurrentPattern.id, updatedPattern);
@@ -427,6 +447,7 @@ Future main() async {
           await db.getRecurrentRecordPattern(testRecurrentPattern.id);
       expect(retrievedPattern?.title, "New Monthly Rent");
       expect(retrievedPattern?.value, 600.0);
+      expect(retrievedPattern?.tags, containsAll(['new-home', 'new-rent', 'updated']));
     });
 
     test('deleteRecurrentRecordPatternById should remove a pattern', () async {
