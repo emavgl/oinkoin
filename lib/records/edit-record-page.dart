@@ -20,6 +20,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
 import '../components/category_icon_circle.dart';
+import '../components/tag_selection_dialog.dart';
 import '../models/recurrent-record-pattern.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
@@ -62,6 +63,9 @@ class EditRecordPageState extends State<EditRecordPage> {
   late bool enableRecordNameSuggestions;
 
   DateTime? localDisplayDate;
+
+  List<String> _selectedTags = [];
+  List<String> _mostUsedTags = [];
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
@@ -177,6 +181,8 @@ class EditRecordPageState extends State<EditRecordPage> {
           }
         });
       }
+      // Initialize selected tags for existing record
+      _selectedTags = List.from(record!.tags);
     } else if (passedReccurrentRecordPattern != null) {
       // I am editing a recurrent pattern
       // Instantiate a new Record object from the pattern
@@ -189,6 +195,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         // The record's timezone name is from the pattern's timezone name
         timeZoneName: passedReccurrentRecordPattern!.timeZoneName,
         description: passedReccurrentRecordPattern!.description,
+        tags: passedReccurrentRecordPattern!.tags, // Pass tags from pattern
       );
       // Use the localDateTime for display
       localDisplayDate = passedReccurrentRecordPattern!.localDateTime;
@@ -200,11 +207,19 @@ class EditRecordPageState extends State<EditRecordPage> {
         recurrentPeriodIndex =
             passedReccurrentRecordPattern!.recurrentPeriod!.index;
       });
+      // Initialize selected tags for existing recurrent pattern
+      _selectedTags = List.from(passedReccurrentRecordPattern!.tags);
     } else {
       // I am adding a new record
       // Create a new record with a UTC timestamp and the current local timezone
       record = Record(null, null, passedCategory, DateTime.now().toUtc());
       localDisplayDate = record!.localDateTime;
+      _selectedTags = [];
+    }
+
+    // Load most used tags for the current category
+    if (record?.category != null) {
+      _loadMostUsedTags();
     }
 
     // Keyboard listeners initializations (the same as before)
@@ -647,12 +662,23 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   addOrUpdateRecord() async {
+    record!.tags = _selectedTags; // Assign selected tags to the record
     if (record!.id == null) {
       await database.addRecord(record);
     } else {
       await database.updateRecordById(record!.id, record);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  Future<void> _loadMostUsedTags() async {
+    if (record?.category != null) {
+      final tags = await database.getMostUsedTagsForCategory(
+          record!.category!.name!, record!.category!.categoryType!);
+      setState(() {
+        _mostUsedTags = tags;
+      });
+    }
   }
 
   recurrentPeriodHasBeenUpdated(RecurrentRecordPattern toSet) {
@@ -668,6 +694,8 @@ class EditRecordPageState extends State<EditRecordPage> {
     // Create a new recurrent pattern from the updated record
     RecurrentRecordPattern recordPattern =
         RecurrentRecordPattern.fromRecord(record!, recurrentPeriod!, id: id);
+    recordPattern.tags =
+        _selectedTags; // Assign selected tags to the recurrent pattern
     if (id != null) {
       if (recurrentPeriodHasBeenUpdated(recordPattern)) {
         await database.deleteFutureRecordsByPatternId(id, record!.utcDateTime);
@@ -681,6 +709,24 @@ class EditRecordPageState extends State<EditRecordPage> {
       await database.addRecurrentRecordPattern(recordPattern);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  void _openTagSelectionDialog() async {
+    final selectedTags = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) => TagSelectionDialog(
+          initialSelectedTags: _selectedTags,
+        ),
+      ),
+    );
+
+    if (selectedTags != null) {
+      setState(() {
+        _selectedTags = selectedTags;
+      });
+    }
   }
 
   AppBar _getAppBar() {
@@ -747,11 +793,117 @@ class EditRecordPageState extends State<EditRecordPage> {
                   _createTitleCard(),
                   _createCategoryCard(),
                   _createDateAndRepeatCard(),
+                  _createTagsSection(),
                   _createAddNoteCard(),
                 ]),
               ))
         ],
       ),
+    );
+  }
+
+  Widget _createTagsSection() {
+    return Card(
+      elevation: 1,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Tags".i18n,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            SizedBox(height: 10),
+            _createSelectedTagsChips(),
+            if (_selectedTags.isEmpty) ...[
+              Divider(),
+              _createMostUsedTagsChips(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _createSelectedTagsChips() {
+    return Visibility(
+      visible: _selectedTags.isNotEmpty,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 4.0,
+            children: [
+              ..._selectedTags.map((tag) {
+                return Chip(
+                  label: Text(tag),
+                  onDeleted: readOnly
+                      ? null
+                      : () {
+                          setState(() {
+                            _selectedTags.remove(tag);
+                          });
+                        },
+                  deleteIcon: readOnly ? null : Icon(Icons.close),
+                );
+              }).toList(),
+              if (!readOnly)
+                ActionChip(
+                  label: Icon(Icons.add, size: 18),
+                  onPressed: () {
+                    // Open full-screen dialog for tag selection
+                    _openTagSelectionDialog();
+                  },
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _createMostUsedTagsChips() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Most used Tags for the category".i18n,
+            style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        SizedBox(height: 5),
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: [
+            ..._mostUsedTags.map((tag) {
+              return ActionChip(
+                label: Text(tag),
+                onPressed: readOnly
+                    ? null
+                    : () {
+                        setState(() {
+                          if (!_selectedTags.contains(tag)) {
+                            _selectedTags.add(tag);
+                          }
+                        });
+                      },
+              );
+            }).toList(),
+            if (!readOnly)
+              ActionChip(
+                label: Icon(Icons.add, size: 18),
+                onPressed: () {
+                  // Open full-screen dialog for tag selection
+                  _openTagSelectionDialog();
+                },
+              ),
+          ],
+        ),
+      ],
     );
   }
 

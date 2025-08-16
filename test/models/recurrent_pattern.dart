@@ -36,6 +36,7 @@ void main() {
         id: 'pattern-1',
         description: 'Rent for the apartment',
         utcLastUpdate: lastUpdateUtc,
+        tags: ['housing', 'monthly'],
       );
 
       expect(pattern.id, 'pattern-1');
@@ -50,6 +51,7 @@ void main() {
       expect(pattern.description, 'Rent for the apartment');
       // The stored last update should be the UTC datetime
       expect(pattern.utcLastUpdate, lastUpdateUtc);
+      expect(pattern.tags, ['housing', 'monthly']);
 
       // We can also test the localDateTime getter
       final expectedLocal =
@@ -70,6 +72,7 @@ void main() {
         timeZoneName: timeZoneName,
         id: 1,
         description: 'Monthly rent payment',
+        tags: ['housing', 'rent'],
       );
 
       final pattern = RecurrentRecordPattern.fromRecord(
@@ -87,6 +90,7 @@ void main() {
       expect(pattern.timeZoneName, timeZoneName);
       expect(pattern.description, 'Monthly rent payment');
       expect(pattern.recurrentPeriod, RecurrentPeriod.EveryMonth);
+      expect(pattern.tags, ['housing', 'rent']);
     });
 
     group('Serialization/Deserialization (toMap/fromMap)', () {
@@ -109,6 +113,7 @@ void main() {
           id: 'subscription-1',
           description: 'Weekly coffee club',
           utcLastUpdate: lastUpdateUtcTime,
+          tags: ['coffee', 'subscription'],
         );
 
         final map = pattern.toMap();
@@ -125,6 +130,7 @@ void main() {
         // Crucial test for UTC datetime and timezone name
         expect(decodedPattern.utcDateTime, fixedUtcTime);
         expect(decodedPattern.timeZoneName, timeZoneName);
+        expect(decodedPattern.tags, ['coffee', 'subscription']);
 
         // Test lastUpdateUtc
         expect(decodedPattern.utcLastUpdate, lastUpdateUtcTime);

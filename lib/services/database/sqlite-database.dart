@@ -12,6 +12,7 @@ import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
+import '../../models/record-tag-association.dart';
 import 'exceptions.dart';
 
 class SqliteDatabase implements DatabaseInterface {
@@ -23,7 +24,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 11;
+  static int get version => 13;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -124,7 +125,17 @@ class SqliteDatabase implements DatabaseInterface {
         null) {
       await addCategory(record.category);
     }
-    return await db.insert("records", record.toMap());
+    int recordId = await db.insert("records", record.toMap());
+
+    // Insert tags into records_tags table
+    for (String tag in record.tags) {
+      await db.insert(
+        "records_tags",
+        {'record_id': recordId, 'tag_name': tag},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+    return recordId;
   }
 
   @override
@@ -167,6 +178,15 @@ class SqliteDatabase implements DatabaseInterface {
         record.category!.name,
         record.category!.categoryType!.index,
       ]);
+
+      // Insert tags into records_tags table for each record in the batch
+      for (String tag in record.tags) {
+        batch.insert(
+          "records_tags",
+          {'record_id': record.id, 'tag_name': tag},
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        );
+      }
     }
 
     await batch.commit(noResult: true);
@@ -212,8 +232,20 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<Record>> getAllRecords() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
-            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
+            SELECT
+                m.*,
+                c.name,
+                c.color,
+                c.category_type,
+                c.icon,
+                c.icon_emoji,
+                GROUP_CONCAT(rt.tag_name) AS tags
+            FROM records AS m
+            LEFT JOIN categories AS c
+                ON m.category_name = c.name AND m.category_type = c.category_type
+            LEFT JOIN records_tags AS rt
+                ON m.id = rt.record_id
+            GROUP BY m.id
         """);
     return List.generate(maps.length, (i) {
       Map<String, dynamic> currentRowMap = Map<String, dynamic>.from(maps[i]);
@@ -236,6 +268,66 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
+  Future<List<String>> getTagsForRecord(int recordId) async {
+    final db = (await database)!;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'records_tags',
+      columns: ['tag_name'],
+      where: 'record_id = ?',
+      whereArgs: [recordId],
+    );
+    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String);
+  }
+
+  @override
+  Future<List<String>> getAllTags() async {
+    final db = (await database)!;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'records_tags',
+      columns: ['tag_name'],
+      distinct: true,
+    );
+    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String);
+  }
+
+  @override
+  Future<List<RecordTagAssociation>> getAllRecordTagAssociations() async {
+    final db = (await database)!;
+    final List<Map<String, dynamic>> maps = await db.query('records_tags');
+    return List.generate(
+        maps.length, (i) => RecordTagAssociation.fromMap(maps[i]));
+  }
+
+  @override
+  Future<void> addRecordTagAssociationsInBatch(
+      List<RecordTagAssociation>? associations) async {
+    final db = (await database)!;
+    Batch batch = db.batch();
+    for (var association in associations!) {
+      batch.insert('records_tags', association.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<List<String>> getMostUsedTagsForCategory(
+      String categoryName, CategoryType categoryType) async {
+    final db = (await database)!;
+    final List<Map<String, dynamic>> maps = await db.rawQuery("""
+      SELECT rt.tag_name, COUNT(rt.tag_name) as tag_count
+      FROM records_tags AS rt
+      INNER JOIN records AS r
+        ON rt.record_id = r.id
+      WHERE r.category_name = ? AND r.category_type = ?
+      GROUP BY rt.tag_name
+      ORDER BY tag_count DESC
+      LIMIT 5
+    """, [categoryName, categoryType.index]);
+    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String);
+  }
+
+  @override
   Future<List<Record>> getAllRecordsInInterval(
       DateTime? localDateTimeFrom, DateTime? localDateTimeTo) async {
     final db = (await database)!;
@@ -248,9 +340,22 @@ class SqliteDatabase implements DatabaseInterface {
     final toUnix = toUtc.millisecondsSinceEpoch;
 
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
-            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
-            WHERE m.datetime >= ? AND m.datetime <= ? 
+            SELECT
+                m.*,
+                c.name,
+                c.color,
+                c.category_type,
+                c.icon,
+                c.icon_emoji,
+                c.is_archived,
+                GROUP_CONCAT(rt.tag_name) AS tags
+            FROM records AS m
+            LEFT JOIN categories AS c
+                ON m.category_name = c.name AND m.category_type = c.category_type
+            LEFT JOIN records_tags AS rt
+                ON m.id = rt.record_id
+            WHERE m.datetime >= ? AND m.datetime <= ?
+            GROUP BY m.id
         """, [fromUnix, toUnix]);
 
     final records = List.generate(maps.length, (i) {
@@ -271,6 +376,31 @@ class SqliteDatabase implements DatabaseInterface {
     }).toList();
 
     return filteredRecords;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(
+      DateTime? from, DateTime? to) async {
+    final db = (await database)!;
+
+    final fromUtc = from!.subtract(const Duration(days: 1)).toUtc();
+    final toUtc = to!.add(const Duration(days: 1)).toUtc();
+
+    final fromUnix = fromUtc.millisecondsSinceEpoch;
+    final toUnix = toUtc.millisecondsSinceEpoch;
+
+    final List<Map<String, dynamic>> maps = await db.rawQuery("""
+      SELECT
+        rt.tag_name AS key,
+        SUM(r.value) AS value
+      FROM records_tags AS rt
+      INNER JOIN records AS r
+        ON rt.record_id = r.id
+      WHERE r.datetime >= ? AND r.datetime <= ?
+      GROUP BY rt.tag_name
+      ORDER BY value DESC
+    """, [fromUnix, toUnix]);
+    return maps;
   }
 
   Future<void> deleteDatabase() async {
@@ -299,9 +429,22 @@ class SqliteDatabase implements DatabaseInterface {
   Future<Record?> getRecordById(int id) async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
-            FROM records as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
+            SELECT
+                m.*,
+                c.name,
+                c.color,
+                c.category_type,
+                c.icon,
+                c.icon_emoji,
+                c.is_archived,
+                GROUP_CONCAT(rt.tag_name) AS tags
+            FROM records AS m
+            LEFT JOIN categories AS c
+                ON m.category_name = c.name AND m.category_type = c.category_type
+            LEFT JOIN records_tags AS rt
+                ON m.id = rt.record_id
             WHERE m.id = ?
+            GROUP BY m.id
         """, [id]);
 
     var results = List.generate(maps.length, (i) {
@@ -320,14 +463,29 @@ class SqliteDatabase implements DatabaseInterface {
     if (recordMap['id'] == null) {
       recordMap['id'] = movementId;
     }
-    return await db
+    int updatedRows = await db
         .update("records", recordMap, where: "id = ?", whereArgs: [movementId]);
+
+    // Delete existing tags for the record
+    await db.delete("records_tags",
+        where: "record_id = ?", whereArgs: [movementId]);
+
+    // Insert new tags into records_tags table
+    for (String tag in newMovement!.tags) {
+      await db.insert(
+        "records_tags",
+        {'record_id': movementId, 'tag_name': tag},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+    return updatedRows;
   }
 
   @override
   Future<void> deleteRecordById(int? id) async {
     final db = (await database)!;
     await db.delete("records", where: "id = ?", whereArgs: [id]);
+    // There is a db trigger, deleting a record automatically delete the associated tags
   }
 
   @override
@@ -338,13 +496,14 @@ class SqliteDatabase implements DatabaseInterface {
     await db.delete("records",
         where: "recurrence_id = ? AND datetime >= ?",
         whereArgs: [recurrentPatternId, millisecondsSinceEpoch]);
+    // There is a db trigger, deleting a record automatically delete the associated tags
   }
 
   @override
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived, m.tags
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
         """);
 
@@ -362,7 +521,7 @@ class SqliteDatabase implements DatabaseInterface {
       String? recurrentPatternId) async {
     final db = (await database)!;
     var maps = await db.rawQuery("""
-            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji
+            SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, m.tags
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
             WHERE m.id = ?
         """, [recurrentPatternId]);

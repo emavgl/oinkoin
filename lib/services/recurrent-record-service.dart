@@ -38,6 +38,7 @@ class RecurrentRecordService {
         timeZoneName: patternLocation.name,
         description: recordPattern.description,
         recurrencePatternId: recordPattern.id,
+        tags: recordPattern.tags,
       );
       newRecurrentRecords.add(newRecord);
       lastUpdateTz = startDate;
@@ -126,6 +127,7 @@ class RecurrentRecordService {
             timeZoneName: patternLocation.name,
             description: recordPattern.description,
             recurrencePatternId: recordPattern.id,
+            tags: recordPattern.tags,
           );
           newRecurrentRecords.add(newRecord);
           currentDate = nextDate;

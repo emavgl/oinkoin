@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
@@ -6,7 +7,7 @@ import 'package:piggybank/statistics/statistics-utils.dart';
 
 import 'barchart-card.dart';
 import 'categories-summary-card.dart';
-import 'package:piggybank/i18n.dart';
+import 'tag-summary-card.dart';
 
 class StatisticsTabPage extends StatefulWidget {
   /// The category page that you can select from the bottom navigation bar.
@@ -80,6 +81,8 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           SizedBox(height: 10),
           CategoriesSummaryCard(widget.from, widget.to, widget.records,
               aggregatedRecords, aggregationMethod),
+          SizedBox(height: 10),
+          TagSummaryCard(widget.records, aggregationMethod!),
         ],
       ),
     );

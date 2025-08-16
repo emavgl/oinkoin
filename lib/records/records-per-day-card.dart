@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
@@ -7,7 +5,6 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:shared_preferences/src/shared_preferences_legacy.dart';
 
 import '../components/category_icon_circle.dart';
 import '../settings/constants/preferences-keys.dart';
@@ -60,15 +57,21 @@ class MovementGroupState extends State<RecordsPerDayCard> {
     int numberOfNoteLinesToShow = PreferencesUtils.getOrDefault<int>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.homepageRecordNotesVisible)!;
+
+    bool visualiseTags = PreferencesUtils.getOrDefault<bool>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.visualiseTagsInMainPage)!;
+
     return ListTile(
       onTap: () async {
         await Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => EditRecordPage(
-                  passedRecord: movement,
-                )));
-        if (widget.onListBackCallback != null) await widget.onListBackCallback!();
+                      passedRecord: movement,
+                    )));
+        if (widget.onListBackCallback != null)
+          await widget.onListBackCallback!();
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,20 +84,26 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          if (numberOfNoteLinesToShow > 0 && movement.description != null && movement.description!.trim().isNotEmpty)
+          if (numberOfNoteLinesToShow > 0 &&
+              movement.description != null &&
+              movement.description!.trim().isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4.0),
               child: Text(
                 movement.description!,
                 style: TextStyle(
-                  fontSize: 14.0, // Slightly smaller than title
-                  color: Theme.of(context).textTheme.bodySmall?.color, // Lighter color
+                  fontSize: 15.0, // Slightly smaller than title
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.color, // Lighter color
                 ),
                 softWrap: true,
                 maxLines: numberOfNoteLinesToShow, // if index is 4, do not wrap
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+          if (visualiseTags && movement.tags.isNotEmpty) _buildTagChipsRow(movement.tags),
         ],
       ),
       trailing: Text(
@@ -106,6 +115,32 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         iconDataFromDefaultIconSet: movement.category?.icon,
         backgroundColor: movement.category?.color,
         overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null,
+      ),
+    );
+  }
+
+  Widget _buildTagChipsRow(List<String> tags) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6.0),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          List<Widget> tagChips = [];
+          for (int i = 0; i < tags.length; i++) {
+            final tag = tags[i];
+            final chip = Chip(
+              label: Text(tag, style: TextStyle(fontSize: 12.0)),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            );
+            tagChips.add(chip);
+          }
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: tagChips,
+            ),
+          );
+        },
       ),
     );
   }

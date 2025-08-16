@@ -16,12 +16,16 @@ class RecurrentRecordPattern {
   String? timeZoneName;
   RecurrentPeriod? recurrentPeriod;
   DateTime? utcLastUpdate;
+  List<String> tags = [];
 
   RecurrentRecordPattern(this.value, this.title, this.category,
       this.utcDateTime, this.recurrentPeriod,
-      {this.id, this.description, this.utcLastUpdate, this.timeZoneName}) {
+      {this.id, this.description, this.utcLastUpdate, this.timeZoneName, List<String>? tags}) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
+    }
+    if (tags != null) {
+      this.tags = tags;
     }
   }
 
@@ -34,7 +38,8 @@ class RecurrentRecordPattern {
         category = record.category,
         utcDateTime = record.utcDateTime,
         description = record.description,
-        timeZoneName = record.timeZoneName;
+        timeZoneName = record.timeZoneName,
+        tags = record.tags;
 
   /// Serialize to database
   Map<String, dynamic> toMap() {
@@ -48,6 +53,7 @@ class RecurrentRecordPattern {
       'description': description,
       'recurrent_period': recurrentPeriod?.index,
       'last_update': utcLastUpdate?.millisecondsSinceEpoch,
+      'tags': tags.join(','),
     };
     if (id != null) map['id'] = id;
     return map;
@@ -71,16 +77,19 @@ class RecurrentRecordPattern {
           DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis, isUtc: true);
     }
 
+    List<String> tags = map['tags'] != null ? (map['tags'] as String).split(',') : [];
+
     return RecurrentRecordPattern(
       map['value'],
       map['title'],
       map['category'],
       utcDateTime,
-      timeZoneName: timezone,
       RecurrentPeriod.values[map['recurrent_period']],
       id: map['id'],
       description: map['description'],
       utcLastUpdate: utcLastUpdate,
+      timeZoneName: timezone,
+      tags: tags,
     );
   }
 
