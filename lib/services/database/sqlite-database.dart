@@ -12,6 +12,7 @@ import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
+import '../../models/record-tag-association.dart';
 import 'exceptions.dart';
 
 class SqliteDatabase implements DatabaseInterface {
@@ -23,7 +24,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 12;
+  static int get version => 13;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -290,6 +291,26 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
+  Future<List<RecordTagAssociation>> getAllRecordTagAssociations() async {
+    final db = (await database)!;
+    final List<Map<String, dynamic>> maps = await db.query('records_tags');
+    return List.generate(
+        maps.length, (i) => RecordTagAssociation.fromMap(maps[i]));
+  }
+
+  @override
+  Future<void> addRecordTagAssociationsInBatch(
+      List<RecordTagAssociation>? associations) async {
+    final db = (await database)!;
+    Batch batch = db.batch();
+    for (var association in associations!) {
+      batch.insert('records_tags', association.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  @override
   Future<List<String>> getMostUsedTagsForCategory(
       String categoryName, CategoryType categoryType) async {
     final db = (await database)!;
@@ -464,6 +485,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<void> deleteRecordById(int? id) async {
     final db = (await database)!;
     await db.delete("records", where: "id = ?", whereArgs: [id]);
+    // There is a db trigger, deleting a record automatically delete the associated tags
   }
 
   @override
@@ -474,6 +496,7 @@ class SqliteDatabase implements DatabaseInterface {
     await db.delete("records",
         where: "recurrence_id = ? AND datetime >= ?",
         whereArgs: [recurrentPatternId, millisecondsSinceEpoch]);
+    // There is a db trigger, deleting a record automatically delete the associated tags
   }
 
   @override

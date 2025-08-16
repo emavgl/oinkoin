@@ -1,6 +1,7 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 
@@ -267,6 +268,19 @@ class InMemoryDatabase implements DatabaseInterface {
   Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(
       DateTime? from, DateTime? to) {
     // TODO: implement getAggregatedRecordsByTagInInterval
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> addRecordTagAssociationsInBatch(
+      List<RecordTagAssociation>? associations) {
+    // TODO: implement addRecordTagAssociationsInBatch
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<RecordTagAssociation>> getAllRecordTagAssociations() {
+    // TODO: implement getAllRecordTagAssociations
     throw UnimplementedError();
   }
 }

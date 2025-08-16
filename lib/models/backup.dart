@@ -1,5 +1,6 @@
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 
 import 'category.dart';
@@ -8,6 +9,7 @@ class Backup extends Model {
   List<Record?> records;
   List<Category?> categories;
   List<RecurrentRecordPattern> recurrentRecordsPattern;
+  List<RecordTagAssociation> recordTagAssociations;
   var created_at;
 
   String? packageName;
@@ -15,7 +17,7 @@ class Backup extends Model {
   String? databaseVersion;
 
   Backup(this.packageName, this.version, this.databaseVersion,
-      this.categories, this.records, this.recurrentRecordsPattern) {
+      this.categories, this.records, this.recurrentRecordsPattern, this.recordTagAssociations) {
     created_at = new DateTime.now().millisecondsSinceEpoch;
   }
 
@@ -25,6 +27,8 @@ class Backup extends Model {
       'categories': List.generate(categories.length, (index) => categories[index]!.toMap()),
       'recurrent_record_patterns': List.generate(recurrentRecordsPattern.length,
               (index) => recurrentRecordsPattern[index].toMap()),
+      'record_tag_associations': List.generate(recordTagAssociations.length,
+              (index) => recordTagAssociations[index].toMap()),
       'created_at': created_at,
       'package_name': packageName ?? '',
       'version': version ?? '',
@@ -50,7 +54,7 @@ class Backup extends Model {
               (element) =>
           element.categoryType == categoryType &&
               element.name == categoryName,
-          orElse: null);
+          orElse: () => throw Exception("Category not found")); // Provide a fallback or throw an error
       currentRowMap["category"] = matchingCategory;
       return Record.fromMap(currentRowMap);
     });
@@ -67,9 +71,14 @@ class Backup extends Model {
               (element) =>
           element.categoryType == categoryType &&
               element.name == categoryName,
-          orElse: null);
+          orElse: () => throw Exception("Category not found")); // Provide a fallback or throw an error
       currentRowMap["category"] = matchingCategory;
       return RecurrentRecordPattern.fromMap(currentRowMap);
+    });
+
+    // Step 4: load record tag associations
+    var recordTagAssociations = List.generate(map["record_tag_associations"].length, (i) {
+      return RecordTagAssociation.fromMap(map["record_tag_associations"][i]);
     });
 
     // Extract optional packageName and version
@@ -77,7 +86,7 @@ class Backup extends Model {
     String? version = nonEmptyStringValue(map, 'version');
     String? databaseVersion = nonEmptyStringValue(map, 'database_version');
 
-    return Backup(packageName, version, databaseVersion, categories, records, recurrentRecordsPattern);
+    return Backup(packageName, version, databaseVersion, categories, records, recurrentRecordsPattern, recordTagAssociations);
   }
 
   static String? nonEmptyStringValue(Map<String, dynamic> map, String key) {

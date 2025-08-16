@@ -250,6 +250,23 @@ class SqliteMigrationService {
         db, "ALTER TABLE recurrent_record_patterns ADD COLUMN tags TEXT;");
   }
 
+  static void _migrateTo12(Database db) async {
+    // No specific schema changes, this version was used to force migration for timezone data population.
+  }
+
+  static void _migrateTo13(Database db) async {
+    // Add trigger to delete associated tags when a record is deleted
+    String deleteRecordTagsTriggerQuery = """
+      CREATE TRIGGER IF NOT EXISTS delete_record_tags
+      AFTER DELETE ON records
+      FOR EACH ROW
+      BEGIN
+          DELETE FROM records_tags WHERE record_id = OLD.id;
+      END;
+    """;
+    await db.execute(deleteRecordTagsTriggerQuery);
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -257,7 +274,8 @@ class SqliteMigrationService {
     9: SqliteMigrationService._migrateTo9,
     10: SqliteMigrationService._migrateTo10,
     11: SqliteMigrationService._migrateTo11,
-    12: SqliteMigrationService._migrateTo11,
+    12: SqliteMigrationService._migrateTo12,
+    13: SqliteMigrationService._migrateTo13,
   };
 
   // Public Methods
