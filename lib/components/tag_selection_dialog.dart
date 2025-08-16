@@ -200,14 +200,27 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
   }
 
   void _addTagFromInput(String value) {
-    if (value.isNotEmpty && !_selectedTags.contains(value)) {
+    // Trim spaces
+    final tag = value.trim();
+
+    // Validate: only a single word, no commas allowed
+    final isValid = RegExp(r'^[^\s,]+$').hasMatch(tag);
+
+    if (tag.isEmpty || !isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Tags must be a single word without commas.".i18n)),
+      );
+      return;
+    }
+
+    if (!_selectedTags.contains(tag)) {
       setState(() {
-        _selectedTags.add(value);
-        _allTags.add(value);
+        _selectedTags.add(tag);
+        _allTags.add(tag);
         _searchController.clear();
         _filterTags('');
       });
     }
   }
 }
-

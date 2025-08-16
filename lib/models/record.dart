@@ -91,6 +91,19 @@ class Record extends Model {
     };
   }
 
+  Map<String, dynamic> toCsvMap() {
+    return {
+      'title': title,
+      'value': value,
+      'datetime': localDateTime.toIso8601String(),
+      'category_name': category?.name,
+      'category_type':
+          category?.categoryType?.index == 1 ? "Income" : "Expense",
+      'description': description,
+      'tags': tags.join(":")
+    };
+  }
+
   tz.TZDateTime get localDateTime {
     return createTzDateTime(utcDateTime, timeZoneName!);
   }
