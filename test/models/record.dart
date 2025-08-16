@@ -3,8 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/models/recurrent-period.dart';
-import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:timezone/data/latest.dart' as tz; // Required for timezone tests
 import 'package:timezone/timezone.dart' as tz;
@@ -72,40 +70,6 @@ void main() {
 
       // The timeZoneName should be set to the default from ServiceConfig
       expect(record.timeZoneName, ServiceConfig.localTimezone);
-    });
-
-    test(
-        'fromRecurrencePattern constructor should create a record from a pattern',
-        () {
-      // Create a recurrence pattern
-      const patternTimeZone = 'Europe/Berlin';
-      final patternUtcDate = DateTime.utc(2025, 1, 15, 8, 30, 0);
-
-      final pattern = RecurrentRecordPattern(
-        1200.0,
-        'Rent',
-        testCategory,
-        patternUtcDate,
-        timeZoneName: patternTimeZone,
-        RecurrentPeriod.EveryMonth,
-        id: 'pattern-1',
-        description: 'Monthly rent payment',
-      );
-
-      // Create a Record from the pattern for a new date
-      final newRecordUtcDate = DateTime.utc(2025, 2, 15, 8, 30, 0);
-      final record = Record.fromRecurrencePattern(pattern, newRecordUtcDate);
-
-      expect(record.id, isNull);
-      expect(record.value, 1200.0);
-      expect(record.title, 'Rent');
-      expect(record.category, testCategory);
-      // The record's date should be the new date passed to the constructor
-      expect(record.utcDateTime, newRecordUtcDate);
-      // The timezone should be inherited from the pattern
-      expect(record.timeZoneName, patternTimeZone);
-      expect(record.description, 'Monthly rent payment');
-      expect(record.recurrencePatternId, 'pattern-1');
     });
 
     group('Serialization/Deserialization (toMap/fromMap)', () {

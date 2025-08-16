@@ -1,6 +1,5 @@
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/model.dart';
-import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -39,17 +38,6 @@ class Record extends Model {
       this.tags = tags;
     }
   }
-
-  Record.fromRecurrencePattern(
-    RecurrentRecordPattern recordPattern,
-    DateTime dateTime,
-  )   : value = recordPattern.value,
-        title = recordPattern.title,
-        category = recordPattern.category,
-        utcDateTime = dateTime,
-        recurrencePatternId = recordPattern.id,
-        description = recordPattern.description,
-        timeZoneName = recordPattern.timeZoneName;
 
   /// Deserialize from database
   static Record fromMap(Map<String, dynamic> map) {
