@@ -6,9 +6,9 @@ import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/service-config.dart';
 
-import '../components/category_icon_circle.dart';
-import '../settings/constants/preferences-keys.dart';
-import '../settings/preferences-utils.dart';
+import '../../components/category_icon_circle.dart';
+import '../../settings/constants/preferences-keys.dart';
+import '../../settings/preferences-utils.dart';
 
 class RecordsPerDayCard extends StatefulWidget {
   /// RecordsCard renders a MovementPerDay object as a Card
@@ -103,7 +103,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          if (visualiseTags && movement.tags.isNotEmpty) _buildTagChipsRow(movement.tags),
+          if (visualiseTags && movement.tags.isNotEmpty)
+            _buildTagChipsRow(movement.tags),
         ],
       ),
       trailing: Text(

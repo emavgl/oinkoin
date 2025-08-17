@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
-import 'package:piggybank/records/records-per-day-card.dart';
+import 'package:piggybank/records/components/records-per-day-card.dart';
 
 class RecordsDayList extends StatelessWidget {
   /// MovementsPage is the page showing the list of movements grouped per day.
