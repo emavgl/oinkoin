@@ -18,13 +18,10 @@ import 'exceptions.dart';
 class SqliteDatabase implements DatabaseInterface {
   /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
   /// It is implemented using Singleton pattern.
-
-  /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
-  /// It is implemented using Singleton pattern.
-
+  ///
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 13;
+  static int get version => 14;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -46,7 +43,8 @@ class SqliteDatabase implements DatabaseInterface {
       options: OpenDatabaseOptions(
           version: version,
           onCreate: SqliteMigrationService.onCreate,
-          onUpgrade: SqliteMigrationService.onUpgrade),
+          onUpgrade: SqliteMigrationService.onUpgrade,
+          onDowngrade: SqliteMigrationService.onUpgrade),
     );
   }
 
@@ -471,7 +469,7 @@ class SqliteDatabase implements DatabaseInterface {
         where: "record_id = ?", whereArgs: [movementId]);
 
     // Insert new tags into records_tags table
-    for (String tag in newMovement!.tags) {
+    for (String tag in newMovement.tags) {
       await db.insert(
         "records_tags",
         {'record_id': movementId, 'tag_name': tag},

@@ -20,10 +20,10 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
 import '../components/category_icon_circle.dart';
-import '../components/tag_selection_dialog.dart';
 import '../models/recurrent-record-pattern.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
+import 'components/tag_selection_dialog.dart';
 
 class EditRecordPage extends StatefulWidget {
   final Record? passedRecord;

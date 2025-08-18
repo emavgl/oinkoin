@@ -127,6 +127,7 @@ class TabRecordsState extends State<TabRecords> {
       onMenuItemSelected: (index) =>
           _controller.handleMenuAction(context, index),
       onFilterPressed: () => _controller.showFilterModal(context),
+      hasActiveFilters: _controller.hasActiveFilters,
     );
   }
 

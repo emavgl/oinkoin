@@ -165,8 +165,11 @@ class SqliteMigrationService {
   static void safeAlterTable(Database db, String alterTableQuery) {
     try {
       db.execute(alterTableQuery);
-    } catch (DatabaseException) {
-      // so that this method is idempotent
+    } catch (e) {
+      // Log the exception for debugging while keeping method idempotent
+      print('safeAlterTable: DatabaseException caught - ${e.toString()}');
+      // Optionally log the query that failed
+      print('Failed query: $alterTableQuery');
     }
   }
 
@@ -245,16 +248,15 @@ class SqliteMigrationService {
         db, "ALTER TABLE recurrent_record_patterns ADD COLUMN timezone TEXT;");
   }
 
-  static void _migrateTo11(Database db) async {
-    safeAlterTable(
-        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN tags TEXT;");
-  }
-
-  static void _migrateTo12(Database db) async {
-    // No specific schema changes, this version was used to force migration for timezone data population.
+  static void skip(Database db) async {
+    // skip, wrong version
   }
 
   static void _migrateTo13(Database db) async {
+    // Add tags to recurrent_record_patterns
+    safeAlterTable(
+        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN tags TEXT;");
+
     // Add trigger to delete associated tags when a record is deleted
     String deleteRecordTagsTriggerQuery = """
       CREATE TRIGGER IF NOT EXISTS delete_record_tags
@@ -273,8 +275,8 @@ class SqliteMigrationService {
     8: SqliteMigrationService._migrateTo8,
     9: SqliteMigrationService._migrateTo9,
     10: SqliteMigrationService._migrateTo10,
-    11: SqliteMigrationService._migrateTo11,
-    12: SqliteMigrationService._migrateTo12,
+    11: SqliteMigrationService.skip,
+    12: SqliteMigrationService.skip,
     13: SqliteMigrationService._migrateTo13,
   };
 

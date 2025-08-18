@@ -13,6 +13,7 @@ class TabRecordsSearchAppBar extends StatelessWidget
   final VoidCallback onStatisticsPressed;
   final Function(int) onMenuItemSelected;
   final VoidCallback onFilterPressed;
+  final bool hasActiveFilters; // Add this property
 
   const TabRecordsSearchAppBar({
     Key? key,
@@ -22,6 +23,7 @@ class TabRecordsSearchAppBar extends StatelessWidget
     required this.onStatisticsPressed,
     required this.onMenuItemSelected,
     required this.onFilterPressed,
+    this.hasActiveFilters = false, // Default to false
   }) : super(key: key);
 
   @override
@@ -40,7 +42,7 @@ class TabRecordsSearchAppBar extends StatelessWidget
         ),
       ),
       actions: _buildActions(),
-      bottom: _buildSearchTextField(),
+      bottom: _buildSearchTextField(context),
     );
   }
 
@@ -75,7 +77,7 @@ class TabRecordsSearchAppBar extends StatelessWidget
     ];
   }
 
-  PreferredSize _buildSearchTextField() {
+  PreferredSize _buildSearchTextField(BuildContext context) {
     const double scaleFactor = 1.0;
 
     final double baseIconSize = 24.0 * scaleFactor;
@@ -148,15 +150,47 @@ class TabRecordsSearchAppBar extends StatelessWidget
               ),
             ),
             SizedBox(width: spacing),
-            StyledActionButton(
-              icon: Icons.filter_list,
-              onPressed: onFilterPressed,
-              tooltip: 'Filter records'.i18n,
-              scaleFactor: scaleFactor,
-            ),
+            _buildFilterButton(scaleFactor, context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterButton(double scaleFactor, BuildContext context) {
+    final filterButton = StyledActionButton(
+      icon: Icons.filter_list,
+      onPressed: onFilterPressed,
+      tooltip: 'Filter records'.i18n,
+      scaleFactor: scaleFactor,
+    );
+
+    if (!hasActiveFilters) {
+      return filterButton;
+    }
+
+    // Wrap with badge when filters are active
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        filterButton,
+        Positioned(
+          right: 8,
+          top: 8,
+          child: Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

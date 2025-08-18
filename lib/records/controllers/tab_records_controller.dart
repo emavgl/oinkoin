@@ -419,4 +419,7 @@ class TabRecordsController {
   TextEditingController get searchController => _searchController;
 
   DatabaseInterface get database => _database;
+
+  get hasActiveFilters =>
+      selectedTags.isNotEmpty || selectedCategories.isNotEmpty;
 }

@@ -1,8 +1,3 @@
-// ================================
-// File: tab_records.dart
-// Main widget file - focused on UI structure
-// ================================
-
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
 
@@ -19,11 +14,15 @@ class StyledPopupMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double iconSize = 24.0 * scaleFactor;
-    final double buttonSize = 48.0 * scaleFactor;
 
-    return SizedBox(
-      width: buttonSize,
-      height: buttonSize,
+    return Container(
+      // Use flexible constraints instead of rigid SizedBox
+      constraints: BoxConstraints(
+        minWidth: 40.0 * scaleFactor,
+        minHeight: 40.0 * scaleFactor,
+        maxWidth: 56.0 * scaleFactor,
+        maxHeight: 56.0 * scaleFactor,
+      ),
       child: PopupMenuButton<int>(
         icon: Semantics(
           identifier: 'three-dots',
@@ -38,13 +37,8 @@ class StyledPopupMenuButton extends StatelessWidget {
         ),
         onSelected: onSelected,
         itemBuilder: _buildPopupMenuItems,
-        padding: EdgeInsets.zero,
-        constraints: BoxConstraints(
-          minWidth: buttonSize,
-          minHeight: buttonSize,
-          maxWidth: buttonSize,
-          maxHeight: buttonSize,
-        ),
+        padding:
+            EdgeInsets.all(8.0), // Add some padding for better touch target
       ),
     );
   }
