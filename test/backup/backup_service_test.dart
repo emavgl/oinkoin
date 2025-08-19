@@ -406,4 +406,78 @@ void main() {
     expect(await oldFile.exists(), isFalse);
     expect(await newFile.exists(), isTrue);
   });
+
+  testlib
+      .test('importDataFromBackupFile handles missing record_tag_associations',
+          () async {
+    // Create a backup file without record_tag_associations
+    final backupMap = {
+      'categories': categories.map((c) => c!.toMap()).toList(),
+      'records': records.map((r) => r!.toMap()).toList(),
+      'recurrent_record_patterns':
+          recurrentPatterns.map((rp) => rp.toMap()).toList(),
+      // Intentionally omitting record_tag_associations
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'package_name': 'com.example.test',
+      'version': '1.0.0',
+      'database_version': '1',
+    };
+
+    final backupFile = File('${testDir.path}/backup_no_tags.json');
+    await backupFile.writeAsString(jsonEncode(backupMap));
+
+    final capturedRecordTagAssociations = <RecordTagAssociation>[];
+    when(mockDatabase.addRecordTagAssociationsInBatch(any))
+        .thenAnswer((Invocation invocation) async {
+      final List<RecordTagAssociation> associations =
+          invocation.positionalArguments[0];
+      capturedRecordTagAssociations.addAll(associations);
+      return null;
+    });
+
+    final result = await BackupService.importDataFromBackupFile(backupFile);
+
+    expect(result, isTrue);
+    // Should be called with empty list
+    verify(mockDatabase.addRecordTagAssociationsInBatch(argThat(isEmpty)))
+        .called(1);
+    expect(capturedRecordTagAssociations, isEmpty);
+  });
+
+  testlib.test(
+      'importDataFromBackupFile handles empty record_tag_associations array',
+      () async {
+    // Create a backup file with empty record_tag_associations array
+    final backupMap = {
+      'categories': categories.map((c) => c!.toMap()).toList(),
+      'records': records.map((r) => r!.toMap()).toList(),
+      'recurrent_record_patterns':
+          recurrentPatterns.map((rp) => rp.toMap()).toList(),
+      'record_tag_associations': [], // Empty array
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'package_name': 'com.example.test',
+      'version': '1.0.0',
+      'database_version': '1',
+    };
+
+    final backupFile = File('${testDir.path}/backup_empty_tags.json');
+    await backupFile.writeAsString(jsonEncode(backupMap));
+
+    final capturedRecordTagAssociations = <RecordTagAssociation>[];
+    when(mockDatabase.addRecordTagAssociationsInBatch(any))
+        .thenAnswer((Invocation invocation) async {
+      final List<RecordTagAssociation> associations =
+          invocation.positionalArguments[0];
+      capturedRecordTagAssociations.addAll(associations);
+      return null;
+    });
+
+    final result = await BackupService.importDataFromBackupFile(backupFile);
+
+    expect(result, isTrue);
+    // Should be called with empty list
+    verify(mockDatabase.addRecordTagAssociationsInBatch(argThat(isEmpty)))
+        .called(1);
+    expect(capturedRecordTagAssociations, isEmpty);
+  });
 }
