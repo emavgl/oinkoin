@@ -3,17 +3,17 @@ import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/statistics/categories-statistics-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:piggybank/statistics/summary-models.dart';
 
 import '../components/category_icon_circle.dart';
 import 'aggregated-list-view.dart';
 import 'categories-piechart.dart';
-import 'summary-models.dart';
+import 'category-summary-card.dart';
+import 'detailed-statistics-page.dart';
 
 class CategoriesSummaryCard extends StatelessWidget {
   final List<Record?> records;
-  final List<Record?>? aggregatedRecords;
   final AggregationMethod? aggregationMethod;
 
   final DateTime? from;
@@ -23,8 +23,8 @@ class CategoriesSummaryCard extends StatelessWidget {
   double? maxExpensesSum;
   final _biggerFont = const TextStyle(fontSize: 16.0);
 
-  CategoriesSummaryCard(this.from, this.to, this.records,
-      this.aggregatedRecords, this.aggregationMethod) {
+  CategoriesSummaryCard(
+      this.from, this.to, this.records, this.aggregationMethod) {
     if (records.length > 0) {
       categoriesAndSums = _aggregateRecordByCategory(records);
       totalExpensesSum = categoriesAndSums.fold(
@@ -77,11 +77,15 @@ class CategoriesSummaryCard extends StatelessWidget {
             var categoryRecords = records
                 .where((element) => element!.category!.name == category.name)
                 .toList();
+            String? categoryName = records.first?.category?.name;
             await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => CategoryStatisticPage(
-                        from, to, categoryRecords, aggregationMethod)));
+                    builder: (context) => DetailedStatisticPage(
+                        from, to, categoryRecords, aggregationMethod,
+                        detailedKey: categoryName!,
+                        summaryCard: CategorySummaryCard(
+                            categoryRecords, aggregationMethod))));
           },
           title: Container(
             child: Column(

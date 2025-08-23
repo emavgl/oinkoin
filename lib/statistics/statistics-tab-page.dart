@@ -3,16 +3,15 @@ import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import 'package:piggybank/statistics/statistics-utils.dart';
 
 import 'barchart-card.dart';
 import 'categories-summary-card.dart';
-import 'tag-summary-card.dart';
+import 'tags-summary-card.dart';
 
 class StatisticsTabPage extends StatefulWidget {
   /// The category page that you can select from the bottom navigation bar.
   /// It contains two tab, showing the categories for expenses and categories
-  /// for incomes. It has a single Floating Button that, dependending from which
+  /// for incomes. It has a single Floating Button that, depending from which
   /// tab you clicked, it open the EditCategory page passing the selected Category type.
 
   List<Record?> records;
@@ -27,7 +26,6 @@ class StatisticsTabPage extends StatefulWidget {
 
 class StatisticsTabPageState extends State<StatisticsTabPage> {
   int? indexTab;
-  List<Record?>? aggregatedRecords;
   AggregationMethod? aggregationMethod;
 
   AggregationMethod getAggregationMethodGivenTheTimeRange(
@@ -47,8 +45,6 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     indexTab = 0; // index identifying the tab
     this.aggregationMethod =
         getAggregationMethodGivenTheTimeRange(widget.from!, widget.to!);
-    this.aggregatedRecords =
-        aggregateRecordsByDateAndCategory(widget.records, aggregationMethod);
   }
 
   Widget _buildNoRecordPage() {
@@ -79,10 +75,11 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           BarChartCard(
               widget.from, widget.to, widget.records, aggregationMethod),
           SizedBox(height: 10),
-          CategoriesSummaryCard(widget.from, widget.to, widget.records,
-              aggregatedRecords, aggregationMethod),
+          CategoriesSummaryCard(
+              widget.from, widget.to, widget.records, aggregationMethod),
           SizedBox(height: 10),
-          TagSummaryCard(widget.records, aggregationMethod!),
+          TagsSummaryCard(
+              widget.from, widget.to, widget.records, aggregationMethod!),
         ],
       ),
     );
