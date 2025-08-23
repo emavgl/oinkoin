@@ -39,7 +39,6 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
       CurvedAnimation(parent: _fabAnimationController, curve: Curves.easeInOut),
     );
 
-    // Animate FAB when there are selected tags
     if (_selectedTags.isNotEmpty) {
       _fabAnimationController.forward();
     }
@@ -79,7 +78,6 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
         _selectedTags.add(tag);
       }
 
-      // Animate FAB based on selection
       if (_selectedTags.isNotEmpty) {
         _fabAnimationController.forward();
       } else {
@@ -94,135 +92,107 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text(
-          "Add tags".i18n,
-        ),
+        title: Text("Add tags".i18n),
         elevation: 0,
         backgroundColor: colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(Icons.close, color: colorScheme.onSurface),
-          onPressed: () => Navigator.pop(context), // Returns null
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Column(
-        children: [
-          // Search section with elegant design
-          Container(
-            margin: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Search or create tags".i18n,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface.withOpacity(0.8),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 100), // space for FAB
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search section
+              Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Search or create tags".i18n,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface.withOpacity(0.8),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    _buildSearchField(colorScheme),
+                  ],
+                ),
+              ),
+
+              // Selected tags
+              if (_selectedTags.isNotEmpty) ...[
+                Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: colorScheme.primaryContainer.withOpacity(0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _selectedTags.map((tag) {
+                      return TagChip(
+                        labelText: tag,
+                        isSelected: true,
+                        onSelected: (_) => _toggleTagSelection(tag),
+                        selectedColor: colorScheme.primary,
+                        textLabelColor: colorScheme.onPrimary,
+                      );
+                    }).toList(),
                   ),
                 ),
-                SizedBox(height: 12),
-                _buildSearchField(colorScheme),
+                SizedBox(height: 20),
               ],
-            ),
-          ),
 
-          // Selected tags section with better styling
-          if (_selectedTags.isNotEmpty) ...[
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colorScheme.primaryContainer.withOpacity(0.5),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle,
-                        size: 20,
-                        color: colorScheme.primary,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "Selected (${_selectedTags.length})".i18n,
-                        style: textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.primary,
+              // Available tags
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.label_outline,
+                          size: 20,
+                          color: colorScheme.onSurface.withOpacity(0.7),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: _selectedTags
-                        .map((tag) => TagChip(
-                              labelText: tag,
-                              isSelected: true,
-                              onSelected: (selected) =>
-                                  _toggleTagSelection(tag),
-                              selectedColor:
-                                  Theme.of(context).colorScheme.primary,
-                              textLabelColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                            ))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-          ],
-
-          // All tags section
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.label_outline,
-                        size: 20,
-                        color: colorScheme.onSurface.withOpacity(0.7),
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "Available Tags".i18n,
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: colorScheme.onSurface.withOpacity(0.8),
+                        SizedBox(width: 8),
+                        Text(
+                          "Available Tags".i18n,
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface.withOpacity(0.8),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Expanded(
-                    child: _filteredTags.isEmpty
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    _filteredTags.isEmpty
                         ? _buildEmptyState(colorScheme, textTheme)
                         : _buildTagsGrid(colorScheme),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-
-          // Bottom padding for FAB
-          SizedBox(height: 80),
-        ],
+        ),
       ),
       floatingActionButton: ScaleTransition(
         scale: _fabScaleAnimation,
@@ -343,19 +313,18 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
   }
 
   Widget _buildTagsGrid(ColorScheme colorScheme) {
-    return SingleChildScrollView(
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: _filteredTags.map((tag) {
-          return TagChip(
-            labelText: tag,
-            isSelected: _selectedTags.contains(tag),
-            onSelected: (selected) => _toggleTagSelection(tag),
-            selectedColor: Theme.of(context).colorScheme.secondaryContainer,
-          );
-        }).toList(),
-      ),
+    // Removed SingleChildScrollView here (already inside global scroll)
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: _filteredTags.map((tag) {
+        return TagChip(
+          labelText: tag,
+          isSelected: _selectedTags.contains(tag),
+          onSelected: (selected) => _toggleTagSelection(tag),
+          selectedColor: Theme.of(context).colorScheme.secondaryContainer,
+        );
+      }).toList(),
     );
   }
 
