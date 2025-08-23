@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
-import 'package:piggybank/models/record.dart';
-import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/i18n.dart';
-import 'category-summary-card.dart';
 
 class RecordsStatisticPage extends StatelessWidget {
   /// CategoryStatisticPage shows statistics of records belonging to
   /// the same category.
 
-  List<Record?> records;
-  String? categoryName;
-  AggregationMethod aggregationMethod;
   DateTime? from;
   DateTime? to;
+  Widget aggregationWidget;
+  String aggregationKey;
+
+  bool isEmpty;
 
   RecordsStatisticPage(
-      this.from, this.to, this.records, this.aggregationMethod) {
-    categoryName = this.records[0]!.category!.name;
-  }
+      this.from, this.to, this.aggregationKey, this.aggregationWidget,
+      {required bool this.isEmpty}) {}
 
   Widget _buildNoRecordPage() {
     return new Column(
@@ -42,7 +39,7 @@ class RecordsStatisticPage extends StatelessWidget {
     return new SingleChildScrollView(
       child: new Column(
         children: <Widget>[
-          CategorySummaryCard(records, aggregationMethod),
+          aggregationWidget,
         ],
       ),
     );
@@ -58,7 +55,7 @@ class RecordsStatisticPage extends StatelessWidget {
             children: <Widget>[
               Flexible(
                 child: Text(
-                  categoryName!,
+                  aggregationKey,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -74,8 +71,6 @@ class RecordsStatisticPage extends StatelessWidget {
         ),
         body: new Align(
             alignment: Alignment.topCenter,
-            child: records.length > 0
-                ? _buildStatisticPage()
-                : _buildNoRecordPage()));
+            child: !isEmpty ? _buildStatisticPage() : _buildNoRecordPage()));
   }
 }

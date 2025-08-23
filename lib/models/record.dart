@@ -1,6 +1,5 @@
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/model.dart';
-import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -12,6 +11,7 @@ class Record extends Model {
   String? title;
   String? description;
   Category? category;
+  Set<String> tags = {};
 
   DateTime utcDateTime;
   String? timeZoneName;
@@ -29,22 +29,15 @@ class Record extends Model {
     this.description,
     this.recurrencePatternId,
     this.timeZoneName,
+    Set<String>? tags,
   }) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
     }
+    if (tags != null) {
+      this.tags = tags;
+    }
   }
-
-  Record.fromRecurrencePattern(
-    RecurrentRecordPattern recordPattern,
-    DateTime dateTime,
-  )   : value = recordPattern.value,
-        title = recordPattern.title,
-        category = recordPattern.category,
-        utcDateTime = dateTime,
-        recurrencePatternId = recordPattern.id,
-        description = recordPattern.description,
-        timeZoneName = recordPattern.timeZoneName;
 
   /// Deserialize from database
   static Record fromMap(Map<String, dynamic> map) {
@@ -66,6 +59,8 @@ class Record extends Model {
       id: map['id'],
       description: map['description'],
       recurrencePatternId: map['recurrence_id'],
+      tags:
+          map['tags'] != null ? (map['tags'] as String).split(',').toSet() : {},
     );
   }
 
@@ -81,7 +76,20 @@ class Record extends Model {
       'category_name': category?.name,
       'category_type': category?.categoryType?.index,
       'description': description,
-      'recurrence_id': recurrencePatternId,
+      'recurrence_id': recurrencePatternId
+    };
+  }
+
+  Map<String, dynamic> toCsvMap() {
+    return {
+      'title': title,
+      'value': value,
+      'datetime': localDateTime.toIso8601String(),
+      'category_name': category?.name,
+      'category_type':
+          category?.categoryType?.index == 1 ? "Income" : "Expense",
+      'description': description,
+      'tags': tags.join(":")
     };
   }
 

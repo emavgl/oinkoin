@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 
@@ -35,6 +36,18 @@ abstract class DatabaseInterface {
       String recurrentPatternId, DateTime startingTime);
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName);
+  Future<List<String>> getTagsForRecord(int recordId);
+  Future<Set<String>> getAllTags();
+  Future<Set<String>> getRecentlyUsedTags();
+  Future<Set<String>> getMostUsedTagsForCategory(
+      String categoryName, CategoryType categoryType);
+  Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(
+      DateTime? from, DateTime? to);
+
+  // New methods for record tag associations
+  Future<List<RecordTagAssociation>> getAllRecordTagAssociations();
+  Future<void> addRecordTagAssociationsInBatch(
+      List<RecordTagAssociation>? associations);
 
   // Recurrent Records Patterns CRUD
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();

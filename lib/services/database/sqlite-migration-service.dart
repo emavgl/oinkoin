@@ -67,7 +67,8 @@ class SqliteMigrationService {
                 last_update INTEGER,
                 recurrent_period INTEGER,
                 recurrence_id TEXT,
-                date_str TEXT
+                date_str TEXT,
+                tags TEXT
             );
         """;
     batch.execute(query);
@@ -164,8 +165,11 @@ class SqliteMigrationService {
   static void safeAlterTable(Database db, String alterTableQuery) {
     try {
       db.execute(alterTableQuery);
-    } catch (DatabaseException) {
-      // so that this method is idempotent
+    } catch (e) {
+      // Log the exception for debugging while keeping method idempotent
+      print('safeAlterTable: DatabaseException caught - ${e.toString()}');
+      // Optionally log the query that failed
+      print('Failed query: $alterTableQuery');
     }
   }
 
@@ -244,12 +248,36 @@ class SqliteMigrationService {
         db, "ALTER TABLE recurrent_record_patterns ADD COLUMN timezone TEXT;");
   }
 
+  static void skip(Database db) async {
+    // skip, wrong version
+  }
+
+  static void _migrateTo13(Database db) async {
+    // Add tags to recurrent_record_patterns
+    safeAlterTable(
+        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN tags TEXT;");
+
+    // Add trigger to delete associated tags when a record is deleted
+    String deleteRecordTagsTriggerQuery = """
+      CREATE TRIGGER IF NOT EXISTS delete_record_tags
+      AFTER DELETE ON records
+      FOR EACH ROW
+      BEGIN
+          DELETE FROM records_tags WHERE record_id = OLD.id;
+      END;
+    """;
+    await db.execute(deleteRecordTagsTriggerQuery);
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
     8: SqliteMigrationService._migrateTo8,
     9: SqliteMigrationService._migrateTo9,
     10: SqliteMigrationService._migrateTo10,
+    11: SqliteMigrationService.skip,
+    12: SqliteMigrationService.skip,
+    13: SqliteMigrationService._migrateTo13,
   };
 
   // Public Methods

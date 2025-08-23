@@ -88,7 +88,9 @@ class BackupService {
     var records = await database.getAllRecords();
     var categories = await database.getAllCategories();
     var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
-    var backup = Backup(appName, version, databaseVersion, categories, records, recurrentRecordPatterns);
+    var recordTagAssociations = await database.getAllRecordTagAssociations();
+
+    var backup = Backup(appName, version, databaseVersion, categories, records, recurrentRecordPatterns, recordTagAssociations);
     var backupJsonStr = jsonEncode(backup.toMap());
 
     // Encrypt the backup JSON string if an encryption password is provided
@@ -224,6 +226,9 @@ class BackupService {
               "Recurrent pattern with id $recurrentPatternId already exists.");
         }
       }
+
+      // Add record tag associations
+      await database.addRecordTagAssociationsInBatch(backup.recordTagAssociations);
 
       return true;
     } catch (err) {

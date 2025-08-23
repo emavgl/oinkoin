@@ -91,7 +91,7 @@ def clean_locale_files(directory, reference_file):
 def main():
     # Specify the directory to scan and the JSON file path
     directory = "lib"  # Modify as needed
-    json_file_path = "assets/locales/en_US.json"
+    json_file_path = "assets/locales/en-US.json"
 
     # Get all the strings needing translations
     i18n_strings = scan_directory_for_i18n(directory)

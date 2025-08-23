@@ -3,22 +3,17 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/statistics/records-statistic-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
+
 import '../components/category_icon_circle.dart';
 import '../helpers/records-utility-functions.dart';
-import 'package:piggybank/i18n.dart';
-import 'package:piggybank/statistics/categories-statistics-page.dart';
-
-class CategorySumTuple {
-  final Category category;
-  double value;
-  CategorySumTuple(this.category, this.value);
-}
+import 'detailed-statistics-page.dart';
 
 class CategorySummaryCard extends StatelessWidget {
   final List<Record?> records;
@@ -101,11 +96,15 @@ class CategorySummaryCard extends StatelessWidget {
               DateTime to =
                   DateTime(record.dateTime!.year, record.dateTime!.month + 1)
                       .subtract(Duration(minutes: 1));
+              String? categoryName = records.first?.category?.name;
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CategoryStatisticPage(
-                          from, to, categoryRecords, AggregationMethod.DAY)));
+                      builder: (context) => DetailedStatisticPage(
+                          from, to, categoryRecords, AggregationMethod.DAY,
+                          detailedKey: categoryName!,
+                          summaryCard: CategorySummaryCard(
+                              categoryRecords, AggregationMethod.DAY))));
             }
             if (aggregationMethod == AggregationMethod.DAY) {
               // Tapped on a day aggregated record
@@ -116,11 +115,17 @@ class CategorySummaryCard extends StatelessWidget {
                   .toList();
               DateTime? from = categoryRecords[0]!.dateTime;
               DateTime? to = from;
+              String? k = categoryRecords.first?.category?.name;
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RecordsStatisticPage(from, to,
-                          categoryRecords, AggregationMethod.NOT_AGGREGATED)));
+                      builder: (context) => RecordsStatisticPage(
+                          from,
+                          to,
+                          k!,
+                          isEmpty: categoryRecords.isEmpty,
+                          CategorySummaryCard(categoryRecords,
+                              AggregationMethod.NOT_AGGREGATED))));
             }
             if (aggregationMethod == AggregationMethod.NOT_AGGREGATED) {
               // Tapped on a single-record, show it in edit record page
@@ -129,9 +134,9 @@ class CategorySummaryCard extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => EditRecordPage(
-                        passedRecord: record,
-                        readOnly: true,
-                  )));
+                            passedRecord: record,
+                            readOnly: true,
+                          )));
             }
           },
           title: Container(
@@ -187,8 +192,7 @@ class CategorySummaryCard extends StatelessWidget {
               iconEmoji: category!.iconEmoji,
               iconDataFromDefaultIconSet: category!.icon,
               backgroundColor: category!.color,
-              overlayIcon: category!.isArchived ? Icons.archive : null
-          ),
+              overlayIcon: category!.isArchived ? Icons.archive : null),
         ),
       ],
     );
