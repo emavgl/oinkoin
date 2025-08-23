@@ -719,20 +719,24 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   void _openTagSelectionDialog() async {
-    final selectedTags = await Navigator.push<Set<String>>(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (context) => TagSelectionDialog(
-          initialSelectedTags: _selectedTags,
+    if (ServiceConfig.isPremium) {
+      final selectedTags = await Navigator.push<Set<String>>(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (context) => TagSelectionDialog(
+            initialSelectedTags: _selectedTags,
+          ),
         ),
-      ),
-    );
+      );
 
-    if (selectedTags != null) {
-      setState(() {
-        _selectedTags = selectedTags;
-      });
+      if (selectedTags != null) {
+        setState(() {
+          _selectedTags = selectedTags;
+        });
+      }
+    } else {
+      goToPremiumSplashScreen();
     }
   }
 
