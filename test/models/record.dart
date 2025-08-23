@@ -33,7 +33,7 @@ void main() {
         id: 1,
         description: 'Lunch at the cafe',
         recurrencePatternId: 'pattern-1',
-        tags: ['food', 'lunch'],
+        tags: ['food', 'lunch'].toSet(),
       );
 
       expect(record.id, 1);
@@ -95,7 +95,7 @@ void main() {
           id: 10,
           description: 'Monthly internet provider bill',
           recurrencePatternId: 'internet-pattern-1',
-          tags: ['bill', 'home'],
+          tags: ['bill', 'home'].toSet(),
         );
 
         final map = record.toMap();

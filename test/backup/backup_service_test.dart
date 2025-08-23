@@ -41,26 +41,26 @@ void main() {
     records = [
       Record(-300, "April Rent", categories[0],
           DateTime.parse("2020-04-02 10:30:00"),
-          id: 1, tags: ["rent", "house"]),
+          id: 1, tags: ["rent", "house"].toSet()),
       Record(-300, "May Rent", categories[0],
           DateTime.parse("2020-05-01 10:30:00"),
-          id: 2, tags: ["rent", "monthly"]),
+          id: 2, tags: ["rent", "monthly"].toSet()),
       Record(-30, "Pizza", categories[1], DateTime.parse("2020-05-01 09:30:00"),
-          id: 3, tags: ["food", "dinner"]),
+          id: 3, tags: ["food", "dinner"].toSet()),
       Record(
           1700, "Salary", categories[2], DateTime.parse("2020-05-02 09:30:00"),
-          id: 4, tags: ["income", "job"]),
+          id: 4, tags: ["income", "job"].toSet()),
       Record(-30, "Restaurant", categories[1],
           DateTime.parse("2020-05-02 10:30:00"),
-          id: 5, tags: ["food", "lunch"]),
+          id: 5, tags: ["food", "lunch"].toSet()),
       Record(-60.5, "Groceries", categories[1],
           DateTime.parse("2020-05-03 10:30:00"),
-          id: 6, tags: ["food", "supermarket"]),
+          id: 6, tags: ["food", "supermarket"].toSet()),
     ];
     recurrentPatterns = [
       RecurrentRecordPattern(1, "Rent", categories[0],
           DateTime.parse("2020-05-03 10:30:00"), RecurrentPeriod.EveryMonth,
-          tags: ["rent", "monthly"])
+          tags: ["rent", "monthly"].toSet())
     ];
 
     recordTagAssociations = [

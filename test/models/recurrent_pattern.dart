@@ -36,7 +36,7 @@ void main() {
         id: 'pattern-1',
         description: 'Rent for the apartment',
         utcLastUpdate: lastUpdateUtc,
-        tags: ['housing', 'monthly'],
+        tags: ['housing', 'monthly'].toSet(),
       );
 
       expect(pattern.id, 'pattern-1');
@@ -72,7 +72,7 @@ void main() {
         timeZoneName: timeZoneName,
         id: 1,
         description: 'Monthly rent payment',
-        tags: ['housing', 'rent'],
+        tags: ['housing', 'rent'].toSet(),
       );
 
       final pattern = RecurrentRecordPattern.fromRecord(
@@ -113,7 +113,7 @@ void main() {
           id: 'subscription-1',
           description: 'Weekly coffee club',
           utcLastUpdate: lastUpdateUtcTime,
-          tags: ['coffee', 'subscription'],
+          tags: ['coffee', 'subscription'].toSet(),
         );
 
         final map = pattern.toMap();

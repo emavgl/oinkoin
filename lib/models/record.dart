@@ -11,7 +11,7 @@ class Record extends Model {
   String? title;
   String? description;
   Category? category;
-  List<String> tags = [];
+  Set<String> tags = {};
 
   DateTime utcDateTime;
   String? timeZoneName;
@@ -29,7 +29,7 @@ class Record extends Model {
     this.description,
     this.recurrencePatternId,
     this.timeZoneName,
-    List<String>? tags,
+    Set<String>? tags,
   }) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
@@ -59,7 +59,8 @@ class Record extends Model {
       id: map['id'],
       description: map['description'],
       recurrencePatternId: map['recurrence_id'],
-      tags: map['tags'] != null ? (map['tags'] as String).split(',') : [],
+      tags:
+          map['tags'] != null ? (map['tags'] as String).split(',').toSet() : {},
     );
   }
 

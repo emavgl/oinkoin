@@ -40,7 +40,7 @@ class TabRecordsController {
   // Filters state variable
   List<Category?> selectedCategories = [];
   List<String> selectedTags = [];
-  bool categoryORLogic = true;
+  bool categoryTagOrLogic = true;
   bool tagORLogic = false;
 
   String header = "";
@@ -72,14 +72,14 @@ class TabRecordsController {
   }
 
   // Search functionality
-  void _onSearchChanged() => _filterRecords();
+  void _onSearchChanged() => filterRecords();
 
   void startSearch() {
     isSearchingEnabled = true;
     _searchController.clear();
     selectedCategories = [];
     selectedTags = [];
-    _filterRecords();
+    filterRecords();
     onStateChanged();
   }
 
@@ -88,11 +88,11 @@ class TabRecordsController {
     _searchController.clear();
     selectedCategories = [];
     selectedTags = [];
-    _filterRecords();
+    filterRecords();
     onStateChanged();
   }
 
-  void _filterRecords() {
+  void filterRecords() {
     List<Record?> tempRecords;
 
     final hasSearch = _searchController.text.isNotEmpty;
@@ -109,36 +109,46 @@ class TabRecordsController {
         if (hasSearch) {
           matchesSearch = _matchesSmartSearch(record?.title, query) ||
               _matchesSmartSearch(record?.description, query) ||
-              _matchesSmartSearch(record?.category!.name, query) ||
+              _matchesSmartSearch(record?.category?.name, query) ||
               _matchesSmartSearch(record?.tags.join(" "), query);
         }
 
+        // Categories
         bool matchesCategories = !hasCategories;
         if (hasCategories) {
-          if (categoryORLogic) {
-            // OR logic: record matches if it belongs to ANY selected category
-            matchesCategories = selectedCategories.contains(record?.category);
-          } else {
-            // AND logic: This doesn't make much sense for categories since a record
-            // can only have one category, but we'll treat it as exact match
-            matchesCategories = selectedCategories.contains(record?.category);
-          }
+          matchesCategories = selectedCategories.contains(record?.category);
         }
 
+        // Tags
         bool matchesTags = !hasTags;
         if (hasTags && record?.tags != null) {
           if (tagORLogic) {
-            // OR logic: record matches if it has ANY of the selected tags
+            // OR logic: any tag matches
             matchesTags = selectedTags.any((tag) => record!.tags.contains(tag));
           } else {
-            // AND logic: record matches if it has ALL selected tags
+            // AND logic: all tags must match
             matchesTags =
                 selectedTags.every((tag) => record!.tags.contains(tag));
           }
         }
 
-        // All conditions must be true (AND between different filter types)
-        return matchesSearch && matchesCategories && matchesTags;
+        // Combine Categories + Tags depending on user choice
+        bool matchesCategoryTagCombo;
+        if (hasCategories && hasTags) {
+          if (categoryTagOrLogic) {
+            // OR between categories and tags
+            matchesCategoryTagCombo = matchesCategories || matchesTags;
+          } else {
+            // AND between categories and tags
+            matchesCategoryTagCombo = matchesCategories && matchesTags;
+          }
+        } else {
+          // If only one of them is active, just use that result
+          matchesCategoryTagCombo = matchesCategories && matchesTags;
+        }
+
+        // Final check includes search
+        return matchesSearch && matchesCategoryTagCombo;
       }).toList();
     }
 
@@ -182,7 +192,7 @@ class TabRecordsController {
     filteredRecords = newRecords;
     _extractTags(newRecords);
     _extractCategories(newRecords);
-    _filterRecords();
+    filterRecords();
 
     // Handle overview records
     OverviewTimeInterval overviewTimeIntervalEnum =
@@ -202,8 +212,8 @@ class TabRecordsController {
   void _extractTags(List<Record?> records) {
     final Set<String> uniqueTags = {};
     for (var record in records) {
-      if (record != null && record.tags != null) {
-        uniqueTags.addAll(record.tags!);
+      if (record != null) {
+        uniqueTags.addAll(record.tags);
       }
     }
     tags = uniqueTags.toList();
@@ -250,16 +260,16 @@ class TabRecordsController {
           .then((userDefinedInterval) => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StatisticsPage(
-                      userDefinedInterval[0], userDefinedInterval[1], records),
+                  builder: (context) => StatisticsPage(userDefinedInterval[0],
+                      userDefinedInterval[1], filteredRecords),
                 ),
               ));
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              StatisticsPage(customIntervalFrom, customIntervalTo, records),
+          builder: (context) => StatisticsPage(
+              customIntervalFrom, customIntervalTo, filteredRecords),
         ),
       );
     }
@@ -276,11 +286,12 @@ class TabRecordsController {
     List<Category?> usedCategories =
         records.map((record) => record?.category).toSet().toList();
     List<String> usedTags = records
-        .expand((record) => record?.tags ?? [])
+        .expand((record) => record?.tags ?? {})
         .cast<String>()
         .toSet()
         .toList();
     await showModalBottomSheet(
+      isScrollControlled: true, // This allows the modal to take more space
       context: context,
       builder: (context) {
         return FilterModalContent(
@@ -288,13 +299,15 @@ class TabRecordsController {
           tags: usedTags,
           currentlySelectedCategories: selectedCategories,
           currentlySelectedTags: selectedTags,
+          currentCategoryTagOrLogic: categoryTagOrLogic,
+          currentTagsOrLogic: tagORLogic,
           onApplyFilters:
               (selectedCategories, selectedTags, categoryOR, tagOR) {
             this.selectedCategories = selectedCategories;
             this.selectedTags = selectedTags;
-            this.categoryORLogic = categoryOR;
+            this.categoryTagOrLogic = categoryOR;
             this.tagORLogic = tagOR;
-            _filterRecords();
+            filterRecords();
           },
         );
       },
@@ -355,7 +368,6 @@ class TabRecordsController {
     customIntervalFrom = from;
     customIntervalTo = to;
     header = newHeader;
-    onStateChanged();
   }
 
   Future<void> shiftMonthOrYear(int shift) async {
@@ -399,6 +411,7 @@ class TabRecordsController {
     customIntervalTo = newTo;
     header = newHeader;
     records = newRecords;
+    filterRecords();
     onStateChanged();
   }
 

@@ -127,25 +127,31 @@ class _TagSummaryCardState extends State<TagSummaryCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-                padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Entries grouped by tags".i18n,
-                        style: TextStyle(fontSize: 14),
-                      )
-                    ])),
+              padding: const EdgeInsets.fromLTRB(10, 8, 8, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Entries grouped by tags".i18n,
+                    style: TextStyle(fontSize: 14),
+                  )
+                ],
+              ),
+            ),
             new Divider(),
-            TagsPieChart(widget.records),
-            SizedBox(height: 6),
-            if (widget.records.isNotEmpty)
-              _buildTagsList()
-            else
+            if (tagsAndSums.isNotEmpty) ...[
+              TagsPieChart(widget.records),
+              SizedBox(height: 6),
+              _buildTagsList(),
+            ] else
               Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.all(20),
-                child: Text("No tag data available for this period.".i18n),
+                child: Text(
+                  "No tag data available for this period.".i18n,
+                  style: TextStyle(
+                      fontStyle: FontStyle.italic, color: Colors.grey),
+                ),
               ),
           ],
         ),

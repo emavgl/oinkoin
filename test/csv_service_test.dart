@@ -1,16 +1,14 @@
-
+import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/csv-service.dart';
-import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/category-type.dart';
-import 'package:csv/csv.dart';
-import 'package:timezone/data/latest.dart' as tz;
 import 'package:piggybank/services/service-config.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
   group('CSVExporter', () {
-
     setUpAll(() {
       tz.initializeTimeZones();
       ServiceConfig.localTimezone = "Europe/Vienna";
@@ -22,8 +20,10 @@ void main() {
       final category2 = Category('Salary', categoryType: CategoryType.income);
 
       final records = [
-        Record(10.0, 'Test Record 1', category1, DateTime(2023, 1, 1), id: 1, description: 'Description 1'),
-        Record(20.0, 'Test Record 2', category2, DateTime(2023, 1, 2), id: 2, description: 'Description 2'),
+        Record(10.0, 'Test Record 1', category1, DateTime(2023, 1, 1),
+            id: 1, description: 'Description 1'),
+        Record(20.0, 'Test Record 2', category2, DateTime(2023, 1, 2),
+            id: 2, description: 'Description 2'),
       ];
       final csv = CSVExporter.createCSVFromRecordList(records);
       expect(csv, isA<String>());
@@ -37,8 +37,11 @@ void main() {
       expect(parsedCsv[2][0], 'Test Record 2');
     });
 
-    test('createCSVFromRecordList should handle special characters in title and description', () {
-      final category = Category('Utilities', categoryType: CategoryType.expense);
+    test(
+        'createCSVFromRecordList should handle special characters in title and description',
+        () {
+      final category =
+          Category('Utilities', categoryType: CategoryType.expense);
       final records = [
         Record(
           10.0,
@@ -50,7 +53,7 @@ void main() {
         ),
       ];
       final csv = CSVExporter.createCSVFromRecordList(records);
-      
+
       final converter = CsvToListConverter();
       final List<List<dynamic>> parsedCsv = converter.convert(csv);
 
@@ -58,7 +61,9 @@ void main() {
       expect(parsedCsv[1][5], 'Description with\nnewline and "quotes"');
     });
 
-    test('createCSVFromRecordList should handle tags correctly (no commas in tags)', () {
+    test(
+        'createCSVFromRecordList should handle tags correctly (no commas in tags)',
+        () {
       final category = Category('Shopping', categoryType: CategoryType.expense);
       final records = [
         Record(
@@ -68,11 +73,11 @@ void main() {
           DateTime(2023, 1, 1),
           id: 1,
           description: 'Description',
-          tags: ['tag1', 'tag2', 'tag3'],
+          tags: ['tag1', 'tag2', 'tag3'].toSet(),
         ),
       ];
       final csv = CSVExporter.createCSVFromRecordList(records);
-      
+
       final converter = CsvToListConverter();
       final List<List<dynamic>> parsedCsv = converter.convert(csv);
 

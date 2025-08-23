@@ -289,16 +289,25 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<List<String>>);
 
   @override
-  _i3.Future<List<String>> getAllTags() => (super.noSuchMethod(
+  _i3.Future<Set<String>> getAllTags() => (super.noSuchMethod(
         Invocation.method(
           #getAllTags,
           [],
         ),
-        returnValue: _i3.Future<List<String>>.value(<String>[]),
-      ) as _i3.Future<List<String>>);
+        returnValue: _i3.Future<Set<String>>.value(<String>{}),
+      ) as _i3.Future<Set<String>>);
 
   @override
-  _i3.Future<List<String>> getMostUsedTagsForCategory(
+  _i3.Future<Set<String>> getRecentlyUsedTags() => (super.noSuchMethod(
+        Invocation.method(
+          #getRecentlyUsedTags,
+          [],
+        ),
+        returnValue: _i3.Future<Set<String>>.value(<String>{}),
+      ) as _i3.Future<Set<String>>);
+
+  @override
+  _i3.Future<Set<String>> getMostUsedTagsForCategory(
     String? categoryName,
     _i5.CategoryType? categoryType,
   ) =>
@@ -310,8 +319,8 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
             categoryType,
           ],
         ),
-        returnValue: _i3.Future<List<String>>.value(<String>[]),
-      ) as _i3.Future<List<String>>);
+        returnValue: _i3.Future<Set<String>>.value(<String>{}),
+      ) as _i3.Future<Set<String>>);
 
   @override
   _i3.Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(

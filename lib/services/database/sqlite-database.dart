@@ -127,11 +127,13 @@ class SqliteDatabase implements DatabaseInterface {
 
     // Insert tags into records_tags table
     for (String tag in record.tags) {
-      await db.insert(
-        "records_tags",
-        {'record_id': recordId, 'tag_name': tag},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
+      if (tag.trim().isNotEmpty) {
+        await db.insert(
+          "records_tags",
+          {'record_id': recordId, 'tag_name': tag},
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        );
+      }
     }
     return recordId;
   }
@@ -278,14 +280,15 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<List<String>> getAllTags() async {
+  Future<Set<String>> getAllTags() async {
     final db = (await database)!;
     final List<Map<String, dynamic>> maps = await db.query(
       'records_tags',
       columns: ['tag_name'],
       distinct: true,
     );
-    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String);
+    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String)
+        .toSet();
   }
 
   @override
@@ -309,7 +312,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<List<String>> getMostUsedTagsForCategory(
+  Future<Set<String>> getMostUsedTagsForCategory(
       String categoryName, CategoryType categoryType) async {
     final db = (await database)!;
     final List<Map<String, dynamic>> maps = await db.rawQuery("""
@@ -322,7 +325,8 @@ class SqliteDatabase implements DatabaseInterface {
       ORDER BY tag_count DESC
       LIMIT 5
     """, [categoryName, categoryType.index]);
-    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String);
+    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String)
+        .toSet();
   }
 
   @override
@@ -612,5 +616,20 @@ class SqliteDatabase implements DatabaseInterface {
         whereArgs: [category.name, category.categoryType!.index],
       );
     }
+  }
+
+  @override
+  Future<Set<String>> getRecentlyUsedTags() async {
+    final db = (await database)!;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT DISTINCT rt.tag_name
+      FROM records_tags AS rt
+      INNER JOIN records AS r
+        ON rt.record_id = r.id
+      ORDER BY r.datetime DESC
+      LIMIT 10
+    ''');
+    return List.generate(maps.length, (i) => maps[i]['tag_name'] as String)
+        .toSet();
   }
 }

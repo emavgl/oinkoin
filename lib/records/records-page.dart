@@ -174,7 +174,7 @@ class TabRecordsState extends State<TabRecords> {
       context: context,
       builder: (context) => TabRecordsDatePicker(
         controller: _controller,
-        onDateSelected: () => Navigator.of(context, rootNavigator: true).pop(),
+        onDateSelected: () => setState(() {}),
       ),
     );
   }

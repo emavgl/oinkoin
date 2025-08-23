@@ -37,8 +37,9 @@ abstract class DatabaseInterface {
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName);
   Future<List<String>> getTagsForRecord(int recordId);
-  Future<List<String>> getAllTags();
-  Future<List<String>> getMostUsedTagsForCategory(
+  Future<Set<String>> getAllTags();
+  Future<Set<String>> getRecentlyUsedTags();
+  Future<Set<String>> getMostUsedTagsForCategory(
       String categoryName, CategoryType categoryType);
   Future<List<Map<String, dynamic>>> getAggregatedRecordsByTagInInterval(
       DateTime? from, DateTime? to);

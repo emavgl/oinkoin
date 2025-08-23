@@ -323,7 +323,7 @@ void main() {
         category1,
         patternStartDate,
         RecurrentPeriod.EveryDay,
-        tags: tags,
+        tags: tags.toSet(),
       );
 
       final records = recurrentRecordService

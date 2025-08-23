@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
+import 'package:piggybank/components/tag_chip.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
@@ -64,8 +65,8 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   DateTime? localDisplayDate;
 
-  List<String> _selectedTags = [];
-  List<String> _mostUsedTags = [];
+  Set<String> _selectedTags = {};
+  Set<String> _suggestedTags = {};
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
@@ -182,7 +183,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         });
       }
       // Initialize selected tags for existing record
-      _selectedTags = List.from(record!.tags);
+      _selectedTags = Set.from(record!.tags);
     } else if (passedReccurrentRecordPattern != null) {
       // I am editing a recurrent pattern
       // Instantiate a new Record object from the pattern
@@ -208,18 +209,18 @@ class EditRecordPageState extends State<EditRecordPage> {
             passedReccurrentRecordPattern!.recurrentPeriod!.index;
       });
       // Initialize selected tags for existing recurrent pattern
-      _selectedTags = List.from(passedReccurrentRecordPattern!.tags);
+      _selectedTags = Set.from(passedReccurrentRecordPattern!.tags);
     } else {
       // I am adding a new record
       // Create a new record with a UTC timestamp and the current local timezone
       record = Record(null, null, passedCategory, DateTime.now().toUtc());
       localDisplayDate = record!.localDateTime;
-      _selectedTags = [];
+      _selectedTags = {};
     }
 
     // Load most used tags for the current category
     if (record?.category != null) {
-      _loadMostUsedTags();
+      _loadSuggestedTags();
     }
 
     // Keyboard listeners initializations (the same as before)
@@ -671,12 +672,18 @@ class EditRecordPageState extends State<EditRecordPage> {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
-  Future<void> _loadMostUsedTags() async {
+  Future<void> _loadSuggestedTags() async {
     if (record?.category != null) {
-      final tags = await database.getMostUsedTagsForCategory(
-          record!.category!.name!, record!.category!.categoryType!);
+      Set<String> suggestedTags = Set();
+      final mostUsedForCategory = (await database.getMostUsedTagsForCategory(
+              record!.category!.name!, record!.category!.categoryType!))
+          .take(4);
+      final mostRecentTags = (await database.getRecentlyUsedTags()).take(4);
+      suggestedTags.addAll(mostUsedForCategory);
+      suggestedTags.addAll(mostRecentTags);
+      suggestedTags.removeAll(_selectedTags);
       setState(() {
-        _mostUsedTags = tags;
+        _suggestedTags = suggestedTags;
       });
     }
   }
@@ -712,7 +719,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   void _openTagSelectionDialog() async {
-    final selectedTags = await Navigator.push<List<String>>(
+    final selectedTags = await Navigator.push<Set<String>>(
       context,
       MaterialPageRoute(
         fullscreenDialog: true,
@@ -819,10 +826,10 @@ class EditRecordPageState extends State<EditRecordPage> {
               ),
             ),
             SizedBox(height: 10),
-            _createSelectedTagsChips(),
-            if (_selectedTags.isEmpty) ...[
+            if (record?.id != null) _createSelectedTagsChips(),
+            if (_suggestedTags.isNotEmpty) ...[
               Divider(),
-              _createMostUsedTagsChips(),
+              _createSuggestedTagsChips(),
             ],
           ],
         ),
@@ -831,76 +838,69 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createSelectedTagsChips() {
-    return Visibility(
-      visible: _selectedTags.isNotEmpty,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 4.0,
-            children: [
-              ..._selectedTags.map((tag) {
-                return Chip(
-                  label: Text(tag),
-                  onDeleted: readOnly
-                      ? null
-                      : () {
-                          setState(() {
-                            _selectedTags.remove(tag);
-                          });
-                        },
-                  deleteIcon: readOnly ? null : Icon(Icons.close),
-                );
-              }).toList(),
-              if (!readOnly)
-                ActionChip(
-                  label: Icon(Icons.add, size: 18),
-                  onPressed: () {
-                    // Open full-screen dialog for tag selection
-                    _openTagSelectionDialog();
-                  },
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _createMostUsedTagsChips() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Most used Tags for the category".i18n,
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: [
+            ..._selectedTags.map((tag) {
+              return TagChip(
+                  labelText: tag,
+                  isSelected: true,
+                  onSelected: readOnly
+                      ? null
+                      : (selected) {
+                          setState(() {
+                            _selectedTags.remove(tag);
+                            _suggestedTags.add(tag);
+                          });
+                        });
+            }).toList(),
+            if (!readOnly)
+              TagChip(
+                labelText: "+",
+                isSelected: false,
+                onSelected: (selected) {
+                  _openTagSelectionDialog();
+                },
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _createSuggestedTagsChips() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Suggested tags".i18n,
             style: TextStyle(fontSize: 14, color: Colors.grey[600])),
         SizedBox(height: 5),
         Wrap(
           spacing: 8.0,
           runSpacing: 4.0,
           children: [
-            ..._mostUsedTags.map((tag) {
-              return ActionChip(
-                label: Text(tag),
-                onPressed: readOnly
+            ..._suggestedTags.map((tag) {
+              return TagChip(
+                labelText: tag,
+                isSelected: _selectedTags.contains(tag),
+                onSelected: readOnly
                     ? null
-                    : () {
+                    : (selected) {
                         setState(() {
-                          if (!_selectedTags.contains(tag)) {
+                          if (selected) {
                             _selectedTags.add(tag);
+                            _suggestedTags.remove(tag);
+                          } else {
+                            _selectedTags.remove(tag);
                           }
                         });
                       },
               );
-            }).toList(),
-            if (!readOnly)
-              ActionChip(
-                label: Icon(Icons.add, size: 18),
-                onPressed: () {
-                  // Open full-screen dialog for tag selection
-                  _openTagSelectionDialog();
-                },
-              ),
+            }).toList()
           ],
         ),
       ],

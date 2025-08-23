@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:piggybank/components/tag_chip.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
 class TagSelectionDialog extends StatefulWidget {
-  final List<String> initialSelectedTags;
+  final Set<String> initialSelectedTags;
 
   TagSelectionDialog({Key? key, required this.initialSelectedTags})
       : super(key: key);
@@ -18,16 +19,16 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
     with TickerProviderStateMixin {
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _searchController = TextEditingController();
-  List<String> _allTags = [];
-  List<String> _filteredTags = [];
-  List<String> _selectedTags = [];
+  Set<String> _allTags = {};
+  Set<String> _filteredTags = {};
+  Set<String> _selectedTags = {};
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _selectedTags = List.from(widget.initialSelectedTags);
+    _selectedTags = Set.from(widget.initialSelectedTags);
     _loadAllTags();
 
     _fabAnimationController = AnimationController(
@@ -52,7 +53,9 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
   }
 
   Future<void> _loadAllTags() async {
-    final tags = await database.getAllTags();
+    final tags = (await database.getAllTags())
+        .where((tag) => tag.trim().isNotEmpty)
+        .toSet();
     setState(() {
       _allTags = tags;
       _filteredTags = tags;
@@ -62,8 +65,9 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
   void _filterTags(String searchText) {
     setState(() {
       _filteredTags = _allTags
+          .where((tag) => tag.trim().isNotEmpty)
           .where((tag) => tag.toLowerCase().contains(searchText.toLowerCase()))
-          .toList();
+          .toSet();
     });
   }
 
@@ -94,12 +98,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
       appBar: AppBar(
         title: Text(
           "Add tags".i18n,
-          style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
         ),
-        centerTitle: true,
         elevation: 0,
         backgroundColor: colorScheme.surface,
         surfaceTintColor: Colors.transparent,
@@ -168,7 +167,16 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
                     spacing: 8.0,
                     runSpacing: 8.0,
                     children: _selectedTags
-                        .map((tag) => _buildSelectedChip(tag, colorScheme))
+                        .map((tag) => TagChip(
+                              labelText: tag,
+                              isSelected: true,
+                              onSelected: (selected) =>
+                                  _toggleTagSelection(tag),
+                              selectedColor:
+                                  Theme.of(context).colorScheme.primary,
+                              textLabelColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                            ))
                         .toList(),
                   ),
                 ],
@@ -334,89 +342,17 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
     );
   }
 
-  Widget _buildSelectedChip(String tag, ColorScheme colorScheme) {
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.primary,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              tag,
-              style: TextStyle(
-                color: colorScheme.onPrimary,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
-            ),
-            SizedBox(width: 6),
-            GestureDetector(
-              onTap: () => _toggleTagSelection(tag),
-              child: Icon(
-                Icons.close,
-                size: 16,
-                color: colorScheme.onPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildTagsGrid(ColorScheme colorScheme) {
     return SingleChildScrollView(
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
         children: _filteredTags.map((tag) {
-          final isSelected = _selectedTags.contains(tag);
-          return GestureDetector(
-            onTap: () => _toggleTagSelection(tag),
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? colorScheme.primaryContainer
-                    : colorScheme.surfaceVariant.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isSelected
-                      ? colorScheme.primary
-                      : colorScheme.outline.withOpacity(0.2),
-                  width: isSelected ? 2 : 1,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isSelected) ...[
-                    Icon(
-                      Icons.check,
-                      size: 16,
-                      color: colorScheme.primary,
-                    ),
-                    SizedBox(width: 6),
-                  ],
-                  Text(
-                    tag,
-                    style: TextStyle(
-                      color: isSelected
-                          ? colorScheme.primary
-                          : colorScheme.onSurface,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          return TagChip(
+            labelText: tag,
+            isSelected: _selectedTags.contains(tag),
+            onSelected: (selected) => _toggleTagSelection(tag),
+            selectedColor: Theme.of(context).colorScheme.secondaryContainer,
           );
         }).toList(),
       ),

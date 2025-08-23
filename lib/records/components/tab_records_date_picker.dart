@@ -7,6 +7,7 @@ import 'package:piggybank/i18n.dart';
 import '../../components/year-picker.dart' as yp;
 import '../../helpers/datetime-utility-functions.dart';
 import '../../helpers/records-utility-functions.dart';
+import '../../models/record.dart';
 import '../../premium/splash-screen.dart';
 import '../../services/service-config.dart';
 import '../controllers/tab_records_controller.dart';
@@ -124,9 +125,7 @@ class TabRecordsDatePicker extends StatelessWidget {
       var newRecords = await getRecordsByMonth(
           controller.database, dateTime.year, dateTime.month);
 
-      controller.updateCustomInterval(from, to, header);
-      controller.records = newRecords;
-      onDateSelected();
+      updateAndClose(context, newRecords, from, to, header);
     }
   }
 
@@ -151,9 +150,7 @@ class TabRecordsDatePicker extends StatelessWidget {
       var newRecords =
           await getRecordsByYear(controller.database, yearPicked.year);
 
-      controller.updateCustomInterval(from, to, header);
-      controller.records = newRecords;
-      onDateSelected();
+      updateAndClose(context, newRecords, from, to, header);
     }
   }
 
@@ -192,17 +189,27 @@ class TabRecordsDatePicker extends StatelessWidget {
       var newRecords =
           await getRecordsByInterval(controller.database, from, to);
 
-      controller.updateCustomInterval(from, to, header);
-      controller.records = newRecords;
-      onDateSelected();
+      updateAndClose(context, newRecords, from, to, header);
     }
+  }
+
+  void updateAndClose(BuildContext context, List<Record?> newRecords,
+      DateTime from, DateTime to, String header) {
+    controller.records = newRecords;
+    controller.updateCustomInterval(from, to, header);
+    controller.filterRecords();
+    controller.onStateChanged();
+    onDateSelected();
+    Navigator.of(context, rootNavigator: true).pop();
   }
 
   Future<void> _resetToDefault(BuildContext context) async {
     controller.customIntervalFrom = null;
     controller.customIntervalTo = null;
     await controller.updateRecurrentRecordsAndFetchRecords();
+    controller.onStateChanged();
     onDateSelected();
+    Navigator.of(context, rootNavigator: true).pop();
   }
 
   Future<void> _goToPremiumSplashScreen(BuildContext context) async {

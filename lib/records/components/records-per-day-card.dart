@@ -120,19 +120,19 @@ class MovementGroupState extends State<RecordsPerDayCard> {
     );
   }
 
-  Widget _buildTagChipsRow(List<String> tags) {
+  Widget _buildTagChipsRow(Set<String> tags) {
     return Padding(
       padding: const EdgeInsets.only(top: 6.0),
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           List<Widget> tagChips = [];
-          for (int i = 0; i < tags.length; i++) {
-            final tag = tags[i];
-            final chip = Chip(
-              label: Text(tag, style: TextStyle(fontSize: 12.0)),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            );
+          for (final tag in tags) {
+            final chip = Container(
+                margin: EdgeInsets.symmetric(horizontal: 1),
+                child: Chip(
+                  label: Text(tag, style: TextStyle(fontSize: 12.0)),
+                  visualDensity: VisualDensity.compact,
+                ));
             tagChips.add(chip);
           }
           return SingleChildScrollView(

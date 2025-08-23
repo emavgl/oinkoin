@@ -16,11 +16,15 @@ class RecurrentRecordPattern {
   String? timeZoneName;
   RecurrentPeriod? recurrentPeriod;
   DateTime? utcLastUpdate;
-  List<String> tags = [];
+  Set<String> tags = {};
 
   RecurrentRecordPattern(this.value, this.title, this.category,
       this.utcDateTime, this.recurrentPeriod,
-      {this.id, this.description, this.utcLastUpdate, this.timeZoneName, List<String>? tags}) {
+      {this.id,
+      this.description,
+      this.utcLastUpdate,
+      this.timeZoneName,
+      Set<String>? tags}) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
     }
@@ -53,7 +57,7 @@ class RecurrentRecordPattern {
       'description': description,
       'recurrent_period': recurrentPeriod?.index,
       'last_update': utcLastUpdate?.millisecondsSinceEpoch,
-      'tags': tags.join(','),
+      'tags': tags.where((t) => t.trim().isNotEmpty).join(','),
     };
     if (id != null) map['id'] = id;
     return map;
@@ -77,7 +81,8 @@ class RecurrentRecordPattern {
           DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis, isUtc: true);
     }
 
-    List<String> tags = map['tags'] != null ? (map['tags'] as String).split(',') : [];
+    Set<String> tags =
+        map['tags'] != null ? (map['tags'] as String).split(',').toSet() : {};
 
     return RecurrentRecordPattern(
       map['value'],
