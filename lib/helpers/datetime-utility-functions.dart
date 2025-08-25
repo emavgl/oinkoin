@@ -29,19 +29,24 @@ DateTime getEndOfMonth(int year, int month) {
 }
 
 String getDateRangeStr(DateTime start, DateTime end) {
-  /// Returns a string representing the range from :start to :end
+  /// Returns a string representing the range from earliest to latest date
   Locale myLocale = I18n.locale;
-  DateTime lastDayOfTheMonth = getEndOfMonth(start.year, start.month);
-  if (lastDayOfTheMonth.isAtSameMomentAs(end)) {
+
+  // Ensure earlier date goes to left, latest to right
+  DateTime earlier = start.isBefore(end) ? start : end;
+  DateTime later = start.isBefore(end) ? end : start;
+
+  DateTime lastDayOfTheMonth = getEndOfMonth(earlier.year, earlier.month);
+  if (lastDayOfTheMonth.isAtSameMomentAs(later)) {
     // Visualizing an entire month
     String localeRepr =
         DateFormat.yMMMM(myLocale.languageCode).format(lastDayOfTheMonth);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
   } else {
     String startLocalRepr =
-        DateFormat.yMMMd(myLocale.languageCode).format(start);
-    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(end);
-    if (start.year == end.year) {
+        DateFormat.yMMMd(myLocale.languageCode).format(earlier);
+    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+    if (earlier.year == later.year) {
       return startLocalRepr.split(",")[0] + " - " + endLocalRepr;
     }
     return startLocalRepr + " - " + endLocalRepr;
