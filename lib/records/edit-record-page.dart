@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
+import 'package:piggybank/components/tag_chip.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
@@ -23,6 +24,7 @@ import '../components/category_icon_circle.dart';
 import '../models/recurrent-record-pattern.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
+import 'components/tag_selection_dialog.dart';
 
 class EditRecordPage extends StatefulWidget {
   final Record? passedRecord;
@@ -62,6 +64,9 @@ class EditRecordPageState extends State<EditRecordPage> {
   late bool enableRecordNameSuggestions;
 
   DateTime? localDisplayDate;
+
+  Set<String> _selectedTags = {};
+  Set<String> _suggestedTags = {};
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
@@ -177,6 +182,8 @@ class EditRecordPageState extends State<EditRecordPage> {
           }
         });
       }
+      // Initialize selected tags for existing record
+      _selectedTags = Set.from(record!.tags);
     } else if (passedReccurrentRecordPattern != null) {
       // I am editing a recurrent pattern
       // Instantiate a new Record object from the pattern
@@ -189,6 +196,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         // The record's timezone name is from the pattern's timezone name
         timeZoneName: passedReccurrentRecordPattern!.timeZoneName,
         description: passedReccurrentRecordPattern!.description,
+        tags: passedReccurrentRecordPattern!.tags, // Pass tags from pattern
       );
       // Use the localDateTime for display
       localDisplayDate = passedReccurrentRecordPattern!.localDateTime;
@@ -200,11 +208,19 @@ class EditRecordPageState extends State<EditRecordPage> {
         recurrentPeriodIndex =
             passedReccurrentRecordPattern!.recurrentPeriod!.index;
       });
+      // Initialize selected tags for existing recurrent pattern
+      _selectedTags = Set.from(passedReccurrentRecordPattern!.tags);
     } else {
       // I am adding a new record
       // Create a new record with a UTC timestamp and the current local timezone
       record = Record(null, null, passedCategory, DateTime.now().toUtc());
       localDisplayDate = record!.localDateTime;
+      _selectedTags = {};
+    }
+
+    // Load most used tags for the current category
+    if (record?.category != null) {
+      _loadSuggestedTags();
     }
 
     // Keyboard listeners initializations (the same as before)
@@ -647,12 +663,29 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   addOrUpdateRecord() async {
+    record!.tags = _selectedTags; // Assign selected tags to the record
     if (record!.id == null) {
       await database.addRecord(record);
     } else {
       await database.updateRecordById(record!.id, record);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  Future<void> _loadSuggestedTags() async {
+    if (record?.category != null) {
+      Set<String> suggestedTags = Set();
+      final mostUsedForCategory = (await database.getMostUsedTagsForCategory(
+              record!.category!.name!, record!.category!.categoryType!))
+          .take(4);
+      final mostRecentTags = (await database.getRecentlyUsedTags()).take(4);
+      suggestedTags.addAll(mostUsedForCategory);
+      suggestedTags.addAll(mostRecentTags);
+      suggestedTags.removeAll(_selectedTags);
+      setState(() {
+        _suggestedTags = suggestedTags;
+      });
+    }
   }
 
   recurrentPeriodHasBeenUpdated(RecurrentRecordPattern toSet) {
@@ -668,6 +701,8 @@ class EditRecordPageState extends State<EditRecordPage> {
     // Create a new recurrent pattern from the updated record
     RecurrentRecordPattern recordPattern =
         RecurrentRecordPattern.fromRecord(record!, recurrentPeriod!, id: id);
+    recordPattern.tags =
+        _selectedTags; // Assign selected tags to the recurrent pattern
     if (id != null) {
       if (recurrentPeriodHasBeenUpdated(recordPattern)) {
         await database.deleteFutureRecordsByPatternId(id, record!.utcDateTime);
@@ -681,6 +716,28 @@ class EditRecordPageState extends State<EditRecordPage> {
       await database.addRecurrentRecordPattern(recordPattern);
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  void _openTagSelectionDialog() async {
+    if (ServiceConfig.isPremium) {
+      final selectedTags = await Navigator.push<Set<String>>(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (context) => TagSelectionDialog(
+            initialSelectedTags: _selectedTags,
+          ),
+        ),
+      );
+
+      if (selectedTags != null) {
+        setState(() {
+          _selectedTags = selectedTags;
+        });
+      }
+    } else {
+      goToPremiumSplashScreen();
+    }
   }
 
   AppBar _getAppBar() {
@@ -747,11 +804,110 @@ class EditRecordPageState extends State<EditRecordPage> {
                   _createTitleCard(),
                   _createCategoryCard(),
                   _createDateAndRepeatCard(),
+                  _createTagsSection(),
                   _createAddNoteCard(),
                 ]),
               ))
         ],
       ),
+    );
+  }
+
+  Widget _createTagsSection() {
+    return Card(
+      elevation: 1,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Tags".i18n,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            SizedBox(height: 10),
+            if (record?.id != null) _createSelectedTagsChips(),
+            if (_suggestedTags.isNotEmpty) ...[
+              Divider(),
+              _createSuggestedTagsChips(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _createSelectedTagsChips() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: [
+            ..._selectedTags.map((tag) {
+              return TagChip(
+                  labelText: tag,
+                  isSelected: true,
+                  onSelected: readOnly
+                      ? null
+                      : (selected) {
+                          setState(() {
+                            _selectedTags.remove(tag);
+                            _suggestedTags.add(tag);
+                          });
+                        });
+            }).toList(),
+            if (!readOnly)
+              TagChip(
+                labelText: "+",
+                isSelected: false,
+                onSelected: (selected) {
+                  _openTagSelectionDialog();
+                },
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _createSuggestedTagsChips() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Suggested tags".i18n,
+            style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        SizedBox(height: 5),
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: [
+            ..._suggestedTags.map((tag) {
+              return TagChip(
+                labelText: tag,
+                isSelected: _selectedTags.contains(tag),
+                onSelected: readOnly
+                    ? null
+                    : (selected) {
+                        setState(() {
+                          if (selected) {
+                            _selectedTags.add(tag);
+                            _suggestedTags.remove(tag);
+                          } else {
+                            _selectedTags.remove(tag);
+                          }
+                        });
+                      },
+              );
+            }).toList()
+          ],
+        ),
+      ],
     );
   }
 

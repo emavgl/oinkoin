@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/statistics/categories-statistics-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
-import 'package:piggybank/i18n.dart';
-import '../components/category_icon_circle.dart';
-import 'categories-piechart.dart';
+import 'package:piggybank/statistics/summary-models.dart';
 
-class CategorySumTuple {
-  final Category? category;
-  final double? value;
-  CategorySumTuple(this.category, this.value);
-}
+import '../components/category_icon_circle.dart';
+import 'aggregated-list-view.dart';
+import 'categories-piechart.dart';
+import 'category-summary-card.dart';
+import 'detailed-statistics-page.dart';
 
 class CategoriesSummaryCard extends StatelessWidget {
   final List<Record?> records;
-  final List<Record?>? aggregatedRecords;
   final AggregationMethod? aggregationMethod;
 
   final DateTime? from;
@@ -26,8 +23,8 @@ class CategoriesSummaryCard extends StatelessWidget {
   double? maxExpensesSum;
   final _biggerFont = const TextStyle(fontSize: 16.0);
 
-  CategoriesSummaryCard(this.from, this.to, this.records,
-      this.aggregatedRecords, this.aggregationMethod) {
+  CategoriesSummaryCard(
+      this.from, this.to, this.records, this.aggregationMethod) {
     if (records.length > 0) {
       categoriesAndSums = _aggregateRecordByCategory(records);
       totalExpensesSum = categoriesAndSums.fold(
@@ -42,9 +39,10 @@ class CategoriesSummaryCard extends StatelessWidget {
     for (var record in records) {
       aggregatedCategoriesValuesTemporaryMap.update(
           record!.category!.name,
-          (tuple) => new CategorySumTuple(
-              tuple.category, tuple.value! + record.value!),
-          ifAbsent: () => new CategorySumTuple(record.category, record.value));
+          (tuple) =>
+              new CategorySumTuple(tuple.key!, tuple.value! + record.value!),
+          ifAbsent: () =>
+              new CategorySumTuple(record.category!, record.value!));
     }
     var aggregatedCategoriesAndValues =
         aggregatedCategoriesValuesTemporaryMap.values.toList();
@@ -55,17 +53,12 @@ class CategoriesSummaryCard extends StatelessWidget {
 
   Widget _buildCategoriesList() {
     /// Returns a ListView with all the movements contained in the MovementPerDay object
-    return ListView.separated(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: categoriesAndSums.length,
-        separatorBuilder: (context, index) {
-          return Divider();
-        },
-        padding: const EdgeInsets.all(6.0),
-        itemBuilder: /*1*/ (context, i) {
-          return _buildCategoryStatsRow(context, categoriesAndSums[i]);
-        });
+    return AggregatedListView<CategorySumTuple>(
+      items: categoriesAndSums,
+      itemBuilder: (context, categoryAndSum, i) {
+        return _buildCategoryStatsRow(context, categoryAndSum);
+      },
+    );
   }
 
   Widget _buildCategoryStatsRow(
@@ -74,7 +67,7 @@ class CategoriesSummaryCard extends StatelessWidget {
     double percentageBar = categoryAndSum.value! / maxExpensesSum!;
     String percentageStrRepr = percentage.toStringAsFixed(2);
     String categorySumStr = getCurrencyValueString(categoryAndSum.value!.abs());
-    Category category = categoryAndSum.category!;
+    Category category = categoryAndSum.key!;
 
     /// Returns a ListTile rendering the single movement row
     return Column(
@@ -84,11 +77,15 @@ class CategoriesSummaryCard extends StatelessWidget {
             var categoryRecords = records
                 .where((element) => element!.category!.name == category.name)
                 .toList();
+            String? categoryName = records.first?.category?.name;
             await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => CategoryStatisticPage(
-                        from, to, categoryRecords, aggregationMethod)));
+                    builder: (context) => DetailedStatisticPage(
+                        from, to, categoryRecords, aggregationMethod,
+                        detailedKey: categoryName!,
+                        summaryCard: CategorySummaryCard(
+                            categoryRecords, aggregationMethod))));
           },
           title: Container(
             child: Column(
@@ -130,8 +127,7 @@ class CategoriesSummaryCard extends StatelessWidget {
               iconEmoji: category.iconEmoji,
               iconDataFromDefaultIconSet: category.icon,
               backgroundColor: category.color,
-              overlayIcon: category.isArchived ? Icons.archive : null
-          ),
+              overlayIcon: category.isArchived ? Icons.archive : null),
         ),
       ],
     );

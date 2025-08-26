@@ -118,6 +118,47 @@ List<Record?> aggregateRecordsByDateAndCategory(
   return newAggregatedRecords;
 }
 
+// Tag equivalent of aggregateRecordsByDateAndCategory
+List<Record?> aggregateRecordsByDateAndTag(
+    List<Record?> records, AggregationMethod? aggregationMethod, String tag) {
+  /// Same pattern as aggregateRecordsByDateAndCategory but groups by tag instead of category
+  if (aggregationMethod == AggregationMethod.NOT_AGGREGATED)
+    return records; // don't aggregate
+
+  List<Record?> newAggregatedRecords = [];
+  Map<DateTime?, List<Record?>> mapDateTimeRecords = groupBy(records,
+      (Record? obj) => truncateDateTime(obj!.dateTime, aggregationMethod));
+
+  for (var recordsByDatetime in mapDateTimeRecords.entries) {
+    Map<String?, List<Record?>> mapRecordsTag = groupBy(recordsByDatetime.value,
+        (Record? obj) => obj!.tags.contains(tag) ? tag : null);
+
+    for (var recordsSameDateTimeSameTag in mapRecordsTag.entries) {
+      if (recordsSameDateTimeSameTag.key == null)
+        continue; // Skip records without the tag
+
+      Record? aggregatedRecord;
+      if (recordsSameDateTimeSameTag.value.length > 1) {
+        // Use the category from the first record for the aggregated record
+        Category? category = recordsSameDateTimeSameTag.value[0]!.category;
+        var value = recordsSameDateTimeSameTag.value.fold(0,
+            (dynamic previousValue, element) => previousValue + element!.value);
+        // Use category name as title instead of tag for better display
+        String? title = category?.name ?? tag;
+        aggregatedRecord = new Record(value, title, category,
+            truncateDateTime(recordsByDatetime.key!, aggregationMethod));
+        aggregatedRecord.tags = {tag};
+        aggregatedRecord.aggregatedValues =
+            recordsSameDateTimeSameTag.value.length;
+      } else {
+        aggregatedRecord = recordsSameDateTimeSameTag.value[0];
+      }
+      newAggregatedRecords.add(aggregatedRecord);
+    }
+  }
+  return newAggregatedRecords;
+}
+
 int getColorSortValue(Color color) {
   int red = (color.r * 255).toInt();
   int green = (color.g * 255).toInt();
