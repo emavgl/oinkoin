@@ -15,6 +15,14 @@ The app only consumes battery when you use it, no power consuming operations are
 * **Statistics**
 Understandable and clean statistics and charts!
 
+### 📸 Screenshots
+
+|                                                                                                        |                                                                                                                    |                                                                                                        |                                                                                                        |
+|:------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|
+| ![1](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image1.png) |       ![2](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image2.png)       | ![3](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image3.png) | ![4](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image4.png) |
+| ![5](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image5.png) |
+
+
 ## Download
 
 At the moment, Oinkoin is only available for Android.
