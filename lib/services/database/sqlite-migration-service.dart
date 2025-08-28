@@ -162,14 +162,19 @@ class SqliteMigrationService {
     return defaultCategories;
   }
 
-  static void safeAlterTable(Database db, String alterTableQuery) {
+  static Future<void> safeAlterTable(
+      Database db, String alterTableQuery) async {
     try {
-      db.execute(alterTableQuery);
-    } catch (e) {
-      // Log the exception for debugging while keeping method idempotent
-      print('safeAlterTable: DatabaseException caught - ${e.toString()}');
-      // Optionally log the query that failed
+      await db.execute(alterTableQuery);
+    } on DatabaseException catch (e) {
+      // This block specifically handles DatabaseException
+      print(
+          'safeAlterTable: Caught a specific DatabaseException - ${e.toString()}');
       print('Failed query: $alterTableQuery');
+    } catch (e) {
+      // This block is a generic catch-all for any other exception types
+      print(
+          'safeAlterTable: Caught a different type of exception - ${e.toString()}');
     }
   }
 
@@ -243,8 +248,8 @@ class SqliteMigrationService {
 
   static void _migrateTo10(Database db) async {
     // Schema migration
-    safeAlterTable(db, "ALTER TABLE records ADD COLUMN timezone TEXT;");
-    safeAlterTable(
+    await safeAlterTable(db, "ALTER TABLE records ADD COLUMN timezone TEXT;");
+    await safeAlterTable(
         db, "ALTER TABLE recurrent_record_patterns ADD COLUMN timezone TEXT;");
   }
 
@@ -253,8 +258,17 @@ class SqliteMigrationService {
   }
 
   static void _migrateTo13(Database db) async {
+    String createRecordsTagTable = """
+            CREATE TABLE IF NOT EXISTS records_tags (
+               record_id INTEGER,
+               tag_name TEXT,
+               PRIMARY KEY (record_id, tag_name)
+            );
+        """;
+    await db.execute(createRecordsTagTable);
+
     // Add tags to recurrent_record_patterns
-    safeAlterTable(
+    await safeAlterTable(
         db, "ALTER TABLE recurrent_record_patterns ADD COLUMN tags TEXT;");
 
     // Add trigger to delete associated tags when a record is deleted
@@ -278,6 +292,7 @@ class SqliteMigrationService {
     11: SqliteMigrationService.skip,
     12: SqliteMigrationService.skip,
     13: SqliteMigrationService._migrateTo13,
+    15: SqliteMigrationService._migrateTo13
   };
 
   // Public Methods

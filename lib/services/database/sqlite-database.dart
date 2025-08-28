@@ -21,7 +21,7 @@ class SqliteDatabase implements DatabaseInterface {
   ///
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 14;
+  static int get version => 15;
   static Database? _db;
 
   Future<Database?> get database async {
