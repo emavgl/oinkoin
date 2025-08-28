@@ -15,13 +15,9 @@ The app only consumes battery when you use it, no power consuming operations are
 * **Statistics**
 Understandable and clean statistics and charts!
 
-### 📸 Screenshots
-
-|                                                                                                        |                                                                                                                    |                                                                                                        |                                                                                                        |
-|:------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|
-| ![1](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image1.png) |       ![2](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image2.png)       | ![3](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image3.png) | ![4](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image4.png) |
-| ![5](https://github.com/emavgl/oinkoin//blob/master/metadata/en-US/images/phoneScreenshots/image5.png) |
-
+| Screenshot 1 | Screenshot 2 | Screenshot 3 | Screenshot 4 | Screenshot 5 |
+| :---: | :---: | :---: | :---: | :---: |
+| ![1](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image1.png) | ![2](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image2.png) | ![3](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image3.png) | ![4](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image4.png) | ![5](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image5.png) |
 
 ## Download
 
