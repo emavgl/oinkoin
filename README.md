@@ -36,6 +36,7 @@ Oinkoin PRO comes with some additional features at a small costs:
 - More colours for your categories
 - View your data specifying a custom date-range
 - Set recurrent records
+- Label your records with `Tags`
 - Support the development
 
 <a href='https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro&pli=1&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150'/></a>
