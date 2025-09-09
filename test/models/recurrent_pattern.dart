@@ -5,7 +5,8 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
-import 'package:timezone/data/latest.dart' as tz; // Required for timezone tests
+import 'package:timezone/data/latest_all.dart'
+    as tz; // Required for timezone tests
 import 'package:timezone/timezone.dart' as tz;
 
 // A helper category for use in tests

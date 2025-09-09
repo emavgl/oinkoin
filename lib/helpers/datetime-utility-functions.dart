@@ -104,17 +104,20 @@ bool isFullYear(DateTime from, DateTime to) {
 }
 
 tz.TZDateTime createTzDateTime(DateTime utcDateTime, String timeZoneName) {
-  tz.Location location;
+  tz.Location location = getLocation(timeZoneName);
+  return tz.TZDateTime.from(utcDateTime, location);
+}
+
+tz.Location getLocation(String timeZoneName) {
   try {
     // Use the stored timezone name
-    location = tz.getLocation(timeZoneName);
+    return tz.getLocation(timeZoneName);
   } catch (e) {
     // Fallback if the stored name is invalid or the timezone database isn't loaded
     print(
         'Warning: Could not find timezone $timeZoneName. Falling back to local.');
-    location = tz.local;
+    return tz.local;
   }
-  return tz.TZDateTime.from(utcDateTime, location);
 }
 
 bool canShift(

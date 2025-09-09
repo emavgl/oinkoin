@@ -13,7 +13,7 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
 import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/data/latest_all.dart' as tz_data;
 
 import 'i18n.dart';
 

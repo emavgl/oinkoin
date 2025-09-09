@@ -5,7 +5,7 @@ import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/recurrent-record-service.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 
 // A helper method to perform the common date assertions.
 void _assertRecordsMatchDates(

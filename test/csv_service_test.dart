@@ -5,7 +5,7 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/csv-service.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 
 void main() {
   group('CSVExporter', () {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
+import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
@@ -368,7 +369,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     final filteredRecords = records.where((record) {
       // Get the record's local date based on its stored timeZoneName.
-      final recordLocation = tz.getLocation(record.timeZoneName!);
+      final recordLocation = getLocation(record.timeZoneName!);
       final recordLocalTime =
           tz.TZDateTime.from(record.utcDateTime, recordLocation);
       final recordDate = DateTime(recordLocalTime.year, recordLocalTime.month,

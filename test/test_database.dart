@@ -10,7 +10,7 @@ import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 
 Future main() async {
   // A helper category for use in tests

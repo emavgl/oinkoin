@@ -1,3 +1,4 @@
+import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
@@ -15,7 +16,7 @@ class RecurrentRecordService {
 
     // 1. Get the TZLocation for the pattern's original timezone
     final tz.Location patternLocation =
-        tz.getLocation(recordPattern.timeZoneName!);
+        getLocation(recordPattern.timeZoneName!);
 
     // 2. Convert the start and end dates to TZDateTime objects
     final tz.TZDateTime startDate =
