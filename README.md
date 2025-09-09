@@ -59,6 +59,7 @@ Contributions are welcome! How can you contribute?
 If you want to contribute by translating a language, feel free to join the [Crowdin](https://crowdin.com/project/oinkoin) project!
 
 Oinkoin is available in the following languages:
+
 - English
 - Italian
 - German, thanks to [@DSiekmeier](https://github.com/DSiekmeier)
@@ -72,6 +73,7 @@ Oinkoin is available in the following languages:
 - Venetian, thanks to [AgGelmi](https://crowdin.com/profile/AgGelmi)
 - Croatian, thanks to [ashune](https://crowdin.com/profile/ashune)
 - Polish, thanks to [Smuuuko](https://github.com/Smuuuko)
+- Danish, thanks to [catsnote](https://crowdin.com/profile/catsnote)
 
 ## How can I donate and sponsor the project?
 
