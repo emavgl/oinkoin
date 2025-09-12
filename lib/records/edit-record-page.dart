@@ -830,8 +830,8 @@ class EditRecordPageState extends State<EditRecordPage> {
               ),
             ),
             SizedBox(height: 10),
-            if (record?.id != null) _createSelectedTagsChips(),
-            if (_suggestedTags.isNotEmpty) ...[
+            _createSelectedTagsChips(),
+            if (!readOnly && _suggestedTags.isNotEmpty) ...[
               Divider(),
               _createSuggestedTagsChips(),
             ],
