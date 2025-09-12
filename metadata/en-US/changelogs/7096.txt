@@ -1,0 +1,1 @@
+- Bug fix when inserting a new tags
