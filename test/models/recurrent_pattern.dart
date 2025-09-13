@@ -137,5 +137,55 @@ void main() {
         expect(decodedPattern.utcLastUpdate, lastUpdateUtcTime);
       });
     });
+
+    group('Tag deserialization edge cases', () {
+      test('Empty string produces empty tag set', () {
+        final map = {
+          'value': 10.0,
+          'title': 'Test',
+          'datetime': DateTime.utc(2025, 1, 1).millisecondsSinceEpoch,
+          'timezone': 'Europe/Rome',
+          'category_name': testCategory.name,
+          'category_type': testCategory.categoryType?.index,
+          'description': 'desc',
+          'recurrent_period': RecurrentPeriod.EveryMonth.index,
+          'tags': '',
+        };
+        final pattern = RecurrentRecordPattern.fromMap(map);
+        expect(pattern.tags, <String>{});
+      });
+
+      test('String with only commas produces empty tag set', () {
+        final map = {
+          'value': 10.0,
+          'title': 'Test',
+          'datetime': DateTime.utc(2025, 1, 1).millisecondsSinceEpoch,
+          'timezone': 'Europe/Rome',
+          'category_name': testCategory.name,
+          'category_type': testCategory.categoryType?.index,
+          'description': 'desc',
+          'recurrent_period': RecurrentPeriod.EveryMonth.index,
+          'tags': ',,,',
+        };
+        final pattern = RecurrentRecordPattern.fromMap(map);
+        expect(pattern.tags, <String>{});
+      });
+
+      test('String with empty and valid tags', () {
+        final map = {
+          'value': 10.0,
+          'title': 'Test',
+          'datetime': DateTime.utc(2025, 1, 1).millisecondsSinceEpoch,
+          'timezone': 'Europe/Rome',
+          'category_name': testCategory.name,
+          'category_type': testCategory.categoryType?.index,
+          'description': 'desc',
+          'recurrent_period': RecurrentPeriod.EveryMonth.index,
+          'tags': 'food,, , ,groceries',
+        };
+        final pattern = RecurrentRecordPattern.fromMap(map);
+        expect(pattern.tags, {'food', 'groceries'});
+      });
+    });
   });
 }
