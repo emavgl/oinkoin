@@ -127,8 +127,8 @@ class SqliteDatabase implements DatabaseInterface {
     int recordId = await db.insert("records", record.toMap());
 
     // Insert tags into records_tags table
-    for (String tag in record.tags) {
-      if (tag.trim().isNotEmpty) {
+    for (String? tag in record.tags) {
+      if (tag != null && tag.trim().isNotEmpty) {
         await db.insert(
           "records_tags",
           {'record_id': recordId, 'tag_name': tag},
@@ -295,9 +295,20 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<List<RecordTagAssociation>> getAllRecordTagAssociations() async {
     final db = (await database)!;
-    final List<Map<String, dynamic>> maps = await db.query('records_tags');
-    return List.generate(
-        maps.length, (i) => RecordTagAssociation.fromMap(maps[i]));
+    final List<RecordTagAssociation> associations = [];
+
+    final cursor = await db.rawQueryCursor('SELECT * FROM records_tags', null);
+    while (cursor.moveNext()) {
+      final row = cursor.current;
+      print('Cursor row:');
+      print(row);
+      if (row['record_id'] != null && row['tag_name'] != null) {
+        associations.add(RecordTagAssociation.fromMap(row));
+      }
+    }
+    cursor.close();
+
+    return associations;
   }
 
   @override
