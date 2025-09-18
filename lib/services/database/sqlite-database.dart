@@ -298,10 +298,8 @@ class SqliteDatabase implements DatabaseInterface {
     final List<RecordTagAssociation> associations = [];
 
     final cursor = await db.rawQueryCursor('SELECT * FROM records_tags', null);
-    while (cursor.moveNext()) {
+    while (await cursor.moveNext()) {
       final row = cursor.current;
-      print('Cursor row:');
-      print(row);
       if (row['record_id'] != null && row['tag_name'] != null) {
         associations.add(RecordTagAssociation.fromMap(row));
       }
