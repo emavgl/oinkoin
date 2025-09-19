@@ -219,13 +219,10 @@ class TagsPageViewState extends State<TagsPageView> {
                     isSelected
                         ? Icons.check_circle
                         : Icons.radio_button_unchecked,
-                    color: isSelected
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey,
-                  )
+                    color: Theme.of(context).colorScheme.onPrimaryContainer)
                 : Icon(
                     Icons.label,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             title: Text(
               tag,
