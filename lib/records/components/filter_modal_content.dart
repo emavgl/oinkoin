@@ -3,6 +3,8 @@ import 'package:piggybank/components/tag_chip.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category.dart';
 
+import '../../models/category-type.dart';
+
 class FilterModalContent extends StatefulWidget {
   final List<Category?> categories;
   final List<String> tags;
@@ -117,9 +119,63 @@ class _FilterModalContentState extends State<FilterModalContent>
     Navigator.pop(context);
   }
 
+  List<Category?> _getCategoriesByType(CategoryType? type) {
+    return _categoriesToShow
+        .where((category) => category?.categoryType == type)
+        .toList();
+  }
+
+  Widget _buildCategorySection(String title, List<Category?> categories,
+      IconData icon, Color iconColor) {
+    if (categories.isEmpty) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 18, color: iconColor),
+            SizedBox(width: 6),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: iconColor,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8),
+        Wrap(
+          spacing: 8.0,
+          children: categories.map((category) {
+            bool isSelected = _selectedCategories.contains(category);
+            return TagChip(
+              labelText: category?.name ?? '',
+              isSelected: isSelected,
+              selectedColor: iconColor.withValues(alpha: 0.2),
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedCategories.add(category);
+                  } else {
+                    _selectedCategories.remove(category);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final expenseCategories = _getCategoriesByType(CategoryType.expense);
+    final incomeCategories = _getCategoriesByType(CategoryType.income);
 
     return Container(
       padding: EdgeInsets.all(16.0),
@@ -160,27 +216,28 @@ class _FilterModalContentState extends State<FilterModalContent>
                             fontStyle: FontStyle.italic,
                           ),
                         ),
-                        SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8.0,
-                          children: _categoriesToShow.map((category) {
-                            bool isSelected =
-                                _selectedCategories.contains(category);
-                            return TagChip(
-                              labelText: category?.name ?? '',
-                              isSelected: isSelected,
-                              selectedColor: Colors.blue.withValues(alpha: 0.3),
-                              onSelected: (selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedCategories.add(category);
-                                  } else {
-                                    _selectedCategories.remove(category);
-                                  }
-                                });
-                              },
-                            );
-                          }).toList(),
+                        SizedBox(height: 12),
+
+                        // Expense Categories
+                        _buildCategorySection(
+                          'Expense Categories'.i18n,
+                          expenseCategories,
+                          Icons.remove_circle_outline,
+                          Colors.red[600]!,
+                        ),
+
+                        // Divider between expense and income categories
+                        if (expenseCategories.isNotEmpty &&
+                            incomeCategories.isNotEmpty) ...[
+                          Divider(color: Colors.grey[400]),
+                        ],
+
+                        // Income Categories
+                        _buildCategorySection(
+                          'Income Categories'.i18n,
+                          incomeCategories,
+                          Icons.add_circle_outline,
+                          Colors.green[600]!,
                         ),
 
                         SizedBox(height: 20.0),

@@ -1,20 +1,16 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:piggybank/helpers/alert-dialog-builder.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
-import 'package:piggybank/services/backup-service.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/backup-page.dart';
 import 'package:piggybank/settings/backup-restore-dialogs.dart';
 import 'package:piggybank/settings/customization-page.dart';
 import 'package:piggybank/settings/settings-item.dart';
-import 'package:piggybank/helpers/alert-dialog-builder.dart';
-import 'package:piggybank/services/database/database-interface.dart';
-import 'package:piggybank/services/service-config.dart';
-import 'package:piggybank/i18n.dart';
-
+import 'package:piggybank/tags/tags-page-view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'feedback-page.dart';
@@ -68,6 +64,13 @@ class TabSettings extends StatelessWidget {
     );
   }
 
+  goToTagsPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TagsPageView()),
+    );
+  }
+
   goToCustomizationPage(BuildContext context) async {
     await Navigator.push(
       context,
@@ -113,6 +116,7 @@ class TabSettings extends StatelessWidget {
               title: 'Customization'.i18n,
               subtitle: "Visual settings and more".i18n,
               onPressed: () async => await goToCustomizationPage(context)),
+          Divider(),
           SettingsItem(
               icon: Icon(
                 Icons.repeat,
@@ -122,6 +126,16 @@ class TabSettings extends StatelessWidget {
               title: 'Recurrent Records'.i18n,
               subtitle: "View or delete recurrent records".i18n,
               onPressed: () async => await goToRecurrentRecordPage(context)),
+          SettingsItem(
+              icon: Icon(
+                Icons.tag,
+                color: Colors.white,
+              ),
+              iconBackgroundColor: Colors.amber.shade600,
+              title: 'Tags'.i18n,
+              subtitle: "Manage your existing tags".i18n,
+              onPressed: () async => await goToTagsPage(context)),
+          Divider(),
           SettingsItem(
               icon: Icon(
                 Icons.backup,
@@ -170,6 +184,7 @@ class TabSettings extends StatelessWidget {
             subtitle: 'Delete all the data'.i18n,
             onPressed: () async => await deleteAllData(context),
           ),
+          Divider(),
           SettingsItem(
             icon: Icon(
               Icons.info_outline,
