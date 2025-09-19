@@ -43,13 +43,13 @@ class SqliteMigrationService {
   }
 
   static void _createRecordsTagsTable(Batch batch) {
-    String query = """
-            CREATE TABLE IF NOT EXISTS records_tags (
-               record_id INTEGER,
-               tag_name TEXT,
-               PRIMARY KEY (record_id, tag_name)
-            );
-        """;
+  String query = """
+      CREATE TABLE IF NOT EXISTS records_tags (
+         record_id INTEGER NOT NULL,
+         tag_name TEXT NOT NULL,
+         PRIMARY KEY (record_id, tag_name)
+      );
+    """;
     batch.execute(query);
   }
 
@@ -138,6 +138,18 @@ class SqliteMigrationService {
       END;
     """;
     batch.execute(addRecordTriggerQuery);
+  }
+
+  static void _createDeleteRecordTagsTrigger(Batch batch) {
+    String triggerQuery = """
+      CREATE TRIGGER IF NOT EXISTS delete_record_tags
+      AFTER DELETE ON records
+      FOR EACH ROW
+      BEGIN
+          DELETE FROM records_tags WHERE record_id = OLD.id;
+      END;
+    """;
+    batch.execute(triggerQuery);
   }
 
   // Default Data
@@ -283,6 +295,40 @@ class SqliteMigrationService {
     await db.execute(deleteRecordTagsTriggerQuery);
   }
 
+  static Future<void> _migrateTo16(Database db) async {
+    // Step 1: Create a new table with the NOT NULL constraint
+    String createNewRecordsTagsTable = """
+      CREATE TABLE IF NOT EXISTS new_records_tags (
+         record_id INTEGER NOT NULL,
+         tag_name TEXT NOT NULL,
+         PRIMARY KEY (record_id, tag_name)
+      );
+    """;
+    await db.execute(createNewRecordsTagsTable);
+
+    // Step 2: Copy data from the old table to the new table
+    String copyDataQuery = """
+      INSERT INTO new_records_tags (record_id, tag_name)
+      SELECT record_id, tag_name FROM records_tags
+      WHERE record_id IS NOT NULL;
+    """;
+    await db.execute(copyDataQuery);
+
+    // Step 3: Drop the old table
+    String dropOldTableQuery = "DROP TABLE IF EXISTS records_tags;";
+    await db.execute(dropOldTableQuery);
+
+    // Step 4: Rename the new table to the original table name
+    String renameTableQuery = "ALTER TABLE new_records_tags RENAME TO records_tags;";
+    await db.execute(renameTableQuery);
+
+    // Step 5: Recreate triggers and indexes for records_tags table if needed
+    // Recreate the delete_record_tags trigger using the existing function
+    var batch = db.batch();
+    _createDeleteRecordTagsTrigger(batch);
+    await batch.commit();
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -292,7 +338,8 @@ class SqliteMigrationService {
     11: SqliteMigrationService.skip,
     12: SqliteMigrationService.skip,
     13: SqliteMigrationService._migrateTo13,
-    15: SqliteMigrationService._migrateTo13
+    15: SqliteMigrationService._migrateTo13,
+    16: SqliteMigrationService._migrateTo16,
   };
 
   // Public Methods
@@ -320,6 +367,7 @@ class SqliteMigrationService {
     _createAddRecordTrigger(batch);
     _createUpdateRecordTrigger(batch);
     _createDeleteRecordTrigger(batch);
+    _createDeleteRecordTagsTrigger(batch);
 
     // Insert Default Categories
     List<Category> defaultCategories = getDefaultCategories();

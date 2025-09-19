@@ -22,7 +22,7 @@ class SqliteDatabase implements DatabaseInterface {
   ///
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 15;
+  static int get version => 16;
   static Database? _db;
 
   Future<Database?> get database async {
@@ -128,7 +128,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     // Insert tags into records_tags table
     for (String? tag in record.tags) {
-      if (tag != null && tag.trim().isNotEmpty) {
+      if (tag != null && tag.trim().isNotEmpty && recordId != null) {
         await db.insert(
           "records_tags",
           {'record_id': recordId, 'tag_name': tag},
@@ -182,11 +182,13 @@ class SqliteDatabase implements DatabaseInterface {
 
       // Insert tags into records_tags table for each record in the batch
       for (String tag in record.tags) {
-        batch.insert(
-          "records_tags",
-          {'record_id': record.id, 'tag_name': tag},
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+        if (record.id != null && tag.trim().isNotEmpty) {
+          batch.insert(
+            "records_tags",
+            {'record_id': record.id, 'tag_name': tag},
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+        }
       }
     }
 
@@ -309,14 +311,18 @@ class SqliteDatabase implements DatabaseInterface {
     return associations;
   }
 
+  
+
   @override
   Future<void> addRecordTagAssociationsInBatch(
       List<RecordTagAssociation>? associations) async {
     final db = (await database)!;
     Batch batch = db.batch();
     for (var association in associations!) {
-      batch.insert('records_tags', association.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.ignore);
+      if (association.recordId != null && association.tagName.trim().isNotEmpty) {
+        batch.insert('records_tags', association.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
     }
     await batch.commit(noResult: true);
   }
@@ -484,11 +490,13 @@ class SqliteDatabase implements DatabaseInterface {
 
     // Insert new tags into records_tags table
     for (String tag in newMovement.tags) {
-      await db.insert(
-        "records_tags",
-        {'record_id': movementId, 'tag_name': tag},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
+      if (movementId != null && tag.trim().isNotEmpty) {
+        await db.insert(
+          "records_tags",
+          {'record_id': movementId, 'tag_name': tag},
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        );
+      }
     }
     return updatedRows;
   }
@@ -641,5 +649,28 @@ class SqliteDatabase implements DatabaseInterface {
     ''');
     return List.generate(maps.length, (i) => maps[i]['tag_name'] as String)
         .toSet();
+  }
+
+  Future<void> renameTag(String oldTagName, String newTagName) async {
+    final db = (await database)!;
+
+    // Update the tag_name in records_tags
+    await db.update(
+      'records_tags',
+      {'tag_name': newTagName},
+      where: 'tag_name = ?',
+      whereArgs: [oldTagName],
+    );
+  }
+
+  Future<void> deleteTag(String tagName) async {
+    final db = (await database)!;
+
+    // Delete all entries with the given tag_name in records_tags
+    await db.delete(
+      'records_tags',
+      where: 'tag_name = ?',
+      whereArgs: [tagName],
+    );
   }
 }
