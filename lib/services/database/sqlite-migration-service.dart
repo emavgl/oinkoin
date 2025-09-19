@@ -43,13 +43,13 @@ class SqliteMigrationService {
   }
 
   static void _createRecordsTagsTable(Batch batch) {
-  String query = """
-      CREATE TABLE IF NOT EXISTS records_tags (
-         record_id INTEGER NOT NULL,
-         tag_name TEXT NOT NULL,
-         PRIMARY KEY (record_id, tag_name)
-      );
-    """;
+    String query = """
+        CREATE TABLE IF NOT EXISTS records_tags (
+           record_id INTEGER NOT NULL,
+           tag_name TEXT NOT NULL,
+           PRIMARY KEY (record_id, tag_name)
+        );
+      """;
     batch.execute(query);
   }
 
@@ -319,7 +319,8 @@ class SqliteMigrationService {
     await db.execute(dropOldTableQuery);
 
     // Step 4: Rename the new table to the original table name
-    String renameTableQuery = "ALTER TABLE new_records_tags RENAME TO records_tags;";
+    String renameTableQuery =
+        "ALTER TABLE new_records_tags RENAME TO records_tags;";
     await db.execute(renameTableQuery);
 
     // Step 5: Recreate triggers and indexes for records_tags table if needed

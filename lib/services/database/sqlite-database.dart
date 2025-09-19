@@ -128,7 +128,7 @@ class SqliteDatabase implements DatabaseInterface {
 
     // Insert tags into records_tags table
     for (String? tag in record.tags) {
-      if (tag != null && tag.trim().isNotEmpty && recordId != null) {
+      if (tag != null && tag.trim().isNotEmpty) {
         await db.insert(
           "records_tags",
           {'record_id': recordId, 'tag_name': tag},
@@ -311,15 +311,14 @@ class SqliteDatabase implements DatabaseInterface {
     return associations;
   }
 
-  
-
   @override
   Future<void> addRecordTagAssociationsInBatch(
       List<RecordTagAssociation>? associations) async {
     final db = (await database)!;
     Batch batch = db.batch();
     for (var association in associations!) {
-      if (association.recordId != null && association.tagName.trim().isNotEmpty) {
+      if (association.recordId != null &&
+          association.tagName.trim().isNotEmpty) {
         batch.insert('records_tags', association.toMap(),
             conflictAlgorithm: ConflictAlgorithm.ignore);
       }
@@ -426,11 +425,14 @@ class SqliteDatabase implements DatabaseInterface {
     await db.execute("DELETE FROM records");
     await db.execute("DELETE FROM categories");
     await db.execute("DELETE FROM recurrent_record_patterns");
+    await db.execute("DELETE FROM records_tags");
     await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
     await db
         .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
     await db.execute(
         "UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_record_patterns'");
+    await db
+        .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records_tags'");
     _db = null;
   }
 
@@ -654,13 +656,33 @@ class SqliteDatabase implements DatabaseInterface {
   Future<void> renameTag(String oldTagName, String newTagName) async {
     final db = (await database)!;
 
-    // Update the tag_name in records_tags
-    await db.update(
-      'records_tags',
-      {'tag_name': newTagName},
-      where: 'tag_name = ?',
-      whereArgs: [oldTagName],
-    );
+    await db.transaction((txn) async {
+      // 1. Find all record IDs associated with the old tag.
+      final recordsWithOldTag = await txn.query(
+        'records_tags',
+        columns: ['record_id'],
+        where: 'tag_name = ?',
+        whereArgs: [oldTagName],
+      );
+
+      // 2. Delete all existing associations for the old tag.
+      await txn.delete(
+        'records_tags',
+        where: 'tag_name = ?',
+        whereArgs: [oldTagName],
+      );
+
+      // 3. Insert the associations with the new tag name.
+      final batch = txn.batch();
+      for (var row in recordsWithOldTag) {
+        batch.insert(
+          'records_tags',
+          {'record_id': row['record_id'], 'tag_name': newTagName},
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      await batch.commit();
+    });
   }
 
   Future<void> deleteTag(String tagName) async {

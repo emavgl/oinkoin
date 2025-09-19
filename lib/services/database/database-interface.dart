@@ -48,6 +48,8 @@ abstract class DatabaseInterface {
   Future<List<RecordTagAssociation>> getAllRecordTagAssociations();
   Future<void> addRecordTagAssociationsInBatch(
       List<RecordTagAssociation>? associations);
+  Future<void> renameTag(String old, String newTag);
+  Future<void> deleteTag(String tagToDelete);
 
   // Recurrent Records Patterns CRUD
   Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns();
