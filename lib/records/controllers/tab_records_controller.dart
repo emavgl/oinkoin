@@ -335,7 +335,7 @@ class TabRecordsController {
   }
 
   Future<void> _exportToCSV() async {
-    var csvStr = CSVExporter.createCSVFromRecordList(records);
+    var csvStr = CSVExporter.createCSVFromRecordList(filteredRecords);
     final path = await getApplicationDocumentsDirectory();
     var backupJsonOnDisk = File(path.path + "/records.csv");
     await backupJsonOnDisk.writeAsString(csvStr);
