@@ -197,7 +197,10 @@ class TabRecordsController {
     // Handle overview records
     OverviewTimeInterval overviewTimeIntervalEnum =
         getHomepageOverviewWidgetTimeIntervalEnumSetting();
-    if (overviewTimeIntervalEnum != OverviewTimeInterval.DisplayedRecords) {
+    if (overviewTimeIntervalEnum == OverviewTimeInterval.DisplayedRecords) {
+      // When set to DisplayedRecords, use the filtered records
+      overviewRecords = null;
+    } else {
       HomepageTimeInterval recordTimeIntervalEnum =
           mapOverviewTimeIntervalToHomepageTimeInterval(
               overviewTimeIntervalEnum);
