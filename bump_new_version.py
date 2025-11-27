@@ -14,6 +14,8 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     matches = re.search(version_pattern, pubspec_content)
     if matches:
         version_name, version_code = matches.groups()
+        if new_version_name == "keep":
+            new_version_name = version_name
         version_code = int(version_code)
     else:
         print('No version information found in pubspec.yaml')

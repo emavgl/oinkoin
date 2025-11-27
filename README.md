@@ -15,6 +15,10 @@ The app only consumes battery when you use it, no power consuming operations are
 * **Statistics**
 Understandable and clean statistics and charts!
 
+| Screenshot 1 | Screenshot 2 | Screenshot 3 | Screenshot 4 | Screenshot 5 |
+| :---: | :---: | :---: | :---: | :---: |
+| ![1](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image1.png) | ![2](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image2.png) | ![3](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image3.png) | ![4](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image4.png) | ![5](https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image5.png) |
+
 ## Download
 
 At the moment, Oinkoin is only available for Android.
@@ -32,6 +36,7 @@ Oinkoin PRO comes with some additional features at a small costs:
 - More colours for your categories
 - View your data specifying a custom date-range
 - Set recurrent records
+- Label your records with `Tags`
 - Support the development
 
 <a href='https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro&pli=1&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150'/></a>
@@ -54,6 +59,7 @@ Contributions are welcome! How can you contribute?
 If you want to contribute by translating a language, feel free to join the [Crowdin](https://crowdin.com/project/oinkoin) project!
 
 Oinkoin is available in the following languages:
+
 - English
 - Italian
 - German, thanks to [@DSiekmeier](https://github.com/DSiekmeier)
@@ -67,6 +73,7 @@ Oinkoin is available in the following languages:
 - Venetian, thanks to [AgGelmi](https://crowdin.com/profile/AgGelmi)
 - Croatian, thanks to [ashune](https://crowdin.com/profile/ashune)
 - Polish, thanks to [Smuuuko](https://github.com/Smuuuko)
+- Danish, thanks to [catsnote](https://crowdin.com/profile/catsnote)
 
 ## How can I donate and sponsor the project?
 

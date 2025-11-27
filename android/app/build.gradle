@@ -23,7 +23,17 @@ if (flutterVersionName == null) {
 }
 
 android {
-    compileSdkVersion 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    compileSdkVersion 36
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -37,7 +47,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.github.emavgl.piggybank"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -89,6 +99,8 @@ android {
             resValue "string", "app_name", "Oinkoin"
         }
     }
+
+    namespace 'com.example.piggybank' // MainActivity package namespace
 }
 
 flutter {
@@ -114,3 +126,5 @@ android.applicationVariants.all { variant ->
         }
     }
 }
+
+

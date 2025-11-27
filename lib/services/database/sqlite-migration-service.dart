@@ -27,28 +27,29 @@ class SqliteMigrationService {
 
   static void _createRecordsTable(Batch batch) {
     String query = """
-        CREATE TABLE IF NOT EXISTS  records (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                datetime    INTEGER,
-                value       REAL,
-                title       TEXT,
-                description TEXT,
-                category_name TEXT,
-                category_type INTEGER,
-                recurrence_id TEXT
-            );
-        """;
+      CREATE TABLE IF NOT EXISTS records (
+              id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+              datetime    INTEGER,
+              timezone     TEXT,
+              value       REAL,
+              title       TEXT,
+              description TEXT,
+              category_name TEXT,
+              category_type INTEGER,
+              recurrence_id TEXT
+          );
+      """;
     batch.execute(query);
   }
 
   static void _createRecordsTagsTable(Batch batch) {
     String query = """
-            CREATE TABLE IF NOT EXISTS records_tags (
-               record_id INTEGER,
-               tag_name TEXT,
-               PRIMARY KEY (record_id, tag_name)
-            );
-        """;
+        CREATE TABLE IF NOT EXISTS records_tags (
+           record_id INTEGER NOT NULL,
+           tag_name TEXT NOT NULL,
+           PRIMARY KEY (record_id, tag_name)
+        );
+      """;
     batch.execute(query);
   }
 
@@ -57,6 +58,7 @@ class SqliteMigrationService {
         CREATE TABLE IF NOT EXISTS  recurrent_record_patterns (
                 id          TEXT  PRIMARY KEY,
                 datetime    INTEGER,
+                timezone     TEXT,
                 value       REAL,
                 title       TEXT,
                 description TEXT,
@@ -64,7 +66,9 @@ class SqliteMigrationService {
                 category_type INTEGER,
                 last_update INTEGER,
                 recurrent_period INTEGER,
-                recurrence_id TEXT
+                recurrence_id TEXT,
+                date_str TEXT,
+                tags TEXT
             );
         """;
     batch.execute(query);
@@ -136,6 +140,18 @@ class SqliteMigrationService {
     batch.execute(addRecordTriggerQuery);
   }
 
+  static void _createDeleteRecordTagsTrigger(Batch batch) {
+    String triggerQuery = """
+      CREATE TRIGGER IF NOT EXISTS delete_record_tags
+      AFTER DELETE ON records
+      FOR EACH ROW
+      BEGIN
+          DELETE FROM records_tags WHERE record_id = OLD.id;
+      END;
+    """;
+    batch.execute(triggerQuery);
+  }
+
   // Default Data
   static List<Category> getDefaultCategories() {
     List<Category> defaultCategories = <Category>[];
@@ -158,11 +174,19 @@ class SqliteMigrationService {
     return defaultCategories;
   }
 
-  static void safeAlterTable(Database db, String alterTableQuery) {
+  static Future<void> safeAlterTable(
+      Database db, String alterTableQuery) async {
     try {
-      db.execute(alterTableQuery);
-    } catch (DatabaseException) {
-      // so that this method is idempotent
+      await db.execute(alterTableQuery);
+    } on DatabaseException catch (e) {
+      // This block specifically handles DatabaseException
+      print(
+          'safeAlterTable: Caught a specific DatabaseException - ${e.toString()}');
+      print('Failed query: $alterTableQuery');
+    } catch (e) {
+      // This block is a generic catch-all for any other exception types
+      print(
+          'safeAlterTable: Caught a different type of exception - ${e.toString()}');
     }
   }
 
@@ -234,11 +258,89 @@ class SqliteMigrationService {
     safeAlterTable(db, "ALTER TABLE categories ADD COLUMN icon_emoji TEXT;");
   }
 
+  static void _migrateTo10(Database db) async {
+    // Schema migration
+    await safeAlterTable(db, "ALTER TABLE records ADD COLUMN timezone TEXT;");
+    await safeAlterTable(
+        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN timezone TEXT;");
+  }
+
+  static void skip(Database db) async {
+    // skip, wrong version
+  }
+
+  static void _migrateTo13(Database db) async {
+    String createRecordsTagTable = """
+            CREATE TABLE IF NOT EXISTS records_tags (
+               record_id INTEGER,
+               tag_name TEXT,
+               PRIMARY KEY (record_id, tag_name)
+            );
+        """;
+    await db.execute(createRecordsTagTable);
+
+    // Add tags to recurrent_record_patterns
+    await safeAlterTable(
+        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN tags TEXT;");
+
+    // Add trigger to delete associated tags when a record is deleted
+    String deleteRecordTagsTriggerQuery = """
+      CREATE TRIGGER IF NOT EXISTS delete_record_tags
+      AFTER DELETE ON records
+      FOR EACH ROW
+      BEGIN
+          DELETE FROM records_tags WHERE record_id = OLD.id;
+      END;
+    """;
+    await db.execute(deleteRecordTagsTriggerQuery);
+  }
+
+  static Future<void> _migrateTo16(Database db) async {
+    // Step 1: Create a new table with the NOT NULL constraint
+    String createNewRecordsTagsTable = """
+      CREATE TABLE IF NOT EXISTS new_records_tags (
+         record_id INTEGER NOT NULL,
+         tag_name TEXT NOT NULL,
+         PRIMARY KEY (record_id, tag_name)
+      );
+    """;
+    await db.execute(createNewRecordsTagsTable);
+
+    // Step 2: Copy data from the old table to the new table
+    String copyDataQuery = """
+      INSERT INTO new_records_tags (record_id, tag_name)
+      SELECT record_id, tag_name FROM records_tags
+      WHERE record_id IS NOT NULL;
+    """;
+    await db.execute(copyDataQuery);
+
+    // Step 3: Drop the old table
+    String dropOldTableQuery = "DROP TABLE IF EXISTS records_tags;";
+    await db.execute(dropOldTableQuery);
+
+    // Step 4: Rename the new table to the original table name
+    String renameTableQuery =
+        "ALTER TABLE new_records_tags RENAME TO records_tags;";
+    await db.execute(renameTableQuery);
+
+    // Step 5: Recreate triggers and indexes for records_tags table if needed
+    // Recreate the delete_record_tags trigger using the existing function
+    var batch = db.batch();
+    _createDeleteRecordTagsTrigger(batch);
+    await batch.commit();
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
     8: SqliteMigrationService._migrateTo8,
-    9: SqliteMigrationService._migrateTo9
+    9: SqliteMigrationService._migrateTo9,
+    10: SqliteMigrationService._migrateTo10,
+    11: SqliteMigrationService.skip,
+    12: SqliteMigrationService.skip,
+    13: SqliteMigrationService._migrateTo13,
+    15: SqliteMigrationService._migrateTo13,
+    16: SqliteMigrationService._migrateTo16,
   };
 
   // Public Methods
@@ -266,6 +368,7 @@ class SqliteMigrationService {
     _createAddRecordTrigger(batch);
     _createUpdateRecordTrigger(batch);
     _createDeleteRecordTrigger(batch);
+    _createDeleteRecordTagsTrigger(batch);
 
     // Insert Default Categories
     List<Category> defaultCategories = getDefaultCategories();

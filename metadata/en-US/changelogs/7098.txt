@@ -1,0 +1,3 @@
+- Add page for managing existing tags
+- Filter dialog differentiate between income and expenses categories
+- Bug fix

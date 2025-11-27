@@ -1,9 +1,10 @@
 import 'dart:ui';
 
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:piggybank/i18n.dart';
 import 'package:intl/intl.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../settings/constants/homepage-time-interval.dart';
 
@@ -28,19 +29,24 @@ DateTime getEndOfMonth(int year, int month) {
 }
 
 String getDateRangeStr(DateTime start, DateTime end) {
-  /// Returns a string representing the range from :start to :end
+  /// Returns a string representing the range from earliest to latest date
   Locale myLocale = I18n.locale;
-  DateTime lastDayOfTheMonth = getEndOfMonth(start.year, start.month);
-  if (lastDayOfTheMonth.isAtSameMomentAs(end)) {
+
+  // Ensure earlier date goes to left, latest to right
+  DateTime earlier = start.isBefore(end) ? start : end;
+  DateTime later = start.isBefore(end) ? end : start;
+
+  DateTime lastDayOfTheMonth = getEndOfMonth(earlier.year, earlier.month);
+  if (lastDayOfTheMonth.isAtSameMomentAs(later)) {
     // Visualizing an entire month
     String localeRepr =
         DateFormat.yMMMM(myLocale.languageCode).format(lastDayOfTheMonth);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
   } else {
     String startLocalRepr =
-        DateFormat.yMMMd(myLocale.languageCode).format(start);
-    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(end);
-    if (start.year == end.year) {
+        DateFormat.yMMMd(myLocale.languageCode).format(earlier);
+    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+    if (earlier.year == later.year) {
       return startLocalRepr.split(",")[0] + " - " + endLocalRepr;
     }
     return startLocalRepr + " - " + endLocalRepr;
@@ -87,11 +93,31 @@ String extractWeekdayString(DateTime dateTime) {
 }
 
 bool isFullMonth(DateTime from, DateTime to) {
-  return from.day == 1 && getEndOfMonth(from.year, from.month).isAtSameMomentAs(to);
+  return from.day == 1 &&
+      getEndOfMonth(from.year, from.month).isAtSameMomentAs(to);
 }
 
 bool isFullYear(DateTime from, DateTime to) {
-  return from.month == 1 && from.day == 1 && new DateTime(from.year, 12, 31, 23, 59).isAtSameMomentAs(to);
+  return from.month == 1 &&
+      from.day == 1 &&
+      new DateTime(from.year, 12, 31, 23, 59).isAtSameMomentAs(to);
+}
+
+tz.TZDateTime createTzDateTime(DateTime utcDateTime, String timeZoneName) {
+  tz.Location location = getLocation(timeZoneName);
+  return tz.TZDateTime.from(utcDateTime, location);
+}
+
+tz.Location getLocation(String timeZoneName) {
+  try {
+    // Use the stored timezone name
+    return tz.getLocation(timeZoneName);
+  } catch (e) {
+    // Fallback if the stored name is invalid or the timezone database isn't loaded
+    print(
+        'Warning: Could not find timezone $timeZoneName. Falling back to local.');
+    return tz.local;
+  }
 }
 
 bool canShift(
@@ -109,7 +135,8 @@ bool canShift(
     // If it is a full month interval, check the destination month after shifting
     if (isFullMonth(customIntervalFrom, customIntervalTo!)) {
       // Create a new "from" date by shifting the month
-      DateTime newFrom = DateTime(customIntervalFrom.year, customIntervalFrom.month + shift, 1);
+      DateTime newFrom = DateTime(
+          customIntervalFrom.year, customIntervalFrom.month + shift, 1);
       return !newFrom.isAfter(currentDate);
     }
 

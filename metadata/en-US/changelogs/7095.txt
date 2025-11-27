@@ -1,0 +1,3 @@
+- Change versioning number
+- Bug fixes due to missing timezone locations
+- Added danish language

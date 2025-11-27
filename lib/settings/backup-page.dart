@@ -1,16 +1,16 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/settings/switch-customization-item.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:piggybank/i18n.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../services/backup-service.dart';
 import '../services/service-config.dart';
@@ -51,11 +51,18 @@ class BackupPageState extends State<BackupPage> {
         ? null
         : await BackupService.getDefaultFileName();
     File backupFile =
-    await BackupService.createJsonBackupFile(backupFileName: filename);
-    Share.shareXFiles([XFile(backupFile.path)]);
+        await BackupService.createJsonBackupFile(backupFileName: filename);
+    SharePlus.instance.share(ShareParams(files: [XFile(backupFile.path)]));
   }
 
-  storeBackupFile() async {
+  shareDatabase() async {
+    String databasePath = await getDatabasesPath();
+    String _path = join(databasePath, 'movements.db');
+    File databaseFile = File.fromUri(Uri.file(_path));
+    SharePlus.instance.share(ShareParams(files: [XFile(databaseFile.path)]));
+  }
+
+  storeBackupFile(BuildContext context) async {
     String? filename = enableVersionAndDateInBackupName
         ? null
         : await BackupService.getDefaultFileName();
@@ -109,9 +116,8 @@ class BackupPageState extends State<BackupPage> {
         prefs, PreferencesKeys.backupRetentionIntervalIndex)!;
     backupRetentionPeriodValue = getKeyFromObject<int>(
         backupRetentionPeriodsValues, backupRetentionIntervalIndex);
-    backupPassword =
-        PreferencesUtils.getOrDefault<String>(prefs,
-            PreferencesKeys.backupPassword)!;
+    backupPassword = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.backupPassword)!;
     backupFolderPath = defaultDirectory;
   }
 
@@ -212,10 +218,16 @@ class BackupPageState extends State<BackupPage> {
                         onPressed: () async =>
                             await createAndShareBackupFile()),
                     SettingsItem(
+                        icon: Icon(Icons.dataset, color: Colors.white),
+                        iconBackgroundColor: Colors.blueGrey.shade600,
+                        title: 'Export Database'.i18n,
+                        subtitle: "Share the database file".i18n,
+                        onPressed: () async => await shareDatabase()),
+                    SettingsItem(
                         icon: Icon(Icons.save_alt, color: Colors.white),
                         iconBackgroundColor: Colors.lightBlue.shade600,
                         title: 'Store the Backup on disk'.i18n,
-                        onPressed: () async => await storeBackupFile()),
+                        onPressed: () async => await storeBackupFile(context)),
                     ClickableCustomizationItem(
                         title: "Destination folder".i18n,
                         subtitle: backupFolderPath,
@@ -229,7 +241,7 @@ class BackupPageState extends State<BackupPage> {
                       onChanged: (value) async {
                         if (value) {
                           String? password =
-                          await showPasswordInputDialog(context);
+                              await showPasswordInputDialog(context);
                           if (password != null) {
                             setPasswordInPreferences(password);
                           } else {
@@ -244,7 +256,7 @@ class BackupPageState extends State<BackupPage> {
                       subtitle: "File will have a unique name".i18n,
                       switchValue: enableVersionAndDateInBackupName,
                       sharedConfigKey:
-                      PreferencesKeys.enableVersionAndDateInBackupName,
+                          PreferencesKeys.enableVersionAndDateInBackupName,
                       onChanged: (value) => {
                         setState(() {
                           fetchAllThePreferences();
@@ -257,12 +269,13 @@ class BackupPageState extends State<BackupPage> {
                       subtitle: !ServiceConfig.isPremium
                           ? "Available on Oinkoin Pro".i18n
                           : "Enable to automatically backup at every access"
-                          .i18n,
+                              .i18n,
                       switchValue: enableAutomaticBackup,
                       sharedConfigKey: PreferencesKeys.enableAutomaticBackup,
                       onChanged: (value) {
                         if (!value) {
-                          prefs.remove(PreferencesKeys.backupRetentionIntervalIndex);
+                          prefs.remove(
+                              PreferencesKeys.backupRetentionIntervalIndex);
                         }
                         setState(() {
                           fetchAllThePreferences();

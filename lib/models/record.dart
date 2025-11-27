@@ -1,67 +1,110 @@
-import 'package:piggybank/models/model.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/recurrent-record-pattern.dart';
+import 'package:piggybank/models/model.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:timezone/timezone.dart' as tz;
+
+import '../helpers/datetime-utility-functions.dart';
 
 class Record extends Model {
-  /// Represents the Record object.
-  /// A Record has:
-  /// - value: monetary value associated to the movement (can be positive, or negative)
-  /// - title: a headline for the record
-  /// - category: a Category object assigned to the movement, describing the type of movement (income, expense)
-  /// - dateTime: a date representing when the movement was performed
-
   int? id;
   double? value;
   String? title;
   String? description;
   Category? category;
-  DateTime? dateTime;
+  Set<String> tags = {};
+
+  DateTime utcDateTime;
+  String? timeZoneName;
+
   String? recurrencePatternId;
   int aggregatedValues =
       1; // internal variables - used to identified an aggregated records (statistics)
 
-  Record(this.value, this.title, this.category, this.dateTime,
-      {this.id, this.description, this.recurrencePatternId});
-
-  Record.fromRecurrencePattern(
-      RecurrentRecordPattern recordPattern, DateTime dateTime) {
-    this.value = recordPattern.value;
-    this.title = recordPattern.title;
-    this.category = recordPattern.category;
-    this.dateTime = dateTime;
-    this.recurrencePatternId = recordPattern.id;
-    this.description = recordPattern.description;
+  Record(
+    this.value,
+    this.title,
+    this.category,
+    this.utcDateTime, {
+    this.id,
+    this.description,
+    this.recurrencePatternId,
+    this.timeZoneName,
+    Set<String>? tags,
+  }) {
+    if (timeZoneName == null) {
+      timeZoneName = ServiceConfig.localTimezone;
+    }
+    if (tags != null) {
+      this.tags = tags;
+    }
   }
 
+  /// Deserialize from database
+  static Record fromMap(Map<String, dynamic> map) {
+    final int? utcMillis = map['datetime'];
+    final utcDateTime =
+        DateTime.fromMillisecondsSinceEpoch(utcMillis!, isUtc: true);
+
+    String? timezone = map['timezone'];
+    if (timezone == null) {
+      timezone = ServiceConfig.localTimezone;
+    }
+
+    return Record(
+      map['value'],
+      map['title'],
+      map['category'],
+      utcDateTime,
+      timeZoneName: timezone,
+      id: map['id'],
+      description: map['description'],
+      recurrencePatternId: map['recurrence_id'],
+      tags:
+          map['tags'] != null ? (map['tags'] as String).split(',').toSet() : {},
+    );
+  }
+
+  /// Serialize to database
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = {
+    return {
+      'id': id,
       'title': title,
       'value': value,
-      'datetime': dateTime!.millisecondsSinceEpoch,
-      'category_name': category!.name,
-      'category_type': category!.categoryType!.index,
-      'description': description
+      'datetime': utcDateTime
+          .millisecondsSinceEpoch, // this will be same as the original
+      'timezone': timeZoneName,
+      'category_name': category?.name,
+      'category_type': category?.categoryType?.index,
+      'description': description,
+      'recurrence_id': recurrencePatternId
     };
-    if (this.id != null) {
-      map['id'] = this.id;
-    }
-    if (this.recurrencePatternId != null) {
-      map['recurrence_id'] = this.recurrencePatternId;
-    }
-    return map;
   }
 
-  static Record fromMap(Map<String, dynamic> map) {
-    return Record(map['value'], map['title'], map['category'],
-        new DateTime.fromMillisecondsSinceEpoch(map['datetime']),
-        id: map['id'],
-        description: map['description'],
-        recurrencePatternId: map['recurrence_id']);
+  Map<String, dynamic> toCsvMap() {
+    return {
+      'title': title,
+      'value': value,
+      'datetime': localDateTime.toIso8601String(),
+      'category_name': category?.name,
+      'category_type':
+          category?.categoryType?.index == 1 ? "Income" : "Expense",
+      'description': description,
+      'tags': tags.join(":")
+    };
   }
 
-  get date {
-    return dateTime!.year.toString() +
-        dateTime!.month.toString() +
-        dateTime!.day.toString();
+  tz.TZDateTime get localDateTime {
+    return createTzDateTime(utcDateTime, timeZoneName!);
+  }
+
+  tz.TZDateTime get dateTime {
+    return createTzDateTime(utcDateTime, timeZoneName!);
+  }
+
+  /// YYYYMMDD string for grouping/sorting
+  String get date {
+    return localDateTime.year.toString().padLeft(4, '0') +
+        localDateTime.month.toString().padLeft(2, '0') +
+        localDateTime.day.toString().padLeft(2, '0');
   }
 }

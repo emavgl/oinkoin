@@ -6,8 +6,9 @@ class PremiumSplashScreen extends StatelessWidget {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    var uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     }
   }
 
