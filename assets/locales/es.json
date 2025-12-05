@@ -5,7 +5,7 @@
   "Add a new record": "Agregar un nuevo registro",
   "Add a note": "Agrega una nota",
   "Add recurrent expenses": "Agregar gastos recurrentes",
-  "Add selected tags (${_selectedTags.length})": "Add selected tags (${_selectedTags.length})",
+  "Add selected tags (${_selectedTags.length})": "Agregar etiquetas seleccionadas (${_selectedTags.length})",
   "Add tags": "Add tags",
   "Additional Settings": "Ajustes adicionales",
   "All records": "Todos los registros",
