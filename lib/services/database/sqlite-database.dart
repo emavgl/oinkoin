@@ -179,20 +179,49 @@ class SqliteDatabase implements DatabaseInterface {
         record.category!.name,
         record.category!.categoryType!.index,
       ]);
+    }
 
-      // Insert tags into records_tags table for each record in the batch
-      for (String tag in record.tags) {
-        if (record.id != null && tag.trim().isNotEmpty) {
-          batch.insert(
-            "records_tags",
-            {'record_id': record.id, 'tag_name': tag},
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+    await batch.commit(noResult: true);
+
+    // Insert tags for each record in a second batch after getting record IDs
+    Batch tagBatch = db.batch();
+    for (var record in records) {
+      if (record == null || record.tags.isEmpty) {
+        continue;
+      }
+
+      // Find the record ID by querying for the record we just inserted
+      var recordId = await db.rawQuery("""
+        SELECT id FROM records 
+        WHERE datetime = ? 
+          AND value = ? 
+          AND (title IS NULL OR title = ?) 
+          AND category_name = ? 
+          AND category_type = ?
+        LIMIT 1
+      """, [
+        record.utcDateTime.millisecondsSinceEpoch,
+        record.value,
+        record.title,
+        record.category!.name,
+        record.category!.categoryType!.index,
+      ]);
+
+      if (recordId.isNotEmpty) {
+        final id = recordId.first['id'] as int;
+        for (String tag in record.tags) {
+          if (tag.trim().isNotEmpty) {
+            tagBatch.insert(
+              "records_tags",
+              {'record_id': id, 'tag_name': tag},
+              conflictAlgorithm: ConflictAlgorithm.ignore,
+            );
+          }
         }
       }
     }
 
-    await batch.commit(noResult: true);
+    await tagBatch.commit(noResult: true);
   }
 
   @override
