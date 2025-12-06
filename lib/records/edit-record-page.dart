@@ -71,33 +71,37 @@ class EditRecordPageState extends State<EditRecordPage> {
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
 
-  static final dropDownList = [
+  static final recurrentIntervalDropdownList = [
     new DropdownMenuItem<int>(
-        value: 0,
+        value: RecurrentPeriod.EveryDay.index, // 0
         child: new Text("Every day".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
-        value: 1,
+        value: RecurrentPeriod.EveryWeek.index, // 1
         child: new Text("Every week".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
-        value: 3,
+        value: RecurrentPeriod.EveryTwoWeeks.index, // 3
         child:
             new Text("Every two weeks".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
-      value: 2,
+        value: RecurrentPeriod.EveryFourWeeks.index, // 7
+        child:
+            new Text("Every four weeks".i18n, style: TextStyle(fontSize: 20.0))),
+    new DropdownMenuItem<int>(
+      value: RecurrentPeriod.EveryMonth.index, // 2
       child: new Text("Every month".i18n, style: TextStyle(fontSize: 20.0)),
     ),
     new DropdownMenuItem<int>(
-      value: 4,
+      value: RecurrentPeriod.EveryThreeMonths.index, // 4
       child:
           new Text("Every three months".i18n, style: TextStyle(fontSize: 20.0)),
     ),
     new DropdownMenuItem<int>(
-      value: 5,
+      value: RecurrentPeriod.EveryFourMonths.index, // 5
       child:
           new Text("Every four months".i18n, style: TextStyle(fontSize: 20.0)),
     ),
     new DropdownMenuItem<int>(
-      value: 6,
+      value: RecurrentPeriod.EveryYear.index, // 6
       child: new Text("Every year".i18n, style: TextStyle(fontSize: 20.0)),
     )
   ];
@@ -506,7 +510,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                           Expanded(
                                               child: new DropdownButton<int>(
                                             iconSize: 0.0,
-                                            items: dropDownList,
+                                            items: recurrentIntervalDropdownList,
                                             onChanged: ServiceConfig
                                                         .isPremium &&
                                                     record!.id == null

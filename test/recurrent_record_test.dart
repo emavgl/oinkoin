@@ -182,6 +182,45 @@ void main() {
       _assertRecordsMatchDates(records, expectedDates);
     });
 
+    test('four-weekly recurrent', () {
+      final dateTime = DateTime(2020, 10, 1).toUtc();
+      final endDate = DateTime(2020, 11, 30).toUtc();
+      final recordPattern = RecurrentRecordPattern(
+          1, "Four-Weekly", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+      final expectedDates = [
+        DateTime(2020, 10, 1),
+        DateTime(2020, 10, 29),
+        DateTime(2020, 11, 26),
+      ];
+
+      _assertRecordsMatchDates(records, expectedDates);
+    });
+
+    test('four-weekly recurrent spanning multiple months', () {
+      final dateTime = DateTime(2020, 1, 15).toUtc();
+      final endDate = DateTime(2020, 6, 30).toUtc();
+      final recordPattern = RecurrentRecordPattern(
+          1, "Four-Weekly-Long", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+      final expectedDates = [
+        DateTime(2020, 1, 15),
+        DateTime(2020, 2, 12),
+        DateTime(2020, 3, 11),
+        DateTime(2020, 4, 8),
+        DateTime(2020, 5, 6),
+        DateTime(2020, 6, 3),
+      ];
+
+      _assertRecordsMatchDates(records, expectedDates);
+    });
+
     test('three-months recurrent', () {
       final dateTime = DateTime(2020, 1, 5).toUtc();
       final endDate = DateTime(2020, 12, 30).toUtc();
