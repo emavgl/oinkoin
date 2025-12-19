@@ -75,7 +75,7 @@ class PreferencesOptions {
     "Displayed records".i18n: OverviewTimeInterval.DisplayedRecords.index,
     "Records of the current month".i18n:
         OverviewTimeInterval.FixCurrentMonth.index,
-    "Records of the current year": OverviewTimeInterval.FixCurrentYear.index,
+    "Records of the current year".i18n: OverviewTimeInterval.FixCurrentYear.index,
     "All records".i18n: OverviewTimeInterval.FixAllRecords.index,
   };
 
