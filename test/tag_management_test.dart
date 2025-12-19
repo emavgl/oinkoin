@@ -6,8 +6,9 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
+import 'helpers/test_database.dart';
+
 void main() {
-  late SqliteDatabase db;
 
   // Setup sqflite_common_ffi for flutter test
   setUpAll(() {
@@ -22,9 +23,8 @@ void main() {
   });
 
   setUp(() async {
-    // Reset the database before each test to ensure a clean state
-    DatabaseInterface db = ServiceConfig.database;
-    await db.deleteDatabase();
+    // Create a new isolated in-memory database for each test
+    await TestDatabaseHelper.setupTestDatabase();
   });
 
   test('renameTag should rename a tag_name', () async {
@@ -64,8 +64,8 @@ void main() {
 
   test('addRecordTagAssociationsInBatch should not add tags with null recordId',
       () async {
-    SqliteDatabase db = ServiceConfig.database as SqliteDatabase;
-    var database = await db.database;
+    SqliteDatabase sqliteDb = ServiceConfig.database as SqliteDatabase;
+    var database = await sqliteDb.database;
 
     // Attempt to add invalid data
     await database?.insert(
@@ -85,7 +85,7 @@ void main() {
     );
 
     // Verify that only valid tags are added
-    final associations = await db.getAllRecordTagAssociations();
+    final associations = await sqliteDb.getAllRecordTagAssociations();
     expect(associations.length, 1);
     expect(associations.first.tagName, 'valid_tag');
   });

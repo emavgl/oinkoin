@@ -13,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
+import 'helpers/test_database.dart';
+
 void main() {
   late TabRecordsController controller;
   late SharedPreferences sharedPreferences;
@@ -46,9 +48,9 @@ void main() {
     sharedPreferences = await SharedPreferences.getInstance();
     ServiceConfig.sharedPreferences = sharedPreferences;
 
-    // Reset the database before each test
+    // Create a new isolated in-memory database for each test
+    await TestDatabaseHelper.setupTestDatabase();
     database = ServiceConfig.database;
-    await database.deleteDatabase();
     
     // Add test category
     await database.addCategory(testCategory);

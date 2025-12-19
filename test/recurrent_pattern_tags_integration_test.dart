@@ -8,6 +8,8 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
+import 'helpers/test_database.dart';
+
 void main() {
   group('Recurrent Pattern Tags Integration Test', () {
     setUpAll(() {
@@ -19,8 +21,8 @@ void main() {
     });
 
     setUp(() async {
-      DatabaseInterface db = ServiceConfig.database;
-      await db.deleteDatabase();
+      // Create a new isolated in-memory database for each test
+      await TestDatabaseHelper.setupTestDatabase();
     });
 
     test(

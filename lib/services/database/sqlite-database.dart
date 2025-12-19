@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
@@ -24,6 +25,12 @@ class SqliteDatabase implements DatabaseInterface {
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
   static int get version => 16;
   static Database? _db;
+
+  /// For testing only: allows setting a custom database instance
+  @visibleForTesting
+  static void setDatabaseForTesting(Database? db) {
+    _db = db;
+  }
 
   Future<Database?> get database async {
     if (_db != null) return _db;
