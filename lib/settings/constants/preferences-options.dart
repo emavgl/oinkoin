@@ -67,6 +67,8 @@ class PreferencesOptions {
         HomepageTimeInterval.CurrentMonth.index,
     "Records of the current year".i18n: HomepageTimeInterval.CurrentYear.index,
     "All records".i18n: HomepageTimeInterval.All.index,
+    "Records of the current week".i18n:
+        HomepageTimeInterval.CurrentWeek.index,
   };
 
   static final Map<String, int> homepageOverviewWidgetTimeInterval = {

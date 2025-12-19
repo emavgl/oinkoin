@@ -287,6 +287,8 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
       return getYearStr(_now);
     case HomepageTimeInterval.All:
       return "All records".i18n;
+    case HomepageTimeInterval.CurrentWeek:
+      return getWeekStr(_now);
   }
 }
 
@@ -310,6 +312,10 @@ Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
         return [_from, _to];
       }
       return [_from, _now];
+    case HomepageTimeInterval.CurrentWeek:
+      DateTime? _from = getStartOfWeek(_now);
+      DateTime? _to = getEndOfWeek(_now);
+      return [_from, _to];
   }
 }
 
@@ -337,5 +343,9 @@ Future<List<Record?>> getRecordsByHomepageTimeInterval(
       return await getRecordsByYear(database, _now.year);
     case HomepageTimeInterval.All:
       return await getAllRecords(database);
+    case HomepageTimeInterval.CurrentWeek:
+      return await getRecordsByInterval(
+          database, getStartOfWeek(_now), getEndOfWeek(_now)
+      );
   }
 }

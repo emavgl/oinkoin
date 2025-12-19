@@ -376,7 +376,7 @@ class TabRecordsController {
     header = newHeader;
   }
 
-  Future<void> shiftMonthOrYear(int shift) async {
+  Future<void> shiftMonthWeekYear(int shift) async {
     DateTime newFrom;
     DateTime newTo;
     List<Record?> newRecords = [];
@@ -405,6 +405,13 @@ class TabRecordsController {
         newHeader = getMonthStr(newFrom);
         newRecords =
             await getRecordsByMonth(_database, newFrom.year, newFrom.month);
+      } else if (hti == HomepageTimeInterval.CurrentWeek) {
+        DateTime startOfWeek =
+            d.subtract(Duration(days: d.weekday - DateTime.monday));
+        newFrom = startOfWeek.add(Duration(days: 7 * shift));
+        newTo = newFrom.add(Duration(days: 6));
+        newHeader = getWeekStr(newFrom);
+        newRecords = await getRecordsByInterval(_database, newFrom, newTo);
       } else {
         newFrom = DateTime(d.year + shift, 1, 1);
         newTo = DateTime(newFrom.year, 12, 31, 23, 59);

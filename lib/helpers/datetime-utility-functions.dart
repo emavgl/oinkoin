@@ -64,6 +64,23 @@ String getYearStr(DateTime dateTime) {
   return "${"Year".i18n} ${dateTime.year}";
 }
 
+String getWeekStr(DateTime dateTime) {
+  DateTime? startOfWeek = getStartOfWeek(dateTime);
+  DateTime? endOfWeek = getEndOfWeek(dateTime);
+  return getDateRangeStr(startOfWeek, endOfWeek);
+}
+
+DateTime getStartOfWeek(DateTime now) {
+  int currentWeekday = now.weekday; // 1 (Mon) - 7 (Sun)
+  return DateTime(now.year, now.month, now.day - (currentWeekday - 1));
+}
+
+DateTime getEndOfWeek(DateTime now) {
+  int currentWeekday = now.weekday; // 1 (Mon) - 7 (Sun)
+  return DateTime(now.year, now.month, now.day + (7 - currentWeekday), 23, 59);
+}
+
+
 String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod}) {
   Locale myLocale = I18n.locale;
   if (aggregationMethod != null) {
@@ -101,6 +118,15 @@ bool isFullYear(DateTime from, DateTime to) {
   return from.month == 1 &&
       from.day == 1 &&
       new DateTime(from.year, 12, 31, 23, 59).isAtSameMomentAs(to);
+}
+
+bool isFullWeek(DateTime customIntervalFrom, DateTime customIntervalTo) {
+  return customIntervalTo
+      .difference(customIntervalFrom)
+      .inDays ==
+      6 &&
+      customIntervalFrom.weekday == DateTime.monday &&
+      customIntervalTo.weekday == DateTime.sunday;
 }
 
 tz.TZDateTime createTzDateTime(DateTime utcDateTime, String timeZoneName) {
@@ -145,6 +171,12 @@ bool canShift(
       return customIntervalFrom.year + shift <= currentDate.year;
     }
 
+    // If it is a full week interval, check the destination week after shifting
+    if (isFullWeek(customIntervalFrom, customIntervalTo)) {
+      DateTime newFrom = customIntervalFrom.add(Duration(days: 7 * shift));
+      return !newFrom.isAfter(currentDate);
+    }
+
     // If neither full month nor full year, return false (cannot shift)
     return false;
   }
@@ -162,6 +194,13 @@ bool canShift(
   if (hti == HomepageTimeInterval.CurrentYear) {
     DateTime newFrom = DateTime(d.year + shift, d.month, 1);
     return newFrom.year + shift <= currentDate.year;
+  }
+
+  // If it's the current week interval, check if shifting the week results in a valid date range
+  if (hti == HomepageTimeInterval.CurrentWeek) {
+    DateTime currentWeekStart = getStartOfWeek(d);
+    DateTime newFrom = currentWeekStart.add(Duration(days: 7 * shift));
+    return !newFrom.isAfter(currentDate);
   }
 
   // Default: If it doesn't match any of the above conditions, return false
