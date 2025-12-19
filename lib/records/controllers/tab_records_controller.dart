@@ -183,10 +183,12 @@ class TabRecordsController {
     if (customIntervalFrom != null) {
       newRecords = await getRecordsByInterval(
           _database, customIntervalFrom, customIntervalTo);
+      backgroundImageIndex = customIntervalFrom!.month;
     } else {
       var hti = getHomepageTimeIntervalEnumSetting();
       newRecords = await getRecordsByHomepageTimeInterval(_database, hti);
       header = getHeaderFromHomepageTimeInterval(hti);
+      backgroundImageIndex = DateTime.now().month;
     }
 
     records = newRecords;
