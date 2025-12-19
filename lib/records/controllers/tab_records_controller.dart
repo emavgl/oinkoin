@@ -44,6 +44,7 @@ class TabRecordsController {
   bool tagORLogic = false;
 
   String header = "";
+  int backgroundImageIndex = DateTime.now().month;
   DateTime? customIntervalFrom;
   DateTime? customIntervalTo;
   bool isSearchingEnabled = false;
@@ -413,6 +414,7 @@ class TabRecordsController {
     customIntervalFrom = newFrom;
     customIntervalTo = newTo;
     header = newHeader;
+    backgroundImageIndex = newFrom.month;
     records = newRecords;
     filterRecords();
     onStateChanged();

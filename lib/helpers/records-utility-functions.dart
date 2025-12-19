@@ -218,16 +218,18 @@ String stripUnknownPatternCharacters(String toParse) {
   return result;
 }
 
-AssetImage getBackgroundImage() {
+// -1 for default
+AssetImage getBackgroundImage(int monthIndex) {
   if (!ServiceConfig.isPremium) {
-    return AssetImage('assets/images/background.jpg');
+    return AssetImage('assets/images/bkg-default.png');
   } else {
     try {
-      var now = DateTime.now();
-      String month = now.month.toString();
-      return AssetImage('assets/images/bkg_' + month + '.jpg');
+      String fileName = monthIndex > 0 && monthIndex <= 12
+          ? monthIndex.toString()
+          : "default";
+      return AssetImage('assets/images/bkg-' + fileName + '.png');
     } on Exception catch (_) {
-      return AssetImage('assets/images/background.jpg');
+      return AssetImage('assets/images/bkg-default.png');
     }
   }
 }
