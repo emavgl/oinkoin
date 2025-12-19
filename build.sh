@@ -16,6 +16,10 @@ cp -r build/app/outputs/bundle/freeRelease/ ./tmp_build/free
 flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
 cp -r build/app/outputs/bundle/proRelease/ ./tmp_build/pro
 
+# build alpha version
+flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor alpha
+cp -r build/app/outputs/bundle/alphaRelease/ ./tmp_build/alpha
+
 # copy to desktop
 rm -rf ~/Desktop/tmp_build
 cp -r ./tmp_build ~/Desktop/tmp_build
