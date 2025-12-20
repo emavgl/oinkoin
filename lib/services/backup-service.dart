@@ -24,7 +24,7 @@ import 'database/sqlite-database.dart';
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
 
-  static const String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
+  static String DEFAULT_STORAGE_DIR = Platform.isLinux || Platform.isMacOS ? '${Platform.environment["HOME"]}/oinkoin' : '/storage/emulated/0/Documents/oinkoin';
 
   static const String MANDATORY_BACKUP_SUFFIX = "obackup.json";
 

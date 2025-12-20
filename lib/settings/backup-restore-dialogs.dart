@@ -54,7 +54,7 @@ class BackupRestoreDialog {
   }
 
   static Future<void> importFromBackupFile(BuildContext context) async {
-    var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
+    bool hasDeletedCache = Platform.isAndroid ? (await FilePicker.platform.clearTemporaryFiles() as bool) : false;
     log("FilePicker has deleted cache: " + hasDeletedCache.toString());
     FilePickerResult? result;
     try {
