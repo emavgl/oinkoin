@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -17,7 +19,7 @@ void main() {
   group('Week utility functions (Sunday-start locale: en_US)', () {
     setUp(() {
       // Set locale to en_US (Sunday-start)
-      I18n.of(null).locale = Locale('en', 'US');
+      I18n.define(Locale('en', 'US'));
     });
 
     group('getStartOfWeek', () {
@@ -43,37 +45,37 @@ void main() {
         expect(startOfWeek.weekday, DateTime.sunday);
       });
 
-      test('should return Monday when given a Tuesday', () {
+      test('should return Sunday when given a Tuesday', () {
         // Tuesday, December 16, 2025
         final tuesday = DateTime(2025, 12, 16);
         final startOfWeek = getStartOfWeek(tuesday);
         
         expect(startOfWeek.year, 2025);
         expect(startOfWeek.month, 12);
-        expect(startOfWeek.day, 15); // Monday
-        expect(startOfWeek.weekday, DateTime.monday);
+        expect(startOfWeek.day, 14); // Sunday
+        expect(startOfWeek.weekday, DateTime.sunday);
       });
 
-      test('should return Monday when given a Wednesday', () {
+      test('should return Sunday when given a Wednesday', () {
         // Wednesday, December 17, 2025
         final wednesday = DateTime(2025, 12, 17);
         final startOfWeek = getStartOfWeek(wednesday);
         
         expect(startOfWeek.year, 2025);
         expect(startOfWeek.month, 12);
-        expect(startOfWeek.day, 15); // Monday
-        expect(startOfWeek.weekday, DateTime.monday);
+        expect(startOfWeek.day, 14); // Sunday
+        expect(startOfWeek.weekday, DateTime.sunday);
       });
 
-      test('should return Monday when given a Sunday', () {
-        // Sunday, December 21, 2025
-        final sunday = DateTime(2025, 12, 21);
-        final startOfWeek = getStartOfWeek(sunday);
+      test('should return Sunday when given a Saturday', () {
+        // Saturday, December 20, 2025
+        final saturday = DateTime(2025, 12, 20);
+        final startOfWeek = getStartOfWeek(saturday);
         
         expect(startOfWeek.year, 2025);
         expect(startOfWeek.month, 12);
-        expect(startOfWeek.day, 15); // Monday
-        expect(startOfWeek.weekday, DateTime.monday);
+        expect(startOfWeek.day, 14); // Sunday
+        expect(startOfWeek.weekday, DateTime.sunday);
       });
 
       test('should handle week crossing month boundary', () {
@@ -83,8 +85,8 @@ void main() {
         
         expect(startOfWeek.year, 2024);
         expect(startOfWeek.month, 12);
-        expect(startOfWeek.day, 30); // Monday in previous month
-        expect(startOfWeek.weekday, DateTime.monday);
+        expect(startOfWeek.day, 29); // Sunday in previous month
+        expect(startOfWeek.weekday, DateTime.sunday);
       });
 
       test('should handle week crossing year boundary', () {
@@ -94,47 +96,47 @@ void main() {
         
         expect(startOfWeek.year, 2024);
         expect(startOfWeek.month, 12);
-        expect(startOfWeek.day, 30); // Monday in previous year
-        expect(startOfWeek.weekday, DateTime.monday);
+        expect(startOfWeek.day, 29); // Sunday in previous year
+        expect(startOfWeek.weekday, DateTime.sunday);
       });
     });
 
     group('getEndOfWeek', () {
-      test('should return Sunday at 23:59 when given a Monday', () {
+      test('should return Saturday at 23:59 when given a Monday', () {
         // Monday, December 15, 2025
         final monday = DateTime(2025, 12, 15);
         final endOfWeek = getEndOfWeek(monday);
         
         expect(endOfWeek.year, 2025);
         expect(endOfWeek.month, 12);
-        expect(endOfWeek.day, 21); // Sunday
-        expect(endOfWeek.weekday, DateTime.sunday);
+        expect(endOfWeek.day, 20); // Saturday
+        expect(endOfWeek.weekday, DateTime.saturday);
         expect(endOfWeek.hour, 23);
         expect(endOfWeek.minute, 59);
       });
 
-      test('should return Sunday at 23:59 when given a Wednesday', () {
+      test('should return Saturday at 23:59 when given a Wednesday', () {
         // Wednesday, December 17, 2025
         final wednesday = DateTime(2025, 12, 17);
         final endOfWeek = getEndOfWeek(wednesday);
         
         expect(endOfWeek.year, 2025);
         expect(endOfWeek.month, 12);
-        expect(endOfWeek.day, 21); // Sunday
-        expect(endOfWeek.weekday, DateTime.sunday);
+        expect(endOfWeek.day, 20); // Saturday
+        expect(endOfWeek.weekday, DateTime.saturday);
         expect(endOfWeek.hour, 23);
         expect(endOfWeek.minute, 59);
       });
 
-      test('should return Sunday at 23:59 when given a Sunday', () {
-        // Sunday, December 21, 2025
-        final sunday = DateTime(2025, 12, 21);
+      test('should return Saturday at 23:59 when given a Sunday', () {
+        // Sunday, December 14, 2025
+        final sunday = DateTime(2025, 12, 14);
         final endOfWeek = getEndOfWeek(sunday);
         
         expect(endOfWeek.year, 2025);
         expect(endOfWeek.month, 12);
-        expect(endOfWeek.day, 21); // Same Sunday
-        expect(endOfWeek.weekday, DateTime.sunday);
+        expect(endOfWeek.day, 20); // Saturday
+        expect(endOfWeek.weekday, DateTime.saturday);
         expect(endOfWeek.hour, 23);
         expect(endOfWeek.minute, 59);
       });
@@ -146,8 +148,8 @@ void main() {
         
         expect(endOfWeek.year, 2026);
         expect(endOfWeek.month, 1);
-        expect(endOfWeek.day, 4); // Sunday in next month
-        expect(endOfWeek.weekday, DateTime.sunday);
+        expect(endOfWeek.day, 3); // Saturday in next month
+        expect(endOfWeek.weekday, DateTime.saturday);
         expect(endOfWeek.hour, 23);
         expect(endOfWeek.minute, 59);
       });
@@ -159,8 +161,8 @@ void main() {
         
         expect(endOfWeek.year, 2026);
         expect(endOfWeek.month, 1);
-        expect(endOfWeek.day, 4); // Sunday in next year
-        expect(endOfWeek.weekday, DateTime.sunday);
+        expect(endOfWeek.day, 3); // Saturday in next year
+        expect(endOfWeek.weekday, DateTime.saturday);
         expect(endOfWeek.hour, 23);
         expect(endOfWeek.minute, 59);
       });
@@ -196,20 +198,20 @@ void main() {
       });
 
       test('should return same string for all days in the same week', () {
-        // All days in the week of December 15-21, 2025
+        // All days in the week of December 14-20, 2025 (Sunday to Saturday)
+        final sunday = DateTime(2025, 12, 14);
         final monday = DateTime(2025, 12, 15);
         final wednesday = DateTime(2025, 12, 17);
-        final friday = DateTime(2025, 12, 19);
-        final sunday = DateTime(2025, 12, 21);
+        final saturday = DateTime(2025, 12, 20);
         
+        final sundayStr = getWeekStr(sunday);
         final mondayStr = getWeekStr(monday);
         final wednesdayStr = getWeekStr(wednesday);
-        final fridayStr = getWeekStr(friday);
-        final sundayStr = getWeekStr(sunday);
+        final saturdayStr = getWeekStr(saturday);
         
-        expect(mondayStr, equals(wednesdayStr));
-        expect(mondayStr, equals(fridayStr));
-        expect(mondayStr, equals(sundayStr));
+        expect(sundayStr, equals(mondayStr));
+        expect(sundayStr, equals(wednesdayStr));
+        expect(sundayStr, equals(saturdayStr));
       });
     });
 
@@ -227,7 +229,7 @@ void main() {
         expect(daysDifference, 6);
       });
 
-      test('start of week should always be Monday', () {
+      test('start of week should always be Sunday', () {
         // Test various dates throughout the year
         final testDates = [
           DateTime(2025, 1, 15),  // Wednesday
@@ -239,12 +241,12 @@ void main() {
 
         for (var date in testDates) {
           final startOfWeek = getStartOfWeek(date);
-          expect(startOfWeek.weekday, DateTime.monday,
-              reason: 'Start of week for $date should be Monday');
+          expect(startOfWeek.weekday, DateTime.sunday,
+              reason: 'Start of week for $date should be Sunday');
         }
       });
 
-      test('end of week should always be Sunday', () {
+      test('end of week should always be Saturday', () {
         // Test various dates throughout the year
         final testDates = [
           DateTime(2025, 1, 15),  // Wednesday
@@ -256,8 +258,8 @@ void main() {
 
         for (var date in testDates) {
           final endOfWeek = getEndOfWeek(date);
-          expect(endOfWeek.weekday, DateTime.sunday,
-              reason: 'End of week for $date should be Sunday');
+          expect(endOfWeek.weekday, DateTime.saturday,
+              reason: 'End of week for $date should be Saturday');
         }
       });
 
