@@ -73,15 +73,40 @@ class TabRecordsState extends State<TabRecords> {
   }
 
   Widget _buildBody() {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        setState(() {
-          _isAppBarExpanded = scrollInfo.metrics.pixels < 100;
-        });
-        return true;
+    return GestureDetector(
+      onHorizontalDragEnd: (DragEndDetails details) {
+        // Swipe left to right (positive velocity) = shift back (-1)
+        // Swipe right to left (negative velocity) = shift forward (+1)
+        if (details.primaryVelocity != null) {
+          if (details.primaryVelocity! > 500) {
+            // Swiped left to right - go back
+            if (_controller.canShiftBack()) {
+              _controller.shiftMonthWeekYear(-1);
+            }
+          } else if (details.primaryVelocity! < -500) {
+            // Swiped right to left - go forward
+            if (_controller.canShiftForward()) {
+              _controller.shiftMonthWeekYear(1);
+            }
+          }
+        }
       },
-      child: CustomScrollView(
-        slivers: _buildSlivers(),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 600),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        child: NotificationListener<ScrollNotification>(
+          key: ValueKey(_controller.header),
+          onNotification: (scrollInfo) {
+            setState(() {
+              _isAppBarExpanded = scrollInfo.metrics.pixels < 100;
+            });
+            return true;
+          },
+          child: CustomScrollView(
+            slivers: _buildSlivers(),
+          ),
+        ),
       ),
     );
   }
