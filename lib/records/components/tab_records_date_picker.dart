@@ -125,7 +125,7 @@ class TabRecordsDatePicker extends StatelessWidget {
       var newRecords = await getRecordsByMonth(
           controller.database, dateTime.year, dateTime.month);
 
-      updateAndClose(context, newRecords, from, to, header);
+      updateAndClose(context, newRecords, from, to, header, dateTime.month);
     }
   }
 
@@ -150,7 +150,7 @@ class TabRecordsDatePicker extends StatelessWidget {
       var newRecords =
           await getRecordsByYear(controller.database, yearPicked.year);
 
-      updateAndClose(context, newRecords, from, to, header);
+      updateAndClose(context, newRecords, from, to, header, null);
     }
   }
 
@@ -189,13 +189,16 @@ class TabRecordsDatePicker extends StatelessWidget {
       var newRecords =
           await getRecordsByInterval(controller.database, from, to);
 
-      updateAndClose(context, newRecords, from, to, header);
+      updateAndClose(context, newRecords, from, to, header, to.month);
     }
   }
 
   void updateAndClose(BuildContext context, List<Record?> newRecords,
-      DateTime from, DateTime to, String header) {
+      DateTime from, DateTime to, String header, int? backgroundImageIndex) {
     controller.records = newRecords;
+    if (backgroundImageIndex != null) {
+      controller.backgroundImageIndex = backgroundImageIndex;
+    }
     controller.updateCustomInterval(from, to, header);
     controller.filterRecords();
     controller.onStateChanged();
@@ -206,6 +209,7 @@ class TabRecordsDatePicker extends StatelessWidget {
   Future<void> _resetToDefault(BuildContext context) async {
     controller.customIntervalFrom = null;
     controller.customIntervalTo = null;
+    controller.backgroundImageIndex = DateTime.now().month;
     await controller.updateRecurrentRecordsAndFetchRecords();
     controller.onStateChanged();
     onDateSelected();

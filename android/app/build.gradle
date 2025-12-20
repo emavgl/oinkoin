@@ -93,6 +93,11 @@ android {
             applicationId "com.github.emavgl.piggybankpro"
             resValue "string", "app_name", "Oinkoin Pro"
         }
+        alpha {
+            dimension "oinkoin"
+            applicationId "com.github.emavgl.piggybank.alpha.pro"
+            resValue "string", "app_name", "Oinkoin Alpha"
+        }
         fdroid {
             dimension "oinkoin"
             applicationId "com.github.emavgl.piggybankpro"

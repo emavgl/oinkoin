@@ -149,6 +149,9 @@ class RecurrentRecordService {
       case RecurrentPeriod.EveryTwoWeeks:
         addRecordsByPeriod(14);
         break;
+      case RecurrentPeriod.EveryFourWeeks:
+        addRecordsByPeriod(28);
+        break;
       case RecurrentPeriod.EveryMonth:
         addRecordsByPeriod(1, isMonth: true);
         break;

@@ -590,5 +590,68 @@ Future main() async {
           containsAll({'tag0', 'tag1', 'tag2', 'tag3', 'tag4', 'common-tag'}));
       expect(recentlyUsedTags, isNot(contains('very-old-tag')));
     });
+
+    test(
+        'records generated from recurrent patterns should include pattern tags',
+        () async {
+      DatabaseInterface db = ServiceConfig.database;
+      await db.addCategory(testCategoryExpense);
+
+      // Create a recurrent pattern with tags
+      final pattern = RecurrentRecordPattern(
+        100.0,
+        "Monthly Subscription",
+        testCategoryExpense,
+        DateTime.utc(2023, 1, 1),
+        RecurrentPeriod.EveryMonth,
+        tags: {'subscription', 'recurring', 'digital'}.toSet(),
+      );
+
+      await db.addRecurrentRecordPattern(pattern);
+
+      // Simulate generating records from the pattern (what happens in updateRecurrentRecords)
+      final records = [
+        Record(
+          pattern.value,
+          pattern.title,
+          pattern.category,
+          DateTime.utc(2023, 1, 1),
+          recurrencePatternId: pattern.id,
+          tags: pattern.tags,
+        ),
+        Record(
+          pattern.value,
+          pattern.title,
+          pattern.category,
+          DateTime.utc(2023, 2, 1),
+          recurrencePatternId: pattern.id,
+          tags: pattern.tags,
+        ),
+        Record(
+          pattern.value,
+          pattern.title,
+          pattern.category,
+          DateTime.utc(2023, 3, 1),
+          recurrencePatternId: pattern.id,
+          tags: pattern.tags,
+        ),
+      ];
+
+      // Add records in batch as the recurrent service does
+      await db.addRecordsInBatch(records);
+
+      // Retrieve records and verify tags are present
+      final allRecords = await db.getAllRecords();
+      expect(allRecords.length, 3);
+
+      for (var record in allRecords) {
+        expect(record?.tags, isNotEmpty,
+            reason: 'Record should have tags from pattern');
+        expect(record?.tags,
+            containsAll(['subscription', 'recurring', 'digital']),
+            reason:
+                'Record should contain all tags from the recurrent pattern');
+      }
+    });
   });
 }

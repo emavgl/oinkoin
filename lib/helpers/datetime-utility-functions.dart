@@ -37,19 +37,23 @@ String getDateRangeStr(DateTime start, DateTime end) {
   DateTime later = start.isBefore(end) ? end : start;
 
   DateTime lastDayOfTheMonth = getEndOfMonth(earlier.year, earlier.month);
-  if (lastDayOfTheMonth.isAtSameMomentAs(later)) {
-    // Visualizing an entire month
+  if (earlier.day == 1 && lastDayOfTheMonth.isAtSameMomentAs(later)) {
+    // Visualizing an entire month (starts on 1st and ends on last day)
     String localeRepr =
         DateFormat.yMMMM(myLocale.languageCode).format(lastDayOfTheMonth);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
   } else {
-    String startLocalRepr =
-        DateFormat.yMMMd(myLocale.languageCode).format(earlier);
-    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
     if (earlier.year == later.year) {
-      return startLocalRepr.split(",")[0] + " - " + endLocalRepr;
+      // Same year: show year only once at the end
+      String startLocalRepr = DateFormat.MMMd(myLocale.languageCode).format(earlier);
+      String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+      return startLocalRepr + " - " + endLocalRepr;
+    } else {
+      // Different years: show year for both dates
+      String startLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(earlier);
+      String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+      return startLocalRepr + " - " + endLocalRepr;
     }
-    return startLocalRepr + " - " + endLocalRepr;
   }
 }
 
@@ -63,6 +67,66 @@ String getMonthStr(DateTime dateTime) {
 String getYearStr(DateTime dateTime) {
   return "${"Year".i18n} ${dateTime.year}";
 }
+
+String getWeekStr(DateTime dateTime) {
+  DateTime startOfWeek = getStartOfWeek(dateTime);
+  DateTime endOfWeek = getEndOfWeek(dateTime);
+  return getDateRangeStr(startOfWeek, endOfWeek);
+}
+
+/// Returns the first day of the week (1=Monday, 7=Sunday) based on locale.
+/// Different locales have different week start days:
+/// - US, Brazil, China, Japan: Sunday (7)
+/// - Arabic regions: Saturday (6)  
+/// - Most European and other locales: Monday (1)
+int getFirstDayOfWeekIndex() {
+  try {
+    String localeStr = I18n.locale.toString();
+    
+    if (localeStr == 'en_US') return DateTime.sunday;
+    if (localeStr.startsWith('pt_BR')) return DateTime.sunday;
+    if (localeStr.startsWith('zh')) return DateTime.sunday;
+    if (localeStr.startsWith('ja')) return DateTime.sunday;
+    if (localeStr.startsWith('ar')) return DateTime.saturday;
+  } catch (e) {
+    // Locale not initialized, use default
+  }
+  
+  return DateTime.monday; // Default for most locales
+}
+
+/// Returns the last day of the week based on the first day.
+int _getLastDayOfWeek(int firstDayOfWeek) {
+  return firstDayOfWeek == DateTime.monday ? DateTime.sunday : firstDayOfWeek - 1;
+}
+
+/// Calculates the number of days to offset from current day to reach target weekday.
+/// Handles week wraparound (e.g., going from Monday to previous Sunday).
+int _calculateDaysOffset(int fromWeekday, int toWeekday, {bool forward = false}) {
+  if (forward) {
+    return toWeekday >= fromWeekday 
+        ? toWeekday - fromWeekday
+        : (7 - fromWeekday) + toWeekday;
+  } else {
+    return fromWeekday >= toWeekday
+        ? fromWeekday - toWeekday
+        : fromWeekday + (7 - toWeekday);
+  }
+}
+
+DateTime getStartOfWeek(DateTime date) {
+  int firstDayOfWeek = getFirstDayOfWeekIndex();
+  int daysToSubtract = _calculateDaysOffset(date.weekday, firstDayOfWeek);
+  return DateTime(date.year, date.month, date.day - daysToSubtract);
+}
+
+DateTime getEndOfWeek(DateTime date) {
+  int firstDayOfWeek = getFirstDayOfWeekIndex();
+  int lastDayOfWeek = _getLastDayOfWeek(firstDayOfWeek);
+  int daysToAdd = _calculateDaysOffset(date.weekday, lastDayOfWeek, forward: true);
+  return DateTime(date.year, date.month, date.day + daysToAdd, 23, 59);
+}
+
 
 String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod}) {
   Locale myLocale = I18n.locale;
@@ -101,6 +165,15 @@ bool isFullYear(DateTime from, DateTime to) {
   return from.month == 1 &&
       from.day == 1 &&
       new DateTime(from.year, 12, 31, 23, 59).isAtSameMomentAs(to);
+}
+
+bool isFullWeek(DateTime intervalFrom, DateTime intervalTo) {
+  int firstDayOfWeek = getFirstDayOfWeekIndex();
+  int lastDayOfWeek = _getLastDayOfWeek(firstDayOfWeek);
+  
+  return intervalTo.difference(intervalFrom).inDays == 6 &&
+         intervalFrom.weekday == firstDayOfWeek &&
+         intervalTo.weekday == lastDayOfWeek;
 }
 
 tz.TZDateTime createTzDateTime(DateTime utcDateTime, String timeZoneName) {
@@ -145,6 +218,12 @@ bool canShift(
       return customIntervalFrom.year + shift <= currentDate.year;
     }
 
+    // If it is a full week interval, check the destination week after shifting
+    if (isFullWeek(customIntervalFrom, customIntervalTo)) {
+      DateTime newFrom = customIntervalFrom.add(Duration(days: 7 * shift));
+      return !newFrom.isAfter(currentDate);
+    }
+
     // If neither full month nor full year, return false (cannot shift)
     return false;
   }
@@ -162,6 +241,13 @@ bool canShift(
   if (hti == HomepageTimeInterval.CurrentYear) {
     DateTime newFrom = DateTime(d.year + shift, d.month, 1);
     return newFrom.year + shift <= currentDate.year;
+  }
+
+  // If it's the current week interval, check if shifting the week results in a valid date range
+  if (hti == HomepageTimeInterval.CurrentWeek) {
+    DateTime currentWeekStart = getStartOfWeek(d);
+    DateTime newFrom = currentWeekStart.add(Duration(days: 7 * shift));
+    return !newFrom.isAfter(currentDate);
   }
 
   // Default: If it doesn't match any of the above conditions, return false

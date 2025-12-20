@@ -1,0 +1,5 @@
+-     Bug fix for tags on recurrent records
+-     Add 4 weeks recurrent interval
+-     Add weekly home page initial interval
+-     Add new background images
+-     Change background image when shifting month

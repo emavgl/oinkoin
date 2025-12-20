@@ -35,7 +35,9 @@ class TabRecordsAppBar extends StatelessWidget {
       backgroundColor: Theme.of(context).primaryColor,
       actions: _buildActions(),
       pinned: true,
-      expandedHeight: 180.0,
+      expandedHeight: MediaQuery.of(context).size.height * 0.20 < 180.0
+          ? 180.0
+          : MediaQuery.of(context).size.height * 0.20,
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: <StretchMode>[
           StretchMode.zoomBackground,
@@ -110,7 +112,7 @@ class TabRecordsAppBar extends StatelessWidget {
       width: 30,
       child: IconButton(
         icon: Icon(icon, color: Colors.white, size: 24),
-        onPressed: () => controller.shiftMonthOrYear(direction),
+        onPressed: () => controller.shiftMonthWeekYear(direction),
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),
       ),
@@ -120,14 +122,14 @@ class TabRecordsAppBar extends StatelessWidget {
   Widget _buildBackground() {
     return ColorFiltered(
       colorFilter: ColorFilter.mode(
-        Colors.black.withOpacity(0.1),
+        Colors.black.withAlpha((255.0 * 0.1).round()),
         BlendMode.srcATop,
       ),
       child: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.cover,
-            image: getBackgroundImage(),
+            image: getBackgroundImage(controller.backgroundImageIndex),
           ),
         ),
       ),

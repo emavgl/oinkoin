@@ -8,6 +8,7 @@ enum RecurrentPeriod {
   EveryThreeMonths,
   EveryFourMonths,
   EveryYear,
+  EveryFourWeeks,
 }
 
 String recurrentPeriodString(RecurrentPeriod? r) {
@@ -15,6 +16,7 @@ String recurrentPeriodString(RecurrentPeriod? r) {
   if (r == RecurrentPeriod.EveryWeek) return "Every week".i18n;
   if (r == RecurrentPeriod.EveryMonth) return "Every month".i18n;
   if (r == RecurrentPeriod.EveryTwoWeeks) return "Every two weeks".i18n;
+  if (r == RecurrentPeriod.EveryFourWeeks) return "Every four weeks".i18n;
   if (r == RecurrentPeriod.EveryThreeMonths) return "Every three months".i18n;
   if (r == RecurrentPeriod.EveryFourMonths) return "Every four months".i18n;
   if (r == RecurrentPeriod.EveryYear) return "Every year".i18n;

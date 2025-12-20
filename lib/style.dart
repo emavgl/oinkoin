@@ -45,7 +45,7 @@ class MaterialThemeInstance {
       case 2:
         {
           log("Using dynamic colors");
-          AssetImage assetImage = getBackgroundImage();
+          AssetImage assetImage = getBackgroundImage(DateTime.now().month);
           ColorScheme colorScheme = await ColorScheme.fromImageProvider(
               provider: assetImage, brightness: brightness);
           return colorScheme;

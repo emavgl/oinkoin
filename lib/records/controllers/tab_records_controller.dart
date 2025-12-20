@@ -44,6 +44,7 @@ class TabRecordsController {
   bool tagORLogic = false;
 
   String header = "";
+  int backgroundImageIndex = DateTime.now().month;
   DateTime? customIntervalFrom;
   DateTime? customIntervalTo;
   bool isSearchingEnabled = false;
@@ -182,10 +183,12 @@ class TabRecordsController {
     if (customIntervalFrom != null) {
       newRecords = await getRecordsByInterval(
           _database, customIntervalFrom, customIntervalTo);
+      backgroundImageIndex = customIntervalFrom!.month;
     } else {
       var hti = getHomepageTimeIntervalEnumSetting();
       newRecords = await getRecordsByHomepageTimeInterval(_database, hti);
       header = getHeaderFromHomepageTimeInterval(hti);
+      backgroundImageIndex = DateTime.now().month;
     }
 
     records = newRecords;
@@ -373,7 +376,7 @@ class TabRecordsController {
     header = newHeader;
   }
 
-  Future<void> shiftMonthOrYear(int shift) async {
+  Future<void> shiftMonthWeekYear(int shift) async {
     DateTime newFrom;
     DateTime newTo;
     List<Record?> newRecords = [];
@@ -387,6 +390,11 @@ class TabRecordsController {
         newHeader = getMonthStr(newFrom);
         newRecords =
             await getRecordsByMonth(_database, newFrom.year, newFrom.month);
+      } else if (isFullWeek(customIntervalFrom!, customIntervalTo!)) {
+        newFrom = customIntervalFrom!.add(Duration(days: 7 * shift));
+        newTo = newFrom.add(Duration(days: 6));
+        newHeader = getWeekStr(newFrom);
+        newRecords = await getRecordsByInterval(_database, newFrom, newTo);
       } else {
         newFrom = DateTime(customIntervalFrom!.year + shift, 1, 1);
         newTo = DateTime(newFrom.year, 12, 31, 23, 59);
@@ -402,6 +410,12 @@ class TabRecordsController {
         newHeader = getMonthStr(newFrom);
         newRecords =
             await getRecordsByMonth(_database, newFrom.year, newFrom.month);
+      } else if (hti == HomepageTimeInterval.CurrentWeek) {
+        DateTime startOfWeek = getStartOfWeek(d);
+        newFrom = startOfWeek.add(Duration(days: 7 * shift));
+        newTo = newFrom.add(Duration(days: 6));
+        newHeader = getWeekStr(newFrom);
+        newRecords = await getRecordsByInterval(_database, newFrom, newTo);
       } else {
         newFrom = DateTime(d.year + shift, 1, 1);
         newTo = DateTime(newFrom.year, 12, 31, 23, 59);
@@ -413,6 +427,7 @@ class TabRecordsController {
     customIntervalFrom = newFrom;
     customIntervalTo = newTo;
     header = newHeader;
+    backgroundImageIndex = newFrom.month;
     records = newRecords;
     filterRecords();
     onStateChanged();

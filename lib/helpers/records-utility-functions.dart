@@ -218,16 +218,18 @@ String stripUnknownPatternCharacters(String toParse) {
   return result;
 }
 
-AssetImage getBackgroundImage() {
+// -1 for default
+AssetImage getBackgroundImage(int monthIndex) {
   if (!ServiceConfig.isPremium) {
-    return AssetImage('assets/images/background.jpg');
+    return AssetImage('assets/images/bkg-default.png');
   } else {
     try {
-      var now = DateTime.now();
-      String month = now.month.toString();
-      return AssetImage('assets/images/bkg_' + month + '.jpg');
+      String fileName = monthIndex > 0 && monthIndex <= 12
+          ? monthIndex.toString()
+          : "default";
+      return AssetImage('assets/images/bkg-' + fileName + '.png');
     } on Exception catch (_) {
-      return AssetImage('assets/images/background.jpg');
+      return AssetImage('assets/images/bkg-default.png');
     }
   }
 }
@@ -285,6 +287,8 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
       return getYearStr(_now);
     case HomepageTimeInterval.All:
       return "All records".i18n;
+    case HomepageTimeInterval.CurrentWeek:
+      return getWeekStr(_now);
   }
 }
 
@@ -308,6 +312,10 @@ Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
         return [_from, _to];
       }
       return [_from, _now];
+    case HomepageTimeInterval.CurrentWeek:
+      DateTime? _from = getStartOfWeek(_now);
+      DateTime? _to = getEndOfWeek(_now);
+      return [_from, _to];
   }
 }
 
@@ -335,5 +343,9 @@ Future<List<Record?>> getRecordsByHomepageTimeInterval(
       return await getRecordsByYear(database, _now.year);
     case HomepageTimeInterval.All:
       return await getAllRecords(database);
+    case HomepageTimeInterval.CurrentWeek:
+      return await getRecordsByInterval(
+          database, getStartOfWeek(_now), getEndOfWeek(_now)
+      );
   }
 }
