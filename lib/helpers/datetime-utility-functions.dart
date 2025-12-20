@@ -65,19 +65,62 @@ String getYearStr(DateTime dateTime) {
 }
 
 String getWeekStr(DateTime dateTime) {
-  DateTime? startOfWeek = getStartOfWeek(dateTime);
-  DateTime? endOfWeek = getEndOfWeek(dateTime);
+  DateTime startOfWeek = getStartOfWeek(dateTime);
+  DateTime endOfWeek = getEndOfWeek(dateTime);
   return getDateRangeStr(startOfWeek, endOfWeek);
 }
 
-DateTime getStartOfWeek(DateTime now) {
-  int currentWeekday = now.weekday; // 1 (Mon) - 7 (Sun)
-  return DateTime(now.year, now.month, now.day - (currentWeekday - 1));
+/// Returns the first day of the week (1=Monday, 7=Sunday) based on locale.
+/// Different locales have different week start days:
+/// - US, Brazil, China, Japan: Sunday (7)
+/// - Arabic regions: Saturday (6)  
+/// - Most European and other locales: Monday (1)
+int getFirstDayOfWeekIndex() {
+  try {
+    String localeStr = I18n.locale.toString();
+    
+    if (localeStr == 'en_US') return DateTime.sunday;
+    if (localeStr.startsWith('pt_BR')) return DateTime.sunday;
+    if (localeStr.startsWith('zh')) return DateTime.sunday;
+    if (localeStr.startsWith('ja')) return DateTime.sunday;
+    if (localeStr.startsWith('ar')) return DateTime.saturday;
+  } catch (e) {
+    // Locale not initialized, use default
+  }
+  
+  return DateTime.monday; // Default for most locales
 }
 
-DateTime getEndOfWeek(DateTime now) {
-  int currentWeekday = now.weekday; // 1 (Mon) - 7 (Sun)
-  return DateTime(now.year, now.month, now.day + (7 - currentWeekday), 23, 59);
+/// Returns the last day of the week based on the first day.
+int _getLastDayOfWeek(int firstDayOfWeek) {
+  return firstDayOfWeek == DateTime.monday ? DateTime.sunday : firstDayOfWeek - 1;
+}
+
+/// Calculates the number of days to offset from current day to reach target weekday.
+/// Handles week wraparound (e.g., going from Monday to previous Sunday).
+int _calculateDaysOffset(int fromWeekday, int toWeekday, {bool forward = false}) {
+  if (forward) {
+    return toWeekday >= fromWeekday 
+        ? toWeekday - fromWeekday
+        : (7 - fromWeekday) + toWeekday;
+  } else {
+    return fromWeekday >= toWeekday
+        ? fromWeekday - toWeekday
+        : fromWeekday + (7 - toWeekday);
+  }
+}
+
+DateTime getStartOfWeek(DateTime date) {
+  int firstDayOfWeek = getFirstDayOfWeekIndex();
+  int daysToSubtract = _calculateDaysOffset(date.weekday, firstDayOfWeek);
+  return DateTime(date.year, date.month, date.day - daysToSubtract);
+}
+
+DateTime getEndOfWeek(DateTime date) {
+  int firstDayOfWeek = getFirstDayOfWeekIndex();
+  int lastDayOfWeek = _getLastDayOfWeek(firstDayOfWeek);
+  int daysToAdd = _calculateDaysOffset(date.weekday, lastDayOfWeek, forward: true);
+  return DateTime(date.year, date.month, date.day + daysToAdd, 23, 59);
 }
 
 
@@ -120,13 +163,13 @@ bool isFullYear(DateTime from, DateTime to) {
       new DateTime(from.year, 12, 31, 23, 59).isAtSameMomentAs(to);
 }
 
-bool isFullWeek(DateTime customIntervalFrom, DateTime customIntervalTo) {
-  return customIntervalTo
-      .difference(customIntervalFrom)
-      .inDays ==
-      6 &&
-      customIntervalFrom.weekday == DateTime.monday &&
-      customIntervalTo.weekday == DateTime.sunday;
+bool isFullWeek(DateTime intervalFrom, DateTime intervalTo) {
+  int firstDayOfWeek = getFirstDayOfWeekIndex();
+  int lastDayOfWeek = _getLastDayOfWeek(firstDayOfWeek);
+  
+  return intervalTo.difference(intervalFrom).inDays == 6 &&
+         intervalFrom.weekday == firstDayOfWeek &&
+         intervalTo.weekday == lastDayOfWeek;
 }
 
 tz.TZDateTime createTzDateTime(DateTime utcDateTime, String timeZoneName) {

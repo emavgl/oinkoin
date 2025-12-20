@@ -1,26 +1,46 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 
 void main() {
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    // Initialize date formatting for English locale
+    // Initialize date formatting for both locales
     await initializeDateFormatting('en_US', null);
+    await initializeDateFormatting('en_GB', null);
   });
 
-  group('Week utility functions', () {
+  // Tests for locales where week starts on SUNDAY (en_US)
+  group('Week utility functions (Sunday-start locale: en_US)', () {
+    setUp(() {
+      // Set locale to en_US (Sunday-start)
+      I18n.of(null).locale = Locale('en', 'US');
+    });
+
     group('getStartOfWeek', () {
-      test('should return Monday when given a Monday', () {
+      test('should return Sunday when given a Sunday', () {
+        // Sunday, December 14, 2025
+        final sunday = DateTime(2025, 12, 14);
+        final startOfWeek = getStartOfWeek(sunday);
+        
+        expect(startOfWeek.year, 2025);
+        expect(startOfWeek.month, 12);
+        expect(startOfWeek.day, 14);
+        expect(startOfWeek.weekday, DateTime.sunday);
+      });
+
+      test('should return Sunday when given a Monday', () {
         // Monday, December 15, 2025
         final monday = DateTime(2025, 12, 15);
         final startOfWeek = getStartOfWeek(monday);
         
         expect(startOfWeek.year, 2025);
         expect(startOfWeek.month, 12);
-        expect(startOfWeek.day, 15);
-        expect(startOfWeek.weekday, DateTime.monday);
+        expect(startOfWeek.day, 14); // Sunday
+        expect(startOfWeek.weekday, DateTime.sunday);
       });
 
       test('should return Monday when given a Tuesday', () {
