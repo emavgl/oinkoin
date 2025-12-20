@@ -37,8 +37,8 @@ String getDateRangeStr(DateTime start, DateTime end) {
   DateTime later = start.isBefore(end) ? end : start;
 
   DateTime lastDayOfTheMonth = getEndOfMonth(earlier.year, earlier.month);
-  if (lastDayOfTheMonth.isAtSameMomentAs(later)) {
-    // Visualizing an entire month
+  if (earlier.day == 1 && lastDayOfTheMonth.isAtSameMomentAs(later)) {
+    // Visualizing an entire month (starts on 1st and ends on last day)
     String localeRepr =
         DateFormat.yMMMM(myLocale.languageCode).format(lastDayOfTheMonth);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize

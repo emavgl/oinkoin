@@ -336,4 +336,108 @@ void main() {
       expect(canShiftBack, true);
     });
   });
+
+  // ===== Tests for getDateRangeStr =====
+  group('getDateRangeStr', () {
+    setUp(() {
+      I18n.define(Locale('en', 'US'));
+    });
+
+    test('should display full month name when range covers entire month', () {
+      // Nov 1 - Nov 30 (full month)
+      DateTime start = DateTime(2025, 11, 1);
+      DateTime end = DateTime(2025, 11, 30, 23, 59);
+      
+      String result = getDateRangeStr(start, end);
+      
+      expect(result.toLowerCase(), contains('november'));
+      expect(result, contains('2025'));
+    });
+
+    test('should display date range when week ends on last day of month but does not start on 1st', () {
+      // Nov 24 - Nov 30 (week ending on last day, but not full month)
+      DateTime start = DateTime(2025, 11, 24);
+      DateTime end = DateTime(2025, 11, 30, 23, 59);
+      
+      String result = getDateRangeStr(start, end);
+      
+      // Should show date range, not just "November 2025"
+      expect(result, contains('24'));
+      expect(result, contains('30'));
+      expect(result, contains('-'));
+    });
+
+    test('should display date range for regular week within a month', () {
+      // Dec 15 - Dec 21 (regular week)
+      DateTime start = DateTime(2025, 12, 15);
+      DateTime end = DateTime(2025, 12, 21, 23, 59);
+      
+      String result = getDateRangeStr(start, end);
+      
+      expect(result, contains('15'));
+      expect(result, contains('21'));
+      expect(result, contains('-'));
+    });
+
+    test('should display date range for week spanning two months', () {
+      // Nov 30 - Dec 6 (crosses month boundary)
+      DateTime start = DateTime(2025, 11, 30);
+      DateTime end = DateTime(2025, 12, 6, 23, 59);
+      
+      String result = getDateRangeStr(start, end);
+      
+      expect(result, contains('30'));
+      expect(result, contains('6'));
+      expect(result, contains('-'));
+    });
+
+    test('should display date range for week spanning two years', () {
+      // Dec 29, 2025 - Jan 4, 2026 (crosses year boundary)
+      DateTime start = DateTime(2025, 12, 29);
+      DateTime end = DateTime(2026, 1, 4, 23, 59);
+      
+      String result = getDateRangeStr(start, end);
+      
+      expect(result, contains('29'));
+      expect(result, contains('4'));
+      expect(result, contains('2025'));
+      expect(result, contains('2026'));
+      expect(result, contains('-'));
+    });
+
+    test('should handle reversed date order (end before start)', () {
+      // Should still work when dates are reversed
+      DateTime start = DateTime(2025, 12, 21, 23, 59);
+      DateTime end = DateTime(2025, 12, 15);
+      
+      String result = getDateRangeStr(start, end);
+      
+      expect(result, contains('15'));
+      expect(result, contains('21'));
+      expect(result, contains('-'));
+    });
+
+    test('should display full month name for February in leap year', () {
+      // Feb 1 - Feb 29, 2024 (leap year, full month)
+      DateTime start = DateTime(2024, 2, 1);
+      DateTime end = DateTime(2024, 2, 29, 23, 59);
+      
+      String result = getDateRangeStr(start, end);
+      
+      expect(result.toLowerCase(), contains('february'));
+      expect(result, contains('2024'));
+    });
+
+    test('should display date range when ending on Feb 28 in non-leap year but not starting on 1st', () {
+      // Feb 22 - Feb 28, 2025 (week ending on last day of Feb in non-leap year)
+      DateTime start = DateTime(2025, 2, 22);
+      DateTime end = DateTime(2025, 2, 28, 23, 59);
+      
+      String result = getDateRangeStr(start, end);
+      
+      expect(result, contains('22'));
+      expect(result, contains('28'));
+      expect(result, contains('-'));
+    });
+  });
 }
