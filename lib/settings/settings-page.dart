@@ -5,6 +5,7 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/logger.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/backup-page.dart';
 import 'package:piggybank/settings/backup-restore-dialogs.dart';
@@ -89,6 +90,14 @@ class TabSettings extends StatelessWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => FeedbackPage()),
+    );
+  }
+
+  goToLogs(BuildContext context) async {
+    Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const LogScreen(),
+        )
     );
   }
 
@@ -210,6 +219,16 @@ class TabSettings extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => FeedbackPage()),
               );
             },
+          ),
+          SettingsItem(
+            icon: Icon(
+              Icons.mail_outline,
+              color: Colors.white,
+            ),
+            iconBackgroundColor: Colors.grey.shade700,
+            title: 'Logs'.i18n,
+            subtitle: "Got problems? Check out the logs".i18n,
+            onPressed: () async => await goToLogs(context),
           ),
         ],
       ),
