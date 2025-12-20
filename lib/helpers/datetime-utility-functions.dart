@@ -43,13 +43,17 @@ String getDateRangeStr(DateTime start, DateTime end) {
         DateFormat.yMMMM(myLocale.languageCode).format(lastDayOfTheMonth);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
   } else {
-    String startLocalRepr =
-        DateFormat.yMMMd(myLocale.languageCode).format(earlier);
-    String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
     if (earlier.year == later.year) {
-      return startLocalRepr.split(",")[0] + " - " + endLocalRepr;
+      // Same year: show year only once at the end
+      String startLocalRepr = DateFormat.MMMd(myLocale.languageCode).format(earlier);
+      String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+      return startLocalRepr + " - " + endLocalRepr;
+    } else {
+      // Different years: show year for both dates
+      String startLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(earlier);
+      String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+      return startLocalRepr + " - " + endLocalRepr;
     }
-    return startLocalRepr + " - " + endLocalRepr;
   }
 }
 
