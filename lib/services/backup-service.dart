@@ -20,6 +20,7 @@ import 'database/database-interface.dart';
 import 'package:crypto/crypto.dart';
 
 import 'database/sqlite-database.dart';
+import 'logger.dart';
 
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
@@ -68,65 +69,96 @@ class BackupService {
     String? directoryPath,
     String? encryptionPassword,
   }) async {
-    // Generate backup file name if not provided
-    backupFileName ??= await generateBackupFileName();
+    try {
+      _logger.info('Starting backup creation...');
+      
+      // Generate backup file name if not provided
+      backupFileName ??= await generateBackupFileName();
+      _logger.debug('Backup filename: $backupFileName');
 
-    // Use the provided directory path or default to the application's documents directory
-    final path = directoryPath != null
-        ? Directory(directoryPath)
-        : await getApplicationDocumentsDirectory();
+      // Use the provided directory path or default to the application's documents directory
+      final path = directoryPath != null
+          ? Directory(directoryPath)
+          : await getApplicationDocumentsDirectory();
 
-    // Ensure the directory exists
-    await path.create(recursive: true);
+      _logger.debug('Backup directory: ${path.path}');
 
-    final packageInfo = await PackageInfo.fromPlatform();
-    final appName = packageInfo.packageName; // The package name
-    final version = packageInfo.version; // The app version
-    final databaseVersion = SqliteDatabase.version.toString();
+      // Ensure the directory exists
+      await path.create(recursive: true);
 
-    // Create the backup
-    var records = await database.getAllRecords();
-    var categories = await database.getAllCategories();
-    var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
-    var recordTagAssociations = await database.getAllRecordTagAssociations();
+      final packageInfo = await PackageInfo.fromPlatform();
+      final appName = packageInfo.packageName; // The package name
+      final version = packageInfo.version; // The app version
+      final databaseVersion = SqliteDatabase.version.toString();
 
-    var backup = Backup(appName, version, databaseVersion, categories, records, recurrentRecordPatterns, recordTagAssociations);
-    var backupJsonStr = jsonEncode(backup.toMap());
+      _logger.debug('Fetching data for backup...');
+      // Create the backup
+      var records = await database.getAllRecords();
+      var categories = await database.getAllCategories();
+      var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
+      var recordTagAssociations = await database.getAllRecordTagAssociations();
 
-    // Encrypt the backup JSON string if an encryption password is provided
-    if (encryptionPassword != null && encryptionPassword.isNotEmpty) {
-      backupJsonStr = encryptData(backupJsonStr, encryptionPassword);
+      _logger.info('Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags');
+
+      var backup = Backup(appName, version, databaseVersion, categories, records, recurrentRecordPatterns, recordTagAssociations);
+      var backupJsonStr = jsonEncode(backup.toMap());
+
+      // Encrypt the backup JSON string if an encryption password is provided
+      if (encryptionPassword != null && encryptionPassword.isNotEmpty) {
+        _logger.info('Encrypting backup...');
+        backupJsonStr = encryptData(backupJsonStr, encryptionPassword);
+      }
+
+      // Write on disk
+      var backupJsonOnDisk = File("${path.path}/$backupFileName");
+      var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
+      
+      _logger.info('Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
+      return result;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to create backup');
+      rethrow;
     }
-
-    // Write on disk
-    var backupJsonOnDisk = File("${path.path}/$backupFileName");
-    return await backupJsonOnDisk.writeAsString(backupJsonStr);
   }
 
   /// Determines if an automatic backup should be created.
   /// Returns true if the latest backup was created more than 1 hour ago, false otherwise.
   static Future<bool> shouldCreateAutomaticBackup() async {
-    var prefs = await SharedPreferences.getInstance();
+    try {
+      var prefs = await SharedPreferences.getInstance();
 
-    // Use PreferencesUtils for enableAutomaticBackup
-    bool enableAutomaticBackup = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.enableAutomaticBackup)!;
+      // Use PreferencesUtils for enableAutomaticBackup
+      bool enableAutomaticBackup = PreferencesUtils.getOrDefault<bool>(
+          prefs, PreferencesKeys.enableAutomaticBackup)!;
 
-    if (!enableAutomaticBackup) {
-      log("No automatic backup set");
+      if (!enableAutomaticBackup) {
+        _logger.debug("Automatic backup disabled in settings");
+        return false;
+      }
+
+      final latestBackupDate = await getDateLatestBackup();
+
+      // If no backups exist, return true to create a backup
+      if (latestBackupDate == null) {
+        _logger.info("No previous backup found, automatic backup needed");
+        return true;
+      }
+
+      // Check if the time since the latest backup exceeds the threshold
+      final now = DateTime.now();
+      final shouldBackup = now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
+      
+      if (shouldBackup) {
+        _logger.info("Last backup was ${now.difference(latestBackupDate).inHours}h ago, automatic backup needed");
+      } else {
+        _logger.debug("Last backup was ${now.difference(latestBackupDate).inMinutes}m ago, no backup needed yet");
+      }
+      
+      return shouldBackup;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Error checking if automatic backup is needed');
       return false;
     }
-
-    final latestBackupDate = await getDateLatestBackup();
-
-    // If no backups exist, return true to create a backup
-    if (latestBackupDate == null) {
-      return true;
-    }
-
-    // Check if the time since the latest backup exceeds the threshold
-    final now = DateTime.now();
-    return now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
   }
 
   /// Creates an automatic backup, given the settings in the preferences.
@@ -153,13 +185,15 @@ class BackupService {
         : null;
 
     try {
+      _logger.info('Creating automatic backup...');
       File backupFile = await BackupService.createJsonBackupFile(
           backupFileName: filename,
           directoryPath: DEFAULT_STORAGE_DIR,
           encryptionPassword: enableEncryptedBackup ? backupPassword : null);
-      log("${backupFile.path} successfully created");
+      _logger.info("Automatic backup created: ${backupFile.path}");
       return true;
-    } catch (e) {
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to create automatic backup');
       return false;
     }
   }
@@ -193,15 +227,18 @@ class BackupService {
   static Future<bool> importDataFromBackupFile(File inputFile,
       {String? encryptionPassword}) async {
     try {
+      _logger.info('Starting backup import from: ${inputFile.path}');
       String fileContent = await inputFile.readAsString();
 
       // Decrypt the file content if an encryption password is provided
       if (encryptionPassword != null && encryptionPassword.isNotEmpty) {
+        _logger.info('Decrypting backup...');
         fileContent = decryptData(fileContent, encryptionPassword);
       }
 
       var jsonMap = jsonDecode(fileContent);
       Backup backup = Backup.fromMap(jsonMap);
+      _logger.info('Importing: ${backup.records.length} records, ${backup.categories.length} categories');
 
       // Add categories
       for (var backupCategory in backup.categories) {
@@ -230,8 +267,10 @@ class BackupService {
       // Add record tag associations
       await database.addRecordTagAssociationsInBatch(backup.recordTagAssociations);
 
+      _logger.info('Backup imported successfully');
       return true;
-    } catch (err) {
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to import backup');
       return false;
     }
   }
@@ -319,10 +358,10 @@ class BackupService {
 
     for (final file in files) {
       try {
-        log("Deleting ${file.path}");
+        _logger.debug("Deleting old backup: ${file.path}");
         await file.delete();
-      } catch (e) {
-        print(e);
+      } catch (e, st) {
+        _logger.handle(e, st, 'Failed to delete old backup: ${file.path}');
       }
     }
     return true;

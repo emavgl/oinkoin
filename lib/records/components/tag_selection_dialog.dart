@@ -206,7 +206,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
             elevation: 8,
             icon: Icon(Icons.check),
             label: Text(
-              "Add selected tags (${_selectedTags.length})".i18n,
+              "Add selected tags (%s)".i18n.fill([_selectedTags.length.toString()]),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 16,

@@ -60,11 +60,13 @@ class TagsPageViewState extends State<TagsPageView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Tags'.i18n),
+          title: Text('Delete tags'.i18n),
           content: Text(selectedTags.length == 1
               ? 'Are you sure you want to delete this tag?'.i18n
-              : 'Are you sure you want to delete these ${selectedTags.length} tags?'
-                  .i18n),
+              : 'Are you sure you want to delete these %s tags?'.i18n.fill(
+              [selectedTags.length.toString()]
+          )
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -152,7 +154,7 @@ class TagsPageViewState extends State<TagsPageView> {
 
   PreferredSizeWidget _buildSelectionAppBar() {
     return AppBar(
-      title: Text('${selectedTags.length} selected'.i18n),
+      title: Text('%s selected'.i18n.fill([selectedTags.length.toString()])),
       leading: IconButton(
         icon: Icon(Icons.close),
         onPressed: _clearSelection,

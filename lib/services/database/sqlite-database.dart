@@ -15,12 +15,15 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
 import '../../models/record-tag-association.dart';
+import '../logger.dart';
 import 'exceptions.dart';
 
 class SqliteDatabase implements DatabaseInterface {
   /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
   /// It is implemented using Singleton pattern.
   ///
+  static final _logger = Logger.withClass(SqliteDatabase);
+
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
   static int get version => 16;
@@ -41,21 +44,31 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   Future<Database> init() async {
-    if (Platform.isWindows || Platform.isLinux) sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-    String databasePath = await getDatabasesPath();
-    String _path = join(databasePath, 'movements.db');
-    var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
-        options:
-            SqfliteLoggerOptions(type: SqfliteDatabaseFactoryLoggerType.all));
-    return await factoryWithLogs.openDatabase(
-      _path,
-      options: OpenDatabaseOptions(
-          version: version,
-          onCreate: SqliteMigrationService.onCreate,
-          onUpgrade: SqliteMigrationService.onUpgrade,
-          onDowngrade: SqliteMigrationService.onUpgrade),
-    );
+    try {
+      if (Platform.isWindows || Platform.isLinux) sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      _logger.info('Initializing database...');
+      String databasePath = await getDatabasesPath();
+      String _path = join(databasePath, 'movements.db');
+      _logger.debug('Database path: $_path');
+      
+      var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
+          options:
+              SqfliteLoggerOptions(type: SqfliteDatabaseFactoryLoggerType.all));
+      var db = await factoryWithLogs.openDatabase(
+        _path,
+        options: OpenDatabaseOptions(
+            version: version,
+            onCreate: SqliteMigrationService.onCreate,
+            onUpgrade: SqliteMigrationService.onUpgrade,
+            onDowngrade: SqliteMigrationService.onUpgrade),
+      );
+      _logger.info('Database initialized successfully (version: $version)');
+      return db;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to initialize database');
+      rethrow;
+    }
   }
 
   // Category implementation
@@ -82,29 +95,48 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<int> addCategory(Category? category) async {
-    final db = (await database)!;
-    Category? foundCategory =
-        await this.getCategory(category!.name, category.categoryType!);
-    if (foundCategory != null) {
-      throw ElementAlreadyExists();
+    try {
+      _logger.debug('Adding category: ${category?.name}');
+      final db = (await database)!;
+      Category? foundCategory =
+          await this.getCategory(category!.name, category.categoryType!);
+      if (foundCategory != null) {
+        throw ElementAlreadyExists();
+      }
+      int result = await db.insert("categories", category.toMap());
+      _logger.info('Category added: ${category.name}');
+      return result;
+    } catch (e, st) {
+      if (e is ElementAlreadyExists) {
+        _logger.warning('Category already exists: ${category?.name}');
+      } else {
+        _logger.handle(e, st, 'Failed to add category: ${category?.name}');
+      }
+      rethrow;
     }
-    return await db.insert("categories", category.toMap());
   }
 
   @override
   Future<void> deleteCategory(
       String? categoryName, CategoryType? categoryType) async {
-    final db = (await database)!;
-    var categoryIndex = categoryType!.index;
-    await db.delete("categories",
-        where: "name = ? AND category_type = ?",
-        whereArgs: [categoryName, categoryIndex]);
-    await db.delete("records",
-        where: "category_name = ? AND category_type = ?",
-        whereArgs: [categoryName, categoryIndex]);
-    await db.delete("recurrent_record_patterns",
-        where: "category_name = ? AND category_type = ?",
-        whereArgs: [categoryName, categoryIndex]);
+    try {
+      _logger.debug('Deleting category: $categoryName');
+      final db = (await database)!;
+      var categoryIndex = categoryType!.index;
+      await db.delete("categories",
+          where: "name = ? AND category_type = ?",
+          whereArgs: [categoryName, categoryIndex]);
+      await db.delete("records",
+          where: "category_name = ? AND category_type = ?",
+          whereArgs: [categoryName, categoryIndex]);
+      await db.delete("recurrent_record_patterns",
+          where: "category_name = ? AND category_type = ?",
+          whereArgs: [categoryName, categoryIndex]);
+      _logger.info('Category deleted: $categoryName');
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to delete category: $categoryName');
+      rethrow;
+    }
   }
 
   @override
@@ -127,31 +159,40 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<int> addRecord(Record? record) async {
-    final db = (await database)!;
-    if (await getCategory(
-            record!.category!.name, record.category!.categoryType!) ==
-        null) {
-      await addCategory(record.category);
-    }
-    int recordId = await db.insert("records", record.toMap());
-
-    // Insert tags into records_tags table
-    for (String? tag in record.tags) {
-      if (tag != null && tag.trim().isNotEmpty) {
-        await db.insert(
-          "records_tags",
-          {'record_id': recordId, 'tag_name': tag},
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+    try {
+      _logger.debug('Adding record: ${record?.title} (${record?.value})');
+      final db = (await database)!;
+      if (await getCategory(
+              record!.category!.name, record.category!.categoryType!) ==
+          null) {
+        await addCategory(record.category);
       }
+      int recordId = await db.insert("records", record.toMap());
+
+      // Insert tags into records_tags table
+      for (String? tag in record.tags) {
+        if (tag != null && tag.trim().isNotEmpty) {
+          await db.insert(
+            "records_tags",
+            {'record_id': recordId, 'tag_name': tag},
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+        }
+      }
+      _logger.info('Record added: ID $recordId');
+      return recordId;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to add record: ${record?.title}');
+      rethrow;
     }
-    return recordId;
   }
 
   @override
   Future<void> addRecordsInBatch(List<Record?> records) async {
-    final db = (await database)!;
-    Batch batch = db.batch();
+    try {
+      _logger.debug('Adding ${records.length} records in batch...');
+      final db = (await database)!;
+      Batch batch = db.batch();
 
     for (var record in records) {
       if (record == null) {
@@ -191,6 +232,7 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     await batch.commit(noResult: true);
+    _logger.info('Batch insert committed: ${records.length} records');
 
     // Insert tags for each record in a second batch after getting record IDs
     Batch tagBatch = db.batch();
@@ -231,6 +273,11 @@ class SqliteDatabase implements DatabaseInterface {
     }
 
     await tagBatch.commit(noResult: true);
+    _logger.info('Batch complete with tags');
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to add records in batch');
+      rethrow;
+    }
   }
 
   @override

@@ -4,8 +4,12 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../models/category-type.dart';
 import '../../models/category.dart';
+import '../logger.dart';
 
 class SqliteMigrationService {
+
+  static final _logger = Logger.withClass(SqliteMigrationService);
+
   // SQL Queries
   static void _createCategoriesTable(Batch batch) {
     String query = """
@@ -178,15 +182,13 @@ class SqliteMigrationService {
       Database db, String alterTableQuery) async {
     try {
       await db.execute(alterTableQuery);
+      _logger.debug('Alter table succeeded');
     } on DatabaseException catch (e) {
       // This block specifically handles DatabaseException
-      print(
-          'safeAlterTable: Caught a specific DatabaseException - ${e.toString()}');
-      print('Failed query: $alterTableQuery');
-    } catch (e) {
+      _logger.warning('Alter table failed (expected for existing columns): ${e.toString()}');
+    } catch (e, st) {
       // This block is a generic catch-all for any other exception types
-      print(
-          'safeAlterTable: Caught a different type of exception - ${e.toString()}');
+      _logger.handle(e, st, 'Unexpected error in alter table');
     }
   }
 
@@ -345,17 +347,21 @@ class SqliteMigrationService {
 
   // Public Methods
   static void onUpgrade(Database db, int oldVersion, int newVersion) async {
+    _logger.info('Upgrading database from version $oldVersion to $newVersion');
     for (int i = oldVersion + 1; i <= newVersion; i++) {
       if (migrationFunctions.containsKey(i)) {
         var migrationFunction = migrationFunctions[i];
         if (migrationFunction != null) {
+          _logger.debug('Running migration to version $i');
           await migrationFunction.call(db);
         }
       }
     }
+    _logger.info('Database upgrade completed to version $newVersion');
   }
 
   static void onCreate(Database db, int version) async {
+    _logger.info('Creating new database (version $version)');
     var batch = db.batch();
 
     // Create Tables
@@ -372,10 +378,12 @@ class SqliteMigrationService {
 
     // Insert Default Categories
     List<Category> defaultCategories = getDefaultCategories();
+    _logger.debug('Inserting ${defaultCategories.length} default categories');
     for (var defaultCategory in defaultCategories) {
       batch.insert("categories", defaultCategory.toMap());
     }
 
     await batch.commit();
+    _logger.info('Database created successfully');
   }
 }

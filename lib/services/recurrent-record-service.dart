@@ -6,13 +6,19 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:timezone/timezone.dart' as tz; // Import the timezone package
 
 import 'database/database-interface.dart';
+import 'logger.dart';
 
 class RecurrentRecordService {
+
+  static final _logger = Logger.withClass(RecurrentRecordService);
+
   DatabaseInterface database = ServiceConfig.database;
 
   List<Record> generateRecurrentRecordsFromDateTime(
       RecurrentRecordPattern recordPattern, DateTime utcEndDate) {
-    final List<Record> newRecurrentRecords = [];
+    try {
+      _logger.debug('Generating recurrent records for pattern: ${recordPattern.title}');
+      final List<Record> newRecurrentRecords = [];
 
     // 1. Get the TZLocation for the pattern's original timezone
     final tz.Location patternLocation =
@@ -168,28 +174,44 @@ class RecurrentRecordService {
         break;
     }
 
+    _logger.info('Generated ${newRecurrentRecords.length} recurrent records for: ${recordPattern.title}');
     return newRecurrentRecords;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to generate recurrent records for: ${recordPattern.title}');
+      rethrow;
+    }
   }
 
   Future<void> updateRecurrentRecords() async {
-    List<RecurrentRecordPattern> patterns =
-        await database.getRecurrentRecordPatterns();
+    try {
+      _logger.info('Starting recurrent records update...');
+      List<RecurrentRecordPattern> patterns =
+          await database.getRecurrentRecordPatterns();
 
-    for (var pattern in patterns) {
-      // The endDate for the generation is the current UTC time.
-      final DateTime endDate = DateTime.now().toUtc();
+      _logger.debug('Processing ${patterns.length} recurrent patterns');
 
-      var records = generateRecurrentRecordsFromDateTime(pattern, endDate);
+      int totalRecordsAdded = 0;
+      for (var pattern in patterns) {
+        // The endDate for the generation is the current UTC time.
+        final DateTime endDate = DateTime.now().toUtc();
 
-      if (records.isNotEmpty) {
-        // Add records to the database
-        await database.addRecordsInBatch(records);
+        var records = generateRecurrentRecordsFromDateTime(pattern, endDate);
 
-        // Update the last update date of the pattern with the latest UTC time.
-        // We use the UTC time from the last generated record.
-        pattern.utcLastUpdate = records.last.utcDateTime;
-        await database.updateRecordPatternById(pattern.id, pattern);
+        if (records.isNotEmpty) {
+          // Add records to the database
+          await database.addRecordsInBatch(records);
+          totalRecordsAdded += records.length;
+
+          // Update the last update date of the pattern with the latest UTC time.
+          // We use the UTC time from the last generated record.
+          pattern.utcLastUpdate = records.last.utcDateTime;
+          await database.updateRecordPatternById(pattern.id, pattern);
+        }
       }
+      _logger.info('Recurrent records update completed: ${totalRecordsAdded} records added from ${patterns.length} patterns');
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to update recurrent records');
+      rethrow;
     }
   }
 }

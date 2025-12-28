@@ -30,7 +30,7 @@ dependencies:
   community_charts_flutter: ^1.0.2
   animations: ^2.0.10
   month_picker_dialog: ^6.0.3
-  share_plus: ^11.0.0
+  share_plus: ^12.0.1
   flutter_speed_dial: ^7.0.0
   url_launcher: ^6.2.2
   flutter_colorpicker: ^1.0.3
@@ -41,6 +41,7 @@ dependencies:
   future_progress_dialog: ^0.2.1
   csv: ^6.0.0
   encrypt: ^5.0.3
+  talker_flutter: ^5.1.9
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
