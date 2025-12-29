@@ -1,0 +1,42 @@
+display_name: Oinkoin
+package_name: oinkoin
+version: 1.1.6
+
+maintainer:
+  name: Oinkoin Team
+  email: support@oinkoin.app
+
+priority: optional
+section: utils
+installed_size: 25000
+
+# Dependencies required to run the application on the end user's system
+dependencies:
+  - libsqlite3-0
+  - libgtk-3-0
+  - libglib2.0-0
+
+essential: false
+icon: linux/assets/oinkoin.png
+
+# Optional post-install/uninstall scripts
+postuninstall_scripts:
+  - echo "Thank you for using Oinkoin!"
+
+keywords:
+  - expense
+  - tracker
+  - finance
+  - budget
+  - money
+  - piggybank
+  - oinkoin
+
+generic_name: Expense Tracker
+categories:
+  - Office
+  - Finance
+  - Utility
+
+startup_notify: true
+

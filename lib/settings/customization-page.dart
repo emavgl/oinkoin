@@ -62,7 +62,12 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   Future<void> fetchAppLockPreferences() async {
     var auth = LocalAuthentication();
-    appLockIsAvailable = await auth.isDeviceSupported();
+    try {
+      appLockIsAvailable = await auth.isDeviceSupported();
+    } catch (e) {
+      // Platform doesn't support biometric authentication (e.g., Linux desktop)
+      appLockIsAvailable = false;
+    }
     enableAppLock = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableAppLock)!;
   }
@@ -136,7 +141,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Homepage time interval
     var userDefinedHomepageIntervalEnumIndex =
         PreferencesUtils.getOrDefault<int>(
-            prefs, PreferencesKeys.homepageTimeInterval);
+            prefs, PreferencesKeys.homepageTimeInterval)!;
 
     homepageTimeIntervalValue = getKeyFromObject<int>(
         PreferencesOptions.homepageTimeInterval,
@@ -145,7 +150,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Homepage overview widget
     var userDefinedHomepageOverviewIntervalEnumIndex =
         PreferencesUtils.getOrDefault<int>(
-            prefs, PreferencesKeys.homepageOverviewWidgetTimeInterval);
+            prefs, PreferencesKeys.homepageOverviewWidgetTimeInterval)!;
 
     homepageOverviewWidgetTimeInterval = getKeyFromObject<int>(
         PreferencesOptions.homepageOverviewWidgetTimeInterval,
@@ -153,7 +158,7 @@ class CustomizationPageState extends State<CustomizationPage> {
 
     // Note visible
     var noteVisibleIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.homepageRecordNotesVisible);
+        prefs, PreferencesKeys.homepageRecordNotesVisible)!;
 
     homepageRecordNotesVisible = getKeyFromObject<int>(
         PreferencesOptions.showNotesOnHomepage, noteVisibleIndex);
@@ -166,7 +171,7 @@ class CustomizationPageState extends State<CustomizationPage> {
 
     // Amount input keyboard type
     var amountInputKeyboardTypeIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.amountInputKeyboardType);
+        prefs, PreferencesKeys.amountInputKeyboardType)!;
 
     amountInputKeyboardTypeDropdownKey = getKeyFromObject<int>(
         PreferencesOptions.amountInputKeyboardType,
@@ -178,7 +183,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         prefs, PreferencesKeys.statisticsPieChartUseCategoryColors)!;
 
     var numberOfCategoriesToDisplayIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay);
+        prefs, PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
 
     statisticsPieChartNumberOfCategoriesToDisplay = getKeyFromObject<int>(
         PreferencesOptions.numberOfCategoriesForPieChart,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For PlatformException
 import 'package:i18n_extension/i18n_extension.dart';
@@ -26,6 +28,11 @@ class ShellState extends State<Shell> {
   final GlobalKey<TabCategoriesState> _tabCategoriesKey = GlobalKey();
 
   Future<bool> _authenticate() async {
+    // Skip biometric authentication on desktop platforms
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      return true;
+    }
+
     var pref = await SharedPreferences.getInstance();
     var enableAppLock = PreferencesUtils.getOrDefault<bool>(
         pref, PreferencesKeys.enableAppLock)!;

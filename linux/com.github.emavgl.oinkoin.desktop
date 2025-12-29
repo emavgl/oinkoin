@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Oinkoin
+GenericName=Expense Tracker
+Comment=Track your expenses and manage your budget
+Exec=oinkoin
+Icon=oinkoin
+Terminal=false
+Categories=Office;Finance;Utility;
+Keywords=expense;tracker;finance;budget;money;oinkoin;
+StartupNotify=true
+StartupWMClass=oinkoin

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart';
@@ -11,6 +12,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common/sqflite_logger.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
@@ -46,6 +48,14 @@ class SqliteDatabase implements DatabaseInterface {
   Future<Database> init() async {
     try {
       _logger.info('Initializing database...');
+
+      // Initialize FFI for desktop platforms (Linux, Windows, macOS)
+      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+        _logger.debug('Initializing sqflite FFI for desktop platform');
+        sqfliteFfiInit();
+        databaseFactory = databaseFactoryFfi;
+      }
+
       String databasePath = await getDatabasesPath();
       String _path = join(databasePath, 'movements.db');
       _logger.debug('Database path: $_path');

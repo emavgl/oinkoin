@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../categories/categories-tab-page-view.dart';
 import '../../helpers/alert-dialog-builder.dart';
@@ -16,6 +15,7 @@ import '../../models/record.dart';
 import '../../services/backup-service.dart';
 import '../../services/csv-service.dart';
 import '../../services/database/database-interface.dart';
+import '../../services/platform-file-service.dart';
 import '../../services/recurrent-record-service.dart';
 import '../../services/service-config.dart';
 import '../../settings/constants/homepage-time-interval.dart';
@@ -343,10 +343,14 @@ class TabRecordsController {
   Future<void> _exportToCSV() async {
     var csvStr = CSVExporter.createCSVFromRecordList(filteredRecords);
     final path = await getApplicationDocumentsDirectory();
-    var backupJsonOnDisk = File(path.path + "/records.csv");
-    await backupJsonOnDisk.writeAsString(csvStr);
-    SharePlus.instance
-        .share(ShareParams(files: [XFile(backupJsonOnDisk.path)]));
+    var csvFile = File(path.path + "/records.csv");
+    await csvFile.writeAsString(csvStr);
+
+    // Use platform-aware service (share on mobile, save-as on desktop)
+    await PlatformFileService.shareOrSaveFile(
+      filePath: csvFile.path,
+      suggestedName: 'oinkoin_records.csv',
+    );
   }
 
   void runAutomaticBackup(BuildContext? context) {

@@ -2,21 +2,24 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:path/path.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/services/backup-service.dart';
+import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
-import 'package:piggybank/settings/settings-item.dart';
-import 'package:piggybank/settings/switch-customization-item.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../services/backup-service.dart';
+import '../services/platform-file-service.dart';
 import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
 import 'constants/preferences-keys.dart';
 import 'dropdown-customization-item.dart';
+import 'settings-item.dart';
+import 'switch-customization-item.dart';
 
 class BackupPage extends StatefulWidget {
   @override
@@ -38,7 +41,7 @@ class BackupPageState extends State<BackupPage> {
 
   Future<void> initializePreferences() async {
     prefs = await SharedPreferences.getInstance();
-    defaultDirectory = BackupService.DEFAULT_STORAGE_DIR;
+    defaultDirectory = await BackupService.getDefaultBackupDirectory();
     fetchAllThePreferences();
     String? l = await BackupService.getStringDateLatestBackup();
     if (l != null) {
@@ -52,14 +55,32 @@ class BackupPageState extends State<BackupPage> {
         : await BackupService.getDefaultFileName();
     File backupFile =
         await BackupService.createJsonBackupFile(backupFileName: filename);
-    SharePlus.instance.share(ShareParams(files: [XFile(backupFile.path)]));
+
+    // Use platform-aware service (share on mobile, save-as on desktop)
+    final success = await PlatformFileService.shareOrSaveFile(
+      filePath: backupFile.path,
+      suggestedName: filename ?? backupFile.path.split('/').last,
+    );
+
+    if (!success) {
+      log('Failed to share/save backup file');
+    }
   }
 
   shareDatabase() async {
     String databasePath = await getDatabasesPath();
     String _path = join(databasePath, 'movements.db');
     File databaseFile = File.fromUri(Uri.file(_path));
-    SharePlus.instance.share(ShareParams(files: [XFile(databaseFile.path)]));
+
+    // Use platform-aware service (share on mobile, save-as on desktop)
+    final success = await PlatformFileService.shareOrSaveFile(
+      filePath: databaseFile.path,
+      suggestedName: 'oinkoin_database.db',
+    );
+
+    if (!success) {
+      log('Failed to share/save database file');
+    }
   }
 
   storeBackupFile(BuildContext context) async {

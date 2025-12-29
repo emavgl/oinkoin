@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/i18n.dart';
@@ -21,6 +23,9 @@ import 'feedback-page.dart';
 //https://pub.dev/packages/shared_preferences
 
 class TabSettings extends StatelessWidget {
+
+  static final _logger = Logger.withClass(TabSettings);
+
   static const double kSettingsItemsExtent = 75.0;
   static const double kSettingsItemsIconPadding = 8.0;
   static const double kSettingsItemsIconElevation = 2.0;
@@ -101,9 +106,84 @@ class TabSettings extends StatelessWidget {
     );
   }
 
-  _launchURL(String url) async {
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
+  Future<void> _launchURL(BuildContext context, String url) async {
+    _logger.info('Attempting to launch URL: $url');
+
+    try {
+      // On Linux, url_launcher is unreliable, so we use xdg-open directly
+      if (Platform.isLinux) {
+        _logger.debug('Using xdg-open for Linux');
+        try {
+          final result = await Process.run('xdg-open', [url]);
+          if (result.exitCode == 0) {
+            _logger.info('URL opened successfully with xdg-open: $url');
+          } else {
+            _logger.error('xdg-open failed with exit code: ${result.exitCode}');
+            _logger.error('stderr: ${result.stderr}');
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Could not open link. Error: ${result.stderr}'),
+                  duration: Duration(seconds: 5),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          _logger.error('Failed to run xdg-open: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Could not open link. Make sure xdg-utils is installed.'),
+                duration: Duration(seconds: 5),
+              ),
+            );
+          }
+        }
+      } else {
+        // On other platforms, use url_launcher
+        final uri = Uri.parse(url);
+        final mode = (Platform.isWindows || Platform.isMacOS)
+            ? LaunchMode.externalApplication
+            : LaunchMode.platformDefault;
+
+        if (await canLaunchUrl(uri)) {
+          final success = await launchUrl(uri, mode: mode);
+          if (!success) {
+            _logger.error('launchUrl returned false for: $url');
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Could not open link'),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+          } else {
+            _logger.info('URL launched successfully: $url');
+          }
+        } else {
+          _logger.error('canLaunchUrl returned false for: $url');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('No app available to open this link'),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e, stackTrace) {
+      _logger.handle(e, stackTrace, 'Error launching URL: $url');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening link: ${e.toString()}'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -203,6 +283,7 @@ class TabSettings extends StatelessWidget {
             title: 'Info'.i18n,
             subtitle: 'Privacy policy and credits'.i18n,
             onPressed: () async => await _launchURL(
+                context,
                 "https://github.com/emavgl/oinkoin/blob/master/privacy-policy.md"),
           ),
           SettingsItem(

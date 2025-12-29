@@ -38,6 +38,20 @@ class BackupService {
   // not final because it is swapped in the tests
   static DatabaseInterface database = ServiceConfig.database;
 
+  /// Gets the platform-appropriate default backup directory
+  /// Android: /storage/emulated/0/Documents/oinkoin
+  /// Linux/Desktop: ~/Documents/oinkoin
+  static Future<String> getDefaultBackupDirectory() async {
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      // Desktop: use Documents directory
+      final documentsDir = await getApplicationDocumentsDirectory();
+      return '${documentsDir.parent.path}/Documents/oinkoin';
+    } else {
+      // Android/iOS: use the original path
+      return DEFAULT_STORAGE_DIR;
+    }
+  }
+
   /// Generates a backup file name containing the app package name, version, and current time.
   static Future<String> generateBackupFileName() async {
     // Get app information
@@ -188,9 +202,10 @@ class BackupService {
 
     try {
       _logger.info('Creating automatic backup...');
+      final backupDir = await getDefaultBackupDirectory();
       File backupFile = await BackupService.createJsonBackupFile(
           backupFileName: filename,
-          directoryPath: DEFAULT_STORAGE_DIR,
+          directoryPath: backupDir,
           encryptionPassword: enableEncryptedBackup ? backupPassword : null);
       _logger.info("Automatic backup created: ${backupFile.path}");
       return true;
@@ -214,7 +229,8 @@ class BackupService {
       var period =
       BackupRetentionPeriod.values[backupRetentionIntervalIndex];
       if (period != BackupRetentionPeriod.ALWAYS) {
-        return await removeOldBackups(period, Directory(DEFAULT_STORAGE_DIR));
+        final backupDir = await getDefaultBackupDirectory();
+        return await removeOldBackups(period, Directory(backupDir));
       }
     }
     return false;
@@ -382,12 +398,13 @@ class BackupService {
     return formatter.format(dateLatestBackup);
   }
 
-  /// Returns the date of the latest backup file in the DEFAULT_STORAGE_DIR.
+  /// Returns the date of the latest backup file in the default backup directory.
   /// Looks for files that end with MANDATORY_BACKUP_SUFFIX
   /// and returns the modified date of the latest backup as DateTime.
   /// Returns null if no backup file is found.
   static Future<DateTime?> getDateLatestBackup() async {
-    final backupDir = Directory(DEFAULT_STORAGE_DIR);
+    final backupDirPath = await getDefaultBackupDirectory();
+    final backupDir = Directory(backupDirPath);
 
     // Check if the directory exists, return null if it doesn't exist
     if (!await backupDir.exists()) {
