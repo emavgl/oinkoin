@@ -32,6 +32,7 @@ class PreferencesKeys {
   // Mics
   static const enableRecordNameSuggestions = 'enableRecordNameSuggestions';
   static const visualiseTagsInMainPage = 'visualiseTagsInMainPage';
+  static const amountInputKeyboardType = 'amountInputKeyboardType';
 
   // Statistics
   static var statisticsPieChartUseCategoryColors = "statisticsPieChartUseCategoryColors";

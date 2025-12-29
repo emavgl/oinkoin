@@ -163,6 +163,14 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Record's name suggestions
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableRecordNameSuggestions)!;
+
+    // Amount input keyboard type
+    var amountInputKeyboardTypeIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.amountInputKeyboardType);
+
+    amountInputKeyboardTypeDropdownKey = getKeyFromObject<int>(
+        PreferencesOptions.amountInputKeyboardType,
+        amountInputKeyboardTypeIndex);
   }
 
   Future<void> fetchStatisticsPreferences() async {
@@ -197,6 +205,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool overwriteDotValueWithComma;
   late bool overwriteCommaValueWithDot;
   late bool enableRecordNameSuggestions;
+  late String amountInputKeyboardTypeDropdownKey;
   late Map<String, String> allowedGroupSeparatorsValues;
   late String groupSeparatorDropdownKey;
 
@@ -386,6 +395,16 @@ class CustomizationPageState extends State<CustomizationPage> {
                           PreferencesKeys.statisticsPieChartUseCategoryColors,
                     ),
                     SettingSeparator(title: "Additional Settings".i18n),
+                    DropdownCustomizationItem(
+                      title: "Amount input keyboard type".i18n,
+                      subtitle:
+                          "Select the keyboard layout for amount input".i18n,
+                      dropdownValues:
+                          PreferencesOptions.amountInputKeyboardType,
+                      selectedDropdownKey: amountInputKeyboardTypeDropdownKey,
+                      sharedConfigKey:
+                          PreferencesKeys.amountInputKeyboardType,
+                    ),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
                       subtitle:

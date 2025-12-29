@@ -62,6 +62,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   late String currency;
   DateTime? lastCharInsertedMillisecond;
   late bool enableRecordNameSuggestions;
+  late int amountInputKeyboardTypeIndex;
 
   DateTime? localDisplayDate;
 
@@ -154,6 +155,18 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
+  TextInputType getAmountInputKeyboardType() {
+    // 0 = Phone keyboard (with math symbols) - default
+    // 1 = Number keyboard
+    switch (amountInputKeyboardTypeIndex) {
+      case 1:
+        return TextInputType.numberWithOptions(decimal: true);
+      case 0:
+      default:
+        return TextInputType.phone;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -164,6 +177,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.enableRecordNameSuggestions)!;
+    amountInputKeyboardTypeIndex = PreferencesUtils.getOrDefault<int>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.amountInputKeyboardType)!;
 
     // Loading parameters passed to the page
 
@@ -643,7 +659,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   style: TextStyle(
                       fontSize: 32.0,
                       color: Theme.of(context).colorScheme.onSurface),
-                  keyboardType: TextInputType.phone,
+                  keyboardType: getAmountInputKeyboardType(),
                   decoration: InputDecoration(
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       hintText: "0",

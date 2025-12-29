@@ -100,4 +100,9 @@ class PreferencesOptions {
     "8": 8,
     "10": 10,
   };
+
+  static final Map<String, int> amountInputKeyboardType = {
+    "Phone keyboard (with math symbols)".i18n: 0,
+    "Number keyboard".i18n: 1,
+  };
 }
