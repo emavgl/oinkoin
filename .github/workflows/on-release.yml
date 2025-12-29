@@ -138,7 +138,7 @@ jobs:
 
       - run: submodules/flutter/bin/flutter pub get
 
-      - name: Build Linux .deb package
+      - name: Build Linux packages (.deb, .rpm, and AppImage)
         run: |
           # Add submodule Flutter to PATH first (so flutter_distributor uses it)
           export PATH="$(pwd)/submodules/flutter/bin:$PATH"
@@ -147,18 +147,23 @@ jobs:
           dart pub global activate flutter_distributor
           export PATH="$HOME/.pub-cache/bin:$PATH"
           
+          # Install tools for building .rpm and AppImage packages
+          sudo apt-get install -y rpm fuse libfuse2
+          
           # Verify Flutter version
           which flutter
           flutter --version
           
-          # Build Linux .deb package
-          flutter_distributor release --name=linux-release --jobs=release-linux-deb
+          # Build .deb, .rpm, and AppImage packages
+          flutter_distributor release --name=linux-release --jobs=release-linux-deb,release-linux-rpm,release-linux-appimage
 
-      - name: Upload .deb as Release asset
+      - name: Upload Linux packages as Release assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/*/oinkoin-*-linux.deb
+            dist/*/*-linux.deb
+            dist/*/*-linux.rpm
+            dist/*/*-linux.AppImage
           body: ${{ github.event.release.body }}
           tag_name: ${{ github.event.release.tag_name }}
 

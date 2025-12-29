@@ -109,7 +109,7 @@ jobs:
 
       - run: submodules/flutter/bin/flutter pub get
 
-      - name: Build Linux .deb package
+      - name: Build Linux packages (.deb, .rpm, and AppImage)
         run: |
           # Add submodule Flutter to PATH first (so flutter_distributor uses it)
           export PATH="$(pwd)/submodules/flutter/bin:$PATH"
@@ -118,22 +118,30 @@ jobs:
           dart pub global activate flutter_distributor
           export PATH="$HOME/.pub-cache/bin:$PATH"
           
+          # Install tools for building .rpm and AppImage packages
+          sudo apt-get install -y rpm fuse libfuse2
+          
           # Verify Flutter version
           which flutter
           flutter --version
           
-          # Build Linux .deb package
-          flutter_distributor release --name=linux-release --jobs=release-linux-deb
+          # Build .deb, .rpm, and AppImage packages
+          flutter_distributor release --name=linux-release --jobs=release-linux-deb,release-linux-rpm,release-linux-appimage
 
       - name: Upload .deb as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: oinkoin-linux-deb
-          path: dist/*/oinkoin-*-linux.deb
+          name: linux-deb
+          path: dist/*/*-linux.deb
 
-
-      - name: Upload APK app-armeabi-v7a-pro-release
+      - name: Upload .rpm as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-armeabi-v7a-pro-release.apk
-          path: build/app/outputs/flutter-apk/app-armeabi-v7a-pro-release.apk
+          name: linux-rpm
+          path: dist/*/*-linux.rpm
+
+      - name: Upload AppImage as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: dist/*/*-linux.AppImage
