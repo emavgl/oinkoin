@@ -51,6 +51,7 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     # Update Linux package versions
     linux_deb_config = 'linux/packaging/deb/make_config.yaml'
     linux_rpm_config = 'linux/packaging/rpm/make_config.yaml'
+    linux_appimage_config = 'linux/packaging/appimage/make_config.yaml'
 
     if os.path.exists(linux_deb_config):
         update_linux_package_version(new_version_name, linux_deb_config)
@@ -61,6 +62,11 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
         update_linux_package_version(new_version_name, linux_rpm_config)
     else:
         print(f'Warning: {linux_rpm_config} not found, skipping...')
+
+    if os.path.exists(linux_appimage_config):
+        update_linux_package_version(new_version_name, linux_appimage_config)
+    else:
+        print(f'Warning: {linux_appimage_config} not found, skipping...')
 
     # Copy the changelog file to the specified location (for F-droid)
     changelog_destination = os.path.join('metadata/en-US/changelogs', f'{new_version_code}.txt')
