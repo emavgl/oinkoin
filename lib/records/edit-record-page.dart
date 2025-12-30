@@ -258,6 +258,25 @@ class EditRecordPageState extends State<EditRecordPage> {
       if (overwriteCommaValue) {
         text = text.replaceAll(",", ".");
       }
+
+      if (text.endsWith('.')) {
+        String textBeforeDot = text.substring(0, text.length - 1);
+
+        int lastOperatorIndex = textBeforeDot.lastIndexOf(RegExp(r'[+\-*/%]'));
+
+        String currentNumberSegment = (lastOperatorIndex == -1)
+            ? textBeforeDot
+            : textBeforeDot.substring(lastOperatorIndex + 1);
+
+        if (currentNumberSegment.contains('.')) {
+          _textEditingController.value = TextEditingValue(
+            text: textBeforeDot,
+            selection: TextSelection.collapsed(offset: textBeforeDot.length),
+          );
+          return;
+        }
+      }
+
       TextSelection previousSelection = _textEditingController.selection;
       _textEditingController.value = _textEditingController.value.copyWith(
         text: text,
