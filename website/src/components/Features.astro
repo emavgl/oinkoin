@@ -1,0 +1,68 @@
+---
+const features = [
+  {
+    title: 'Privacy Focused',
+    description: 'Works completely offline. Your data never leaves your device. No tracking, no analytics, no cloud sync.',
+    icon: '🔒'
+  },
+  {
+    title: 'No Ads',
+    description: 'Clean interface without advertisements or distractions. Focus on your finances, not spam.',
+    icon: '🚫'
+  },
+  {
+    title: 'Battery Efficient',
+    description: 'Only consumes power when you use it. No background processes or unnecessary battery drain.',
+    icon: '🔋'
+  },
+  {
+    title: 'Simple Categories',
+    description: 'Organize expenses with customizable categories. Add tags for detailed tracking.',
+    icon: '📁'
+  },
+  {
+    title: 'Clear Statistics',
+    description: 'Understand your spending with clear, understandable charts and insights. Filter by date range or category.',
+    icon: '📊'
+  },
+  {
+    title: 'Secure Backups',
+    description: 'Export your data to CSV or create encrypted backups. Restore anytime, anywhere.',
+    icon: '💾'
+  },
+  {
+    title: 'Cross-Platform',
+    description: 'Available for Android and Linux. Use Oinkoin on your phone or desktop, with the same privacy-first experience.',
+    icon: '📱'
+  },
+  {
+    title: 'Open Source',
+    description: 'Oinkoin is fully open source. Anyone can inspect, contribute, or audit the code for transparency and trust.',
+    icon: '💻'
+  },
+  {
+    title: 'No Account Required',
+    description: 'Start tracking your expenses instantly. No registration, no email, no setup—just open the app and go.',
+    icon: '⚡'
+  }
+];
+---
+
+<section class="py-20 bg-gray-50">
+  <div class="container mx-auto px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Features</h2>
+      <p class="text-gray-600 mb-12 text-lg">Everything you need for simple, secure expense tracking</p>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {features.map((feature) => (
+          <article class="bg-white p-6 rounded-lg border border-gray-200">
+            <div class="text-3xl mb-3">{feature.icon}</div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">{feature.title}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

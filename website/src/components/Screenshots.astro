@@ -1,0 +1,65 @@
+---
+const screenshots = [
+  {
+    url: 'https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image1.png',
+    title: 'Dashboard - Track your daily expenses'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image2.png',
+    title: 'Add Expense - Quick and simple entry'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image3.png',
+    title: 'Statistics - Visual spending insights'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image4.png',
+    title: 'Categories - Organize your finances'
+  },
+  {
+    url: 'https://raw.githubusercontent.com/emavgl/oinkoin/master/metadata/en-US/images/phoneScreenshots/image5.png',
+    title: 'Overview - Complete financial picture'
+  }
+];
+---
+
+<section class="py-20 bg-gray-50" aria-label="App Screenshots">
+  <div class="container mx-auto px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Screenshots</h2>
+      <p class="text-gray-600 mb-12 text-lg">See Oinkoin in action</p>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        {screenshots.map((screenshot) => (
+          <div class="group">
+            <img
+              src={screenshot.url}
+              alt={screenshot.title}
+              loading="lazy"
+              class="w-full rounded-xl border border-gray-200 hover:border-gray-300 transition-colors shadow-sm cursor-pointer"
+              onclick={`openModal('${screenshot.url}', '${screenshot.title}')`}
+            />
+            <p class="text-sm text-gray-600 mt-3 text-center">{screenshot.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Full-screen Modal -->
+<div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onclick="closeModal()" aria-label="Screenshot viewer">
+  <img id="modal-img" class="max-w-[80vw] max-h-[80vh]" alt="" />
+</div>
+
+<script>
+  window.openModal = function(src, alt) {
+    document.getElementById('modal-img').src = src;
+    document.getElementById('modal-img').alt = alt;
+    document.getElementById('modal').classList.remove('hidden');
+  };
+
+  window.closeModal = function() {
+    document.getElementById('modal').classList.add('hidden');
+  };
+</script>

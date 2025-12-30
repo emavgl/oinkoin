@@ -1,0 +1,126 @@
+---
+---
+
+<section class="relative bg-white">
+
+  <!-- Hero Content -->
+  <div class="container mx-auto px-6 py-20 md:py-32">
+    <div class="grid lg:grid-cols-2 gap-16 items-start max-w-6xl mx-auto">
+      <!-- Left: Text -->
+      <div>
+        <h3 class="text-5xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <span id="typed-text"></span><span id="cursor" class="cursor">|</span>
+        </h3>
+        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          Expense Tracker
+        </h1>
+        <p class="text-xl text-gray-600 leading-relaxed">
+            Track your expenses without ads, data collection, or complexity. Proudly open source and European 🇪🇺
+        </p>
+      </div>
+
+      <!-- Right: Downloads -->
+      <div id="download" class="space-y-8 order-last lg:order-none w-full lg:max-w-md lg:ml-auto">
+        <div>
+          <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Base version</h2>
+          <div class="space-y-3 w-full">
+            <a href="https://play.google.com/store/apps/details?id=com.github.emavgl.piggybank"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="block w-full px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm text-center">
+              Google Play (Free)
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Pro Version</h2>
+          <div class="space-y-3 w-full">
+            <a href="https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="block w-full px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm text-center">
+              Google Play (Pro, Paid)
+            </a>
+            <a href="https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="block w-full px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm text-center">
+              F-Droid
+            </a>
+            <hr class="border-t border-gray-200 my-4" />
+            <a href="https://github.com/emavgl/oinkoin/releases/latest"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="block w-full px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm text-center">
+              Linux
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<style>
+  .cursor {
+    display: inline-block;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+</style>
+
+<script>
+  const typedTextElement = document.getElementById('typed-text');
+  const cursorElement = document.getElementById('cursor');
+
+  const phrases = ['Open source', 'Privacy oriented', 'Simple'];
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let isPaused = false;
+
+  function type() {
+    const currentPhrase = phrases[phraseIndex];
+
+    if (isPaused) {
+      setTimeout(type, 1500);
+      isPaused = false;
+      return;
+    }
+
+    if (!isDeleting && charIndex <= currentPhrase.length) {
+      typedTextElement.textContent = currentPhrase.substring(0, charIndex);
+      charIndex++;
+
+      if (charIndex > currentPhrase.length) {
+        if (phraseIndex === phrases.length - 1) {
+          // Last phrase - stop typing and hide cursor
+          cursorElement.style.display = 'none';
+          return;
+        }
+        isDeleting = true;
+        isPaused = true;
+      }
+      setTimeout(type, 100);
+    } else if (isDeleting && charIndex >= 0) {
+      typedTextElement.textContent = currentPhrase.substring(0, charIndex);
+      charIndex--;
+
+      if (charIndex < 0) {
+        isDeleting = false;
+        phraseIndex++;
+        charIndex = 0;
+      }
+      setTimeout(type, 50);
+    }
+  }
+
+  // Start typing animation when page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(type, 500);
+  });
+</script>
