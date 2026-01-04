@@ -29,24 +29,36 @@ class TabCategoriesState extends State<TabCategories>
   String activeCategoryTitle = 'Categories'.i18n;
   late String titleBarStr;
   double _fabRotation = 0.0;
+  int _previousTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
     titleBarStr = activeCategoryTitle;
     _tabController = new TabController(length: 2, vsync: this);
-    _tabController!.addListener(() {
-      if (_tabController!.indexIsChanging) {
-        setState(() {
-          _fabRotation += 3.14159; // 180 degrees rotation
-        });
-      }
-    });
+    _tabController!.addListener(_handleTabChange);
     database.getAllCategories().then((categories) => {
           setState(() {
             _categories = categories;
           })
         });
+  }
+
+  void _handleTabChange() {
+    // Check if the tab index has actually changed (works for both clicks and swipes)
+    if (_tabController!.index != _previousTabIndex && !_tabController!.indexIsChanging) {
+      setState(() {
+        _fabRotation += 3.14159; // 180 degrees rotation
+        _previousTabIndex = _tabController!.index;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.removeListener(_handleTabChange);
+    _tabController?.dispose();
+    super.dispose();
   }
 
   refreshCategories() async {
