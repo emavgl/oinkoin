@@ -1,0 +1,36 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+let posts = await getCollection('blog');
+posts = posts.sort((a, b) => new Date(b.data.pubDate) - new Date(a.data.pubDate));
+---
+
+<Layout
+  title="Oinkoin Blog - Updates, Tips & News"
+  description="Read the latest updates, tips, and news about Oinkoin expense tracker. Learn about new features, privacy tips, and personal finance management.">
+  <div class="container mx-auto px-6 py-12">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl font-bold text-gray-900 mb-12">Blog</h1>
+      <ul class="divide-y divide-gray-200">
+        {posts.map((post) => (
+          <li class="py-6">
+            <a href={`/blog/${post.slug}`} class="block group">
+              <h2 class="text-xl font-semibold text-gray-900 group-hover:text-gray-700 mb-1 transition-colors">
+                {post.data.title}
+              </h2>
+              <p class="text-gray-600 text-sm mb-1">{post.data.description}</p>
+              <span class="text-xs text-gray-400">
+                {post.data.pubDate.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</Layout>

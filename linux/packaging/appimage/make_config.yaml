@@ -1,0 +1,41 @@
+display_name: Oinkoin
+package_name: oinkoin
+version: 1.1.6
+
+maintainer:
+  name: Oinkoin Team
+  email: support@oinkoin.app
+
+icon: linux/assets/oinkoin.png
+
+# Optional: Desktop file integration
+# AppImage will use the desktop file for metadata
+desktop_file: linux/com.github.emavgl.oinkoin.desktop
+
+# AppImage specific settings
+appimage:
+  # Include all necessary libraries
+  include_runtime_dependencies: true
+
+  # Desktop integration on first run
+  desktop_integration: true
+
+# Keywords for AppImage metadata
+keywords:
+  - expense
+  - tracker
+  - finance
+  - budget
+  - money
+  - piggybank
+  - oinkoin
+
+# Categories for desktop integration
+categories:
+  - Office
+  - Finance
+  - Utility
+
+generic_name: Expense Tracker
+comment: Track your expenses and manage your budget
+

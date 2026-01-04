@@ -1,0 +1,17 @@
+output: dist/
+releases:
+  - name: linux-release
+    jobs:
+      - name: release-linux-deb
+        package:
+          platform: linux
+          target: deb
+      - name: release-linux-rpm
+        package:
+          platform: linux
+          target: rpm
+      - name: release-linux-appimage
+        package:
+          platform: linux
+          target: appimage
+

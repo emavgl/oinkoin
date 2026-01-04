@@ -62,7 +62,12 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   Future<void> fetchAppLockPreferences() async {
     var auth = LocalAuthentication();
-    appLockIsAvailable = await auth.isDeviceSupported();
+    try {
+      appLockIsAvailable = await auth.isDeviceSupported();
+    } catch (e) {
+      // Platform doesn't support biometric authentication (e.g., Linux desktop)
+      appLockIsAvailable = false;
+    }
     enableAppLock = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableAppLock)!;
   }
@@ -136,7 +141,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Homepage time interval
     var userDefinedHomepageIntervalEnumIndex =
         PreferencesUtils.getOrDefault<int>(
-            prefs, PreferencesKeys.homepageTimeInterval);
+            prefs, PreferencesKeys.homepageTimeInterval)!;
 
     homepageTimeIntervalValue = getKeyFromObject<int>(
         PreferencesOptions.homepageTimeInterval,
@@ -145,7 +150,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Homepage overview widget
     var userDefinedHomepageOverviewIntervalEnumIndex =
         PreferencesUtils.getOrDefault<int>(
-            prefs, PreferencesKeys.homepageOverviewWidgetTimeInterval);
+            prefs, PreferencesKeys.homepageOverviewWidgetTimeInterval)!;
 
     homepageOverviewWidgetTimeInterval = getKeyFromObject<int>(
         PreferencesOptions.homepageOverviewWidgetTimeInterval,
@@ -153,7 +158,7 @@ class CustomizationPageState extends State<CustomizationPage> {
 
     // Note visible
     var noteVisibleIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.homepageRecordNotesVisible);
+        prefs, PreferencesKeys.homepageRecordNotesVisible)!;
 
     homepageRecordNotesVisible = getKeyFromObject<int>(
         PreferencesOptions.showNotesOnHomepage, noteVisibleIndex);
@@ -163,6 +168,14 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Record's name suggestions
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableRecordNameSuggestions)!;
+
+    // Amount input keyboard type
+    var amountInputKeyboardTypeIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.amountInputKeyboardType)!;
+
+    amountInputKeyboardTypeDropdownKey = getKeyFromObject<int>(
+        PreferencesOptions.amountInputKeyboardType,
+        amountInputKeyboardTypeIndex);
   }
 
   Future<void> fetchStatisticsPreferences() async {
@@ -170,7 +183,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         prefs, PreferencesKeys.statisticsPieChartUseCategoryColors)!;
 
     var numberOfCategoriesToDisplayIndex = PreferencesUtils.getOrDefault<int>(
-        prefs, PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay);
+        prefs, PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
 
     statisticsPieChartNumberOfCategoriesToDisplay = getKeyFromObject<int>(
         PreferencesOptions.numberOfCategoriesForPieChart,
@@ -197,6 +210,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool overwriteDotValueWithComma;
   late bool overwriteCommaValueWithDot;
   late bool enableRecordNameSuggestions;
+  late String amountInputKeyboardTypeDropdownKey;
   late Map<String, String> allowedGroupSeparatorsValues;
   late String groupSeparatorDropdownKey;
 
@@ -365,6 +379,15 @@ class CustomizationPageState extends State<CustomizationPage> {
                           prefs, PreferencesKeys.visualiseTagsInMainPage)!,
                       sharedConfigKey: PreferencesKeys.visualiseTagsInMainPage,
                     ),
+                    SwitchCustomizationItem(
+                      title: "Show future recurrent records".i18n,
+                      subtitle:
+                      "Generate and display upcoming recurrent records (they will be included in statistics)"
+                          .i18n,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(
+                          prefs, PreferencesKeys.showFutureRecords)!,
+                      sharedConfigKey: PreferencesKeys.showFutureRecords,
+                    ),
                     SettingSeparator(title: "Statistics".i18n),
                     DropdownCustomizationItem(
                       title: "Number of categories/tags in Pie Chart".i18n,
@@ -386,6 +409,16 @@ class CustomizationPageState extends State<CustomizationPage> {
                           PreferencesKeys.statisticsPieChartUseCategoryColors,
                     ),
                     SettingSeparator(title: "Additional Settings".i18n),
+                    DropdownCustomizationItem(
+                      title: "Amount input keyboard type".i18n,
+                      subtitle:
+                          "Select the keyboard layout for amount input".i18n,
+                      dropdownValues:
+                          PreferencesOptions.amountInputKeyboardType,
+                      selectedDropdownKey: amountInputKeyboardTypeDropdownKey,
+                      sharedConfigKey:
+                          PreferencesKeys.amountInputKeyboardType,
+                    ),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
                       subtitle:

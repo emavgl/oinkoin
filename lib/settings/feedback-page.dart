@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,9 +14,37 @@ class FeedbackPage extends StatelessWidget {
   _launchURL(String toMailId, String subject, String body) async {
     body += "\n\n ${ServiceConfig.packageName}-${ServiceConfig.version}";
     var url = 'mailto:$toMailId?subject=$subject&body=$body';
-    var uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+
+    try {
+      // On Linux, url_launcher is unreliable, so we use xdg-open directly
+      if (Platform.isLinux) {
+        try {
+          final result = await Process.run('xdg-open', [url]);
+          if (result.exitCode != 0) {
+            print('xdg-open failed with exit code: ${result.exitCode}');
+            print('stderr: ${result.stderr}');
+          }
+        } catch (e) {
+          print('Failed to run xdg-open: $e');
+        }
+      } else {
+        // On other platforms, use url_launcher
+        var uri = Uri.parse(url);
+        final mode = (Platform.isWindows || Platform.isMacOS)
+            ? LaunchMode.externalApplication
+            : LaunchMode.platformDefault;
+
+        if (await canLaunchUrl(uri)) {
+          final success = await launchUrl(uri, mode: mode);
+          if (!success) {
+            print('Failed to launch URL: $url');
+          }
+        } else {
+          print('Cannot launch URL: $url');
+        }
+      }
+    } catch (e) {
+      print('Error launching URL: $url - $e');
     }
   }
 

@@ -54,11 +54,15 @@ jobs:
           echo "${{ github.event.release.body }}" > changelog.temp
           python bump_new_version.py ${{ github.event.release.tag_name }} changelog.temp
 
+      - name: Create blog post for release
+        run: |
+          python create_release_blog_post.py ${{ github.event.release.tag_name }} changelog.temp
+
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: master
           commit_message: "[auto] version bump"
-          file_pattern: 'pubspec.* *.txt submodules/*'
+          file_pattern: 'pubspec.* *.txt submodules/* website/src/content/blog/*.md'
 
       - name: Update the tag
         run: |
@@ -102,3 +106,73 @@ jobs:
           packageName: com.github.emavgl.piggybankpro
           releaseFiles: build/app/outputs/bundle/proRelease/app-pro-release.aab
           whatsNewDirectory: metadata/en-US
+
+  build-linux:
+    name: Build Linux .deb
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # Install Linux build dependencies
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+      # Navigate to the submodule and perform the necessary git operations
+      - name: Update flutter submodule to stable branch
+        run: |
+          git submodule update --init --recursive
+          cd submodules/flutter
+          git reset --merge
+          git checkout stable
+          git pull origin stable
+          cd ../..
+
+      - name: Enable Linux desktop
+        run: submodules/flutter/bin/flutter config --enable-linux-desktop
+
+      - run: submodules/flutter/bin/flutter pub get
+
+      - name: Build Linux packages (.deb, .rpm, and AppImage)
+        run: |
+          # Add submodule Flutter to PATH first (so flutter_distributor uses it)
+          export PATH="$(pwd)/submodules/flutter/bin:$PATH"
+          
+          # Install flutter_distributor
+          dart pub global activate flutter_distributor
+          export PATH="$HOME/.pub-cache/bin:$PATH"
+          
+          # Install tools for building .rpm and AppImage packages
+          sudo apt-get install -y rpm fuse libfuse2
+          
+          # Download and install appimagetool
+          wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          sudo mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
+          
+          # Verify Flutter version
+          which flutter
+          flutter --version
+          
+          # Build .deb, .rpm, and AppImage packages
+          flutter_distributor release --name=linux-release --jobs=release-linux-deb,release-linux-rpm,release-linux-appimage
+
+      - name: Upload Linux packages as Release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*/*-linux.deb
+            dist/*/*-linux.rpm
+            dist/*/*-linux.AppImage
+          body: ${{ github.event.release.body }}
+          tag_name: ${{ github.event.release.tag_name }}
+

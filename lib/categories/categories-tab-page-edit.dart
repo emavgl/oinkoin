@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/categories/categories-list.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/models/category-type.dart';
@@ -30,12 +28,20 @@ class TabCategoriesState extends State<TabCategories>
   bool showArchived = false;
   String activeCategoryTitle = 'Categories'.i18n;
   late String titleBarStr;
+  double _fabRotation = 0.0;
 
   @override
   void initState() {
     super.initState();
     titleBarStr = activeCategoryTitle;
     _tabController = new TabController(length: 2, vsync: this);
+    _tabController!.addListener(() {
+      if (_tabController!.indexIsChanging) {
+        setState(() {
+          _fabRotation += 3.14159; // 180 degrees rotation
+        });
+      }
+    });
     database.getAllCategories().then((categories) => {
           setState(() {
             _categories = categories;
@@ -143,46 +149,50 @@ class TabCategoriesState extends State<TabCategories>
                 : Container(),
           ],
         ),
-        floatingActionButton: SpeedDial(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
+        floatingActionButton: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: _fabRotation),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            builder: (context, rotation, child) {
+              return Transform.rotate(
+                angle: rotation,
+                child: FloatingActionButton(
+                  backgroundColor: _tabController?.index == 0
+                      ? Colors.red[300]
+                      : Colors.green[300],
+                  onPressed: () async {
+                    if (_tabController?.index == 0) {
+                      // Expenses tab
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditCategoryPage(
+                            categoryType: CategoryType.expense
+                          )
+                        ),
+                      );
+                      await refreshCategoriesAndHighlightsTab(0);
+                    } else {
+                      // Income tab
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditCategoryPage(
+                            categoryType: CategoryType.income
+                          )
+                        ),
+                      );
+                      await refreshCategoriesAndHighlightsTab(1);
+                    }
+                  },
+                  child: const Icon(Icons.add, color: Colors.white),
+                ),
+              );
+            },
           ),
-          spacing: 20,
-          childrenButtonSize: const Size(65, 65),
-          animatedIcon: AnimatedIcons.menu_close,
-          childPadding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-          children: [
-            SpeedDialChild(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-                child: Icon(FontAwesomeIcons.moneyBillWave),
-                label: "Add a new 'Expense' category".i18n,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EditCategoryPage(
-                            categoryType: CategoryType.expense)),
-                  );
-                  await refreshCategoriesAndHighlightsTab(0);
-                }),
-            SpeedDialChild(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-                child: Icon(FontAwesomeIcons.handHoldingDollar),
-                label: "Add a new 'Income' category".i18n,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EditCategoryPage(
-                            categoryType: CategoryType.income)),
-                  );
-                  await refreshCategoriesAndHighlightsTab(1);
-                }),
-          ],
         ),
       ),
     );

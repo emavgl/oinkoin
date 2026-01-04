@@ -122,9 +122,9 @@ class _LogScreenState extends State<LogScreen> {
         textColor: Theme.of(context).colorScheme.onSurface,
         logColors: {
           'error': Colors.redAccent,
-          'info': Colors.black,
-          'warning': Colors.orange,
-          'critical': Colors.red,
+          'info': Colors.blueAccent,
+          'warning': Colors.orangeAccent,
+          'critical': Colors.redAccent,
           'debug': Colors.blueGrey
         },
       ),

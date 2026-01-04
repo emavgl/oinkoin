@@ -1,0 +1,39 @@
+display_name: Oinkoin
+package_name: oinkoin
+version: 1.1.6
+
+maintainer:
+  name: Oinkoin Team
+  email: support@oinkoin.app
+
+# RPM specific fields
+group: Applications/Productivity
+license: MIT
+url: https://github.com/emavgl/oinkoin
+
+# Dependencies required to run the application on the end user's system
+# These are RPM equivalents of the debian dependencies
+dependencies:
+  - sqlite-libs
+  - gtk3
+  - glib2
+
+icon: linux/assets/oinkoin.png
+
+keywords:
+  - expense
+  - tracker
+  - finance
+  - budget
+  - money
+  - piggybank
+  - oinkoin
+
+generic_name: Expense Tracker
+categories:
+  - Office
+  - Finance
+  - Utility
+
+startup_notify: true
+

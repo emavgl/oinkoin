@@ -25,10 +25,12 @@ class PreferencesDefaultValues {
     PreferencesKeys.backupPassword: '', // Default to empty password
     PreferencesKeys.enableAppLock: false, // Default to disabled
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
+    PreferencesKeys.amountInputKeyboardType: 0, // Default to phone keyboard (with math symbols)
     PreferencesKeys.homepageTimeInterval: HomepageTimeInterval.CurrentMonth.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageOverviewWidgetTimeInterval: OverviewTimeInterval.DisplayedRecords.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordNotesVisible: 0,
     PreferencesKeys.visualiseTagsInMainPage: true, // Default to enabled
+    PreferencesKeys.showFutureRecords: true, // Default to enabled
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4
   };

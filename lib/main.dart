@@ -30,18 +30,32 @@ main() async {
 
   try {
     tz_data.initializeTimeZones();
-    ServiceConfig.localTimezone = await FlutterTimezone.getLocalTimezone();
+
+    // Platform-specific timezone handling
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      // Use system timezone for desktop platforms
+      ServiceConfig.localTimezone = DateTime.now().timeZoneName;
+      logger.info('Desktop platform: using system timezone');
+    } else {
+      ServiceConfig.localTimezone = await FlutterTimezone.getLocalTimezone();
+    }
     logger.info('Timezone initialized: ${ServiceConfig.localTimezone}');
+
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     ServiceConfig.packageName = packageInfo.packageName;
     ServiceConfig.version = packageInfo.version;
-    ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro");
+    ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro") || Platform.isLinux || Platform.isWindows || Platform.isMacOS;
     logger.info('Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})');
 
     ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
     await MyI18n.loadTranslations();
-    if (Platform.isAndroid) await FlutterDisplayMode.setHighRefreshRate();
+
+    // Display mode is only available on Android
+    if (Platform.isAndroid) {
+      await FlutterDisplayMode.setHighRefreshRate();
+      logger.debug('High refresh rate enabled (Android)');
+    }
 
     final languageLocale = LocaleService.resolveLanguageLocale();
     final currencyLocale = LocaleService.resolveCurrencyLocale();

@@ -18,11 +18,11 @@ class RecordsPerDay {
 
   double get expenses {
     double total = 0;
-    List<Record?> incomeRecords = this
+    List<Record?> expenseRecords = this
         .records!
         .where((e) => e!.category!.categoryType == CategoryType.expense)
         .toList();
-    for (var movement in incomeRecords) {
+    for (var movement in expenseRecords) {
       total += movement!.value!;
     }
     return total;

@@ -48,7 +48,7 @@ void main() {
       await db.addRecurrentRecordPattern(pattern);
 
       // Simulate the recurrent record service generating records
-      await service.updateRecurrentRecords();
+      await service.updateRecurrentRecords(DateTime.now().toUtc());
 
       // Retrieve all records from the database
       final allRecords = await db.getAllRecords();

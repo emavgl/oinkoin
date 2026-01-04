@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../categories/categories-tab-page-view.dart';
 import '../../helpers/alert-dialog-builder.dart';
@@ -16,10 +16,13 @@ import '../../models/record.dart';
 import '../../services/backup-service.dart';
 import '../../services/csv-service.dart';
 import '../../services/database/database-interface.dart';
+import '../../services/platform-file-service.dart';
 import '../../services/recurrent-record-service.dart';
 import '../../services/service-config.dart';
 import '../../settings/constants/homepage-time-interval.dart';
 import '../../settings/constants/overview-time-interval.dart';
+import '../../settings/constants/preferences-keys.dart';
+import '../../settings/preferences-utils.dart';
 import '../../statistics/statistics-page.dart';
 import '../components/filter_modal_content.dart';
 
@@ -177,24 +180,73 @@ class TabRecordsController {
   // Data fetching
   Future<void> updateRecurrentRecordsAndFetchRecords() async {
     var recurrentRecordService = RecurrentRecordService();
-    await recurrentRecordService.updateRecurrentRecords();
 
+    // Check if future records should be shown
+    final prefs = await SharedPreferences.getInstance();
+    final showFutureRecords = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.showFutureRecords) ?? true;
+
+    // Calculate the view end date based on the current interval and preference
+    DateTime viewEndDate;
+    if (showFutureRecords) {
+      if (customIntervalFrom != null) {
+        viewEndDate = customIntervalTo!;
+      } else {
+        var hti = getHomepageTimeIntervalEnumSetting();
+        var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+        viewEndDate = interval[1]; // End date of the interval
+      }
+    } else {
+      // If future records are disabled, only generate up to end of today
+      final nowUtc = DateTime.now().toUtc();
+      viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day, 23, 59, 59, 999);
+    }
+
+    // Update recurrent records and get future records
+    List<Record> futureRecords = await recurrentRecordService.updateRecurrentRecords(viewEndDate);
+
+    // Fetch records from database
     List<Record?> newRecords;
+    DateTime intervalFrom;
+    DateTime intervalTo;
+
     if (customIntervalFrom != null) {
       newRecords = await getRecordsByInterval(
           _database, customIntervalFrom, customIntervalTo);
       backgroundImageIndex = customIntervalFrom!.month;
+      intervalFrom = customIntervalFrom!;
+      intervalTo = customIntervalTo!;
     } else {
       var hti = getHomepageTimeIntervalEnumSetting();
       newRecords = await getRecordsByHomepageTimeInterval(_database, hti);
       header = getHeaderFromHomepageTimeInterval(hti);
       backgroundImageIndex = DateTime.now().month;
+      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+      intervalFrom = interval[0];
+      intervalTo = interval[1];
     }
 
-    records = newRecords;
-    filteredRecords = newRecords;
-    _extractTags(newRecords);
-    _extractCategories(newRecords);
+    // Filter future records to only include those within the current time interval
+    // Convert interval bounds to UTC for proper comparison
+    DateTime intervalFromUtc = intervalFrom.toUtc();
+    DateTime intervalToUtc = intervalTo.toUtc();
+
+    List<Record> filteredFutureRecords = futureRecords.where((record) {
+      return (record.utcDateTime.isAfter(intervalFromUtc) ||
+              record.utcDateTime.isAtSameMomentAs(intervalFromUtc)) &&
+             (record.utcDateTime.isBefore(intervalToUtc) ||
+              record.utcDateTime.isAtSameMomentAs(intervalToUtc));
+    }).toList();
+
+    // Merge future records with database records (only if enabled)
+    List<Record?> allRecords = showFutureRecords
+        ? [...newRecords, ...filteredFutureRecords]
+        : newRecords;
+
+    records = allRecords;
+    filteredRecords = allRecords;
+    _extractTags(allRecords);
+    _extractCategories(allRecords);
     filterRecords();
 
     // Handle overview records
@@ -343,10 +395,14 @@ class TabRecordsController {
   Future<void> _exportToCSV() async {
     var csvStr = CSVExporter.createCSVFromRecordList(filteredRecords);
     final path = await getApplicationDocumentsDirectory();
-    var backupJsonOnDisk = File(path.path + "/records.csv");
-    await backupJsonOnDisk.writeAsString(csvStr);
-    SharePlus.instance
-        .share(ShareParams(files: [XFile(backupJsonOnDisk.path)]));
+    var csvFile = File(path.path + "/records.csv");
+    await csvFile.writeAsString(csvStr);
+
+    // Use platform-aware service (share on mobile, save-as on desktop)
+    await PlatformFileService.shareOrSaveFile(
+      filePath: csvFile.path,
+      suggestedName: 'oinkoin_records.csv',
+    );
   }
 
   void runAutomaticBackup(BuildContext? context) {
@@ -379,7 +435,6 @@ class TabRecordsController {
   Future<void> shiftMonthWeekYear(int shift) async {
     DateTime newFrom;
     DateTime newTo;
-    List<Record?> newRecords = [];
     String newHeader;
 
     if (customIntervalFrom != null) {
@@ -388,17 +443,13 @@ class TabRecordsController {
             customIntervalFrom!.year, customIntervalFrom!.month + shift, 1);
         newTo = getEndOfMonth(newFrom.year, newFrom.month);
         newHeader = getMonthStr(newFrom);
-        newRecords =
-            await getRecordsByMonth(_database, newFrom.year, newFrom.month);
       } else if (isFullWeek(customIntervalFrom!, customIntervalTo!)) {
         newFrom = customIntervalFrom!.add(Duration(days: 7 * shift));
         newTo = newFrom.add(Duration(days: 6));
         newHeader = getWeekStr(newFrom);
-        newRecords = await getRecordsByInterval(_database, newFrom, newTo);
       } else {
         newFrom = DateTime(customIntervalFrom!.year + shift, 1, 1);
         newTo = DateTime(newFrom.year, 12, 31, 23, 59);
-        newRecords = await getRecordsByYear(_database, newFrom.year);
         newHeader = getYearStr(newFrom);
       }
     } else {
@@ -408,18 +459,14 @@ class TabRecordsController {
         newFrom = DateTime(d.year, d.month + shift, 1);
         newTo = getEndOfMonth(newFrom.year, newFrom.month);
         newHeader = getMonthStr(newFrom);
-        newRecords =
-            await getRecordsByMonth(_database, newFrom.year, newFrom.month);
       } else if (hti == HomepageTimeInterval.CurrentWeek) {
         DateTime startOfWeek = getStartOfWeek(d);
         newFrom = startOfWeek.add(Duration(days: 7 * shift));
         newTo = newFrom.add(Duration(days: 6));
         newHeader = getWeekStr(newFrom);
-        newRecords = await getRecordsByInterval(_database, newFrom, newTo);
       } else {
         newFrom = DateTime(d.year + shift, 1, 1);
         newTo = DateTime(newFrom.year, 12, 31, 23, 59);
-        newRecords = await getRecordsByYear(_database, newFrom.year);
         newHeader = getYearStr(newFrom);
       }
     }
@@ -428,9 +475,7 @@ class TabRecordsController {
     customIntervalTo = newTo;
     header = newHeader;
     backgroundImageIndex = newFrom.month;
-    records = newRecords;
-    filterRecords();
-    onStateChanged();
+    await updateRecurrentRecordsAndFetchRecords();
   }
 
   // Computed properties

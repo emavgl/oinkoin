@@ -3,6 +3,23 @@ import sys
 import os
 import shutil
 
+def update_linux_package_version(new_version_name, config_file_path):
+    """Update version in Linux package configuration files"""
+    version_pattern = r'version:\s*[\d.]+'
+
+    # Read the config file
+    with open(config_file_path, 'r') as config_file:
+        config_content = config_file.read()
+
+    # Update the version
+    new_config_content = re.sub(version_pattern, f'version: {new_version_name}', config_content)
+
+    # Write back
+    with open(config_file_path, 'w') as config_file:
+        config_file.write(new_config_content)
+
+    print(f'Updated version to {new_version_name} in {config_file_path}')
+
 def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     # Define the regex pattern to match the version line in the pubspec.yaml file
     version_pattern = r'version:\s*([\d.]+)\+(\d+)'
@@ -30,6 +47,26 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
 
     print(f'Updated version to {new_version_name} in pubspec.yaml')
     print(f'Incremented version code to {new_version_code}')
+
+    # Update Linux package versions
+    linux_deb_config = 'linux/packaging/deb/make_config.yaml'
+    linux_rpm_config = 'linux/packaging/rpm/make_config.yaml'
+    linux_appimage_config = 'linux/packaging/appimage/make_config.yaml'
+
+    if os.path.exists(linux_deb_config):
+        update_linux_package_version(new_version_name, linux_deb_config)
+    else:
+        print(f'Warning: {linux_deb_config} not found, skipping...')
+
+    if os.path.exists(linux_rpm_config):
+        update_linux_package_version(new_version_name, linux_rpm_config)
+    else:
+        print(f'Warning: {linux_rpm_config} not found, skipping...')
+
+    if os.path.exists(linux_appimage_config):
+        update_linux_package_version(new_version_name, linux_appimage_config)
+    else:
+        print(f'Warning: {linux_appimage_config} not found, skipping...')
 
     # Copy the changelog file to the specified location (for F-droid)
     changelog_destination = os.path.join('metadata/en-US/changelogs', f'{new_version_code}.txt')

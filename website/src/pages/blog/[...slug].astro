@@ -1,0 +1,92 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout
+  title={`${post.data.title} | Oinkoin Blog`}
+  description={post.data.description}>
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="max-w-3xl mx-auto">
+        <header class="mb-8">
+          <h1 class="text-4xl font-extrabold text-gray-900 mb-2 leading-tight tracking-tight">{post.data.title}</h1>
+          <p class="text-lg text-gray-500 mb-4">{post.data.description}</p>
+          <div class="flex items-center text-xs text-gray-400 gap-4">
+            <time datetime={post.data.pubDate.toISOString()} class="uppercase tracking-widest">
+              {post.data.pubDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}
+            </time>
+            {post.data.updatedDate && (
+              <span>
+                Updated: {post.data.updatedDate.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </span>
+            )}
+          </div>
+        </header>
+        <div class="prose prose-lg max-w-none text-gray-800 leading-relaxed">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style is:global>
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.prose p {
+  font-size: 1.15rem;
+  color: #444;
+}
+.prose ul, .prose ol {
+  padding-left: 1.5em;
+  list-style-type: disc;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.prose ul {
+  list-style-type: disc;
+}
+.prose ol {
+  list-style-type: decimal;
+}
+.prose li {
+  margin-bottom: 0.5em;
+  padding-left: 0.25em;
+  position: relative;
+}
+.prose ul li::marker, .prose ol li::marker {
+  color: #2563eb;
+  font-size: 1em;
+}
+.prose a {
+  color: #2563eb;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.prose a:hover {
+  color: #1e40af;
+}
+</style>

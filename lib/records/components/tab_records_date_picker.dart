@@ -6,8 +6,6 @@ import 'package:piggybank/i18n.dart';
 
 import '../../components/year-picker.dart' as yp;
 import '../../helpers/datetime-utility-functions.dart';
-import '../../helpers/records-utility-functions.dart';
-import '../../models/record.dart';
 import '../../premium/splash-screen.dart';
 import '../../services/service-config.dart';
 import '../controllers/tab_records_controller.dart';
@@ -122,10 +120,7 @@ class TabRecordsDatePicker extends StatelessWidget {
       DateTime to = getEndOfMonth(dateTime.year, dateTime.month);
       String header = getMonthStr(dateTime);
 
-      var newRecords = await getRecordsByMonth(
-          controller.database, dateTime.year, dateTime.month);
-
-      updateAndClose(context, newRecords, from, to, header, dateTime.month);
+      updateAndClose(context, from, to, header, dateTime.month);
     }
   }
 
@@ -147,10 +142,7 @@ class TabRecordsDatePicker extends StatelessWidget {
       DateTime to = DateTime(yearPicked.year, 12, 31, 23, 59);
       String header = getYearStr(from);
 
-      var newRecords =
-          await getRecordsByYear(controller.database, yearPicked.year);
-
-      updateAndClose(context, newRecords, from, to, header, null);
+      updateAndClose(context, from, to, header, null);
     }
   }
 
@@ -186,22 +178,17 @@ class TabRecordsDatePicker extends StatelessWidget {
       );
       String header = getDateRangeStr(from, to);
 
-      var newRecords =
-          await getRecordsByInterval(controller.database, from, to);
-
-      updateAndClose(context, newRecords, from, to, header, to.month);
+      updateAndClose(context, from, to, header, to.month);
     }
   }
 
-  void updateAndClose(BuildContext context, List<Record?> newRecords,
-      DateTime from, DateTime to, String header, int? backgroundImageIndex) {
-    controller.records = newRecords;
+  void updateAndClose(BuildContext context, DateTime from, DateTime to,
+      String header, int? backgroundImageIndex) async {
     if (backgroundImageIndex != null) {
       controller.backgroundImageIndex = backgroundImageIndex;
     }
     controller.updateCustomInterval(from, to, header);
-    controller.filterRecords();
-    controller.onStateChanged();
+    await controller.updateRecurrentRecordsAndFetchRecords();
     onDateSelected();
     Navigator.of(context, rootNavigator: true).pop();
   }
