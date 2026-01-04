@@ -54,11 +54,15 @@ jobs:
           echo "${{ github.event.release.body }}" > changelog.temp
           python bump_new_version.py ${{ github.event.release.tag_name }} changelog.temp
 
+      - name: Create blog post for release
+        run: |
+          python create_release_blog_post.py ${{ github.event.release.tag_name }} changelog.temp
+
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: master
           commit_message: "[auto] version bump"
-          file_pattern: 'pubspec.* *.txt submodules/*'
+          file_pattern: 'pubspec.* *.txt submodules/* website/src/content/blog/*.md'
 
       - name: Update the tag
         run: |
