@@ -62,12 +62,6 @@ class PatternsPageViewState extends State<PatternsPageView> {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          subtitle: Text(
-            recurrentPeriodString(pattern.recurrentPeriod),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: _subtitleFontSize,
-          ),
           trailing: Text(
             getCurrencyValueString(pattern.value),
             style: _biggerFont,
@@ -78,6 +72,44 @@ class PatternsPageViewState extends State<PatternsPageView> {
             backgroundColor: pattern.category?.color,
           ),
         ),
+    );
+  }
+
+  Map<RecurrentPeriod, List<RecurrentRecordPattern>> _groupPatternsByPeriod() {
+    Map<RecurrentPeriod, List<RecurrentRecordPattern>> grouped = {};
+
+    for (var pattern in _recurrentRecordPatterns!) {
+      if (pattern.recurrentPeriod != null) {
+        if (!grouped.containsKey(pattern.recurrentPeriod)) {
+          grouped[pattern.recurrentPeriod!] = [];
+        }
+        grouped[pattern.recurrentPeriod!]!.add(pattern);
+      }
+    }
+
+    return grouped;
+  }
+
+  double _calculateGroupSum(List<RecurrentRecordPattern> patterns) {
+    return patterns.fold(0.0, (sum, pattern) => sum + (pattern.value ?? 0.0));
+  }
+
+  Widget _buildGroupHeader(RecurrentPeriod period, double sum) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            recurrentPeriodString(period),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            getCurrencyValueString(sum),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
+          ),
+        ],
+      ),
     );
   }
 
@@ -110,13 +142,33 @@ class PatternsPageViewState extends State<PatternsPageView> {
                       )
                     ],
                   )
-                : ListView.separated(
-                    separatorBuilder: (context, index) => Divider(),
-                    itemCount: _recurrentRecordPatterns!.length,
+                : ListView.builder(
                     padding: const EdgeInsets.all(6.0),
-                    itemBuilder: /*1*/ (context, i) {
-                      return _buildRecurrentPatternRow(
-                          _recurrentRecordPatterns![i]);
+                    itemCount: _groupPatternsByPeriod().length,
+                    itemBuilder: (context, index) {
+                      var groupedPatterns = _groupPatternsByPeriod();
+                      var period = groupedPatterns.keys.elementAt(index);
+                      var patterns = groupedPatterns[period]!;
+                      var sum = _calculateGroupSum(patterns);
+
+                      return Container(
+                        margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                        child: Column(
+                          children: [
+                            _buildGroupHeader(period, sum),
+                            Divider(thickness: 0.5),
+                            ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              separatorBuilder: (context, index) => Divider(),
+                              itemCount: patterns.length,
+                              itemBuilder: (context, i) {
+                                return _buildRecurrentPatternRow(patterns[i]);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
                     }))
         : new Container();
   }

@@ -379,6 +379,15 @@ class CustomizationPageState extends State<CustomizationPage> {
                           prefs, PreferencesKeys.visualiseTagsInMainPage)!,
                       sharedConfigKey: PreferencesKeys.visualiseTagsInMainPage,
                     ),
+                    SwitchCustomizationItem(
+                      title: "Show future recurrent records".i18n,
+                      subtitle:
+                      "Generate and display upcoming recurrent records (they will be included in statistics)"
+                          .i18n,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(
+                          prefs, PreferencesKeys.showFutureRecords)!,
+                      sharedConfigKey: PreferencesKeys.showFutureRecords,
+                    ),
                     SettingSeparator(title: "Statistics".i18n),
                     DropdownCustomizationItem(
                       title: "Number of categories/tags in Pie Chart".i18n,

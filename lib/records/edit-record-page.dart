@@ -529,6 +529,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                             items: recurrentIntervalDropdownList,
                                             onChanged: ServiceConfig
                                                         .isPremium &&
+                                                    !readOnly &&
                                                     record!.id == null
                                                 ? (value) {
                                                     setState(() {

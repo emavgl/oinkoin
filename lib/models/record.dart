@@ -20,6 +20,9 @@ class Record extends Model {
   int aggregatedValues =
       1; // internal variables - used to identified an aggregated records (statistics)
 
+  // Flag to indicate if this is a future record (not persisted to database)
+  bool isFutureRecord = false;
+
   Record(
     this.value,
     this.title,
@@ -30,6 +33,7 @@ class Record extends Model {
     this.recurrencePatternId,
     this.timeZoneName,
     Set<String>? tags,
+    this.isFutureRecord = false,
   }) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;

@@ -182,7 +182,7 @@ class RecurrentRecordService {
     }
   }
 
-  Future<void> updateRecurrentRecords() async {
+  Future<List<Record>> updateRecurrentRecords(DateTime endDate) async {
     try {
       _logger.info('Starting recurrent records update...');
       List<RecurrentRecordPattern> patterns =
@@ -190,25 +190,58 @@ class RecurrentRecordService {
 
       _logger.debug('Processing ${patterns.length} recurrent patterns');
 
+      // Use end of current day (23:59:59.999) in UTC for splitting past/future records
+      final DateTime nowUtc = DateTime.now().toUtc();
+      final DateTime endOfToday = DateTime.utc(
+        nowUtc.year,
+        nowUtc.month,
+        nowUtc.day,
+        23,
+        59,
+        59,
+        999,
+      );
+
       int totalRecordsAdded = 0;
+      List<Record> allFutureRecords = [];
+
       for (var pattern in patterns) {
-        // The endDate for the generation is the current UTC time.
-        final DateTime endDate = DateTime.now().toUtc();
+        // Generate records up to the specified endDate
+        var allRecords = generateRecurrentRecordsFromDateTime(pattern, endDate);
 
-        var records = generateRecurrentRecordsFromDateTime(pattern, endDate);
+        if (allRecords.isNotEmpty) {
+          // Split records into past (up to end of today) and future (after end of today)
+          final pastRecords = allRecords.where((r) =>
+            r.utcDateTime.isBefore(endOfToday) || r.utcDateTime.isAtSameMomentAs(endOfToday)
+          ).toList();
 
-        if (records.isNotEmpty) {
-          // Add records to the database
-          await database.addRecordsInBatch(records);
-          totalRecordsAdded += records.length;
+          final futureRecords = allRecords.where((r) =>
+            r.utcDateTime.isAfter(endOfToday)
+          ).toList();
 
-          // Update the last update date of the pattern with the latest UTC time.
-          // We use the UTC time from the last generated record.
-          pattern.utcLastUpdate = records.last.utcDateTime;
-          await database.updateRecordPatternById(pattern.id, pattern);
+          // Mark future records
+          for (var record in futureRecords) {
+            record.isFutureRecord = true;
+          }
+
+          // Add only past records to the database
+          if (pastRecords.isNotEmpty) {
+            await database.addRecordsInBatch(pastRecords);
+            totalRecordsAdded += pastRecords.length;
+
+            // Update the last update date of the pattern with the latest UTC time.
+            // We use the UTC time from the last generated past record.
+            pattern.utcLastUpdate = pastRecords.last.utcDateTime;
+            await database.updateRecordPatternById(pattern.id, pattern);
+          }
+
+          // Collect future records to return
+          allFutureRecords.addAll(futureRecords);
         }
       }
-      _logger.info('Recurrent records update completed: ${totalRecordsAdded} records added from ${patterns.length} patterns');
+
+      _logger.info('Recurrent records update completed: ${totalRecordsAdded} records added to database, ${allFutureRecords.length} future records generated from ${patterns.length} patterns');
+      return allFutureRecords;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to update recurrent records');
       rethrow;

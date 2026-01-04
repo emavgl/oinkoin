@@ -483,7 +483,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   }
 
   Widget _getAppBar() {
-    return AppBar(title: Text("Edit category".i18n), actions: <Widget>[
+    return AppBar(title: Text("Edit category".i18n + " - " + widget.categoryType!.name.i18n), actions: <Widget>[
       Visibility(
           visible: widget.passedCategory != null,
           child: IconButton(

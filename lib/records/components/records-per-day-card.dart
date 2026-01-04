@@ -62,13 +62,14 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.visualiseTagsInMainPage)!;
 
-    return ListTile(
+    final listTile = ListTile(
       onTap: () async {
         await Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => EditRecordPage(
                       passedRecord: movement,
+                      readOnly: movement.isFutureRecord, // Future records are read-only
                     )));
         if (widget.onListBackCallback != null)
           await widget.onListBackCallback!();
@@ -118,6 +119,16 @@ class MovementGroupState extends State<RecordsPerDayCard> {
         overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null,
       ),
     );
+
+    // Apply reduced opacity for future records
+    if (movement.isFutureRecord) {
+      return Opacity(
+        opacity: 0.5,
+        child: listTile,
+      );
+    }
+
+    return listTile;
   }
 
   Widget _buildTagChipsRow(Set<String> tags) {
