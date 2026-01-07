@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = "Safety & Scam Prevention";
+const description = "How to spot scams and verify official Oinkoin channels.";
+---
+
+<Layout title={title} description={description}>
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <h1 class="text-2xl font-semibold mb-4">Safety & Scam Prevention</h1>
+
+    <p class="mb-4">Oinkoin is an open-source, privacy-focused expense tracker. It is not affiliated with any token, cryptocurrency, or token sale. Scammers sometimes impersonate projects to request funds, tokens, or personal information. Stay safe with the guidance below.</p>
+
+    <h2 class="font-semibold mt-6 mb-2">Quick Tips</h2>
+    <ul class="list-disc list-inside space-y-2 text-sm text-gray-700">
+      <li>Never send money, tokens, or private keys to anyone claiming to represent Oinkoin.</li>
+      <li>Official releases are on GitHub releases and the Play Store; verify release assets on the <a href="https://github.com/emavgl/oinkoin" target="_blank" class="text-blue-600 hover:underline">project GitHub</a>.</li>
+      <li>Do not trust unsolicited messages, replies, or social media DMs promising giveaways or airdrops.</li>
+      <li>Check URLs carefully; attackers often use lookalike domains. Official project links are on the GitHub repository and this website.</li>
+      <li>If in doubt, open an issue on our <a href="https://github.com/emavgl/oinkoin/issues" target="_blank" class="text-blue-600 hover:underline">GitHub issues</a> or contact the maintainer via the repository.</li>
+    </ul>
+
+    <h2 class="font-semibold mt-6 mb-2">Report Scams</h2>
+    <p class="text-sm text-gray-700">If you encounter a scam impersonating Oinkoin, please report it on GitHub or contact the platform where it appeared (e.g., social networks, app stores). Include screenshots and links when possible.</p>
+  </div>
+</Layout>
