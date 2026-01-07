@@ -259,19 +259,19 @@ class EditRecordPageState extends State<EditRecordPage> {
         text = text.replaceAll(",", ".");
       }
 
-      if (text.endsWith('.')) {
-        String textBeforeDot = text.substring(0, text.length - 1);
+      if (text.endsWith(getDecimalSeparator())) {
+        String textBeforeDecimalSeparator = text.substring(0, text.length - 1);
 
-        int lastOperatorIndex = textBeforeDot.lastIndexOf(RegExp(r'[+\-*/%]'));
+        int lastOperatorIndex = textBeforeDecimalSeparator.lastIndexOf(RegExp(r'[+\-*/%]'));
 
         String currentNumberSegment = (lastOperatorIndex == -1)
-            ? textBeforeDot
-            : textBeforeDot.substring(lastOperatorIndex + 1);
+            ? textBeforeDecimalSeparator
+            : textBeforeDecimalSeparator.substring(lastOperatorIndex + 1);
 
-        if (currentNumberSegment.contains('.')) {
+        if (currentNumberSegment.contains(getDecimalSeparator())) {
           _textEditingController.value = TextEditingValue(
-            text: textBeforeDot,
-            selection: TextSelection.collapsed(offset: textBeforeDot.length),
+            text: textBeforeDecimalSeparator,
+            selection: TextSelection.collapsed(offset: textBeforeDecimalSeparator.length),
           );
           return;
         }
