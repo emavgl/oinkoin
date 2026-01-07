@@ -4,6 +4,8 @@
   <img src="https://play-lh.googleusercontent.com/LHL_KxBCAr-Ee5grPRGyudqiME6g0fAfHTP5m1TyadDIyFoRfd2vr-vAzkfuAbCJjud5=w480-h960" alt="Image" style="border-radius: 50%; width: 150px; height: 150px;">
 </div><br>
 
+> **Warning:** Oinkoin is not associated with any token or cryptocurrency project.
+
 Oinkoin Money Manager makes managing personal finances easy and secure. It is light and easy to use. You need just few taps to keep track of your expenses. Simplicity and Security are our two main drivers: Oinkoin is an offline and ad-free app.
 
 * **Privacy Caring**
@@ -86,4 +88,15 @@ Any donation is welcome, thanks for your support! If you wish to donate, you can
 
 With your donation you support the work I do, also helping to keep this project alive. 
 I intend to also use the donations to help pay for the yearly subscription fee of 100€ for the apple developer program in order to also offer Oinkoin in the App Store in the future.
+
+## Security & Scam Prevention
+
+Oinkoin is an independent open-source project and is not affiliated with any cryptocurrency, token, or airdrop. Be cautious of anyone claiming otherwise. Quick safety tips:
+
+- Never send money, tokens, or private keys to people claiming to represent Oinkoin.
+- Verify official binaries and releases on our GitHub releases page and the Play Store.
+- Do not follow unsolicited links promising giveaways; check domain names carefully.
+- If you suspect fraud, report it via our GitHub issues or the platform where the scam appeared.
+
+If you run the website locally or visit the hosted site, see the Safety & Scam Prevention page for more details.
 

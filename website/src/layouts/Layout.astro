@@ -68,6 +68,9 @@ import NavBar from '../components/NavBar.astro';
     </script>
   </head>
   <body class="bg-white text-gray-900 antialiased flex flex-col min-h-screen">
+    <div role="note" aria-live="polite" class="bg-red-50 border-b border-red-200 text-red-900 text-sm">
+      <div class="max-w-5xl mx-auto px-4 py-2 text-center">Notice: Oinkoin is not associated with any token or cryptocurrency project. <a href="/safety" class="font-medium underline ml-2">Learn how to avoid scams</a></div>
+    </div>
     <NavBar />
     <main class="flex-1">
       <slot />

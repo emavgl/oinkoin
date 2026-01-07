@@ -6,6 +6,6 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   integrations: [tailwind(), sitemap()],
-  site: 'https://oinkoin.app',
+  site: 'https://oinkoin.com',
   adapter: cloudflare(),
 });
