@@ -3,7 +3,6 @@ import 'package:piggybank/models/record.dart';
 import 'logger.dart';
 
 class CSVExporter {
-
   static final _logger = Logger.withClass(CSVExporter);
 
   static createCSVFromRecordList(List<Record?> records) {
@@ -21,7 +20,15 @@ class CSVExporter {
       } else {
         // Provide a default header if no records are present
         _logger.warning('No records to export, using default header');
-        csvLines.insert(0, ['title', 'value', 'datetime', 'category_name', 'category_type', 'description', 'tags']);
+        csvLines.insert(0, [
+          'title',
+          'value',
+          'datetime',
+          'category_name',
+          'category_type',
+          'description',
+          'tags'
+        ]);
       }
       var csv = ListToCsvConverter().convert(csvLines);
       _logger.info('CSV created: ${csvLines.length} lines (including header)');

@@ -41,37 +41,37 @@ class PatternsPageViewState extends State<PatternsPageView> {
   Widget _buildRecurrentPatternRow(RecurrentRecordPattern pattern) {
     /// Returns a ListTile rendering the single movement row
     return Container(
-        margin: EdgeInsets.only(top: 10, bottom: 10),
-        child: ListTile(
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EditRecordPage(
-                  passedReccurrentRecordPattern: pattern,
-                ),
+      margin: EdgeInsets.only(top: 10, bottom: 10),
+      child: ListTile(
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EditRecordPage(
+                passedReccurrentRecordPattern: pattern,
               ),
-            );
-            await fetchRecurrentRecordPatternsFromDatabase();
-          },
-          title: Text(
-            pattern.title == null || pattern.title!.trim().isEmpty
-                ? pattern.category!.name!
-                : pattern.title!,
-            style: _biggerFont,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: Text(
-            getCurrencyValueString(pattern.value),
-            style: _biggerFont,
-          ),
-          leading: CategoryIconCircle(
-            iconEmoji: pattern.category?.iconEmoji,
-            iconDataFromDefaultIconSet: pattern.category?.icon,
-            backgroundColor: pattern.category?.color,
-          ),
+            ),
+          );
+          await fetchRecurrentRecordPatternsFromDatabase();
+        },
+        title: Text(
+          pattern.title == null || pattern.title!.trim().isEmpty
+              ? pattern.category!.name!
+              : pattern.title!,
+          style: _biggerFont,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
+        trailing: Text(
+          getCurrencyValueString(pattern.value),
+          style: _biggerFont,
+        ),
+        leading: CategoryIconCircle(
+          iconEmoji: pattern.category?.iconEmoji,
+          iconDataFromDefaultIconSet: pattern.category?.icon,
+          backgroundColor: pattern.category?.color,
+        ),
+      ),
     );
   }
 
@@ -122,24 +122,22 @@ class PatternsPageViewState extends State<PatternsPageView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Flexible(
-                        child: new Column(
-                          children: <Widget>[
-                            Image.asset(
-                              'assets/images/no_entry_2.png',
-                              width: 200,
+                          child: new Column(
+                        children: <Widget>[
+                          Image.asset(
+                            'assets/images/no_entry_2.png',
+                            width: 200,
+                          ),
+                          Container(
+                              child: Text(
+                            "No recurrent records yet.".i18n,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 22.0,
                             ),
-                            Container(
-                                child: Text(
-                                  "No recurrent records yet.".i18n,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 22.0,
-                                  ),
-                                )
-                            )
-                          ],
-                        )
-                      )
+                          ))
+                        ],
+                      ))
                     ],
                   )
                 : ListView.builder(

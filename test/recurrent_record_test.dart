@@ -185,8 +185,8 @@ void main() {
     test('four-weekly recurrent', () {
       final dateTime = DateTime(2020, 10, 1).toUtc();
       final endDate = DateTime(2020, 11, 30).toUtc();
-      final recordPattern = RecurrentRecordPattern(
-          1, "Four-Weekly", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
+      final recordPattern = RecurrentRecordPattern(1, "Four-Weekly", category1,
+          dateTime, RecurrentPeriod.EveryFourWeeks);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
@@ -203,8 +203,8 @@ void main() {
     test('four-weekly recurrent spanning multiple months', () {
       final dateTime = DateTime(2020, 1, 15).toUtc();
       final endDate = DateTime(2020, 6, 30).toUtc();
-      final recordPattern = RecurrentRecordPattern(
-          1, "Four-Weekly-Long", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
+      final recordPattern = RecurrentRecordPattern(1, "Four-Weekly-Long",
+          category1, dateTime, RecurrentPeriod.EveryFourWeeks);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, endDate);

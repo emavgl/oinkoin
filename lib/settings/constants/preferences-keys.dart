@@ -1,5 +1,4 @@
 class PreferencesKeys {
-
   // Theme
   static const themeColor = 'themeColor';
   static const themeMode = 'themeMode';
@@ -19,11 +18,13 @@ class PreferencesKeys {
   static const enableEncryptedBackup = "enableEncryptedBackup";
   static const backupRetentionIntervalIndex = 'backupRetentionIntervalIndex';
   static const backupPassword = 'backupPassword';
-  static const enableVersionAndDateInBackupName = 'enableVersionAndDateInBackupName';
+  static const enableVersionAndDateInBackupName =
+      'enableVersionAndDateInBackupName';
 
   // Homepage
   static const homepageTimeInterval = 'homepageTimeInterval';
-  static const homepageOverviewWidgetTimeInterval = 'homepageOverviewWidgetTimeInterval';
+  static const homepageOverviewWidgetTimeInterval =
+      'homepageOverviewWidgetTimeInterval';
   static const homepageRecordNotesVisible = 'homepageRecordNotesVisibleRows';
 
   // Lock
@@ -36,6 +37,8 @@ class PreferencesKeys {
   static const showFutureRecords = 'showFutureRecords';
 
   // Statistics
-  static var statisticsPieChartUseCategoryColors = "statisticsPieChartUseCategoryColors";
-  static var statisticsPieChartNumberOfCategoriesToDisplay = "statisticsPieChartNumberOfCategoriesToDisplay";
+  static var statisticsPieChartUseCategoryColors =
+      "statisticsPieChartUseCategoryColors";
+  static var statisticsPieChartNumberOfCategoriesToDisplay =
+      "statisticsPieChartNumberOfCategoriesToDisplay";
 }

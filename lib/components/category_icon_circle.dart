@@ -32,8 +32,7 @@ class CategoryIconCircle extends StatelessWidget {
         color: backgroundColor,
       ),
       child: iconEmoji != null
-            ?
-            Center(
+          ? Center(
               child: Text(
                 iconEmoji!, // Display the emoji
                 style: TextStyle(
@@ -41,11 +40,11 @@ class CategoryIconCircle extends StatelessWidget {
                 ),
               ),
             )
-            : Icon(
-          iconDataFromDefaultIconSet, // Fallback to the icon
-          size: mainIconSize,
-          color: iconColor ?? Theme.of(context).colorScheme.onSurface,
-        ),
+          : Icon(
+              iconDataFromDefaultIconSet, // Fallback to the icon
+              size: mainIconSize,
+              color: iconColor ?? Theme.of(context).colorScheme.onSurface,
+            ),
     );
   }
 
@@ -60,7 +59,10 @@ class CategoryIconCircle extends StatelessWidget {
         shape: BoxShape.circle,
         color: iconBackground
             ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.8),
+            : Theme.of(context)
+                .colorScheme
+                .surfaceContainer
+                .withValues(alpha: 0.8),
       ),
       child: Icon(
         overlayIcon,
@@ -83,8 +85,7 @@ class CategoryIconCircle extends StatelessWidget {
           backgroundColor ?? Theme.of(context).colorScheme.surface,
         ),
         if (overlayIcon != null)
-          _buildOverlayIcon(
-              context, overlayIcon, backgroundColor != null),
+          _buildOverlayIcon(context, overlayIcon, backgroundColor != null),
       ],
     );
   }

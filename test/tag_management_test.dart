@@ -9,7 +9,6 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'helpers/test_database.dart';
 
 void main() {
-
   // Setup sqflite_common_ffi for flutter test
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();

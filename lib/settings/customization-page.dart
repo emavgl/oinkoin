@@ -382,8 +382,8 @@ class CustomizationPageState extends State<CustomizationPage> {
                     SwitchCustomizationItem(
                       title: "Show future recurrent records".i18n,
                       subtitle:
-                      "Generate and display upcoming recurrent records (they will be included in statistics)"
-                          .i18n,
+                          "Generate and display upcoming recurrent records (they will be included in statistics)"
+                              .i18n,
                       switchValue: PreferencesUtils.getOrDefault<bool>(
                           prefs, PreferencesKeys.showFutureRecords)!,
                       sharedConfigKey: PreferencesKeys.showFutureRecords,
@@ -416,8 +416,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues:
                           PreferencesOptions.amountInputKeyboardType,
                       selectedDropdownKey: amountInputKeyboardTypeDropdownKey,
-                      sharedConfigKey:
-                          PreferencesKeys.amountInputKeyboardType,
+                      sharedConfigKey: PreferencesKeys.amountInputKeyboardType,
                     ),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,

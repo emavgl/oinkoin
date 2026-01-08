@@ -69,7 +69,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             MaterialPageRoute(
                 builder: (context) => EditRecordPage(
                       passedRecord: movement,
-                      readOnly: movement.isFutureRecord, // Future records are read-only
+                      readOnly: movement
+                          .isFutureRecord, // Future records are read-only
                     )));
         if (widget.onListBackCallback != null)
           await widget.onListBackCallback!();

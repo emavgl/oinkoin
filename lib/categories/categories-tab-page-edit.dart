@@ -46,7 +46,8 @@ class TabCategoriesState extends State<TabCategories>
 
   void _handleTabChange() {
     // Check if the tab index has actually changed (works for both clicks and swipes)
-    if (_tabController!.index != _previousTabIndex && !_tabController!.indexIsChanging) {
+    if (_tabController!.index != _previousTabIndex &&
+        !_tabController!.indexIsChanging) {
       setState(() {
         _fabRotation += 3.14159; // 180 degrees rotation
         _previousTabIndex = _tabController!.index;
@@ -181,10 +182,8 @@ class TabCategoriesState extends State<TabCategories>
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditCategoryPage(
-                            categoryType: CategoryType.expense
-                          )
-                        ),
+                            builder: (context) => EditCategoryPage(
+                                categoryType: CategoryType.expense)),
                       );
                       await refreshCategoriesAndHighlightsTab(0);
                     } else {
@@ -192,10 +191,8 @@ class TabCategoriesState extends State<TabCategories>
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditCategoryPage(
-                            categoryType: CategoryType.income
-                          )
-                        ),
+                            builder: (context) => EditCategoryPage(
+                                categoryType: CategoryType.income)),
                       );
                       await refreshCategoriesAndHighlightsTab(1);
                     }

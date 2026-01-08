@@ -113,7 +113,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                       Row(
                         children: [
                           Checkbox(
-                            value: _isDefaultOrder || _selectedSortOption == _storedDefaultOption,
+                            value: _isDefaultOrder ||
+                                _selectedSortOption == _storedDefaultOption,
                             onChanged: (value) {
                               setModalState(() {
                                 _isDefaultOrder = value ?? false;
@@ -163,7 +164,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                   ),
                   trailing: _selectedSortOption == SortOption.alphabetical
                       ? Icon(Icons.check,
-                      color: Theme.of(context).colorScheme.primary)
+                          color: Theme.of(context).colorScheme.primary)
                       : null,
                   onTap: () {
                     setModalState(() {
@@ -308,9 +309,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
             tabs: [
               Semantics(
                 identifier: 'expenses-tab',
-                child: Tab(
-                    text: "Expenses".i18n.toUpperCase()
-                ),
+                child: Tab(text: "Expenses".i18n.toUpperCase()),
               ),
               Semantics(
                 identifier: 'income-tab',

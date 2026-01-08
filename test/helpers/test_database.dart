@@ -13,7 +13,7 @@ class TestDatabaseHelper {
     var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
         options:
             SqfliteLoggerOptions(type: SqfliteDatabaseFactoryLoggerType.all));
-    
+
     final db = await factoryWithLogs.openDatabase(
       inMemoryDatabasePath, // Each call creates a new isolated in-memory database
       options: OpenDatabaseOptions(
@@ -22,10 +22,10 @@ class TestDatabaseHelper {
           onUpgrade: SqliteMigrationService.onUpgrade,
           onDowngrade: SqliteMigrationService.onUpgrade),
     );
-    
+
     // Set the database for the singleton instance to use
     SqliteDatabase.setDatabaseForTesting(db);
-    
+
     return db;
   }
 }

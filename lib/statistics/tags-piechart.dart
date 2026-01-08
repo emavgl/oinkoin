@@ -39,7 +39,8 @@ class TagsPieChart extends StatelessWidget {
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
     defaultColorsPalette = charts.MaterialPalette.getOrderedPalettes(tagCount)
-        .map((palette) => palette.shadeDefault).toList();
+        .map((palette) => palette.shadeDefault)
+        .toList();
     defaultColorsPalette.add(charts.ColorUtil.fromDartColor(otherTagColor));
     TagChartData chartData = _prepareData(records);
     seriesList = chartData.series;
@@ -67,8 +68,9 @@ class TagsPieChart extends StatelessWidget {
         aggregatedTagsValuesTemporaryMap.entries.toList();
     aggregatedTagsAndValues.sort((b, a) => a.value.compareTo(b.value));
 
-    var limit =
-        aggregatedTagsAndValues.length > tagCount + 1 ? tagCount : aggregatedTagsAndValues.length;
+    var limit = aggregatedTagsAndValues.length > tagCount + 1
+        ? tagCount
+        : aggregatedTagsAndValues.length;
 
     var topTagsAndValue = aggregatedTagsAndValues.sublist(0, limit);
 
@@ -79,7 +81,8 @@ class TagsPieChart extends StatelessWidget {
       var percentage = (100 * tagAndValue.value) / totalSum;
       var ltr = LinearTagRecord(tagAndValue.key, percentage);
       data.add(ltr);
-      linearRecordsColors.add(Colors.primaries[data.length % Colors.primaries.length]); // Assign a color
+      linearRecordsColors.add(Colors
+          .primaries[data.length % Colors.primaries.length]); // Assign a color
     }
 
     if (limit < aggregatedTagsAndValues.length) {
@@ -99,22 +102,19 @@ class TagsPieChart extends StatelessWidget {
 
     linearRecords = data;
 
-    List<charts.Color> colorsToUse = linearRecordsColors.map((f) => charts.ColorUtil.fromDartColor(f)).toList();
+    List<charts.Color> colorsToUse = linearRecordsColors
+        .map((f) => charts.ColorUtil.fromDartColor(f))
+        .toList();
 
     var seriesList = [
       charts.Series<LinearTagRecord, String>(
         id: 'Tags'.i18n,
-        colorFn:
-            (LinearTagRecord recordsUnderTag, i) =>
-            colorsToUse[i!],
-        domainFn:
-            (LinearTagRecord recordsUnderTag, _) =>
-                recordsUnderTag.tag!,
-        measureFn:
-            (LinearTagRecord recordsUnderTag, _) => recordsUnderTag.value,
-        labelAccessorFn:
-            (LinearTagRecord recordsUnderTag, _) =>
-                recordsUnderTag.tag!,
+        colorFn: (LinearTagRecord recordsUnderTag, i) => colorsToUse[i!],
+        domainFn: (LinearTagRecord recordsUnderTag, _) => recordsUnderTag.tag!,
+        measureFn: (LinearTagRecord recordsUnderTag, _) =>
+            recordsUnderTag.value,
+        labelAccessorFn: (LinearTagRecord recordsUnderTag, _) =>
+            recordsUnderTag.tag!,
         data: data,
       ),
     ];
@@ -122,7 +122,8 @@ class TagsPieChart extends StatelessWidget {
     return TagChartData(seriesList, colorsToUse);
   }
 
-  Widget _buildPieChart(BuildContext context) { // Pass BuildContext
+  Widget _buildPieChart(BuildContext context) {
+    // Pass BuildContext
     return Container(
       child: charts.PieChart<String>(
         seriesList,
@@ -138,22 +139,23 @@ class TagsPieChart extends StatelessWidget {
               if (model.hasDatumSelection) {
                 final selectedDatum = model.selectedDatum;
                 if (selectedDatum.isNotEmpty) {
-                  LinearTagRecord linearTagRecord = selectedDatum.first.datum; // Get the clicked data
-                  var percentageText = linearTagRecord.value.toStringAsFixed(2) + "%";
+                  LinearTagRecord linearTagRecord =
+                      selectedDatum.first.datum; // Get the clicked data
+                  var percentageText =
+                      linearTagRecord.value.toStringAsFixed(2) + "%";
                   var tagName = linearTagRecord.tag;
 
                   // Show SnackBar
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      elevation: 6,
-                      content: Text("($percentageText) $tagName"),
-                      action: SnackBarAction(
+                        elevation: 6,
+                        content: Text("($percentageText) $tagName"),
+                        action: SnackBarAction(
                           label: 'Dismiss'.i18n,
                           onPressed: () {
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           },
-                        )
-                    ),
+                        )),
                   );
                 }
               }

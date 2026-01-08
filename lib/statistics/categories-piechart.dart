@@ -40,9 +40,12 @@ class CategoriesPieChart extends StatelessWidget {
     categoryCount = PreferencesUtils.getOrDefault<int>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
-    defaultColorsPalette = charts.MaterialPalette.getOrderedPalettes(categoryCount)
-        .map((palette) => palette.shadeDefault).toList();
-    defaultColorsPalette.add(charts.ColorUtil.fromDartColor(otherCategoryColor));
+    defaultColorsPalette =
+        charts.MaterialPalette.getOrderedPalettes(categoryCount)
+            .map((palette) => palette.shadeDefault)
+            .toList();
+    defaultColorsPalette
+        .add(charts.ColorUtil.fromDartColor(otherCategoryColor));
     ChartData chartData = _prepareData(records);
     seriesList = chartData.series;
     colorPalette = chartData.colors;
@@ -67,12 +70,11 @@ class CategoriesPieChart extends StatelessWidget {
 
     // Step 1: Sort by value descending (ignoring color)
     var aggregatedCategoriesAndValues =
-    aggregatedCategoriesValuesTemporaryMap.entries.toList();
+        aggregatedCategoriesValuesTemporaryMap.entries.toList();
     aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
 
     // Step 2: Apply the limit
-    var limit =
-    aggregatedCategoriesAndValues.length > categoryCount + 1
+    var limit = aggregatedCategoriesAndValues.length > categoryCount + 1
         ? categoryCount
         : aggregatedCategoriesAndValues.length;
 
@@ -84,16 +86,21 @@ class CategoriesPieChart extends StatelessWidget {
 
       // Compute sum per color
       for (var entry in topCategoriesAndValue) {
-        int colorKey = getColorSortValue(entry.key.color ?? chartColorForCategoryWithoutBackgroundColor);
-        colorSumMap.update(colorKey, (sum) => sum + entry.value, ifAbsent: () => entry.value);
+        int colorKey = getColorSortValue(
+            entry.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        colorSumMap.update(colorKey, (sum) => sum + entry.value,
+            ifAbsent: () => entry.value);
       }
 
       topCategoriesAndValue.sort((a, b) {
-        int colorA = getColorSortValue(a.key.color ?? chartColorForCategoryWithoutBackgroundColor);
-        int colorB = getColorSortValue(b.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        int colorA = getColorSortValue(
+            a.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        int colorB = getColorSortValue(
+            b.key.color ?? chartColorForCategoryWithoutBackgroundColor);
 
         // Compare by total sum of the color group (Descending)
-        int totalSumComparison = colorSumMap[colorB]!.compareTo(colorSumMap[colorA]!);
+        int totalSumComparison =
+            colorSumMap[colorB]!.compareTo(colorSumMap[colorA]!);
         if (totalSumComparison != 0) {
           return totalSumComparison;
         }
@@ -117,7 +124,8 @@ class CategoriesPieChart extends StatelessWidget {
       var percentage = (100 * categoryAndValue.value) / totalSum;
       var lr = LinearRecord(categoryAndValue.key.name!, percentage);
       data.add(lr);
-      linearRecordsColors.add(categoryAndValue.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+      linearRecordsColors.add(categoryAndValue.key.color ??
+          chartColorForCategoryWithoutBackgroundColor);
     }
 
     // Handle "Others" category
@@ -141,7 +149,9 @@ class CategoriesPieChart extends StatelessWidget {
     // Color palette to use
     List<charts.Color> colorsToUse = [];
     if (useCategoriesColor) {
-      colorsToUse = linearRecordsColors.map((f) => charts.ColorUtil.fromDartColor(f)).toList();
+      colorsToUse = linearRecordsColors
+          .map((f) => charts.ColorUtil.fromDartColor(f))
+          .toList();
     } else {
       colorsToUse = defaultColorsPalette;
     }
@@ -149,17 +159,13 @@ class CategoriesPieChart extends StatelessWidget {
     var seriesList = [
       charts.Series<LinearRecord, String>(
         id: 'Expenses'.i18n,
-        colorFn:
-            (LinearRecord recordsUnderCategory, i) =>
-            colorsToUse[i!],
-        domainFn:
-            (LinearRecord recordsUnderCategory, _) =>
-                recordsUnderCategory.category!,
-        measureFn:
-            (LinearRecord recordsUnderCategory, _) => recordsUnderCategory.value,
-        labelAccessorFn:
-            (LinearRecord recordsUnderCategory, _) =>
-                recordsUnderCategory.category!,
+        colorFn: (LinearRecord recordsUnderCategory, i) => colorsToUse[i!],
+        domainFn: (LinearRecord recordsUnderCategory, _) =>
+            recordsUnderCategory.category!,
+        measureFn: (LinearRecord recordsUnderCategory, _) =>
+            recordsUnderCategory.value,
+        labelAccessorFn: (LinearRecord recordsUnderCategory, _) =>
+            recordsUnderCategory.category!,
         data: data,
       ),
     ];
@@ -167,7 +173,8 @@ class CategoriesPieChart extends StatelessWidget {
     return ChartData(seriesList, colorsToUse);
   }
 
-  Widget _buildPieChart(BuildContext context) { // Pass BuildContext
+  Widget _buildPieChart(BuildContext context) {
+    // Pass BuildContext
     return Container(
       child: charts.PieChart<String>(
         seriesList,
@@ -183,22 +190,23 @@ class CategoriesPieChart extends StatelessWidget {
               if (model.hasDatumSelection) {
                 final selectedDatum = model.selectedDatum;
                 if (selectedDatum.isNotEmpty) {
-                  LinearRecord linearRecord = selectedDatum.first.datum; // Get the clicked data
-                  var percentageText = linearRecord.value.toStringAsFixed(2) + "%";
+                  LinearRecord linearRecord =
+                      selectedDatum.first.datum; // Get the clicked data
+                  var percentageText =
+                      linearRecord.value.toStringAsFixed(2) + "%";
                   var categoryName = linearRecord.category;
 
                   // Show SnackBar
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      elevation: 6,
-                      content: Text("($percentageText) $categoryName"),
-                      action: SnackBarAction(
+                        elevation: 6,
+                        content: Text("($percentageText) $categoryName"),
+                        action: SnackBarAction(
                           label: 'Dismiss'.i18n,
                           onPressed: () {
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           },
-                        )
-                    ),
+                        )),
                   );
                 }
               }
