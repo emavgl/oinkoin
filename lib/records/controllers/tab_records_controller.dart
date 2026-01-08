@@ -184,7 +184,8 @@ class TabRecordsController {
     // Check if future records should be shown
     final prefs = await SharedPreferences.getInstance();
     final showFutureRecords = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.showFutureRecords) ?? true;
+            prefs, PreferencesKeys.showFutureRecords) ??
+        true;
 
     // Calculate the view end date based on the current interval and preference
     DateTime viewEndDate;
@@ -193,17 +194,20 @@ class TabRecordsController {
         viewEndDate = customIntervalTo!;
       } else {
         var hti = getHomepageTimeIntervalEnumSetting();
-        var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+        var interval =
+            await getTimeIntervalFromHomepageTimeInterval(_database, hti);
         viewEndDate = interval[1]; // End date of the interval
       }
     } else {
       // If future records are disabled, only generate up to end of today
       final nowUtc = DateTime.now().toUtc();
-      viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day, 23, 59, 59, 999);
+      viewEndDate =
+          DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day, 23, 59, 59, 999);
     }
 
     // Update recurrent records and get future records
-    List<Record> futureRecords = await recurrentRecordService.updateRecurrentRecords(viewEndDate);
+    List<Record> futureRecords =
+        await recurrentRecordService.updateRecurrentRecords(viewEndDate);
 
     // Fetch records from database
     List<Record?> newRecords;
@@ -221,7 +225,8 @@ class TabRecordsController {
       newRecords = await getRecordsByHomepageTimeInterval(_database, hti);
       header = getHeaderFromHomepageTimeInterval(hti);
       backgroundImageIndex = DateTime.now().month;
-      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+      var interval =
+          await getTimeIntervalFromHomepageTimeInterval(_database, hti);
       intervalFrom = interval[0];
       intervalTo = interval[1];
     }
@@ -234,7 +239,7 @@ class TabRecordsController {
     List<Record> filteredFutureRecords = futureRecords.where((record) {
       return (record.utcDateTime.isAfter(intervalFromUtc) ||
               record.utcDateTime.isAtSameMomentAs(intervalFromUtc)) &&
-             (record.utcDateTime.isBefore(intervalToUtc) ||
+          (record.utcDateTime.isBefore(intervalToUtc) ||
               record.utcDateTime.isAtSameMomentAs(intervalToUtc));
     }).toList();
 
@@ -381,7 +386,7 @@ class TabRecordsController {
   Future<void> _showNoCategoryDialog(BuildContext context) async {
     AlertDialogBuilder noCategoryDialog = AlertDialogBuilder(
             "No Category is set yet.".i18n)
-        .addTrueButtonName("OK")
+        .renameTrueButtonName("OK")
         .addSubtitle(
             "You need to set a category first. Go to Category tab and add a new category."
                 .i18n);
