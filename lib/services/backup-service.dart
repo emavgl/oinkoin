@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:i18n_extension/default.i18n.dart';
 import 'package:intl/intl.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
@@ -131,12 +132,29 @@ class BackupService {
       }
 
       // Write on disk
-      var backupJsonOnDisk = File("${path.path}/$backupFileName");
-      var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
+      if (!Platform.isAndroid && !Platform.isIOS) {
+        final FileSaveLocation? result = await getSaveLocation(
+          suggestedName: backupFileName,
+          initialDirectory: path.path,
+        );
+        if (result == null) throw Exception("Canceled by user");
 
-      _logger.info(
-          'Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
-      return result;
+        final Uint8List fileData =
+            Uint8List.fromList(utf8.encode(backupJsonStr));
+        final XFile textFile = XFile.fromData(
+          fileData,
+          name: backupFileName,
+        );
+        await textFile.saveTo(result.path);
+        return File(textFile.path);
+      } else {
+        var backupJsonOnDisk = File("${path.path}/$backupFileName");
+        var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
+
+        _logger.info(
+            'Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
+        return result;
+      }
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to create backup');
       rethrow;
