@@ -77,13 +77,12 @@ class CategoriesSummaryCard extends StatelessWidget {
             var categoryRecords = records
                 .where((element) => element!.category!.name == category.name)
                 .toList();
-            String? categoryName = records.first?.category?.name;
             await Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => DetailedStatisticPage(
                         from, to, categoryRecords, aggregationMethod,
-                        detailedKey: categoryName!,
+                        detailedKey: category.name!,
                         summaryCard: CategorySummaryCard(
                             categoryRecords, aggregationMethod))));
           },

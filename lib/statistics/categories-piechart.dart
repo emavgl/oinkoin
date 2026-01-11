@@ -264,9 +264,15 @@ class CategoriesPieChart extends StatelessWidget {
   }
 
   Widget _buildCard(BuildContext context) {
+    // Calculate dynamic height: base 200px + extra height for more than 5 items
+    // Each legend item needs roughly 28px (margin + row height)
+    double baseHeight = 200;
+    double extraHeightPerItem = linearRecords.length > 5 ? (linearRecords.length - 5) * 28.0 : 0;
+    double cardHeight = baseHeight + extraHeightPerItem;
+
     return Container(
         padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-        height: 200,
+        height: cardHeight,
         child: new Row(
           children: <Widget>[
             Expanded(child: _buildPieChart(context)),
