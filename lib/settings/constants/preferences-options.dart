@@ -99,6 +99,7 @@ class PreferencesOptions {
     "6": 6,
     "8": 8,
     "10": 10,
+    "All".i18n: 999,
   };
 
   static final Map<String, int> amountInputKeyboardType = {
