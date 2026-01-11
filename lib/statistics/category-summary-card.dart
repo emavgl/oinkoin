@@ -96,13 +96,12 @@ class CategorySummaryCard extends StatelessWidget {
               DateTime to =
                   DateTime(record.dateTime!.year, record.dateTime!.month + 1)
                       .subtract(Duration(minutes: 1));
-              String? categoryName = records.first?.category?.name;
               await Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => DetailedStatisticPage(
                           from, to, categoryRecords, AggregationMethod.DAY,
-                          detailedKey: categoryName!,
+                          detailedKey: record.category!.name!,
                           summaryCard: CategorySummaryCard(
                               categoryRecords, AggregationMethod.DAY))));
             }
@@ -115,14 +114,13 @@ class CategorySummaryCard extends StatelessWidget {
                   .toList();
               DateTime? from = categoryRecords[0]!.dateTime;
               DateTime? to = from;
-              String? k = categoryRecords.first?.category?.name;
               await Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => RecordsStatisticPage(
                           from,
                           to,
-                          k!,
+                          record.category!.name!,
                           isEmpty: categoryRecords.isEmpty,
                           CategorySummaryCard(categoryRecords,
                               AggregationMethod.NOT_AGGREGATED))));
