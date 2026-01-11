@@ -231,7 +231,7 @@ class BackupPageState extends State<BackupPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    if (!Platform.isLinux)
+                    if (Platform.isAndroid)
                       SettingsItem(
                           icon: Icon(Icons.backup, color: Colors.white),
                           iconBackgroundColor: Colors.orange.shade600,
@@ -239,7 +239,7 @@ class BackupPageState extends State<BackupPage> {
                           subtitle: "Share the backup file".i18n,
                           onPressed: () async =>
                               await createAndShareBackupFile()),
-                    if (!Platform.isLinux)
+                    if (Platform.isAndroid)
                       SettingsItem(
                           icon: Icon(Icons.dataset, color: Colors.white),
                           iconBackgroundColor: Colors.blueGrey.shade600,
@@ -251,7 +251,7 @@ class BackupPageState extends State<BackupPage> {
                         iconBackgroundColor: Colors.lightBlue.shade600,
                         title: 'Store the Backup on disk'.i18n,
                         onPressed: () async => await storeBackupFile(context)),
-                    if (!Platform.isLinux)
+                    if (Platform.isAndroid)
                       ClickableCustomizationItem(
                           title: "Destination folder".i18n,
                           subtitle: backupFolderPath,

@@ -50,7 +50,7 @@ class SqliteDatabase implements DatabaseInterface {
       _logger.info('Initializing database...');
 
       // Initialize FFI for desktop platforms (Linux, Windows, macOS)
-      if (Platform.isWindows || Platform.isLinux) {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         _logger.debug('Initializing sqflite FFI for desktop platform');
         sqfliteFfiInit();
         databaseFactory = databaseFactoryFfi;

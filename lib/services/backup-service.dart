@@ -43,11 +43,12 @@ class BackupService {
 
   /// Gets the platform-appropriate default backup directory
   /// Android: /storage/emulated/0/Documents/oinkoin
-  /// Linux/macOS: ~/.oinkoin
+  /// Linux: ~/.oinkoin
+  /// macOS: /Users/<user>/Documents
   /// Windows: AppData/Local/oinkoin
   static Future<String> getDefaultBackupDirectory() async {
-    if (Platform.isIOS || Platform.isMacOS) {
-      // macOS or iOS
+    if (Platform.isMacOS) {
+      // macOS
       final documentsDir = await getApplicationDocumentsDirectory();
       return '${documentsDir.parent.path}/Documents/oinkoin';
     } else if (Platform.isAndroid)
@@ -132,7 +133,7 @@ class BackupService {
       }
 
       // Write on disk
-      if (!Platform.isAndroid && !Platform.isIOS) {
+      if (!Platform.isAndroid) {
         final FileSaveLocation? result = await getSaveLocation(
           suggestedName: backupFileName,
           initialDirectory: path.path,
