@@ -16,14 +16,10 @@ class CalculatorNormalizer extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
-    debugPrint("formatEditUpdate overwriteDot $overwriteDot");
-    debugPrint("formatEditUpdate overwriteComma $overwriteComma");
-    debugPrint("formatEditUpdate groupSep $groupSep");
-    debugPrint("formatEditUpdate decimalSep $decimalSep");
-    // 1. Convert 'x' to '*' immediately
+    // Convert 'x' to '*' immediately
     String newText = newValue.text.toLowerCase().replaceAll("x", "*");
 
-    // 2. Detect what was JUST typed
+    // Detect what was JUST typed
     // We compare the length to ensure the user is adding text, not deleting
     if (newText.length > oldValue.text.length) {
       int selectionIndex = newValue.selection.baseOffset;
@@ -31,7 +27,7 @@ class CalculatorNormalizer extends TextInputFormatter {
         // Look at the character exactly where the cursor is
         String charTyped = newText.substring(selectionIndex - 1, selectionIndex);
 
-        // 3. Force-normalize the specifically typed character
+        // Force-normalize the specifically typed character
         if (overwriteDot && charTyped == ".") {
           newText = newText.replaceRange(selectionIndex - 1, selectionIndex, decimalSep);
         } else if (overwriteComma && charTyped == ",") {
