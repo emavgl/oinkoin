@@ -27,8 +27,16 @@ class RecurrentRecordService {
     // 2. Convert the start and end dates to TZDateTime objects
     final tz.TZDateTime startDate =
         tz.TZDateTime.from(recordPattern.utcDateTime, patternLocation);
+
+    // Use the pattern's end date if it exists and is before the requested end date
+    DateTime effectiveEndDate = utcEndDate;
+    if (recordPattern.utcEndDate != null && recordPattern.utcEndDate!.isBefore(utcEndDate)) {
+      effectiveEndDate = recordPattern.utcEndDate!;
+      _logger.debug('Using pattern end date: ${effectiveEndDate}');
+    }
+
     final tz.TZDateTime endDateTz =
-        tz.TZDateTime.from(utcEndDate, patternLocation);
+        tz.TZDateTime.from(effectiveEndDate, patternLocation);
 
     // 3. Determine the last update date in the pattern's timezone
     tz.TZDateTime? lastUpdateTz = recordPattern.utcLastUpdate != null
