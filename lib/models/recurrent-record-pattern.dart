@@ -13,6 +13,7 @@ class RecurrentRecordPattern {
   String? description;
   Category? category;
   DateTime utcDateTime;
+  DateTime? utcEndDate;
   String? timeZoneName;
   RecurrentPeriod? recurrentPeriod;
   DateTime? utcLastUpdate;
@@ -22,6 +23,7 @@ class RecurrentRecordPattern {
       this.utcDateTime, this.recurrentPeriod,
       {this.id,
       this.description,
+      this.utcEndDate,
       this.utcLastUpdate,
       this.timeZoneName,
       Set<String>? tags}) {
@@ -37,6 +39,7 @@ class RecurrentRecordPattern {
     Record record,
     this.recurrentPeriod, {
     this.id,
+    this.utcEndDate,
   })  : value = record.value,
         title = record.title,
         category = record.category,
@@ -58,6 +61,7 @@ class RecurrentRecordPattern {
       'recurrent_period': recurrentPeriod?.index,
       'last_update': utcLastUpdate?.millisecondsSinceEpoch,
       'tags': tags.where((t) => t.trim().isNotEmpty).join(','),
+      'end_date': utcEndDate?.millisecondsSinceEpoch,
     };
     if (id != null) map['id'] = id;
     return map;
@@ -81,6 +85,13 @@ class RecurrentRecordPattern {
           DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis, isUtc: true);
     }
 
+    DateTime? utcEndDate;
+    final int? endDateMillis = map['end_date'];
+    if (endDateMillis != null) {
+      utcEndDate =
+          DateTime.fromMillisecondsSinceEpoch(endDateMillis, isUtc: true);
+    }
+
     Set<String> tags = map['tags'] != null
         ? (map['tags'] as String)
             .split(',')
@@ -96,6 +107,7 @@ class RecurrentRecordPattern {
       RecurrentPeriod.values[map['recurrent_period']],
       id: map['id'],
       description: map['description'],
+      utcEndDate: utcEndDate,
       utcLastUpdate: utcLastUpdate,
       timeZoneName: timezone,
       tags: tags,
@@ -104,5 +116,10 @@ class RecurrentRecordPattern {
 
   tz.TZDateTime get localDateTime {
     return createTzDateTime(utcDateTime, timeZoneName!);
+  }
+
+  tz.TZDateTime? get localEndDate {
+    if (utcEndDate == null) return null;
+    return createTzDateTime(utcEndDate!, timeZoneName!);
   }
 }

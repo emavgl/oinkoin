@@ -83,6 +83,33 @@ class CategorySummaryCard extends StatelessWidget {
                 )));
           },
           onTap: () async {
+            if (aggregationMethod == AggregationMethod.YEAR) {
+              // Clicked a year bucket -> show month aggregation in that year
+              var categoryRecords = records
+                  .where((element) =>
+                      element != null &&
+                      element.category!.name == record.category!.name &&
+                      element.dateTime!.year == record.dateTime!.year)
+                  .toList();
+
+              if (categoryRecords.isEmpty) return;
+
+              DateTime from = DateTime(record.dateTime!.year, 1, 1);
+              DateTime to =
+                  DateTime(record.dateTime!.year + 1, 1, 1)
+                      .subtract(Duration(minutes: 1));
+
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DetailedStatisticPage(
+                          from, to, categoryRecords, AggregationMethod.MONTH,
+                          detailedKey: record.category!.name!,
+                          summaryCard: CategorySummaryCard(
+                              categoryRecords, AggregationMethod.MONTH))));
+              return;
+            }
+
             if (aggregationMethod == AggregationMethod.MONTH) {
               var formatter = DateFormat("yy/MM");
               var categoryRecords = records
@@ -104,16 +131,21 @@ class CategorySummaryCard extends StatelessWidget {
                           detailedKey: record.category!.name!,
                           summaryCard: CategorySummaryCard(
                               categoryRecords, AggregationMethod.DAY))));
+              return;
             }
             if (aggregationMethod == AggregationMethod.DAY) {
               // Tapped on a day aggregated record
               // -> show a page of the included records
               var categoryRecords = records
                   .where((element) =>
-                      element!.dateTime!.day == record.dateTime!.day)
+                      element != null &&
+                      element.dateTime!.day == record.dateTime!.day &&
+                      element.dateTime!.month == record.dateTime!.month &&
+                      element.dateTime!.year == record.dateTime!.year)
                   .toList();
-              DateTime? from = categoryRecords[0]!.dateTime;
-              DateTime? to = from;
+              if (categoryRecords.isEmpty) return;
+              DateTime? from = categoryRecords.first!.dateTime;
+              DateTime? to = categoryRecords.last!.dateTime;
               await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -124,6 +156,7 @@ class CategorySummaryCard extends StatelessWidget {
                           isEmpty: categoryRecords.isEmpty,
                           CategorySummaryCard(categoryRecords,
                               AggregationMethod.NOT_AGGREGATED))));
+              return;
             }
             if (aggregationMethod == AggregationMethod.NOT_AGGREGATED) {
               // Tapped on a single-record, show it in edit record page
@@ -197,6 +230,24 @@ class CategorySummaryCard extends StatelessWidget {
   }
 
   Widget _buildCategoryStatsCard() {
+    String aggregationLabel = "";
+    if (aggregationMethod != null &&
+        aggregationMethod != AggregationMethod.NOT_AGGREGATED) {
+      switch (aggregationMethod!) {
+        case AggregationMethod.DAY:
+          aggregationLabel = "Day".i18n;
+          break;
+        case AggregationMethod.MONTH:
+          aggregationLabel = "Month".i18n;
+          break;
+        case AggregationMethod.YEAR:
+          aggregationLabel = "Year".i18n;
+          break;
+        case AggregationMethod.NOT_AGGREGATED:
+          break;
+      }
+    }
+
     return Container(
         child: Column(
       children: <Widget>[
@@ -209,12 +260,8 @@ class CategorySummaryCard extends StatelessWidget {
                     child: Text(
                       "Entries for category: ".i18n +
                           category!.name! +
-                          (aggregationMethod != AggregationMethod.NOT_AGGREGATED
-                              ? (" (per " +
-                                  (aggregationMethod == AggregationMethod.MONTH
-                                      ? "Month".i18n
-                                      : "Day".i18n) +
-                                  ")")
+                          (aggregationLabel.isNotEmpty
+                              ? (" (per " + aggregationLabel + ")")
                               : ""),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

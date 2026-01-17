@@ -65,6 +65,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   late int amountInputKeyboardTypeIndex;
 
   DateTime? localDisplayDate;
+  DateTime? localDisplayEndDate;
 
   Set<String> _selectedTags = {};
   Set<String> _suggestedTags = {};
@@ -198,6 +199,7 @@ class EditRecordPageState extends State<EditRecordPage> {
             setState(() {
               recurrentPeriod = value.recurrentPeriod;
               recurrentPeriodIndex = value.recurrentPeriod!.index;
+              localDisplayEndDate = value.localEndDate;
             });
           }
         });
@@ -220,6 +222,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       );
       // Use the localDateTime for display
       localDisplayDate = passedReccurrentRecordPattern!.localDateTime;
+      localDisplayEndDate = passedReccurrentRecordPattern!.localEndDate;
 
       _textEditingController.text =
           getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
@@ -550,7 +553,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                                             onChanged: ServiceConfig
                                                         .isPremium &&
                                                     !readOnly &&
-                                                    record!.id == null
+                                                    record!.id == null &&
+                                                    record!.recurrencePatternId == null
                                                 ? (value) {
                                                     setState(() {
                                                       recurrentPeriodIndex =
@@ -614,6 +618,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                               },
                                             ),
                                             visible: record!.id == null &&
+                                                record!.recurrencePatternId == null &&
                                                 recurrentPeriod != null,
                                           )
                                         ],
@@ -622,6 +627,111 @@ class EditRecordPageState extends State<EditRecordPage> {
                                   )
                                 ],
                               ))),
+                    ),
+                    // End Date Picker - visible when recurrent period is selected
+                    Visibility(
+                      visible: recurrentPeriod != null,
+                      child: Column(
+                        children: [
+                          Divider(
+                            indent: 60,
+                            thickness: 1,
+                          ),
+                          Semantics(
+                            identifier: 'end-date-field',
+                            child: InkWell(
+                                onTap: () async {
+                                  // Disable if readOnly or if this is a record from a recurrent pattern
+                                  if (readOnly || record!.recurrencePatternId != null) {
+                                    return; // do nothing!
+                                  }
+                                  FocusScope.of(context).unfocus();
+                                  // Use the localDisplayEndDate if set, otherwise use a date in the future
+                                  DateTime initialDate = localDisplayEndDate ?? DateTime.now().add(Duration(days: 365));
+                                  DateTime? result = await showDatePicker(
+                                      context: context,
+                                      initialDate: initialDate,
+                                      firstDate: localDisplayDate ?? DateTime(1970),
+                                      lastDate: DateTime.now().add(Duration(days: 365 * 10)));
+                                  if (result != null) {
+                                    setState(() {
+                                      localDisplayEndDate = result;
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                    margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.event_busy,
+                                          size: 28,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.only(left: 15, right: 10),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "End Date (optional)".i18n,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurfaceVariant
+                                                              .withValues(alpha: 0.7),
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 4),
+                                                      Text(
+                                                        localDisplayEndDate != null
+                                                            ? getDateStr(localDisplayEndDate!)
+                                                            : "Not set".i18n,
+                                                        style: TextStyle(
+                                                          fontSize: 20,
+                                                          color: localDisplayEndDate != null
+                                                              ? Theme.of(context).colorScheme.onSurface
+                                                              : Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurfaceVariant,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Visibility(
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.close,
+                                                        size: 28,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        localDisplayEndDate = null;
+                                                      });
+                                                    },
+                                                  ),
+                                                  visible: localDisplayEndDate != null &&
+                                                      record!.recurrencePatternId == null,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ))),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -741,7 +851,12 @@ class EditRecordPageState extends State<EditRecordPage> {
   addOrUpdateRecurrentPattern({id}) async {
     // Create a new recurrent pattern from the updated record
     RecurrentRecordPattern recordPattern =
-        RecurrentRecordPattern.fromRecord(record!, recurrentPeriod!, id: id);
+        RecurrentRecordPattern.fromRecord(
+          record!,
+          recurrentPeriod!,
+          id: id,
+          utcEndDate: localDisplayEndDate?.toUtc(),
+        );
     recordPattern.tags =
         _selectedTags; // Assign selected tags to the recurrent pattern
     if (id != null) {

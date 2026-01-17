@@ -12,13 +12,7 @@ import 'package:piggybank/statistics/statistics-utils.dart';
 
 import '../components/category_icon_circle.dart';
 import '../helpers/records-utility-functions.dart';
-
-// Tag equivalent of CategorySumTuple - not needed with new approach
-// class TagSumTuple {
-//   String? key;
-//   double? value;
-//   TagSumTuple(this.key, this.value);
-// }
+import 'detailed-statistics-page.dart';
 
 class TagSummaryCard extends StatelessWidget {
   final List<Record?> records;
@@ -96,9 +90,12 @@ class TagSummaryCard extends StatelessWidget {
                 )));
           },
           onTap: () async {
-            // Check if this is a single record or multiple aggregated records
+            // Drill-down behavior:
+            // YEAR -> MONTH -> DAY -> RECORDS -> RECORD
+            // (where possible; otherwise fall back to record list / record view)
+
+            // Single record - go directly to EditRecordPage
             if (record.aggregatedValues <= 1) {
-              // Single record - go directly to EditRecordPage
               await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -106,30 +103,88 @@ class TagSummaryCard extends StatelessWidget {
                             passedRecord: record,
                             readOnly: true,
                           )));
-            } else {
-              // Multiple records aggregated - show list of individual records
-              var tagRecords;
+              return;
+            }
 
-              if (aggregationMethod == AggregationMethod.MONTH) {
-                var formatter = DateFormat("yy/MM");
-                tagRecords = records
-                    .where((element) =>
-                        element!.tags.contains(tag) &&
-                        formatter.format(element.dateTime!) ==
-                            formatter.format(record.dateTime!))
-                    .toList();
-              } else if (aggregationMethod == AggregationMethod.DAY) {
-                tagRecords = records
-                    .where((element) =>
-                        element!.tags.contains(tag) &&
-                        element.dateTime.day == record.dateTime.day &&
-                        element.dateTime.month == record.dateTime.month &&
-                        element.dateTime.year == record.dateTime.year)
-                    .toList();
-              } else {
-                // NOT_AGGREGATED case (shouldn't happen with aggregatedValues > 1)
-                tagRecords = [record];
-              }
+            // Multiple aggregated records
+            List<Record?> tagRecords;
+
+            if (aggregationMethod == AggregationMethod.YEAR) {
+              // Clicked a year bucket -> show month aggregation in that year
+              tagRecords = records
+                  .where((element) =>
+                      element != null &&
+                      element.tags.contains(tag) &&
+                      element.dateTime!.year == record.dateTime!.year)
+                  .toList();
+
+              if (tagRecords.isEmpty) return;
+
+              DateTime from = DateTime(record.dateTime!.year, 1, 1);
+              DateTime to =
+                  DateTime(record.dateTime!.year + 1, 1, 1).subtract(Duration(minutes: 1));
+
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DetailedStatisticPage(
+                            from,
+                            to,
+                            tagRecords,
+                            AggregationMethod.MONTH,
+                            detailedKey: tag!,
+                            summaryCard: TagSummaryCard(
+                                tagRecords, AggregationMethod.MONTH),
+                          )));
+              return;
+            }
+
+            if (aggregationMethod == AggregationMethod.MONTH) {
+              // Clicked a month bucket -> show day aggregation in that month
+              var formatter = DateFormat("yy/MM");
+              tagRecords = records
+                  .where((element) =>
+                      element != null &&
+                      element.tags.contains(tag) &&
+                      formatter.format(element.dateTime!) ==
+                          formatter.format(record.dateTime!))
+                  .toList();
+
+              if (tagRecords.isEmpty) return;
+
+              DateTime from =
+                  DateTime(record.dateTime!.year, record.dateTime!.month);
+              DateTime to =
+                  DateTime(record.dateTime!.year, record.dateTime!.month + 1)
+                      .subtract(Duration(minutes: 1));
+
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DetailedStatisticPage(
+                            from,
+                            to,
+                            tagRecords,
+                            AggregationMethod.DAY,
+                            detailedKey: tag!,
+                            summaryCard:
+                                TagSummaryCard(tagRecords, AggregationMethod.DAY),
+                          )));
+              return;
+            }
+
+            if (aggregationMethod == AggregationMethod.DAY) {
+              // Clicked a day bucket -> list records of that day
+              tagRecords = records
+                  .where((element) =>
+                      element != null &&
+                      element.tags.contains(tag) &&
+                      element.dateTime!.day == record.dateTime!.day &&
+                      element.dateTime!.month == record.dateTime!.month &&
+                      element.dateTime!.year == record.dateTime!.year)
+                  .toList();
+
+              if (tagRecords.isEmpty) return;
 
               DateTime? from = tagRecords.first!.dateTime;
               DateTime? to = tagRecords.last!.dateTime;
@@ -144,7 +199,11 @@ class TagSummaryCard extends StatelessWidget {
                           isEmpty: tagRecords.isEmpty,
                           TagSummaryCard(
                               tagRecords, AggregationMethod.NOT_AGGREGATED))));
+              return;
             }
+
+            // NOT_AGGREGATED case (shouldn't happen here with aggregatedValues > 1)
+            tagRecords = [record];
           },
           title: Container(
             child: Column(
@@ -223,6 +282,24 @@ class TagSummaryCard extends StatelessWidget {
   }
 
   Widget _buildTagStatsCard() {
+    String aggregationLabel = "";
+    if (aggregationMethod != null &&
+        aggregationMethod != AggregationMethod.NOT_AGGREGATED) {
+      switch (aggregationMethod!) {
+        case AggregationMethod.DAY:
+          aggregationLabel = "Day".i18n;
+          break;
+        case AggregationMethod.MONTH:
+          aggregationLabel = "Month".i18n;
+          break;
+        case AggregationMethod.YEAR:
+          aggregationLabel = "Year".i18n;
+          break;
+        case AggregationMethod.NOT_AGGREGATED:
+          break;
+      }
+    }
+
     return Container(
         child: Column(
       children: <Widget>[
@@ -235,12 +312,8 @@ class TagSummaryCard extends StatelessWidget {
                     child: Text(
                       "Entries for tag: ".i18n +
                           tag! +
-                          (aggregationMethod != AggregationMethod.NOT_AGGREGATED
-                              ? (" (per " +
-                                  (aggregationMethod == AggregationMethod.MONTH
-                                      ? "Month".i18n
-                                      : "Day".i18n) +
-                                  ")")
+                          (aggregationLabel.isNotEmpty
+                              ? (" (per " + aggregationLabel + ")")
                               : ""),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

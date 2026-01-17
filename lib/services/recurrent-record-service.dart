@@ -20,36 +20,44 @@ class RecurrentRecordService {
           'Generating recurrent records for pattern: ${recordPattern.title}');
       final List<Record> newRecurrentRecords = [];
 
-      // 1. Get the TZLocation for the pattern's original timezone
-      final tz.Location patternLocation =
-          getLocation(recordPattern.timeZoneName!);
+    // 1. Get the TZLocation for the pattern's original timezone
+    final tz.Location patternLocation =
+        getLocation(recordPattern.timeZoneName!);
 
-      // 2. Convert the start and end dates to TZDateTime objects
-      final tz.TZDateTime startDate =
-          tz.TZDateTime.from(recordPattern.utcDateTime, patternLocation);
-      final tz.TZDateTime endDateTz =
-          tz.TZDateTime.from(utcEndDate, patternLocation);
+    // 2. Convert the start and end dates to TZDateTime objects
+    final tz.TZDateTime startDate =
+        tz.TZDateTime.from(recordPattern.utcDateTime, patternLocation);
 
-      // 3. Determine the last update date in the pattern's timezone
-      tz.TZDateTime? lastUpdateTz = recordPattern.utcLastUpdate != null
-          ? tz.TZDateTime.from(recordPattern.utcLastUpdate!, patternLocation)
-          : null;
+    // Use the pattern's end date if it exists and is before the requested end date
+    DateTime effectiveEndDate = utcEndDate;
+    if (recordPattern.utcEndDate != null && recordPattern.utcEndDate!.isBefore(utcEndDate)) {
+      effectiveEndDate = recordPattern.utcEndDate!;
+      _logger.debug('Using pattern end date: ${effectiveEndDate}');
+    }
 
-      if (lastUpdateTz == null) {
-        // If there's no last update, add the initial record.
-        final newRecord = Record(
-          recordPattern.value,
-          recordPattern.title,
-          recordPattern.category,
-          startDate.toUtc(),
-          timeZoneName: patternLocation.name,
-          description: recordPattern.description,
-          recurrencePatternId: recordPattern.id,
-          tags: recordPattern.tags,
-        );
-        newRecurrentRecords.add(newRecord);
-        lastUpdateTz = startDate;
-      }
+    final tz.TZDateTime endDateTz =
+        tz.TZDateTime.from(effectiveEndDate, patternLocation);
+
+    // 3. Determine the last update date in the pattern's timezone
+    tz.TZDateTime? lastUpdateTz = recordPattern.utcLastUpdate != null
+        ? tz.TZDateTime.from(recordPattern.utcLastUpdate!, patternLocation)
+        : null;
+
+    if (lastUpdateTz == null) {
+      // If there's no last update, add the initial record.
+      final newRecord = Record(
+        recordPattern.value,
+        recordPattern.title,
+        recordPattern.category,
+        startDate.toUtc(),
+        timeZoneName: patternLocation.name,
+        description: recordPattern.description,
+        recurrencePatternId: recordPattern.id,
+        tags: recordPattern.tags,
+      );
+      newRecurrentRecords.add(newRecord);
+      lastUpdateTz = startDate;
+    }
 
       if (endDateTz.isBefore(lastUpdateTz)) {
         return [];
