@@ -10,9 +10,9 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common/sqflite_logger.dart';
+import 'package:piggybank/services/backup-service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
@@ -50,16 +50,15 @@ class SqliteDatabase implements DatabaseInterface {
       _logger.info('Initializing database...');
 
       // Initialize FFI for desktop platforms (Linux, Windows, macOS)
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         _logger.debug('Initializing sqflite FFI for desktop platform');
         sqfliteFfiInit();
         databaseFactory = databaseFactoryFfi;
       }
 
-      String databasePath = await getDatabasesPath();
-      String _path = join(databasePath, 'movements.db');
+      String _path = join(BackupService.DEFAULT_STORAGE_DIR, 'movements.db');
       _logger.debug('Database path: $_path');
-      
+
       var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
           options:
               SqfliteLoggerOptions(type: SqfliteDatabaseFactoryLoggerType.all));
@@ -202,14 +201,14 @@ class SqliteDatabase implements DatabaseInterface {
       final db = (await database)!;
       Batch batch = db.batch();
 
-    for (var record in records) {
-      if (record == null) {
-        continue;
-      }
-      record.id = null;
+      for (var record in records) {
+        if (record == null) {
+          continue;
+        }
+        record.id = null;
 
-      // Update the INSERT statement to include the new column `time_zone_name`
-      batch.rawInsert("""
+        // Update the INSERT statement to include the new column `time_zone_name`
+        batch.rawInsert("""
       INSERT OR IGNORE INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id) 
       SELECT ?, ?, ?, ?, ?, ?, ?, ?
       WHERE NOT EXISTS (
@@ -221,36 +220,36 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
       )
     """, [
-        record.title,
-        record.value,
-        record.utcDateTime.millisecondsSinceEpoch, // Use utcDateTime
-        record.timeZoneName, // Store the timezone name
-        record.category!.name,
-        record.category!.categoryType!.index,
-        record.description,
-        record.recurrencePatternId,
+          record.title,
+          record.value,
+          record.utcDateTime.millisecondsSinceEpoch, // Use utcDateTime
+          record.timeZoneName, // Store the timezone name
+          record.category!.name,
+          record.category!.categoryType!.index,
+          record.description,
+          record.recurrencePatternId,
 
-        // Duplicate check values
-        record.utcDateTime.millisecondsSinceEpoch,
-        record.value,
-        record.title,
-        record.category!.name,
-        record.category!.categoryType!.index,
-      ]);
-    }
-
-    await batch.commit(noResult: true);
-    _logger.info('Batch insert committed: ${records.length} records');
-
-    // Insert tags for each record in a second batch after getting record IDs
-    Batch tagBatch = db.batch();
-    for (var record in records) {
-      if (record == null || record.tags.isEmpty) {
-        continue;
+          // Duplicate check values
+          record.utcDateTime.millisecondsSinceEpoch,
+          record.value,
+          record.title,
+          record.category!.name,
+          record.category!.categoryType!.index,
+        ]);
       }
 
-      // Find the record ID by querying for the record we just inserted
-      var recordId = await db.rawQuery("""
+      await batch.commit(noResult: true);
+      _logger.info('Batch insert committed: ${records.length} records');
+
+      // Insert tags for each record in a second batch after getting record IDs
+      Batch tagBatch = db.batch();
+      for (var record in records) {
+        if (record == null || record.tags.isEmpty) {
+          continue;
+        }
+
+        // Find the record ID by querying for the record we just inserted
+        var recordId = await db.rawQuery("""
         SELECT id FROM records 
         WHERE datetime = ? 
           AND value = ? 
@@ -259,29 +258,29 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
         LIMIT 1
       """, [
-        record.utcDateTime.millisecondsSinceEpoch,
-        record.value,
-        record.title,
-        record.category!.name,
-        record.category!.categoryType!.index,
-      ]);
+          record.utcDateTime.millisecondsSinceEpoch,
+          record.value,
+          record.title,
+          record.category!.name,
+          record.category!.categoryType!.index,
+        ]);
 
-      if (recordId.isNotEmpty) {
-        final id = recordId.first['id'] as int;
-        for (String tag in record.tags) {
-          if (tag.trim().isNotEmpty) {
-            tagBatch.insert(
-              "records_tags",
-              {'record_id': id, 'tag_name': tag},
-              conflictAlgorithm: ConflictAlgorithm.ignore,
-            );
+        if (recordId.isNotEmpty) {
+          final id = recordId.first['id'] as int;
+          for (String tag in record.tags) {
+            if (tag.trim().isNotEmpty) {
+              tagBatch.insert(
+                "records_tags",
+                {'record_id': id, 'tag_name': tag},
+                conflictAlgorithm: ConflictAlgorithm.ignore,
+              );
+            }
           }
         }
       }
-    }
 
-    await tagBatch.commit(noResult: true);
-    _logger.info('Batch complete with tags');
+      await tagBatch.commit(noResult: true);
+      _logger.info('Batch complete with tags');
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
       rethrow;

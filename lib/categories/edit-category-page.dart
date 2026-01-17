@@ -111,7 +111,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
   Widget _getIconsGrid() {
     var surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
     var bottonActionColor = Theme.of(context).colorScheme.surfaceContainerLow;
-    var buttonColors = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    var buttonColors =
+        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     return Column(
       children: [
         Offstage(
@@ -507,8 +508,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               // Prompt confirmation
               AlertDialogBuilder archiveDialog =
                   AlertDialogBuilder(dialogMessage)
-                      .addTrueButtonName("Yes".i18n)
-                      .addFalseButtonName("No".i18n);
+                      .renameTrueButtonName("Yes".i18n)
+                      .renameFalseButtonName("No".i18n);
 
               if (!isCurrentlyArchived) {
                 archiveDialog.addSubtitle(
@@ -546,8 +547,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                   .addSubtitle(
                       "Deleting the category you will remove all the associated records"
                           .i18n)
-                  .addTrueButtonName("Yes".i18n)
-                  .addFalseButtonName("No".i18n);
+                  .renameTrueButtonName("Yes".i18n)
+                  .renameFalseButtonName("No".i18n);
 
               var continueDelete = await showDialog(
                   context: context,

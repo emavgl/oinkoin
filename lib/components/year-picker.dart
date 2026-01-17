@@ -393,7 +393,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
       // been updated to 4, so we will use that here for the Date Picker, but
       // only if there isn't one provided in the theme.
       shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4.0))),
+          borderRadius: BorderRadius.all(Radius.circular(4.0))),
       clipBehavior: Clip.antiAlias,
     );
   }

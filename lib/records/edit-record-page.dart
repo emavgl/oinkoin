@@ -86,8 +86,8 @@ class EditRecordPageState extends State<EditRecordPage> {
             new Text("Every two weeks".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
         value: RecurrentPeriod.EveryFourWeeks.index, // 7
-        child:
-            new Text("Every four weeks".i18n, style: TextStyle(fontSize: 20.0))),
+        child: new Text("Every four weeks".i18n,
+            style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
       value: RecurrentPeriod.EveryMonth.index, // 2
       child: new Text("Every month".i18n, style: TextStyle(fontSize: 20.0)),
@@ -548,7 +548,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                                           Expanded(
                                               child: new DropdownButton<int>(
                                             iconSize: 0.0,
-                                            items: recurrentIntervalDropdownList,
+                                            items:
+                                                recurrentIntervalDropdownList,
                                             onChanged: ServiceConfig
                                                         .isPremium &&
                                                     !readOnly &&
@@ -913,8 +914,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                   onPressed: () async {
                     AlertDialogBuilder deleteDialog =
                         AlertDialogBuilder("Critical action".i18n)
-                            .addTrueButtonName("Yes".i18n)
-                            .addFalseButtonName("No".i18n);
+                            .renameTrueButtonName("Yes".i18n)
+                            .renameFalseButtonName("No".i18n);
                     if (widget.passedRecord != null) {
                       deleteDialog = deleteDialog.addSubtitle(
                           "Do you really want to delete this record?".i18n);

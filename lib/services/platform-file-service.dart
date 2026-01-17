@@ -7,7 +7,6 @@ import 'package:share_plus/share_plus.dart';
 /// On mobile: Uses share_plus
 /// On desktop: Uses file_selector for "Save As" dialog
 class PlatformFileService {
-
   /// Check if we're running on a desktop platform
   static bool get isDesktop {
     if (kIsWeb) return false;
@@ -38,7 +37,8 @@ class PlatformFileService {
   }
 
   /// Save file using "Save As" dialog (desktop only)
-  static Future<bool> _saveFileAs(File sourceFile, String? suggestedName) async {
+  static Future<bool> _saveFileAs(
+      File sourceFile, String? suggestedName) async {
     try {
       final fileName = suggestedName ?? sourceFile.path.split('/').last;
 
@@ -77,7 +77,9 @@ class PlatformFileService {
       );
 
       return result.status == ShareResultStatus.success ||
-             result.status == ShareResultStatus.unavailable; // unavailable means it worked on some platforms
+          result.status ==
+              ShareResultStatus
+                  .unavailable; // unavailable means it worked on some platforms
     } catch (e) {
       print('Error sharing file: $e');
       return false;
@@ -113,4 +115,3 @@ class PlatformFileService {
     }
   }
 }
-

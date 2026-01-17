@@ -24,8 +24,8 @@ void main() {
       // View end date is in the future (end of month)
       final viewEndDate = DateTime(2024, 1, 31, 23, 59).toUtc();
 
-      final recordPattern = RecurrentRecordPattern(
-          100.0, "Daily Pattern", category1, patternStartDate, RecurrentPeriod.EveryDay);
+      final recordPattern = RecurrentRecordPattern(100.0, "Daily Pattern",
+          category1, patternStartDate, RecurrentPeriod.EveryDay);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
@@ -42,8 +42,8 @@ void main() {
       // View end date is 10 days from now
       final viewEndDate = today.add(Duration(days: 10));
 
-      final recordPattern = RecurrentRecordPattern(
-          50.0, "Daily Future Pattern", category1, patternStartDate, RecurrentPeriod.EveryDay);
+      final recordPattern = RecurrentRecordPattern(50.0, "Daily Future Pattern",
+          category1, patternStartDate, RecurrentPeriod.EveryDay);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
@@ -54,20 +54,21 @@ void main() {
       // All records should be generated (this is just generation, marking happens in service)
       final lastRecord = records.last;
       expect(
-        lastRecord.utcDateTime.isBefore(viewEndDate) ||
-        lastRecord.utcDateTime.isAtSameMomentAs(viewEndDate),
-        true
-      );
+          lastRecord.utcDateTime.isBefore(viewEndDate) ||
+              lastRecord.utcDateTime.isAtSameMomentAs(viewEndDate),
+          true);
     });
 
-    test('should split records into past and future correctly in boundary cases', () {
+    test(
+        'should split records into past and future correctly in boundary cases',
+        () {
       // Test edge case where today's date is exactly on a recurrent record
       final today = DateTime.now().toUtc();
       final startOfToday = DateTime(today.year, today.month, today.day).toUtc();
 
       // Pattern starts today
-      final recordPattern = RecurrentRecordPattern(
-          75.0, "Boundary Test", category1, startOfToday, RecurrentPeriod.EveryDay);
+      final recordPattern = RecurrentRecordPattern(75.0, "Boundary Test",
+          category1, startOfToday, RecurrentPeriod.EveryDay);
 
       // View end date is 5 days from today
       final viewEndDate = startOfToday.add(Duration(days: 5));
@@ -83,8 +84,8 @@ void main() {
       final patternStartDate = DateTime(2024, 1, 15).toUtc();
       final viewEndDate = DateTime(2024, 6, 30).toUtc();
 
-      final recordPattern = RecurrentRecordPattern(
-          200.0, "Monthly Pattern", category1, patternStartDate, RecurrentPeriod.EveryMonth);
+      final recordPattern = RecurrentRecordPattern(200.0, "Monthly Pattern",
+          category1, patternStartDate, RecurrentPeriod.EveryMonth);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
@@ -105,8 +106,8 @@ void main() {
       final patternStartDate = DateTime(2024, 1, 1).toUtc();
       final viewEndDate = DateTime(2024, 2, 15).toUtc();
 
-      final recordPattern = RecurrentRecordPattern(
-          30.0, "Weekly Pattern", category1, patternStartDate, RecurrentPeriod.EveryWeek);
+      final recordPattern = RecurrentRecordPattern(30.0, "Weekly Pattern",
+          category1, patternStartDate, RecurrentPeriod.EveryWeek);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
@@ -122,7 +123,9 @@ void main() {
       }
     });
 
-    test('future records should have isFutureRecord flag set to false by default', () {
+    test(
+        'future records should have isFutureRecord flag set to false by default',
+        () {
       // This tests the Record model default behavior
       final category = Category("Test Category");
       final record = Record(
@@ -149,12 +152,13 @@ void main() {
       expect(record.isFutureRecord, true);
     });
 
-    test('should not generate records when viewEndDate is before pattern start', () {
+    test('should not generate records when viewEndDate is before pattern start',
+        () {
       final patternStartDate = DateTime(2024, 6, 1).toUtc();
       final viewEndDate = DateTime(2024, 5, 31).toUtc();
 
-      final recordPattern = RecurrentRecordPattern(
-          100.0, "Future Pattern", category1, patternStartDate, RecurrentPeriod.EveryDay);
+      final recordPattern = RecurrentRecordPattern(100.0, "Future Pattern",
+          category1, patternStartDate, RecurrentPeriod.EveryDay);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
@@ -167,7 +171,11 @@ void main() {
       final viewEndDate = DateTime(2024, 1, 31).toUtc();
 
       final recordPattern = RecurrentRecordPattern(
-          150.0, "Year Boundary Pattern", category1, patternStartDate, RecurrentPeriod.EveryWeek);
+          150.0,
+          "Year Boundary Pattern",
+          category1,
+          patternStartDate,
+          RecurrentPeriod.EveryWeek);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
@@ -275,4 +283,3 @@ void main() {
     });
   });
 }
-

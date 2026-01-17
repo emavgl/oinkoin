@@ -22,7 +22,6 @@ class CategoriesGrid extends StatefulWidget {
 }
 
 class CategoriesGridState extends State<CategoriesGrid> {
-
   List<Category?> orderedCategories = [];
   bool enableManualSorting = false;
   late ScrollController _scrollController;
@@ -76,7 +75,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
           child: Container(
             child: Column(
               children: [
-                  CategoryIconCircle(
+                CategoryIconCircle(
                   iconEmoji: category.iconEmoji,
                   iconDataFromDefaultIconSet: category.icon,
                   backgroundColor: category.color,

@@ -93,11 +93,11 @@ class RecurrentRecordPattern {
     }
 
     Set<String> tags = map['tags'] != null
-      ? (map['tags'] as String)
-        .split(',')
-        .where((t) => t.trim().isNotEmpty)
-        .toSet()
-      : {};
+        ? (map['tags'] as String)
+            .split(',')
+            .where((t) => t.trim().isNotEmpty)
+            .toSet()
+        : {};
 
     return RecurrentRecordPattern(
       map['value'],

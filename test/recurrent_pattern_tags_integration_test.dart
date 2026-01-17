@@ -72,19 +72,12 @@ void main() {
           DateTime.utc(2023, 1, 1), DateTime.now().toUtc());
 
       expect(
-          taggedRecords
-              .any((element) => element['key'] == 'streaming'),
-          true,
+          taggedRecords.any((element) => element['key'] == 'streaming'), true,
           reason: 'Should be able to find records by streaming tag');
-      expect(
-          taggedRecords
-              .any((element) => element['key'] == 'entertainment'),
+      expect(taggedRecords.any((element) => element['key'] == 'entertainment'),
           true,
           reason: 'Should be able to find records by entertainment tag');
-      expect(
-          taggedRecords
-              .any((element) => element['key'] == 'monthly'),
-          true,
+      expect(taggedRecords.any((element) => element['key'] == 'monthly'), true,
           reason: 'Should be able to find records by monthly tag');
     });
   });

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:i18n_extension/default.i18n.dart';
 import 'package:intl/intl.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
@@ -24,14 +25,16 @@ import 'logger.dart';
 
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
+  static final _logger = Logger.withContext('BackupService');
 
-  static final _logger = Logger.withClass(BackupService);
-
-  static const String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
+  static String DEFAULT_STORAGE_DIR = Platform.isAndroid
+      ? '/storage/emulated/0/Documents/oinkoin'
+      : '${Platform.environment["HOME"]}/.oinkoin';
 
   static const String MANDATORY_BACKUP_SUFFIX = "obackup.json";
 
-  static String ERROR_MSG = "Unable to create a backup: please, delete manually the old backup".i18n;
+  static String ERROR_MSG =
+      "Unable to create a backup: please, delete manually the old backup".i18n;
 
   static const Duration AUTOMATIC_BACKUP_THRESHOLD = Duration(hours: 1);
 
@@ -40,16 +43,18 @@ class BackupService {
 
   /// Gets the platform-appropriate default backup directory
   /// Android: /storage/emulated/0/Documents/oinkoin
-  /// Linux/Desktop: ~/Documents/oinkoin
+  /// Linux: ~/.oinkoin
+  /// macOS: /Users/<user>/Documents
+  /// Windows: AppData/Local/oinkoin
   static Future<String> getDefaultBackupDirectory() async {
-    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      // Desktop: use Documents directory
+    if (Platform.isMacOS) {
+      // macOS
       final documentsDir = await getApplicationDocumentsDirectory();
       return '${documentsDir.parent.path}/Documents/oinkoin';
-    } else {
-      // Android/iOS: use the original path
+    } else if (Platform.isAndroid)
       return DEFAULT_STORAGE_DIR;
-    }
+    else
+      return (await getApplicationDocumentsDirectory()).path;
   }
 
   /// Generates a backup file name containing the app package name, version, and current time.
@@ -87,7 +92,7 @@ class BackupService {
   }) async {
     try {
       _logger.info('Starting backup creation...');
-      
+
       // Generate backup file name if not provided
       backupFileName ??= await generateBackupFileName();
       _logger.debug('Backup filename: $backupFileName');
@@ -114,9 +119,11 @@ class BackupService {
       var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
       var recordTagAssociations = await database.getAllRecordTagAssociations();
 
-      _logger.info('Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags');
+      _logger.info(
+          'Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags');
 
-      var backup = Backup(appName, version, databaseVersion, categories, records, recurrentRecordPatterns, recordTagAssociations);
+      var backup = Backup(appName, version, databaseVersion, categories,
+          records, recurrentRecordPatterns, recordTagAssociations);
       var backupJsonStr = jsonEncode(backup.toMap());
 
       // Encrypt the backup JSON string if an encryption password is provided
@@ -126,11 +133,29 @@ class BackupService {
       }
 
       // Write on disk
-      var backupJsonOnDisk = File("${path.path}/$backupFileName");
-      var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
-      
-      _logger.info('Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
-      return result;
+      if (!Platform.isAndroid) {
+        final FileSaveLocation? result = await getSaveLocation(
+          suggestedName: backupFileName,
+          initialDirectory: path.path,
+        );
+        if (result == null) throw Exception("Canceled by user");
+
+        final Uint8List fileData =
+            Uint8List.fromList(utf8.encode(backupJsonStr));
+        final XFile textFile = XFile.fromData(
+          fileData,
+          name: backupFileName,
+        );
+        await textFile.saveTo(result.path);
+        return File(textFile.path);
+      } else {
+        var backupJsonOnDisk = File("${path.path}/$backupFileName");
+        var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
+
+        _logger.info(
+            'Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
+        return result;
+      }
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to create backup');
       rethrow;
@@ -162,14 +187,17 @@ class BackupService {
 
       // Check if the time since the latest backup exceeds the threshold
       final now = DateTime.now();
-      final shouldBackup = now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
-      
+      final shouldBackup =
+          now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
+
       if (shouldBackup) {
-        _logger.info("Last backup was ${now.difference(latestBackupDate).inHours}h ago, automatic backup needed");
+        _logger.info(
+            "Last backup was ${now.difference(latestBackupDate).inHours}h ago, automatic backup needed");
       } else {
-        _logger.debug("Last backup was ${now.difference(latestBackupDate).inMinutes}m ago, no backup needed yet");
+        _logger.debug(
+            "Last backup was ${now.difference(latestBackupDate).inMinutes}m ago, no backup needed yet");
       }
-      
+
       return shouldBackup;
     } catch (e, st) {
       _logger.handle(e, st, 'Error checking if automatic backup is needed');
@@ -196,9 +224,8 @@ class BackupService {
     bool enableVersionAndDateInBackupName = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableVersionAndDateInBackupName)!;
 
-    String? filename = !enableVersionAndDateInBackupName
-        ? await getDefaultFileName()
-        : null;
+    String? filename =
+        !enableVersionAndDateInBackupName ? await getDefaultFileName() : null;
 
     try {
       _logger.info('Creating automatic backup...');
@@ -226,8 +253,7 @@ class BackupService {
         prefs, PreferencesKeys.backupRetentionIntervalIndex);
 
     if (enableEncryptedBackup && backupRetentionIntervalIndex != null) {
-      var period =
-      BackupRetentionPeriod.values[backupRetentionIntervalIndex];
+      var period = BackupRetentionPeriod.values[backupRetentionIntervalIndex];
       if (period != BackupRetentionPeriod.ALWAYS) {
         final backupDir = await getDefaultBackupDirectory();
         return await removeOldBackups(period, Directory(backupDir));
@@ -235,7 +261,6 @@ class BackupService {
     }
     return false;
   }
-
 
   /// Imports data from a backup file. If an encryption password is provided,
   /// it attempts to decrypt the file content before importing.
@@ -256,7 +281,8 @@ class BackupService {
 
       var jsonMap = jsonDecode(fileContent);
       Backup backup = Backup.fromMap(jsonMap);
-      _logger.info('Importing: ${backup.records.length} records, ${backup.categories.length} categories');
+      _logger.info(
+          'Importing: ${backup.records.length} records, ${backup.categories.length} categories');
 
       // Add categories
       for (var backupCategory in backup.categories) {
@@ -283,7 +309,8 @@ class BackupService {
       }
 
       // Add record tag associations
-      await database.addRecordTagAssociationsInBatch(backup.recordTagAssociations);
+      await database
+          .addRecordTagAssociationsInBatch(backup.recordTagAssociations);
 
       _logger.info('Backup imported successfully');
       return true;
