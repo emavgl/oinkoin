@@ -72,7 +72,8 @@ class SqliteMigrationService {
                 recurrent_period INTEGER,
                 recurrence_id TEXT,
                 date_str TEXT,
-                tags TEXT
+                tags TEXT,
+                end_date INTEGER
             );
         """;
     batch.execute(query);
@@ -332,6 +333,12 @@ class SqliteMigrationService {
     await batch.commit();
   }
 
+  static Future<void> _migrateTo17(Database db) async {
+    // Add end_date column to recurrent_record_patterns
+    await safeAlterTable(
+        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN end_date INTEGER;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -343,6 +350,7 @@ class SqliteMigrationService {
     13: SqliteMigrationService._migrateTo13,
     15: SqliteMigrationService._migrateTo13,
     16: SqliteMigrationService._migrateTo16,
+    17: SqliteMigrationService._migrateTo17,
   };
 
   // Public Methods

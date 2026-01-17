@@ -177,6 +177,102 @@ void main() {
       expect(years.contains(2023), true);
       expect(years.contains(2024), true);
     });
+
+    test('should respect pattern end date when generating records', () {
+      final patternStartDate = DateTime(2024, 1, 1).toUtc();
+      final patternEndDate = DateTime(2024, 1, 15).toUtc(); // Pattern ends on Jan 15
+      final viewEndDate = DateTime(2024, 1, 31).toUtc(); // View extends to Jan 31
+
+      final recordPattern = RecurrentRecordPattern(
+          100.0,
+          "Limited Daily Pattern",
+          category1,
+          patternStartDate,
+          RecurrentPeriod.EveryDay,
+          utcEndDate: patternEndDate,
+      );
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
+
+      // Should only generate records up to Jan 15 (15 records), not Jan 31
+      expect(records.length, 15);
+      expect(records.first.localDateTime.day, 1);
+      expect(records.last.localDateTime.day, 15);
+
+      // Verify no records are generated after the pattern end date
+      for (var record in records) {
+        expect(record.utcDateTime.isBefore(patternEndDate) ||
+               record.utcDateTime.isAtSameMomentAs(patternEndDate),
+               true,
+               reason: 'Record date should not exceed pattern end date');
+      }
+    });
+
+    test('should use view end date when pattern has no end date', () {
+      final patternStartDate = DateTime(2024, 1, 1).toUtc();
+      final viewEndDate = DateTime(2024, 1, 10).toUtc();
+
+      final recordPattern = RecurrentRecordPattern(
+          100.0,
+          "Unlimited Pattern",
+          category1,
+          patternStartDate,
+          RecurrentPeriod.EveryDay,
+          // No utcEndDate specified
+      );
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
+
+      // Should generate records up to view end date (10 records)
+      expect(records.length, 10);
+      expect(records.last.localDateTime.day, 10);
+    });
+
+    test('should use pattern end date when it is before view end date', () {
+      final patternStartDate = DateTime(2024, 1, 1).toUtc();
+      final patternEndDate = DateTime(2024, 1, 5).toUtc();
+      final viewEndDate = DateTime(2024, 1, 31).toUtc();
+
+      final recordPattern = RecurrentRecordPattern(
+          50.0,
+          "Short Pattern",
+          category1,
+          patternStartDate,
+          RecurrentPeriod.EveryDay,
+          utcEndDate: patternEndDate,
+      );
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
+
+      // Should only generate 5 records (Jan 1-5), not up to Jan 31
+      expect(records.length, 5);
+      expect(records.last.localDateTime.day, 5);
+    });
+
+    test('should use view end date when pattern end date is after it', () {
+      final patternStartDate = DateTime(2024, 1, 1).toUtc();
+      final patternEndDate = DateTime(2024, 1, 31).toUtc();
+      final viewEndDate = DateTime(2024, 1, 10).toUtc();
+
+      final recordPattern = RecurrentRecordPattern(
+          50.0,
+          "Long Pattern",
+          category1,
+          patternStartDate,
+          RecurrentPeriod.EveryDay,
+          utcEndDate: patternEndDate,
+      );
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
+
+      // Should only generate 10 records (up to view end date)
+      expect(records.length, 10);
+      expect(records.last.localDateTime.day, 10);
+    });
   });
 }
 

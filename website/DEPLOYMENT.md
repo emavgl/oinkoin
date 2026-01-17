@@ -230,7 +230,7 @@ If needed, add in dashboard under Settings → Environment Variables
    ```nginx
    server {
        listen 80;
-       server_name oinkoin.app www.oinkoin.app;
+       server_name oinkoin.com www.oinkoin.com;
        root /var/www/oinkoin;
        index index.html;
 
@@ -249,8 +249,8 @@ If needed, add in dashboard under Settings → Environment Variables
    **Apache**:
    ```apache
    <VirtualHost *:80>
-       ServerName oinkoin.app
-       ServerAlias www.oinkoin.app
+       ServerName oinkoin.com
+       ServerAlias www.oinkoin.com
        DocumentRoot /var/www/oinkoin
 
        <Directory /var/www/oinkoin>
@@ -272,7 +272,7 @@ If needed, add in dashboard under Settings → Environment Variables
 4. **Setup SSL with Let's Encrypt**:
    ```bash
    sudo apt install certbot python3-certbot-nginx
-   sudo certbot --nginx -d oinkoin.app -d www.oinkoin.app
+   sudo certbot --nginx -d oinkoin.com -d www.oinkoin.com
    ```
 
 ---
@@ -318,7 +318,7 @@ Add to `src/layouts/Layout.astro` in `<head>`:
 ### Plausible (Privacy-focused)
 
 ```html
-<script defer data-domain="oinkoin.app" src="https://plausible.io/js/script.js"></script>
+<script defer data-domain="oinkoin.com" src="https://plausible.io/js/script.js"></script>
 ```
 
 ---
@@ -397,7 +397,7 @@ Add to `src/layouts/Layout.astro` in `<head>`:
    ```
    User-agent: *
    Allow: /
-   Sitemap: https://oinkoin.app/sitemap.xml
+   Sitemap: https://oinkoin.com/sitemap.xml
    ```
 
 3. Submit to search engines:

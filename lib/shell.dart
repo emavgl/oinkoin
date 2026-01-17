@@ -112,8 +112,17 @@ class ShellState extends State<Shell> {
     ThemeData darkTheme = MaterialThemeInstance.darkTheme!;
     ThemeMode themeMode = MaterialThemeInstance.themeMode!;
 
-    return Scaffold(
-      body: Stack(children: <Widget>[
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (!didPop && _currentIndex != 0) {
+          setState(() {
+            _currentIndex = 0;
+          });
+        }
+      },
+      child: Scaffold(
+        body: Stack(children: <Widget>[
         Offstage(
           offstage: _currentIndex != 0,
           child: TickerMode(
@@ -207,6 +216,7 @@ class ShellState extends State<Shell> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
