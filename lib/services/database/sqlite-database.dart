@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
@@ -56,7 +57,23 @@ class SqliteDatabase implements DatabaseInterface {
         databaseFactory = databaseFactoryFfi;
       }
 
-      String databasePath = await getDatabasesPath();
+      // Get proper database path
+      String databasePath;
+      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+        // For desktop platforms, use application documents directory
+        // This ensures we write to a writable location, not inside AppImage mount
+        final appDocDir = await getApplicationDocumentsDirectory();
+        databasePath = join(appDocDir.path, 'oinkoin');
+        // Create directory if it doesn't exist
+        final dir = Directory(databasePath);
+        if (!await dir.exists()) {
+          await dir.create(recursive: true);
+        }
+      } else {
+        // For mobile platforms, use the default sqflite path
+        databasePath = await getDatabasesPath();
+      }
+
       String _path = join(databasePath, 'movements.db');
       _logger.debug('Database path: $_path');
       

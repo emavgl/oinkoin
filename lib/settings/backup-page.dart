@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
@@ -68,7 +69,22 @@ class BackupPageState extends State<BackupPage> {
   }
 
   shareDatabase() async {
-    String databasePath = await getDatabasesPath();
+    String databasePath;
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      // For desktop platforms, use application documents directory
+      // This ensures we write to a writable location, not inside AppImage mount
+      final appDocDir = await getApplicationDocumentsDirectory();
+      databasePath = join(appDocDir.path, 'oinkoin');
+      // Create directory if it doesn't exist
+      final dir = Directory(databasePath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+    } else {
+      // For mobile platforms, use the default sqflite path
+      databasePath = await getDatabasesPath();
+    }
+
     String _path = join(databasePath, 'movements.db');
     File databaseFile = File.fromUri(Uri.file(_path));
 
