@@ -173,10 +173,6 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   void initState() {
     super.initState();
-
-    // Loading preferences
-    bool overwriteDotValue = getOverwriteDotValue();
-    bool overwriteCommaValue = getOverwriteCommaValue();
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.enableRecordNameSuggestions)!;
@@ -247,47 +243,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
 
     // Keyboard listeners initializations (the same as before)
-    // _textEditingController.addListener(() {
-    //   lastCharInsertedMillisecond = DateTime.now();
-    //   var text = _textEditingController.text.toLowerCase();
-    //   final exp = new RegExp(r'[^\d.,\\+\-\*=/%x]');
-    //   text = text.replaceAll("x", "*");
-    //   text = text.replaceAll(exp, "");
-    //
-    //   if (overwriteDotValue) {
-    //     text = text.replaceAll(".", ",");
-    //   }
-    //
-    //   if (overwriteCommaValue) {
-    //     text = text.replaceAll(",", ".");
-    //   }
-    //
-    //   if (text.endsWith(getDecimalSeparator())) {
-    //     String textBeforeDecimalSeparator = text.substring(0, text.length - 1);
-    //
-    //     int lastOperatorIndex = textBeforeDecimalSeparator.lastIndexOf(RegExp(r'[+\-*/%]'));
-    //
-    //     String currentNumberSegment = (lastOperatorIndex == -1)
-    //         ? textBeforeDecimalSeparator
-    //         : textBeforeDecimalSeparator.substring(lastOperatorIndex + 1);
-    //
-    //     if (currentNumberSegment.contains(getDecimalSeparator())) {
-    //       _textEditingController.value = TextEditingValue(
-    //         text: textBeforeDecimalSeparator,
-    //         selection: TextSelection.collapsed(offset: textBeforeDecimalSeparator.length),
-    //       );
-    //       return;
-    //     }
-    //   }
-    //
-    //   TextSelection previousSelection = _textEditingController.selection;
-    //   _textEditingController.value = _textEditingController.value.copyWith(
-    //     text: text,
-    //     selection: previousSelection,
-    //     composing: TextRange.empty,
-    //   );
-    // });
-
     _textEditingController.addListener(() async {
       var text = _textEditingController.text.toLowerCase();
       await Future.delayed(Duration(seconds: 2));
@@ -635,6 +590,12 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createAmountCard() {
+    /// Provides security and input validation via character whitelisting.
+    ///
+    /// Character Whitelisting: Utilizes a [RegExp] to block any character
+    /// that is not a digit, math operator, or an allowed separator.
+    /// Regex Safety: Employs [RegExp.escape()] to ensure active separators
+    /// are treated as literal characters rather than regex metacharacters.
     final allowedRegex =
         RegExp('[^0-9\\+\\-\\*/%${RegExp.escape(getDecimalSeparator())}${RegExp.escape(getGroupingSeparator())}]');
     String categorySign =
