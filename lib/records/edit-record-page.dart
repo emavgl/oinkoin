@@ -188,7 +188,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       // Use the localDateTime getter for display purposes
       localDisplayDate = passedRecord!.localDateTime;
       _textEditingController.text =
-          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
+          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: false);
       if (record!.recurrencePatternId != null) {
         database
             .getRecurrentRecordPattern(record!.recurrencePatternId)
