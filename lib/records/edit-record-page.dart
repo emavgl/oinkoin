@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
@@ -17,6 +18,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/records/formatter/group-separator-formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
@@ -25,6 +27,7 @@ import '../models/recurrent-record-pattern.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
 import 'components/tag_selection_dialog.dart';
+import 'formatter/calculator-normalizer.dart';
 
 class EditRecordPage extends StatefulWidget {
   final Record? passedRecord;
@@ -86,8 +89,8 @@ class EditRecordPageState extends State<EditRecordPage> {
             new Text("Every two weeks".i18n, style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
         value: RecurrentPeriod.EveryFourWeeks.index, // 7
-        child:
-            new Text("Every four weeks".i18n, style: TextStyle(fontSize: 20.0))),
+        child: new Text("Every four weeks".i18n,
+            style: TextStyle(fontSize: 20.0))),
     new DropdownMenuItem<int>(
       value: RecurrentPeriod.EveryMonth.index, // 2
       child: new Text("Every month".i18n, style: TextStyle(fontSize: 20.0)),
@@ -144,7 +147,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         stderr.writeln("Can't parse the expression: $text");
       }
       if (newNum != null) {
-        text = getCurrencyValueString(newNum, turnOffGrouping: true);
+        text = getCurrencyValueString(newNum, turnOffGrouping: false);
         _textEditingController.value = _textEditingController.value.copyWith(
           text: text,
           selection:
@@ -171,10 +174,6 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   void initState() {
     super.initState();
-
-    // Loading preferences
-    bool overwriteDotValue = getOverwriteDotValue();
-    bool overwriteCommaValue = getOverwriteCommaValue();
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.enableRecordNameSuggestions)!;
@@ -190,7 +189,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       // Use the localDateTime getter for display purposes
       localDisplayDate = passedRecord!.localDateTime;
       _textEditingController.text =
-          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
+          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: false);
       if (record!.recurrencePatternId != null) {
         database
             .getRecurrentRecordPattern(record!.recurrencePatternId)
@@ -247,47 +246,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
 
     // Keyboard listeners initializations (the same as before)
-    _textEditingController.addListener(() {
-      lastCharInsertedMillisecond = DateTime.now();
-      var text = _textEditingController.text.toLowerCase();
-      final exp = new RegExp(r'[^\d.,\\+\-\*=/%x]');
-      text = text.replaceAll("x", "*");
-      text = text.replaceAll(exp, "");
-
-      if (overwriteDotValue) {
-        text = text.replaceAll(".", ",");
-      }
-
-      if (overwriteCommaValue) {
-        text = text.replaceAll(",", ".");
-      }
-
-      if (text.endsWith(getDecimalSeparator())) {
-        String textBeforeDecimalSeparator = text.substring(0, text.length - 1);
-
-        int lastOperatorIndex = textBeforeDecimalSeparator.lastIndexOf(RegExp(r'[+\-*/%]'));
-
-        String currentNumberSegment = (lastOperatorIndex == -1)
-            ? textBeforeDecimalSeparator
-            : textBeforeDecimalSeparator.substring(lastOperatorIndex + 1);
-
-        if (currentNumberSegment.contains(getDecimalSeparator())) {
-          _textEditingController.value = TextEditingValue(
-            text: textBeforeDecimalSeparator,
-            selection: TextSelection.collapsed(offset: textBeforeDecimalSeparator.length),
-          );
-          return;
-        }
-      }
-
-      TextSelection previousSelection = _textEditingController.selection;
-      _textEditingController.value = _textEditingController.value.copyWith(
-        text: text,
-        selection: previousSelection,
-        composing: TextRange.empty,
-      );
-    });
-
     _textEditingController.addListener(() async {
       var text = _textEditingController.text.toLowerCase();
       await Future.delayed(Duration(seconds: 2));
@@ -548,7 +506,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                                           Expanded(
                                               child: new DropdownButton<int>(
                                             iconSize: 0.0,
-                                            items: recurrentIntervalDropdownList,
+                                            items:
+                                                recurrentIntervalDropdownList,
                                             onChanged: ServiceConfig
                                                         .isPremium &&
                                                     !readOnly &&
@@ -741,6 +700,14 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createAmountCard() {
+    /// Provides security and input validation via character whitelisting.
+    ///
+    /// Character Whitelisting: Utilizes a [RegExp] to block any character
+    /// that is not a digit, math operator, or an allowed separator.
+    /// Regex Safety: Employs [RegExp.escape()] to ensure active separators
+    /// are treated as literal characters rather than regex metacharacters.
+    final allowedRegex =
+        RegExp('[^0-9\\+\\-\\*/%${RegExp.escape(getDecimalSeparator())}${RegExp.escape(getGroupingSeparator())}]');
     String categorySign =
         record?.category?.categoryType == CategoryType.expense ? "-" : "+";
     return Card(
@@ -767,6 +734,20 @@ class EditRecordPageState extends State<EditRecordPage> {
               child: TextFormField(
                   enabled: !readOnly,
                   controller: _textEditingController,
+                  inputFormatters: [
+                    CalculatorNormalizer(
+                      overwriteDot: getOverwriteDotValue(),
+                      overwriteComma: getOverwriteCommaValue(),
+                      decimalSep: getDecimalSeparator(),
+                      groupSep: getGroupingSeparator(),
+                    ),
+                    FilteringTextInputFormatter.deny(
+                      allowedRegex,
+                    ),
+                    GroupSeparatorFormatter(
+                        groupSep: getGroupingSeparator(),
+                        decimalSep: getDecimalSeparator())
+                  ],
                   autofocus: record!.value == null,
                   onChanged: (text) {
                     changeRecordValue(text);
