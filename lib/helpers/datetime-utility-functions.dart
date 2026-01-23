@@ -3,6 +3,9 @@ import 'dart:ui';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -74,13 +77,30 @@ String getWeekStr(DateTime dateTime) {
   return getDateRangeStr(startOfWeek, endOfWeek);
 }
 
-/// Returns the first day of the week (1=Monday, 7=Sunday) based on locale.
+/// Returns the first day of the week (1=Monday, 7=Sunday) based on user preference or locale.
+/// User preference options:
+/// - 0: System default (use locale)
+/// - 1: Monday
+/// - 6: Saturday
+/// - 7: Sunday
 /// Different locales have different week start days:
 /// - US, Brazil, China, Japan: Sunday (7)
 /// - Arabic regions: Saturday (6)  
 /// - Most European and other locales: Monday (1)
 int getFirstDayOfWeekIndex() {
   try {
+    // Check if user has set a preference
+    if (ServiceConfig.sharedPreferences != null) {
+      int? userPreference = PreferencesUtils.getOrDefault<int>(
+          ServiceConfig.sharedPreferences!, PreferencesKeys.firstDayOfWeek);
+
+      if (userPreference != null && userPreference != 0) {
+        // User has explicitly set a preference (not "System")
+        return userPreference;
+      }
+    }
+
+    // Fall back to locale-based logic
     String localeStr = I18n.locale.toString();
     
     if (localeStr == 'en_US') return DateTime.sunday;
@@ -89,7 +109,7 @@ int getFirstDayOfWeekIndex() {
     if (localeStr.startsWith('ja')) return DateTime.sunday;
     if (localeStr.startsWith('ar')) return DateTime.saturday;
   } catch (e) {
-    // Locale not initialized, use default
+    // Locale not initialized or error, use default
   }
   
   return DateTime.monday; // Default for most locales

@@ -21,8 +21,10 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/records/formatter/group-separator-formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../components/category_icon_circle.dart';
+import '../helpers/date_picker_utils.dart';
 import '../models/recurrent-record-pattern.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
@@ -433,12 +435,19 @@ class EditRecordPageState extends State<EditRecordPage> {
                       FocusScope.of(context).unfocus();
                       // Use the localDisplayDate for the initial date
                       DateTime initialDate = localDisplayDate ?? DateTime.now();
+
+                      // Get user's first day of week preference
+                      int firstDayOfWeek = getFirstDayOfWeekIndex();
+
                       DateTime? result = await showDatePicker(
                           context: context,
                           initialDate: initialDate,
                           firstDate: DateTime(1970),
-                          lastDate:
-                              DateTime.now().add(new Duration(days: 365)));
+                          lastDate: DateTime.now().add(new Duration(days: 365)),
+                          builder: (BuildContext context, Widget? child) {
+                            // Wrap with custom locale if user has set a specific first day preference
+                            return DatePickerUtils.buildDatePickerWithFirstDayOfWeek(context, child, firstDayOfWeek);
+                          });
                       if (result != null) {
                         setState(() {
                           // Update the localDisplayDate
@@ -606,11 +615,18 @@ class EditRecordPageState extends State<EditRecordPage> {
                                   FocusScope.of(context).unfocus();
                                   // Use the localDisplayEndDate if set, otherwise use a date in the future
                                   DateTime initialDate = localDisplayEndDate ?? DateTime.now().add(Duration(days: 365));
+
+                                  // Get user's first day of week preference
+                                  int firstDayOfWeek = getFirstDayOfWeekIndex();
+
                                   DateTime? result = await showDatePicker(
                                       context: context,
                                       initialDate: initialDate,
                                       firstDate: localDisplayDate ?? DateTime(1970),
-                                      lastDate: DateTime.now().add(Duration(days: 365 * 10)));
+                                      lastDate: DateTime.now().add(Duration(days: 365 * 10)),
+                                      builder: (BuildContext context, Widget? child) {
+                                        return DatePickerUtils.buildDatePickerWithFirstDayOfWeek(context, child, firstDayOfWeek);
+                                      });
                                   if (result != null) {
                                     setState(() {
                                       localDisplayEndDate = result;
@@ -1083,3 +1099,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 }
+
+
+
+

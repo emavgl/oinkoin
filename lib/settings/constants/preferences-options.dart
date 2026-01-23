@@ -40,6 +40,13 @@ class PreferencesOptions {
     "简化字": "zh-CN",
   };
 
+  static final Map<String, int> firstDayOfWeekDropdown = {
+    "Default (System)".i18n: 0,
+    "Monday".i18n: 1,
+    "Sunday".i18n: 7,
+    "Saturday".i18n: 6,
+  };
+
   static final Map<String, int> decimalDigits = {
     "0": 0,
     "1": 1,

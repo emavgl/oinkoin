@@ -51,6 +51,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   Future<void> fetchAllThePreferences() async {
     await fetchThemePreferences();
     await fetchLanguagePreferences();
+    await fetchWeekSettingsPreferences();
     await fetchNumberFormattingPreferences();
     await fetchAppLockPreferences();
     await fetchMiscPreferences();
@@ -94,6 +95,14 @@ class CustomizationPageState extends State<CustomizationPage> {
 
     languageDropdownKey = getKeyFromObject<String>(
         PreferencesOptions.languageDropdown, userDefinedLanguageLocale);
+  }
+
+  Future<void> fetchWeekSettingsPreferences() async {
+    int firstDayOfWeekValue = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.firstDayOfWeek)!;
+
+    firstDayOfWeekDropdownKey = getKeyFromObject<int>(
+        PreferencesOptions.firstDayOfWeekDropdown, firstDayOfWeekValue);
   }
 
   Future<void> fetchNumberFormattingPreferences() async {
@@ -199,6 +208,9 @@ class CustomizationPageState extends State<CustomizationPage> {
   // Language
   late String languageDropdownKey;
 
+  // Week settings
+  late String firstDayOfWeekDropdownKey;
+
   // Homepage
   late String homepageTimeIntervalValue;
   late String homepageOverviewWidgetTimeInterval;
@@ -262,6 +274,15 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues: PreferencesOptions.languageDropdown,
                       selectedDropdownKey: languageDropdownKey,
                       sharedConfigKey: PreferencesKeys.languageLocale,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "First Day of Week".i18n,
+                      subtitle: "Select the first day of the week".i18n +
+                          " - " +
+                      "Require App restart".i18n,
+                      dropdownValues: PreferencesOptions.firstDayOfWeekDropdown,
+                      selectedDropdownKey: firstDayOfWeekDropdownKey,
+                      sharedConfigKey: PreferencesKeys.firstDayOfWeek,
                     ),
                     SettingSeparator(title: "Appearance".i18n),
                     DropdownCustomizationItem(

@@ -7,6 +7,9 @@ class PreferencesKeys {
   // Language
   static const languageLocale = 'languageLocale';
 
+  // Week settings
+  static const firstDayOfWeek = 'firstDayOfWeek';
+
   // Number formatting
   static const decimalSeparator = 'decimalSeparator';
   static const groupSeparator = 'groupSeparator';
