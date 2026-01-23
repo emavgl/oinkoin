@@ -9,6 +9,7 @@ class PreferencesKeys {
 
   // Week settings
   static const firstDayOfWeek = 'firstDayOfWeek';
+  static const dateFormat = 'dateFormat';
 
   // Number formatting
   static const decimalSeparator = 'decimalSeparator';

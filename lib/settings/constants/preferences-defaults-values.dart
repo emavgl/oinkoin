@@ -14,6 +14,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.themeMode: 0, // Default theme mode index
     PreferencesKeys.languageLocale: "system",
     PreferencesKeys.firstDayOfWeek: 0, // Default to system
+    PreferencesKeys.dateFormat: "system",
     PreferencesKeys.decimalSeparator: getLocaleDecimalSeparator, // Default locale
     PreferencesKeys.groupSeparator: getLocaleGroupingSeparator, // Default locale
     PreferencesKeys.numberDecimalDigits: 2, // Default to 2 decimal places

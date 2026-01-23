@@ -158,6 +158,17 @@ String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod}) {
       return DateFormat.y(myLocale.toString()).format(dateTime!);
     }
   }
+
+  // Check for user preference
+  if (ServiceConfig.sharedPreferences != null) {
+    String? dateFormatPref = PreferencesUtils.getOrDefault<String>(
+        ServiceConfig.sharedPreferences!, PreferencesKeys.dateFormat);
+
+    if (dateFormatPref != null && dateFormatPref != "system" && dateFormatPref.isNotEmpty) {
+      return DateFormat(dateFormatPref, myLocale.toString()).format(dateTime!);
+    }
+  }
+
   return DateFormat.yMd(myLocale.toString()).format(dateTime!);
 }
 

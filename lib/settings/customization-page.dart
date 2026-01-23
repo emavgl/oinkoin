@@ -52,6 +52,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     await fetchThemePreferences();
     await fetchLanguagePreferences();
     await fetchWeekSettingsPreferences();
+    await fetchDateFormatPreferences();
     await fetchNumberFormattingPreferences();
     await fetchAppLockPreferences();
     await fetchMiscPreferences();
@@ -103,6 +104,14 @@ class CustomizationPageState extends State<CustomizationPage> {
 
     firstDayOfWeekDropdownKey = getKeyFromObject<int>(
         PreferencesOptions.firstDayOfWeekDropdown, firstDayOfWeekValue);
+  }
+
+  Future<void> fetchDateFormatPreferences() async {
+    String dateFormatValue = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.dateFormat)!;
+
+    dateFormatDropdownKey = getKeyFromObject<String>(
+        PreferencesOptions.dateFormatDropdown, dateFormatValue);
   }
 
   Future<void> fetchNumberFormattingPreferences() async {
@@ -210,6 +219,7 @@ class CustomizationPageState extends State<CustomizationPage> {
 
   // Week settings
   late String firstDayOfWeekDropdownKey;
+  late String dateFormatDropdownKey;
 
   // Homepage
   late String homepageTimeIntervalValue;
@@ -277,12 +287,20 @@ class CustomizationPageState extends State<CustomizationPage> {
                     ),
                     DropdownCustomizationItem(
                       title: "First Day of Week".i18n,
-                      subtitle: "Select the first day of the week".i18n +
-                          " - " +
-                      "Require App restart".i18n,
+                      subtitle: "Select the first day of the week".i18n,
                       dropdownValues: PreferencesOptions.firstDayOfWeekDropdown,
                       selectedDropdownKey: firstDayOfWeekDropdownKey,
                       sharedConfigKey: PreferencesKeys.firstDayOfWeek,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Date Format".i18n,
+                      subtitle: "Select the date format".i18n,
+                      dropdownValues: PreferencesOptions.dateFormatDropdown,
+                      selectedDropdownKey: dateFormatDropdownKey,
+                      sharedConfigKey: PreferencesKeys.dateFormat,
+                      onChanged: () {
+                        // Invalidate/refresh date format cache if any
+                      },
                     ),
                     SettingSeparator(title: "Appearance".i18n),
                     DropdownCustomizationItem(

@@ -47,6 +47,15 @@ class PreferencesOptions {
     "Saturday".i18n: 6,
   };
 
+  static final Map<String, String> dateFormatDropdown = {
+    "System".i18n: "system",
+    "31/01/2020": "dd/MM/yyyy",
+    "01/31/2020": "MM/dd/yyyy",
+    "2020-01-31": "yyyy-MM-dd",
+    "31 Jan 2020": "d MMM yyyy",
+    "Jan 31, 2020": "MMM d, yyyy",
+  };
+
   static final Map<String, int> decimalDigits = {
     "0": 0,
     "1": 1,
