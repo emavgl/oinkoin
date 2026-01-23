@@ -58,7 +58,7 @@ class GroupSeparatorFormatter extends TextInputFormatter {
       if (i < operators.length) result += operators[i]!;
     }
 
-    int offset = _calculateOffset(newValue.text, result);
+    int offset = _calculateOffset(newValue, result);
 
     return TextEditingValue(
       text: result,
@@ -66,10 +66,43 @@ class GroupSeparatorFormatter extends TextInputFormatter {
     );
   }
 
-  int _calculateOffset(String raw, String formatted) {
-    // Logic: The cursor should stay after the digit just typed,
-    // even if a grouping separator was inserted behind it.
-    int diff = formatted.length - raw.length;
-    return (raw.length + diff).clamp(0, formatted.length);
+  int _calculateOffset(TextEditingValue newValue, String formatted) {
+    // If selection is invalid, keep cursor at end of formatted text.
+    final int rawCursorPos = newValue.selection.baseOffset;
+    if (rawCursorPos < 0) return formatted.length;
+
+    final int cursorPos = rawCursorPos.clamp(0, newValue.text.length);
+
+    // Count how many non-separator characters are before the cursor in the
+    // *current* text, treating groupSep as possibly multi-character.
+    int cleanCursorUnits = 0;
+    int i = 0;
+    while (i < cursorPos) {
+      if (groupSep.isNotEmpty &&
+          i + groupSep.length <= cursorPos &&
+          newValue.text.startsWith(groupSep, i)) {
+        i += groupSep.length;
+        continue;
+      }
+      cleanCursorUnits++;
+      i++;
+    }
+
+    // Map that clean count onto the formatted string.
+    int formattedPos = 0;
+    int cleanSeen = 0;
+    while (formattedPos < formatted.length && cleanSeen < cleanCursorUnits) {
+      if (groupSep.isNotEmpty &&
+          formattedPos + groupSep.length <= formatted.length &&
+          formatted.startsWith(groupSep, formattedPos)) {
+        formattedPos += groupSep.length;
+        continue;
+      }
+      cleanSeen++;
+      formattedPos++;
+    }
+
+    return formattedPos.clamp(0, formatted.length);
   }
+
 }
