@@ -21,7 +21,6 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/records/formatter/group-separator-formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../components/category_icon_circle.dart';
 import '../helpers/date_picker_utils.dart';
