@@ -27,6 +27,10 @@ class ShellState extends State<Shell> {
   final GlobalKey<TabRecordsState> _tabRecordsKey = GlobalKey();
   final GlobalKey<TabCategoriesState> _tabCategoriesKey = GlobalKey();
 
+  final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _categoriesNavigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _settingsNavigatorKey = GlobalKey<NavigatorState>();
+
   Future<bool> _authenticate() async {
     // Skip biometric authentication on desktop platforms
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
@@ -113,13 +117,37 @@ class ShellState extends State<Shell> {
     ThemeMode themeMode = MaterialThemeInstance.themeMode!;
 
     return PopScope(
-      canPop: _currentIndex == 0,
-      onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (!didPop && _currentIndex != 0) {
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) {
+          return;
+        }
+
+        // Get the current tab's navigator
+        NavigatorState? currentNavigator;
+        switch (_currentIndex) {
+          case 0:
+            currentNavigator = _homeNavigatorKey.currentState;
+            break;
+          case 1:
+            currentNavigator = _categoriesNavigatorKey.currentState;
+            break;
+          case 2:
+            currentNavigator = _settingsNavigatorKey.currentState;
+            break;
+        }
+
+        // Check if the current tab's navigator can pop
+        if (currentNavigator != null && currentNavigator.canPop()) {
+          // Let the current tab handle the back navigation
+          currentNavigator.pop();
+        } else if (_currentIndex != 0) {
+          // If we're at the root of a non-Home tab, navigate to Home
           setState(() {
             _currentIndex = 0;
           });
         }
+        // If we're at Home and can't pop, do nothing (system will handle it)
       },
       child: Scaffold(
         body: Stack(children: <Widget>[
@@ -128,6 +156,7 @@ class ShellState extends State<Shell> {
           child: TickerMode(
             enabled: _currentIndex == 0,
             child: MaterialApp(
+              navigatorKey: _homeNavigatorKey,
               home: TabRecords(key: _tabRecordsKey),
               localizationsDelegates: I18n.localizationsDelegates,
               title: "Oinkoin",
@@ -142,6 +171,7 @@ class ShellState extends State<Shell> {
           child: TickerMode(
             enabled: _currentIndex == 1,
             child: MaterialApp(
+              navigatorKey: _categoriesNavigatorKey,
               home: TabCategories(key: _tabCategoriesKey),
               title: "Oinkoin",
               localizationsDelegates: I18n.localizationsDelegates,
@@ -156,6 +186,7 @@ class ShellState extends State<Shell> {
           child: TickerMode(
             enabled: _currentIndex == 2,
             child: MaterialApp(
+              navigatorKey: _settingsNavigatorKey,
               home: TabSettings(),
               localizationsDelegates: I18n.localizationsDelegates,
               title: "Oinkoin",
