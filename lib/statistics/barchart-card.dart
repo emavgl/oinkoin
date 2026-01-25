@@ -147,6 +147,8 @@ class BarChartCard extends StatelessWidget {
   Widget _buildLineChart(BuildContext context) {
     var isDarkMode = Theme.of(context).brightness == Brightness.dark;
     charts.Color labelAxesColor = isDarkMode ? Color.white : Color.black;
+    charts.Color gridLineColor = charts.MaterialPalette.gray.shade400;
+
     return new Container(
         padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
         child: new charts.BarChart(
@@ -191,14 +193,16 @@ class BarChartCard extends StatelessWidget {
                   // Change the line colors to match text color.
                   lineStyle: new charts.LineStyleSpec(color: labelAxesColor))),
           primaryMeasureAxis: new charts.NumericAxisSpec(
-              renderSpec: new charts.SmallTickRendererSpec(
+              renderSpec: new charts.GridlineRendererSpec(
                   // Tick and Label styling here.
                   labelStyle: new charts.TextStyleSpec(
                       fontSize: 14, // size in Pts.
                       color: labelAxesColor),
 
-                  // Change the line colors to match text color.
-                  lineStyle: new charts.LineStyleSpec(color: labelAxesColor)),
+                  // Change the line colors to match text color with grid lines
+                  lineStyle: new charts.LineStyleSpec(
+                      color: gridLineColor,
+                      thickness: 1)),
               tickProviderSpec:
                   new charts.StaticNumericTickProviderSpec(ticksListY)),
         ));

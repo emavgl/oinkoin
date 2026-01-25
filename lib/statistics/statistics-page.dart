@@ -3,6 +3,7 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-tab-page.dart';
+import 'package:piggybank/statistics/balance-tab-page.dart';
 import 'package:piggybank/i18n.dart';
 
 class StatisticsPage extends StatelessWidget {
@@ -19,7 +20,7 @@ class StatisticsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     String title = getDateRangeStr(from!, to!);
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
@@ -29,6 +30,9 @@ class StatisticsPage extends StatelessWidget {
               ),
               Tab(
                 text: "Income".i18n.toUpperCase(),
+              ),
+              Tab(
+                text: "Balance".i18n.toUpperCase(),
               )
             ],
           ),
@@ -53,6 +57,7 @@ class StatisticsPage extends StatelessWidget {
                     .where((element) =>
                         element!.category!.categoryType == CategoryType.income)
                     .toList()),
+            BalanceTabPage(from, to, records),
           ],
         ),
       ),
