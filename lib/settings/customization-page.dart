@@ -165,6 +165,9 @@ class CustomizationPageState extends State<CustomizationPage> {
         PreferencesOptions.homepageTimeInterval,
         userDefinedHomepageIntervalEnumIndex);
 
+    homepageRecordsMonthStartDay = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.homepageRecordsMonthStartDay)!;
+
     // Homepage overview widget
     var userDefinedHomepageOverviewIntervalEnumIndex =
         PreferencesUtils.getOrDefault<int>(
@@ -225,6 +228,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   late String homepageTimeIntervalValue;
   late String homepageOverviewWidgetTimeInterval;
   late String homepageRecordNotesVisible;
+  late String homepageRecordsMonthStartDay;
 
   // Number formatting
   late String decimalDigitsValueDropdownKey;
@@ -392,6 +396,14 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues: PreferencesOptions.homepageTimeInterval,
                       selectedDropdownKey: homepageTimeIntervalValue,
                       sharedConfigKey: PreferencesKeys.homepageTimeInterval,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Custom starting day of the month".i18n,
+                      subtitle:
+                      "Define the starting day of the month for records that show in the app homepage".i18n,
+                      dropdownValues: PreferencesOptions.monthDaysMap,
+                      selectedDropdownKey: homepageRecordsMonthStartDay,
+                      sharedConfigKey: PreferencesKeys.homepageRecordsMonthStartDay,
                     ),
                     DropdownCustomizationItem(
                       title:
