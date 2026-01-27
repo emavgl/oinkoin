@@ -225,6 +225,7 @@ class TabRecordsController {
       var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti, monthStartDay: startDay);
       intervalFrom = interval[0];
       intervalTo = interval[1];
+      debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
     }
 
     // Filter future records to only include those within the current time interval
