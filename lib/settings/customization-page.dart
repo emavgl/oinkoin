@@ -165,8 +165,12 @@ class CustomizationPageState extends State<CustomizationPage> {
         PreferencesOptions.homepageTimeInterval,
         userDefinedHomepageIntervalEnumIndex);
 
-    homepageRecordsMonthStartDay = PreferencesUtils.getOrDefault<String>(
+    var homepageRecordsMonthStartDayIndex = PreferencesUtils.getOrDefault<int>(
         prefs, PreferencesKeys.homepageRecordsMonthStartDay)!;
+
+    homepageRecordsMonthStartDay = getKeyFromObject<int>(
+        PreferencesOptions.monthDaysMap,
+        homepageRecordsMonthStartDayIndex);
 
     // Homepage overview widget
     var userDefinedHomepageOverviewIntervalEnumIndex =
