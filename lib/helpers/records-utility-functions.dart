@@ -278,6 +278,11 @@ OverviewTimeInterval getHomepageOverviewWidgetTimeIntervalEnumSetting() {
   return OverviewTimeInterval.values[userDefinedHomepageIntervalIndex];
 }
 
+int getHomepageRecordsMonthStartDay() {
+  return PreferencesUtils.getOrDefault<int>(
+      ServiceConfig.sharedPreferences!, PreferencesKeys.homepageRecordsMonthStartDay)!;
+}
+
 String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
   DateTime _now = DateTime.now();
   switch (timeInterval) {
@@ -293,12 +298,27 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
 }
 
 Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
-    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
+    DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
   DateTime _now = DateTime.now();
+  int _lastDayOf(int year, int month) => DateTime(year, month + 1, 0).day;
   switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
-      DateTime _from = new DateTime(_now.year, _now.month, 1);
-      DateTime _to = getEndOfMonth(_now.year, _now.month);
+    // 1. Determine which month the current cycle started in
+      int startYear = _now.year;
+      int startMonth = (_now.day >= monthStartDay) ? _now.month : _now.month - 1;
+
+      // 2. Calculate the SAFE start date (clamped to month end)
+      int safeStartDay = monthStartDay.clamp(1, _lastDayOf(startYear, startMonth));
+      DateTime _from = DateTime(startYear, startMonth, safeStartDay);
+
+      // 3. Calculate the SAFE end date (the day before the next cycle starts)
+      int endYear = startYear;
+      int endMonth = startMonth + 1;
+      int safeEndDay = monthStartDay.clamp(1, _lastDayOf(endYear, endMonth));
+
+      // End date is one second before the next cycle's start day
+      DateTime _to = DateTime(endYear, endMonth, safeEndDay).subtract(const Duration(seconds: 1));
+
       return [_from, _to];
     case HomepageTimeInterval.CurrentYear:
       DateTime _from = new DateTime(_now.year, 1, 1);
@@ -333,12 +353,40 @@ HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
   return HomepageTimeInterval.CurrentMonth;
 }
 
+int _getLastDayOfMonth(int year, int month) {
+  // Day 0 of next month is the last day of this month
+  return DateTime(year, month + 1, 0).day;
+}
+
 Future<List<Record?>> getRecordsByHomepageTimeInterval(
-    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
+    DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
   DateTime _now = DateTime.now();
   switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
-      return await getRecordsByMonth(database, _now.year, _now.month);
+      DateTime now = DateTime.now();
+      DateTime start;
+      DateTime end;
+
+      // Determine which month the current cycle started in
+      int startYear = now.year;
+      int startMonth = (now.day >= monthStartDay) ? now.month : now.month - 1;
+
+      // 1. Calculate the SAFE start day for THAT specific month
+      int safeStartDay = monthStartDay.clamp(1, _getLastDayOfMonth(startYear, startMonth));
+      start = DateTime(startYear, startMonth, safeStartDay);
+
+      // 2. Calculate the SAFE end day
+      // The end month is just startMonth + 1
+      int endYear = startYear;
+      int endMonth = startMonth + 1;
+
+      // If endMonth is 13, DateTime constructor handles it (becomes Jan of next year)
+      int safeEndDay = monthStartDay.clamp(1, _getLastDayOfMonth(endYear, endMonth));
+
+      // We want to end one second before the next cycle starts
+      end = DateTime(endYear, endMonth, safeEndDay).subtract(const Duration(seconds: 1));
+
+      return await getRecordsByInterval(database, start, end);
     case HomepageTimeInterval.CurrentYear:
       return await getRecordsByYear(database, _now.year);
     case HomepageTimeInterval.All:

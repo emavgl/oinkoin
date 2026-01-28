@@ -29,6 +29,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
     PreferencesKeys.amountInputKeyboardType: 0, // Default to phone keyboard (with math symbols)
     PreferencesKeys.homepageTimeInterval: HomepageTimeInterval.CurrentMonth.index, // Default interval (e.g., current month)
+    PreferencesKeys.homepageRecordsMonthStartDay: "Day 1", // Default start day (e.g., 1st day of the month)
     PreferencesKeys.homepageOverviewWidgetTimeInterval: OverviewTimeInterval.DisplayedRecords.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordNotesVisible: 0,
     PreferencesKeys.visualiseTagsInMainPage: true, // Default to enabled

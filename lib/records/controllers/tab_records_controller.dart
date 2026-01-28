@@ -218,12 +218,14 @@ class TabRecordsController {
       intervalTo = customIntervalTo!;
     } else {
       var hti = getHomepageTimeIntervalEnumSetting();
-      newRecords = await getRecordsByHomepageTimeInterval(_database, hti);
+      int startDay = getHomepageRecordsMonthStartDay();
+      newRecords = await getRecordsByHomepageTimeInterval(_database, hti, monthStartDay: startDay);
       header = getHeaderFromHomepageTimeInterval(hti);
       backgroundImageIndex = DateTime.now().month;
-      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti, monthStartDay: startDay);
       intervalFrom = interval[0];
       intervalTo = interval[1];
+      debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
     }
 
     // Filter future records to only include those within the current time interval
