@@ -117,7 +117,7 @@ class ShellState extends State<Shell> {
     ThemeMode themeMode = MaterialThemeInstance.themeMode!;
 
     return PopScope(
-      canPop: false,
+      canPop: _currentIndex == 0,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
         if (didPop) {
           return;
@@ -147,7 +147,7 @@ class ShellState extends State<Shell> {
             _currentIndex = 0;
           });
         }
-        // If we're at Home and can't pop, do nothing (system will handle it)
+        // If we're at Home and can't pop, the system will handle it (canPop: true)
       },
       child: Scaffold(
         body: Stack(children: <Widget>[
