@@ -39,8 +39,18 @@ jobs:
       - name: Run Flutter tests
         run: submodules/flutter/bin/flutter test
 
-      - name: Build validation APK
-        run: submodules/flutter/bin/flutter build apk --flavor pro --release
+      - name: Set up signing config
+        run: |
+          echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
+          echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" | base64 -d - > key.properties
+          export X_KEYSTORE_PATH="$(pwd)/upload-keystore.jks"
+          echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
+          cp key.properties android/key.properties
+
+      - name: Build Alpha APK for arm64
+        run: submodules/flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor alpha --release --target-platform android-arm64
+        env:
+          X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
   bump-version:
     name: Bump Version
