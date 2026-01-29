@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
@@ -188,8 +189,10 @@ String extractWeekdayString(DateTime dateTime) {
 }
 
 bool isFullMonth(DateTime from, DateTime to) {
-  return from.day == 1 &&
-      getEndOfMonth(from.year, from.month).isAtSameMomentAs(to);
+  // A month is "full" if the duration between from and to is roughly 28-31 days
+  // and they start/end on the same relative day.
+  final diff = to.difference(from).inDays;
+  return diff >= 27 && diff <= 32;
 }
 
 bool isFullYear(DateTime from, DateTime to) {
@@ -224,63 +227,74 @@ tz.Location getLocation(String timeZoneName) {
   }
 }
 
+/// Calculates the [from, to] range for a month starting on [startDay].
+List<DateTime> calculateMonthCycle(DateTime referenceDate, int startDay) {
+  int year = referenceDate.year;
+  int month = referenceDate.month;
+
+  // Determine if the cycle started in the previous calendar month
+  if (referenceDate.day < startDay) {
+    month -= 1;
+  }
+
+  // Helper for last day (handles the "31st" issue)
+  int lastDayOf(int y, int m) => DateTime(y, m + 1, 0).day;
+
+  // Start Date
+  int safeStartDay = startDay.clamp(1, lastDayOf(year, month));
+  DateTime from = DateTime(year, month, safeStartDay);
+
+  // End Date (Start of next cycle minus 1 second)
+  int nextMonth = month + 1;
+  int nextYear = year;
+  int safeEndDay = startDay.clamp(1, lastDayOf(nextYear, nextMonth));
+  DateTime to = DateTime(nextYear, nextMonth, safeEndDay).subtract(const Duration(seconds: 1));
+
+  return [from, to];
+}
+
 bool canShift(
-  int shift,
-  DateTime? customIntervalFrom,
-  DateTime? customIntervalTo,
-  HomepageTimeInterval hti,
-) {
-  // Get the current date
-  DateTime currentDate = DateTime.now();
-  currentDate = DateTime(currentDate.year, currentDate.month, currentDate.day);
+    int shift,
+    DateTime? customIntervalFrom,
+    DateTime? customIntervalTo,
+    HomepageTimeInterval hti,
+    ) {
+  // Moving Backward is always allowed
+  if (shift < 0) return true;
 
-  // Check if customIntervalFrom is not null
-  if (customIntervalFrom != null) {
-    // If it is a full month interval, check the destination month after shifting
-    if (isFullMonth(customIntervalFrom, customIntervalTo!)) {
-      // Create a new "from" date by shifting the month
-      DateTime newFrom = DateTime(
-          customIntervalFrom.year, customIntervalFrom.month + shift, 1);
-      return !newFrom.isAfter(currentDate);
-    }
+  // Setup reference points for Forward shifting
+  final DateTime now = DateTime.now();
+  final DateTime today = DateTime(now.year, now.month, now.day);
 
-    // If it is a full year interval, check the destination year after shifting
-    if (isFullYear(customIntervalFrom, customIntervalTo)) {
-      return customIntervalFrom.year + shift <= currentDate.year;
-    }
+  final DateTime currentFrom = customIntervalFrom ?? now;
 
-    // If it is a full week interval, check the destination week after shifting
-    if (isFullWeek(customIntervalFrom, customIntervalTo)) {
-      DateTime newFrom = customIntervalFrom.add(Duration(days: 7 * shift));
-      return !newFrom.isAfter(currentDate);
-    }
+  // Logic based on the Interval Type
+  switch (hti) {
+    case HomepageTimeInterval.CurrentMonth:
+      // Calculate what the "Next" cycle's start date would be
+      int startDay = getHomepageRecordsMonthStartDay();
 
-    // If neither full month nor full year, return false (cannot shift)
-    return false;
+      // We look at the month + 1
+      DateTime shiftedFrom = DateTime(currentFrom.year, currentFrom.month + shift, startDay);
+
+      // If the next interval starts after today, we can't shift forward
+      return !shiftedFrom.isAfter(today);
+
+    case HomepageTimeInterval.CurrentYear:
+      // Check if the next year is greater than this year
+      int targetYear = currentFrom.year + shift;
+      return targetYear <= today.year;
+
+    case HomepageTimeInterval.CurrentWeek:
+      // Check if the start of the next week is after today
+      DateTime shiftedWeekFrom = currentFrom.add(Duration(days: 7 * shift));
+      return !shiftedWeekFrom.isAfter(today);
+
+    case HomepageTimeInterval.All:
+      // "All" interval usually doesn't shift
+      return false;
+
+    default:
+      return false;
   }
-
-  // If customIntervalFrom is null, check based on the HomepageTimeInterval setting
-  DateTime d = DateTime.now();
-
-  // If it's the current month interval, check if shifting the month results in a valid date range
-  if (hti == HomepageTimeInterval.CurrentMonth) {
-    DateTime newFrom = DateTime(d.year, d.month + shift, 1);
-    return newFrom.isBefore(currentDate);
-  }
-
-  // If it's the current year interval, check if shifting the year results in a valid date range
-  if (hti == HomepageTimeInterval.CurrentYear) {
-    DateTime newFrom = DateTime(d.year + shift, d.month, 1);
-    return newFrom.year + shift <= currentDate.year;
-  }
-
-  // If it's the current week interval, check if shifting the week results in a valid date range
-  if (hti == HomepageTimeInterval.CurrentWeek) {
-    DateTime currentWeekStart = getStartOfWeek(d);
-    DateTime newFrom = currentWeekStart.add(Duration(days: 7 * shift));
-    return !newFrom.isAfter(currentDate);
-  }
-
-  // Default: If it doesn't match any of the above conditions, return false
-  return false;
 }

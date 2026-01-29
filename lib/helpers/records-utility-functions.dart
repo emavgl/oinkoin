@@ -283,6 +283,11 @@ int getHomepageRecordsMonthStartDay() {
       ServiceConfig.sharedPreferences!, PreferencesKeys.homepageRecordsMonthStartDay)!;
 }
 
+// 'MMMd' provides the localized month name and day (e.g., "Jan 15")
+String getShortDateStr(DateTime date) {
+  return DateFormat.MMMd().format(date);
+}
+
 String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
   DateTime _now = DateTime.now();
   switch (timeInterval) {

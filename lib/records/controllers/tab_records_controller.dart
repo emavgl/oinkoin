@@ -180,6 +180,29 @@ class TabRecordsController {
   // Data fetching
   Future<void> updateRecurrentRecordsAndFetchRecords() async {
     var recurrentRecordService = RecurrentRecordService();
+    final int startDay = getHomepageRecordsMonthStartDay();
+    HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
+
+    DateTime intervalFrom;
+    DateTime intervalTo;
+
+    if (customIntervalFrom != null) {
+      // If the user has manual navigation (Forward/Back), respect it
+      intervalFrom = customIntervalFrom!;
+      intervalTo = customIntervalTo!;
+    } else if (startDay != 1 && hti == HomepageTimeInterval.CurrentMonth) {
+      // If it's a custom start day and we are in "Month" view, calculate the cycle
+      var cycle = calculateMonthCycle(DateTime.now(), startDay);
+      intervalFrom = cycle[0];
+      intervalTo = cycle[1];
+      header = "${getShortDateStr(intervalFrom)} - ${getShortDateStr(intervalTo)}";
+    } else {
+      // Standard logic (Week, Year, or Day 1 Month)
+      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+      intervalFrom = interval[0];
+      intervalTo = interval[1];
+      header = getHeaderFromHomepageTimeInterval(hti);
+    }
 
     // Check if future records should be shown
     final prefs = await SharedPreferences.getInstance();
@@ -207,26 +230,28 @@ class TabRecordsController {
 
     // Fetch records from database
     List<Record?> newRecords;
-    DateTime intervalFrom;
-    DateTime intervalTo;
-
-    if (customIntervalFrom != null) {
-      newRecords = await getRecordsByInterval(
-          _database, customIntervalFrom, customIntervalTo);
-      backgroundImageIndex = customIntervalFrom!.month;
-      intervalFrom = customIntervalFrom!;
-      intervalTo = customIntervalTo!;
-    } else {
-      var hti = getHomepageTimeIntervalEnumSetting();
-      int startDay = getHomepageRecordsMonthStartDay();
-      newRecords = await getRecordsByHomepageTimeInterval(_database, hti, monthStartDay: startDay);
-      header = getHeaderFromHomepageTimeInterval(hti);
-      backgroundImageIndex = DateTime.now().month;
-      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti, monthStartDay: startDay);
-      intervalFrom = interval[0];
-      intervalTo = interval[1];
-      debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
-    }
+    newRecords = await getRecordsByInterval(_database, intervalFrom, intervalTo);
+    backgroundImageIndex = intervalFrom.month;
+    // DateTime intervalFrom;
+    // DateTime intervalTo;
+    //
+    // if (customIntervalFrom != null) {
+    //   newRecords = await getRecordsByInterval(
+    //       _database, customIntervalFrom, customIntervalTo);
+    //   backgroundImageIndex = customIntervalFrom!.month;
+    //   intervalFrom = customIntervalFrom!;
+    //   intervalTo = customIntervalTo!;
+    // } else {
+    //   var hti = getHomepageTimeIntervalEnumSetting();
+    //   int startDay = getHomepageRecordsMonthStartDay();
+    //   newRecords = await getRecordsByHomepageTimeInterval(_database, hti, monthStartDay: startDay);
+    //   header = getHeaderFromHomepageTimeInterval(hti);
+    //   backgroundImageIndex = DateTime.now().month;
+    //   var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti, monthStartDay: startDay);
+    //   intervalFrom = interval[0];
+    //   intervalTo = interval[1];
+    //   debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
+    // }
 
     // Filter future records to only include those within the current time interval
     // Convert interval bounds to UTC for proper comparison
@@ -267,6 +292,7 @@ class TabRecordsController {
     }
 
     onStateChanged();
+    debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
   }
 
   void _extractTags(List<Record?> records) {
@@ -434,49 +460,57 @@ class TabRecordsController {
     header = newHeader;
   }
 
-  Future<void> shiftMonthWeekYear(int shift) async {
-    DateTime newFrom;
-    DateTime newTo;
-    String newHeader;
+  /// TODO Resets the homepage navigation to the default "Current" view.
+  /// Call this whenever preferences (like Start Day or Interval) are changed.
+  void resetHomepageInterval() {
+    customIntervalFrom = null;
+    customIntervalTo = null;
+  }
 
-    if (customIntervalFrom != null) {
-      if (isFullMonth(customIntervalFrom!, customIntervalTo!)) {
-        newFrom = DateTime(
-            customIntervalFrom!.year, customIntervalFrom!.month + shift, 1);
-        newTo = getEndOfMonth(newFrom.year, newFrom.month);
-        newHeader = getMonthStr(newFrom);
-      } else if (isFullWeek(customIntervalFrom!, customIntervalTo!)) {
-        newFrom = customIntervalFrom!.add(Duration(days: 7 * shift));
-        newTo = newFrom.add(Duration(days: 6));
-        newHeader = getWeekStr(newFrom);
-      } else {
-        newFrom = DateTime(customIntervalFrom!.year + shift, 1, 1);
-        newTo = DateTime(newFrom.year, 12, 31, 23, 59);
-        newHeader = getYearStr(newFrom);
-      }
-    } else {
+  Future<void> shiftMonthWeekYear(int shift) async {
+    // If we don't have a custom interval yet, initialize it so we have a starting point
+    if (customIntervalFrom == null) {
+      final int startDay = getHomepageRecordsMonthStartDay();
       HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
-      DateTime d = DateTime.now();
-      if (hti == HomepageTimeInterval.CurrentMonth) {
-        newFrom = DateTime(d.year, d.month + shift, 1);
-        newTo = getEndOfMonth(newFrom.year, newFrom.month);
-        newHeader = getMonthStr(newFrom);
-      } else if (hti == HomepageTimeInterval.CurrentWeek) {
-        DateTime startOfWeek = getStartOfWeek(d);
-        newFrom = startOfWeek.add(Duration(days: 7 * shift));
-        newTo = newFrom.add(Duration(days: 6));
-        newHeader = getWeekStr(newFrom);
-      } else {
-        newFrom = DateTime(d.year + shift, 1, 1);
-        newTo = DateTime(newFrom.year, 12, 31, 23, 59);
-        newHeader = getYearStr(newFrom);
-      }
+      var initial = await getTimeIntervalFromHomepageTimeInterval(_database, hti, monthStartDay: startDay);
+      customIntervalFrom = initial[0];
+      customIntervalTo = initial[1];
     }
 
-    customIntervalFrom = newFrom;
-    customIntervalTo = newTo;
-    header = newHeader;
-    backgroundImageIndex = newFrom.month;
+    // Calculate New Dates
+    DateTime baseDate = customIntervalFrom ?? DateTime.now();
+    HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
+
+    if (hti == HomepageTimeInterval.CurrentMonth) {
+      int startDay = getHomepageRecordsMonthStartDay();
+    // Calculate the target month
+    // We move the month by the shift amount
+      DateTime targetRef = DateTime(baseDate.year, baseDate.month + shift, baseDate.day);
+      var newCycle = calculateMonthCycle(targetRef, startDay);
+
+      customIntervalFrom = newCycle[0];
+      customIntervalTo = newCycle[1];
+      header = (startDay == 1)
+          ? getMonthStr(customIntervalFrom!)
+          : "${getShortDateStr(customIntervalFrom!)} - ${getShortDateStr(customIntervalTo!)}";
+
+    } else if (hti == HomepageTimeInterval.CurrentWeek) {
+      customIntervalFrom = baseDate.add(Duration(days: 7 * shift));
+      customIntervalTo = customIntervalFrom!.add(Duration(days: 6, hours: 23, minutes: 59));
+      header = getWeekStr(customIntervalFrom!);
+    } else if (hti == HomepageTimeInterval.CurrentYear) {
+      // Calculate the new year
+      int targetYear = baseDate.year + shift;
+
+      // Set the full year range
+      customIntervalFrom = DateTime(targetYear, 1, 1);
+      customIntervalTo = DateTime(targetYear, 12, 31, 23, 59, 59);
+
+      // Update the Header
+      header = getYearStr(customIntervalFrom!);
+    }
+
+    backgroundImageIndex = customIntervalFrom!.month;
     await updateRecurrentRecordsAndFetchRecords();
   }
 
