@@ -3,8 +3,8 @@
 <div align="center">
   <img src="https://play-lh.googleusercontent.com/LHL_KxBCAr-Ee5grPRGyudqiME6g0fAfHTP5m1TyadDIyFoRfd2vr-vAzkfuAbCJjud5=w480-h960" alt="Image" style="border-radius: 50%; width: 150px; height: 150px;"></br>
   
-<a href="https://app.gitter.im/#/room/#oinkoin:gitter.im" target="_blank">
-  <img alt="Gitter" src="https://img.shields.io/gitter/room/oinkoin/oinkoin?link=https%3A%2F%2Fapp.gitter.im%2F%23%2Froom%2F%23oinkoin%3Agitter.im">
+<a href="https://app.element.io/#/room/#oinkoin:matrix.org" target="_blank">
+  <img alt="Matrix" src="https://img.shields.io/matrix/oinkoin%3Amatrix.org?link=https%3A%2F%2Fapp.element.io%2F%23%2Froom%2F!yGAxceDMeCmycXVuuw%3Amatrix.org&link=https%3A%2F%2Fapp.element.io%2F%23%2Froom%2F!yGAxceDMeCmycXVuuw%3Amatrix.org">
 </a>
 
 </div><br>
