@@ -227,6 +227,9 @@ tz.Location getLocation(String timeZoneName) {
   }
 }
 
+// Helper for last day (handles the "31st" issue)
+int lastDayOf(int year, int month) => DateTime(year, month + 1, 0).day;
+
 /// Calculates the [from, to] range for a month starting on [startDay].
 List<DateTime> calculateMonthCycle(DateTime referenceDate, int startDay) {
   int year = referenceDate.year;
@@ -236,9 +239,6 @@ List<DateTime> calculateMonthCycle(DateTime referenceDate, int startDay) {
   if (referenceDate.day < startDay) {
     month -= 1;
   }
-
-  // Helper for last day (handles the "31st" issue)
-  int lastDayOf(int y, int m) => DateTime(y, m + 1, 0).day;
 
   // Start Date
   int safeStartDay = startDay.clamp(1, lastDayOf(year, month));

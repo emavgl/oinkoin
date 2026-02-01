@@ -305,7 +305,6 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
 Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
     DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
   DateTime _now = DateTime.now();
-  int _lastDayOf(int year, int month) => DateTime(year, month + 1, 0).day;
   switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
     // 1. Determine which month the current cycle started in
@@ -313,13 +312,13 @@ Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
       int startMonth = (_now.day >= monthStartDay) ? _now.month : _now.month - 1;
 
       // 2. Calculate the SAFE start date (clamped to month end)
-      int safeStartDay = monthStartDay.clamp(1, _lastDayOf(startYear, startMonth));
+      int safeStartDay = monthStartDay.clamp(1, lastDayOf(startYear, startMonth));
       DateTime _from = DateTime(startYear, startMonth, safeStartDay);
 
       // 3. Calculate the SAFE end date (the day before the next cycle starts)
       int endYear = startYear;
       int endMonth = startMonth + 1;
-      int safeEndDay = monthStartDay.clamp(1, _lastDayOf(endYear, endMonth));
+      int safeEndDay = monthStartDay.clamp(1, lastDayOf(endYear, endMonth));
 
       // End date is one second before the next cycle's start day
       DateTime _to = DateTime(endYear, endMonth, safeEndDay).subtract(const Duration(seconds: 1));
