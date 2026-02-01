@@ -283,20 +283,7 @@ List<DateTime> calculateInterval(
     ) {
   switch (hti) {
     case HomepageTimeInterval.CurrentMonth:
-      // Determine the cycle start month
-      int year = referenceDate.year;
-      int month = (referenceDate.day >= monthStartDay) ? referenceDate.month : referenceDate.month - 1;
-
-      // Start Date
-      int safeStartDay = monthStartDay.clamp(1, lastDayOf(year, month));
-      DateTime from = DateTime(year, month, safeStartDay);
-
-      // End Date (Start of next cycle - 1 second)
-      int nextMonth = month + 1;
-      int nextYear = year;
-      int safeEndDay = monthStartDay.clamp(1, lastDayOf(nextYear, nextMonth));
-      DateTime to = DateTime(nextYear, nextMonth, safeEndDay).subtract(const Duration(seconds: 1));
-      return [from, to];
+      return calculateMonthCycle(referenceDate, monthStartDay);
 
     case HomepageTimeInterval.CurrentWeek:
       DateTime from = getStartOfWeek(referenceDate);
