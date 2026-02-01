@@ -521,15 +521,11 @@ class TabRecordsController {
   double getHeaderFontSize() => header.length > 13 ? 18.0 : 22.0;
   double getHeaderPaddingBottom() => header.length > 13 ? 15.0 : 13.0;
 
-  bool canShiftBack() {
-    return canShift(-1, customIntervalFrom, customIntervalTo,
-        getHomepageTimeIntervalEnumSetting());
-  }
+  bool canShiftBack() => isNavigable;
 
-  bool canShiftForward() {
-    return canShift(1, customIntervalFrom, customIntervalTo,
-        getHomepageTimeIntervalEnumSetting());
-  }
+  bool canShiftForward() => isNavigable;
+
+  bool get isNavigable => getHomepageTimeIntervalEnumSetting() != HomepageTimeInterval.All;
 
   TextEditingController get searchController => _searchController;
 
