@@ -253,48 +253,71 @@ List<DateTime> calculateMonthCycle(DateTime referenceDate, int startDay) {
   return [from, to];
 }
 
+/// Calculates the start and end [DateTime] for a given [hti]
+/// relative to a [referenceDate].
+List<DateTime> calculateInterval(
+    HomepageTimeInterval hti,
+    DateTime referenceDate,
+    {int monthStartDay = 1}
+    ) {
+  switch (hti) {
+    case HomepageTimeInterval.CurrentMonth:
+      // Determine the cycle start month
+      int year = referenceDate.year;
+      int month = (referenceDate.day >= monthStartDay) ? referenceDate.month : referenceDate.month - 1;
+
+      // Start Date
+      int safeStartDay = monthStartDay.clamp(1, lastDayOf(year, month));
+      DateTime from = DateTime(year, month, safeStartDay);
+
+      // End Date (Start of next cycle - 1 second)
+      int nextMonth = month + 1;
+      int nextYear = year;
+      int safeEndDay = monthStartDay.clamp(1, lastDayOf(nextYear, nextMonth));
+      DateTime to = DateTime(nextYear, nextMonth, safeEndDay).subtract(const Duration(seconds: 1));
+      return [from, to];
+
+    case HomepageTimeInterval.CurrentWeek:
+      DateTime from = getStartOfWeek(referenceDate);
+      DateTime to = from.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+      return [from, to];
+
+    case HomepageTimeInterval.CurrentYear:
+      DateTime from = DateTime(referenceDate.year, 1, 1);
+      DateTime to = DateTime(referenceDate.year, 12, 31, 23, 59, 59);
+      return [from, to];
+
+    default:
+      // Fallback for "All" or others
+      return [referenceDate, referenceDate];
+  }
+}
+
 bool canShift(
     int shift,
     DateTime? customIntervalFrom,
     DateTime? customIntervalTo,
     HomepageTimeInterval hti,
     ) {
-  // Moving Backward is always allowed
-  if (shift < 0) return true;
+  if (shift < 0) return true; // Backward is always allowed
+  if (hti == HomepageTimeInterval.All) return false;
 
-  // Setup reference points for Forward shifting
   final DateTime now = DateTime.now();
-  final DateTime today = DateTime(now.year, now.month, now.day);
-
   final DateTime currentFrom = customIntervalFrom ?? now;
 
-  // Logic based on the Interval Type
-  switch (hti) {
-    case HomepageTimeInterval.CurrentMonth:
-      // Calculate what the "Next" cycle's start date would be
-      int startDay = getHomepageRecordsMonthStartDay();
-
-      // We look at the month + 1
-      DateTime shiftedFrom = DateTime(currentFrom.year, currentFrom.month + shift, startDay);
-
-      // If the next interval starts after today, we can't shift forward
-      return !shiftedFrom.isAfter(today);
-
-    case HomepageTimeInterval.CurrentYear:
-      // Check if the next year is greater than this year
-      int targetYear = currentFrom.year + shift;
-      return targetYear <= today.year;
-
-    case HomepageTimeInterval.CurrentWeek:
-      // Check if the start of the next week is after today
-      DateTime shiftedWeekFrom = currentFrom.add(Duration(days: 7 * shift));
-      return !shiftedWeekFrom.isAfter(today);
-
-    case HomepageTimeInterval.All:
-      // "All" interval usually doesn't shift
-      return false;
-
-    default:
-      return false;
+  // We shift by adding 'shift' to the month/year/week reference
+  DateTime targetRef;
+  if (hti == HomepageTimeInterval.CurrentMonth) {
+    targetRef = DateTime(currentFrom.year, currentFrom.month + shift, getHomepageRecordsMonthStartDay());
+  } else if (hti == HomepageTimeInterval.CurrentYear) {
+    targetRef = DateTime(currentFrom.year + shift, 1, 1);
+  } else {
+    targetRef = currentFrom.add(Duration(days: 7 * shift));
   }
+
+  List<DateTime> targetInterval = calculateInterval(hti, targetRef, monthStartDay: getHomepageRecordsMonthStartDay());
+
+  // Can shift if the target start date is not after today
+  return !targetInterval[0].isAfter(now);
 }
+

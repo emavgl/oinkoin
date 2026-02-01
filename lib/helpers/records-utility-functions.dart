@@ -304,43 +304,19 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
 
 Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
     DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
-  DateTime _now = DateTime.now();
-  switch (timeInterval) {
-    case HomepageTimeInterval.CurrentMonth:
-    // 1. Determine which month the current cycle started in
-      int startYear = _now.year;
-      int startMonth = (_now.day >= monthStartDay) ? _now.month : _now.month - 1;
 
-      // 2. Calculate the SAFE start date (clamped to month end)
-      int safeStartDay = monthStartDay.clamp(1, lastDayOf(startYear, startMonth));
-      DateTime _from = DateTime(startYear, startMonth, safeStartDay);
+  DateTime now = DateTime.now();
 
-      // 3. Calculate the SAFE end date (the day before the next cycle starts)
-      int endYear = startYear;
-      int endMonth = startMonth + 1;
-      int safeEndDay = monthStartDay.clamp(1, lastDayOf(endYear, endMonth));
-
-      // End date is one second before the next cycle's start day
-      DateTime _to = DateTime(endYear, endMonth, safeEndDay).subtract(const Duration(seconds: 1));
-
-      return [_from, _to];
-    case HomepageTimeInterval.CurrentYear:
-      DateTime _from = new DateTime(_now.year, 1, 1);
-      DateTime _to = new DateTime(_now.year, 12, 31, 23, 59);
-      return [_from, _to];
-    case HomepageTimeInterval.All:
-      DateTime? _from = await database.getDateTimeFirstRecord();
-      if (_from == null) {
-        DateTime _from = new DateTime(_now.year, _now.month, 1);
-        DateTime _to = getEndOfMonth(_now.year, _now.month);
-        return [_from, _to];
-      }
-      return [_from, _now];
-    case HomepageTimeInterval.CurrentWeek:
-      DateTime? _from = getStartOfWeek(_now);
-      DateTime? _to = getEndOfWeek(_now);
-      return [_from, _to];
+  if (timeInterval == HomepageTimeInterval.All) {
+    DateTime? firstRecord = await database.getDateTimeFirstRecord();
+    if (firstRecord == null) {
+      // Fallback to current month if no records exist
+      return calculateInterval(HomepageTimeInterval.CurrentMonth, now, monthStartDay: monthStartDay);
+    }
+    return [firstRecord, now];
   }
+
+  return calculateInterval(timeInterval, now, monthStartDay: monthStartDay);
 }
 
 HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
