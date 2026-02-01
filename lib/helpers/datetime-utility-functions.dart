@@ -189,10 +189,8 @@ String extractWeekdayString(DateTime dateTime) {
 }
 
 bool isFullMonth(DateTime from, DateTime to) {
-  // A month is "full" if the duration between from and to is roughly 28-31 days
-  // and they start/end on the same relative day.
-  final diff = to.difference(from).inDays;
-  return diff >= 27 && diff <= 32;
+  return from.day == 1 &&
+      getEndOfMonth(from.year, from.month).isAtSameMomentAs(to);
 }
 
 bool isFullYear(DateTime from, DateTime to) {
