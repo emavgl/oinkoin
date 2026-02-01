@@ -467,50 +467,53 @@ class TabRecordsController {
     customIntervalTo = null;
   }
 
+  /// Navigates the homepage view forward or backward by a specific number of intervals.
+  ///
+  /// [shift] - An integer representing the number of periods to move.
+  /// Positive moves forward in time, negative moves backward.
+  ///
+  /// This method:
+  /// 1. Determines the current viewing period (defaults to 'now' if first load).
+  /// 2. Calculates the new target period using [calculateInterval].
+  /// 3. Updates the global [customIntervalFrom], [customIntervalTo], and [header].
+  /// 4. Triggers a database fetch for the new date range.
   Future<void> shiftMonthWeekYear(int shift) async {
-    // If we don't have a custom interval yet, initialize it so we have a starting point
-    if (customIntervalFrom == null) {
-      final int startDay = getHomepageRecordsMonthStartDay();
-      HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
-      var initial = await getTimeIntervalFromHomepageTimeInterval(_database, hti, monthStartDay: startDay);
-      customIntervalFrom = initial[0];
-      customIntervalTo = initial[1];
+    final int startDay = getHomepageRecordsMonthStartDay();
+    final HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
+
+    DateTime baseDate = customIntervalFrom ?? DateTime.now();
+
+    DateTime targetRef;
+    if (hti == HomepageTimeInterval.CurrentMonth) {
+      // We add the shift to the month.
+      targetRef = DateTime(baseDate.year, baseDate.month + shift, startDay);
+    } else if (hti == HomepageTimeInterval.CurrentYear) {
+      targetRef = DateTime(baseDate.year + shift, 1, 1);
+    } else {
+      // Weekly shift
+      targetRef = baseDate.add(Duration(days: 7 * shift));
     }
 
-    // Calculate New Dates
-    DateTime baseDate = customIntervalFrom ?? DateTime.now();
-    HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
+    List<DateTime> newInterval = calculateInterval(hti, targetRef, monthStartDay: startDay);
 
+    // Update the state
+    customIntervalFrom = newInterval[0];
+    customIntervalTo = newInterval[1];
+
+    // Update Header (Slightly cleaner logic for Day 1 vs Cycle)
     if (hti == HomepageTimeInterval.CurrentMonth) {
-      int startDay = getHomepageRecordsMonthStartDay();
-    // Calculate the target month
-    // We move the month by the shift amount
-      DateTime targetRef = DateTime(baseDate.year, baseDate.month + shift, baseDate.day);
-      var newCycle = calculateMonthCycle(targetRef, startDay);
-
-      customIntervalFrom = newCycle[0];
-      customIntervalTo = newCycle[1];
       header = (startDay == 1)
           ? getMonthStr(customIntervalFrom!)
           : "${getShortDateStr(customIntervalFrom!)} - ${getShortDateStr(customIntervalTo!)}";
-
-    } else if (hti == HomepageTimeInterval.CurrentWeek) {
-      customIntervalFrom = baseDate.add(Duration(days: 7 * shift));
-      customIntervalTo = customIntervalFrom!.add(Duration(days: 6, hours: 23, minutes: 59));
-      header = getWeekStr(customIntervalFrom!);
     } else if (hti == HomepageTimeInterval.CurrentYear) {
-      // Calculate the new year
-      int targetYear = baseDate.year + shift;
-
-      // Set the full year range
-      customIntervalFrom = DateTime(targetYear, 1, 1);
-      customIntervalTo = DateTime(targetYear, 12, 31, 23, 59, 59);
-
-      // Update the Header
       header = getYearStr(customIntervalFrom!);
+    } else {
+      header = getWeekStr(customIntervalFrom!);
     }
 
     backgroundImageIndex = customIntervalFrom!.month;
+
+    // Fetch records (now sees customIntervalFrom is not null and uses it)
     await updateRecurrentRecordsAndFetchRecords();
   }
 

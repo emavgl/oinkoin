@@ -253,8 +253,16 @@ List<DateTime> calculateMonthCycle(DateTime referenceDate, int startDay) {
   return [from, to];
 }
 
-/// Calculates the start and end [DateTime] for a given [hti]
-/// relative to a [referenceDate].
+/// Calculates the start and end boundaries for a time period based on a reference date.
+///
+///
+/// [hti] - The type of interval to calculate (Month, Week, Year).
+/// [referenceDate] - The date used as the anchor for the calculation.
+/// [monthStartDay] - The day of the month (1-31) when a cycle begins.
+/// Defaults to 1 for standard calendar months.
+///
+/// Returns a [List<DateTime>] where index 0 is the start (from) and
+/// index 1 is the end (to) of the interval.
 List<DateTime> calculateInterval(
     HomepageTimeInterval hti,
     DateTime referenceDate,
@@ -293,31 +301,23 @@ List<DateTime> calculateInterval(
   }
 }
 
+/// Determines whether the navigation controls (back/forward) should be enabled.
+///
+/// [shift] - The direction of the intended move.
+/// [customIntervalFrom] - The current start date of the view.
+/// [customIntervalTo] - The current end date of the view.
+/// [hti] - The current interval type setting.
+///
+/// Returns [true] if the user is allowed to navigate in the given direction.
+/// Following current repository guidelines, shifting is enabled for all
+/// time-bound intervals (Month, Week, Year) regardless of the current date.
+/// Shifting is disabled only for the [HomepageTimeInterval.All] view.
 bool canShift(
     int shift,
     DateTime? customIntervalFrom,
     DateTime? customIntervalTo,
     HomepageTimeInterval hti,
     ) {
-  if (shift < 0) return true; // Backward is always allowed
   if (hti == HomepageTimeInterval.All) return false;
-
-  final DateTime now = DateTime.now();
-  final DateTime currentFrom = customIntervalFrom ?? now;
-
-  // We shift by adding 'shift' to the month/year/week reference
-  DateTime targetRef;
-  if (hti == HomepageTimeInterval.CurrentMonth) {
-    targetRef = DateTime(currentFrom.year, currentFrom.month + shift, getHomepageRecordsMonthStartDay());
-  } else if (hti == HomepageTimeInterval.CurrentYear) {
-    targetRef = DateTime(currentFrom.year + shift, 1, 1);
-  } else {
-    targetRef = currentFrom.add(Duration(days: 7 * shift));
-  }
-
-  List<DateTime> targetInterval = calculateInterval(hti, targetRef, monthStartDay: getHomepageRecordsMonthStartDay());
-
-  // Can shift if the target start date is not after today
-  return !targetInterval[0].isAfter(now);
+  return true;
 }
-
