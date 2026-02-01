@@ -525,6 +525,7 @@ class TabRecordsController {
 
   bool canShiftForward() => isNavigable;
 
+  /// Shifting is disabled only for the [HomepageTimeInterval.All] view.
   bool get isNavigable => getHomepageTimeIntervalEnumSetting() != HomepageTimeInterval.All;
 
   TextEditingController get searchController => _searchController;
