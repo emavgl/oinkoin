@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -13,6 +14,75 @@ void main() {
     // Initialize date formatting for both locales
     await initializeDateFormatting('en_US', null);
     await initializeDateFormatting('en_GB', null);
+  });
+
+  group('calculateMonthCycle Tests', () {
+    test('Standard month cycle (Start Day 1)', () {
+      final ref = DateTime(2024, 6, 15);
+      final result = calculateMonthCycle(ref, 1);
+
+      expect(result[0], DateTime(2024, 6, 1));
+      expect(result[1].day, 30);
+      expect(result[1].month, 6);
+    });
+
+    test('Custom cycle mid-month (Start Day 15, Ref after 15th)', () {
+      final ref = DateTime(2024, 6, 20); // Today is the 20th
+      final result = calculateMonthCycle(ref, 15);
+
+      // Cycle should be June 15 to July 14
+      expect(result[0], DateTime(2024, 6, 15));
+      expect(result[1].month, 7);
+      expect(result[1].day, 14);
+    });
+
+    test('Custom cycle mid-month (Start Day 15, Ref before 15th)', () {
+      final ref = DateTime(2024, 6, 10); // Today is the 10th
+      final result = calculateMonthCycle(ref, 15);
+
+      // Cycle should have started in the previous month: May 15 to June 14
+      expect(result[0], DateTime(2024, 5, 15));
+      expect(result[1].month, 6);
+      expect(result[1].day, 14);
+    });
+
+    test('Leap Year Clamping (Start Day 31 in February)', () {
+      final ref = DateTime(2024, 2, 10); // 2024 is a leap year
+      final result = calculateMonthCycle(ref, 31);
+
+      // February has 29 days in 2024. 31 should clamp to 29.
+      // Logic: ref day (10) < startDay (31), so it looks at January.
+      // Start: Jan 31. End: Feb 28 (Feb 29 - 1 sec).
+      expect(result[0], DateTime(2024, 1, 31));
+      expect(result[1].month, 2);
+      expect(result[1].day, 28); // The day before the next cycle starts (Feb 29)
+    });
+  });
+
+  group('calculateInterval Tests', () {
+    test('Year interval calculation', () {
+      final ref = DateTime(2024, 5, 20);
+      final result = calculateInterval(HomepageTimeInterval.CurrentYear, ref);
+      expect(result[0], DateTime(2024, 1, 1));
+      expect(result[1], DateTime(2024, 12, 31, 23, 59, 59));
+    });
+
+    test('All interval fallback', () {
+      final ref = DateTime(2024, 5, 20);
+      final result = calculateInterval(HomepageTimeInterval.All, ref);
+
+      // Should return the reference date as a fallback
+      expect(result[0], ref);
+      expect(result[1], ref);
+    });
+
+    test('Month interval calculation', () {
+      final ref = DateTime(2024, 5, 20);
+      // [monthStartDay] is default to 1
+      final result = calculateInterval(HomepageTimeInterval.CurrentMonth, ref);
+      expect(result[0], DateTime(2024, 5, 1));
+      expect(result[1], DateTime(2024, 5, 31, 23, 59, 59));
+    });
   });
 
   // Tests for locales where week starts on SUNDAY (en_US)
