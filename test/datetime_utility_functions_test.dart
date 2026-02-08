@@ -106,6 +106,17 @@ void main() {
       expect(result[0], DateTime(2025, 12, 28));
       expect(result[1], DateTime(2026, 1, 3, 23, 59, 59));
     });
+
+    test('CurrentWeek: Leap Year inclusive week', () {
+      // February 29, 2024 (Leap Day)
+      final ref = DateTime(2024, 2, 29);
+      final result = calculateInterval(HomepageTimeInterval.CurrentWeek, ref);
+
+      // Sunday Start: Feb 25
+      // Saturday End: March 2
+      expect(result[0], DateTime(2024, 2, 25));
+      expect(result[1], DateTime(2024, 3, 2, 23, 59, 59));
+    });
   });
 
   // Tests for locales where week starts on SUNDAY (en_US)
