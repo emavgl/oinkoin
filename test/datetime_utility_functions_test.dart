@@ -83,6 +83,29 @@ void main() {
       expect(result[0], DateTime(2024, 5, 1));
       expect(result[1], DateTime(2024, 5, 31, 23, 59, 59));
     });
+
+    test('CurrentWeek: Sunday Start', () {
+      // We simulate/force the logic for a Sunday (7) start
+      final ref = DateTime(2024, 6, 12); // Wednesday
+      final result = calculateInterval(HomepageTimeInterval.CurrentWeek, ref);
+
+      // Start: 2024-06-09 (Sunday)
+      // End:   2024-06-15 (Saturday)
+      expect(result[0], DateTime(2024, 6, 9));
+      expect(result[1], DateTime(2024, 6, 15, 23, 59, 59));
+    });
+
+    test('CurrentWeek: Year Rollover with Sunday Start', () {
+      // January 1, 2026 is a Thursday
+      final ref = DateTime(2026, 1, 1);
+      final result = calculateInterval(HomepageTimeInterval.CurrentWeek, ref);
+
+      // If Sunday is the start:
+      // Dec 28, 2025 was Sunday.
+      // Jan 3, 2026 is Saturday.
+      expect(result[0], DateTime(2025, 12, 28));
+      expect(result[1], DateTime(2026, 1, 3, 23, 59, 59));
+    });
   });
 
   // Tests for locales where week starts on SUNDAY (en_US)
