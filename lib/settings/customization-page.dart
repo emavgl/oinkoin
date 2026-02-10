@@ -143,6 +143,11 @@ class CustomizationPageState extends State<CustomizationPage> {
     groupSeparatorDropdownKey = getKeyFromObject<String>(
         PreferencesOptions.groupSeparators, usedDefinedGroupSeparatorValue);
 
+    amountInputAutoDecimalShift = PreferencesUtils.getOrDefault<bool>(
+      ServiceConfig.sharedPreferences!,
+      PreferencesKeys.amountInputAutoDecimalShift,
+    )!;
+
     allowedGroupSeparatorsValues = Map.from(PreferencesOptions.groupSeparators);
     allowedGroupSeparatorsValues.remove(decimalSeparatorDropdownKey);
 
@@ -235,6 +240,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   late String amountInputKeyboardTypeDropdownKey;
   late Map<String, String> allowedGroupSeparatorsValues;
   late String groupSeparatorDropdownKey;
+  late bool amountInputAutoDecimalShift;
 
   // Locks
   late bool appLockIsAvailable;
@@ -383,6 +389,12 @@ class CustomizationPageState extends State<CustomizationPage> {
                         sharedConfigKey:
                             PreferencesKeys.overwriteCommaValueWithDot,
                       ),
+                    ),
+                    SwitchCustomizationItem(
+                      title: "Auto decimal input",
+                      subtitle: "Typing 500 becomes 5${getDecimalSeparator()}00", // TODO: i18n
+                      switchValue: amountInputAutoDecimalShift,
+                      sharedConfigKey: PreferencesKeys.amountInputAutoDecimalShift,
                     ),
                     SettingSeparator(title: "Homepage settings".i18n),
                     DropdownCustomizationItem(
