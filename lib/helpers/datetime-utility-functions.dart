@@ -29,7 +29,7 @@ DateTime getEndOfMonth(int year, int month) {
   DateTime lastDayOfMonths = (month < 12)
       ? new DateTime(year, month + 1, 0)
       : new DateTime(year + 1, 1, 0);
-  return addDuration(lastDayOfMonths, Duration(hours: 23, minutes: 59));
+  return addDuration(lastDayOfMonths, Duration(hours: 23, minutes: 59, seconds: 59));
 }
 
 String getDateRangeStr(DateTime start, DateTime end) {

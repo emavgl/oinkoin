@@ -44,6 +44,7 @@ void main() {
     // Initialize shared preferences with defaults
     SharedPreferences.setMockInitialValues({
       PreferencesKeys.homepageTimeInterval: HomepageTimeInterval.CurrentMonth.index,
+      PreferencesKeys.homepageRecordsMonthStartDay: 1,
     });
     sharedPreferences = await SharedPreferences.getInstance();
     ServiceConfig.sharedPreferences = sharedPreferences;
@@ -94,12 +95,17 @@ void main() {
       controller.customIntervalFrom = DateTime(2024, 1, 1);
       controller.customIntervalTo = DateTime(2024, 12, 31, 23, 59);
 
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentYear.index,
+      );
+
       // Act: Shift forward by 1 year
       await controller.shiftMonthWeekYear(1);
 
       // Assert: Should now be 2025
       expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
-      expect(controller.customIntervalTo, DateTime(2025, 12, 31, 23, 59));
+      expect(controller.customIntervalTo, DateTime(2025, 12, 31, 23, 59, 59));
     });
 
     test('should shift year backward by 1 with custom interval set to a full year', () async {
@@ -107,12 +113,17 @@ void main() {
       controller.customIntervalFrom = DateTime(2025, 1, 1);
       controller.customIntervalTo = DateTime(2025, 12, 31, 23, 59);
 
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentYear.index,
+      );
+
       // Act: Shift backward by 1 year
       await controller.shiftMonthWeekYear(-1);
 
       // Assert: Should now be 2024
       expect(controller.customIntervalFrom, DateTime(2024, 1, 1));
-      expect(controller.customIntervalTo, DateTime(2024, 12, 31, 23, 59));
+      expect(controller.customIntervalTo, DateTime(2024, 12, 31, 23, 59, 59));
     });
 
     test('should shift week forward by 1 when HomepageTimeInterval is CurrentWeek', () async {
@@ -189,9 +200,10 @@ void main() {
       await controller.shiftMonthWeekYear(1);
 
       // Assert: Should be next month
-      DateTime expectedDate = DateTime(now.year, now.month + 1, 1);
-      expect(controller.customIntervalFrom, expectedDate);
-      expect(controller.customIntervalTo, getEndOfMonth(expectedDate.year, expectedDate.month));
+      DateTime expectedDateFrom = DateTime(now.year, now.month + 1, 1);
+      DateTime expectedDateTo = getEndOfMonth(expectedDateFrom.year, expectedDateFrom.month);
+      expect(controller.customIntervalFrom, expectedDateFrom);
+      expect(controller.customIntervalTo, expectedDateTo);
     });
 
     test('should shift year forward when HomepageTimeInterval is CurrentYear', () async {
@@ -211,7 +223,7 @@ void main() {
 
       // Assert: Should be next year
       expect(controller.customIntervalFrom, DateTime(now.year + 1, 1, 1));
-      expect(controller.customIntervalTo, DateTime(now.year + 1, 12, 31, 23, 59));
+      expect(controller.customIntervalTo, DateTime(now.year + 1, 12, 31, 23, 59, 59));
     });
 
     test('should update backgroundImageIndex to the new month', () async {
