@@ -275,5 +275,7 @@
   "dot": "نقطة",
   "none": "none",
   "space": "فضاء",
-  "underscore": "واصلة سفلية"
+  "underscore": "واصلة سفلية",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
