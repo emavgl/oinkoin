@@ -275,5 +275,7 @@
   "dot": "крапка",
   "none": "порожньо",
   "space": "пробіл",
-  "underscore": "підкреслити"
+  "underscore": "підкреслити",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
