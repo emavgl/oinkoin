@@ -275,5 +275,7 @@
   "dot": "točka",
   "none": "bez",
   "space": "razmak",
-  "underscore": "podvlaka"
+  "underscore": "podvlaka",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
