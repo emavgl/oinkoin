@@ -98,9 +98,16 @@ class TabRecordsState extends State<TabRecords> {
         child: NotificationListener<ScrollNotification>(
           key: ValueKey(_controller.header),
           onNotification: (scrollInfo) {
-            setState(() {
-              _isAppBarExpanded = scrollInfo.metrics.pixels < 100;
-            });
+            final isExpanded = scrollInfo.metrics.pixels < 100;
+            if (_isAppBarExpanded != isExpanded) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    _isAppBarExpanded = isExpanded;
+                  });
+                }
+              });
+            }
             return true;
           },
           child: CustomScrollView(

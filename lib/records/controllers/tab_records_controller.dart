@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../categories/categories-tab-page-view.dart';
@@ -23,7 +24,6 @@ import '../../settings/constants/homepage-time-interval.dart';
 import '../../settings/constants/overview-time-interval.dart';
 import '../../settings/constants/preferences-keys.dart';
 import '../../settings/preferences-utils.dart';
-import '../../statistics/statistics-page.dart';
 import '../components/filter_modal_content.dart';
 
 class TabRecordsController {
@@ -316,12 +316,12 @@ class TabRecordsController {
       var hti = getHomepageTimeIntervalEnumSetting();
       getTimeIntervalFromHomepageTimeInterval(_database, hti)
           .then((userDefinedInterval) => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StatisticsPage(userDefinedInterval[0],
-                      userDefinedInterval[1], filteredRecords),
-                ),
-              ));
+        context,
+        MaterialPageRoute(
+          builder: (context) => StatisticsPage(userDefinedInterval[0],
+              userDefinedInterval[1], filteredRecords),
+        ),
+      ));
     } else {
       Navigator.push(
         context,
