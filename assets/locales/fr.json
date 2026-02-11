@@ -275,5 +275,7 @@
   "dot": "point",
   "none": "none",
   "space": "espace",
-  "underscore": "tiret bas"
+  "underscore": "tiret bas",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
