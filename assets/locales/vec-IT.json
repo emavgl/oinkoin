@@ -275,5 +275,7 @@
   "dot": "ponto",
   "none": "none",
   "space": "spasio",
-  "underscore": "underscore"
+  "underscore": "underscore",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
