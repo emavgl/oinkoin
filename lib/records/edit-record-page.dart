@@ -18,6 +18,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
 import 'package:piggybank/records/formatter/group-separator-formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -73,6 +74,8 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Set<String> _selectedTags = {};
   Set<String> _suggestedTags = {};
+
+  final autoDec = getAmountInputAutoDecimalShift();
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
@@ -756,12 +759,23 @@ class EditRecordPageState extends State<EditRecordPage> {
                       decimalSep: getDecimalSeparator(),
                       groupSep: getGroupingSeparator(),
                     ),
-                    FilteringTextInputFormatter.deny(
-                      allowedRegex,
-                    ),
-                    GroupSeparatorFormatter(
+                    FilteringTextInputFormatter.deny(allowedRegex),
+
+                    if (autoDec)
+                      AutoDecimalShiftFormatter(
+                        decimalDigits: getNumberDecimalDigits(),
+                        decimalSep: getDecimalSeparator(),
                         groupSep: getGroupingSeparator(),
-                        decimalSep: getDecimalSeparator())
+                      ),
+                    if (!autoDec)
+                      GroupSeparatorFormatter(
+                        groupSep: getGroupingSeparator(),
+                        decimalSep: getDecimalSeparator(),
+                      ),
+                    LeadingZeroIntegerTrimmerFormatter(
+                      decimalSep: getDecimalSeparator(),
+                      groupSep: getGroupingSeparator(),
+                    ),
                   ],
                   autofocus: record!.value == null,
                   onChanged: (text) {
