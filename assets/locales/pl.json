@@ -275,5 +275,7 @@
   "dot": "kropka",
   "none": "brak",
   "space": "spacja",
-  "underscore": "podkreślenie"
+  "underscore": "podkreślenie",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
