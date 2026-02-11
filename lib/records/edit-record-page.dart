@@ -242,6 +242,22 @@ class EditRecordPageState extends State<EditRecordPage> {
       record = Record(null, null, passedCategory, DateTime.now().toUtc());
       localDisplayDate = record!.localDateTime;
       _selectedTags = {};
+      if (autoDec && record!.value == null) {
+        final decSep = getDecimalSeparator();
+        final decDigits = getNumberDecimalDigits();
+
+        final zeroText = decDigits <= 0
+            ? '0'
+            : '0$decSep${List.filled(decDigits, '0').join()}';
+
+        _textEditingController.value = _textEditingController.value.copyWith(
+          text: zeroText,
+          selection: TextSelection.collapsed(offset: zeroText.length),
+          composing: TextRange.empty,
+        );
+
+        changeRecordValue(zeroText);
+      }
     }
 
     // Load most used tags for the current category
@@ -724,6 +740,13 @@ class EditRecordPageState extends State<EditRecordPage> {
     /// that is not a digit, math operator, or an allowed separator.
     /// Regex Safety: Employs [RegExp.escape()] to ensure active separators
     /// are treated as literal characters rather than regex metacharacters.
+    final decimalSep = getDecimalSeparator();
+    final groupSep = getGroupingSeparator();
+    final decDigits = getNumberDecimalDigits();
+    final shouldAutofocus = !readOnly && passedRecord == null && passedReccurrentRecordPattern == null;
+    final zeroHint = (autoDec && decDigits > 0)
+        ? '0$decimalSep${List.filled(decDigits, '0').join()}'
+        : '0';
     final allowedRegex =
         RegExp('[^0-9\\+\\-\\*/%${RegExp.escape(getDecimalSeparator())}${RegExp.escape(getGroupingSeparator())}]');
     String categorySign =
@@ -756,28 +779,27 @@ class EditRecordPageState extends State<EditRecordPage> {
                     CalculatorNormalizer(
                       overwriteDot: getOverwriteDotValue(),
                       overwriteComma: getOverwriteCommaValue(),
-                      decimalSep: getDecimalSeparator(),
-                      groupSep: getGroupingSeparator(),
+                      decimalSep: decimalSep,
+                      groupSep: groupSep,
                     ),
                     FilteringTextInputFormatter.deny(allowedRegex),
-
                     if (autoDec)
                       AutoDecimalShiftFormatter(
-                        decimalDigits: getNumberDecimalDigits(),
-                        decimalSep: getDecimalSeparator(),
-                        groupSep: getGroupingSeparator(),
+                        decimalDigits: decDigits,
+                        decimalSep: decimalSep,
+                        groupSep: groupSep,
                       ),
                     if (!autoDec)
                       GroupSeparatorFormatter(
-                        groupSep: getGroupingSeparator(),
-                        decimalSep: getDecimalSeparator(),
+                        groupSep: groupSep,
+                        decimalSep: decimalSep,
                       ),
                     LeadingZeroIntegerTrimmerFormatter(
-                      decimalSep: getDecimalSeparator(),
-                      groupSep: getGroupingSeparator(),
+                      decimalSep: decimalSep,
+                      groupSep: groupSep,
                     ),
                   ],
-                  autofocus: record!.value == null,
+                  autofocus: shouldAutofocus,
                   onChanged: (text) {
                     changeRecordValue(text);
                   },
@@ -802,7 +824,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   keyboardType: getAmountInputKeyboardType(),
                   decoration: InputDecoration(
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hintText: "0",
+                      hintText: zeroHint,
                       labelText: "Amount".i18n)),
             ),
           ))
