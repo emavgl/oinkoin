@@ -275,5 +275,7 @@
   "dot": "点",
   "none": "none",
   "space": "空格",
-  "underscore": "下划线"
+  "underscore": "下划线",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
