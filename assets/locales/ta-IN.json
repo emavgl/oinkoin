@@ -275,5 +275,7 @@
   "dot": "புள்ளி",
   "none": "ஒன்றுமில்லை",
   "space": "இடைவெளி",
-  "underscore": "அடிக்கீறு"
+  "underscore": "அடிக்கீறு",
+  "Auto decimal input": "Auto decimal input",
+  "Typing 5 becomes %s5": "Typing 5 becomes %s5"
 }
