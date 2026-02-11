@@ -278,5 +278,76 @@ void main() {
       expect(controller.customIntervalTo!.year, 2024);
       expect(controller.customIntervalTo!.month, 12);
     });
+
+    test('shiftMonthWeekYear: Forward Shift with custom start day', () async {
+      // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
+      controller.customIntervalFrom = DateTime(2024, 1, 15);
+      controller.customIntervalTo = DateTime(2024, 2, 14, 23, 59, 59);
+
+      // Mock settings to return Month view and Start Day 15
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentMonth.index,
+      );
+
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageRecordsMonthStartDay,
+        15,
+      );
+
+      await controller.shiftMonthWeekYear(1);
+
+      expect(controller.customIntervalFrom, DateTime(2024, 2, 15));
+      expect(controller.customIntervalTo!.month, 3);
+      expect(controller.customIntervalTo!.day, 14);
+
+      expect(controller.backgroundImageIndex, 2); // February
+      // Header should be range string since startDay != 1
+      expect(controller.header, contains("-"));
+    });
+
+    test('shiftMonthWeekYear: Backward Shift with custom start day', () async {
+      // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
+      controller.customIntervalFrom = DateTime(2024, 1, 15);
+      controller.customIntervalTo = DateTime(2024, 2, 14, 23, 59, 59);
+
+      // Mock settings to return Month view and Start Day 15
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentMonth.index,
+      );
+
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageRecordsMonthStartDay,
+        15,
+      );
+
+      await controller.shiftMonthWeekYear(-1);
+
+      expect(controller.customIntervalFrom, DateTime(2023, 12, 15));
+      expect(controller.customIntervalTo!.year, 2024);
+      expect(controller.customIntervalTo!.month, 1);
+      expect(controller.customIntervalTo!.day, 14);
+
+      expect(controller.backgroundImageIndex, 12); // December
+      // Header should be range string since startDay != 1
+      expect(controller.header, contains("-"));
+    });
+
+    test('shiftMonthWeekYear: Clamping safety when moving to February', () async {
+      // Setup: Start Day 31
+      controller.customIntervalFrom = DateTime(2024, 1, 31);
+
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageRecordsMonthStartDay,
+        31,
+      );
+
+      await controller.shiftMonthWeekYear(1);
+
+      // February only has 29 days in 2024. Start should be Feb 29.
+      expect(controller.customIntervalFrom!.month, 2);
+      expect(controller.customIntervalFrom!.day, 29);
+    });
   });
 }
