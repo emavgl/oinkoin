@@ -5,6 +5,7 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/record-filters.dart';
+import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -89,14 +90,15 @@ void main() {
       });
 
       test('filters by DAY aggregation correctly', () {
-        final targetDate = DateTime(2026, 2, 1);
+        // Use UTC dates directly since that's how records are stored
+        final targetDate = DateTime.utc(2026, 2, 1);
         final records = [
           createRecord(
               value: 10, category: groceriesCategory, dateTime: targetDate),
           createRecord(
               value: 20,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 2, 2)),
+              dateTime: DateTime.utc(2026, 2, 2)),
           createRecord(
               value: 30, category: groceriesCategory, dateTime: targetDate),
         ];
@@ -109,20 +111,21 @@ void main() {
       });
 
       test('filters by MONTH aggregation correctly', () {
-        final targetDate = DateTime(2026, 2, 1);
+        // Use UTC dates directly since that's how records are stored
+        final targetDate = DateTime.utc(2026, 2, 1);
         final records = [
           createRecord(
               value: 10,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 2, 5)),
+              dateTime: DateTime.utc(2026, 2, 5)),
           createRecord(
               value: 20,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 2, 15)),
+              dateTime: DateTime.utc(2026, 2, 15)),
           createRecord(
               value: 30,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 3, 1)),
+              dateTime: DateTime.utc(2026, 3, 1)),
         ];
 
         final result =
@@ -145,6 +148,201 @@ void main() {
             records, DateTime(2026, 2, 2), AggregationMethod.DAY);
 
         expect(records.length, originalLength);
+      });
+
+      group('Timezone edge cases', () {
+        test('filters correctly across DST transition boundaries', () {
+          // Test around DST start (March 30, 2025 in Europe)
+          // 2:00 AM becomes 3:00 AM
+          final beforeDst = DateTime.utc(2025, 3, 29, 23, 30); // 11:30 PM UTC
+          final duringDst = DateTime.utc(2025, 3, 30, 1, 30); // 1:30 AM UTC
+          final afterDst = DateTime.utc(2025, 3, 30, 10, 0); // 10:00 AM UTC
+
+          // Create records in Europe/Berlin timezone
+          Record createBerlinRecord(DateTime utcDate, String tzName) {
+            return Record(
+              10.0,
+              'Test',
+              groceriesCategory,
+              utcDate,
+              timeZoneName: tzName,
+            );
+          }
+
+          final records = [
+            createBerlinRecord(beforeDst, 'Europe/Berlin'),
+            createBerlinRecord(duringDst, 'Europe/Berlin'),
+            createBerlinRecord(afterDst, 'Europe/Berlin'),
+          ];
+
+          // Filter for March 30
+          final targetDate = DateTime(2025, 3, 30);
+          final result =
+              RecordFilters.byDate(records, targetDate, AggregationMethod.DAY);
+
+          // All three records should be on March 30 in Europe/Berlin
+          // (beforeDst is 00:30, duringDst is 02:30 or 03:30 depending on DST, afterDst is 11:00)
+          expect(result.length, 3);
+        });
+
+        test('filters correctly with different timezones for same UTC instant',
+            () {
+          // Same UTC instant: Feb 1, 2026 10:00 PM UTC
+          final utcInstant = DateTime.utc(2026, 2, 1, 22, 0);
+
+          // New York (UTC-5): Feb 1, 2026 5:00 PM
+          final nyRecord = Record(
+            10.0,
+            'NY Test',
+            groceriesCategory,
+            utcInstant,
+            timeZoneName: 'America/New_York',
+          );
+
+          // Tokyo (UTC+9): Feb 2, 2026 7:00 AM
+          final tokyoRecord = Record(
+            20.0,
+            'Tokyo Test',
+            groceriesCategory,
+            utcInstant,
+            timeZoneName: 'Asia/Tokyo',
+          );
+
+          // London (UTC+0): Feb 1, 2026 10:00 PM
+          final londonRecord = Record(
+            30.0,
+            'London Test',
+            groceriesCategory,
+            utcInstant,
+            timeZoneName: 'Europe/London',
+          );
+
+          final records = [nyRecord, tokyoRecord, londonRecord];
+
+          // Filter for Feb 1 - should match NY and London, but not Tokyo
+          final targetDate = DateTime(2026, 2, 1);
+          final result =
+              RecordFilters.byDate(records, targetDate, AggregationMethod.DAY);
+
+          expect(result.length, 2);
+          expect(result.any((r) => r?.title == 'NY Test'), isTrue);
+          expect(result.any((r) => r?.title == 'London Test'), isTrue);
+          expect(result.any((r) => r?.title == 'Tokyo Test'), isFalse);
+        });
+
+        test('handles month boundaries correctly with timezone differences',
+            () {
+          // Jan 31, 2026 11:30 PM UTC = Feb 1, 2026 in positive timezones
+          final utcDate = DateTime.utc(2026, 1, 31, 23, 30);
+
+          final nyRecord = Record(
+            10.0,
+            'NY',
+            groceriesCategory,
+            utcDate,
+            timeZoneName: 'America/New_York',
+          );
+
+          final tokyoRecord = Record(
+            20.0,
+            'Tokyo',
+            groceriesCategory,
+            utcDate,
+            timeZoneName: 'Asia/Tokyo',
+          );
+
+          final records = [nyRecord, tokyoRecord];
+
+          // Filter for Jan 31 - should match NY (Jan 31 6:30 PM)
+          final jan31Result = RecordFilters.byDate(
+              records, DateTime(2026, 1, 31), AggregationMethod.DAY);
+          expect(jan31Result.length, 1);
+          expect(jan31Result.first?.title, 'NY');
+
+          // Filter for Feb 1 - should match Tokyo (Feb 1 8:30 AM)
+          final feb1Result = RecordFilters.byDate(
+              records, DateTime(2026, 2, 1), AggregationMethod.DAY);
+          expect(feb1Result.length, 1);
+          expect(feb1Result.first?.title, 'Tokyo');
+        });
+
+        test('filters by MONTH with records spanning month boundaries', () {
+          // End of January in different timezones
+          final jan30Utc =
+              DateTime.utc(2026, 1, 30, 20, 0); // Evening Jan 30 UTC
+          final jan31Utc = DateTime.utc(2026, 1, 31, 2, 0); // Early Jan 31 UTC
+          final feb1Utc = DateTime.utc(2026, 2, 1, 2, 0); // Early Feb 1 UTC
+
+          final records = [
+            Record(10.0, 'Test', groceriesCategory, jan30Utc,
+                timeZoneName: 'America/New_York'),
+            Record(20.0, 'Test', groceriesCategory, jan31Utc,
+                timeZoneName: 'Europe/London'),
+            Record(30.0, 'Test', groceriesCategory, feb1Utc,
+                timeZoneName: 'Asia/Tokyo'),
+          ];
+
+          // All should be in their respective local months
+          final janResult = RecordFilters.byDate(
+              records, DateTime(2026, 1, 1), AggregationMethod.MONTH);
+          final febResult = RecordFilters.byDate(
+              records, DateTime(2026, 2, 1), AggregationMethod.MONTH);
+
+          // Jan 30 NY -> Jan 30, Jan 31 London -> Jan 31, Feb 1 Tokyo -> Feb 1
+          expect(janResult.length, 2);
+          expect(febResult.length, 1);
+        });
+
+        test('filters by WEEK correctly with timezone boundaries', () {
+          // Create records at the week boundary in different timezones
+          final week1Utc =
+              DateTime.utc(2026, 1, 5, 20, 0); // Monday, Jan 5 evening UTC
+          final week2Utc =
+              DateTime.utc(2026, 1, 8, 2, 0); // Thursday, Jan 8 early UTC
+          final week2LateUtc =
+              DateTime.utc(2026, 1, 10, 20, 0); // Saturday, Jan 10 evening UTC
+
+          final records = [
+            Record(10.0, 'Test', groceriesCategory, week1Utc,
+                timeZoneName: 'America/New_York'),
+            Record(20.0, 'Test', groceriesCategory, week2Utc,
+                timeZoneName: 'Europe/London'),
+            Record(30.0, 'Test', groceriesCategory, week2LateUtc,
+                timeZoneName: 'Asia/Tokyo'),
+          ];
+
+          // Jan 8, 2026 is in week 2 (Jan 8-14)
+          final week2Result = RecordFilters.byDate(
+              records, DateTime(2026, 1, 8), AggregationMethod.WEEK);
+
+          // week1Utc in NY -> Jan 5 (week 1)
+          // week2Utc in London -> Jan 8 (week 2)
+          // week2LateUtc in Tokyo -> Jan 11 (week 2)
+          expect(week2Result.length, 2);
+        });
+
+        test('handles UTC records correctly', () {
+          // All records in UTC timezone
+          final records = [
+            createRecord(
+                value: 10,
+                category: groceriesCategory,
+                dateTime: DateTime.utc(2026, 2, 1, 10, 0)),
+            createRecord(
+                value: 20,
+                category: groceriesCategory,
+                dateTime: DateTime.utc(2026, 2, 1, 15, 0)),
+            createRecord(
+                value: 30,
+                category: groceriesCategory,
+                dateTime: DateTime.utc(2026, 2, 2, 8, 0)),
+          ];
+
+          final result = RecordFilters.byDate(
+              records, DateTime.utc(2026, 2, 1), AggregationMethod.DAY);
+
+          expect(result.length, 2);
+        });
       });
     });
 

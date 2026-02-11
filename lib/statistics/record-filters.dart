@@ -23,9 +23,12 @@ class RecordFilters {
       return List.from(records);
     }
 
+    // Truncate the target date to ensure consistent comparison
+    final targetDate = truncateDateTime(date, method);
+
     return records.where((r) {
       if (r == null) return false;
-      return truncateDateTime(r.dateTime, method) == date;
+      return truncateDateTime(r.dateTime, method) == targetDate;
     }).toList();
   }
 
