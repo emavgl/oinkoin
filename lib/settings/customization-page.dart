@@ -391,8 +391,15 @@ class CustomizationPageState extends State<CustomizationPage> {
                       ),
                     ),
                     SwitchCustomizationItem(
-                      title: "Auto decimal input",
-                      subtitle: "Typing 500 becomes 5${getDecimalSeparator()}00", // TODO: i18n
+                      title: "Auto decimal input".i18n,
+                      subtitle: "Typing 5 becomes %s5".i18n.fill([
+                                  (() {
+                                    final dd = getNumberDecimalDigits();
+                                    if (dd <= 0) return "";
+                                    final sep = getDecimalSeparator();
+                                    return ("0$sep").padRight(dd + 1, '0');
+                                  }())
+                                ]),
                       switchValue: amountInputAutoDecimalShift,
                       sharedConfigKey: PreferencesKeys.amountInputAutoDecimalShift,
                     ),
