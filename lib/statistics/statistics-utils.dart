@@ -83,9 +83,14 @@ double? computeAverage(DateTime from, DateTime to,
 DateTime truncateDateTime(
     DateTime dateTime, AggregationMethod? aggregationMethod) {
   DateTime newDateTime;
+  // Check if input is UTC and preserve timezone
+  final bool isUtc = dateTime.isUtc;
+
   switch (aggregationMethod!) {
     case AggregationMethod.DAY:
-      newDateTime = new DateTime(dateTime.year, dateTime.month, dateTime.day);
+      newDateTime = isUtc
+          ? DateTime.utc(dateTime.year, dateTime.month, dateTime.day)
+          : DateTime(dateTime.year, dateTime.month, dateTime.day);
       break;
     case AggregationMethod.WEEK:
       // Truncate to the first day given the bin 1-7, 8-14, 15-21, 22-end of month
@@ -101,13 +106,18 @@ DateTime truncateDateTime(
       } else {
         truncatedDay = 29;
       }
-      newDateTime = new DateTime(dateTime.year, dateTime.month, truncatedDay);
+      newDateTime = isUtc
+          ? DateTime.utc(dateTime.year, dateTime.month, truncatedDay)
+          : DateTime(dateTime.year, dateTime.month, truncatedDay);
       break;
     case AggregationMethod.MONTH:
-      newDateTime = new DateTime(dateTime.year, dateTime.month);
+      newDateTime = isUtc
+          ? DateTime.utc(dateTime.year, dateTime.month)
+          : DateTime(dateTime.year, dateTime.month);
       break;
     case AggregationMethod.YEAR:
-      newDateTime = new DateTime(dateTime.year);
+      newDateTime =
+          isUtc ? DateTime.utc(dateTime.year) : DateTime(dateTime.year);
       break;
     case AggregationMethod.NOT_AGGREGATED:
       newDateTime = dateTime;

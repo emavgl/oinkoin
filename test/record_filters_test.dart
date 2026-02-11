@@ -5,6 +5,7 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/record-filters.dart';
+import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -89,14 +90,15 @@ void main() {
       });
 
       test('filters by DAY aggregation correctly', () {
-        final targetDate = DateTime(2026, 2, 1);
+        // Use UTC dates directly since that's how records are stored
+        final targetDate = DateTime.utc(2026, 2, 1);
         final records = [
           createRecord(
               value: 10, category: groceriesCategory, dateTime: targetDate),
           createRecord(
               value: 20,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 2, 2)),
+              dateTime: DateTime.utc(2026, 2, 2)),
           createRecord(
               value: 30, category: groceriesCategory, dateTime: targetDate),
         ];
@@ -109,20 +111,21 @@ void main() {
       });
 
       test('filters by MONTH aggregation correctly', () {
-        final targetDate = DateTime(2026, 2, 1);
+        // Use UTC dates directly since that's how records are stored
+        final targetDate = DateTime.utc(2026, 2, 1);
         final records = [
           createRecord(
               value: 10,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 2, 5)),
+              dateTime: DateTime.utc(2026, 2, 5)),
           createRecord(
               value: 20,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 2, 15)),
+              dateTime: DateTime.utc(2026, 2, 15)),
           createRecord(
               value: 30,
               category: groceriesCategory,
-              dateTime: DateTime(2026, 3, 1)),
+              dateTime: DateTime.utc(2026, 3, 1)),
         ];
 
         final result =

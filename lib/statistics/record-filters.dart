@@ -23,9 +23,30 @@ class RecordFilters {
       return List.from(records);
     }
 
+    // Helper to extract comparable components based on aggregation method
+    // This avoids timezone issues by comparing year/month/day directly
+    String getDateKey(DateTime dt) {
+      switch (method) {
+        case AggregationMethod.DAY:
+          return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+        case AggregationMethod.WEEK:
+          // For week, we need to compare the truncated date
+          final truncated = truncateDateTime(dt, method);
+          return '${truncated.year}-${truncated.month.toString().padLeft(2, '0')}-${truncated.day.toString().padLeft(2, '0')}';
+        case AggregationMethod.MONTH:
+          return '${dt.year}-${dt.month.toString().padLeft(2, '0')}';
+        case AggregationMethod.YEAR:
+          return '${dt.year}';
+        case AggregationMethod.NOT_AGGREGATED:
+          return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}-${dt.hour}-${dt.minute}';
+      }
+    }
+
+    final targetKey = getDateKey(date);
+
     return records.where((r) {
       if (r == null) return false;
-      return truncateDateTime(r.dateTime, method) == date;
+      return getDateKey(r.dateTime!) == targetKey;
     }).toList();
   }
 
