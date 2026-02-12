@@ -66,7 +66,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift forward by 1 month
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should now be February 2025
       expect(controller.customIntervalFrom, DateTime(2025, 2, 1));
@@ -81,7 +81,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 3);
 
       // Act: Shift backward by 1 month
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should now be February 2025
       expect(controller.customIntervalFrom, DateTime(2025, 2, 1));
@@ -101,7 +101,7 @@ void main() {
       );
 
       // Act: Shift forward by 1 year
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should now be 2025
       expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
@@ -119,7 +119,7 @@ void main() {
       );
 
       // Act: Shift backward by 1 year
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should now be 2024
       expect(controller.customIntervalFrom, DateTime(2024, 1, 1));
@@ -141,7 +141,7 @@ void main() {
       DateTime currentWeekStart = getStartOfWeek(now);
       
       // Act: Shift forward by 1 week
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be next week
       DateTime expectedStart = currentWeekStart.add(Duration(days: 7));
@@ -170,7 +170,7 @@ void main() {
       DateTime currentWeekStart = getStartOfWeek(now);
       
       // Act: Shift backward by 1 week
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should be previous week
       DateTime expectedStart = currentWeekStart.subtract(Duration(days: 7));
@@ -197,7 +197,7 @@ void main() {
       DateTime now = DateTime.now();
       
       // Act: Shift forward by 1 month
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be next month
       DateTime expectedDateFrom = DateTime(now.year, now.month + 1, 1);
@@ -219,7 +219,7 @@ void main() {
       DateTime now = DateTime.now();
       
       // Act: Shift forward by 1 year
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be next year
       expect(controller.customIntervalFrom, DateTime(now.year + 1, 1, 1));
@@ -232,7 +232,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift to February
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: backgroundImageIndex should be February (2)
       expect(controller.backgroundImageIndex, 2);
@@ -244,7 +244,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift to February
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Header should be updated (format depends on locale)
       expect(controller.header, isNotEmpty);
@@ -257,7 +257,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2024, 12);
 
       // Act: Shift forward to January 2025
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be January 2025
       expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
@@ -271,7 +271,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift backward to December 2024
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should be December 2024
       expect(controller.customIntervalFrom, DateTime(2024, 12, 1));
@@ -295,7 +295,7 @@ void main() {
         15,
       );
 
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       expect(controller.customIntervalFrom, DateTime(2024, 2, 15));
       expect(controller.customIntervalTo!.month, 3);
@@ -322,7 +322,7 @@ void main() {
         15,
       );
 
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       expect(controller.customIntervalFrom, DateTime(2023, 12, 15));
       expect(controller.customIntervalTo!.year, 2024);
@@ -343,7 +343,7 @@ void main() {
         31,
       );
 
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // February only has 29 days in 2024. Start should be Feb 29.
       expect(controller.customIntervalFrom!.month, 2);

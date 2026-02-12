@@ -477,7 +477,7 @@ class TabRecordsController {
   /// 2. Calculates the new target period using [calculateInterval].
   /// 3. Updates the global [customIntervalFrom], [customIntervalTo], and [header].
   /// 4. Triggers a database fetch for the new date range.
-  Future<void> shiftMonthWeekYear(int shift) async {
+  Future<void> shiftInterval(int shift) async {
     final int startDay = getHomepageRecordsMonthStartDay();
     final HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
 
