@@ -12,6 +12,9 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../settings/constants/homepage-time-interval.dart';
 
+/// The duration to reach the final second of a day from midnight (00:00:00)
+const Duration dayEndOffset = Duration(hours: 23, minutes: 59, seconds: 59);
+
 DateTime addDuration(DateTime start, Duration duration) {
   // Convert to UTC
   DateTime utcDateTime = new DateTime.utc(start.year, start.month, start.day,
@@ -29,7 +32,7 @@ DateTime getEndOfMonth(int year, int month) {
   DateTime lastDayOfMonths = (month < 12)
       ? new DateTime(year, month + 1, 0)
       : new DateTime(year + 1, 1, 0);
-  return addDuration(lastDayOfMonths, Duration(hours: 23, minutes: 59, seconds: 59));
+  return addDuration(lastDayOfMonths, dayEndOffset);
 }
 
 String getDateRangeStr(DateTime start, DateTime end) {
@@ -287,12 +290,12 @@ List<DateTime> calculateInterval(
 
     case HomepageTimeInterval.CurrentWeek:
       DateTime from = getStartOfWeek(referenceDate);
-      DateTime to = from.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+      DateTime to = from.add(const Duration(days: 6)).add(dayEndOffset);
       return [from, to];
 
     case HomepageTimeInterval.CurrentYear:
       DateTime from = DateTime(referenceDate.year, 1, 1);
-      DateTime to = DateTime(referenceDate.year, 12, 31, 23, 59, 59);
+      DateTime to = DateTime(referenceDate.year, 12, 31).add(dayEndOffset);
       return [from, to];
 
     default:
