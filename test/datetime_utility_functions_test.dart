@@ -56,6 +56,35 @@ void main() {
       expect(result[1].month, 2);
       expect(result[1].day, 28); // The day before the next cycle starts (Feb 29)
     });
+
+    test('January rollover to previous year December', () {
+      // January 5th, 2024. Cycle starts on the 10th.
+      // We expect the cycle to be Dec 10, 2023 - Jan 9, 2024.
+      final ref = DateTime(2024, 1, 5);
+      final result = calculateMonthCycle(ref, 10);
+
+      expect(result[0].year, 2023);
+      expect(result[0].month, 12);
+      expect(result[0].day, 10);
+
+      expect(result[1].year, 2024);
+      expect(result[1].month, 1);
+      expect(result[1].day, 9);
+    });
+
+    test('December rollover to next year January', () {
+      // December 20th, 2023. Cycle starts on the 15th.
+      // We expect the cycle to be Dec 15, 2023 - Jan 14, 2024.
+      final ref = DateTime(2023, 12, 20);
+      final result = calculateMonthCycle(ref, 15);
+
+      expect(result[0].year, 2023);
+      expect(result[0].month, 12);
+
+      expect(result[1].year, 2024);
+      expect(result[1].month, 1);
+      expect(result[1].day, 14);
+    });
   });
 
   group('calculateInterval Tests', () {
