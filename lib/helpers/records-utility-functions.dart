@@ -333,11 +333,6 @@ HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
   return HomepageTimeInterval.CurrentMonth;
 }
 
-int _getLastDayOfMonth(int year, int month) {
-  // Day 0 of next month is the last day of this month
-  return DateTime(year, month + 1, 0).day;
-}
-
 Future<List<Record?>> getRecordsByHomepageTimeInterval(
     DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
   DateTime _now = DateTime.now();
@@ -352,7 +347,7 @@ Future<List<Record?>> getRecordsByHomepageTimeInterval(
       int startMonth = (now.day >= monthStartDay) ? now.month : now.month - 1;
 
       // 1. Calculate the SAFE start day for THAT specific month
-      int safeStartDay = monthStartDay.clamp(1, _getLastDayOfMonth(startYear, startMonth));
+      int safeStartDay = monthStartDay.clamp(1, lastDayOf(startYear, startMonth));
       start = DateTime(startYear, startMonth, safeStartDay);
 
       // 2. Calculate the SAFE end day
@@ -361,7 +356,7 @@ Future<List<Record?>> getRecordsByHomepageTimeInterval(
       int endMonth = startMonth + 1;
 
       // If endMonth is 13, DateTime constructor handles it (becomes Jan of next year)
-      int safeEndDay = monthStartDay.clamp(1, _getLastDayOfMonth(endYear, endMonth));
+      int safeEndDay = monthStartDay.clamp(1, lastDayOf(endYear, endMonth));
 
       // We want to end one second before the next cycle starts
       end = DateTime(endYear, endMonth, safeEndDay).subtract(const Duration(seconds: 1));
