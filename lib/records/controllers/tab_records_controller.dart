@@ -232,26 +232,6 @@ class TabRecordsController {
     List<Record?> newRecords;
     newRecords = await getRecordsByInterval(_database, intervalFrom, intervalTo);
     backgroundImageIndex = intervalFrom.month;
-    // DateTime intervalFrom;
-    // DateTime intervalTo;
-    //
-    // if (customIntervalFrom != null) {
-    //   newRecords = await getRecordsByInterval(
-    //       _database, customIntervalFrom, customIntervalTo);
-    //   backgroundImageIndex = customIntervalFrom!.month;
-    //   intervalFrom = customIntervalFrom!;
-    //   intervalTo = customIntervalTo!;
-    // } else {
-    //   var hti = getHomepageTimeIntervalEnumSetting();
-    //   int startDay = getHomepageRecordsMonthStartDay();
-    //   newRecords = await getRecordsByHomepageTimeInterval(_database, hti, monthStartDay: startDay);
-    //   header = getHeaderFromHomepageTimeInterval(hti);
-    //   backgroundImageIndex = DateTime.now().month;
-    //   var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti, monthStartDay: startDay);
-    //   intervalFrom = interval[0];
-    //   intervalTo = interval[1];
-    //   debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
-    // }
 
     // Filter future records to only include those within the current time interval
     // Convert interval bounds to UTC for proper comparison
