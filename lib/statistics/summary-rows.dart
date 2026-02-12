@@ -252,10 +252,10 @@ class TagSummaryRow extends SummaryRow {
     if (selectedDate != null) {
       detailFrom = selectedDate;
       detailTo = getEndOfInterval(selectedDate!, aggregationMethod);
-      // Include all tag records within the date range, not just the single selected date
       detailRecords = tagRecords.where((r) {
-        return r!.dateTime.isAfter(detailFrom!.subtract(Duration(days: 1))) &&
-            r.dateTime.isBefore(detailTo!.add(Duration(days: 1)));
+        final recordDate = r!.dateTime;
+        return !recordDate.isBefore(detailFrom!) &&
+            !recordDate.isAfter(detailTo!);
       }).toList();
       detailSelectedDate = null;
     }
