@@ -162,24 +162,21 @@ class CategorySummaryRow extends SummaryRow {
     List<Record?> detailRecords = categoryRecords;
     DateTime? detailSelectedDate = selectedDate;
 
-    String intervalTitle;
     if (selectedDate != null) {
       detailFrom = selectedDate;
       detailTo = getEndOfInterval(selectedDate!, aggregationMethod);
+
       // Include all category records within the date range, not just the single selected date
+      // Use inclusive range check: not before start AND not after end
       detailRecords = categoryRecords.where((r) {
-        return r!.dateTime.isAfter(detailFrom!.subtract(Duration(days: 1))) &&
-            r.dateTime.isBefore(detailTo!.add(Duration(days: 1)));
+        final recordDate = r!.dateTime;
+        return !recordDate.isBefore(detailFrom!) &&
+            !recordDate.isAfter(detailTo!);
       }).toList();
+
       detailSelectedDate = null;
-      // Format interval title based on aggregation method
-      intervalTitle =
-          getDateStr(selectedDate, aggregationMethod: aggregationMethod);
-    } else {
-      // For full range, show the date range
-      intervalTitle =
-          "${getDateStr(from, aggregationMethod: aggregationMethod)}-${getDateStr(to, aggregationMethod: aggregationMethod)}";
     }
+    String intervalTitle = getDateRangeStr(detailFrom!, detailTo!);
 
     Navigator.push(
       context,
@@ -252,7 +249,6 @@ class TagSummaryRow extends SummaryRow {
     List<Record?> detailRecords = tagRecords;
     DateTime? detailSelectedDate = selectedDate;
 
-    String intervalTitle;
     if (selectedDate != null) {
       detailFrom = selectedDate;
       detailTo = getEndOfInterval(selectedDate!, aggregationMethod);
@@ -262,14 +258,8 @@ class TagSummaryRow extends SummaryRow {
             r.dateTime.isBefore(detailTo!.add(Duration(days: 1)));
       }).toList();
       detailSelectedDate = null;
-      // Format interval title based on aggregation method
-      intervalTitle =
-          getDateStr(selectedDate, aggregationMethod: aggregationMethod);
-    } else {
-      // For full range, show the date range
-      intervalTitle =
-          "${getDateStr(from, aggregationMethod: aggregationMethod)}-${getDateStr(to, aggregationMethod: aggregationMethod)}";
     }
+    String intervalTitle = getDateRangeStr(detailFrom!, detailTo!);
 
     if (isBalance) {
       Navigator.push(
