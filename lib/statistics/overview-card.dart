@@ -3,6 +3,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
+import 'package:piggybank/statistics/statistics-calculator.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 
@@ -27,7 +28,6 @@ class OverviewCard extends StatelessWidget {
   final DateTime? to;
   final List<DateTimeSeriesRecord> aggregatedRecords;
   final double sumValues;
-  final double averageValue;
   final double? selectedAmount;
   final bool isBalance;
   final List<OverviewCardAction> actions;
@@ -45,24 +45,23 @@ class OverviewCard extends StatelessWidget {
               })
             : records
                 .fold(0.0, (acc, e) => (acc as double) + e!.value!.abs())
-                .abs(),
-        averageValue = (isBalance
-                ? records.fold(0.0, (acc, e) {
-                    double val = e!.value!.abs();
-                    return (acc as double) +
-                        (e.category!.categoryType == CategoryType.income
-                            ? val
-                            : -val);
-                  })
-                : records
-                    .fold(0.0, (acc, e) => (acc as double) + e!.value!.abs())
-                    .abs()) /
-            (aggregationMethod != null &&
-                    aggregationMethod != AggregationMethod.NOT_AGGREGATED
-                ? (computeNumberOfIntervals(from!, to!, aggregationMethod) == 0
-                    ? 1
-                    : computeNumberOfIntervals(from, to, aggregationMethod))
-                : (records.isEmpty ? 1 : records.length));
+                .abs();
+
+  double get averageValue => StatisticsCalculator.calculateAverage(
+        records,
+        aggregationMethod,
+        from,
+        to,
+        isBalance: isBalance,
+      );
+
+  double get medianValue => StatisticsCalculator.calculateMedian(
+        records,
+        aggregationMethod,
+        from,
+        to,
+        isBalance: isBalance,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -79,21 +78,27 @@ class OverviewCard extends StatelessWidget {
     }
 
     String averageLabelKey;
+    String medianLabelKey;
     switch (aggregationMethod) {
       case AggregationMethod.DAY:
         averageLabelKey = "Average of %s a day".i18n;
+        medianLabelKey = "Median of %s a day".i18n;
         break;
       case AggregationMethod.WEEK:
         averageLabelKey = "Average of %s a week".i18n;
+        medianLabelKey = "Median of %s a week".i18n;
         break;
       case AggregationMethod.MONTH:
         averageLabelKey = "Average of %s a month".i18n;
+        medianLabelKey = "Median of %s a month".i18n;
         break;
       case AggregationMethod.YEAR:
         averageLabelKey = "Average of %s a year".i18n;
+        medianLabelKey = "Median of %s a year".i18n;
         break;
       default:
         averageLabelKey = "Average of %s".i18n;
+        medianLabelKey = "Median of %s".i18n;
     }
 
     final color = isBalance
@@ -126,7 +131,22 @@ class OverviewCard extends StatelessWidget {
                 Text(
                   averageLabelKey.fill([getCurrencyValueString(averageValue)]),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color?.withAlpha(179),
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.color
+                            ?.withAlpha(179),
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  medianLabelKey.fill([getCurrencyValueString(medianValue)]),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.color
+                            ?.withAlpha(179),
                       ),
                 ),
               ],
@@ -152,8 +172,10 @@ class OverviewCard extends StatelessWidget {
                         ),
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return ScaleTransition(scale: animation, child: child);
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                                scale: animation, child: child);
                           },
                           child: Icon(
                             actions[i].icon,
