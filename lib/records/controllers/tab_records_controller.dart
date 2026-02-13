@@ -25,7 +25,6 @@ import '../../settings/constants/homepage-time-interval.dart';
 import '../../settings/constants/overview-time-interval.dart';
 import '../../settings/constants/preferences-keys.dart';
 import '../../settings/preferences-utils.dart';
-import '../../statistics/statistics-page.dart';
 import '../components/filter_modal_content.dart';
 
 class TabRecordsController {
