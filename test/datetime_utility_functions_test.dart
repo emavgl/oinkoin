@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
+import 'package:piggybank/utils/constants.dart';
 
 void main() {
   setUpAll(() async {
@@ -92,7 +93,7 @@ void main() {
       final ref = DateTime(2024, 5, 20);
       final result = calculateInterval(HomepageTimeInterval.CurrentYear, ref);
       expect(result[0], DateTime(2024, 1, 1));
-      expect(result[1], DateTime(2024, 12, 31, 23, 59, 59));
+      expect(result[1], DateTime(2024, 12, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('All interval fallback', () {
@@ -109,7 +110,7 @@ void main() {
       // [monthStartDay] is default to 1
       final result = calculateInterval(HomepageTimeInterval.CurrentMonth, ref);
       expect(result[0], DateTime(2024, 5, 1));
-      expect(result[1], DateTime(2024, 5, 31, 23, 59, 59));
+      expect(result[1], DateTime(2024, 5, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('CurrentWeek: Sunday Start', () {
@@ -120,7 +121,7 @@ void main() {
       // Start: 2024-06-09 (Sunday)
       // End:   2024-06-15 (Saturday)
       expect(result[0], DateTime(2024, 6, 9));
-      expect(result[1], DateTime(2024, 6, 15, 23, 59, 59));
+      expect(result[1], DateTime(2024, 6, 15).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('CurrentWeek: Year Rollover with Sunday Start', () {
@@ -132,7 +133,7 @@ void main() {
       // Dec 28, 2025 was Sunday.
       // Jan 3, 2026 is Saturday.
       expect(result[0], DateTime(2025, 12, 28));
-      expect(result[1], DateTime(2026, 1, 3, 23, 59, 59));
+      expect(result[1], DateTime(2026, 1, 3).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('CurrentWeek: Leap Year inclusive week', () {
@@ -143,7 +144,7 @@ void main() {
       // Sunday Start: Feb 25
       // Saturday End: March 2
       expect(result[0], DateTime(2024, 2, 25));
-      expect(result[1], DateTime(2024, 3, 2, 23, 59, 59));
+      expect(result[1], DateTime(2024, 3, 2).add(DateTimeConstants.END_OF_DAY));
     });
   });
 
@@ -402,38 +403,6 @@ void main() {
         expect(endOfWeek.hour, 23);
         expect(endOfWeek.minute, 59);
       });
-    });
-  });
-
-  group('canShift for CurrentWeek', () {
-    test('should allow shifting backward when there are past weeks', () {
-      DateTime now = DateTime.now();
-      bool canShiftBack = canShift(-1, null, null, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftBack, true);
-    });
-
-    test('should not allow shifting forward beyond current week', () {
-      DateTime now = DateTime.now();
-      bool canShiftForward = canShift(1, null, null, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftForward, false);
-    });
-
-    test('should allow shifting forward if we are viewing a past week', () {
-      DateTime pastDate = DateTime.now().subtract(Duration(days: 14));
-      DateTime startOfPastWeek = getStartOfWeek(pastDate);
-      DateTime endOfPastWeek = getEndOfWeek(pastDate);
-      
-      bool canShiftForward = canShift(1, startOfPastWeek, endOfPastWeek, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftForward, true);
-    });
-
-    test('should not allow shifting forward from current week', () {
-      DateTime now = DateTime.now();
-      DateTime startOfCurrentWeek = getStartOfWeek(now);
-      DateTime endOfCurrentWeek = getEndOfWeek(now);
-      
-      bool canShiftForward = canShift(1, startOfCurrentWeek, endOfCurrentWeek, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftForward, false);
     });
   });
 }

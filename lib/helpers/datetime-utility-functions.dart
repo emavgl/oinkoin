@@ -301,23 +301,3 @@ List<DateTime> calculateInterval(
   }
 }
 
-/// Determines whether the navigation controls (back/forward) should be enabled.
-///
-/// [shift] - The direction of the intended move.
-/// [customIntervalFrom] - The current start date of the view.
-/// [customIntervalTo] - The current end date of the view.
-/// [hti] - The current interval type setting.
-///
-/// Returns [true] if the user is allowed to navigate in the given direction.
-/// Following current repository guidelines, shifting is enabled for all
-/// time-bound intervals (Month, Week, Year) regardless of the current date.
-/// Shifting is disabled only for the [HomepageTimeInterval.All] view.
-bool canShift(
-    int shift,
-    DateTime? customIntervalFrom,
-    DateTime? customIntervalTo,
-    HomepageTimeInterval hti,
-    ) {
-  if (hti == HomepageTimeInterval.All) return false;
-  return true;
-}

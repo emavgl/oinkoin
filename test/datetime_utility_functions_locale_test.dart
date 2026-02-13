@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
-import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 
 void main() {
   setUpAll(() async {
@@ -289,51 +288,6 @@ void main() {
       
       expect(endOfWeek.day, 21);
       expect(endOfWeek.weekday, DateTime.sunday);
-    });
-  });
-
-  // ===== Tests for canShift function =====
-  group('canShift for CurrentWeek (locale-aware)', () {
-    test('should work correctly for Monday-start weeks', () {
-      I18n.define(Locale('en', 'GB'));
-      
-      bool canShiftBack = canShift(-1, null, null, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftBack, true);
-      
-      bool canShiftForward = canShift(1, null, null, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftForward, false);
-    });
-
-    test('should work correctly for Sunday-start weeks', () {
-      I18n.define(Locale('en', 'US'));
-      
-      bool canShiftBack = canShift(-1, null, null, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftBack, true);
-      
-      bool canShiftForward = canShift(1, null, null, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftForward, false);
-    });
-
-    test('should correctly validate custom week intervals (Monday-start)', () {
-      I18n.define(Locale('en', 'GB'));
-      
-      // Full week: Monday to Sunday
-      DateTime monday = DateTime(2025, 12, 15);
-      DateTime sunday = DateTime(2025, 12, 21, 23, 59);
-      
-      bool canShiftBack = canShift(-1, monday, sunday, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftBack, true);
-    });
-
-    test('should correctly validate custom week intervals (Sunday-start)', () {
-      I18n.define(Locale('en', 'US'));
-      
-      // Full week: Sunday to Saturday
-      DateTime sunday = DateTime(2025, 12, 14);
-      DateTime saturday = DateTime(2025, 12, 20, 23, 59);
-      
-      bool canShiftBack = canShift(-1, sunday, saturday, HomepageTimeInterval.CurrentWeek);
-      expect(canShiftBack, true);
     });
   });
 
