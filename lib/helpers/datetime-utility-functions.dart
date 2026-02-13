@@ -152,6 +152,17 @@ DateTime getEndOfWeek(DateTime date) {
 String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod}) {
   Locale myLocale = I18n.locale;
   if (aggregationMethod != null) {
+    if (aggregationMethod == AggregationMethod.WEEK) {
+      // Format as week interval (e.g., "1-7", "8-14")
+      int startDay = dateTime!.day;
+      DateTime weekEnd = dateTime.add(Duration(days: 6));
+      // Make sure we don't go beyond the current month
+      if (weekEnd.month != dateTime.month) {
+        weekEnd = DateTime(dateTime.year, dateTime.month + 1, 0); // Last day of month
+      }
+      int endDay = weekEnd.day;
+      return '$startDay-$endDay';
+    }
     if (aggregationMethod == AggregationMethod.MONTH) {
       return DateFormat.yM(myLocale.toString()).format(dateTime!);
     }

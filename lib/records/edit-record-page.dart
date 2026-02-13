@@ -18,6 +18,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
 import 'package:piggybank/records/formatter/group-separator-formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -73,6 +74,8 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Set<String> _selectedTags = {};
   Set<String> _suggestedTags = {};
+
+  final autoDec = getAmountInputAutoDecimalShift();
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
@@ -239,6 +242,22 @@ class EditRecordPageState extends State<EditRecordPage> {
       record = Record(null, null, passedCategory, DateTime.now().toUtc());
       localDisplayDate = record!.localDateTime;
       _selectedTags = {};
+      if (autoDec && record!.value == null) {
+        final decSep = getDecimalSeparator();
+        final decDigits = getNumberDecimalDigits();
+
+        final zeroText = decDigits <= 0
+            ? '0'
+            : '0$decSep${List.filled(decDigits, '0').join()}';
+
+        _textEditingController.value = _textEditingController.value.copyWith(
+          text: zeroText,
+          selection: TextSelection.collapsed(offset: zeroText.length),
+          composing: TextRange.empty,
+        );
+
+        changeRecordValue(zeroText);
+      }
     }
 
     // Load most used tags for the current category
@@ -721,6 +740,13 @@ class EditRecordPageState extends State<EditRecordPage> {
     /// that is not a digit, math operator, or an allowed separator.
     /// Regex Safety: Employs [RegExp.escape()] to ensure active separators
     /// are treated as literal characters rather than regex metacharacters.
+    final decimalSep = getDecimalSeparator();
+    final groupSep = getGroupingSeparator();
+    final decDigits = getNumberDecimalDigits();
+    final shouldAutofocus = !readOnly && passedRecord == null && passedReccurrentRecordPattern == null;
+    final zeroHint = (autoDec && decDigits > 0)
+        ? '0$decimalSep${List.filled(decDigits, '0').join()}'
+        : '0';
     final allowedRegex =
         RegExp('[^0-9\\+\\-\\*/%${RegExp.escape(getDecimalSeparator())}${RegExp.escape(getGroupingSeparator())}]');
     String categorySign =
@@ -753,17 +779,27 @@ class EditRecordPageState extends State<EditRecordPage> {
                     CalculatorNormalizer(
                       overwriteDot: getOverwriteDotValue(),
                       overwriteComma: getOverwriteCommaValue(),
-                      decimalSep: getDecimalSeparator(),
-                      groupSep: getGroupingSeparator(),
+                      decimalSep: decimalSep,
+                      groupSep: groupSep,
                     ),
-                    FilteringTextInputFormatter.deny(
-                      allowedRegex,
+                    FilteringTextInputFormatter.deny(allowedRegex),
+                    if (autoDec)
+                      AutoDecimalShiftFormatter(
+                        decimalDigits: decDigits,
+                        decimalSep: decimalSep,
+                        groupSep: groupSep,
+                      ),
+                    if (!autoDec)
+                      GroupSeparatorFormatter(
+                        groupSep: groupSep,
+                        decimalSep: decimalSep,
+                      ),
+                    LeadingZeroIntegerTrimmerFormatter(
+                      decimalSep: decimalSep,
+                      groupSep: groupSep,
                     ),
-                    GroupSeparatorFormatter(
-                        groupSep: getGroupingSeparator(),
-                        decimalSep: getDecimalSeparator())
                   ],
-                  autofocus: record!.value == null,
+                  autofocus: shouldAutofocus,
                   onChanged: (text) {
                     changeRecordValue(text);
                   },
@@ -788,7 +824,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   keyboardType: getAmountInputKeyboardType(),
                   decoration: InputDecoration(
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hintText: "0",
+                      hintText: zeroHint,
                       labelText: "Amount".i18n)),
             ),
           ))

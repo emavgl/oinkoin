@@ -17,6 +17,7 @@ class PreferencesKeys {
   static const numberDecimalDigits = 'numDecimalDigits';
   static const overwriteDotValueWithComma = 'overwriteDotValueWithComma';
   static const overwriteCommaValueWithDot = 'overwriteCommaValueWithDot';
+  static const amountInputAutoDecimalShift = 'amountInputAutoDecimalShift';
 
   // Backup
   static const enableAutomaticBackup = 'enableAutomaticBackup';

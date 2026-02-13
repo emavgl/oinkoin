@@ -54,8 +54,12 @@ class BackupRestoreDialog {
   }
 
   static Future<void> importFromBackupFile(BuildContext context) async {
-    var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
-    log("FilePicker has deleted cache: " + hasDeletedCache.toString());
+    try {
+      var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
+      log("FilePicker has deleted cache: " + hasDeletedCache.toString());
+    } catch (e) {
+      log("FilePicker.clearTemporaryFiles() not implemented on this platform");
+    }
     FilePickerResult? result;
     try {
       result = await FilePicker.platform.pickFiles(

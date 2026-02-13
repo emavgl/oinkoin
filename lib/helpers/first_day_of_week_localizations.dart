@@ -14,7 +14,28 @@ class FirstDayOfWeekLocalizationsDelegate extends LocalizationsDelegate<Material
   @override
   Future<MaterialLocalizations> load(Locale locale) async {
     final MaterialLocalizations localizations = await wrappedDelegate.load(locale);
-    return FirstDayOfWeekLocalizations(localizations, firstDayOfWeek);
+    
+    // Convert preference value to Flutter's firstDayOfWeekIndex
+    // Preferences: 0=System, 1=Sunday 6=Saturday, 7=Sunday
+    // Flutter: 0=Sunday, 1=Monday etc
+    int flutterFirstDayIndex;
+    switch (firstDayOfWeek) {
+      case 1: // Monday
+        flutterFirstDayIndex = 1;
+        break;
+      case 6: // Saturday
+        flutterFirstDayIndex = 6;
+        break;
+      case 7: // Sunday
+        flutterFirstDayIndex = 0;
+        break;
+      default:
+        // For system default (0) or any other value, use Monday as fallback
+        flutterFirstDayIndex = 0;
+        break;
+    }
+    
+    return FirstDayOfWeekLocalizations(localizations, flutterFirstDayIndex);
   }
 
   @override

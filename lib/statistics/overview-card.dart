@@ -1,162 +1,197 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
+import 'package:piggybank/statistics/statistics-calculator.dart';
 import '../helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
+
+class OverviewCardAction {
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color? color;
+  final String? tooltip;
+
+  OverviewCardAction({
+    required this.icon,
+    required this.onTap,
+    this.color,
+    this.tooltip,
+  });
+}
 
 class OverviewCard extends StatelessWidget {
   final List<Record?> records;
   final AggregationMethod? aggregationMethod;
   final DateTime? from;
   final DateTime? to;
-  late List<DateTimeSeriesRecord> aggregatedRecords;
+  final List<DateTimeSeriesRecord> aggregatedRecords;
+  final double sumValues;
+  final double? selectedAmount;
+  final bool isBalance;
+  final List<OverviewCardAction> actions;
 
-  double? maxRecord;
-  double? minRecord;
-  late double minAggregated;
-  late double maxAggregated;
-  int? numberOfRecords;
-  double? sumValues;
-  late double averageValue;
+  OverviewCard(this.from, this.to, this.records, this.aggregationMethod,
+      {this.selectedAmount, this.isBalance = false, this.actions = const []})
+      : aggregatedRecords = aggregateRecordsByDate(records, aggregationMethod),
+        sumValues = isBalance
+            ? records.fold(0.0, (acc, e) {
+                double val = e!.value!.abs();
+                return (acc as double) +
+                    (e.category!.categoryType == CategoryType.income
+                        ? val
+                        : -val);
+              })
+            : records
+                .fold(0.0, (acc, e) => (acc as double) + e!.value!.abs())
+                .abs();
 
-  final headerStyle = const TextStyle(fontSize: 13.0);
-  final valueStyle = const TextStyle(fontSize: 18.0);
-  final dateStyle = const TextStyle(fontSize: 24.0);
+  double get averageValue => StatisticsCalculator.calculateAverage(
+        records,
+        aggregationMethod,
+        from,
+        to,
+        isBalance: isBalance,
+      );
 
-  OverviewCard(this.from, this.to, this.records, this.aggregationMethod) {
-    this.records.sort((a, b) => a!.value!.abs().compareTo(b!.value!.abs()));
-    aggregatedRecords = aggregateRecordsByDate(this.records, aggregationMethod);
-    sumValues = this.records.fold(0, (dynamic acc, e) => acc + e!.value).abs();
-    minAggregated = this.aggregatedRecords.first.value.abs();
-    maxAggregated = this.aggregatedRecords.last.value.abs();
-    averageValue = (sumValues! / this.aggregatedRecords.length);
-  }
-
-  Widget _buildSecondRow() {
-    return IntrinsicHeight(
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Max".i18n +
-                      " (" +
-                      (aggregationMethod == AggregationMethod.MONTH
-                          ? "Month".i18n
-                          : "Day".i18n) +
-                      ")",
-                  style: headerStyle,
-                ),
-                SizedBox(height: 5), // spacing
-                Text(
-                  getCurrencyValueString(maxAggregated.abs()),
-                  style: valueStyle,
-                ),
-              ],
-            ),
-          ),
-          VerticalDivider(endIndent: 10, indent: 10),
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Min".i18n +
-                      " (" +
-                      (aggregationMethod == AggregationMethod.MONTH
-                          ? "Month".i18n
-                          : "Day".i18n) +
-                      ")",
-                  style: headerStyle,
-                ),
-                SizedBox(height: 5), // spacing
-                Text(
-                  getCurrencyValueString(minAggregated.abs()),
-                  style: valueStyle,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFirstRow() {
-    return IntrinsicHeight(
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Sum".i18n,
-                  style: headerStyle,
-                ),
-                SizedBox(height: 5), // spacing
-                Text(
-                  getCurrencyValueString(sumValues!.abs()),
-                  style: valueStyle,
-                ),
-              ],
-            ),
-          ),
-          VerticalDivider(endIndent: 10, indent: 10),
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Average".i18n,
-                  style: headerStyle,
-                ),
-                SizedBox(height: 5), // spacing
-                Text(
-                  getCurrencyValueString(averageValue.abs()),
-                  style: valueStyle,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCard() {
-    return Padding(
-        padding: const EdgeInsets.all(6.0),
-        child: Column(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(10),
-              child: _buildFirstRow(),
-            ),
-            Divider(endIndent: 10, indent: 10),
-            Container(
-              padding: EdgeInsets.all(10),
-              child: _buildSecondRow(),
-            ),
-          ],
-        ));
-  }
+  double get medianValue => StatisticsCalculator.calculateMedian(
+        records,
+        aggregationMethod,
+        from,
+        to,
+        isBalance: isBalance,
+      );
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: _buildCard(),
+    if (records.isEmpty) return SizedBox.shrink();
+
+    String prelude;
+    if (isBalance) {
+      prelude = sumValues >= 0 ? "You saved".i18n : "You overspent".i18n;
+    } else {
+      final categoryType = records.first!.category!.categoryType;
+      prelude = categoryType == CategoryType.expense
+          ? "You spent".i18n
+          : "Your income is".i18n;
+    }
+
+    String averageLabelKey;
+    String medianLabelKey;
+    switch (aggregationMethod) {
+      case AggregationMethod.DAY:
+        averageLabelKey = "Average of %s a day".i18n;
+        medianLabelKey = "Median of %s a day".i18n;
+        break;
+      case AggregationMethod.WEEK:
+        averageLabelKey = "Average of %s a week".i18n;
+        medianLabelKey = "Median of %s a week".i18n;
+        break;
+      case AggregationMethod.MONTH:
+        averageLabelKey = "Average of %s a month".i18n;
+        medianLabelKey = "Median of %s a month".i18n;
+        break;
+      case AggregationMethod.YEAR:
+        averageLabelKey = "Average of %s a year".i18n;
+        medianLabelKey = "Median of %s a year".i18n;
+        break;
+      default:
+        averageLabelKey = "Average of %s".i18n;
+        medianLabelKey = "Median of %s".i18n;
+    }
+
+    final color = isBalance
+        ? (sumValues >= 0 ? Colors.green : Colors.redAccent)
+        : (records.first!.category!.categoryType == CategoryType.expense
+            ? Colors.redAccent
+            : Colors.green);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  prelude,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                Text(
+                  getCurrencyValueString(selectedAmount ?? sumValues),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  averageLabelKey.fill([getCurrencyValueString(averageValue)]),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.color
+                            ?.withAlpha(179),
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  medianLabelKey.fill([getCurrencyValueString(medianValue)]),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.color
+                            ?.withAlpha(179),
+                      ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          if (actions.isNotEmpty)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (int i = 0; i < actions.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  Tooltip(
+                    message: actions[i].tooltip ?? '',
+                    child: InkWell(
+                      onTap: actions[i].onTap,
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: (actions[i].color ?? color).withAlpha(26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                                scale: animation, child: child);
+                          },
+                          child: Icon(
+                            actions[i].icon,
+                            key: ValueKey<int>(i),
+                            color: actions[i].color ?? color,
+                            size: 36,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+        ],
+      ),
     );
   }
 }

@@ -18,6 +18,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.decimalSeparator: getLocaleDecimalSeparator, // Default locale
     PreferencesKeys.groupSeparator: getLocaleGroupingSeparator, // Default locale
     PreferencesKeys.numberDecimalDigits: 2, // Default to 2 decimal places
+    PreferencesKeys.amountInputAutoDecimalShift: false,
     PreferencesKeys.overwriteDotValueWithComma: getOverwriteDotValueWithCommaDefaultValue,
     PreferencesKeys.overwriteCommaValueWithDot: getOverwriteCommaValueWithDotDefaultValue,
     PreferencesKeys.enableAutomaticBackup: false, // Default to disabled

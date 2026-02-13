@@ -26,10 +26,32 @@ class RecordsPerDayCard extends StatefulWidget {
   MovementGroupState createState() => MovementGroupState();
 }
 
-class MovementGroupState extends State<RecordsPerDayCard> {
+class MovementGroupState extends State<RecordsPerDayCard>
+    with AutomaticKeepAliveClientMixin {
   final _titleFontStyle = const TextStyle(fontSize: 18.0);
   final _currencyFontStyle =
       const TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal);
+
+  late int _numberOfNoteLinesToShow;
+  late bool _visualiseTags;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  void _loadPreferences() {
+    _numberOfNoteLinesToShow = PreferencesUtils.getOrDefault<int>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.homepageRecordNotesVisible)!;
+    _visualiseTags = PreferencesUtils.getOrDefault<bool>(
+        ServiceConfig.sharedPreferences!,
+        PreferencesKeys.visualiseTagsInMainPage)!;
+  }
 
   Widget _buildMovements() {
     /// Returns a ListView with all the movements contained in the MovementPerDay object
@@ -54,13 +76,6 @@ class MovementGroupState extends State<RecordsPerDayCard> {
 
   Widget _buildMovementRow(Record movement) {
     /// Returns a ListTile rendering the single movement row
-    int numberOfNoteLinesToShow = PreferencesUtils.getOrDefault<int>(
-        ServiceConfig.sharedPreferences!,
-        PreferencesKeys.homepageRecordNotesVisible)!;
-
-    bool visualiseTags = PreferencesUtils.getOrDefault<bool>(
-        ServiceConfig.sharedPreferences!,
-        PreferencesKeys.visualiseTagsInMainPage)!;
 
     final listTile = ListTile(
       onTap: () async {
@@ -69,7 +84,8 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             MaterialPageRoute(
                 builder: (context) => EditRecordPage(
                       passedRecord: movement,
-                      readOnly: movement.isFutureRecord, // Future records are read-only
+                      readOnly: movement
+                          .isFutureRecord, // Future records are read-only
                     )));
         if (widget.onListBackCallback != null)
           await widget.onListBackCallback!();
@@ -85,7 +101,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          if (numberOfNoteLinesToShow > 0 &&
+          if (_numberOfNoteLinesToShow > 0 &&
               movement.description != null &&
               movement.description!.trim().isNotEmpty)
             Padding(
@@ -100,11 +116,12 @@ class MovementGroupState extends State<RecordsPerDayCard> {
                       ?.color, // Lighter color
                 ),
                 softWrap: true,
-                maxLines: numberOfNoteLinesToShow, // if index is 4, do not wrap
+                maxLines:
+                    _numberOfNoteLinesToShow, // if index is 4, do not wrap
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          if (visualiseTags && movement.tags.isNotEmpty)
+          if (_visualiseTags && movement.tags.isNotEmpty)
             _buildTagChipsRow(movement.tags),
         ],
       ),
@@ -159,6 +176,7 @@ class MovementGroupState extends State<RecordsPerDayCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
       child: Container(

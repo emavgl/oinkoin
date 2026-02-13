@@ -71,6 +71,21 @@ bool getOverwriteCommaValue() {
       PreferencesKeys.overwriteCommaValueWithDot)!;
 }
 
+int getNumberDecimalDigits() {
+  return PreferencesUtils.getOrDefault<int>(
+    ServiceConfig.sharedPreferences!,
+    PreferencesKeys.numberDecimalDigits,
+  )!;
+}
+
+bool getAmountInputAutoDecimalShift() {
+  if (getNumberDecimalDigits() <= 0) return false;
+  return PreferencesUtils.getOrDefault<bool>(
+    ServiceConfig.sharedPreferences!,
+    PreferencesKeys.amountInputAutoDecimalShift,
+  )!;
+}
+
 Locale getCurrencyLocale() {
   return ServiceConfig.currencyLocale!;
 }

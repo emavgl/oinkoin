@@ -26,4 +26,6 @@ class StringSeriesRecord {
   }
 }
 
-enum AggregationMethod { DAY, MONTH, YEAR, NOT_AGGREGATED }
+enum AggregationMethod { DAY, WEEK, MONTH, YEAR, NOT_AGGREGATED }
+
+enum GroupByType { category, tag, records }

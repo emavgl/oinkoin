@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For PlatformException
-import 'package:i18n_extension/i18n_extension.dart';
 import 'package:local_auth/local_auth.dart'; // Ensure this is added in pubspec.yaml
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/records-page.dart';
@@ -27,9 +26,12 @@ class ShellState extends State<Shell> {
   final GlobalKey<TabRecordsState> _tabRecordsKey = GlobalKey();
   final GlobalKey<TabCategoriesState> _tabCategoriesKey = GlobalKey();
 
-  final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>();
-  final GlobalKey<NavigatorState> _categoriesNavigatorKey = GlobalKey<NavigatorState>();
-  final GlobalKey<NavigatorState> _settingsNavigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _homeNavigatorKey =
+      GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _categoriesNavigatorKey =
+      GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _settingsNavigatorKey =
+      GlobalKey<NavigatorState>();
 
   Future<bool> _authenticate() async {
     // Skip biometric authentication on desktop platforms
@@ -112,9 +114,6 @@ class ShellState extends State<Shell> {
   Widget _buildMainUI(BuildContext context) {
     ThemeData themeData = Theme.of(context);
     MaterialThemeInstance.currentTheme = themeData;
-    ThemeData lightTheme = MaterialThemeInstance.lightTheme!;
-    ThemeData darkTheme = MaterialThemeInstance.darkTheme!;
-    ThemeMode themeMode = MaterialThemeInstance.themeMode!;
 
     return PopScope(
       canPop: false,
@@ -146,108 +145,103 @@ class ShellState extends State<Shell> {
           setState(() {
             _currentIndex = 0;
           });
+        } else {
+          // We're at the root of Home tab - exit the app
+          SystemNavigator.pop();
         }
-        // If we're at Home and can't pop, do nothing (system will handle it)
       },
       child: Scaffold(
         body: Stack(children: <Widget>[
-        Offstage(
-          offstage: _currentIndex != 0,
-          child: TickerMode(
-            enabled: _currentIndex == 0,
-            child: MaterialApp(
-              navigatorKey: _homeNavigatorKey,
-              home: TabRecords(key: _tabRecordsKey),
-              localizationsDelegates: I18n.localizationsDelegates,
-              title: "Oinkoin",
-              theme: lightTheme,
-              darkTheme: darkTheme,
-              themeMode: themeMode,
+          Offstage(
+            offstage: _currentIndex != 0,
+            child: TickerMode(
+              enabled: _currentIndex == 0,
+              child: Navigator(
+                key: _homeNavigatorKey,
+                onGenerateRoute: (settings) {
+                  return MaterialPageRoute(
+                      builder: (_) => TabRecords(key: _tabRecordsKey));
+                },
+              ),
             ),
           ),
+          Offstage(
+            offstage: _currentIndex != 1,
+            child: TickerMode(
+              enabled: _currentIndex == 1,
+              child: Navigator(
+                key: _categoriesNavigatorKey,
+                onGenerateRoute: (settings) {
+                  return MaterialPageRoute(
+                      builder: (_) => TabCategories(key: _tabCategoriesKey));
+                },
+              ),
+            ),
+          ),
+          Offstage(
+            offstage: _currentIndex != 2,
+            child: TickerMode(
+              enabled: _currentIndex == 2,
+              child: Navigator(
+                key: _settingsNavigatorKey,
+                onGenerateRoute: (settings) {
+                  return MaterialPageRoute(builder: (_) => TabSettings());
+                },
+              ),
+            ),
+          ),
+        ]),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _currentIndex,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          onDestinationSelected: (int index) async {
+            setState(() {
+              _currentIndex = index;
+            });
+            // refresh data whenever changing the tab
+            if (_currentIndex == 0) {
+              await _tabRecordsKey.currentState?.onTabChange();
+            }
+            if (_currentIndex == 1) {
+              await _tabCategoriesKey.currentState?.onTabChange();
+            }
+          },
+          destinations: [
+            NavigationDestination(
+              label: "Home".i18n,
+              selectedIcon: Semantics(
+                identifier: 'home-tab-selected',
+                child: Icon(Icons.home),
+              ),
+              icon: Semantics(
+                identifier: 'home-tab',
+                child: Icon(Icons.home_outlined),
+              ),
+            ),
+            NavigationDestination(
+              label: "Categories".i18n,
+              selectedIcon: Semantics(
+                identifier: 'categories-tab-selected',
+                child: Icon(Icons.category),
+              ),
+              icon: Semantics(
+                identifier: 'categories-tab',
+                child: Icon(Icons.category_outlined),
+              ),
+            ),
+            NavigationDestination(
+              label: "Settings".i18n,
+              selectedIcon: Semantics(
+                identifier: 'settings-tab-selected',
+                child: Icon(Icons.settings),
+              ),
+              icon: Semantics(
+                identifier: 'settings-tab',
+                child: Icon(Icons.settings_outlined),
+              ),
+            ),
+          ],
         ),
-        Offstage(
-          offstage: _currentIndex != 1,
-          child: TickerMode(
-            enabled: _currentIndex == 1,
-            child: MaterialApp(
-              navigatorKey: _categoriesNavigatorKey,
-              home: TabCategories(key: _tabCategoriesKey),
-              title: "Oinkoin",
-              localizationsDelegates: I18n.localizationsDelegates,
-              theme: lightTheme,
-              darkTheme: darkTheme,
-              themeMode: themeMode,
-            ),
-          ),
-        ),
-        Offstage(
-          offstage: _currentIndex != 2,
-          child: TickerMode(
-            enabled: _currentIndex == 2,
-            child: MaterialApp(
-              navigatorKey: _settingsNavigatorKey,
-              home: TabSettings(),
-              localizationsDelegates: I18n.localizationsDelegates,
-              title: "Oinkoin",
-              theme: lightTheme,
-              darkTheme: darkTheme,
-              themeMode: themeMode,
-            ),
-          ),
-        ),
-      ]),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        onDestinationSelected: (int index) async {
-          setState(() {
-            _currentIndex = index;
-          });
-          // refresh data whenever changing the tab
-          if (_currentIndex == 0) {
-            await _tabRecordsKey.currentState?.onTabChange();
-          }
-          if (_currentIndex == 1) {
-            await _tabCategoriesKey.currentState?.onTabChange();
-          }
-        },
-        destinations: [
-          NavigationDestination(
-            label: "Home".i18n,
-            selectedIcon: Semantics(
-              identifier: 'home-tab-selected',
-              child: Icon(Icons.home),
-            ),
-            icon: Semantics(
-              identifier: 'home-tab',
-              child: Icon(Icons.home_outlined),
-            ),
-          ),
-          NavigationDestination(
-            label: "Categories".i18n,
-            selectedIcon: Semantics(
-              identifier: 'categories-tab-selected',
-              child: Icon(Icons.category),
-            ),
-            icon: Semantics(
-              identifier: 'categories-tab',
-              child: Icon(Icons.category_outlined),
-            ),
-          ),
-          NavigationDestination(
-            label: "Settings".i18n,
-            selectedIcon: Semantics(
-              identifier: 'settings-tab-selected',
-              child: Icon(Icons.settings),
-            ),
-            icon: Semantics(
-              identifier: 'settings-tab',
-              child: Icon(Icons.settings_outlined),
-            ),
-          ),
-        ],
-      ),
       ),
     );
   }
