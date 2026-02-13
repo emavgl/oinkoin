@@ -2,18 +2,15 @@ import 'dart:ui';
 
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
-import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:piggybank/utils/constants.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../settings/constants/homepage-time-interval.dart';
-
-/// The duration to reach the final second of a day from midnight (00:00:00)
-const Duration dayEndOffset = Duration(hours: 23, minutes: 59, seconds: 59);
 
 DateTime addDuration(DateTime start, Duration duration) {
   // Convert to UTC
@@ -32,7 +29,7 @@ DateTime getEndOfMonth(int year, int month) {
   DateTime lastDayOfMonths = (month < 12)
       ? new DateTime(year, month + 1, 0)
       : new DateTime(year + 1, 1, 0);
-  return addDuration(lastDayOfMonths, dayEndOffset);
+  return addDuration(lastDayOfMonths, DateTimeConstants.END_OF_DAY);
 }
 
 String getDateRangeStr(DateTime start, DateTime end) {
@@ -290,12 +287,12 @@ List<DateTime> calculateInterval(
 
     case HomepageTimeInterval.CurrentWeek:
       DateTime from = getStartOfWeek(referenceDate);
-      DateTime to = from.add(const Duration(days: 6)).add(dayEndOffset);
+      DateTime to = from.add(const Duration(days: 6)).add(DateTimeConstants.END_OF_DAY);
       return [from, to];
 
     case HomepageTimeInterval.CurrentYear:
       DateTime from = DateTime(referenceDate.year, 1, 1);
-      DateTime to = DateTime(referenceDate.year, 12, 31).add(dayEndOffset);
+      DateTime to = DateTime(referenceDate.year, 12, 31).add(DateTimeConstants.END_OF_DAY);
       return [from, to];
 
     default:

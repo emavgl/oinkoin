@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:piggybank/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../categories/categories-tab-page-view.dart';
@@ -222,7 +223,9 @@ class TabRecordsController {
     } else {
       // If future records are disabled, only generate up to end of today
       final nowUtc = DateTime.now().toUtc();
-      viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day, 23, 59, 59, 999);
+      viewEndDate = viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day)
+          .add(DateTimeConstants.END_OF_DAY)
+          .add(const Duration(milliseconds: 999));
     }
 
     // Update recurrent records and get future records

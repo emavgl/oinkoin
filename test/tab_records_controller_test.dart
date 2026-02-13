@@ -9,6 +9,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -105,7 +106,7 @@ void main() {
 
       // Assert: Should now be 2025
       expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
-      expect(controller.customIntervalTo, DateTime(2025, 12, 31, 23, 59, 59));
+      expect(controller.customIntervalTo, DateTime(2025, 12, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('should shift year backward by 1 with custom interval set to a full year', () async {
@@ -123,7 +124,7 @@ void main() {
 
       // Assert: Should now be 2024
       expect(controller.customIntervalFrom, DateTime(2024, 1, 1));
-      expect(controller.customIntervalTo, DateTime(2024, 12, 31, 23, 59, 59));
+      expect(controller.customIntervalTo, DateTime(2024, 12, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('should shift week forward by 1 when HomepageTimeInterval is CurrentWeek', () async {
@@ -223,7 +224,7 @@ void main() {
 
       // Assert: Should be next year
       expect(controller.customIntervalFrom, DateTime(now.year + 1, 1, 1));
-      expect(controller.customIntervalTo, DateTime(now.year + 1, 12, 31, 23, 59, 59));
+      expect(controller.customIntervalTo, DateTime(now.year + 1, 12, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('should update backgroundImageIndex to the new month', () async {
@@ -282,7 +283,7 @@ void main() {
     test('shiftMonthWeekYear: Forward Shift with custom start day', () async {
       // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
       controller.customIntervalFrom = DateTime(2024, 1, 15);
-      controller.customIntervalTo = DateTime(2024, 2, 14, 23, 59, 59);
+      controller.customIntervalTo = DateTime(2024, 2, 14).add(DateTimeConstants.END_OF_DAY);
 
       // Mock settings to return Month view and Start Day 15
       await sharedPreferences.setInt(
@@ -309,7 +310,7 @@ void main() {
     test('shiftMonthWeekYear: Backward Shift with custom start day', () async {
       // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
       controller.customIntervalFrom = DateTime(2024, 1, 15);
-      controller.customIntervalTo = DateTime(2024, 2, 14, 23, 59, 59);
+      controller.customIntervalTo = DateTime(2024, 2, 14).add(DateTimeConstants.END_OF_DAY);
 
       // Mock settings to return Month view and Start Day 15
       await sharedPreferences.setInt(
