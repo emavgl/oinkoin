@@ -4,13 +4,13 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/utils/constants.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-import '../settings/constants/homepage-time-interval.dart';
 
 DateTime addDuration(DateTime start, Duration duration) {
   // Convert to UTC

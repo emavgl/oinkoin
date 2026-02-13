@@ -7,13 +7,14 @@ import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 
-import '../services/database/database-interface.dart';
-import '../services/service-config.dart';
-import '../settings/constants/homepage-time-interval.dart';
-import '../settings/constants/preferences-keys.dart';
-import '../settings/preferences-utils.dart';
+
 import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
