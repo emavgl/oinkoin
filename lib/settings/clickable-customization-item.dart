@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/settings/style.dart';
 
-import '../services/service-config.dart';
 
 class ClickableCustomizationItem<T> extends StatelessWidget {
   final String title;

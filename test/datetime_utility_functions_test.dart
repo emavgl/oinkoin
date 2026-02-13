@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
-import 'package:piggybank/i18n.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/utils/constants.dart';
 

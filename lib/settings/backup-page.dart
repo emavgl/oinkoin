@@ -2,12 +2,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:i18n_extension/i18n_extension.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/backup-service.dart';
-import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
