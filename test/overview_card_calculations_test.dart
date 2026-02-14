@@ -91,14 +91,16 @@ void main() {
         // Average: (100 + 0 + 0 + 0 + 200) / 5 = 300 / 5 = 60
         expect(card.averageValue, equals(60.0));
 
-        // Median: [0, 0, 0, 100, 200] = 0
-        expect(card.medianValue, equals(0.0));
+        // Median: [100, 200] (zeros excluded) = 150
+        expect(card.medianValue, equals(150.0));
       });
     });
 
     group('Weekly Aggregation', () {
-      test('calculates correct average and median across weeks', () {
+      test('calculates correct daily average and daily median across weeks',
+          () {
         // Week 1: Jan 1-7, Week 2: Jan 8-14, Week 3: Jan 15-21
+        // Total range: Jan 1-21 = 21 days
         final records = [
           // Week 1
           _createRecord(100.0, DateTime(2025, 1, 1)),
@@ -118,15 +120,19 @@ void main() {
           AggregationMethod.WEEK,
         );
 
-        // Weekly totals: [300, 500, 400]
-        // Average: (300 + 500 + 400) / 3 = 1200 / 3 = 400
-        expect(card.averageValue, equals(400.0));
+        // Total: 1200, Days: 21
+        // Daily Average: 1200 / 21 = ~57.14
+        expect(card.averageValue, closeTo(57.14, 0.01));
 
-        // Median: [300, 400, 500] = 400
-        expect(card.medianValue, equals(400.0));
+        // Daily Median: median of daily values (excluding zeros)
+        // Days with spending: Day 1: 100, Day 3: 200, Day 8: 300, Day 10: 150, Day 12: 50, Day 15: 400
+        // Non-zero values: [50, 100, 150, 200, 300, 400]
+        // Median: (150 + 200) / 2 = 175
+        expect(card.medianValue, equals(175.0));
       });
 
-      test('handles partial weeks correctly', () {
+      test('handles partial weeks with daily average and median', () {
+        // Jan 1-10 = 10 days
         final records = [
           _createRecord(100.0, DateTime(2025, 1, 1)), // Week 1
           _createRecord(200.0, DateTime(2025, 1, 8)), // Week 2
@@ -140,10 +146,15 @@ void main() {
           AggregationMethod.WEEK,
         );
 
-        // Week 1: [100], Week 2: [200, 300] = 500
-        // Weekly totals: [100, 500]
-        expect(card.averageValue, equals(300.0));
-        expect(card.medianValue, equals(300.0)); // (100 + 500) / 2
+        // Total: 600, Days: 10
+        // Daily Average: 600 / 10 = 60
+        expect(card.averageValue, equals(60.0));
+
+        // Daily Median: median of daily values (excluding zeros)
+        // Days with spending: Day 1: 100, Day 8: 200, Day 10: 300
+        // Non-zero values: [100, 200, 300]
+        // Median: 200
+        expect(card.medianValue, equals(200.0));
       });
     });
 
@@ -187,9 +198,9 @@ void main() {
           AggregationMethod.MONTH,
         );
 
-        // Monthly totals: [100, 0, 0]
+        // Monthly totals: [100, 0, 0] (average includes zeros, median excludes)
         expect(card.averageValue, closeTo(33.33, 0.01));
-        expect(card.medianValue, equals(0.0));
+        expect(card.medianValue, equals(100.0));
       });
     });
 
@@ -479,7 +490,204 @@ void main() {
     });
   });
 
+  group('Daily Average for WEEK aggregation', () {
+    test('calculates daily average correctly for single month', () {
+      // January has 31 days, total spending = 310
+      // Daily average = 310 / 31 = 10.0
+      final records = <Record>[];
+      for (int i = 1; i <= 31; i++) {
+        records.add(_createRecord(10.0, DateTime(2025, 1, i)));
+      }
+
+      final card = OverviewCard(
+        DateTime(2025, 1, 1),
+        DateTime(2025, 1, 31),
+        records,
+        AggregationMethod.WEEK,
+      );
+
+      // Total: 310, Days: 31, Daily average: 10.0
+      expect(card.averageValue, closeTo(10.0, 0.01));
+    });
+
+    test('calculates daily average correctly for February (28 days)', () {
+      // February 2025 has 28 days, total spending = 280
+      // Daily average = 280 / 28 = 10.0
+      final records = <Record>[];
+      for (int i = 1; i <= 28; i++) {
+        records.add(_createRecord(10.0, DateTime(2025, 2, i)));
+      }
+
+      final card = OverviewCard(
+        DateTime(2025, 2, 1),
+        DateTime(2025, 2, 28),
+        records,
+        AggregationMethod.WEEK,
+      );
+
+      expect(card.averageValue, closeTo(10.0, 0.01));
+    });
+
+    test('calculates daily average correctly for 30-day month', () {
+      // April has 30 days, total spending = 300
+      // Daily average = 300 / 30 = 10.0
+      final records = <Record>[];
+      for (int i = 1; i <= 30; i++) {
+        records.add(_createRecord(10.0, DateTime(2025, 4, i)));
+      }
+
+      final card = OverviewCard(
+        DateTime(2025, 4, 1),
+        DateTime(2025, 4, 30),
+        records,
+        AggregationMethod.WEEK,
+      );
+
+      expect(card.averageValue, closeTo(10.0, 0.01));
+    });
+
+    test('calculates daily average with balance mode (signed values)', () {
+      final records = [
+        _createRecord(100.0, DateTime(2025, 1, 1), CategoryType.income),
+        _createRecord(50.0, DateTime(2025, 1, 1), CategoryType.expense),
+        _createRecord(80.0, DateTime(2025, 1, 2), CategoryType.income),
+        _createRecord(30.0, DateTime(2025, 1, 2), CategoryType.expense),
+      ];
+
+      final card = OverviewCard(
+        DateTime(2025, 1, 1),
+        DateTime(2025, 1, 2),
+        records,
+        AggregationMethod.WEEK,
+        isBalance: true,
+      );
+
+      // Day 1: 100 - 50 = 50, Day 2: 80 - 30 = 50
+      // Total balance: 100, Days: 2, Daily average: 50.0
+      expect(card.averageValue, equals(50.0));
+    });
+
+    test('handles partial week ranges correctly', () {
+      // Jan 10-20 = 11 days, total = 110
+      // Daily average = 110 / 11 = 10.0
+      final records = <Record>[];
+      for (int i = 10; i <= 20; i++) {
+        records.add(_createRecord(10.0, DateTime(2025, 1, i)));
+      }
+
+      final card = OverviewCard(
+        DateTime(2025, 1, 10),
+        DateTime(2025, 1, 20),
+        records,
+        AggregationMethod.WEEK,
+      );
+
+      expect(card.averageValue, closeTo(10.0, 0.01));
+    });
+
+    test('handles cross-month ranges correctly', () {
+      // Jan 15-31 = 17 days, Feb 1-15 = 15 days, Total = 32 days
+      // Total spending = 320, Daily average = 320 / 32 = 10.0
+      final records = <Record>[];
+      for (int i = 15; i <= 31; i++) {
+        records.add(_createRecord(10.0, DateTime(2025, 1, i)));
+      }
+      for (int i = 1; i <= 15; i++) {
+        records.add(_createRecord(10.0, DateTime(2025, 2, i)));
+      }
+
+      final card = OverviewCard(
+        DateTime(2025, 1, 15),
+        DateTime(2025, 2, 15),
+        records,
+        AggregationMethod.WEEK,
+      );
+
+      expect(card.averageValue, closeTo(10.0, 0.01));
+    });
+
+    test('handles empty records correctly', () {
+      final card = OverviewCard(
+        DateTime(2025, 1, 1),
+        DateTime(2025, 1, 31),
+        [],
+        AggregationMethod.WEEK,
+      );
+
+      expect(card.averageValue, equals(0.0));
+    });
+
+    test('handles single day correctly', () {
+      final records = [
+        _createRecord(100.0, DateTime(2025, 1, 15)),
+      ];
+
+      final card = OverviewCard(
+        DateTime(2025, 1, 15),
+        DateTime(2025, 1, 15),
+        records,
+        AggregationMethod.WEEK,
+      );
+
+      // Total: 100, Days: 1, Daily average: 100.0
+      expect(card.averageValue, equals(100.0));
+    });
+  });
+
   group('StatisticsCalculator Direct Tests', () {
+    test('calculateDailyAverage works correctly', () {
+      final records = [
+        _createRecord(100.0, DateTime(2025, 1, 1)),
+        _createRecord(200.0, DateTime(2025, 1, 2)),
+        _createRecord(300.0, DateTime(2025, 1, 3)),
+      ];
+
+      final average = StatisticsCalculator.calculateDailyAverage(
+        records,
+        DateTime(2025, 1, 1),
+        DateTime(2025, 1, 3),
+      );
+
+      // Total: 600, Days: 3, Daily average: 200.0
+      expect(average, equals(200.0));
+    });
+
+    test('calculateDailyMedian works correctly', () {
+      final records = [
+        _createRecord(100.0, DateTime(2025, 1, 1)),
+        _createRecord(200.0, DateTime(2025, 1, 2)),
+        _createRecord(300.0, DateTime(2025, 1, 3)),
+      ];
+
+      final median = StatisticsCalculator.calculateDailyMedian(
+        records,
+        DateTime(2025, 1, 1),
+        DateTime(2025, 1, 3),
+      );
+
+      // Daily values: [100, 200, 300]
+      // Median: 200
+      expect(median, equals(200.0));
+    });
+
+    test('calculateDailyMedian excludes zero values', () {
+      final records = [
+        _createRecord(100.0, DateTime(2025, 1, 1)),
+        _createRecord(300.0, DateTime(2025, 1, 3)),
+      ];
+
+      final median = StatisticsCalculator.calculateDailyMedian(
+        records,
+        DateTime(2025, 1, 1),
+        DateTime(2025, 1, 3),
+      );
+
+      // Daily values: [100, 0, 300] - zero excluded
+      // Non-zero values: [100, 300]
+      // Median: (100 + 300) / 2 = 200
+      expect(median, equals(200.0));
+    });
+
     test('calculateAverage works correctly with daily aggregation', () {
       final records = [
         _createRecord(100.0, DateTime(2025, 1, 1)),

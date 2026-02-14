@@ -21,6 +21,12 @@ double computeNumberOfYearsBetweenTwoDates(DateTime from, DateTime to) {
   return numberOfDaysInBetween / apprxSizeOfYear;
 }
 
+/// Calculates the number of days between two dates (inclusive).
+int computeNumberOfDays(DateTime from, DateTime to) {
+  if (from.isAfter(to)) return 0;
+  return to.difference(from).inDays + 1;
+}
+
 int computeNumberOfIntervals(
     DateTime from, DateTime to, AggregationMethod method,
     {DateTime? now}) {

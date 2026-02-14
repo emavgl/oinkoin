@@ -47,21 +47,35 @@ class OverviewCard extends StatelessWidget {
                 .fold(0.0, (acc, e) => (acc as double) + e!.value!.abs())
                 .abs();
 
-  double get averageValue => StatisticsCalculator.calculateAverage(
-        records,
-        aggregationMethod,
-        from,
-        to,
-        isBalance: isBalance,
-      );
+  double get averageValue {
+    switch (aggregationMethod) {
+      case AggregationMethod.WEEK:
+        // For WEEK: show daily average instead of weekly bin average
+        return StatisticsCalculator.calculateDailyAverage(records, from, to,
+            isBalance: isBalance);
 
-  double get medianValue => StatisticsCalculator.calculateMedian(
-        records,
-        aggregationMethod,
-        from,
-        to,
-        isBalance: isBalance,
-      );
+      default:
+        // DAY, MONTH, and YEAR: keep existing period-based calculation
+        return StatisticsCalculator.calculateAverage(
+            records, aggregationMethod, from, to,
+            isBalance: isBalance);
+    }
+  }
+
+  double get medianValue {
+    switch (aggregationMethod) {
+      case AggregationMethod.WEEK:
+        // For WEEK: show daily median for consistency with daily average
+        return StatisticsCalculator.calculateDailyMedian(records, from, to,
+            isBalance: isBalance);
+
+      default:
+        // DAY, MONTH, and YEAR: keep existing period-based calculation
+        return StatisticsCalculator.calculateMedian(
+            records, aggregationMethod, from, to,
+            isBalance: isBalance);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +99,9 @@ class OverviewCard extends StatelessWidget {
         medianLabelKey = "Median of %s a day".i18n;
         break;
       case AggregationMethod.WEEK:
-        averageLabelKey = "Average of %s a week".i18n;
-        medianLabelKey = "Median of %s a week".i18n;
+        // Show daily values for intuitive comparison (actual days, not 5 week bins)
+        averageLabelKey = "Average of %s a day".i18n;
+        medianLabelKey = "Median of %s a day".i18n;
         break;
       case AggregationMethod.MONTH:
         averageLabelKey = "Average of %s a month".i18n;
