@@ -15,19 +15,110 @@ import 'package:test/test.dart' as testlib;
 
 import 'backup_service_test.mocks.dart';
 
-/// This test verifies the user's reported issue using their actual backup file.
-/// 
-/// User report: "The transaction labels on the tablet have been replaced by other 
+/// This test verifies the backup import functionality with tags.
+/// It creates a mock backup file programmatically instead of relying on external files.
+///
+/// Original issue: "The transaction labels on the tablet have been replaced by other
 /// labels when restoring to the smartphone!"
-/// 
-/// Root cause: Record IDs in the backup file don't match the new record IDs 
+///
+/// Root cause: Record IDs in the backup file don't match the new record IDs
 /// assigned during import, causing tags to be associated with wrong records.
 @GenerateMocks([DatabaseInterface])
 void main() {
   late MockDatabaseInterface mockDatabase;
   late Directory testDir;
-  
-  final String userBackupFile = 'debug/piggybankpro_1.4.1_2026-02-14T12-07-48_obackup.json';
+
+  // Create a mock backup structure programmatically instead of relying on external files
+  Map<String, dynamic> createMockBackupData() {
+    return {
+      "version": "2",
+      "app_name": "piggybankpro",
+      "app_version": "1.4.1",
+      "export_date": "2026-02-14T12:07:48.000000",
+      "records": [
+        {
+          "id": 1,
+          "title": "Groceries",
+          "value": -50.0,
+          "category_name": "Food",
+          "category_type": 1,
+          "datetime": 1738407600000,
+          "timezone": "UTC"
+        },
+        {
+          "id": 2,
+          "title": "Gas",
+          "value": -30.0,
+          "category_name": "Transport",
+          "category_type": 1,
+          "datetime": 1738494000000,
+          "timezone": "UTC"
+        },
+        {
+          "id": 3,
+          "title": "Salary",
+          "value": 2000.0,
+          "category_name": "Income",
+          "category_type": 0,
+          "datetime": 1738404000000,
+          "timezone": "UTC"
+        },
+        {
+          "id": 4,
+          "title": "Restaurant",
+          "value": -80.0,
+          "category_name": "Food",
+          "category_type": 1,
+          "datetime": 1738776000000,
+          "timezone": "UTC"
+        },
+        {
+          "id": 5,
+          "title": "Uber",
+          "value": -25.0,
+          "category_name": "Transport",
+          "category_type": 1,
+          "datetime": 1738862400000,
+          "timezone": "UTC"
+        },
+      ],
+      "categories": [
+        {
+          "name": "Food",
+          "icon": 58763,
+          "color": "255:255:87:51",
+          "category_type": 1
+        },
+        {
+          "name": "Transport",
+          "icon": 58790,
+          "color": "255:51:255:87",
+          "category_type": 1
+        },
+        {
+          "name": "Income",
+          "icon": 57896,
+          "color": "255:51:87:255",
+          "category_type": 0
+        },
+      ],
+      "record_tag_associations": [
+        {"record_id": 1, "tag_name": "weekly"},
+        {"record_id": 1, "tag_name": "essential"},
+        {"record_id": 2, "tag_name": "commute"},
+        {"record_id": 4, "tag_name": "dining"},
+        {"record_id": 4, "tag_name": "social"},
+      ],
+      "recurrent_record_patterns": [],
+      "tags": [
+        {"name": "weekly"},
+        {"name": "essential"},
+        {"name": "commute"},
+        {"name": "dining"},
+        {"name": "social"},
+      ],
+    };
+  }
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -71,72 +162,83 @@ void main() {
     await testDir.create(recursive: true);
   });
 
-  testlib.test(
-      'verify user backup file structure is correct',
-      () async {
-    // Verify the user's backup file exists and has correct structure
-    final file = File(userBackupFile);
-    expect(await file.exists(), isTrue, 
-        reason: 'User backup file should exist');
-    
-    final content = await file.readAsString();
+  testlib.test('verify backup file structure is correct', () async {
+    // Create test backup file with mock data
+    final testBackupFilePath = '${testDir.path}/test_backup.json';
+    final mockData = createMockBackupData();
+    final testFile = File(testBackupFilePath);
+    await testFile.writeAsString(jsonEncode(mockData));
+
+    // Verify the test backup file exists and has correct structure
+    expect(await testFile.exists(), isTrue,
+        reason: 'Test backup file should exist');
+
+    final content = await testFile.readAsString();
     final jsonMap = jsonDecode(content);
-    
+
     // Verify all required fields exist
     expect(jsonMap.containsKey('records'), isTrue);
     expect(jsonMap.containsKey('categories'), isTrue);
     expect(jsonMap.containsKey('record_tag_associations'), isTrue);
-    
+
     // Verify data structure
     final records = jsonMap['records'] as List;
     final categories = jsonMap['categories'] as List;
     final associations = jsonMap['record_tag_associations'] as List;
-    
-    print('\n=== User Backup File Analysis ===');
+
+    print('\n=== Test Backup File Analysis ===');
     print('Records count: ${records.length}');
     print('Categories count: ${categories.length}');
     print('Tag associations count: ${associations.length}');
-    
+
     // Show sample records and their IDs
     print('\nSample records from backup:');
     for (var i = 0; i < min(5, records.length); i++) {
       final record = records[i];
-      print('  Record ID: ${record['id']}, Title: ${record['title'] ?? "(null)"}, '
+      print(
+          '  Record ID: ${record['id']}, Title: ${record['title'] ?? "(null)"}, '
           'Category: ${record['category_name']}');
     }
-    
+
     // Show sample tag associations
     print('\nSample tag associations from backup:');
     for (var i = 0; i < min(5, associations.length); i++) {
       final assoc = associations[i];
       print('  Tag: ${assoc['tag_name']} -> Record ID: ${assoc['record_id']}');
     }
-    
+
     // Verify that tag associations reference actual record IDs
     final recordIds = records.map((r) => r['id'] as int).toSet();
-    final associationRecordIds = associations.map((a) => a['record_id'] as int).toSet();
-    
+    final associationRecordIds =
+        associations.map((a) => a['record_id'] as int).toSet();
+
     print('\nRecord IDs in backup: ${recordIds.length} unique IDs');
-    print('Record IDs referenced by tags: ${associationRecordIds.length} unique IDs');
-    
+    print(
+        'Record IDs referenced by tags: ${associationRecordIds.length} unique IDs');
+
     // All association record IDs should exist in the records list
     final invalidAssociations = associationRecordIds.difference(recordIds);
     if (invalidAssociations.isNotEmpty) {
-      print('WARNING: Tag associations reference non-existent record IDs: $invalidAssociations');
+      print(
+          'WARNING: Tag associations reference non-existent record IDs: $invalidAssociations');
     }
-    
+
     expect(invalidAssociations.isEmpty, isTrue,
         reason: 'All tag associations should reference existing record IDs');
-    
-    print('\n✓ User backup file structure is valid');
+
+    print('\n✓ Backup file structure is valid');
   });
 
-  testlib.test(
-      'verify import fix - tags are correctly populated on records',
+  testlib.test('verify import fix - tags are correctly populated on records',
       () async {
-    // Read the actual user backup file
-    final file = File(userBackupFile);
-    final content = await file.readAsString();
+    // Create test backup file with mock data
+    final testBackupFilePath = '${testDir.path}/test_backup.json';
+    final mockData = createMockBackupData();
+    final testFile = File(testBackupFilePath);
+    await testFile.writeAsString(jsonEncode(mockData));
+
+    // Read the test backup file
+    final content = await testFile.readAsString();
     final jsonMap = jsonDecode(content);
 
     final originalAssociations = (jsonMap['record_tag_associations'] as List)
@@ -161,8 +263,11 @@ void main() {
     final records = (jsonMap['records'] as List).map((r) {
       final row = Map<String, dynamic>.from(r);
       row['category'] = categories.firstWhere(
-        (c) => c.name == row['category_name'] && c.categoryType?.index == row['category_type'],
-        orElse: () => Category(row['category_name'], categoryType: CategoryType.values[row['category_type']]),
+        (c) =>
+            c.name == row['category_name'] &&
+            c.categoryType?.index == row['category_type'],
+        orElse: () => Category(row['category_name'],
+            categoryType: CategoryType.values[row['category_type']]),
       );
       return Record.fromMap(row);
     }).toList();
@@ -183,17 +288,14 @@ void main() {
     when(mockDatabase.getRecurrentRecordPattern(any))
         .thenAnswer((_) async => null);
 
-    // Create a copy of the backup for testing
-    final testBackupFile = File('${testDir.path}/user_backup_test.json');
-    await testBackupFile.writeAsString(content);
-
     // Import the backup
-    final result = await BackupService.importDataFromBackupFile(testBackupFile);
+    final result = await BackupService.importDataFromBackupFile(testFile);
     expect(result, isTrue);
 
     // Verify that records passed to addRecordsInBatch have their tags populated
     // from the backup's record_tag_associations
-    final recordsWithTags = capturedRecords.where((r) => r!.tags.isNotEmpty).toList();
+    final recordsWithTags =
+        capturedRecords.where((r) => r!.tags.isNotEmpty).toList();
     expect(recordsWithTags.length, expectedTagsByRecordId.length,
         reason: 'Number of records with tags should match number of records '
             'referenced in tag associations');
