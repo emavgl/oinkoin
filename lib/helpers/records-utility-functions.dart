@@ -7,13 +7,14 @@ import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 
-import '../services/database/database-interface.dart';
-import '../services/service-config.dart';
-import '../settings/constants/homepage-time-interval.dart';
-import '../settings/constants/preferences-keys.dart';
-import '../settings/preferences-utils.dart';
+
 import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
@@ -293,6 +294,16 @@ OverviewTimeInterval getHomepageOverviewWidgetTimeIntervalEnumSetting() {
   return OverviewTimeInterval.values[userDefinedHomepageIntervalIndex];
 }
 
+int getHomepageRecordsMonthStartDay() {
+  return PreferencesUtils.getOrDefault<int>(
+      ServiceConfig.sharedPreferences!, PreferencesKeys.homepageRecordsMonthStartDay)!;
+}
+
+// 'MMMd' provides the localized month name and day (e.g., "Jan 15")
+String getShortDateStr(DateTime date) {
+  return DateFormat.MMMd().format(date);
+}
+
 String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
   DateTime _now = DateTime.now();
   switch (timeInterval) {
@@ -308,30 +319,20 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
 }
 
 Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
-    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
-  DateTime _now = DateTime.now();
-  switch (timeInterval) {
-    case HomepageTimeInterval.CurrentMonth:
-      DateTime _from = new DateTime(_now.year, _now.month, 1);
-      DateTime _to = getEndOfMonth(_now.year, _now.month);
-      return [_from, _to];
-    case HomepageTimeInterval.CurrentYear:
-      DateTime _from = new DateTime(_now.year, 1, 1);
-      DateTime _to = new DateTime(_now.year, 12, 31, 23, 59);
-      return [_from, _to];
-    case HomepageTimeInterval.All:
-      DateTime? _from = await database.getDateTimeFirstRecord();
-      if (_from == null) {
-        DateTime _from = new DateTime(_now.year, _now.month, 1);
-        DateTime _to = getEndOfMonth(_now.year, _now.month);
-        return [_from, _to];
-      }
-      return [_from, _now];
-    case HomepageTimeInterval.CurrentWeek:
-      DateTime? _from = getStartOfWeek(_now);
-      DateTime? _to = getEndOfWeek(_now);
-      return [_from, _to];
+    DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
+
+  DateTime now = DateTime.now();
+
+  if (timeInterval == HomepageTimeInterval.All) {
+    DateTime? firstRecord = await database.getDateTimeFirstRecord();
+    if (firstRecord == null) {
+      // Fallback to current month if no records exist
+      return calculateInterval(HomepageTimeInterval.CurrentMonth, now, monthStartDay: monthStartDay);
+    }
+    return [firstRecord, now];
   }
+
+  return calculateInterval(timeInterval, now, monthStartDay: monthStartDay);
 }
 
 HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
@@ -349,11 +350,34 @@ HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
 }
 
 Future<List<Record?>> getRecordsByHomepageTimeInterval(
-    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
+    DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
   DateTime _now = DateTime.now();
   switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
-      return await getRecordsByMonth(database, _now.year, _now.month);
+      DateTime now = DateTime.now();
+      DateTime start;
+      DateTime end;
+
+      // Determine which month the current cycle started in
+      int startYear = now.year;
+      int startMonth = (now.day >= monthStartDay) ? now.month : now.month - 1;
+
+      // 1. Calculate the SAFE start day for THAT specific month
+      int safeStartDay = monthStartDay.clamp(1, lastDayOf(startYear, startMonth));
+      start = DateTime(startYear, startMonth, safeStartDay);
+
+      // 2. Calculate the SAFE end day
+      // The end month is just startMonth + 1
+      int endYear = startYear;
+      int endMonth = startMonth + 1;
+
+      // If endMonth is 13, DateTime constructor handles it (becomes Jan of next year)
+      int safeEndDay = monthStartDay.clamp(1, lastDayOf(endYear, endMonth));
+
+      // We want to end one second before the next cycle starts
+      end = DateTime(endYear, endMonth, safeEndDay).subtract(const Duration(seconds: 1));
+
+      return await getRecordsByInterval(database, start, end);
     case HomepageTimeInterval.CurrentYear:
       return await getRecordsByYear(database, _now.year);
     case HomepageTimeInterval.All:

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/records/components/records-day-list.dart';
 import 'package:piggybank/statistics/balance-tab-page.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';

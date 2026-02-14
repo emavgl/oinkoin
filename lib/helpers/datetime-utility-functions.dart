@@ -4,12 +4,13 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
+import 'package:piggybank/utils/constants.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-import '../settings/constants/homepage-time-interval.dart';
 
 DateTime addDuration(DateTime start, Duration duration) {
   // Convert to UTC
@@ -28,7 +29,7 @@ DateTime getEndOfMonth(int year, int month) {
   DateTime lastDayOfMonths = (month < 12)
       ? new DateTime(year, month + 1, 0)
       : new DateTime(year + 1, 1, 0);
-  return addDuration(lastDayOfMonths, Duration(hours: 23, minutes: 59));
+  return addDuration(lastDayOfMonths, DateTimeConstants.END_OF_DAY);
 }
 
 String getDateRangeStr(DateTime start, DateTime end) {
@@ -235,63 +236,79 @@ tz.Location getLocation(String timeZoneName) {
   }
 }
 
-bool canShift(
-  int shift,
-  DateTime? customIntervalFrom,
-  DateTime? customIntervalTo,
-  HomepageTimeInterval hti,
-) {
-  // Get the current date
-  DateTime currentDate = DateTime.now();
-  currentDate = DateTime(currentDate.year, currentDate.month, currentDate.day);
+// Helper for last day (handles the "31st" issue)
+int lastDayOf(int year, int month) => DateTime(year, month + 1, 0).day;
 
-  // Check if customIntervalFrom is not null
-  if (customIntervalFrom != null) {
-    // If it is a full month interval, check the destination month after shifting
-    if (isFullMonth(customIntervalFrom, customIntervalTo!)) {
-      // Create a new "from" date by shifting the month
-      DateTime newFrom = DateTime(
-          customIntervalFrom.year, customIntervalFrom.month + shift, 1);
-      return !newFrom.isAfter(currentDate);
-    }
+/// Calculates the start and end dates of a custom monthly cycle.
+///
+/// Unlike a standard calendar month, a cycle can start on any day of the month
+/// (e.g., the 15th). If the [referenceDate]'s day is less than the [startDay],
+/// this method correctly identifies that the current cycle actually began in
+/// the previous calendar month.
+///
+/// Handles month-end safety by clamping the [startDay] to the maximum
+/// available days in that specific month (e.g., clamping 31 to 28 in February).
+///
+/// [referenceDate] - The point in time used to determine which cycle to calculate.
+/// [startDay] - The preferred day of the month to begin the cycle (1-31).
+///
+/// Returns a [List<DateTime>] where:
+/// - index 0: The start of the cycle (inclusive).
+/// - index 1: The end of the cycle (one second before the next cycle starts).
+List<DateTime> calculateMonthCycle(DateTime referenceDate, int startDay) {
+  int year = referenceDate.year;
+  int month = referenceDate.month;
 
-    // If it is a full year interval, check the destination year after shifting
-    if (isFullYear(customIntervalFrom, customIntervalTo)) {
-      return customIntervalFrom.year + shift <= currentDate.year;
-    }
-
-    // If it is a full week interval, check the destination week after shifting
-    if (isFullWeek(customIntervalFrom, customIntervalTo)) {
-      DateTime newFrom = customIntervalFrom.add(Duration(days: 7 * shift));
-      return !newFrom.isAfter(currentDate);
-    }
-
-    // If neither full month nor full year, return false (cannot shift)
-    return false;
+  // Determine if the cycle started in the previous calendar month
+  if (referenceDate.day < startDay) {
+    month -= 1;
   }
 
-  // If customIntervalFrom is null, check based on the HomepageTimeInterval setting
-  DateTime d = DateTime.now();
+  // Start Date
+  int safeStartDay = startDay.clamp(1, lastDayOf(year, month));
+  DateTime from = DateTime(year, month, safeStartDay);
 
-  // If it's the current month interval, check if shifting the month results in a valid date range
-  if (hti == HomepageTimeInterval.CurrentMonth) {
-    DateTime newFrom = DateTime(d.year, d.month + shift, 1);
-    return newFrom.isBefore(currentDate);
-  }
+  // End Date (Start of next cycle minus 1 second)
+  int nextMonth = month + 1;
+  int nextYear = year;
+  int safeEndDay = startDay.clamp(1, lastDayOf(nextYear, nextMonth));
+  DateTime to = DateTime(nextYear, nextMonth, safeEndDay).subtract(const Duration(seconds: 1));
 
-  // If it's the current year interval, check if shifting the year results in a valid date range
-  if (hti == HomepageTimeInterval.CurrentYear) {
-    DateTime newFrom = DateTime(d.year + shift, d.month, 1);
-    return newFrom.year + shift <= currentDate.year;
-  }
-
-  // If it's the current week interval, check if shifting the week results in a valid date range
-  if (hti == HomepageTimeInterval.CurrentWeek) {
-    DateTime currentWeekStart = getStartOfWeek(d);
-    DateTime newFrom = currentWeekStart.add(Duration(days: 7 * shift));
-    return !newFrom.isAfter(currentDate);
-  }
-
-  // Default: If it doesn't match any of the above conditions, return false
-  return false;
+  return [from, to];
 }
+
+/// Calculates the start and end boundaries for a time period based on a reference date.
+///
+///
+/// [hti] - The type of interval to calculate (Month, Week, Year).
+/// [referenceDate] - The date used as the anchor for the calculation.
+/// [monthStartDay] - The day of the month (1-31) when a cycle begins.
+/// Defaults to 1 for standard calendar months.
+///
+/// Returns a [List<DateTime>] where index 0 is the start (from) and
+/// index 1 is the end (to) of the interval.
+List<DateTime> calculateInterval(
+    HomepageTimeInterval hti,
+    DateTime referenceDate,
+    {int monthStartDay = 1}
+    ) {
+  switch (hti) {
+    case HomepageTimeInterval.CurrentMonth:
+      return calculateMonthCycle(referenceDate, monthStartDay);
+
+    case HomepageTimeInterval.CurrentWeek:
+      DateTime from = getStartOfWeek(referenceDate);
+      DateTime to = from.add(const Duration(days: 6)).add(DateTimeConstants.END_OF_DAY);
+      return [from, to];
+
+    case HomepageTimeInterval.CurrentYear:
+      DateTime from = DateTime(referenceDate.year, 1, 1);
+      DateTime to = DateTime(referenceDate.year, 12, 31).add(DateTimeConstants.END_OF_DAY);
+      return [from, to];
+
+    default:
+      // Fallback for "All" or others
+      return [referenceDate, referenceDate];
+  }
+}
+
