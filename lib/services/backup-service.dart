@@ -267,7 +267,20 @@ class BackupService {
         }
       }
 
-      // Add records in batch (slightly faster)
+      // Build a map of record ID -> tags from the backup's tag associations
+      final recordIdToTags = <int, Set<String>>{};
+      for (var assoc in backup.recordTagAssociations) {
+        recordIdToTags.putIfAbsent(assoc.recordId, () => <String>{}).add(assoc.tagName);
+      }
+
+      // Populate record.tags so addRecordsInBatch Phase 2 handles ID remapping
+      for (var record in backup.records) {
+        if (record?.id != null && recordIdToTags.containsKey(record!.id)) {
+          record.tags = recordIdToTags[record.id]!;
+        }
+      }
+
+      // Add records in batch — Phase 2 will correctly map tags to new IDs
       await database.addRecordsInBatch(backup.records);
 
       // Add recurrent patterns
@@ -281,9 +294,6 @@ class BackupService {
               "Recurrent pattern with id $recurrentPatternId already exists.");
         }
       }
-
-      // Add record tag associations
-      await database.addRecordTagAssociationsInBatch(backup.recordTagAssociations);
 
       _logger.info('Backup imported successfully');
       return true;

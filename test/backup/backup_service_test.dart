@@ -89,9 +89,6 @@ void main() {
     when(mockDatabase.addRecord(any)).thenAnswer((_) async => 0);
     when(mockDatabase.addRecurrentRecordPattern(any))
         .thenAnswer((_) async => null);
-    when(mockDatabase.addRecordTagAssociationsInBatch(any))
-        .thenAnswer((_) async => null);
-
     when(mockDatabase.getRecurrentRecordPattern(any))
         .thenAnswer((_) async => null);
     when(mockDatabase.getMatchingRecord(any)).thenAnswer((_) async => null);
@@ -220,7 +217,6 @@ void main() {
     // Mock addRecord and addRecurrentRecordPattern to capture arguments
     final capturedRecords = <Record?>[];
     final capturedRecurrentPatterns = <RecurrentRecordPattern>[];
-    final capturedRecordTagAssociations = <RecordTagAssociation>[];
 
     when(mockDatabase.addRecordsInBatch(any))
         .thenAnswer((Invocation invocation) async {
@@ -232,14 +228,6 @@ void main() {
         .thenAnswer((Invocation invocation) async {
       final RecurrentRecordPattern pattern = invocation.positionalArguments[0];
       capturedRecurrentPatterns.add(pattern);
-      return null;
-    });
-
-    when(mockDatabase.addRecordTagAssociationsInBatch(any))
-        .thenAnswer((Invocation invocation) async {
-      final List<RecordTagAssociation> associations =
-          invocation.positionalArguments[0];
-      capturedRecordTagAssociations.addAll(associations);
       return null;
     });
 
@@ -255,25 +243,15 @@ void main() {
         .called(1);
     verify(mockDatabase.addRecurrentRecordPattern(any))
         .called(recurrentPatterns.length);
-    verify(mockDatabase.addRecordTagAssociationsInBatch(
-            argThat(isA<List<RecordTagAssociation>>())))
-        .called(1);
 
-    // Verify tags are NOT in restored records directly (as they are now separate)
-    expect(capturedRecords[0]!.tags, isEmpty);
-    expect(capturedRecords[1]!.tags, isEmpty);
+    // Verify tags ARE populated on records from the backup's tag associations
+    // (the fix populates record.tags before calling addRecordsInBatch)
+    expect(capturedRecords[0]!.tags, isNotEmpty);
+    expect(capturedRecords[0]!.tags, containsAll(['rent', 'house']));
+    expect(capturedRecords[1]!.tags, containsAll(['rent', 'monthly']));
 
     // recurrent_pattern still have tags
     expect(capturedRecurrentPatterns[0].tags, isNotEmpty);
-
-    // Verify restored record tag associations
-    expect(capturedRecordTagAssociations.length, recordTagAssociations.length);
-    for (var i = 0; i < recordTagAssociations.length; i++) {
-      expect(capturedRecordTagAssociations[i].recordId,
-          recordTagAssociations[i].recordId);
-      expect(capturedRecordTagAssociations[i].tagName,
-          recordTagAssociations[i].tagName);
-    }
   });
 
   testlib.test(
@@ -282,7 +260,6 @@ void main() {
     const encryptionPassword = 'testpassword';
     final capturedRecords = <Record?>[];
     final capturedRecurrentPatterns = <RecurrentRecordPattern>[];
-    final capturedRecordTagAssociations = <RecordTagAssociation>[];
 
     when(mockDatabase.addRecordsInBatch(any))
         .thenAnswer((Invocation invocation) async {
@@ -294,14 +271,6 @@ void main() {
         .thenAnswer((Invocation invocation) async {
       final RecurrentRecordPattern pattern = invocation.positionalArguments[0];
       capturedRecurrentPatterns.add(pattern);
-      return null;
-    });
-
-    when(mockDatabase.addRecordTagAssociationsInBatch(any))
-        .thenAnswer((Invocation invocation) async {
-      final List<RecordTagAssociation> associations =
-          invocation.positionalArguments[0];
-      capturedRecordTagAssociations.addAll(associations);
       return null;
     });
 
@@ -319,25 +288,13 @@ void main() {
     verify(mockDatabase.addCategory(any)).called(categories.length);
     verify(mockDatabase.addRecurrentRecordPattern(any))
         .called(recurrentPatterns.length);
-    verify(mockDatabase.addRecordTagAssociationsInBatch(
-            argThat(isA<List<RecordTagAssociation>>())))
-        .called(1);
 
-    // Verify tags are NOT in restored records directly (as they are now separate)
-    expect(capturedRecords[0]!.tags, isEmpty);
-    expect(capturedRecords[1]!.tags, isEmpty);
+    // Verify tags ARE populated on records
+    expect(capturedRecords[0]!.tags, isNotEmpty);
+    expect(capturedRecords[0]!.tags, containsAll(['rent', 'house']));
 
     // Recurrent patterns still have tags
     expect(capturedRecurrentPatterns[0].tags, isNotEmpty);
-
-    // Verify restored record tag associations
-    expect(capturedRecordTagAssociations.length, recordTagAssociations.length);
-    for (var i = 0; i < recordTagAssociations.length; i++) {
-      expect(capturedRecordTagAssociations[i].recordId,
-          recordTagAssociations[i].recordId);
-      expect(capturedRecordTagAssociations[i].tagName,
-          recordTagAssociations[i].tagName);
-    }
   });
 
   testlib
@@ -426,22 +383,9 @@ void main() {
     final backupFile = File('${testDir.path}/backup_no_tags.json');
     await backupFile.writeAsString(jsonEncode(backupMap));
 
-    final capturedRecordTagAssociations = <RecordTagAssociation>[];
-    when(mockDatabase.addRecordTagAssociationsInBatch(any))
-        .thenAnswer((Invocation invocation) async {
-      final List<RecordTagAssociation> associations =
-          invocation.positionalArguments[0];
-      capturedRecordTagAssociations.addAll(associations);
-      return null;
-    });
-
     final result = await BackupService.importDataFromBackupFile(backupFile);
 
     expect(result, isTrue);
-    // Should be called with empty list
-    verify(mockDatabase.addRecordTagAssociationsInBatch(argThat(isEmpty)))
-        .called(1);
-    expect(capturedRecordTagAssociations, isEmpty);
   });
 
   testlib.test(
@@ -463,21 +407,8 @@ void main() {
     final backupFile = File('${testDir.path}/backup_empty_tags.json');
     await backupFile.writeAsString(jsonEncode(backupMap));
 
-    final capturedRecordTagAssociations = <RecordTagAssociation>[];
-    when(mockDatabase.addRecordTagAssociationsInBatch(any))
-        .thenAnswer((Invocation invocation) async {
-      final List<RecordTagAssociation> associations =
-          invocation.positionalArguments[0];
-      capturedRecordTagAssociations.addAll(associations);
-      return null;
-    });
-
     final result = await BackupService.importDataFromBackupFile(backupFile);
 
     expect(result, isTrue);
-    // Should be called with empty list
-    verify(mockDatabase.addRecordTagAssociationsInBatch(argThat(isEmpty)))
-        .called(1);
-    expect(capturedRecordTagAssociations, isEmpty);
   });
 }
