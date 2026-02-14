@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -28,31 +27,30 @@ void main() {
   });
 
   test('renameTag should rename a tag_name', () async {
+    SqliteDatabase sqliteDb = ServiceConfig.database as SqliteDatabase;
+    var database = await sqliteDb.database;
     DatabaseInterface db = ServiceConfig.database;
 
-    // Insert initial data
-    await db.addRecordTagAssociationsInBatch([
-      RecordTagAssociation(recordId: 1, tagName: 'old_tag'),
-      RecordTagAssociation(recordId: 2, tagName: 'old_tag'),
-    ]);
+    // Insert initial data via raw SQL
+    await database?.insert('records_tags', {'record_id': 1, 'tag_name': 'old_tag'});
+    await database?.insert('records_tags', {'record_id': 2, 'tag_name': 'old_tag'});
 
     // Rename the tag
     await db.renameTag('old_tag', 'new_tag');
 
     // Verify the rename
     final associations = await db.getAllRecordTagAssociations();
-    var a = 3;
     expect(associations.every((a) => a.tagName == 'new_tag'), isTrue);
   });
 
   test('deleteTag should remove all entries with a given tag_name', () async {
+    SqliteDatabase sqliteDb = ServiceConfig.database as SqliteDatabase;
+    var database = await sqliteDb.database;
     DatabaseInterface db = ServiceConfig.database;
 
-    // Insert initial data
-    await db.addRecordTagAssociationsInBatch([
-      RecordTagAssociation(recordId: 1, tagName: 'tag_to_delete'),
-      RecordTagAssociation(recordId: 2, tagName: 'tag_to_delete'),
-    ]);
+    // Insert initial data via raw SQL
+    await database?.insert('records_tags', {'record_id': 1, 'tag_name': 'tag_to_delete'});
+    await database?.insert('records_tags', {'record_id': 2, 'tag_name': 'tag_to_delete'});
 
     // Delete the tag
     await db.deleteTag('tag_to_delete');
@@ -62,7 +60,7 @@ void main() {
     expect(associations.any((a) => a.tagName == 'tag_to_delete'), isFalse);
   });
 
-  test('addRecordTagAssociationsInBatch should not add tags with null recordId',
+  test('raw SQL insert should not add tags with null recordId',
       () async {
     SqliteDatabase sqliteDb = ServiceConfig.database as SqliteDatabase;
     var database = await sqliteDb.database;

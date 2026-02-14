@@ -783,6 +783,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                       groupSep: groupSep,
                     ),
                     FilteringTextInputFormatter.deny(allowedRegex),
+                    LeadingZeroIntegerTrimmerFormatter(
+                      decimalSep: decimalSep,
+                      groupSep: groupSep,
+                    ),
                     if (autoDec)
                       AutoDecimalShiftFormatter(
                         decimalDigits: decDigits,
@@ -794,10 +798,6 @@ class EditRecordPageState extends State<EditRecordPage> {
                         groupSep: groupSep,
                         decimalSep: decimalSep,
                       ),
-                    LeadingZeroIntegerTrimmerFormatter(
-                      decimalSep: decimalSep,
-                      groupSep: groupSep,
-                    ),
                   ],
                   autofocus: shouldAutofocus,
                   onChanged: (text) {

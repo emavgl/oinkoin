@@ -422,21 +422,6 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> addRecordTagAssociationsInBatch(
-      List<RecordTagAssociation>? associations) async {
-    final db = (await database)!;
-    Batch batch = db.batch();
-    for (var association in associations!) {
-      if (association.recordId != null &&
-          association.tagName.trim().isNotEmpty) {
-        batch.insert('records_tags', association.toMap(),
-            conflictAlgorithm: ConflictAlgorithm.ignore);
-      }
-    }
-    await batch.commit(noResult: true);
-  }
-
-  @override
   Future<Set<String>> getMostUsedTagsForCategory(
       String categoryName, CategoryType categoryType) async {
     final db = (await database)!;
