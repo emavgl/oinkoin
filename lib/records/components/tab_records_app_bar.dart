@@ -112,7 +112,7 @@ class TabRecordsAppBar extends StatelessWidget {
       width: 30,
       child: IconButton(
         icon: Icon(icon, color: Colors.white, size: 24),
-        onPressed: () => controller.shiftMonthWeekYear(direction),
+        onPressed: () => controller.shiftInterval(direction),
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),
       ),

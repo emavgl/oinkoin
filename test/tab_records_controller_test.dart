@@ -9,6 +9,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -44,6 +45,7 @@ void main() {
     // Initialize shared preferences with defaults
     SharedPreferences.setMockInitialValues({
       PreferencesKeys.homepageTimeInterval: HomepageTimeInterval.CurrentMonth.index,
+      PreferencesKeys.homepageRecordsMonthStartDay: 1,
     });
     sharedPreferences = await SharedPreferences.getInstance();
     ServiceConfig.sharedPreferences = sharedPreferences;
@@ -65,7 +67,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift forward by 1 month
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should now be February 2025
       expect(controller.customIntervalFrom, DateTime(2025, 2, 1));
@@ -80,7 +82,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 3);
 
       // Act: Shift backward by 1 month
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should now be February 2025
       expect(controller.customIntervalFrom, DateTime(2025, 2, 1));
@@ -94,12 +96,17 @@ void main() {
       controller.customIntervalFrom = DateTime(2024, 1, 1);
       controller.customIntervalTo = DateTime(2024, 12, 31, 23, 59);
 
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentYear.index,
+      );
+
       // Act: Shift forward by 1 year
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should now be 2025
       expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
-      expect(controller.customIntervalTo, DateTime(2025, 12, 31, 23, 59));
+      expect(controller.customIntervalTo, DateTime(2025, 12, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('should shift year backward by 1 with custom interval set to a full year', () async {
@@ -107,12 +114,17 @@ void main() {
       controller.customIntervalFrom = DateTime(2025, 1, 1);
       controller.customIntervalTo = DateTime(2025, 12, 31, 23, 59);
 
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentYear.index,
+      );
+
       // Act: Shift backward by 1 year
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should now be 2024
       expect(controller.customIntervalFrom, DateTime(2024, 1, 1));
-      expect(controller.customIntervalTo, DateTime(2024, 12, 31, 23, 59));
+      expect(controller.customIntervalTo, DateTime(2024, 12, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('should shift week forward by 1 when HomepageTimeInterval is CurrentWeek', () async {
@@ -130,7 +142,7 @@ void main() {
       DateTime currentWeekStart = getStartOfWeek(now);
       
       // Act: Shift forward by 1 week
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be next week
       DateTime expectedStart = currentWeekStart.add(Duration(days: 7));
@@ -159,7 +171,7 @@ void main() {
       DateTime currentWeekStart = getStartOfWeek(now);
       
       // Act: Shift backward by 1 week
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should be previous week
       DateTime expectedStart = currentWeekStart.subtract(Duration(days: 7));
@@ -186,12 +198,13 @@ void main() {
       DateTime now = DateTime.now();
       
       // Act: Shift forward by 1 month
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be next month
-      DateTime expectedDate = DateTime(now.year, now.month + 1, 1);
-      expect(controller.customIntervalFrom, expectedDate);
-      expect(controller.customIntervalTo, getEndOfMonth(expectedDate.year, expectedDate.month));
+      DateTime expectedDateFrom = DateTime(now.year, now.month + 1, 1);
+      DateTime expectedDateTo = getEndOfMonth(expectedDateFrom.year, expectedDateFrom.month);
+      expect(controller.customIntervalFrom, expectedDateFrom);
+      expect(controller.customIntervalTo, expectedDateTo);
     });
 
     test('should shift year forward when HomepageTimeInterval is CurrentYear', () async {
@@ -207,11 +220,11 @@ void main() {
       DateTime now = DateTime.now();
       
       // Act: Shift forward by 1 year
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be next year
       expect(controller.customIntervalFrom, DateTime(now.year + 1, 1, 1));
-      expect(controller.customIntervalTo, DateTime(now.year + 1, 12, 31, 23, 59));
+      expect(controller.customIntervalTo, DateTime(now.year + 1, 12, 31).add(DateTimeConstants.END_OF_DAY));
     });
 
     test('should update backgroundImageIndex to the new month', () async {
@@ -220,7 +233,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift to February
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: backgroundImageIndex should be February (2)
       expect(controller.backgroundImageIndex, 2);
@@ -232,7 +245,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift to February
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Header should be updated (format depends on locale)
       expect(controller.header, isNotEmpty);
@@ -245,7 +258,7 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2024, 12);
 
       // Act: Shift forward to January 2025
-      await controller.shiftMonthWeekYear(1);
+      await controller.shiftInterval(1);
 
       // Assert: Should be January 2025
       expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
@@ -259,12 +272,83 @@ void main() {
       controller.customIntervalTo = getEndOfMonth(2025, 1);
 
       // Act: Shift backward to December 2024
-      await controller.shiftMonthWeekYear(-1);
+      await controller.shiftInterval(-1);
 
       // Assert: Should be December 2024
       expect(controller.customIntervalFrom, DateTime(2024, 12, 1));
       expect(controller.customIntervalTo!.year, 2024);
       expect(controller.customIntervalTo!.month, 12);
+    });
+
+    test('shiftMonthWeekYear: Forward Shift with custom start day', () async {
+      // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
+      controller.customIntervalFrom = DateTime(2024, 1, 15);
+      controller.customIntervalTo = DateTime(2024, 2, 14).add(DateTimeConstants.END_OF_DAY);
+
+      // Mock settings to return Month view and Start Day 15
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentMonth.index,
+      );
+
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageRecordsMonthStartDay,
+        15,
+      );
+
+      await controller.shiftInterval(1);
+
+      expect(controller.customIntervalFrom, DateTime(2024, 2, 15));
+      expect(controller.customIntervalTo!.month, 3);
+      expect(controller.customIntervalTo!.day, 14);
+
+      expect(controller.backgroundImageIndex, 2); // February
+      // Header should be range string since startDay != 1
+      expect(controller.header, contains("-"));
+    });
+
+    test('shiftMonthWeekYear: Backward Shift with custom start day', () async {
+      // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
+      controller.customIntervalFrom = DateTime(2024, 1, 15);
+      controller.customIntervalTo = DateTime(2024, 2, 14).add(DateTimeConstants.END_OF_DAY);
+
+      // Mock settings to return Month view and Start Day 15
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageTimeInterval,
+        HomepageTimeInterval.CurrentMonth.index,
+      );
+
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageRecordsMonthStartDay,
+        15,
+      );
+
+      await controller.shiftInterval(-1);
+
+      expect(controller.customIntervalFrom, DateTime(2023, 12, 15));
+      expect(controller.customIntervalTo!.year, 2024);
+      expect(controller.customIntervalTo!.month, 1);
+      expect(controller.customIntervalTo!.day, 14);
+
+      expect(controller.backgroundImageIndex, 12); // December
+      // Header should be range string since startDay != 1
+      expect(controller.header, contains("-"));
+    });
+
+    test('shiftMonthWeekYear: Clamping safety when moving to February', () async {
+      // Setup: Start Day 31
+      controller.customIntervalFrom = DateTime(2024, 1, 31);
+
+      await sharedPreferences.setInt(
+        PreferencesKeys.homepageRecordsMonthStartDay,
+        31,
+      );
+
+      await controller.shiftInterval(1);
+
+      // February only has 29 days in 2024. Start should be Feb 29.
+      expect(controller.customIntervalFrom!.month, 2);
+      expect(controller.customIntervalFrom!.day, 29);
     });
   });
 }

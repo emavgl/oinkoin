@@ -81,12 +81,12 @@ class TabRecordsState extends State<TabRecords> {
           if (details.primaryVelocity! > 500) {
             // Swiped left to right - go back
             if (_controller.canShiftBack()) {
-              _controller.shiftMonthWeekYear(-1);
+              _controller.shiftInterval(-1);
             }
           } else if (details.primaryVelocity! < -500) {
             // Swiped right to left - go forward
             if (_controller.canShiftForward()) {
-              _controller.shiftMonthWeekYear(1);
+              _controller.shiftInterval(1);
             }
           }
         }

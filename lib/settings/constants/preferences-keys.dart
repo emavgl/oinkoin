@@ -28,6 +28,7 @@ class PreferencesKeys {
 
   // Homepage
   static const homepageTimeInterval = 'homepageTimeInterval';
+  static const homepageRecordsMonthStartDay = 'homepageRecordsMonthStartDay';
   static const homepageOverviewWidgetTimeInterval = 'homepageOverviewWidgetTimeInterval';
   static const homepageRecordNotesVisible = 'homepageRecordNotesVisibleRows';
 

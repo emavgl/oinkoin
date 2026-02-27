@@ -87,6 +87,11 @@ class PreferencesOptions {
         HomepageTimeInterval.CurrentWeek.index,
   };
 
+  static final Map<String, int> monthDaysMap = {
+    for (var i = 1; i <= 31; i++)
+      "${"Day".i18n} $i": i,
+  };
+
   static final Map<String, int> homepageOverviewWidgetTimeInterval = {
     "Displayed records".i18n: OverviewTimeInterval.DisplayedRecords.index,
     "Records of the current month".i18n:

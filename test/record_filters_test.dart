@@ -5,9 +5,7 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/record-filters.dart';
-import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 // Test categories
 final groceriesCategory = Category(

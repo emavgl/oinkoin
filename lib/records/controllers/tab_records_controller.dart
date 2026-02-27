@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:piggybank/utils/constants.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -180,6 +181,29 @@ class TabRecordsController {
   // Data fetching
   Future<void> updateRecurrentRecordsAndFetchRecords() async {
     var recurrentRecordService = RecurrentRecordService();
+    final int startDay = getHomepageRecordsMonthStartDay();
+    HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
+
+    DateTime intervalFrom;
+    DateTime intervalTo;
+
+    if (customIntervalFrom != null) {
+      // If the user has manual navigation (Forward/Back), respect it
+      intervalFrom = customIntervalFrom!;
+      intervalTo = customIntervalTo!;
+    } else if (startDay != 1 && hti == HomepageTimeInterval.CurrentMonth) {
+      // If it's a custom start day and we are in "Month" view, calculate the cycle
+      var cycle = calculateMonthCycle(DateTime.now(), startDay);
+      intervalFrom = cycle[0];
+      intervalTo = cycle[1];
+      header = "${getShortDateStr(intervalFrom)} - ${getShortDateStr(intervalTo)}";
+    } else {
+      // Standard logic (Week, Year, or Day 1 Month)
+      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+      intervalFrom = interval[0];
+      intervalTo = interval[1];
+      header = getHeaderFromHomepageTimeInterval(hti);
+    }
 
     // Check if future records should be shown
     final prefs = await SharedPreferences.getInstance();
@@ -199,7 +223,9 @@ class TabRecordsController {
     } else {
       // If future records are disabled, only generate up to end of today
       final nowUtc = DateTime.now().toUtc();
-      viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day, 23, 59, 59, 999);
+      viewEndDate = viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day)
+          .add(DateTimeConstants.END_OF_DAY)
+          .add(const Duration(milliseconds: 999));
     }
 
     // Update recurrent records and get future records
@@ -207,24 +233,8 @@ class TabRecordsController {
 
     // Fetch records from database
     List<Record?> newRecords;
-    DateTime intervalFrom;
-    DateTime intervalTo;
-
-    if (customIntervalFrom != null) {
-      newRecords = await getRecordsByInterval(
-          _database, customIntervalFrom, customIntervalTo);
-      backgroundImageIndex = customIntervalFrom!.month;
-      intervalFrom = customIntervalFrom!;
-      intervalTo = customIntervalTo!;
-    } else {
-      var hti = getHomepageTimeIntervalEnumSetting();
-      newRecords = await getRecordsByHomepageTimeInterval(_database, hti);
-      header = getHeaderFromHomepageTimeInterval(hti);
-      backgroundImageIndex = DateTime.now().month;
-      var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
-      intervalFrom = interval[0];
-      intervalTo = interval[1];
-    }
+    newRecords = await getRecordsByInterval(_database, intervalFrom, intervalTo);
+    backgroundImageIndex = intervalFrom.month;
 
     // Filter future records to only include those within the current time interval
     // Convert interval bounds to UTC for proper comparison
@@ -265,6 +275,7 @@ class TabRecordsController {
     }
 
     onStateChanged();
+    debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
   }
 
   void _extractTags(List<Record?> records) {
@@ -432,49 +443,60 @@ class TabRecordsController {
     header = newHeader;
   }
 
-  Future<void> shiftMonthWeekYear(int shift) async {
-    DateTime newFrom;
-    DateTime newTo;
-    String newHeader;
+  /// TODO Resets the homepage navigation to the default "Current" view.
+  /// Call this whenever preferences (like Start Day or Interval) are changed.
+  void resetHomepageInterval() {
+    customIntervalFrom = null;
+    customIntervalTo = null;
+  }
 
-    if (customIntervalFrom != null) {
-      if (isFullMonth(customIntervalFrom!, customIntervalTo!)) {
-        newFrom = DateTime(
-            customIntervalFrom!.year, customIntervalFrom!.month + shift, 1);
-        newTo = getEndOfMonth(newFrom.year, newFrom.month);
-        newHeader = getMonthStr(newFrom);
-      } else if (isFullWeek(customIntervalFrom!, customIntervalTo!)) {
-        newFrom = customIntervalFrom!.add(Duration(days: 7 * shift));
-        newTo = newFrom.add(Duration(days: 6));
-        newHeader = getWeekStr(newFrom);
-      } else {
-        newFrom = DateTime(customIntervalFrom!.year + shift, 1, 1);
-        newTo = DateTime(newFrom.year, 12, 31, 23, 59);
-        newHeader = getYearStr(newFrom);
-      }
+  /// Navigates the homepage view forward or backward by a specific number of intervals.
+  ///
+  /// [shift] - An integer representing the number of periods to move.
+  /// Positive moves forward in time, negative moves backward.
+  ///
+  /// This method:
+  /// 1. Determines the current viewing period (defaults to 'now' if first load).
+  /// 2. Calculates the new target period using [calculateInterval].
+  /// 3. Updates the global [customIntervalFrom], [customIntervalTo], and [header].
+  /// 4. Triggers a database fetch for the new date range.
+  Future<void> shiftInterval(int shift) async {
+    final int startDay = getHomepageRecordsMonthStartDay();
+    final HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
+
+    DateTime baseDate = customIntervalFrom ?? DateTime.now();
+
+    DateTime targetRef;
+    if (hti == HomepageTimeInterval.CurrentMonth) {
+      // We add the shift to the month.
+      targetRef = DateTime(baseDate.year, baseDate.month + shift, startDay);
+    } else if (hti == HomepageTimeInterval.CurrentYear) {
+      targetRef = DateTime(baseDate.year + shift, 1, 1);
     } else {
-      HomepageTimeInterval hti = getHomepageTimeIntervalEnumSetting();
-      DateTime d = DateTime.now();
-      if (hti == HomepageTimeInterval.CurrentMonth) {
-        newFrom = DateTime(d.year, d.month + shift, 1);
-        newTo = getEndOfMonth(newFrom.year, newFrom.month);
-        newHeader = getMonthStr(newFrom);
-      } else if (hti == HomepageTimeInterval.CurrentWeek) {
-        DateTime startOfWeek = getStartOfWeek(d);
-        newFrom = startOfWeek.add(Duration(days: 7 * shift));
-        newTo = newFrom.add(Duration(days: 6));
-        newHeader = getWeekStr(newFrom);
-      } else {
-        newFrom = DateTime(d.year + shift, 1, 1);
-        newTo = DateTime(newFrom.year, 12, 31, 23, 59);
-        newHeader = getYearStr(newFrom);
-      }
+      // Weekly shift
+      targetRef = baseDate.add(Duration(days: 7 * shift));
     }
 
-    customIntervalFrom = newFrom;
-    customIntervalTo = newTo;
-    header = newHeader;
-    backgroundImageIndex = newFrom.month;
+    List<DateTime> newInterval = calculateInterval(hti, targetRef, monthStartDay: startDay);
+
+    // Update the state
+    customIntervalFrom = newInterval[0];
+    customIntervalTo = newInterval[1];
+
+    // Update Header (Slightly cleaner logic for Day 1 vs Cycle)
+    if (hti == HomepageTimeInterval.CurrentMonth) {
+      header = (startDay == 1)
+          ? getMonthStr(customIntervalFrom!)
+          : "${getShortDateStr(customIntervalFrom!)} - ${getShortDateStr(customIntervalTo!)}";
+    } else if (hti == HomepageTimeInterval.CurrentYear) {
+      header = getYearStr(customIntervalFrom!);
+    } else {
+      header = getWeekStr(customIntervalFrom!);
+    }
+
+    backgroundImageIndex = customIntervalFrom!.month;
+
+    // Fetch records (now sees customIntervalFrom is not null and uses it)
     await updateRecurrentRecordsAndFetchRecords();
   }
 
@@ -482,15 +504,12 @@ class TabRecordsController {
   double getHeaderFontSize() => header.length > 13 ? 18.0 : 22.0;
   double getHeaderPaddingBottom() => header.length > 13 ? 15.0 : 13.0;
 
-  bool canShiftBack() {
-    return canShift(-1, customIntervalFrom, customIntervalTo,
-        getHomepageTimeIntervalEnumSetting());
-  }
+  bool canShiftBack() => isNavigable;
 
-  bool canShiftForward() {
-    return canShift(1, customIntervalFrom, customIntervalTo,
-        getHomepageTimeIntervalEnumSetting());
-  }
+  bool canShiftForward() => isNavigable;
+
+  /// Shifting is disabled only for the [HomepageTimeInterval.All] view.
+  bool get isNavigable => getHomepageTimeIntervalEnumSetting() != HomepageTimeInterval.All;
 
   TextEditingController get searchController => _searchController;
 
