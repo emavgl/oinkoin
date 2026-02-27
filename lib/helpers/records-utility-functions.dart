@@ -354,30 +354,8 @@ Future<List<Record?>> getRecordsByHomepageTimeInterval(
   DateTime _now = DateTime.now();
   switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
-      DateTime now = DateTime.now();
-      DateTime start;
-      DateTime end;
-
-      // Determine which month the current cycle started in
-      int startYear = now.year;
-      int startMonth = (now.day >= monthStartDay) ? now.month : now.month - 1;
-
-      // 1. Calculate the SAFE start day for THAT specific month
-      int safeStartDay = monthStartDay.clamp(1, lastDayOf(startYear, startMonth));
-      start = DateTime(startYear, startMonth, safeStartDay);
-
-      // 2. Calculate the SAFE end day
-      // The end month is just startMonth + 1
-      int endYear = startYear;
-      int endMonth = startMonth + 1;
-
-      // If endMonth is 13, DateTime constructor handles it (becomes Jan of next year)
-      int safeEndDay = monthStartDay.clamp(1, lastDayOf(endYear, endMonth));
-
-      // We want to end one second before the next cycle starts
-      end = DateTime(endYear, endMonth, safeEndDay).subtract(const Duration(seconds: 1));
-
-      return await getRecordsByInterval(database, start, end);
+      var cycle = calculateMonthCycle(DateTime.now(), monthStartDay);
+      return await getRecordsByInterval(database, cycle[0], cycle[1]);
     case HomepageTimeInterval.CurrentYear:
       return await getRecordsByYear(database, _now.year);
     case HomepageTimeInterval.All:

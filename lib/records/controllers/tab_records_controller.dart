@@ -223,7 +223,7 @@ class TabRecordsController {
     } else {
       // If future records are disabled, only generate up to end of today
       final nowUtc = DateTime.now().toUtc();
-      viewEndDate = viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day)
+      viewEndDate = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day)
           .add(DateTimeConstants.END_OF_DAY)
           .add(const Duration(milliseconds: 999));
     }
@@ -275,7 +275,6 @@ class TabRecordsController {
     }
 
     onStateChanged();
-    debugPrint("Loading records for intervalFrom = $intervalFrom intervalTo = $intervalTo");
   }
 
   void _extractTags(List<Record?> records) {
