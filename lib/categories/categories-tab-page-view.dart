@@ -6,8 +6,7 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/i18n.dart';
 
 import 'categories-grid.dart';
-
-enum SortOption { original, lastUsed, mostUsed, alphabetical }
+import 'package:piggybank/categories/category-sort-option.dart';
 
 class CategoryTabPageView extends StatefulWidget {
   final bool? goToEditMovementPage;

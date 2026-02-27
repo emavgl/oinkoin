@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/categories/categories-list.dart';
+import 'package:piggybank/categories/category-sort-option.dart';
 import 'package:piggybank/categories/edit-category-page.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/i18n.dart';
 
 class TabCategories extends StatefulWidget {
@@ -31,17 +33,17 @@ class TabCategoriesState extends State<TabCategories>
   double _fabRotation = 0.0;
   int _previousTabIndex = 0;
 
+  SortOption _selectedSortOption = SortOption.original;
+  SortOption _storedDefaultOption = SortOption.original;
+  bool _isDefaultOrder = false;
+
   @override
   void initState() {
     super.initState();
     titleBarStr = activeCategoryTitle;
     _tabController = new TabController(length: 2, vsync: this);
     _tabController!.addListener(_handleTabChange);
-    database.getAllCategories().then((categories) => {
-          setState(() {
-            _categories = categories;
-          })
-        });
+    _fetchCategories().then((_) => _initializeSortPreference());
   }
 
   void _handleTabChange() {
@@ -61,21 +63,242 @@ class TabCategoriesState extends State<TabCategories>
     super.dispose();
   }
 
-  refreshCategories() async {
-    var newlyFetchedCategories = await database.getAllCategories();
+  Future<void> _fetchCategories() async {
+    List<Category?> categories = await database.getAllCategories();
+    categories.sort((a, b) => a!.sortOrder!.compareTo(b!.sortOrder!));
     setState(() {
-      _categories = newlyFetchedCategories;
+      _categories = categories;
     });
   }
 
-  refreshCategoriesAndHighlightsTab(int destionationTabIndex) async {
-    var newlyFetchedCategories = await database.getAllCategories();
+  // Load the user's preferred sorting order from shared preferences
+  Future<void> _initializeSortPreference() async {
+    _selectedSortOption = SortOption.original;
+    String key = PreferencesKeys.categoryListSortOption;
+    if (ServiceConfig.sharedPreferences!.containsKey(key)) {
+      final savedSortIndex = ServiceConfig.sharedPreferences?.getInt(key);
+      if (savedSortIndex != null) {
+        setState(() {
+          _storedDefaultOption = SortOption.values[savedSortIndex];
+          _selectedSortOption = SortOption.values[savedSortIndex];
+        });
+        _applySort(_selectedSortOption);
+      }
+    }
+  }
+
+  // Store the user's selected sort option in shared preferences
+  Future<void> storeOnUserPreferences() async {
+    if (_isDefaultOrder) {
+      await ServiceConfig.sharedPreferences
+          ?.setInt(PreferencesKeys.categoryListSortOption, _selectedSortOption.index);
+      setState(() {
+        _storedDefaultOption = _selectedSortOption;
+      });
+    }
+    _isDefaultOrder = false;
+  }
+
+  // Apply the sort based on the selected option
+  void _applySort(SortOption sortOption) {
+    switch (sortOption) {
+      case SortOption.lastUsed:
+        _sortByLastUsed();
+        break;
+      case SortOption.mostUsed:
+        _sortByMostUsed();
+        break;
+      case SortOption.original:
+        _fetchCategories();
+        break;
+      case SortOption.alphabetical:
+        _sortAlphabetically();
+        break;
+    }
+  }
+
+  void _showSortOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 16.0, top: 16, right: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Order by".i18n,
+                        style: TextStyle(
+                          fontSize: 22,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _isDefaultOrder || _selectedSortOption == _storedDefaultOption,
+                            onChanged: (value) {
+                              setModalState(() {
+                                _isDefaultOrder = value ?? false;
+                              });
+                              storeOnUserPreferences();
+                            },
+                          ),
+                          Text("Make it default".i18n),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.update),
+                  title: Text(
+                    "Last Used".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.lastUsed
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  trailing: _selectedSortOption == SortOption.lastUsed
+                      ? Icon(Icons.check,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
+                  onTap: () {
+                    setModalState(() {
+                      _selectedSortOption = SortOption.lastUsed;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.abc),
+                  title: Text(
+                    "Name (Alphabetically)".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.alphabetical
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  trailing: _selectedSortOption == SortOption.alphabetical
+                      ? Icon(Icons.check,
+                      color: Theme.of(context).colorScheme.primary)
+                      : null,
+                  onTap: () {
+                    setModalState(() {
+                      _selectedSortOption = SortOption.alphabetical;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.trending_up),
+                  title: Text(
+                    "Most Used".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.mostUsed
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  trailing: _selectedSortOption == SortOption.mostUsed
+                      ? Icon(Icons.check,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
+                  onTap: () {
+                    setModalState(() {
+                      _selectedSortOption = SortOption.mostUsed;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.reorder),
+                  title: Text(
+                    "Original Order".i18n,
+                    style: TextStyle(
+                      color: _selectedSortOption == SortOption.original
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  trailing: _selectedSortOption == SortOption.original
+                      ? Icon(Icons.check,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
+                  onTap: () {
+                    setModalState(() {
+                      _selectedSortOption = SortOption.original;
+                      _applySort(_selectedSortOption);
+                      storeOnUserPreferences();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _sortByLastUsed() {
     setState(() {
-      _categories = newlyFetchedCategories;
+      _selectedSortOption = SortOption.lastUsed;
+      _categories?.sort((a, b) {
+        final aLastUsed = a?.lastUsed;
+        final bLastUsed = b?.lastUsed;
+
+        if (aLastUsed == null && bLastUsed == null)
+          return 0; // keep original order
+        if (aLastUsed == null) return 1; // 'a' comes after 'b' if 'a' is null
+        if (bLastUsed == null) return -1; // 'a' comes before 'b' if 'b' is null
+
+        return bLastUsed
+            .compareTo(aLastUsed); // Regular comparison if both are non-null
+      });
     });
+  }
+
+  void _sortByMostUsed() {
+    setState(() {
+      _selectedSortOption = SortOption.mostUsed;
+      _categories?.sort((a, b) => b!.recordCount!.compareTo(a!.recordCount!));
+    });
+  }
+
+  void _sortAlphabetically() {
+    setState(() {
+      _selectedSortOption = SortOption.alphabetical;
+      _categories?.sort((a, b) => a!.name!.compareTo(b!.name!));
+    });
+  }
+
+  refreshCategories() async {
+    await _fetchCategories();
+    _applySort(_selectedSortOption);
+  }
+
+  refreshCategoriesAndHighlightsTab(int destinationTabIndex) async {
+    await _fetchCategories();
+    _applySort(_selectedSortOption);
     await Future.delayed(Duration(milliseconds: 50));
-    if (_tabController!.index != destionationTabIndex) {
-      _tabController!.animateTo(destionationTabIndex);
+    if (_tabController!.index != destinationTabIndex) {
+      _tabController!.animateTo(destinationTabIndex);
     }
   }
 
@@ -102,6 +325,10 @@ class TabCategoriesState extends State<TabCategories>
             ),
             title: Text(titleBarStr),
             actions: [
+              IconButton(
+                icon: Icon(Icons.sort),
+                onPressed: _showSortOptions,
+              ),
               PopupMenuButton<int>(
                 icon: Icon(Icons.more_vert),
                 shape: RoundedRectangleBorder(

@@ -41,6 +41,9 @@ class PreferencesKeys {
   static const amountInputKeyboardType = 'amountInputKeyboardType';
   static const showFutureRecords = 'showFutureRecords';
 
+  // Categories
+  static const categoryListSortOption = 'defaultCategoryListSortOption';
+
   // Statistics
   static var statisticsPieChartUseCategoryColors = "statisticsPieChartUseCategoryColors";
   static var statisticsPieChartNumberOfCategoriesToDisplay = "statisticsPieChartNumberOfCategoriesToDisplay";
