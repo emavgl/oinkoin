@@ -83,6 +83,8 @@ class CategoryIcons {
     FontAwesomeIcons.wrench,
     FontAwesomeIcons.toolbox,
     FontAwesomeIcons.toiletPaper,
+    FontAwesomeIcons.seedling,
+    FontAwesomeIcons.recycle,
     FontAwesomeIcons.baby,
     FontAwesomeIcons.babyCarriage,
 
@@ -160,6 +162,8 @@ class CategoryIcons {
     FontAwesomeIcons.circleDollarToSlot,
     FontAwesomeIcons.landmark,
     FontAwesomeIcons.coins,
+    FontAwesomeIcons.shieldHalved,
+    FontAwesomeIcons.solidHandshake,
 
     // Entertainment
     FontAwesomeIcons.phone,
@@ -177,6 +181,9 @@ class CategoryIcons {
     FontAwesomeIcons.dumbbell,
     FontAwesomeIcons.personHiking,
     FontAwesomeIcons.personSkiing,
+    FontAwesomeIcons.umbrellaBeach,
+    FontAwesomeIcons.mountainSun,
+    FontAwesomeIcons.gears,
     FontAwesomeIcons.tv,
     FontAwesomeIcons.film,
     FontAwesomeIcons.desktop,
@@ -195,10 +202,17 @@ class CategoryIcons {
     FontAwesomeIcons.joint,
     FontAwesomeIcons.syringe,
     FontAwesomeIcons.tooth,
+    FontAwesomeIcons.stethoscope,
+    FontAwesomeIcons.staffSnake,
+    FontAwesomeIcons.earDeaf,
     FontAwesomeIcons.virus,
     FontAwesomeIcons.sprayCanSparkles,
     FontAwesomeIcons.soap,
     FontAwesomeIcons.pumpSoap,
     FontAwesomeIcons.handsBubbles,
+
+    // People
+    FontAwesomeIcons.handHoldingHand,
+    FontAwesomeIcons.accessibleIcon,
   ];
 }
