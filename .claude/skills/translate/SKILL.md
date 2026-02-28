@@ -70,3 +70,7 @@ After editing, print a compact table of the strings you translated:
 - For technical or brand terms (e.g. "Oinkoin Pro", "PIN", "CSV", "JSON") keep them untranslated.
 - If a string has no natural translation (e.g. it is already the correct word in the target language), it is fine to leave the value equal to the key — but note this in your report.
 - Process the **whole file** in one pass; do not ask for confirmation before each string.
+
+## Exceptions
+
+For British english use en-GB.json - in this case, key and value will most of case matches. Consider all the strings as already translated and skip it.

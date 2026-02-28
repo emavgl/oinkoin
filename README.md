@@ -64,14 +64,12 @@ Contributions are welcome! How can you contribute?
 
 ### Translation
 
-## Localization & Translations
-
 > **Important:** The Crowdin integration is no longer available. All translation updates and new language contributions must be submitted directly via **Pull Request** on GitHub.
 
-### Translation Strategy
+#### Translation Strategy
 To maintain high coverage across all features, strings are translated from time to time using **AI-assisted tools**.
 
-### How to Contribute
+#### How to Contribute
 We all know however that AI does not produce always the best translations. For this, community contributions are always welcome.
 
 1. Fork the repository.
