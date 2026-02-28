@@ -64,24 +64,36 @@ Contributions are welcome! How can you contribute?
 
 ### Translation
 
-If you want to contribute by translating a language, feel free to join the [Crowdin](https://crowdin.com/project/oinkoin) project!
+## Localization & Translations
 
-Oinkoin is available in the following languages:
+> **Important:** The Crowdin integration is no longer available. All translation updates and new language contributions must be submitted directly via **Pull Request** on GitHub.
 
-- English
-- Italian
-- German, thanks to [@DSiekmeier](https://github.com/DSiekmeier)
-- French, thanks to [@nizarus](https://github.com/nizarus)
-- Arabic, thanks to [@nizarus](https://github.com/nizarus)
-- Spanish, thanks to [@mockballed](https://github.com/mockballed)
-- Portuguese (PT and BR), thanks to [@cubiquitous](https://github.com/cubiquitous)
-- Russian, thanks to [Irina (volnairina)](https://crowdin.com/profile/volnairina), [alexk700i](https://crowdin.com/profile/alexk700i)
-- Chinese, thanks to [@Chzy2018](https://github.com/chzy2018)
-- Turkish, thanks to [@bkrucarci](https://github.com/bkrucarci)
-- Venetian, thanks to [AgGelmi](https://crowdin.com/profile/AgGelmi)
-- Croatian, thanks to [ashune](https://crowdin.com/profile/ashune)
-- Polish, thanks to [Smuuuko](https://github.com/Smuuuko)
-- Danish, thanks to [catsnote](https://crowdin.com/profile/catsnote)
+### Translation Strategy
+To maintain high coverage across all features, strings are translated from time to time using **AI-assisted tools**.
+
+### How to Contribute
+We all know however that AI does not produce always the best translations. For this, community contributions are always welcome.
+
+1. Fork the repository.
+2. Edit the JSON files located in `/assets/locales/`.
+3. Open a **Pull Request** with your changes.
+
+Oinkoin is currently available in the following languages:
+
+* **English**
+* **Italian**
+* **German** — thanks to [@DSiekmeier](https://github.com/DSiekmeier)
+* **French** — thanks to [@nizarus](https://github.com/nizarus)
+* **Arabic** — thanks to [@nizarus](https://github.com/nizarus)
+* **Spanish** — thanks to [@mockballed](https://github.com/mockballed)
+* **Portuguese (PT and BR)** — thanks to [@cubiquitous](https://github.com/cubiquitous)
+* **Russian** — thanks to [Irina (volnairina)](https://github.com/volnairina) and [@alexk700i](https://github.com/alexk700i)
+* **Chinese** — thanks to [@Chzy2018](https://github.com/chzy2018)
+* **Turkish** — thanks to [@bkrucarci](https://github.com/bkrucarci)
+* **Venetian** — thanks to AgGelmi
+* **Croatian** — thanks to ashune
+* **Polish** — thanks to [@Smuuuko](https://github.com/Smuuuko)
+* **Danish** — thanks to catsnote
 
 ## How can I donate and sponsor the project?
 
