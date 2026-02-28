@@ -1,7 +1,4 @@
 files:
   - source: /assets/locales/en-US.json
     translation: /assets/locales/%two_letters_code%.json
-    # This tells Crowdin to pull translations FROM GitHub INTO Crowdin
-    import_translations: true
-    # This ensures that if a string is changed on GitHub, it updates in Crowdin
     update_option: update_as_unapproved
