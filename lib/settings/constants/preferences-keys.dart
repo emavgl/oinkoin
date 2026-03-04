@@ -6,12 +6,17 @@ class PreferencesKeys {
   // Language
   static const languageLocale = 'languageLocale';
 
+  // Week settings
+  static const firstDayOfWeek = 'firstDayOfWeek';
+  static const dateFormat = 'dateFormat';
+
   // Number formatting
   static const decimalSeparator = 'decimalSeparator';
   static const groupSeparator = 'groupSeparator';
   static const numberDecimalDigits = 'numDecimalDigits';
   static const overwriteDotValueWithComma = 'overwriteDotValueWithComma';
   static const overwriteCommaValueWithDot = 'overwriteCommaValueWithDot';
+  static const amountInputAutoDecimalShift = 'amountInputAutoDecimalShift';
 
   // Backup
   static const enableAutomaticBackup = 'enableAutomaticBackup';
@@ -23,8 +28,8 @@ class PreferencesKeys {
 
   // Homepage
   static const homepageTimeInterval = 'homepageTimeInterval';
-  static const homepageOverviewWidgetTimeInterval =
-      'homepageOverviewWidgetTimeInterval';
+  static const homepageRecordsMonthStartDay = 'homepageRecordsMonthStartDay';
+  static const homepageOverviewWidgetTimeInterval = 'homepageOverviewWidgetTimeInterval';
   static const homepageRecordNotesVisible = 'homepageRecordNotesVisibleRows';
 
   // Lock
@@ -35,6 +40,9 @@ class PreferencesKeys {
   static const visualiseTagsInMainPage = 'visualiseTagsInMainPage';
   static const amountInputKeyboardType = 'amountInputKeyboardType';
   static const showFutureRecords = 'showFutureRecords';
+
+  // Categories
+  static const categoryListSortOption = 'defaultCategoryListSortOption';
 
   // Statistics
   static var statisticsPieChartUseCategoryColors =

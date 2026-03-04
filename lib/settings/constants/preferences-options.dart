@@ -40,6 +40,22 @@ class PreferencesOptions {
     "简化字": "zh-CN",
   };
 
+  static final Map<String, int> firstDayOfWeekDropdown = {
+    "Default (System)".i18n: 0,
+    "Monday".i18n: 1,
+    "Sunday".i18n: 7,
+    "Saturday".i18n: 6,
+  };
+
+  static final Map<String, String> dateFormatDropdown = {
+    "System".i18n: "system",
+    "31/01/2020": "dd/MM/yyyy",
+    "01/31/2020": "MM/dd/yyyy",
+    "2020-01-31": "yyyy-MM-dd",
+    "31 Jan 2020": "d MMM yyyy",
+    "Jan 31, 2020": "MMM d, yyyy",
+  };
+
   static final Map<String, int> decimalDigits = {
     "0": 0,
     "1": 1,
@@ -68,6 +84,11 @@ class PreferencesOptions {
     "Records of the current year".i18n: HomepageTimeInterval.CurrentYear.index,
     "All records".i18n: HomepageTimeInterval.All.index,
     "Records of the current week".i18n: HomepageTimeInterval.CurrentWeek.index,
+  };
+
+  static final Map<String, int> monthDaysMap = {
+    for (var i = 1; i <= 31; i++)
+      "${"Day".i18n} $i": i,
   };
 
   static final Map<String, int> homepageOverviewWidgetTimeInterval = {

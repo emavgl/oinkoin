@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
@@ -17,14 +18,18 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
+import 'package:piggybank/records/formatter/group-separator-formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
 import '../components/category_icon_circle.dart';
+import '../helpers/date_picker_utils.dart';
 import '../models/recurrent-record-pattern.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
 import 'components/tag_selection_dialog.dart';
+import 'formatter/calculator-normalizer.dart';
 
 class EditRecordPage extends StatefulWidget {
   final Record? passedRecord;
@@ -69,6 +74,8 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Set<String> _selectedTags = {};
   Set<String> _suggestedTags = {};
+
+  final autoDec = getAmountInputAutoDecimalShift();
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedReccurrentRecordPattern, this.readOnly);
@@ -144,7 +151,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         stderr.writeln("Can't parse the expression: $text");
       }
       if (newNum != null) {
-        text = getCurrencyValueString(newNum, turnOffGrouping: true);
+        text = getCurrencyValueString(newNum, turnOffGrouping: false);
         _textEditingController.value = _textEditingController.value.copyWith(
           text: text,
           selection:
@@ -171,10 +178,6 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   void initState() {
     super.initState();
-
-    // Loading preferences
-    bool overwriteDotValue = getOverwriteDotValue();
-    bool overwriteCommaValue = getOverwriteCommaValue();
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.enableRecordNameSuggestions)!;
@@ -190,7 +193,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       // Use the localDateTime getter for display purposes
       localDisplayDate = passedRecord!.localDateTime;
       _textEditingController.text =
-          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
+          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: false);
       if (record!.recurrencePatternId != null) {
         database
             .getRecurrentRecordPattern(record!.recurrencePatternId)
@@ -239,6 +242,22 @@ class EditRecordPageState extends State<EditRecordPage> {
       record = Record(null, null, passedCategory, DateTime.now().toUtc());
       localDisplayDate = record!.localDateTime;
       _selectedTags = {};
+      if (autoDec && record!.value == null) {
+        final decSep = getDecimalSeparator();
+        final decDigits = getNumberDecimalDigits();
+
+        final zeroText = decDigits <= 0
+            ? '0'
+            : '0$decSep${List.filled(decDigits, '0').join()}';
+
+        _textEditingController.value = _textEditingController.value.copyWith(
+          text: zeroText,
+          selection: TextSelection.collapsed(offset: zeroText.length),
+          composing: TextRange.empty,
+        );
+
+        changeRecordValue(zeroText);
+      }
     }
 
     // Load most used tags for the current category
@@ -247,47 +266,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
 
     // Keyboard listeners initializations (the same as before)
-    _textEditingController.addListener(() {
-      lastCharInsertedMillisecond = DateTime.now();
-      var text = _textEditingController.text.toLowerCase();
-      final exp = new RegExp(r'[^\d.,\\+\-\*=/%x]');
-      text = text.replaceAll("x", "*");
-      text = text.replaceAll(exp, "");
-
-      if (overwriteDotValue) {
-        text = text.replaceAll(".", ",");
-      }
-
-      if (overwriteCommaValue) {
-        text = text.replaceAll(",", ".");
-      }
-
-      if (text.endsWith(getDecimalSeparator())) {
-        String textBeforeDecimalSeparator = text.substring(0, text.length - 1);
-
-        int lastOperatorIndex = textBeforeDecimalSeparator.lastIndexOf(RegExp(r'[+\-*/%]'));
-
-        String currentNumberSegment = (lastOperatorIndex == -1)
-            ? textBeforeDecimalSeparator
-            : textBeforeDecimalSeparator.substring(lastOperatorIndex + 1);
-
-        if (currentNumberSegment.contains(getDecimalSeparator())) {
-          _textEditingController.value = TextEditingValue(
-            text: textBeforeDecimalSeparator,
-            selection: TextSelection.collapsed(offset: textBeforeDecimalSeparator.length),
-          );
-          return;
-        }
-      }
-
-      TextSelection previousSelection = _textEditingController.selection;
-      _textEditingController.value = _textEditingController.value.copyWith(
-        text: text,
-        selection: previousSelection,
-        composing: TextRange.empty,
-      );
-    });
-
     _textEditingController.addListener(() async {
       var text = _textEditingController.text.toLowerCase();
       await Future.delayed(Duration(seconds: 2));
@@ -475,12 +453,19 @@ class EditRecordPageState extends State<EditRecordPage> {
                       FocusScope.of(context).unfocus();
                       // Use the localDisplayDate for the initial date
                       DateTime initialDate = localDisplayDate ?? DateTime.now();
+
+                      // Get user's first day of week preference
+                      int firstDayOfWeek = getFirstDayOfWeekIndex();
+
                       DateTime? result = await showDatePicker(
                           context: context,
                           initialDate: initialDate,
                           firstDate: DateTime(1970),
-                          lastDate:
-                              DateTime.now().add(new Duration(days: 365)));
+                          lastDate: DateTime.now().add(new Duration(days: 365)),
+                          builder: (BuildContext context, Widget? child) {
+                            // Wrap with custom locale if user has set a specific first day preference
+                            return DatePickerUtils.buildDatePickerWithFirstDayOfWeek(context, child, firstDayOfWeek);
+                          });
                       if (result != null) {
                         setState(() {
                           // Update the localDisplayDate
@@ -648,11 +633,18 @@ class EditRecordPageState extends State<EditRecordPage> {
                                   FocusScope.of(context).unfocus();
                                   // Use the localDisplayEndDate if set, otherwise use a date in the future
                                   DateTime initialDate = localDisplayEndDate ?? DateTime.now().add(Duration(days: 365));
+
+                                  // Get user's first day of week preference
+                                  int firstDayOfWeek = getFirstDayOfWeekIndex();
+
                                   DateTime? result = await showDatePicker(
                                       context: context,
                                       initialDate: initialDate,
                                       firstDate: localDisplayDate ?? DateTime(1970),
-                                      lastDate: DateTime.now().add(Duration(days: 365 * 10)));
+                                      lastDate: DateTime.now().add(Duration(days: 365 * 10)),
+                                      builder: (BuildContext context, Widget? child) {
+                                        return DatePickerUtils.buildDatePickerWithFirstDayOfWeek(context, child, firstDayOfWeek);
+                                      });
                                   if (result != null) {
                                     setState(() {
                                       localDisplayEndDate = result;
@@ -742,6 +734,21 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createAmountCard() {
+    /// Provides security and input validation via character whitelisting.
+    ///
+    /// Character Whitelisting: Utilizes a [RegExp] to block any character
+    /// that is not a digit, math operator, or an allowed separator.
+    /// Regex Safety: Employs [RegExp.escape()] to ensure active separators
+    /// are treated as literal characters rather than regex metacharacters.
+    final decimalSep = getDecimalSeparator();
+    final groupSep = getGroupingSeparator();
+    final decDigits = getNumberDecimalDigits();
+    final shouldAutofocus = !readOnly && passedRecord == null && passedReccurrentRecordPattern == null;
+    final zeroHint = (autoDec && decDigits > 0)
+        ? '0$decimalSep${List.filled(decDigits, '0').join()}'
+        : '0';
+    final allowedRegex =
+        RegExp('[^0-9\\+\\-\\*/%${RegExp.escape(getDecimalSeparator())}${RegExp.escape(getGroupingSeparator())}]');
     String categorySign =
         record?.category?.categoryType == CategoryType.expense ? "-" : "+";
     return Card(
@@ -768,7 +775,31 @@ class EditRecordPageState extends State<EditRecordPage> {
               child: TextFormField(
                   enabled: !readOnly,
                   controller: _textEditingController,
-                  autofocus: record!.value == null,
+                  inputFormatters: [
+                    CalculatorNormalizer(
+                      overwriteDot: getOverwriteDotValue(),
+                      overwriteComma: getOverwriteCommaValue(),
+                      decimalSep: decimalSep,
+                      groupSep: groupSep,
+                    ),
+                    FilteringTextInputFormatter.deny(allowedRegex),
+                    LeadingZeroIntegerTrimmerFormatter(
+                      decimalSep: decimalSep,
+                      groupSep: groupSep,
+                    ),
+                    if (autoDec)
+                      AutoDecimalShiftFormatter(
+                        decimalDigits: decDigits,
+                        decimalSep: decimalSep,
+                        groupSep: groupSep,
+                      ),
+                    if (!autoDec)
+                      GroupSeparatorFormatter(
+                        groupSep: groupSep,
+                        decimalSep: decimalSep,
+                      ),
+                  ],
+                  autofocus: shouldAutofocus,
                   onChanged: (text) {
                     changeRecordValue(text);
                   },
@@ -793,7 +824,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                   keyboardType: getAmountInputKeyboardType(),
                   decoration: InputDecoration(
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hintText: "0",
+                      hintText: zeroHint,
                       labelText: "Amount".i18n)),
             ),
           ))
@@ -1103,3 +1134,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 }
+
+
+
+

@@ -141,7 +141,7 @@ case $choice in
         echo ""
         echo -e "${GREEN}Build complete!${NC}"
         echo "Executable location: build/linux/x64/release/bundle/"
-        echo "Run with: ./build/linux/x64/release/bundle/oinkoin"
+        echo "Run with: ./build/linux/x64/release/bundle/piggybank"
         exit 0
         ;;
     *)

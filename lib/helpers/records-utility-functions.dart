@@ -7,13 +7,14 @@ import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
+import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 
-import '../services/database/database-interface.dart';
-import '../services/service-config.dart';
-import '../settings/constants/homepage-time-interval.dart';
-import '../settings/constants/preferences-keys.dart';
-import '../settings/preferences-utils.dart';
+
 import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
@@ -69,6 +70,21 @@ bool getOverwriteCommaValue() {
   if (getDecimalSeparator() == ",") return false;
   return PreferencesUtils.getOrDefault<bool>(ServiceConfig.sharedPreferences!,
       PreferencesKeys.overwriteCommaValueWithDot)!;
+}
+
+int getNumberDecimalDigits() {
+  return PreferencesUtils.getOrDefault<int>(
+    ServiceConfig.sharedPreferences!,
+    PreferencesKeys.numberDecimalDigits,
+  )!;
+}
+
+bool getAmountInputAutoDecimalShift() {
+  if (getNumberDecimalDigits() <= 0) return false;
+  return PreferencesUtils.getOrDefault<bool>(
+    ServiceConfig.sharedPreferences!,
+    PreferencesKeys.amountInputAutoDecimalShift,
+  )!;
 }
 
 Locale getCurrencyLocale() {
@@ -278,6 +294,16 @@ OverviewTimeInterval getHomepageOverviewWidgetTimeIntervalEnumSetting() {
   return OverviewTimeInterval.values[userDefinedHomepageIntervalIndex];
 }
 
+int getHomepageRecordsMonthStartDay() {
+  return PreferencesUtils.getOrDefault<int>(
+      ServiceConfig.sharedPreferences!, PreferencesKeys.homepageRecordsMonthStartDay)!;
+}
+
+// 'MMMd' provides the localized month name and day (e.g., "Jan 15")
+String getShortDateStr(DateTime date) {
+  return DateFormat.MMMd().format(date);
+}
+
 String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
   DateTime _now = DateTime.now();
   switch (timeInterval) {
@@ -293,30 +319,20 @@ String getHeaderFromHomepageTimeInterval(HomepageTimeInterval timeInterval) {
 }
 
 Future<List<DateTime>> getTimeIntervalFromHomepageTimeInterval(
-    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
-  DateTime _now = DateTime.now();
-  switch (timeInterval) {
-    case HomepageTimeInterval.CurrentMonth:
-      DateTime _from = new DateTime(_now.year, _now.month, 1);
-      DateTime _to = getEndOfMonth(_now.year, _now.month);
-      return [_from, _to];
-    case HomepageTimeInterval.CurrentYear:
-      DateTime _from = new DateTime(_now.year, 1, 1);
-      DateTime _to = new DateTime(_now.year, 12, 31, 23, 59);
-      return [_from, _to];
-    case HomepageTimeInterval.All:
-      DateTime? _from = await database.getDateTimeFirstRecord();
-      if (_from == null) {
-        DateTime _from = new DateTime(_now.year, _now.month, 1);
-        DateTime _to = getEndOfMonth(_now.year, _now.month);
-        return [_from, _to];
-      }
-      return [_from, _now];
-    case HomepageTimeInterval.CurrentWeek:
-      DateTime? _from = getStartOfWeek(_now);
-      DateTime? _to = getEndOfWeek(_now);
-      return [_from, _to];
+    DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
+
+  DateTime now = DateTime.now();
+
+  if (timeInterval == HomepageTimeInterval.All) {
+    DateTime? firstRecord = await database.getDateTimeFirstRecord();
+    if (firstRecord == null) {
+      // Fallback to current month if no records exist
+      return calculateInterval(HomepageTimeInterval.CurrentMonth, now, monthStartDay: monthStartDay);
+    }
+    return [firstRecord, now];
   }
+
+  return calculateInterval(timeInterval, now, monthStartDay: monthStartDay);
 }
 
 HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
@@ -334,11 +350,12 @@ HomepageTimeInterval mapOverviewTimeIntervalToHomepageTimeInterval(
 }
 
 Future<List<Record?>> getRecordsByHomepageTimeInterval(
-    DatabaseInterface database, HomepageTimeInterval timeInterval) async {
+    DatabaseInterface database, HomepageTimeInterval timeInterval, {int monthStartDay = 1}) async {
   DateTime _now = DateTime.now();
   switch (timeInterval) {
     case HomepageTimeInterval.CurrentMonth:
-      return await getRecordsByMonth(database, _now.year, _now.month);
+      var cycle = calculateMonthCycle(DateTime.now(), monthStartDay);
+      return await getRecordsByInterval(database, cycle[0], cycle[1]);
     case HomepageTimeInterval.CurrentYear:
       return await getRecordsByYear(database, _now.year);
     case HomepageTimeInterval.All:

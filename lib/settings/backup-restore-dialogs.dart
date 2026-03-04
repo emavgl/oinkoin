@@ -54,10 +54,14 @@ class BackupRestoreDialog {
   }
 
   static Future<void> importFromBackupFile(BuildContext context) async {
-    bool hasDeletedCache = Platform.isAndroid
+    try {
+      bool hasDeletedCache = Platform.isAndroid
         ? (await FilePicker.platform.clearTemporaryFiles() as bool)
         : false;
-    log("FilePicker has deleted cache: " + hasDeletedCache.toString());
+      log("FilePicker has deleted cache: " + hasDeletedCache.toString());
+    } catch (e) {
+      log("FilePicker.clearTemporaryFiles() not implemented on this platform");
+    }
     FilePickerResult? result;
     try {
       result = await FilePicker.platform.pickFiles(

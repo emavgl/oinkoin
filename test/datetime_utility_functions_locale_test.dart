@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
-import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 
 void main() {
   setUpAll(() async {
@@ -354,8 +353,8 @@ void main() {
     test('should display full month name when range covers entire month', () {
       // Nov 1 - Nov 30 (full month)
       DateTime start = DateTime(2025, 11, 1);
-      DateTime end = DateTime(2025, 11, 30, 23, 59);
-
+      DateTime end = DateTime(2025, 11, 30, 23, 59, 59);
+      
       String result = getDateRangeStr(start, end);
 
       expect(result.toLowerCase(), contains('november'));
@@ -430,8 +429,8 @@ void main() {
     test('should display full month name for February in leap year', () {
       // Feb 1 - Feb 29, 2024 (leap year, full month)
       DateTime start = DateTime(2024, 2, 1);
-      DateTime end = DateTime(2024, 2, 29, 23, 59);
-
+      DateTime end = DateTime(2024, 2, 29, 23, 59, 59);
+      
       String result = getDateRangeStr(start, end);
 
       expect(result.toLowerCase(), contains('february'));

@@ -352,18 +352,6 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<List<_i7.RecordTagAssociation>>);
 
   @override
-  _i3.Future<void> addRecordTagAssociationsInBatch(
-          List<_i7.RecordTagAssociation>? associations) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #addRecordTagAssociationsInBatch,
-          [associations],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
-
-  @override
   _i3.Future<void> renameTag(
     String? old,
     String? newTag,

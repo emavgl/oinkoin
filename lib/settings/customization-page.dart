@@ -51,6 +51,8 @@ class CustomizationPageState extends State<CustomizationPage> {
   Future<void> fetchAllThePreferences() async {
     await fetchThemePreferences();
     await fetchLanguagePreferences();
+    await fetchWeekSettingsPreferences();
+    await fetchDateFormatPreferences();
     await fetchNumberFormattingPreferences();
     await fetchAppLockPreferences();
     await fetchMiscPreferences();
@@ -96,6 +98,22 @@ class CustomizationPageState extends State<CustomizationPage> {
         PreferencesOptions.languageDropdown, userDefinedLanguageLocale);
   }
 
+  Future<void> fetchWeekSettingsPreferences() async {
+    int firstDayOfWeekValue = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.firstDayOfWeek)!;
+
+    firstDayOfWeekDropdownKey = getKeyFromObject<int>(
+        PreferencesOptions.firstDayOfWeekDropdown, firstDayOfWeekValue);
+  }
+
+  Future<void> fetchDateFormatPreferences() async {
+    String dateFormatValue = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.dateFormat)!;
+
+    dateFormatDropdownKey = getKeyFromObject<String>(
+        PreferencesOptions.dateFormatDropdown, dateFormatValue);
+  }
+
   Future<void> fetchNumberFormattingPreferences() async {
     // Get Number of decimal digits
     decimalDigitsValueDropdownKey = PreferencesUtils.getOrDefault<int>(
@@ -125,6 +143,11 @@ class CustomizationPageState extends State<CustomizationPage> {
     groupSeparatorDropdownKey = getKeyFromObject<String>(
         PreferencesOptions.groupSeparators, usedDefinedGroupSeparatorValue);
 
+    amountInputAutoDecimalShift = PreferencesUtils.getOrDefault<bool>(
+      ServiceConfig.sharedPreferences!,
+      PreferencesKeys.amountInputAutoDecimalShift,
+    )!;
+
     allowedGroupSeparatorsValues = Map.from(PreferencesOptions.groupSeparators);
     allowedGroupSeparatorsValues.remove(decimalSeparatorDropdownKey);
 
@@ -146,6 +169,13 @@ class CustomizationPageState extends State<CustomizationPage> {
     homepageTimeIntervalValue = getKeyFromObject<int>(
         PreferencesOptions.homepageTimeInterval,
         userDefinedHomepageIntervalEnumIndex);
+
+    var homepageRecordsMonthStartDayIndex = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.homepageRecordsMonthStartDay)!;
+
+    homepageRecordsMonthStartDay = getKeyFromObject<int>(
+        PreferencesOptions.monthDaysMap,
+        homepageRecordsMonthStartDayIndex);
 
     // Homepage overview widget
     var userDefinedHomepageOverviewIntervalEnumIndex =
@@ -199,10 +229,15 @@ class CustomizationPageState extends State<CustomizationPage> {
   // Language
   late String languageDropdownKey;
 
+  // Week settings
+  late String firstDayOfWeekDropdownKey;
+  late String dateFormatDropdownKey;
+
   // Homepage
   late String homepageTimeIntervalValue;
   late String homepageOverviewWidgetTimeInterval;
   late String homepageRecordNotesVisible;
+  late String homepageRecordsMonthStartDay;
 
   // Number formatting
   late String decimalDigitsValueDropdownKey;
@@ -213,6 +248,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   late String amountInputKeyboardTypeDropdownKey;
   late Map<String, String> allowedGroupSeparatorsValues;
   late String groupSeparatorDropdownKey;
+  late bool amountInputAutoDecimalShift;
 
   // Locks
   late bool appLockIsAvailable;
@@ -262,6 +298,23 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues: PreferencesOptions.languageDropdown,
                       selectedDropdownKey: languageDropdownKey,
                       sharedConfigKey: PreferencesKeys.languageLocale,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "First Day of Week".i18n,
+                      subtitle: "Select the first day of the week".i18n,
+                      dropdownValues: PreferencesOptions.firstDayOfWeekDropdown,
+                      selectedDropdownKey: firstDayOfWeekDropdownKey,
+                      sharedConfigKey: PreferencesKeys.firstDayOfWeek,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Date Format".i18n,
+                      subtitle: "Select the date format".i18n,
+                      dropdownValues: PreferencesOptions.dateFormatDropdown,
+                      selectedDropdownKey: dateFormatDropdownKey,
+                      sharedConfigKey: PreferencesKeys.dateFormat,
+                      onChanged: () {
+                        // Invalidate/refresh date format cache if any
+                      },
                     ),
                     SettingSeparator(title: "Appearance".i18n),
                     DropdownCustomizationItem(
@@ -345,6 +398,19 @@ class CustomizationPageState extends State<CustomizationPage> {
                             PreferencesKeys.overwriteCommaValueWithDot,
                       ),
                     ),
+                    SwitchCustomizationItem(
+                      title: "Auto decimal input".i18n,
+                      subtitle: "Typing 5 becomes %s5".i18n.fill([
+                                  (() {
+                                    final dd = getNumberDecimalDigits();
+                                    if (dd <= 0) return "";
+                                    final sep = getDecimalSeparator();
+                                    return ("0$sep").padRight(dd + 1, '0');
+                                  }())
+                                ]),
+                      switchValue: amountInputAutoDecimalShift,
+                      sharedConfigKey: PreferencesKeys.amountInputAutoDecimalShift,
+                    ),
                     SettingSeparator(title: "Homepage settings".i18n),
                     DropdownCustomizationItem(
                       title: "Homepage time interval".i18n,
@@ -353,6 +419,14 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues: PreferencesOptions.homepageTimeInterval,
                       selectedDropdownKey: homepageTimeIntervalValue,
                       sharedConfigKey: PreferencesKeys.homepageTimeInterval,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Custom starting day of the month".i18n,
+                      subtitle:
+                      "Define the starting day of the month for records that show in the app homepage".i18n,
+                      dropdownValues: PreferencesOptions.monthDaysMap,
+                      selectedDropdownKey: homepageRecordsMonthStartDay,
+                      sharedConfigKey: PreferencesKeys.homepageRecordsMonthStartDay,
                     ),
                     DropdownCustomizationItem(
                       title:

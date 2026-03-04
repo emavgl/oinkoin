@@ -1,0 +1,4 @@
+- Add option to set starting day of a monthly cycle
+- Add sorting for category list
+- Add more icons
+- More translations

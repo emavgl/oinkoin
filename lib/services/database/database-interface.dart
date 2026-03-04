@@ -46,8 +46,6 @@ abstract class DatabaseInterface {
 
   // New methods for record tag associations
   Future<List<RecordTagAssociation>> getAllRecordTagAssociations();
-  Future<void> addRecordTagAssociationsInBatch(
-      List<RecordTagAssociation>? associations);
   Future<void> renameTag(String old, String newTag);
   Future<void> deleteTag(String tagToDelete);
 

@@ -1,6 +1,7 @@
 display_name: Oinkoin
 package_name: oinkoin
-version: 1.1.10
+executable: piggybank
+version: 1.1.6
 
 maintainer:
   name: Oinkoin Team

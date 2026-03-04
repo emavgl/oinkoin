@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/records/edit-record-page.dart';
@@ -38,40 +39,61 @@ class PatternsPageViewState extends State<PatternsPageView> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final _subtitleFontSize = const TextStyle(fontSize: 14.0);
 
+  String _recurrenceSubtitle(RecurrentRecordPattern pattern) {
+    final dt = pattern.localDateTime;
+    switch (pattern.recurrentPeriod) {
+      case RecurrentPeriod.EveryDay:
+        return '';
+      case RecurrentPeriod.EveryWeek:
+      case RecurrentPeriod.EveryTwoWeeks:
+      case RecurrentPeriod.EveryFourWeeks:
+        return DateFormat.EEEE().format(DateTime(dt.year, dt.month, dt.day));
+      case RecurrentPeriod.EveryYear:
+        return DateFormat.MMMd().format(DateTime(dt.year, dt.month, dt.day));
+      default:
+        // EveryMonth, EveryThreeMonths, EveryFourMonths
+        return "${"Day".i18n} ${dt.day}";
+    }
+  }
+
   Widget _buildRecurrentPatternRow(RecurrentRecordPattern pattern) {
     /// Returns a ListTile rendering the single movement row
+    final subtitle = _recurrenceSubtitle(pattern);
     return Container(
-      margin: EdgeInsets.only(top: 10, bottom: 10),
-      child: ListTile(
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => EditRecordPage(
-                passedReccurrentRecordPattern: pattern,
+        margin: EdgeInsets.only(top: 10, bottom: 10),
+        child: ListTile(
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditRecordPage(
+                  passedReccurrentRecordPattern: pattern,
+                ),
               ),
-            ),
-          );
-          await fetchRecurrentRecordPatternsFromDatabase();
-        },
-        title: Text(
-          pattern.title == null || pattern.title!.trim().isEmpty
-              ? pattern.category!.name!
-              : pattern.title!,
-          style: _biggerFont,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+            );
+            await fetchRecurrentRecordPatternsFromDatabase();
+          },
+          title: Text(
+            pattern.title == null || pattern.title!.trim().isEmpty
+                ? pattern.category!.name!
+                : pattern.title!,
+            style: _biggerFont,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: subtitle.isNotEmpty
+              ? Text(subtitle, style: _subtitleFontSize)
+              : null,
+          trailing: Text(
+            getCurrencyValueString(pattern.value),
+            style: _biggerFont,
+          ),
+          leading: CategoryIconCircle(
+            iconEmoji: pattern.category?.iconEmoji,
+            iconDataFromDefaultIconSet: pattern.category?.icon,
+            backgroundColor: pattern.category?.color,
+          ),
         ),
-        trailing: Text(
-          getCurrencyValueString(pattern.value),
-          style: _biggerFont,
-        ),
-        leading: CategoryIconCircle(
-          iconEmoji: pattern.category?.iconEmoji,
-          iconDataFromDefaultIconSet: pattern.category?.icon,
-          backgroundColor: pattern.category?.color,
-        ),
-      ),
     );
   }
 
@@ -85,6 +107,25 @@ class PatternsPageViewState extends State<PatternsPageView> {
         }
         grouped[pattern.recurrentPeriod!]!.add(pattern);
       }
+    }
+
+    for (var entry in grouped.entries) {
+      final period = entry.key;
+      entry.value.sort((a, b) {
+        final aDate = a.localDateTime;
+        final bDate = b.localDateTime;
+        switch (period) {
+          case RecurrentPeriod.EveryWeek:
+          case RecurrentPeriod.EveryTwoWeeks:
+          case RecurrentPeriod.EveryFourWeeks:
+            return aDate.weekday.compareTo(bDate.weekday);
+          case RecurrentPeriod.EveryYear:
+            final cmp = aDate.month.compareTo(bDate.month);
+            return cmp != 0 ? cmp : aDate.day.compareTo(bDate.day);
+          default:
+            return aDate.day.compareTo(bDate.day);
+        }
+      });
     }
 
     return grouped;

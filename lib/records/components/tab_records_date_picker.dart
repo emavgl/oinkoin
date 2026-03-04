@@ -6,6 +6,7 @@ import 'package:piggybank/i18n.dart';
 
 import '../../components/year-picker.dart' as yp;
 import '../../helpers/datetime-utility-functions.dart';
+import '../../helpers/date_picker_utils.dart';
 import '../../premium/splash-screen.dart';
 import '../../services/service-config.dart';
 import '../controllers/tab_records_controller.dart';
@@ -155,12 +156,19 @@ class TabRecordsDatePicker extends StatelessWidget {
       end: currentDate,
     );
 
+    // Get user's first day of week preference
+    int firstDayOfWeek = getFirstDayOfWeekIndex();
+
     DateTimeRange? dateTimeRange = await showDateRangePicker(
       context: context,
       firstDate: firstDate,
       lastDate: lastDate,
       initialDateRange: initialDateTimeRange,
       locale: I18n.locale,
+      builder: (BuildContext context, Widget? child) {
+        return DatePickerUtils.buildDatePickerWithFirstDayOfWeek(
+            context, child, firstDayOfWeek);
+      },
     );
 
     if (dateTimeRange != null) {
