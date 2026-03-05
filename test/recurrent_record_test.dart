@@ -34,8 +34,8 @@ void main() {
     final category1 = Category("testName1");
 
     test('daily recurrent different months', () {
-      final dateTime = DateTime(2020, 2, 20).toUtc();
-      final endDate = DateTime(2020, 3, 2).toUtc();
+      final dateTime = DateTime.utc(2020, 2, 20);
+      final endDate = DateTime.utc(2020, 3, 2);
       final recordPattern = RecurrentRecordPattern(
           1, "Daily", category1, dateTime, RecurrentPeriod.EveryDay);
 
@@ -61,8 +61,8 @@ void main() {
     });
 
     test('daily recurrent same month', () {
-      final dateTime = DateTime(2020, 2, 20).toUtc();
-      final endDate = DateTime(2020, 2, 25).toUtc();
+      final dateTime = DateTime.utc(2020, 2, 20);
+      final endDate = DateTime.utc(2020, 2, 25);
       final recordPattern = RecurrentRecordPattern(
           1, "Daily", category1, dateTime, RecurrentPeriod.EveryDay);
 
@@ -82,8 +82,8 @@ void main() {
     });
 
     test('monthly recurrent same year', () {
-      final dateTime = DateTime(2020, 2, 20).toUtc();
-      final endDate = DateTime(2020, 5, 25).toUtc();
+      final dateTime = DateTime.utc(2020, 2, 20);
+      final endDate = DateTime.utc(2020, 5, 25);
       final recordPattern = RecurrentRecordPattern(
           1, "Monthly", category1, dateTime, RecurrentPeriod.EveryMonth);
 
@@ -101,8 +101,8 @@ void main() {
     });
 
     test('monthly recurrent same year strange dates', () {
-      final dateTime = DateTime(2020, 1, 30).toUtc();
-      final endDate = DateTime(2020, 4, 25).toUtc();
+      final dateTime = DateTime.utc(2020, 1, 30);
+      final endDate = DateTime.utc(2020, 4, 25);
       final recordPattern = RecurrentRecordPattern(
           1, "Monthly", category1, dateTime, RecurrentPeriod.EveryMonth);
 
@@ -119,8 +119,8 @@ void main() {
     });
 
     test('monthly recurrent different year', () {
-      final dateTime = DateTime(2020, 2, 20).toUtc();
-      final endDate = DateTime(2021, 2, 25).toUtc();
+      final dateTime = DateTime.utc(2020, 2, 20);
+      final endDate = DateTime.utc(2021, 2, 25);
       final recordPattern = RecurrentRecordPattern(
           1, "Monthly", category1, dateTime, RecurrentPeriod.EveryMonth);
 
@@ -147,8 +147,8 @@ void main() {
     });
 
     test('weekly recurrent', () {
-      final dateTime = DateTime(2020, 10, 1).toUtc();
-      final endDate = DateTime(2020, 10, 15).toUtc();
+      final dateTime = DateTime.utc(2020, 10, 1);
+      final endDate = DateTime.utc(2020, 10, 15);
       final recordPattern = RecurrentRecordPattern(
           1, "Weekly", category1, dateTime, RecurrentPeriod.EveryWeek);
 
@@ -165,8 +165,8 @@ void main() {
     });
 
     test('bi-weekly recurrent', () {
-      final dateTime = DateTime(2020, 10, 1).toUtc();
-      final endDate = DateTime(2020, 10, 30).toUtc();
+      final dateTime = DateTime.utc(2020, 10, 1);
+      final endDate = DateTime.utc(2020, 10, 30);
       final recordPattern = RecurrentRecordPattern(
           1, "Bi-Weekly", category1, dateTime, RecurrentPeriod.EveryTwoWeeks);
 
@@ -183,8 +183,8 @@ void main() {
     });
 
     test('four-weekly recurrent', () {
-      final dateTime = DateTime(2020, 10, 1).toUtc();
-      final endDate = DateTime(2020, 11, 30).toUtc();
+      final dateTime = DateTime.utc(2020, 10, 1);
+      final endDate = DateTime.utc(2020, 11, 30);
       final recordPattern = RecurrentRecordPattern(
           1, "Four-Weekly", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
 
@@ -201,8 +201,8 @@ void main() {
     });
 
     test('four-weekly recurrent spanning multiple months', () {
-      final dateTime = DateTime(2020, 1, 15).toUtc();
-      final endDate = DateTime(2020, 6, 30).toUtc();
+      final dateTime = DateTime.utc(2020, 1, 15);
+      final endDate = DateTime.utc(2020, 6, 30);
       final recordPattern = RecurrentRecordPattern(
           1, "Four-Weekly-Long", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
 
@@ -222,8 +222,8 @@ void main() {
     });
 
     test('three-months recurrent', () {
-      final dateTime = DateTime(2020, 1, 5).toUtc();
-      final endDate = DateTime(2020, 12, 30).toUtc();
+      final dateTime = DateTime.utc(2020, 1, 5);
+      final endDate = DateTime.utc(2020, 12, 30);
       final recordPattern = RecurrentRecordPattern(1, "Three-Months", category1,
           dateTime, RecurrentPeriod.EveryThreeMonths);
 
@@ -241,8 +241,8 @@ void main() {
     });
 
     test('four-months recurrent', () {
-      final dateTime = DateTime(2020, 1, 5).toUtc();
-      final endDate = DateTime(2020, 12, 30).toUtc();
+      final dateTime = DateTime.utc(2020, 1, 5);
+      final endDate = DateTime.utc(2020, 12, 30);
       final recordPattern = RecurrentRecordPattern(1, "Four-Months", category1,
           dateTime, RecurrentPeriod.EveryFourMonths);
 
@@ -259,8 +259,8 @@ void main() {
     });
 
     test('every year recurrent', () {
-      final dateTime = DateTime(2020, 1, 5).toUtc();
-      final endDate = DateTime(2022, 12, 30).toUtc();
+      final dateTime = DateTime.utc(2020, 1, 5);
+      final endDate = DateTime.utc(2022, 12, 30);
       final recordPattern = RecurrentRecordPattern(
           1, "Every-Year", category1, dateTime, RecurrentPeriod.EveryYear);
 
@@ -277,8 +277,8 @@ void main() {
     });
 
     test('recurrent pattern in the future must return no records', () {
-      final patternStartDate = DateTime(2020, 10, 1).toUtc();
-      final endDate = DateTime(2020, 01, 30).toUtc();
+      final patternStartDate = DateTime.utc(2020, 10, 1);
+      final endDate = DateTime.utc(2020, 01, 30);
       final recordPattern = RecurrentRecordPattern(
           1, "Future", category1, patternStartDate, RecurrentPeriod.EveryDay);
 
@@ -291,8 +291,8 @@ void main() {
     test(
         'recurrent pattern in the future should work when executed in a future date',
         () {
-      final patternStartDate = DateTime(2020, 10, 1).toUtc();
-      final endDate = DateTime(2020, 10, 5).toUtc();
+      final patternStartDate = DateTime.utc(2020, 10, 1);
+      final endDate = DateTime.utc(2020, 10, 5);
       final recordPattern = RecurrentRecordPattern(
           1, "Future", category1, patternStartDate, RecurrentPeriod.EveryDay);
 
@@ -352,8 +352,8 @@ void main() {
     });
 
     test('generated records should have tags from the recurrent pattern', () {
-      final patternStartDate = DateTime(2023, 1, 1).toUtc();
-      final endDate = DateTime(2023, 1, 3).toUtc();
+      final patternStartDate = DateTime.utc(2023, 1, 1);
+      final endDate = DateTime.utc(2023, 1, 3);
       final tags = ['work', 'travel', 'expenses'];
 
       final recordPattern = RecurrentRecordPattern(

@@ -20,9 +20,9 @@ void main() {
 
     test('should generate records up to view end date beyond today', () {
       // Pattern starts in the past
-      final patternStartDate = DateTime(2024, 1, 1).toUtc();
+      final patternStartDate = DateTime.utc(2024, 1, 1);
       // View end date is in the future (end of month)
-      final viewEndDate = DateTime(2024, 1, 31, 23, 59).toUtc();
+      final viewEndDate = DateTime.utc(2024, 1, 31, 23, 59);
 
       final recordPattern = RecurrentRecordPattern(
           100.0, "Daily Pattern", category1, patternStartDate, RecurrentPeriod.EveryDay);
@@ -179,9 +179,9 @@ void main() {
     });
 
     test('should respect pattern end date when generating records', () {
-      final patternStartDate = DateTime(2024, 1, 1).toUtc();
-      final patternEndDate = DateTime(2024, 1, 15).toUtc(); // Pattern ends on Jan 15
-      final viewEndDate = DateTime(2024, 1, 31).toUtc(); // View extends to Jan 31
+      final patternStartDate = DateTime.utc(2024, 1, 1);
+      final patternEndDate = DateTime.utc(2024, 1, 15); // Pattern ends on Jan 15
+      final viewEndDate = DateTime.utc(2024, 1, 31); // View extends to Jan 31
 
       final recordPattern = RecurrentRecordPattern(
           100.0,
@@ -210,8 +210,8 @@ void main() {
     });
 
     test('should use view end date when pattern has no end date', () {
-      final patternStartDate = DateTime(2024, 1, 1).toUtc();
-      final viewEndDate = DateTime(2024, 1, 10).toUtc();
+      final patternStartDate = DateTime.utc(2024, 1, 1);
+      final viewEndDate = DateTime.utc(2024, 1, 10);
 
       final recordPattern = RecurrentRecordPattern(
           100.0,
@@ -231,9 +231,9 @@ void main() {
     });
 
     test('should use pattern end date when it is before view end date', () {
-      final patternStartDate = DateTime(2024, 1, 1).toUtc();
-      final patternEndDate = DateTime(2024, 1, 5).toUtc();
-      final viewEndDate = DateTime(2024, 1, 31).toUtc();
+      final patternStartDate = DateTime.utc(2024, 1, 1);
+      final patternEndDate = DateTime.utc(2024, 1, 5);
+      final viewEndDate = DateTime.utc(2024, 1, 31);
 
       final recordPattern = RecurrentRecordPattern(
           50.0,
@@ -253,9 +253,9 @@ void main() {
     });
 
     test('should use view end date when pattern end date is after it', () {
-      final patternStartDate = DateTime(2024, 1, 1).toUtc();
-      final patternEndDate = DateTime(2024, 1, 31).toUtc();
-      final viewEndDate = DateTime(2024, 1, 10).toUtc();
+      final patternStartDate = DateTime.utc(2024, 1, 1);
+      final patternEndDate = DateTime.utc(2024, 1, 31);
+      final viewEndDate = DateTime.utc(2024, 1, 10);
 
       final recordPattern = RecurrentRecordPattern(
           50.0,
