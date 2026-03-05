@@ -8,7 +8,6 @@ import '../backup-retention-period.dart';
 import 'homepage-time-interval.dart';
 
 class PreferencesDefaultValues {
-
   static final defaultValues = <String, dynamic>{
     PreferencesKeys.themeColor: 0, // Default theme color index
     PreferencesKeys.themeMode: 0, // Default theme mode index
@@ -24,7 +23,8 @@ class PreferencesDefaultValues {
     PreferencesKeys.enableAutomaticBackup: false, // Default to disabled
     PreferencesKeys.enableEncryptedBackup: false,
     PreferencesKeys.enableVersionAndDateInBackupName: true,
-    PreferencesKeys.backupRetentionIntervalIndex: BackupRetentionPeriod.ALWAYS.index, // Default retention period index
+    PreferencesKeys.backupRetentionIntervalIndex:
+        BackupRetentionPeriod.ALWAYS.index, // Default retention period index
     PreferencesKeys.backupPassword: '', // Default to empty password
     PreferencesKeys.enableAppLock: false, // Default to disabled
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
@@ -46,7 +46,7 @@ class PreferencesDefaultValues {
     }
     String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
     NumberFormat currencyLocaleNumberFormat =
-    new NumberFormat.currency(locale: existingCurrencyLocale);
+        new NumberFormat.currency(locale: existingCurrencyLocale);
     return currencyLocaleNumberFormat.symbols.GROUP_SEP;
   }
 
@@ -57,7 +57,7 @@ class PreferencesDefaultValues {
     }
     String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
     NumberFormat currencyLocaleNumberFormat =
-    new NumberFormat.currency(locale: existingCurrencyLocale);
+        new NumberFormat.currency(locale: existingCurrencyLocale);
     return currencyLocaleNumberFormat.symbols.DECIMAL_SEP;
   }
 
@@ -68,5 +68,4 @@ class PreferencesDefaultValues {
   static bool getOverwriteCommaValueWithDotDefaultValue() {
     return getDecimalSeparator() == ".";
   }
-
 }

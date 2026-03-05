@@ -647,8 +647,8 @@ Future main() async {
       for (var record in allRecords) {
         expect(record?.tags, isNotEmpty,
             reason: 'Record should have tags from pattern');
-        expect(record?.tags,
-            containsAll(['subscription', 'recurring', 'digital']),
+        expect(
+            record?.tags, containsAll(['subscription', 'recurring', 'digital']),
             reason:
                 'Record should contain all tags from the recurrent pattern');
       }

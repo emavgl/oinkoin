@@ -83,8 +83,7 @@ class PreferencesOptions {
         HomepageTimeInterval.CurrentMonth.index,
     "Records of the current year".i18n: HomepageTimeInterval.CurrentYear.index,
     "All records".i18n: HomepageTimeInterval.All.index,
-    "Records of the current week".i18n:
-        HomepageTimeInterval.CurrentWeek.index,
+    "Records of the current week".i18n: HomepageTimeInterval.CurrentWeek.index,
   };
 
   static final Map<String, int> monthDaysMap = {
@@ -96,7 +95,8 @@ class PreferencesOptions {
     "Displayed records".i18n: OverviewTimeInterval.DisplayedRecords.index,
     "Records of the current month".i18n:
         OverviewTimeInterval.FixCurrentMonth.index,
-    "Records of the current year".i18n: OverviewTimeInterval.FixCurrentYear.index,
+    "Records of the current year".i18n:
+        OverviewTimeInterval.FixCurrentYear.index,
     "All records".i18n: OverviewTimeInterval.FixAllRecords.index,
   };
 

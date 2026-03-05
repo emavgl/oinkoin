@@ -208,7 +208,8 @@ class TabRecordsController {
     // Check if future records should be shown
     final prefs = await SharedPreferences.getInstance();
     final showFutureRecords = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.showFutureRecords) ?? true;
+            prefs, PreferencesKeys.showFutureRecords) ??
+        true;
 
     // Calculate the view end date based on the current interval and preference
     DateTime viewEndDate;
@@ -217,7 +218,8 @@ class TabRecordsController {
         viewEndDate = customIntervalTo!;
       } else {
         var hti = getHomepageTimeIntervalEnumSetting();
-        var interval = await getTimeIntervalFromHomepageTimeInterval(_database, hti);
+        var interval =
+            await getTimeIntervalFromHomepageTimeInterval(_database, hti);
         viewEndDate = interval[1]; // End date of the interval
       }
     } else {
@@ -229,7 +231,8 @@ class TabRecordsController {
     }
 
     // Update recurrent records and get future records
-    List<Record> futureRecords = await recurrentRecordService.updateRecurrentRecords(viewEndDate);
+    List<Record> futureRecords =
+        await recurrentRecordService.updateRecurrentRecords(viewEndDate);
 
     // Fetch records from database
     List<Record?> newRecords;
@@ -244,7 +247,7 @@ class TabRecordsController {
     List<Record> filteredFutureRecords = futureRecords.where((record) {
       return (record.utcDateTime.isAfter(intervalFromUtc) ||
               record.utcDateTime.isAtSameMomentAs(intervalFromUtc)) &&
-             (record.utcDateTime.isBefore(intervalToUtc) ||
+          (record.utcDateTime.isBefore(intervalToUtc) ||
               record.utcDateTime.isAtSameMomentAs(intervalToUtc));
     }).toList();
 
@@ -391,7 +394,7 @@ class TabRecordsController {
   Future<void> _showNoCategoryDialog(BuildContext context) async {
     AlertDialogBuilder noCategoryDialog = AlertDialogBuilder(
             "No Category is set yet.".i18n)
-        .addTrueButtonName("OK")
+        .renameTrueButtonName("OK")
         .addSubtitle(
             "You need to set a category first. Go to Category tab and add a new category."
                 .i18n);

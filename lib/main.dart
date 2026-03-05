@@ -41,12 +41,15 @@ main() async {
     }
     logger.info('Timezone initialized: ${ServiceConfig.localTimezone}');
 
-
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     ServiceConfig.packageName = packageInfo.packageName;
     ServiceConfig.version = packageInfo.version;
-    ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro") || Platform.isLinux || Platform.isWindows || Platform.isMacOS;
-    logger.info('Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})');
+    ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro") ||
+        Platform.isLinux ||
+        Platform.isWindows ||
+        Platform.isMacOS;
+    logger.info(
+        'Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})');
 
     ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
     await MyI18n.loadTranslations();
@@ -60,7 +63,8 @@ main() async {
     final languageLocale = LocaleService.resolveLanguageLocale();
     final currencyLocale = LocaleService.resolveCurrencyLocale();
     LocaleService.setCurrencyLocale(currencyLocale);
-    logger.info('Locale configured: language=$languageLocale, currency=$currencyLocale');
+    logger.info(
+        'Locale configured: language=$languageLocale, currency=$currencyLocale');
 
     final lightTheme = await MaterialThemeInstance.getLightTheme();
     final darkTheme = await MaterialThemeInstance.getDarkTheme();

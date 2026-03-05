@@ -17,9 +17,9 @@ class SettingSeparator extends StatelessWidget {
             child: Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
           const Divider(thickness: 1.5),
