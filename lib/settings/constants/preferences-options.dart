@@ -28,6 +28,7 @@ class PreferencesOptions {
     "Français": "fr",
     "hrvatski (Hrvatska)": "hr",
     "Italiano": "it",
+    "Ελληνικά": "el",
     "ଓଡ଼ିଆ (ଭାରତ)": "or-IN",
     "polski (Polska)": "pl",
     "Português (Brazil)": "pt-BR",
