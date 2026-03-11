@@ -23,7 +23,6 @@ import 'feedback-page.dart';
 //https://pub.dev/packages/shared_preferences
 
 class TabSettings extends StatelessWidget {
-
   static final _logger = Logger.withClass(TabSettings);
 
   static const double kSettingsItemsExtent = 75.0;
@@ -35,8 +34,8 @@ class TabSettings extends StatelessWidget {
     AlertDialogBuilder premiumDialog =
         AlertDialogBuilder("Critical action".i18n)
             .addSubtitle("Do you really want to delete all the data?".i18n)
-            .addTrueButtonName("Yes".i18n)
-            .addFalseButtonName("No".i18n);
+            .renameTrueButtonName("Yes".i18n)
+            .renameFalseButtonName("No".i18n);
     var ok = await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -47,7 +46,7 @@ class TabSettings extends StatelessWidget {
       AlertDialogBuilder resultDialog =
           AlertDialogBuilder("Data is deleted".i18n)
               .addSubtitle("All the data has been deleted".i18n)
-              .addTrueButtonName("OK");
+              .hideFalseButton();
       await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -99,11 +98,9 @@ class TabSettings extends StatelessWidget {
   }
 
   goToLogs(BuildContext context) async {
-    Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const LogScreen(),
-        )
-    );
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => const LogScreen(),
+    ));
   }
 
   Future<void> _launchURL(BuildContext context, String url) async {
@@ -134,7 +131,8 @@ class TabSettings extends StatelessWidget {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Could not open link. Make sure xdg-utils is installed.'),
+                content: Text(
+                    'Could not open link. Make sure xdg-utils is installed.'),
                 duration: Duration(seconds: 5),
               ),
             );
@@ -282,8 +280,7 @@ class TabSettings extends StatelessWidget {
             iconBackgroundColor: Colors.tealAccent.shade700,
             title: 'Info'.i18n,
             subtitle: 'Privacy policy and credits'.i18n,
-            onPressed: () async => await _launchURL(
-                context,
+            onPressed: () async => await _launchURL(context,
                 "https://github.com/emavgl/oinkoin/blob/master/privacy-policy.md"),
           ),
           SettingsItem(

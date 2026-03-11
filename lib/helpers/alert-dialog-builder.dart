@@ -7,11 +7,15 @@ class AlertDialogBuilder {
 
   late String title;
   String? subtitle;
+  late bool trueButtonShow;
+  late bool falseButtonShow;
   late String trueButtonName;
   late String falseButtonName;
 
   AlertDialogBuilder(String title) {
     this.title = title;
+    this.trueButtonShow = true;
+    this.falseButtonShow = true;
     this.trueButtonName = "OK";
     this.falseButtonName = "Cancel".i18n;
     this.subtitle = null;
@@ -27,13 +31,23 @@ class AlertDialogBuilder {
     return this;
   }
 
-  AlertDialogBuilder addTrueButtonName(String trueButtonName) {
+  AlertDialogBuilder renameTrueButtonName(String trueButtonName) {
     this.trueButtonName = trueButtonName;
     return this;
   }
 
-  AlertDialogBuilder addFalseButtonName(String falseButtonName) {
+  AlertDialogBuilder renameFalseButtonName(String falseButtonName) {
     this.falseButtonName = falseButtonName;
+    return this;
+  }
+
+  AlertDialogBuilder hideTrueButton() {
+    this.trueButtonShow = false;
+    return this;
+  }
+
+  AlertDialogBuilder hideFalseButton() {
+    this.falseButtonShow = false;
     return this;
   }
 
@@ -54,8 +68,8 @@ class AlertDialogBuilder {
       title: Text(title),
       content: (subtitle != null) ? Text(subtitle!) : null,
       actions: [
-        trueButton,
-        falseButton,
+        if (trueButtonShow) trueButton,
+        if (falseButtonShow) falseButton,
       ],
     );
   }

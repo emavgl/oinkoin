@@ -9,7 +9,6 @@ import 'database/database-interface.dart';
 import 'logger.dart';
 
 class RecurrentRecordService {
-
   static final _logger = Logger.withClass(RecurrentRecordService);
 
   DatabaseInterface database = ServiceConfig.database;
@@ -17,7 +16,8 @@ class RecurrentRecordService {
   List<Record> generateRecurrentRecordsFromDateTime(
       RecurrentRecordPattern recordPattern, DateTime utcEndDate) {
     try {
-      _logger.debug('Generating recurrent records for pattern: ${recordPattern.title}');
+      _logger.debug(
+          'Generating recurrent records for pattern: ${recordPattern.title}');
       final List<Record> newRecurrentRecords = [];
 
     // 1. Get the TZLocation for the pattern's original timezone
@@ -59,133 +59,135 @@ class RecurrentRecordService {
       lastUpdateTz = startDate;
     }
 
-    if (endDateTz.isBefore(lastUpdateTz)) {
-      return [];
-    }
+      if (endDateTz.isBefore(lastUpdateTz)) {
+        return [];
+      }
 
-    // Helper function to add records with a given interval
-    void addRecordsByPeriod(int periodValue, {bool isMonth = false}) {
-      tz.TZDateTime currentDate = lastUpdateTz!;
+      // Helper function to add records with a given interval
+      void addRecordsByPeriod(int periodValue, {bool isMonth = false}) {
+        tz.TZDateTime currentDate = lastUpdateTz!;
 
-      // Store the original day, hour, minute, and second from the pattern's start date.
-      // This is crucial for maintaining consistency across DST changes and month-end rollovers.
-      final int originalStartDay = recordPattern.localDateTime.day;
-      final int originalHour = recordPattern.localDateTime.hour;
-      final int originalMinute = recordPattern.localDateTime.minute;
-      final int originalSecond = recordPattern.localDateTime.second;
+        // Store the original day, hour, minute, and second from the pattern's start date.
+        // This is crucial for maintaining consistency across DST changes and month-end rollovers.
+        final int originalStartDay = recordPattern.localDateTime.day;
+        final int originalHour = recordPattern.localDateTime.hour;
+        final int originalMinute = recordPattern.localDateTime.minute;
+        final int originalSecond = recordPattern.localDateTime.second;
 
-      // Now, calculate and add the subsequent records.
-      while (true) {
-        tz.TZDateTime nextDate;
+        // Now, calculate and add the subsequent records.
+        while (true) {
+          tz.TZDateTime nextDate;
 
-        // Calculate the next date.
-        if (isMonth) {
-          // Get the target year and month after adding the period value.
-          int targetYear = currentDate.year;
-          int targetMonth = currentDate.month + periodValue;
+          // Calculate the next date.
+          if (isMonth) {
+            // Get the target year and month after adding the period value.
+            int targetYear = currentDate.year;
+            int targetMonth = currentDate.month + periodValue;
 
-          if (targetMonth > 12) {
-            targetYear += (targetMonth - 1) ~/ 12;
-            targetMonth = (targetMonth - 1) % 12 + 1;
-          }
+            if (targetMonth > 12) {
+              targetYear += (targetMonth - 1) ~/ 12;
+              targetMonth = (targetMonth - 1) % 12 + 1;
+            }
 
-          // Create a candidate date using the original start day.
-          tz.TZDateTime candidateDate = tz.TZDateTime(
-            currentDate.location,
-            targetYear,
-            targetMonth,
-            originalStartDay,
-            originalHour,
-            originalMinute,
-            originalSecond,
-          );
-
-          // Explicitly check for a month rollover. If the original day was invalid
-          // (e.g., day 30 in February), the new date will be in the next month.
-          if (candidateDate.month != targetMonth) {
-            // If a rollover occurred, set the date to the last day of the target month.
-            nextDate = tz.TZDateTime(
+            // Create a candidate date using the original start day.
+            tz.TZDateTime candidateDate = tz.TZDateTime(
               currentDate.location,
               targetYear,
-              targetMonth + 1,
-              0,
+              targetMonth,
+              originalStartDay,
               originalHour,
               originalMinute,
               originalSecond,
             );
-          } else {
-            // Otherwise, the candidate date is correct.
-            nextDate = candidateDate;
-          }
-        } else {
-          // Logic for non-monthly recurrence, manually incrementing the calendar day
-          // to avoid time drift issues caused by Daylight Saving Time (DST) changes.
-          nextDate = tz.TZDateTime(
-            currentDate.location,
-            currentDate.year,
-            currentDate.month,
-            currentDate.day + periodValue,
-            originalHour,
-            originalMinute,
-            originalSecond,
-          );
-        }
 
-        // Check if the newly calculated date is within the bounds.
-        if (nextDate.isBefore(endDateTz) ||
-            nextDate.isAtSameMomentAs(endDateTz)) {
-          final newRecord = Record(
-            recordPattern.value,
-            recordPattern.title,
-            recordPattern.category,
-            nextDate.toUtc(),
-            timeZoneName: patternLocation.name,
-            description: recordPattern.description,
-            recurrencePatternId: recordPattern.id,
-            tags: recordPattern.tags,
-          );
-          newRecurrentRecords.add(newRecord);
-          currentDate = nextDate;
-        } else {
-          // We've gone past the end date, so stop.
-          break;
+            // Explicitly check for a month rollover. If the original day was invalid
+            // (e.g., day 30 in February), the new date will be in the next month.
+            if (candidateDate.month != targetMonth) {
+              // If a rollover occurred, set the date to the last day of the target month.
+              nextDate = tz.TZDateTime(
+                currentDate.location,
+                targetYear,
+                targetMonth + 1,
+                0,
+                originalHour,
+                originalMinute,
+                originalSecond,
+              );
+            } else {
+              // Otherwise, the candidate date is correct.
+              nextDate = candidateDate;
+            }
+          } else {
+            // Logic for non-monthly recurrence, manually incrementing the calendar day
+            // to avoid time drift issues caused by Daylight Saving Time (DST) changes.
+            nextDate = tz.TZDateTime(
+              currentDate.location,
+              currentDate.year,
+              currentDate.month,
+              currentDate.day + periodValue,
+              originalHour,
+              originalMinute,
+              originalSecond,
+            );
+          }
+
+          // Check if the newly calculated date is within the bounds.
+          if (nextDate.isBefore(endDateTz) ||
+              nextDate.isAtSameMomentAs(endDateTz)) {
+            final newRecord = Record(
+              recordPattern.value,
+              recordPattern.title,
+              recordPattern.category,
+              nextDate.toUtc(),
+              timeZoneName: patternLocation.name,
+              description: recordPattern.description,
+              recurrencePatternId: recordPattern.id,
+              tags: recordPattern.tags,
+            );
+            newRecurrentRecords.add(newRecord);
+            currentDate = nextDate;
+          } else {
+            // We've gone past the end date, so stop.
+            break;
+          }
         }
       }
-    }
 
-    switch (recordPattern.recurrentPeriod) {
-      case RecurrentPeriod.EveryDay:
-        addRecordsByPeriod(1);
-        break;
-      case RecurrentPeriod.EveryWeek:
-        addRecordsByPeriod(7);
-        break;
-      case RecurrentPeriod.EveryTwoWeeks:
-        addRecordsByPeriod(14);
-        break;
-      case RecurrentPeriod.EveryFourWeeks:
-        addRecordsByPeriod(28);
-        break;
-      case RecurrentPeriod.EveryMonth:
-        addRecordsByPeriod(1, isMonth: true);
-        break;
-      case RecurrentPeriod.EveryThreeMonths:
-        addRecordsByPeriod(3, isMonth: true);
-        break;
-      case RecurrentPeriod.EveryFourMonths:
-        addRecordsByPeriod(4, isMonth: true);
-        break;
-      case RecurrentPeriod.EveryYear:
-        addRecordsByPeriod(12, isMonth: true);
-        break;
-      default:
-        break;
-    }
+      switch (recordPattern.recurrentPeriod) {
+        case RecurrentPeriod.EveryDay:
+          addRecordsByPeriod(1);
+          break;
+        case RecurrentPeriod.EveryWeek:
+          addRecordsByPeriod(7);
+          break;
+        case RecurrentPeriod.EveryTwoWeeks:
+          addRecordsByPeriod(14);
+          break;
+        case RecurrentPeriod.EveryFourWeeks:
+          addRecordsByPeriod(28);
+          break;
+        case RecurrentPeriod.EveryMonth:
+          addRecordsByPeriod(1, isMonth: true);
+          break;
+        case RecurrentPeriod.EveryThreeMonths:
+          addRecordsByPeriod(3, isMonth: true);
+          break;
+        case RecurrentPeriod.EveryFourMonths:
+          addRecordsByPeriod(4, isMonth: true);
+          break;
+        case RecurrentPeriod.EveryYear:
+          addRecordsByPeriod(12, isMonth: true);
+          break;
+        default:
+          break;
+      }
 
-    _logger.info('Generated ${newRecurrentRecords.length} recurrent records for: ${recordPattern.title}');
-    return newRecurrentRecords;
+      _logger.info(
+          'Generated ${newRecurrentRecords.length} recurrent records for: ${recordPattern.title}');
+      return newRecurrentRecords;
     } catch (e, st) {
-      _logger.handle(e, st, 'Failed to generate recurrent records for: ${recordPattern.title}');
+      _logger.handle(e, st,
+          'Failed to generate recurrent records for: ${recordPattern.title}');
       rethrow;
     }
   }
@@ -219,13 +221,15 @@ class RecurrentRecordService {
 
         if (allRecords.isNotEmpty) {
           // Split records into past (up to end of today) and future (after end of today)
-          final pastRecords = allRecords.where((r) =>
-            r.utcDateTime.isBefore(endOfToday) || r.utcDateTime.isAtSameMomentAs(endOfToday)
-          ).toList();
+          final pastRecords = allRecords
+              .where((r) =>
+                  r.utcDateTime.isBefore(endOfToday) ||
+                  r.utcDateTime.isAtSameMomentAs(endOfToday))
+              .toList();
 
-          final futureRecords = allRecords.where((r) =>
-            r.utcDateTime.isAfter(endOfToday)
-          ).toList();
+          final futureRecords = allRecords
+              .where((r) => r.utcDateTime.isAfter(endOfToday))
+              .toList();
 
           // Mark future records
           for (var record in futureRecords) {
@@ -248,7 +252,8 @@ class RecurrentRecordService {
         }
       }
 
-      _logger.info('Recurrent records update completed: ${totalRecordsAdded} records added to database, ${allFutureRecords.length} future records generated from ${patterns.length} patterns');
+      _logger.info(
+          'Recurrent records update completed: ${totalRecordsAdded} records added to database, ${allFutureRecords.length} future records generated from ${patterns.length} patterns');
       return allFutureRecords;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to update recurrent records');

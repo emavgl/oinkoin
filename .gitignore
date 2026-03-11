@@ -76,7 +76,7 @@
 /build-debug-file/
 /tmp_build
 .flutter-plugins-dependencies
-ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/flutter_export_environment.sh
 macos/Flutter/ephemeral/flutter_export_environment.sh
 macos/Flutter/ephemeral/Flutter-Generated.xcconfig
 

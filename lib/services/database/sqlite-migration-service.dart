@@ -7,7 +7,6 @@ import '../../models/category.dart';
 import '../logger.dart';
 
 class SqliteMigrationService {
-
   static final _logger = Logger.withClass(SqliteMigrationService);
 
   // SQL Queries
@@ -186,7 +185,8 @@ class SqliteMigrationService {
       _logger.debug('Alter table succeeded');
     } on DatabaseException catch (e) {
       // This block specifically handles DatabaseException
-      _logger.warning('Alter table failed (expected for existing columns): ${e.toString()}');
+      _logger.warning(
+          'Alter table failed (expected for existing columns): ${e.toString()}');
     } catch (e, st) {
       // This block is a generic catch-all for any other exception types
       _logger.handle(e, st, 'Unexpected error in alter table');
