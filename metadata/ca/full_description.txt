@@ -1,0 +1,10 @@
+És lleuger i fàcil d'utilitzar. Només necessites uns quants tocs per fer un seguiment de les teves despeses. La simplicitat i la seguretat són els nostres dos pilars principals: Oinkoin és una aplicació offline i sense anuncis.
+
+* Respecte per la privacitat
+Creiem que has de ser l'única persona que controli les teves dades. Oinkoin es preocupa per la teva privacitat, per això funciona completament offline i sense cap anunci! No calen permisos especials.
+
+* Estalvia la bateria
+L'aplicació només consumeix bateria quan l'utilitzes, no es duen a terme operacions que consumeixin energia en segon pla.
+
+* Estadístiques
+Estadístiques i gràfics clars i entenedors!
