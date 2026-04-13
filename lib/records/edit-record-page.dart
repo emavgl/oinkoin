@@ -20,6 +20,8 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
 import 'package:piggybank/records/formatter/group-separator-formatter.dart';
+import 'package:piggybank/records/keyboard/amount_selector.dart';
+import 'package:piggybank/records/keyboard/number_formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
@@ -734,102 +736,108 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createAmountCard() {
-    /// Provides security and input validation via character whitelisting.
-    ///
-    /// Character Whitelisting: Utilizes a [RegExp] to block any character
-    /// that is not a digit, math operator, or an allowed separator.
-    /// Regex Safety: Employs [RegExp.escape()] to ensure active separators
-    /// are treated as literal characters rather than regex metacharacters.
     final decimalSep = getDecimalSeparator();
     final groupSep = getGroupingSeparator();
     final decDigits = getNumberDecimalDigits();
-    final shouldAutofocus = !readOnly && passedRecord == null && passedReccurrentRecordPattern == null;
+
+    // We keep your zero hint logic for when the field is empty
     final zeroHint = (autoDec && decDigits > 0)
         ? '0$decimalSep${List.filled(decDigits, '0').join()}'
         : '0';
-    final allowedRegex =
-        RegExp('[^0-9\\+\\-\\*/%${RegExp.escape(getDecimalSeparator())}${RegExp.escape(getGroupingSeparator())}]');
+
     String categorySign =
-        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+    record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+
     return Card(
       elevation: 1,
-      child: Container(
+      child: InkWell(
+        // Trigger the custom keyboard on tap
+        onTap: readOnly ? null : () => _openCustomKeyboard(),
+        child: Container(
+          padding: const EdgeInsets.all(10),
           child: IntrinsicHeight(
-              child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.only(left: 10, top: 25),
-              child: Text(categorySign,
-                  style: TextStyle(fontSize: 32), textAlign: TextAlign.left),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Keep your original Sign indicator styling
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(left: 10, top: 25),
+                    child: Text(
+                      categorySign,
+                      style: const TextStyle(fontSize: 32),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+                // The Display Area replacing the TextFormField
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Label styling to mimic the original InputDecoration
+                        Text(
+                          "Amount".i18n,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        // The formatted amount text
+                        Semantics(
+                          identifier: 'amount-field',
+                          child: OinKoinNumberFormatter.formatForDisplay(
+                            context,
+                            _textEditingController.text.isEmpty
+                                ? zeroHint
+                                : _textEditingController.text,
+                            integerStyle: TextStyle(
+                              fontSize: 32.0,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decimalsStyle: TextStyle(
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.w300,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
-          Expanded(
-              child: Container(
-            padding: EdgeInsets.all(10),
-            child: Semantics(
-              identifier: 'amount-field',
-              child: TextFormField(
-                  enabled: !readOnly,
-                  controller: _textEditingController,
-                  inputFormatters: [
-                    CalculatorNormalizer(
-                      overwriteDot: getOverwriteDotValue(),
-                      overwriteComma: getOverwriteCommaValue(),
-                      decimalSep: decimalSep,
-                      groupSep: groupSep,
-                    ),
-                    FilteringTextInputFormatter.deny(allowedRegex),
-                    LeadingZeroIntegerTrimmerFormatter(
-                      decimalSep: decimalSep,
-                      groupSep: groupSep,
-                    ),
-                    if (autoDec)
-                      AutoDecimalShiftFormatter(
-                        decimalDigits: decDigits,
-                        decimalSep: decimalSep,
-                        groupSep: groupSep,
-                      ),
-                    if (!autoDec)
-                      GroupSeparatorFormatter(
-                        groupSep: groupSep,
-                        decimalSep: decimalSep,
-                      ),
-                  ],
-                  autofocus: shouldAutofocus,
-                  onChanged: (text) {
-                    changeRecordValue(text);
-                  },
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Please enter a value".i18n;
-                    }
-                    var numericValue = tryParseCurrencyString(value);
-                    if (numericValue == null) {
-                      return "Not a valid format (use for example: %s)"
-                          .i18n
-                          .fill([
-                        getCurrencyValueString(1234.20, turnOffGrouping: true)
-                      ]);
-                    }
-                    return null;
-                  },
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                      fontSize: 32.0,
-                      color: Theme.of(context).colorScheme.onSurface),
-                  keyboardType: getAmountInputKeyboardType(),
-                  decoration: InputDecoration(
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hintText: zeroHint,
-                      labelText: "Amount".i18n)),
-            ),
-          ))
-        ],
-      ))),
+        ),
+      ),
+    );
+  }
+
+  void _openCustomKeyboard() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      //backgroundColor: Colors.transparent, // Keeps the ModalContainer's rounded corners
+      builder: (context) => AmountSelector(
+        title: "Amount".i18n,
+        // We pass the current value from the controller to the keyboard
+        initialAmount: tryParseCurrencyString(_textEditingController.text) ?? 0.0,
+        onSubmit: (double amount) {
+          setState(() {
+            _textEditingController.text = getCurrencyValueString(amount, turnOffGrouping: true);
+            changeRecordValue(_textEditingController.text);
+          });
+          Navigator.pop(context);
+        },
+      ),
     );
   }
 
