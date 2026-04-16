@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
-import 'package:piggybank/records/keyboard/animated_expanded.dart';
-import 'package:piggybank/records/keyboard/bool.extension.dart';
-import 'package:piggybank/records/keyboard/evaluate_expression.dart';
-import 'package:piggybank/records/keyboard/modal_container.dart';
-import 'package:piggybank/records/keyboard/number_formatter.dart';
-import 'package:piggybank/records/keyboard/numbers.extensions.dart';
+import 'package:piggybank/records/amount_selector/logic/evaluate_expression.dart';
+import 'package:piggybank/records/amount_selector/utils/bool.extension.dart';
+import 'package:piggybank/records/amount_selector/utils/numbers.extensions.dart';
+import 'package:piggybank/records/amount_selector/widgets/animated_expanded.dart';
+import 'package:piggybank/records/amount_selector/widgets/modal_container.dart';
 
 import '../formatter/auto_decimal_shift_formatter.dart';
+import 'formatting/number_formatter.dart';
 
 class AmountSelector extends StatefulWidget {
   const AmountSelector({
@@ -24,8 +24,6 @@ class AmountSelector extends StatefulWidget {
 
   final double initialAmount;
 
-  //final CurrencyInDB? currency;
-
   /// Display a button to change the sign of the current value (when the calculator is not enabled)
   final bool enableSignToggleButton;
 
@@ -37,6 +35,7 @@ class AmountSelector extends StatefulWidget {
 
 class _AmountSelectorState extends State<AmountSelector> {
   late String amountString;
+  final autoDec = getAmountInputAutoDecimalShift();
 
   double get valueToNumber {
     if (amountString.trim() == '') {
@@ -71,9 +70,7 @@ class _AmountSelectorState extends State<AmountSelector> {
 
         if ((event.logicalKey == LogicalKeyboardKey.browserBack ||
             event.logicalKey == LogicalKeyboardKey.goBack ||
-            event.logicalKey == LogicalKeyboardKey.escape)) {
-          //RouteUtils.popRoute();
-        }
+            event.logicalKey == LogicalKeyboardKey.escape)) {}
 
         for (int i = 0; i <= 9; i++) {
           // 0x30 is the standard ASCII/HID offset for the number '0'
@@ -164,102 +161,38 @@ class _AmountSelectorState extends State<AmountSelector> {
   }
 
   void addToAmount(String newText) {
-    // 1. Create a "fake" TextEditingValue to leverage your existing logic
-    final oldEditingValue = TextEditingValue(
-      text: amountString,
-      selection: TextSelection.collapsed(offset: amountString.length),
-    );
+    final decimalSep = getDecimalSeparator();
+    final groupSep = getGroupingSeparator();
+    final decDigits = getNumberDecimalDigits();
 
-    final newEditingValue = TextEditingValue(
+    // Create the 'old' and 'new' values for the formatters to compare
+    final TextEditingValue oldV = TextEditingValue(text: amountString);
+    final TextEditingValue newV = TextEditingValue(
       text: amountString + newText,
       selection:
           TextSelection.collapsed(offset: (amountString + newText).length),
     );
 
-    // 2. Run your existing AutoDecimalShiftFormatter logic
-    final autoShift = AutoDecimalShiftFormatter(
-      decimalDigits: getNumberDecimalDigits(),
-      decimalSep: getDecimalSeparator(),
-      groupSep: getGroupingSeparator(),
-    );
+    // Always run LeadingZeroIntegerTrimmerFormatter first
+    var result = LeadingZeroIntegerTrimmerFormatter(
+      decimalSep: decimalSep,
+      groupSep: groupSep,
+    ).formatEditUpdate(oldV, newV);
 
-    final formattedValue =
-        autoShift.formatEditUpdate(oldEditingValue, newEditingValue);
+    if (autoDec) {
+      // If autoDec is ON, we shift decimals
+      result = AutoDecimalShiftFormatter(
+        decimalDigits: decDigits,
+        decimalSep: decimalSep,
+        groupSep: groupSep,
+      ).formatEditUpdate(oldV, result);
+    }
 
     setState(() {
-      // We store the clean formatted string
-      amountString = formattedValue.text;
+      // This variable now contains the fully formatted string (e.g., "1,250.00")
+      amountString = result.text;
     });
   }
-
-  // void addToAmount(String newText) {
-  //   if (newText == '.' && _currentNumberHasDecimal()) {
-  //     return;
-  //   }
-  //
-  //   final newInputIsOperator = CalculatorOperator.isOperator(newText);
-  //
-  //   setNewAmount(String newSelectedAmount) {
-  //     if (newInputIsOperator) {
-  //       HapticFeedback.mediumImpact();
-  //     } else {
-  //       HapticFeedback.selectionClick();
-  //     }
-  //
-  //     setState(() {
-  //       amountString = newSelectedAmount;
-  //     });
-  //   }
-  //
-  //   if (newInputIsOperator && !calculatorMode) {
-  //     return;
-  //   } else if (valueToNumber != 0 &&
-  //       double.tryParse(newText) != null &&
-  //       _currentNumberHasDecimal() &&
-  //       !CalculatorOperator.exprHasOperator(amountString)) {
-  //     final decimalPlaces = splitExprByNumbersAndOperator(
-  //       amountString,
-  //     ).last.split('.').elementAtOrNull(1);
-  //
-  //     if (decimalPlaces != null && decimalPlaces.length >= 2) {
-  //       return;
-  //     }
-  //
-  //     // Pass
-  //   }
-  //
-  //   if (amountString.isEmpty ||
-  //       amountString == CalculatorOperator.subtract.symbol) {
-  //     if (newText == '0') {
-  //       return;
-  //     } else if (newText == '.') {
-  //       if (valueToNumber.isNegative) {
-  //         setNewAmount('-0.');
-  //       } else {
-  //         setNewAmount('0.');
-  //       }
-  //     } else if (newInputIsOperator) {
-  //       setNewAmount('0$newText');
-  //     } else {
-  //       final sign = valueToNumber.isNegative ? '-' : '';
-  //
-  //       setNewAmount('$sign$newText');
-  //     }
-  //   } else if (CalculatorOperator.exprEndsWithOperator(amountString)) {
-  //     if (newText == '.') {
-  //       setNewAmount('${amountString}0.');
-  //     } else if (newInputIsOperator) {
-  //       // Replace last operator:
-  //       setNewAmount(
-  //         amountString.substring(0, amountString.length - 1) + newText,
-  //       );
-  //     } else {
-  //       setNewAmount(amountString + newText);
-  //     }
-  //   } else {
-  //     setNewAmount(amountString + newText);
-  //   }
-  // }
 
   submitAmount() {
     HapticFeedback.lightImpact();

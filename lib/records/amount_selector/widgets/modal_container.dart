@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:piggybank/records/keyboard/padding.extension.dart';
+import 'package:piggybank/records/amount_selector/utils/padding.extension.dart';
 
 /// Useful class if you want to differentiate the dismissal of the modal from a return of a result with a null value
 class ModalResult<T> {
@@ -53,9 +53,8 @@ class ModalContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        bottom: responseToKeyboard
-            ? MediaQuery.of(context).viewInsets.bottom
-            : 0,
+        bottom:
+            responseToKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0,
       ).withSafeBottom(context),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -64,7 +63,7 @@ class ModalContainer extends StatelessWidget {
           // ----- HEADER CONTENT ------
           //
           // Title, subtitle and end widget will be drawn
-          // here with ther respective paddings and styles
+          // here with their respective paddings and styles
           // ---------------
           Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, showTitleDivider ? 0 : 22),
@@ -77,7 +76,9 @@ class ModalContainer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       DefaultTextStyle(
-                        style: Theme.of(context).textTheme.headlineSmall!
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall!
                             .copyWith(fontWeight: FontWeight.bold),
                         child: titleBuilder != null
                             ? titleBuilder!(title)

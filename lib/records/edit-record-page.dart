@@ -3,7 +3,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:piggybank/categories/categories-tab-page-view.dart';
@@ -18,10 +17,8 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
-import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
-import 'package:piggybank/records/formatter/group-separator-formatter.dart';
-import 'package:piggybank/records/keyboard/amount_selector.dart';
-import 'package:piggybank/records/keyboard/number_formatter.dart';
+import 'package:piggybank/records/amount_selector/amount_selector.dart';
+import 'package:piggybank/records/amount_selector/formatting/number_formatter.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 
@@ -31,7 +28,6 @@ import '../models/recurrent-record-pattern.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
 import 'components/tag_selection_dialog.dart';
-import 'formatter/calculator-normalizer.dart';
 
 class EditRecordPage extends StatefulWidget {
   final Record? passedRecord;
@@ -746,7 +742,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         : '0';
 
     String categorySign =
-    record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
 
     return Card(
       elevation: 1,
@@ -825,14 +821,15 @@ class EditRecordPageState extends State<EditRecordPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      //backgroundColor: Colors.transparent, // Keeps the ModalContainer's rounded corners
       builder: (context) => AmountSelector(
         title: "Amount".i18n,
         // We pass the current value from the controller to the keyboard
-        initialAmount: tryParseCurrencyString(_textEditingController.text) ?? 0.0,
+        initialAmount:
+            tryParseCurrencyString(_textEditingController.text) ?? 0.0,
         onSubmit: (double amount) {
           setState(() {
-            _textEditingController.text = getCurrencyValueString(amount, turnOffGrouping: true);
+            _textEditingController.text =
+                getCurrencyValueString(amount, turnOffGrouping: true);
             changeRecordValue(_textEditingController.text);
           });
           Navigator.pop(context);
@@ -889,13 +886,12 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   addOrUpdateRecurrentPattern({id}) async {
     // Create a new recurrent pattern from the updated record
-    RecurrentRecordPattern recordPattern =
-        RecurrentRecordPattern.fromRecord(
-          record!,
-          recurrentPeriod!,
-          id: id,
-          utcEndDate: localDisplayEndDate?.toUtc(),
-        );
+    RecurrentRecordPattern recordPattern = RecurrentRecordPattern.fromRecord(
+      record!,
+      recurrentPeriod!,
+      id: id,
+      utcEndDate: localDisplayEndDate?.toUtc(),
+    );
     recordPattern.tags =
         _selectedTags; // Assign selected tags to the recurrent pattern
     if (id != null) {
@@ -1142,7 +1138,3 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 }
-
-
-
-
