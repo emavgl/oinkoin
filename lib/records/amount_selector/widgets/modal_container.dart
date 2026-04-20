@@ -82,7 +82,11 @@ class ModalContainer extends StatelessWidget {
                             .copyWith(fontWeight: FontWeight.bold),
                         child: titleBuilder != null
                             ? titleBuilder!(title)
-                            : Text(title),
+                            : Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(title),
+                              ),
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 2),

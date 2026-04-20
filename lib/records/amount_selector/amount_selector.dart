@@ -18,9 +18,12 @@ class AmountSelector extends StatefulWidget {
     this.onSubmit,
     this.enableSignToggleButton = true,
     required this.title,
+    required this.categorySign,
   });
 
   final String title;
+
+  final String categorySign;
 
   final double initialAmount;
 
@@ -237,234 +240,248 @@ class _AmountSelectorState extends State<AmountSelector> {
   Widget build(BuildContext context) {
     _focusAttachment.reparent();
 
-    return ModalContainer(
-      title: widget.title,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // -----
-                // ----> CALCULATOR OPERATION (only displayed if any operation is active):
-                AnimatedExpanded(
-                  expand: CalculatorOperator.exprHasOperator(amountString),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [Text(amountString)],
-                  ),
-                ),
-                // -----
-                // -----> CURRENT AMOUNT IN THE SELECTED CURRENCY:
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Builder(
-                        builder: (context) {
-                          final double fontSize = valueToNumber >= 100000000
-                              ? valueToNumber >= 100000000000000
-                                  ? 24
-                                  : 28
-                              : 32;
+    Color tint = Colors.transparent;
+    if (widget.categorySign == "-") {
+      tint = Colors.red.withOpacity(0.1);
+    } else {
+      tint = Colors.green.withOpacity(0.1);
+    }
 
-                          return AnimatedDefaultTextStyle(
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge!
-                                .copyWith(fontSize: fontSize),
-                            duration: const Duration(milliseconds: 200),
-                            child: Builder(
-                              builder: (context) {
-
-                                return OinKoinNumberFormatter.formatForDisplay(
-                                  context,
-                                  amountString,
-                                  // The raw string being manipulated by addToAmount
-                                  integerStyle: Theme.of(context)
-                                      .textTheme
-                                      .headlineLarge!
-                                      .copyWith(
-                                        fontSize: 32,
-                                      ),
-                                  decimalsStyle: TextStyle(
-                                    fontSize: 32,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface,
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Divider(),
-          Flexible(
-            child: Container(
-              // height: min(MediaQuery.of(context).size.width * 0.8, 300),
-              margin: const EdgeInsets.only(top: 16),
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
-              child: Row(
+    return Container(
+      decoration: BoxDecoration(
+        color: tint,
+      ),
+      child: ModalContainer(
+        title: widget.title,
+        bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CalculatorButton(
-                          onClick: () =>
-                              addToAmount(CalculatorOperator.multiply.symbol),
-                          text: '×',
-                          style: CalculatorButtonStyle.secondary,
-                          flex: calculatorMode.toInt(),
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('1'),
-                          text: '1',
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('4'),
-                          text: '4',
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('7'),
-                          text: '7',
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('0'),
-                          text: '0',
-                        ),
-                      ],
+                  // -----
+                  // ----> CALCULATOR OPERATION (only displayed if any operation is active):
+                  AnimatedExpanded(
+                    expand: CalculatorOperator.exprHasOperator(amountString),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [Text(amountString)],
                     ),
                   ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CalculatorButton(
-                          onClick: () =>
-                              addToAmount(CalculatorOperator.divide.symbol),
-                          text: '÷',
-                          style: CalculatorButtonStyle.secondary,
-                          flex: calculatorMode.toInt(),
+                  // -----
+                  // -----> CURRENT AMOUNT IN THE SELECTED CURRENCY:
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: Builder(
+                          builder: (context) {
+                            final double fontSize = valueToNumber >= 100000000
+                                ? valueToNumber >= 100000000000000
+                                    ? 24
+                                    : 28
+                                : 32;
+
+                            return AnimatedDefaultTextStyle(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineLarge!
+                                  .copyWith(fontSize: fontSize),
+                              duration: const Duration(milliseconds: 200),
+                              child: Builder(
+                                builder: (context) {
+                                  return OinKoinNumberFormatter
+                                      .formatForDisplay(
+                                    context,
+                                    amountString,
+                                    // The raw string being manipulated by addToAmount
+                                    integerStyle: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge!
+                                        .copyWith(
+                                          fontSize: 32,
+                                        ),
+                                    decimalsStyle: TextStyle(
+                                      fontSize: 32,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('2'),
-                          text: '2',
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('5'),
-                          text: '5',
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('8'),
-                          text: '8',
-                        ),
-                        CalculatorButton(
-                          disabled: _currentNumberHasDecimal(),
-                          onClick: () => addToAmount('.'),
-                          text: '.',
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CalculatorButton(
-                          onClick: () =>
-                              addToAmount(CalculatorOperator.subtract.symbol),
-                          text: '-',
-                          style: CalculatorButtonStyle.secondary,
-                          flex: calculatorMode.toInt(),
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('3'),
-                          text: '3',
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('6'),
-                          text: '6',
-                        ),
-                        CalculatorButton(
-                          onClick: () => addToAmount('9'),
-                          text: '9',
-                        ),
-                        CalculatorButton(
-                          onClick: toggleCalculatorMode,
-                          style: CalculatorButtonStyle.secondary,
-                          icon: calculatorMode
-                              ? Icons.fullscreen_exit_rounded
-                              : Icons.calculate_rounded,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CalculatorButton(
-                          onClick: () =>
-                              addToAmount(CalculatorOperator.add.symbol),
-                          text: '+',
-                          style: CalculatorButtonStyle.secondary,
-                          flex: calculatorMode.toInt(),
-                        ),
-                        CalculatorButton(
-                          onClick: removeLastCharFromAmount,
-                          onLongPress: clearAmount,
-                          style: CalculatorButtonStyle.secondary,
-                          icon: Icons.backspace_outlined,
-                        ),
-                        CalculatorButton(
-                          onClick: toggleSign,
-                          style: CalculatorButtonStyle.secondary,
-                          icon: Icons.exposure_rounded,
-                          flex: calculatorMode || !widget.enableSignToggleButton
-                              ? 0
-                              : 1,
-                        ),
-                        CalculatorButton(
-                          disabled: valueToNumber == 0 ||
-                              valueToNumber.isInfinite ||
-                              valueToNumber.isNaN,
-                          onClick: submitAmount,
-                          icon: Icons.check_rounded,
-                          style: CalculatorButtonStyle.submit,
-                          flex: calculatorMode || !widget.enableSignToggleButton
-                              ? 3
-                              : 2,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            const Divider(),
+            Flexible(
+              child: Container(
+                // height: min(MediaQuery.of(context).size.width * 0.8, 300),
+                margin: const EdgeInsets.only(top: 16),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CalculatorButton(
+                            onClick: () =>
+                                addToAmount(CalculatorOperator.multiply.symbol),
+                            text: '×',
+                            style: CalculatorButtonStyle.secondary,
+                            flex: calculatorMode.toInt(),
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('1'),
+                            text: '1',
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('4'),
+                            text: '4',
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('7'),
+                            text: '7',
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('0'),
+                            text: '0',
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CalculatorButton(
+                            onClick: () =>
+                                addToAmount(CalculatorOperator.divide.symbol),
+                            text: '÷',
+                            style: CalculatorButtonStyle.secondary,
+                            flex: calculatorMode.toInt(),
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('2'),
+                            text: '2',
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('5'),
+                            text: '5',
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('8'),
+                            text: '8',
+                          ),
+                          CalculatorButton(
+                            disabled: _currentNumberHasDecimal(),
+                            onClick: () => addToAmount('.'),
+                            text: '.',
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CalculatorButton(
+                            onClick: () =>
+                                addToAmount(CalculatorOperator.subtract.symbol),
+                            text: '-',
+                            style: CalculatorButtonStyle.secondary,
+                            flex: calculatorMode.toInt(),
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('3'),
+                            text: '3',
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('6'),
+                            text: '6',
+                          ),
+                          CalculatorButton(
+                            onClick: () => addToAmount('9'),
+                            text: '9',
+                          ),
+                          CalculatorButton(
+                            onClick: toggleCalculatorMode,
+                            style: CalculatorButtonStyle.secondary,
+                            icon: calculatorMode
+                                ? Icons.fullscreen_exit_rounded
+                                : Icons.calculate_rounded,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CalculatorButton(
+                            onClick: () =>
+                                addToAmount(CalculatorOperator.add.symbol),
+                            text: '+',
+                            style: CalculatorButtonStyle.secondary,
+                            flex: calculatorMode.toInt(),
+                          ),
+                          CalculatorButton(
+                            onClick: removeLastCharFromAmount,
+                            onLongPress: clearAmount,
+                            style: CalculatorButtonStyle.secondary,
+                            icon: Icons.backspace_outlined,
+                          ),
+                          CalculatorButton(
+                            onClick: toggleSign,
+                            style: CalculatorButtonStyle.secondary,
+                            icon: Icons.exposure_rounded,
+                            flex:
+                                calculatorMode || !widget.enableSignToggleButton
+                                    ? 0
+                                    : 1,
+                          ),
+                          CalculatorButton(
+                            disabled: valueToNumber == 0 ||
+                                valueToNumber.isInfinite ||
+                                valueToNumber.isNaN,
+                            onClick: submitAmount,
+                            icon: Icons.check_rounded,
+                            style: CalculatorButtonStyle.submit,
+                            flex:
+                                calculatorMode || !widget.enableSignToggleButton
+                                    ? 3
+                                    : 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

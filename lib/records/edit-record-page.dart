@@ -748,7 +748,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       elevation: 1,
       child: InkWell(
         // Trigger the custom keyboard on tap
-        onTap: readOnly ? null : () => _openCustomKeyboard(),
+        onTap: readOnly ? null : () => _openCustomKeyboard(categorySign),
         child: Container(
           padding: const EdgeInsets.all(10),
           child: IntrinsicHeight(
@@ -815,11 +815,12 @@ class EditRecordPageState extends State<EditRecordPage> {
     );
   }
 
-  void _openCustomKeyboard() {
+  void _openCustomKeyboard(String categorySign) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => AmountSelector(
+        categorySign: categorySign,
         title: "Amount".i18n,
         // We pass the current value from the controller to the keyboard
         initialAmount:
