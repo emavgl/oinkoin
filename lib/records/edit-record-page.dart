@@ -73,6 +73,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   Set<String> _selectedTags = {};
   Set<String> _suggestedTags = {};
 
+  late String categorySign;
   final autoDec = getAmountInputAutoDecimalShift();
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
@@ -176,6 +177,9 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _openCustomKeyboard(categorySign);
+    });
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.enableRecordNameSuggestions)!;
@@ -275,6 +279,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
     String initialValue = record?.title ?? "";
     _typeAheadController.text = initialValue;
+    categorySign = record?.category?.categoryType == CategoryType.expense ? "-" : "+";
   }
 
   @override
@@ -740,9 +745,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     final zeroHint = (autoDec && decDigits > 0)
         ? '0$decimalSep${List.filled(decDigits, '0').join()}'
         : '0';
-
-    String categorySign =
-        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
 
     return Card(
       elevation: 1,
