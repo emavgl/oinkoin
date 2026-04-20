@@ -280,9 +280,6 @@ class _AmountSelectorState extends State<AmountSelector> {
                             duration: const Duration(milliseconds: 200),
                             child: Builder(
                               builder: (context) {
-                                const bigSizeStyle = TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                );
 
                                 return OinKoinNumberFormatter.formatForDisplay(
                                   context,
@@ -292,16 +289,13 @@ class _AmountSelectorState extends State<AmountSelector> {
                                       .textTheme
                                       .headlineLarge!
                                       .copyWith(
-                                        fontWeight: FontWeight.bold,
                                         fontSize: 32,
                                       ),
                                   decimalsStyle: TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 22,
+                                    fontSize: 32,
                                     color: Theme.of(context)
                                         .colorScheme
-                                        .onSurface
-                                        .withOpacity(0.6),
+                                        .onSurface,
                                   ),
                                 );
                               },

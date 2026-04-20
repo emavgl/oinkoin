@@ -795,13 +795,11 @@ class EditRecordPageState extends State<EditRecordPage> {
                                 : _textEditingController.text,
                             integerStyle: TextStyle(
                               fontSize: 32.0,
-                              fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                             decimalsStyle: TextStyle(
-                              fontSize: 22.0,
-                              fontWeight: FontWeight.w300,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              fontSize: 32.0,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
