@@ -362,7 +362,6 @@ Future<List<Record?>> getRecordsByHomepageTimeInterval(
       return await getAllRecords(database);
     case HomepageTimeInterval.CurrentWeek:
       return await getRecordsByInterval(
-          database, getStartOfWeek(_now), getEndOfWeek(_now)
-      );
+          database, getStartOfWeek(_now), getEndOfWeek(_now));
   }
 }
