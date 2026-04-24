@@ -29,6 +29,7 @@ class PreferencesOptions {
     "Français": "fr",
     "hrvatski (Hrvatska)": "hr",
     "Italiano": "it",
+    "日本語": "ja",
     "Ελληνικά": "el",
     "ଓଡ଼ିଆ (ଭାରତ)": "or-IN",
     "polski (Polska)": "pl",
