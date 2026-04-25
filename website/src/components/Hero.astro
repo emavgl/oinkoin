@@ -74,8 +74,8 @@
 </style>
 
 <script>
-  const typedTextElement = document.getElementById('typed-text');
-  const cursorElement = document.getElementById('cursor');
+  const typedTextElement = document.getElementById('typed-text') as HTMLElement;
+  const cursorElement = document.getElementById('cursor') as HTMLElement;
 
   const phrases = ['Open source', 'Privacy oriented', 'Simple'];
   let phraseIndex = 0;
@@ -98,7 +98,6 @@
 
       if (charIndex > currentPhrase.length) {
         if (phraseIndex === phrases.length - 1) {
-          // Last phrase - stop typing and hide cursor
           cursorElement.style.display = 'none';
           return;
         }
@@ -119,7 +118,6 @@
     }
   }
 
-  // Start typing animation when page loads
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(type, 500);
   });

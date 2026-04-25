@@ -10,8 +10,6 @@ import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-
-import '../services/backup-service.dart';
 import '../services/platform-file-service.dart';
 import '../services/service-config.dart';
 import 'clickable-customization-item.dart';

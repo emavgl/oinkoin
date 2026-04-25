@@ -8,32 +8,45 @@ import '../backup-retention-period.dart';
 import 'homepage-time-interval.dart';
 
 class PreferencesDefaultValues {
-
   static final defaultValues = <String, dynamic>{
     PreferencesKeys.themeColor: 0, // Default theme color index
     PreferencesKeys.themeMode: 0, // Default theme mode index
     PreferencesKeys.languageLocale: "system",
     PreferencesKeys.firstDayOfWeek: 0, // Default to system
     PreferencesKeys.dateFormat: "system",
-    PreferencesKeys.decimalSeparator: getLocaleDecimalSeparator, // Default locale
-    PreferencesKeys.groupSeparator: getLocaleGroupingSeparator, // Default locale
+    PreferencesKeys.decimalSeparator:
+        getLocaleDecimalSeparator, // Default locale
+    PreferencesKeys.groupSeparator:
+        getLocaleGroupingSeparator, // Default locale
     PreferencesKeys.numberDecimalDigits: 2, // Default to 2 decimal places
     PreferencesKeys.amountInputAutoDecimalShift: false,
-    PreferencesKeys.overwriteDotValueWithComma: getOverwriteDotValueWithCommaDefaultValue,
-    PreferencesKeys.overwriteCommaValueWithDot: getOverwriteCommaValueWithDotDefaultValue,
+    PreferencesKeys.currencySymbolPosition: 0, // Default (follows locale)
+    PreferencesKeys.currencySymbolSpacing: 0, // Default to with space
+    PreferencesKeys.overwriteDotValueWithComma:
+        getOverwriteDotValueWithCommaDefaultValue,
+    PreferencesKeys.overwriteCommaValueWithDot:
+        getOverwriteCommaValueWithDotDefaultValue,
     PreferencesKeys.enableAutomaticBackup: false, // Default to disabled
     PreferencesKeys.enableEncryptedBackup: false,
     PreferencesKeys.enableVersionAndDateInBackupName: true,
-    PreferencesKeys.backupRetentionIntervalIndex: BackupRetentionPeriod.ALWAYS.index, // Default retention period index
+    PreferencesKeys.backupRetentionIntervalIndex:
+        BackupRetentionPeriod.ALWAYS.index, // Default retention period index
     PreferencesKeys.backupPassword: '', // Default to empty password
     PreferencesKeys.enableAppLock: false, // Default to disabled
+    PreferencesKeys.restoreAmountOnDelete:
+        true, // Default to restoring the amount
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
-    PreferencesKeys.amountInputKeyboardType: 0, // Default to phone keyboard (with math symbols)
-    PreferencesKeys.homepageTimeInterval: HomepageTimeInterval.CurrentMonth.index, // Default interval (e.g., current month)
-    PreferencesKeys.homepageRecordsMonthStartDay: 1, // Default start day (e.g., 1st day of the month)
-    PreferencesKeys.homepageOverviewWidgetTimeInterval: OverviewTimeInterval.DisplayedRecords.index, // Default interval (e.g., current month)
+    PreferencesKeys.amountInputKeyboardType:
+        0, // Default to phone keyboard (with math symbols)
+    PreferencesKeys.homepageTimeInterval: HomepageTimeInterval
+        .CurrentMonth.index, // Default interval (e.g., current month)
+    PreferencesKeys.homepageRecordsMonthStartDay:
+        1, // Default start day (e.g., 1st day of the month)
+    PreferencesKeys.homepageOverviewWidgetTimeInterval: OverviewTimeInterval
+        .DisplayedRecords.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordNotesVisible: 0,
     PreferencesKeys.visualiseTagsInMainPage: true, // Default to enabled
+    PreferencesKeys.showWalletInRecordList: true, // Default to enabled
     PreferencesKeys.showFutureRecords: true, // Default to enabled
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4
@@ -46,7 +59,7 @@ class PreferencesDefaultValues {
     }
     String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
     NumberFormat currencyLocaleNumberFormat =
-    new NumberFormat.currency(locale: existingCurrencyLocale);
+        new NumberFormat.currency(locale: existingCurrencyLocale);
     return currencyLocaleNumberFormat.symbols.GROUP_SEP;
   }
 
@@ -57,7 +70,7 @@ class PreferencesDefaultValues {
     }
     String existingCurrencyLocale = ServiceConfig.currencyLocale.toString();
     NumberFormat currencyLocaleNumberFormat =
-    new NumberFormat.currency(locale: existingCurrencyLocale);
+        new NumberFormat.currency(locale: existingCurrencyLocale);
     return currencyLocaleNumberFormat.symbols.DECIMAL_SEP;
   }
 
@@ -68,5 +81,4 @@ class PreferencesDefaultValues {
   static bool getOverwriteCommaValueWithDotDefaultValue() {
     return getDecimalSeparator() == ".";
   }
-
 }

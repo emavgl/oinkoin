@@ -160,6 +160,87 @@ class PremiumSplashScreen extends StatelessWidget {
                           ],
                         )),
                       ],
+                    ),
+                    new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                            child: Row(
+                          children: <Widget>[
+                            Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.amber,
+                                )),
+                            SizedBox(
+                                width:
+                                    8), // Add some space between the circle and text
+                            Expanded(
+                              // Wrap the text widget with Flexible
+                              child: Text(
+                                "Support more profiles".i18n,
+                                style: _biggerFont,
+                              ),
+                            ),
+                          ],
+                        )),
+                      ],
+                    ),
+                    new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                            child: Row(
+                          children: <Widget>[
+                            Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.amber,
+                                )),
+                            SizedBox(
+                                width:
+                                    8), // Add some space between the circle and text
+                            Expanded(
+                              // Wrap the text widget with Flexible
+                              child: Text(
+                                "Create wallets".i18n,
+                                style: _biggerFont,
+                              ),
+                            ),
+                          ],
+                        )),
+                      ],
+                    ),
+                    new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                            child: Row(
+                          children: <Widget>[
+                            Container(
+                                height: 10,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.amber,
+                                )),
+                            SizedBox(
+                                width:
+                                    8), // Add some space between the circle and text
+                            Expanded(
+                              // Wrap the text widget with Flexible
+                              child: Text(
+                                "Manage multiple currencies".i18n,
+                                style: _biggerFont,
+                              ),
+                            ),
+                          ],
+                        )),
+                      ],
                     )
                   ],
                 )),

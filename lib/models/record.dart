@@ -17,6 +17,10 @@ class Record extends Model {
   String? timeZoneName;
 
   String? recurrencePatternId;
+  int? walletId;
+  int? transferWalletId;
+  double? transferValue;
+  int? profileId;
   int aggregatedValues =
       1; // internal variables - used to identified an aggregated records (statistics)
 
@@ -32,6 +36,10 @@ class Record extends Model {
     this.description,
     this.recurrencePatternId,
     this.timeZoneName,
+    this.walletId,
+    this.transferWalletId,
+    this.transferValue,
+    this.profileId,
     Set<String>? tags,
     this.isFutureRecord = false,
   }) {
@@ -63,6 +71,10 @@ class Record extends Model {
       id: map['id'],
       description: map['description'],
       recurrencePatternId: map['recurrence_id'],
+      walletId: map['wallet_id'] as int?,
+      transferWalletId: map['transfer_wallet_id'] as int?,
+      transferValue: (map['transfer_value'] as num?)?.toDouble(),
+      profileId: map['profile_id'] as int?,
       tags:
           map['tags'] != null ? (map['tags'] as String).split(',').toSet() : {},
     );
@@ -80,9 +92,15 @@ class Record extends Model {
       'category_name': category?.name,
       'category_type': category?.categoryType?.index,
       'description': description,
-      'recurrence_id': recurrencePatternId
+      'recurrence_id': recurrencePatternId,
+      'wallet_id': walletId,
+      'transfer_wallet_id': transferWalletId,
+      'transfer_value': transferValue,
+      'profile_id': profileId,
     };
   }
+
+  bool get isTransfer => transferWalletId != null;
 
   Map<String, dynamic> toCsvMap() {
     return {
@@ -93,7 +111,9 @@ class Record extends Model {
       'category_type':
           category?.categoryType?.index == 1 ? "Income" : "Expense",
       'description': description,
-      'tags': tags.join(":")
+      'tags': tags.join(":"),
+      'transfer_wallet_id': transferWalletId,
+      'transfer_value': transferValue,
     };
   }
 
@@ -101,9 +121,7 @@ class Record extends Model {
     return createTzDateTime(utcDateTime, timeZoneName!);
   }
 
-  tz.TZDateTime get dateTime {
-    return createTzDateTime(utcDateTime, timeZoneName!);
-  }
+  tz.TZDateTime get dateTime => localDateTime;
 
   /// YYYYMMDD string for grouping/sorting
   String get date {

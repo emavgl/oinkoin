@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:reorderable_grid/reorderable_grid.dart';
@@ -12,10 +13,14 @@ class CategoriesGrid extends StatefulWidget {
   final bool enableManualSorting;
   final Function(List<Category?>) onChangeOrder;
 
+  /// When provided, pre-selects this wallet in the new-record form.
+  final Wallet? preselectedWallet;
+
   CategoriesGrid(this.categories,
       {this.goToEditMovementPage,
       required this.enableManualSorting,
-      required this.onChangeOrder});
+      required this.onChangeOrder,
+      this.preselectedWallet});
 
   @override
   CategoriesGridState createState() => CategoriesGridState();
@@ -65,8 +70,10 @@ class CategoriesGridState extends State<CategoriesGrid> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      EditRecordPage(passedCategory: category),
+                  builder: (context) => EditRecordPage(
+                    passedCategory: category,
+                    preselectedWallet: widget.preselectedWallet,
+                  ),
                 ),
               );
             } else {

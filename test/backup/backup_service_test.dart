@@ -7,6 +7,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
@@ -14,6 +15,8 @@ import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/test.dart' as testlib;
 
 import './backup_service_test.mocks.dart';
@@ -84,9 +87,16 @@ void main() {
         .thenAnswer((_) async => recurrentPatterns);
     when(mockDatabase.getAllRecordTagAssociations())
         .thenAnswer((_) async => recordTagAssociations);
+    when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
+    when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
+    when(mockDatabase.getDefaultWallet()).thenAnswer((_) async => null);
+    when(mockDatabase.getAllProfiles()).thenAnswer((_) async => []);
+    when(mockDatabase.getDefaultProfile()).thenAnswer((_) async => null);
+    when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
 
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
     when(mockDatabase.addRecord(any)).thenAnswer((_) async => 0);
+    when(mockDatabase.addRecordsInBatch(any)).thenAnswer((_) async => null);
     when(mockDatabase.addRecurrentRecordPattern(any))
         .thenAnswer((_) async => null);
     when(mockDatabase.getRecurrentRecordPattern(any))
@@ -115,6 +125,36 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel2, (MethodCall methodCall) async {
       return testDir;
+    });
+
+    // Mock SharedPreferences
+    final Map<String, Object> prefStore = {};
+    const MethodChannel prefsChannel =
+        MethodChannel('plugins.flutter.io/shared_preferences');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(prefsChannel, (MethodCall methodCall) async {
+      if (methodCall.method == 'getAll') {
+        return <String, dynamic>{};
+      }
+      if (methodCall.method == 'setString') {
+        final args = methodCall.arguments as Map;
+        prefStore[args['key'] as String] = args['value'] as String;
+        return true;
+      }
+      if (methodCall.method == 'remove') {
+        final args = methodCall.arguments as Map;
+        prefStore.remove(args['key'] as String);
+        return true;
+      }
+      if (methodCall.method == 'getString') {
+        final args = methodCall.arguments as Map;
+        return prefStore[args['key'] as String];
+      }
+      if (methodCall.method == 'clear') {
+        prefStore.clear();
+        return true;
+      }
+      return null;
     });
   });
 
@@ -410,5 +450,171 @@ void main() {
     final result = await BackupService.importDataFromBackupFile(backupFile);
 
     expect(result, isTrue);
+  });
+
+  testlib.test('createJsonBackupFile includes user_currencies when set',
+      () async {
+    final prefs = await SharedPreferences.getInstance();
+    const userCurrenciesJson =
+        '{"mainCurrency":"EUR","currencies":[{"isoCode":"EUR","ratioToMain":1.0},{"isoCode":"USD","ratioToMain":0.92}]}';
+    await prefs.setString(PreferencesKeys.userCurrencies, userCurrenciesJson);
+
+    final backupFile = await BackupService.createJsonBackupFile(
+      directoryPath: testDir.path,
+    );
+
+    expect(await backupFile.exists(), isTrue);
+    final backupContent = await backupFile.readAsString();
+    final backupMap = jsonDecode(backupContent);
+
+    expect(backupMap, contains('user_currencies'));
+    expect(backupMap['user_currencies'], userCurrenciesJson);
+
+    await prefs.remove(PreferencesKeys.userCurrencies);
+  });
+
+  testlib.test('createJsonBackupFile omits user_currencies when not set',
+      () async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(PreferencesKeys.userCurrencies);
+
+    final backupFile = await BackupService.createJsonBackupFile(
+      directoryPath: testDir.path,
+    );
+
+    expect(await backupFile.exists(), isTrue);
+    final backupContent = await backupFile.readAsString();
+    final backupMap = jsonDecode(backupContent);
+
+    expect(backupMap.containsKey('user_currencies'), isFalse);
+  });
+
+  testlib.test(
+      'importDataFromBackupFile restores user_currencies to SharedPreferences',
+      () async {
+    const userCurrenciesJson =
+        '{"mainCurrency":"USD","currencies":[{"isoCode":"USD","ratioToMain":1.0},{"isoCode":"EUR","ratioToMain":1.08}]}';
+
+    final backupMap = {
+      'categories': categories.map((c) => c!.toMap()).toList(),
+      'records': records.map((r) => r!.toMap()).toList(),
+      'recurrent_record_patterns':
+          recurrentPatterns.map((rp) => rp.toMap()).toList(),
+      'record_tag_associations':
+          recordTagAssociations.map((a) => a.toMap()).toList(),
+      'wallets': [],
+      'user_currencies': userCurrenciesJson,
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'package_name': 'com.example.test',
+      'version': '1.0.0',
+      'database_version': '1',
+    };
+
+    final backupFile = File('${testDir.path}/backup_with_currencies.json');
+    await backupFile.writeAsString(jsonEncode(backupMap));
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(PreferencesKeys.userCurrencies);
+
+    final result = await BackupService.importDataFromBackupFile(backupFile);
+
+    expect(result, isTrue);
+    expect(prefs.getString(PreferencesKeys.userCurrencies), userCurrenciesJson);
+
+    await prefs.remove(PreferencesKeys.userCurrencies);
+  });
+
+  testlib.test(
+      'importDataFromBackupFile handles missing user_currencies gracefully',
+      () async {
+    final backupMap = {
+      'categories': categories.map((c) => c!.toMap()).toList(),
+      'records': records.map((r) => r!.toMap()).toList(),
+      'recurrent_record_patterns':
+          recurrentPatterns.map((rp) => rp.toMap()).toList(),
+      'record_tag_associations':
+          recordTagAssociations.map((a) => a.toMap()).toList(),
+      'wallets': [],
+      // No user_currencies key — simulating an old backup
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'package_name': 'com.example.test',
+      'version': '1.0.0',
+      'database_version': '1',
+    };
+
+    final backupFile = File('${testDir.path}/backup_no_currencies.json');
+    await backupFile.writeAsString(jsonEncode(backupMap));
+
+    final result = await BackupService.importDataFromBackupFile(backupFile);
+
+    expect(result, isTrue);
+  });
+
+  testlib.test('user_currencies round-trip: backup and restore preserves data',
+      () async {
+    const userCurrenciesJson =
+        '{"mainCurrency":"GBP","currencies":[{"isoCode":"GBP","ratioToMain":1.0},{"isoCode":"JPY","ratioToMain":190.5}]}';
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(PreferencesKeys.userCurrencies, userCurrenciesJson);
+
+    // Create backup
+    final backupFile = await BackupService.createJsonBackupFile(
+      directoryPath: testDir.path,
+    );
+
+    // Clear prefs to simulate fresh install
+    await prefs.remove(PreferencesKeys.userCurrencies);
+    expect(prefs.getString(PreferencesKeys.userCurrencies), isNull);
+
+    // Restore
+    final result = await BackupService.importDataFromBackupFile(backupFile);
+    expect(result, isTrue);
+    expect(prefs.getString(PreferencesKeys.userCurrencies), userCurrenciesJson);
+
+    await prefs.remove(PreferencesKeys.userCurrencies);
+  });
+
+  testlib.test(
+      'importDataFromBackupFile loads custom currencies into CurrencyInfo before restoring wallets',
+      () async {
+    const userCurrenciesJson =
+        '{"mainCurrency":"USD","currencies":[{"isoCode":"USD","ratioToMain":1.0},{"isoCode":"MYC","ratioToMain":2.5,"customSymbol":"M","customName":"My Currency"}]}';
+
+    final backupMap = {
+      'categories': categories.map((c) => c!.toMap()).toList(),
+      'records': records.map((r) => r!.toMap()).toList(),
+      'recurrent_record_patterns':
+          recurrentPatterns.map((rp) => rp.toMap()).toList(),
+      'record_tag_associations':
+          recordTagAssociations.map((a) => a.toMap()).toList(),
+      'wallets': [],
+      'user_currencies': userCurrenciesJson,
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'package_name': 'com.example.test',
+      'version': '1.0.0',
+      'database_version': '1',
+    };
+
+    final backupFile = File('${testDir.path}/backup_with_custom_currency.json');
+    await backupFile.writeAsString(jsonEncode(backupMap));
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(PreferencesKeys.userCurrencies);
+
+    final result = await BackupService.importDataFromBackupFile(backupFile);
+
+    expect(result, isTrue);
+
+    // Verify custom currency is loaded into CurrencyInfo
+    final customCurrency = CurrencyInfo.byCode('MYC');
+    expect(customCurrency, isNotNull);
+    expect(customCurrency?.name, equals('My Currency'));
+    expect(customCurrency?.symbol, equals('M'));
+
+    // Verify regular currency still works
+    final usd = CurrencyInfo.byCode('USD');
+    expect(usd, isNotNull);
+
+    await prefs.remove(PreferencesKeys.userCurrencies);
   });
 }

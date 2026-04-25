@@ -53,13 +53,23 @@ const screenshots = [
 </div>
 
 <script>
-  window.openModal = function(src, alt) {
-    document.getElementById('modal-img').src = src;
-    document.getElementById('modal-img').alt = alt;
-    document.getElementById('modal').classList.remove('hidden');
+  declare global {
+    interface Window {
+      openModal(src: string, alt: string): void;
+      closeModal(): void;
+    }
+  }
+
+  window.openModal = function(src: string, alt: string): void {
+    const imgEl = document.getElementById('modal-img') as HTMLImageElement;
+    const modalEl = document.getElementById('modal') as HTMLElement;
+    imgEl.src = src;
+    imgEl.alt = alt;
+    modalEl.classList.remove('hidden');
   };
 
-  window.closeModal = function() {
-    document.getElementById('modal').classList.add('hidden');
+  window.closeModal = function(): void {
+    const modalEl = document.getElementById('modal') as HTMLElement;
+    modalEl.classList.add('hidden');
   };
 </script>

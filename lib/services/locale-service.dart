@@ -139,6 +139,11 @@ class LocaleService {
     checkForSettingInconsistency(toSet);
   }
 
+  static void reloadCurrencyLocale() {
+    final currencyLocale = resolveCurrencyLocale();
+    setCurrencyLocale(currencyLocale);
+  }
+
   static void checkForSettingInconsistency(Locale toSet) {
     // Custom Group Separator Inconsistency
     bool userDefinedGroupingSeparator = ServiceConfig.sharedPreferences!

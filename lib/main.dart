@@ -11,6 +11,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/services/logger.dart';
+import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
 import 'package:piggybank/style.dart';
@@ -50,6 +51,7 @@ main() async {
 
     ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
     await MyI18n.loadTranslations();
+    await ProfileService.instance.initialize();
 
     // Display mode is only available on Android
     if (Platform.isAndroid) {
@@ -86,14 +88,12 @@ main() async {
   }
 }
 
-class MyApp extends StatelessWidget {
-  // Declare languageLocale as a final instance variable
+class MyApp extends StatefulWidget {
   final Locale languageLocale;
   final ThemeData lightTheme;
   final ThemeData darkTheme;
   final ThemeMode themeMode;
 
-  // Constructor to initialize the instance variables
   MyApp({
     required this.languageLocale,
     required this.lightTheme,
@@ -101,9 +101,69 @@ class MyApp extends StatelessWidget {
     required this.themeMode,
   });
 
+  /// Reloads the theme from SharedPreferences without restarting the app.
+  static Future<void> reloadTheme() async {
+    MaterialThemeInstance.lightTheme = null;
+    MaterialThemeInstance.darkTheme = null;
+    final light = await MaterialThemeInstance.getLightTheme();
+    final dark = await MaterialThemeInstance.getDarkTheme();
+    final mode = await MaterialThemeInstance.getThemeMode();
+    _MyAppState._instance?._applyNewTheme(light, dark, mode);
+  }
+
+  /// Reloads the app locale from SharedPreferences without restarting the app.
+  static void reloadLocale() {
+    final locale = LocaleService.resolveLanguageLocale();
+    _MyAppState._instance?._applyNewLocale(locale);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  static _MyAppState? _instance;
+
+  late ThemeData _lightTheme;
+  late ThemeData _darkTheme;
+  late ThemeMode _themeMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _instance = this;
+    _lightTheme = widget.lightTheme;
+    _darkTheme = widget.darkTheme;
+    _themeMode = widget.themeMode;
+  }
+
+  @override
+  void dispose() {
+    if (_instance == this) _instance = null;
+    super.dispose();
+  }
+
+  void _applyNewTheme(ThemeData light, ThemeData dark, ThemeMode mode) {
+    setState(() {
+      _lightTheme = light;
+      _darkTheme = dark;
+      _themeMode = mode;
+    });
+  }
+
+  void _applyNewLocale(Locale locale) {
+    // I18n.define is the only context-free API for setting the locale at runtime.
+    // I18n.of(context) cannot be used here because _MyAppState's context is the
+    // parent of the I18n widget, not a descendant.
+    // ignore: invalid_use_of_visible_for_testing_member
+    I18n.define(locale);
+    setState(() {}); // triggers rebuild so all .i18n strings re-evaluate
+  }
+
+  @override
   Widget build(BuildContext context) {
     return I18n(
-      initialLocale: languageLocale,
+      initialLocale: widget.languageLocale,
       supportedLocales: LocaleService.supportedLocales,
       localizationsDelegates: [
         DefaultMaterialLocalizations.delegate,
@@ -113,7 +173,9 @@ class MyApp extends StatelessWidget {
         DefaultCupertinoLocalizations.delegate
       ],
       child: AppCore(
-          lightTheme: lightTheme, darkTheme: darkTheme, themeMode: themeMode),
+          lightTheme: _lightTheme,
+          darkTheme: _darkTheme,
+          themeMode: _themeMode),
     );
   }
 }

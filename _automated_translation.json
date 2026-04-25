@@ -1,0 +1,3932 @@
+{
+  "_meta": {
+    "purpose": "Complete context tracking for all translatable strings",
+    "format": "Each key has: context (where/how it's used), file (where in code), page (UI location), component (UI element), meaning (what it means to users), notes (translation notes), status",
+    "status_values": {
+      "pending": "Context not yet verified - needs research",
+      "verified": "Context researched and documented",
+      "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
+    },
+    "last_updated": "2026-04-25",
+    "total_keys": 388
+  },
+  "keys": {
+    " and all its records, wallets and recurrent patterns?": {
+      "key": " and all its records, wallets and recurrent patterns?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "%s Wallets": {
+      "key": "%s Wallets",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "%s selected": {
+      "key": "%s selected",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "1 ${_selectedCurrency ?? '[currency]'} =": {
+      "key": "1 ${_selectedCurrency ?? '[currency]'} =",
+      "context": "Currency conversion ratio input label",
+      "file": "lib/settings/add-currency-page.dart:201",
+      "page": "Settings > Add Custom Currency",
+      "component": "TextFormField label",
+      "meaning": "Input field for entering conversion ratio (e.g., '1 EUR = [amount] USD')",
+      "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "Add Currency": {
+      "key": "Add Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add Custom Currency": {
+      "key": "Add Custom Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add a new category": {
+      "key": "Add a new category",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add a new record": {
+      "key": "Add a new record",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add a note": {
+      "key": "Add a note",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add currency": {
+      "key": "Add currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add recurrent expenses": {
+      "key": "Add recurrent expenses",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add selected tags (%s)": {
+      "key": "Add selected tags (%s)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add space between symbol and amount": {
+      "key": "Add space between symbol and amount",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add tags": {
+      "key": "Add tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add time": {
+      "key": "Add time",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add wallet": {
+      "key": "Add wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Add your missing currency": {
+      "key": "Add your missing currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Additional Settings": {
+      "key": "Additional Settings",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "All": {
+      "key": "All",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "All accounts": {
+      "key": "All accounts",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "All categories": {
+      "key": "All categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "All records": {
+      "key": "All records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "All tags": {
+      "key": "All tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "All the data has been deleted": {
+      "key": "All the data has been deleted",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Already predefined for app start": {
+      "key": "Already predefined for app start",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Already predefined for new records": {
+      "key": "Already predefined for new records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Amount": {
+      "key": "Amount",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Amount (Ascending)": {
+      "key": "Amount (Ascending)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Amount (Descending)": {
+      "key": "Amount (Descending)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Amount input keyboard type": {
+      "key": "Amount input keyboard type",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "App protected by PIN or biometric check": {
+      "key": "App protected by PIN or biometric check",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Appearance": {
+      "key": "Appearance",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Apply": {
+      "key": "Apply",
+      "context": "Action button to apply changes",
+      "file": "lib/wallets/wallets-tab-page.dart, lib/categories/categories-tab-page-*.dart",
+      "page": "Sort dialogs (Wallets, Categories)",
+      "component": "Button",
+      "meaning": "Confirm and apply sorting preference change",
+      "notes": "User clicks Apply to save their sort choice, not apply immediately",
+      "status": "verified"
+    },
+    "Apply Filters": {
+      "key": "Apply Filters",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Archive": {
+      "key": "Archive",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Archived": {
+      "key": "Archived",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Archived Categories": {
+      "key": "Archived Categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Archiving the category you will NOT remove the associated records": {
+      "key": "Archiving the category you will NOT remove the associated records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Are you sure you want to delete these %s tags?": {
+      "key": "Are you sure you want to delete these %s tags?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Are you sure you want to delete this tag?": {
+      "key": "Are you sure you want to delete this tag?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Assign %s to all wallets that have no currency set?": {
+      "key": "Assign %s to all wallets that have no currency set?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Assign Currency": {
+      "key": "Assign Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Authenticate to access the app": {
+      "key": "Authenticate to access the app",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Auto decimal input": {
+      "key": "Auto decimal input",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Automatic backup retention": {
+      "key": "Automatic backup retention",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Available Tags": {
+      "key": "Available Tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Available on Oinkoin Pro": {
+      "key": "Available on Oinkoin Pro",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Average": {
+      "key": "Average",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Average of %s": {
+      "key": "Average of %s",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Average of %s a day": {
+      "key": "Average of %s a day",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Average of %s a month": {
+      "key": "Average of %s a month",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Average of %s a year": {
+      "key": "Average of %s a year",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Backup": {
+      "key": "Backup",
+      "context": "Settings menu item for backup functionality",
+      "file": "lib/settings/settings-page.dart:267",
+      "page": "Settings",
+      "component": "Menu item title",
+      "meaning": "Access backup and restore features",
+      "notes": "Menu option for data backup/restore",
+      "status": "verified"
+    },
+    "Backup encryption": {
+      "key": "Backup encryption",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Backup/Restore the application data": {
+      "key": "Backup/Restore the application data",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Balance": {
+      "key": "Balance",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Can't decrypt without a password": {
+      "key": "Can't decrypt without a password",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Cancel": {
+      "key": "Cancel",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Cannot remove %s: there are wallets using this currency.": {
+      "key": "Cannot remove %s: there are wallets using this currency.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Cannot remove the main currency. Change it first.": {
+      "key": "Cannot remove the main currency. Change it first.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Categories": {
+      "key": "Categories",
+      "context": "Navigation tab and page label",
+      "file": "lib/shell.dart:256, lib/categories/categories-tab-page-edit.dart:31",
+      "page": "Multiple (Navigation, Categories page)",
+      "component": "Tab label, page title",
+      "meaning": "Expense/income categories list",
+      "notes": "Main navigation tab and page title",
+      "status": "verified"
+    },
+    "Categories vs Tags": {
+      "key": "Categories vs Tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Category name": {
+      "key": "Category name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Change": {
+      "key": "Change",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Change Currency": {
+      "key": "Change Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Changing the currency does not convert existing record amounts. Are you sure?": {
+      "key": "Changing the currency does not convert existing record amounts. Are you sure?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Choose a color": {
+      "key": "Choose a color",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Choose the main currency": {
+      "key": "Choose the main currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Clear All Filters": {
+      "key": "Clear All Filters",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": {
+      "key": "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Code (e.g., MYC)": {
+      "key": "Code (e.g., MYC)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Color": {
+      "key": "Color",
+      "context": "Color picker section label",
+      "file": "lib/components/icon_color_picker_section.dart:442",
+      "page": "Customization",
+      "component": "Expansion tile title",
+      "meaning": "Select color for category/wallet/tag",
+      "notes": "Label for color selection UI",
+      "status": "verified"
+    },
+    "Colors": {
+      "key": "Colors",
+      "context": "Settings menu item for color customization",
+      "file": "lib/settings/customization-page.dart:340",
+      "page": "Settings > Customization",
+      "component": "Menu item title",
+      "meaning": "Manage custom colors for categories/wallets",
+      "notes": "Customization settings section",
+      "status": "verified"
+    },
+    "Conversion Rates": {
+      "key": "Conversion Rates",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Conversion Ratio": {
+      "key": "Conversion Ratio",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Create backup and change settings": {
+      "key": "Create backup and change settings",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Critical action": {
+      "key": "Critical action",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Currencies": {
+      "key": "Currencies",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Currency": {
+      "key": "Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Currency Breakdown": {
+      "key": "Currency Breakdown",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Currency Code": {
+      "key": "Currency Code",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Currency Name": {
+      "key": "Currency Name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Currency symbol position": {
+      "key": "Currency symbol position",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Currency symbol spacing": {
+      "key": "Currency symbol spacing",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Custom order": {
+      "key": "Custom order",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Custom starting day of the month": {
+      "key": "Custom starting day of the month",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Customization": {
+      "key": "Customization",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "DOWNLOAD IT NOW!": {
+      "key": "DOWNLOAD IT NOW!",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Dark": {
+      "key": "Dark",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Data is deleted": {
+      "key": "Data is deleted",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Date Format": {
+      "key": "Date Format",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Date Range": {
+      "key": "Date Range",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Day": {
+      "key": "Day",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Decimal digits": {
+      "key": "Decimal digits",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Decimal separator": {
+      "key": "Decimal separator",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Default": {
+      "key": "Default",
+      "context": "Default option for currency symbol position",
+      "file": "lib/settings/constants/preferences-options.dart:135",
+      "page": "Settings > Currency Formatting",
+      "component": "currencySymbolPosition dropdown",
+      "meaning": "Use default/standard position for currency symbol in this locale",
+      "notes": "Localized appearance depends on NumberFormat defaults",
+      "status": "verified"
+    },
+    "Default (System)": {
+      "key": "Default (System)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Default Currency": {
+      "key": "Default Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Default Profile": {
+      "key": "Default Profile",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Default Wallet": {
+      "key": "Default Wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Define the records to show in the app homepage": {
+      "key": "Define the records to show in the app homepage",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Define the starting day of the month for records that show in the app homepage": {
+      "key": "Define the starting day of the month for records that show in the app homepage",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Define what to summarize": {
+      "key": "Define what to summarize",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Delete": {
+      "key": "Delete",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Delete Profile": {
+      "key": "Delete Profile",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Delete Wallet": {
+      "key": "Delete Wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Delete all records": {
+      "key": "Delete all records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Delete all the data": {
+      "key": "Delete all the data",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Delete currency": {
+      "key": "Delete currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Delete tags": {
+      "key": "Delete tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Deleting the category you will remove all the associated records": {
+      "key": "Deleting the category you will remove all the associated records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Destination folder": {
+      "key": "Destination folder",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Displayed records": {
+      "key": "Displayed records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to archive the category?": {
+      "key": "Do you really want to archive the category?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to archive this wallet?": {
+      "key": "Do you really want to archive this wallet?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to delete all the data?": {
+      "key": "Do you really want to delete all the data?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to delete the category?": {
+      "key": "Do you really want to delete the category?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to delete this record?": {
+      "key": "Do you really want to delete this record?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to delete this recurrent record?": {
+      "key": "Do you really want to delete this recurrent record?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to unarchive the category?": {
+      "key": "Do you really want to unarchive the category?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Do you really want to unarchive this wallet?": {
+      "key": "Do you really want to unarchive this wallet?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Don't show": {
+      "key": "Don't show",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit": {
+      "key": "Edit",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit Custom Currency": {
+      "key": "Edit Custom Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit Profile": {
+      "key": "Edit Profile",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit Tag": {
+      "key": "Edit Tag",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit Wallet": {
+      "key": "Edit Wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit category": {
+      "key": "Edit category",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit record": {
+      "key": "Edit record",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Edit tag": {
+      "key": "Edit tag",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enable automatic backup": {
+      "key": "Enable automatic backup",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enable if you want to have encrypted backups": {
+      "key": "Enable if you want to have encrypted backups",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enable record's name suggestions": {
+      "key": "Enable record's name suggestions",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enable to automatically backup at every access": {
+      "key": "Enable to automatically backup at every access",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "End Date (optional)": {
+      "key": "End Date (optional)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enter a positive number": {
+      "key": "Enter a positive number",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enter an encryption password": {
+      "key": "Enter an encryption password",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enter decryption password": {
+      "key": "Enter decryption password",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enter how much 1 unit of each currency equals in %s": {
+      "key": "Enter how much 1 unit of each currency equals in %s",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Enter your password here": {
+      "key": "Enter your password here",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every day": {
+      "key": "Every day",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every four months": {
+      "key": "Every four months",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every four weeks": {
+      "key": "Every four weeks",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every month": {
+      "key": "Every month",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every three months": {
+      "key": "Every three months",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every two weeks": {
+      "key": "Every two weeks",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every week": {
+      "key": "Every week",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Every year": {
+      "key": "Every year",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Expense Categories": {
+      "key": "Expense Categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Expenses": {
+      "key": "Expenses",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Export Backup": {
+      "key": "Export Backup",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Export CSV": {
+      "key": "Export CSV",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Export Database": {
+      "key": "Export Database",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Feedback": {
+      "key": "Feedback",
+      "context": "Settings menu item for feedback",
+      "file": "lib/settings/settings-page.dart:327",
+      "page": "Settings",
+      "component": "Menu item title",
+      "meaning": "Send feedback to app developers",
+      "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "File will have a unique name": {
+      "key": "File will have a unique name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Filter Logic": {
+      "key": "Filter Logic",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Filter by Categories": {
+      "key": "Filter by Categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Filter by Tags": {
+      "key": "Filter by Tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Filter records": {
+      "key": "Filter records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Filter records by year or custom date range": {
+      "key": "Filter records by year or custom date range",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Filters": {
+      "key": "Filters",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "First Day of Week": {
+      "key": "First Day of Week",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Food": {
+      "key": "Food",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Full category icon pack and color picker": {
+      "key": "Full category icon pack and color picker",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Generate and display upcoming recurrent records (they will be included in statistics)": {
+      "key": "Generate and display upcoming recurrent records (they will be included in statistics)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Got problems? Check out the logs": {
+      "key": "Got problems? Check out the logs",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Grouping separator": {
+      "key": "Grouping separator",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Hide cumulative balance line": {
+      "key": "Hide cumulative balance line",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Home": {
+      "key": "Home",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Homepage settings": {
+      "key": "Homepage settings",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Homepage time interval": {
+      "key": "Homepage time interval",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "House": {
+      "key": "House",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "How long do you want to keep backups": {
+      "key": "How long do you want to keep backups",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "How many categories/tags to be displayed": {
+      "key": "How many categories/tags to be displayed",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Icon": {
+      "key": "Icon",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "If enabled, you get suggestions when typing the record's name": {
+      "key": "If enabled, you get suggestions when typing the record's name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Include version and date in the name": {
+      "key": "Include version and date in the name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Income": {
+      "key": "Income",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Income Categories": {
+      "key": "Income Categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Info": {
+      "key": "Info",
+      "context": "Settings menu item for app information",
+      "file": "lib/settings/settings-page.dart:316",
+      "page": "Settings",
+      "component": "Menu item title",
+      "meaning": "App information and details",
+      "notes": "Shows app version and info",
+      "status": "verified"
+    },
+    "It appears the file has been encrypted. Enter the password:": {
+      "key": "It appears the file has been encrypted. Enter the password:",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Keep records in default wallet": {
+      "key": "Keep records in default wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Language": {
+      "key": "Language",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Last Used": {
+      "key": "Last Used",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Last backup: ": {
+      "key": "Last backup: ",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Left": {
+      "key": "Left",
+      "context": "Currency symbol position option",
+      "file": "lib/settings/constants/preferences-options.dart:136",
+      "page": "Settings > Currency Formatting",
+      "component": "currencySymbolPosition dropdown",
+      "meaning": "Position currency symbol to the LEFT of amount (e.g., $100)",
+      "notes": "Positional context, pair with 'Default' and 'Right'",
+      "status": "verified"
+    },
+    "Light": {
+      "key": "Light",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Limit records by categories": {
+      "key": "Limit records by categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Load": {
+      "key": "Load",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Localization": {
+      "key": "Localization",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Logs": {
+      "key": "Logs",
+      "context": "Settings menu item for logs",
+      "file": "lib/settings/settings-page.dart:342",
+      "page": "Settings",
+      "component": "Menu item title",
+      "meaning": "View application logs",
+      "notes": "Debug/diagnostic logs viewer",
+      "status": "verified"
+    },
+    "Main": {
+      "key": "Main",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Main Currency": {
+      "key": "Main Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Make it default": {
+      "key": "Make it default",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Make sure you have the latest version of the app. If so, the backup file may be corrupted.": {
+      "key": "Make sure you have the latest version of the app. If so, the backup file may be corrupted.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Manage your currencies and conversion rates": {
+      "key": "Manage your currencies and conversion rates",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Manage your existing tags": {
+      "key": "Manage your existing tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Median of %s": {
+      "key": "Median of %s",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Median of %s a day": {
+      "key": "Median of %s a day",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Median of %s a month": {
+      "key": "Median of %s a month",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Median of %s a year": {
+      "key": "Median of %s a year",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Monday": {
+      "key": "Monday",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Month": {
+      "key": "Month",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Monthly": {
+      "key": "Monthly",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Monthly Image": {
+      "key": "Monthly Image",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Most Used": {
+      "key": "Most Used",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Move records to another wallet": {
+      "key": "Move records to another wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Name": {
+      "key": "Name",
+      "context": "Form field label for currency name",
+      "file": "lib/settings/add-custom-currency-page.dart",
+      "page": "Settings > Add Custom Currency",
+      "component": "TextFormField label",
+      "meaning": "Name/label for custom currency",
+      "notes": "Input field for currency display name",
+      "status": "verified"
+    },
+    "Name (Alphabetically)": {
+      "key": "Name (Alphabetically)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Name (e.g., My Currency)": {
+      "key": "Name (e.g., My Currency)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Never delete": {
+      "key": "Never delete",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "New Profile": {
+      "key": "New Profile",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No": {
+      "key": "No",
+      "context": "Dialog negative button",
+      "file": "lib/wallets/edit-wallet-page.dart:306, lib/categories/edit-category-page.dart:169, etc.",
+      "page": "Multiple pages (Wallets, Categories, Records, Settings)",
+      "component": "Confirmation dialog button",
+      "meaning": "User rejection/negative response to confirmation prompt",
+      "notes": "Paired with 'Yes' button. Often kept as-is in target languages.",
+      "status": "verified"
+    },
+    "No Category is set yet.": {
+      "key": "No Category is set yet.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No categories yet.": {
+      "key": "No categories yet.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No conversion rates needed. All your wallets use the same currency.": {
+      "key": "No conversion rates needed. All your wallets use the same currency.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No currencies added yet. Tap + to add one.": {
+      "key": "No currencies added yet. Tap + to add one.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No currency": {
+      "key": "No currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No currency found": {
+      "key": "No currency found",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No entries found": {
+      "key": "No entries found",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No entries to show.": {
+      "key": "No entries to show.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No entries yet.": {
+      "key": "No entries yet.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No recurrent records yet.": {
+      "key": "No recurrent records yet.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No tags applied.": {
+      "key": "No tags applied.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No tags found": {
+      "key": "No tags found",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No transfer": {
+      "key": "No transfer",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "No wallets available": {
+      "key": "No wallets available",
+      "context": "Empty state message",
+      "file": "lib/wallets/wallet-picker-page.dart:126",
+      "page": "Wallet picker",
+      "component": "Center text",
+      "meaning": "There are no wallets the user can select from",
+      "notes": "Appears when wallet list is empty",
+      "status": "verified"
+    },
+    "No wallets yet.": {
+      "key": "No wallets yet.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "None": {
+      "key": "None",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Not a valid format (use for example: %s)": {
+      "key": "Not a valid format (use for example: %s)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Not repeat": {
+      "key": "Not repeat",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Not set": {
+      "key": "Not set",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Number & Formatting": {
+      "key": "Number & Formatting",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Number keyboard": {
+      "key": "Number keyboard",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Number of categories/tags in Pie Chart": {
+      "key": "Number of categories/tags in Pie Chart",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Number of rows to display": {
+      "key": "Number of rows to display",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "OK": {
+      "key": "OK",
+      "context": "Dialog confirmation button",
+      "file": "Multiple locations",
+      "page": "Settings, Dialogs",
+      "component": "Dialog button",
+      "meaning": "Confirm action or close dialog",
+      "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "Oinkoin Pro": {
+      "key": "Oinkoin Pro",
+      "context": "Product/brand name",
+      "file": "Multiple locations",
+      "page": "Multiple",
+      "component": "Text/label",
+      "meaning": "The premium version of Oinkoin app",
+      "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "Once set, you can't see the password": {
+      "key": "Once set, you can't see the password",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Order by": {
+      "key": "Order by",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Original Order": {
+      "key": "Original Order",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Other currencies": {
+      "key": "Other currencies",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Others": {
+      "key": "Others",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Overwrite the key `comma`": {
+      "key": "Overwrite the key `comma`",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Overwrite the key `dot`": {
+      "key": "Overwrite the key `dot`",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Password": {
+      "key": "Password",
+      "context": "Form field label for backup password",
+      "file": "lib/settings/backup-restore-dialogs.dart:30",
+      "page": "Settings > Backup/Restore",
+      "component": "TextFormField label",
+      "meaning": "Password for encrypted backup",
+      "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "Phone keyboard (with math symbols)": {
+      "key": "Phone keyboard (with math symbols)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please enter a currency code": {
+      "key": "Please enter a currency code",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please enter a currency name": {
+      "key": "Please enter a currency name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please enter a profile name": {
+      "key": "Please enter a profile name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please enter a valid conversion ratio.": {
+      "key": "Please enter a valid conversion ratio.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please enter a value": {
+      "key": "Please enter a value",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please enter the category name": {
+      "key": "Please enter the category name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please enter the wallet name": {
+      "key": "Please enter the wallet name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please select a currency.": {
+      "key": "Please select a currency.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Please set a default currency first.": {
+      "key": "Please set a default currency first.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Predefined": {
+      "key": "Predefined",
+      "context": "Wallet/category type indicator",
+      "file": "lib/wallets/wallet-picker-page.dart:179",
+      "page": "Wallet list/picker",
+      "component": "Subtitle/badge text",
+      "meaning": "This wallet/category comes pre-defined with the app",
+      "notes": "Appears as small label under wallet/category name",
+      "status": "verified"
+    },
+    "Privacy policy and credits": {
+      "key": "Privacy policy and credits",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Profile name": {
+      "key": "Profile name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Profiles": {
+      "key": "Profiles",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Protect access to the app": {
+      "key": "Protect access to the app",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Record name": {
+      "key": "Record name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Records": {
+      "key": "Records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Records matching categories OR tags": {
+      "key": "Records matching categories OR tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Records must match categories AND tags": {
+      "key": "Records must match categories AND tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Records of the current month": {
+      "key": "Records of the current month",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Records of the current week": {
+      "key": "Records of the current week",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Records of the current year": {
+      "key": "Records of the current year",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Recurrent Records": {
+      "key": "Recurrent Records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Remove %s from your currencies?": {
+      "key": "Remove %s from your currencies?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Reset to default dates": {
+      "key": "Reset to default dates",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Restore Backup": {
+      "key": "Restore Backup",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Restore all the default configurations": {
+      "key": "Restore all the default configurations",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Restore data from a backup file": {
+      "key": "Restore data from a backup file",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Restore successful": {
+      "key": "Restore successful",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Restore unsuccessful": {
+      "key": "Restore unsuccessful",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Restore wallet amount on record deletion": {
+      "key": "Restore wallet amount on record deletion",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Right": {
+      "key": "Right",
+      "context": "Currency symbol position option",
+      "file": "lib/settings/constants/preferences-options.dart:137",
+      "page": "Settings > Currency Formatting",
+      "component": "currencySymbolPosition dropdown",
+      "meaning": "Position currency symbol to the RIGHT of amount (e.g., 100$)",
+      "notes": "Positional context, pair with 'Default' and 'Left'",
+      "status": "verified"
+    },
+    "Salary": {
+      "key": "Salary",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Saturday": {
+      "key": "Saturday",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Save": {
+      "key": "Save",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Save as default selection": {
+      "key": "Save as default selection",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Scroll for more": {
+      "key": "Scroll for more",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Search currency": {
+      "key": "Search currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Search or add new tag...": {
+      "key": "Search or add new tag...",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Search or create tags": {
+      "key": "Search or create tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Search records...": {
+      "key": "Search records...",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select Currency": {
+      "key": "Select Currency",
+      "context": "Dialog/page title for currency selection",
+      "file": "lib/wallets/currency-picker-page.dart",
+      "page": "Currency selection dialog",
+      "component": "AppBar title",
+      "meaning": "User is selecting a currency",
+      "notes": "Clear action context",
+      "status": "verified"
+    },
+    "Select Wallet": {
+      "key": "Select Wallet",
+      "context": "Dialog/page title for wallet selection",
+      "file": "lib/wallets/wallet-picker-page.dart:121",
+      "page": "Wallet picker dialog",
+      "component": "AppBar title",
+      "meaning": "User is selecting which wallet to perform action on",
+      "notes": "Clear action context",
+      "status": "verified"
+    },
+    "Select a currency": {
+      "key": "Select a currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select all": {
+      "key": "Select all",
+      "context": "Action to select all items",
+      "file": "lib/wallets/wallet-picker-page.dart:132",
+      "page": "Multi-select wallet picker",
+      "component": "ListTile/button text",
+      "meaning": "Toggle to select or deselect all wallets at once",
+      "notes": "Paired with 'Deselect all' - button shows current opposite action",
+      "status": "verified"
+    },
+    "Select the app language": {
+      "key": "Select the app language",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the app theme color": {
+      "key": "Select the app theme color",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the app theme style": {
+      "key": "Select the app theme style",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the category": {
+      "key": "Select the category",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the date format": {
+      "key": "Select the date format",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the decimal separator": {
+      "key": "Select the decimal separator",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the first day of the week": {
+      "key": "Select the first day of the week",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the grouping separator": {
+      "key": "Select the grouping separator",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the keyboard layout for amount input": {
+      "key": "Select the keyboard layout for amount input",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the number of decimal digits": {
+      "key": "Select the number of decimal digits",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the position of the currency symbol": {
+      "key": "Select the position of the currency symbol",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select wallet": {
+      "key": "Select wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Send a feedback": {
+      "key": "Send a feedback",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Send us a feedback": {
+      "key": "Send us a feedback",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Set as predefined for app start": {
+      "key": "Set as predefined for app start",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Set as predefined for new records": {
+      "key": "Set as predefined for new records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Set up": {
+      "key": "Set up",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Settings": {
+      "key": "Settings",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Share the backup file": {
+      "key": "Share the backup file",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Share the database file": {
+      "key": "Share the database file",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show active categories": {
+      "key": "Show active categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show active wallets": {
+      "key": "Show active wallets",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show all rows": {
+      "key": "Show all rows",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show archived categories": {
+      "key": "Show archived categories",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show archived wallets": {
+      "key": "Show archived wallets",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show at most one row": {
+      "key": "Show at most one row",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show at most three rows": {
+      "key": "Show at most three rows",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show at most two rows": {
+      "key": "Show at most two rows",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show categories with their own colors instead of the default palette": {
+      "key": "Show categories with their own colors instead of the default palette",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show cumulative balance line": {
+      "key": "Show cumulative balance line",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show future recurrent records": {
+      "key": "Show future recurrent records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show or hide tags in the record list": {
+      "key": "Show or hide tags in the record list",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show or hide wallet name in the record list": {
+      "key": "Show or hide wallet name in the record list",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show records that have all selected tags": {
+      "key": "Show records that have all selected tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show records that have any of the selected tags": {
+      "key": "Show records that have any of the selected tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Show records' notes on the homepage": {
+      "key": "Show records' notes on the homepage",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Shows records per": {
+      "key": "Shows records per",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Statistics": {
+      "key": "Statistics",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Store the Backup on disk": {
+      "key": "Store the Backup on disk",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Suggested tags": {
+      "key": "Suggested tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Sunday": {
+      "key": "Sunday",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Switch to bar chart": {
+      "key": "Switch to bar chart",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Switch to net savings view": {
+      "key": "Switch to net savings view",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Switch to pie chart": {
+      "key": "Switch to pie chart",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Switch to separate income and expense bars": {
+      "key": "Switch to separate income and expense bars",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Symbol (e.g., M)": {
+      "key": "Symbol (e.g., M)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Symbol (optional)": {
+      "key": "Symbol (optional)",
+      "context": "Form label for currency symbol input",
+      "file": "lib/settings/add-custom-currency-page.dart:150",
+      "page": "Settings > Add Custom Currency",
+      "component": "TextFormField label",
+      "meaning": "Symbol to display for currency (e.g., $, €)",
+      "notes": "Optional field - can be left blank",
+      "status": "verified"
+    },
+    "System": {
+      "key": "System",
+      "context": "Dropdown option for system theme/language setting",
+      "file": "lib/settings/constants/preferences-options.dart:9, :16, :21, :53",
+      "page": "Settings > Theme/Language",
+      "component": "Dropdown option",
+      "meaning": "Use device/system default setting",
+      "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "Tag name": {
+      "key": "Tag name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Tags": {
+      "key": "Tags",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Tags (%d)": {
+      "key": "Tags (%d)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Tags must be a single word without commas.": {
+      "key": "Tags must be a single word without commas.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "The data from the backup file are now restored.": {
+      "key": "The data from the backup file are now restored.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Theme style": {
+      "key": "Theme style",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "These rates are used to combine balances across wallets with different currencies.": {
+      "key": "These rates are used to combine balances across wallets with different currencies.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "This currency already exists": {
+      "key": "This currency already exists",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "This currency is already added.": {
+      "key": "This currency is already added.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "This is the reference currency for conversion rates.": {
+      "key": "This is the reference currency for conversion rates.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "This profile will be loaded on every app start": {
+      "key": "This profile will be loaded on every app start",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "This wallet will be pre-selected when adding new entries": {
+      "key": "This wallet will be pre-selected when adding new entries",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Total in $defaultCurrency": {
+      "key": "Total in $defaultCurrency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Total in %s": {
+      "key": "Total in %s",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Transport": {
+      "key": "Transport",
+      "context": "Category name for transport expenses",
+      "file": "lib/statistics/statistics-utils.dart:128",
+      "page": "Categories, Records",
+      "component": "Category name",
+      "meaning": "Transportation category for tracking travel expenses",
+      "notes": "Default category name - should stay as transport-related",
+      "status": "verified"
+    },
+    "Try searching or create a new tag": {
+      "key": "Try searching or create a new tag",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Typing 5 becomes %s5": {
+      "key": "Typing 5 becomes %s5",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Unable to create a backup: please, delete manually the old backup": {
+      "key": "Unable to create a backup: please, delete manually the old backup",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Unarchive": {
+      "key": "Unarchive",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Upgrade to": {
+      "key": "Upgrade to",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Upgrade to Pro": {
+      "key": "Upgrade to Pro",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Use Category Colors in Pie Chart": {
+      "key": "Use Category Colors in Pie Chart",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Used by": {
+      "key": "Used by",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "View or delete recurrent records": {
+      "key": "View or delete recurrent records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Visual settings and more": {
+      "key": "Visual settings and more",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Visualise tags in the main page": {
+      "key": "Visualise tags in the main page",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Visualise wallet name in the main page": {
+      "key": "Visualise wallet name in the main page",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Wallet name": {
+      "key": "Wallet name",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Wallets": {
+      "key": "Wallets",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Weekly": {
+      "key": "Weekly",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "What should happen to the records in this wallet? Transfer records involving this wallet will always be deleted.": {
+      "key": "What should happen to the records in this wallet? Transfer records involving this wallet will always be deleted.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "What should the 'Overview widget' summarize?": {
+      "key": "What should the 'Overview widget' summarize?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "When deleting a record, add back its amount to the wallet balance": {
+      "key": "When deleting a record, add back its amount to the wallet balance",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "When typing `comma`, it types `dot` instead": {
+      "key": "When typing `comma`, it types `dot` instead",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "When typing `dot`, it types `comma` instead": {
+      "key": "When typing `dot`, it types `comma` instead",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "With space": {
+      "key": "With space",
+      "context": "Currency symbol spacing option",
+      "file": "lib/settings/constants/preferences-options.dart:140-141",
+      "page": "Settings > Currency Formatting",
+      "component": "currencySymbolSpacing dropdown",
+      "meaning": "Add space between symbol and amount (e.g., $ 100)",
+      "notes": "Clear positional/formatting context",
+      "status": "verified"
+    },
+    "Without space": {
+      "key": "Without space",
+      "context": "Currency symbol spacing option",
+      "file": "lib/settings/constants/preferences-options.dart:140-142",
+      "page": "Settings > Currency Formatting",
+      "component": "currencySymbolSpacing dropdown",
+      "meaning": "No space between symbol and amount (e.g., $100)",
+      "notes": "Clear positional/formatting context",
+      "status": "verified"
+    },
+    "Would you like to add your own currency?": {
+      "key": "Would you like to add your own currency?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Year": {
+      "key": "Year",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Yes": {
+      "key": "Yes",
+      "context": "Dialog positive button",
+      "file": "lib/wallets/edit-wallet-page.dart:305, lib/categories/edit-category-page.dart:168, etc.",
+      "page": "Multiple pages (Wallets, Categories, Records, Settings)",
+      "component": "Confirmation dialog button",
+      "meaning": "User confirmation/positive response to confirmation prompt",
+      "notes": "Paired with 'No' button. Often kept as-is in target languages.",
+      "status": "verified"
+    },
+    "You have wallets with different currencies. Set up conversion rates.": {
+      "key": "You have wallets with different currencies. Set up conversion rates.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "You need to set a category first. Go to Category tab and add a new category.": {
+      "key": "You need to set a category first. Go to Category tab and add a new category.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Your main currency is the reference for all conversion rates. Pick the currency you use most often.": {
+      "key": "Your main currency is the reference for all conversion rates. Pick the currency you use most often.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "apostrophe": {
+      "key": "apostrophe",
+      "context": "Text representation of apostrophe character",
+      "file": "lib/settings/constants/preferences-options.dart:75",
+      "page": "Settings > Preferences",
+      "component": "Text representation",
+      "meaning": "The apostrophe character (') used in strings",
+      "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "comma": {
+      "key": "comma",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "dot": {
+      "key": "dot",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "none": {
+      "key": "none",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "space": {
+      "key": "space",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "underscore": {
+      "key": "underscore",
+      "context": "Text representation of underscore character",
+      "file": "lib/settings/constants/preferences-options.dart:74",
+      "page": "Settings > Preferences",
+      "component": "Text representation",
+      "meaning": "The underscore character (_) used in strings",
+      "notes": "Used for customizing string separators - translate as the actual character name",
+      "status": "verified"
+    },
+    "Create wallets": {
+      "context": "Premium feature - ability to create and manage multiple wallets",
+      "file": "lib/premium/splash-screen.dart:210",
+      "page": "Premium/Upgrade Screen",
+      "component": "Feature list bullet point",
+      "meaning": "Users can create new wallet accounts to organize finances",
+      "notes": "Part of premium feature promotion",
+      "status": "verified"
+    },
+    "Manage multiple currencies": {
+      "context": "Premium feature - manage different currencies in wallets",
+      "file": "lib/premium/splash-screen.dart:237",
+      "page": "Premium/Upgrade Screen",
+      "component": "Feature list bullet point",
+      "meaning": "Support for multiple currencies with conversion rates",
+      "notes": "Part of premium feature promotion - complements currency settings",
+      "status": "verified"
+    },
+    "Support more profiles": {
+      "context": "Premium feature - create multiple financial profiles",
+      "file": "lib/premium/splash-screen.dart:183",
+      "page": "Premium/Upgrade Screen",
+      "component": "Feature list bullet point",
+      "meaning": "Users can create separate financial profiles for different purposes",
+      "notes": "Part of premium feature promotion",
+      "status": "verified"
+    },
+    "Show all wallets": {
+      "key": "Show all wallets",
+      "context": "Button to clear wallet filter and show all wallets",
+      "file": "lib/wallets/wallets-tab-page.dart:581",
+      "page": "Wallets",
+      "component": "TextButton label",
+      "meaning": "Display all wallets (clear filter)",
+      "notes": "Button that clears the selected wallet filter",
+      "status": "verified"
+    }
+  }
+}

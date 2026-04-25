@@ -7,7 +7,6 @@ import '../../models/category.dart';
 import '../logger.dart';
 
 class SqliteMigrationService {
-
   static final _logger = Logger.withClass(SqliteMigrationService);
 
   // SQL Queries
@@ -40,7 +39,31 @@ class SqliteMigrationService {
               description TEXT,
               category_name TEXT,
               category_type INTEGER,
-              recurrence_id TEXT
+              recurrence_id TEXT,
+              wallet_id   INTEGER,
+              transfer_wallet_id INTEGER,
+              transfer_value REAL,
+              profile_id  INTEGER
+          );
+      """;
+    batch.execute(query);
+  }
+
+  static void _createWalletsTable(Batch batch) {
+    String query = """
+      CREATE TABLE IF NOT EXISTS wallets (
+              id            INTEGER PRIMARY KEY AUTOINCREMENT,
+              name          TEXT,
+              color         TEXT,
+              icon          INTEGER,
+              icon_emoji    TEXT,
+              initial_amount REAL DEFAULT 0,
+              is_archived   INTEGER DEFAULT 0,
+              is_default    INTEGER DEFAULT 0,
+              is_predefined INTEGER DEFAULT 0,
+              sort_order    INTEGER DEFAULT 0,
+              currency      TEXT,
+              profile_id    INTEGER
           );
       """;
     batch.execute(query);
@@ -54,6 +77,18 @@ class SqliteMigrationService {
            PRIMARY KEY (record_id, tag_name)
         );
       """;
+    batch.execute(query);
+  }
+
+  static void _createProfilesTable(Batch batch) {
+    String query = """
+        CREATE TABLE IF NOT EXISTS profiles (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            name      TEXT NOT NULL,
+            is_default INTEGER DEFAULT 0,
+            color     TEXT
+        );
+        """;
     batch.execute(query);
   }
 
@@ -73,7 +108,11 @@ class SqliteMigrationService {
                 recurrence_id TEXT,
                 date_str TEXT,
                 tags TEXT,
-                end_date INTEGER
+                end_date INTEGER,
+                wallet_id INTEGER,
+                transfer_wallet_id INTEGER,
+                transfer_value REAL,
+                profile_id INTEGER
             );
         """;
     batch.execute(query);
@@ -186,7 +225,8 @@ class SqliteMigrationService {
       _logger.debug('Alter table succeeded');
     } on DatabaseException catch (e) {
       // This block specifically handles DatabaseException
-      _logger.warning('Alter table failed (expected for existing columns): ${e.toString()}');
+      _logger.warning(
+          'Alter table failed (expected for existing columns): ${e.toString()}');
     } catch (e, st) {
       // This block is a generic catch-all for any other exception types
       _logger.handle(e, st, 'Unexpected error in alter table');
@@ -335,8 +375,113 @@ class SqliteMigrationService {
 
   static Future<void> _migrateTo17(Database db) async {
     // Add end_date column to recurrent_record_patterns
+    await safeAlterTable(db,
+        "ALTER TABLE recurrent_record_patterns ADD COLUMN end_date INTEGER;");
+  }
+
+  static Future<void> _migrateTo18(Database db) async {
+    // Step 1: Create wallets table
+    var batch = db.batch();
+    _createWalletsTable(batch);
+    await batch.commit();
+
+    // Step 2: Add wallet_id column to records
     await safeAlterTable(
-        db, "ALTER TABLE recurrent_record_patterns ADD COLUMN end_date INTEGER;");
+        db, "ALTER TABLE records ADD COLUMN wallet_id INTEGER;");
+
+    // Step 3: Insert default wallet and get its id
+    int defaultWalletId = await db.rawInsert(
+      "INSERT INTO wallets (name, is_default, sort_order) VALUES (?, 1, 0)",
+      ["Default Wallet".i18n],
+    );
+
+    // Step 4: Backfill all existing records with the default wallet id
+    await db.rawUpdate(
+      "UPDATE records SET wallet_id = ?",
+      [defaultWalletId],
+    );
+  }
+
+  static Future<void> _migrateTo19(Database db) async {
+    await safeAlterTable(
+        db, "ALTER TABLE records ADD COLUMN transfer_wallet_id INTEGER;");
+  }
+
+  static Future<void> _migrateTo20(Database db) async {
+    await safeAlterTable(db,
+        "ALTER TABLE recurrent_record_patterns ADD COLUMN wallet_id INTEGER;");
+    await safeAlterTable(db,
+        "ALTER TABLE recurrent_record_patterns ADD COLUMN transfer_wallet_id INTEGER;");
+    // Backfill existing patterns with the default wallet (created in v18)
+    await _backfillPatternsWithDefaultWallet(db);
+  }
+
+  static Future<void> _migrateTo21(Database db) async {
+    await safeAlterTable(db, "ALTER TABLE wallets ADD COLUMN currency TEXT;");
+  }
+
+  static Future<void> _migrateTo22(Database db) async {
+    // Backfill any recurrent patterns still missing a wallet_id
+    // (covers users who ran v20 before the backfill was added)
+    await _backfillPatternsWithDefaultWallet(db);
+  }
+
+  static Future<void> _backfillPatternsWithDefaultWallet(Database db) async {
+    final rows = await db
+        .rawQuery("SELECT id FROM wallets WHERE is_default = 1 LIMIT 1");
+    if (rows.isEmpty) return;
+    final defaultWalletId = rows.first['id'] as int;
+    await db.rawUpdate(
+        "UPDATE recurrent_record_patterns SET wallet_id = ? WHERE wallet_id IS NULL",
+        [defaultWalletId]);
+  }
+
+  static Future<void> _migrateTo24(Database db) async {
+    await safeAlterTable(
+        db, "ALTER TABLE records ADD COLUMN transfer_value REAL;");
+    await safeAlterTable(db,
+        "ALTER TABLE recurrent_record_patterns ADD COLUMN transfer_value REAL;");
+  }
+
+  static Future<void> _migrateTo25(Database db) async {
+    // Step 1: Add is_predefined column (existing databases don't have it yet)
+    await safeAlterTable(
+        db, "ALTER TABLE wallets ADD COLUMN is_predefined INTEGER DEFAULT 0;");
+    // Step 2: Reset all wallets to no default or predefined
+    await db.rawUpdate("UPDATE wallets SET is_default = 0, is_predefined = 0");
+    // Step 3: Mark 'Default Wallet' as both system default and predefined
+    await db.rawUpdate(
+        "UPDATE wallets SET is_default = 1, is_predefined = 1 WHERE name = 'Default Wallet'");
+  }
+
+  static Future<void> _migrateTo23(Database db) async {
+    // Step 1: Create profiles table
+    var batch = db.batch();
+    _createProfilesTable(batch);
+    await batch.commit();
+
+    // Step 2: Insert Default Profile and get its id
+    final defaultProfileId = await db.rawInsert(
+      "INSERT INTO profiles (name, is_default) VALUES (?, 1)",
+      ["Default Profile".i18n],
+    );
+
+    // Step 3: Add color column to profiles (for databases created before this column existed)
+    await safeAlterTable(db, "ALTER TABLE profiles ADD COLUMN color TEXT;");
+
+    // Step 4: Add profile_id column to the three profile-scoped tables
+    await safeAlterTable(
+        db, "ALTER TABLE records ADD COLUMN profile_id INTEGER;");
+    await safeAlterTable(db,
+        "ALTER TABLE recurrent_record_patterns ADD COLUMN profile_id INTEGER;");
+    await safeAlterTable(
+        db, "ALTER TABLE wallets ADD COLUMN profile_id INTEGER;");
+
+    // Step 5: Backfill all existing rows with the Default Profile id
+    await db.rawUpdate("UPDATE records SET profile_id = ?", [defaultProfileId]);
+    await db.rawUpdate("UPDATE recurrent_record_patterns SET profile_id = ?",
+        [defaultProfileId]);
+    await db.rawUpdate("UPDATE wallets SET profile_id = ?", [defaultProfileId]);
   }
 
   static Map<int, Function(Database)?> migrationFunctions = {
@@ -351,10 +496,19 @@ class SqliteMigrationService {
     15: SqliteMigrationService._migrateTo13,
     16: SqliteMigrationService._migrateTo16,
     17: SqliteMigrationService._migrateTo17,
+    18: SqliteMigrationService._migrateTo18,
+    19: SqliteMigrationService._migrateTo19,
+    20: SqliteMigrationService._migrateTo20,
+    21: SqliteMigrationService._migrateTo21,
+    22: SqliteMigrationService._migrateTo22,
+    23: SqliteMigrationService._migrateTo23,
+    24: SqliteMigrationService._migrateTo24,
+    25: SqliteMigrationService._migrateTo25,
   };
 
   // Public Methods
-  static void onUpgrade(Database db, int oldVersion, int newVersion) async {
+  static Future<void> onUpgrade(
+      Database db, int oldVersion, int newVersion) async {
     _logger.info('Upgrading database from version $oldVersion to $newVersion');
     for (int i = oldVersion + 1; i <= newVersion; i++) {
       if (migrationFunctions.containsKey(i)) {
@@ -368,7 +522,7 @@ class SqliteMigrationService {
     _logger.info('Database upgrade completed to version $newVersion');
   }
 
-  static void onCreate(Database db, int version) async {
+  static Future<void> onCreate(Database db, int version) async {
     _logger.info('Creating new database (version $version)');
     var batch = db.batch();
 
@@ -377,6 +531,8 @@ class SqliteMigrationService {
     _createRecordsTable(batch);
     _createRecordsTagsTable(batch);
     _createRecurrentRecordPatternsTable(batch);
+    _createWalletsTable(batch);
+    _createProfilesTable(batch);
 
     // Create Triggers
     _createAddRecordTrigger(batch);
@@ -392,6 +548,19 @@ class SqliteMigrationService {
     }
 
     await batch.commit();
+
+    // Insert Default Profile (need its id for wallet)
+    final defaultProfileId = await db.rawInsert(
+      "INSERT INTO profiles (name, is_default) VALUES (?, 1)",
+      ["Default Profile".i18n],
+    );
+
+    // Insert Default Wallet with profile_id
+    await db.rawInsert(
+      "INSERT INTO wallets (name, is_default, sort_order, profile_id) VALUES (?, 1, 0, ?)",
+      ["Default Wallet".i18n, defaultProfileId],
+    );
+
     _logger.info('Database created successfully');
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:piggybank/main.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/settings/components/setting-separator.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/constants/preferences-options.dart';
@@ -158,6 +160,20 @@ class CustomizationPageState extends State<CustomizationPage> {
     // Overwrite comma
     overwriteCommaValueWithDot = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.overwriteCommaValueWithDot)!;
+
+    // Currency symbol position
+    int currencySymbolPositionValue = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.currencySymbolPosition)!;
+
+    currencySymbolPositionDropdownKey = getKeyFromObject<int>(
+        PreferencesOptions.currencySymbolPosition, currencySymbolPositionValue);
+
+    // Currency symbol spacing
+    int currencySymbolSpacingValue = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.currencySymbolSpacing)!;
+
+    currencySymbolSpacingDropdownKey = getKeyFromObject<int>(
+        PreferencesOptions.currencySymbolSpacing, currencySymbolSpacingValue);
   }
 
   Future<void> fetchHomepagePreferences() async {
@@ -174,8 +190,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         prefs, PreferencesKeys.homepageRecordsMonthStartDay)!;
 
     homepageRecordsMonthStartDay = getKeyFromObject<int>(
-        PreferencesOptions.monthDaysMap,
-        homepageRecordsMonthStartDayIndex);
+        PreferencesOptions.monthDaysMap, homepageRecordsMonthStartDayIndex);
 
     // Homepage overview widget
     var userDefinedHomepageOverviewIntervalEnumIndex =
@@ -249,6 +264,8 @@ class CustomizationPageState extends State<CustomizationPage> {
   late Map<String, String> allowedGroupSeparatorsValues;
   late String groupSeparatorDropdownKey;
   late bool amountInputAutoDecimalShift;
+  late String currencySymbolPositionDropdownKey;
+  late String currencySymbolSpacingDropdownKey;
 
   // Locks
   late bool appLockIsAvailable;
@@ -292,12 +309,14 @@ class CustomizationPageState extends State<CustomizationPage> {
                     SettingSeparator(title: "Localization".i18n),
                     DropdownCustomizationItem(
                       title: "Language".i18n,
-                      subtitle: "Select the app language".i18n +
-                          " - " +
-                          "Require App restart".i18n,
+                      subtitle: "Select the app language".i18n,
                       dropdownValues: PreferencesOptions.languageDropdown,
                       selectedDropdownKey: languageDropdownKey,
                       sharedConfigKey: PreferencesKeys.languageLocale,
+                      onChanged: () {
+                        MyApp.reloadLocale();
+                        LocaleService.reloadCurrencyLocale();
+                      },
                     ),
                     DropdownCustomizationItem(
                       title: "First Day of Week".i18n,
@@ -319,21 +338,19 @@ class CustomizationPageState extends State<CustomizationPage> {
                     SettingSeparator(title: "Appearance".i18n),
                     DropdownCustomizationItem(
                       title: "Colors".i18n,
-                      subtitle: "Select the app theme color".i18n +
-                          " - " +
-                          "Require App restart".i18n,
+                      subtitle: "Select the app theme color".i18n,
                       dropdownValues: PreferencesOptions.themeColorDropdown,
                       selectedDropdownKey: themeColorDropdownKey,
                       sharedConfigKey: PreferencesKeys.themeColor,
+                      onChanged: () => MyApp.reloadTheme(),
                     ),
                     DropdownCustomizationItem(
                       title: "Theme style".i18n,
-                      subtitle: "Select the app theme style".i18n +
-                          " - " +
-                          "Require App restart".i18n,
+                      subtitle: "Select the app theme style".i18n,
                       dropdownValues: PreferencesOptions.themeStyleDropdown,
                       selectedDropdownKey: themeStyleDropdownKey,
                       sharedConfigKey: PreferencesKeys.themeMode,
+                      onChanged: () => MyApp.reloadTheme(),
                     ),
                     SettingSeparator(title: "Number & Formatting".i18n),
                     DropdownCustomizationItem(
@@ -401,15 +418,37 @@ class CustomizationPageState extends State<CustomizationPage> {
                     SwitchCustomizationItem(
                       title: "Auto decimal input".i18n,
                       subtitle: "Typing 5 becomes %s5".i18n.fill([
-                                  (() {
-                                    final dd = getNumberDecimalDigits();
-                                    if (dd <= 0) return "";
-                                    final sep = getDecimalSeparator();
-                                    return ("0$sep").padRight(dd + 1, '0');
-                                  }())
-                                ]),
+                        (() {
+                          final dd = getNumberDecimalDigits();
+                          if (dd <= 0) return "";
+                          final sep = getDecimalSeparator();
+                          return ("0$sep").padRight(dd + 1, '0');
+                        }())
+                      ]),
                       switchValue: amountInputAutoDecimalShift,
-                      sharedConfigKey: PreferencesKeys.amountInputAutoDecimalShift,
+                      sharedConfigKey:
+                          PreferencesKeys.amountInputAutoDecimalShift,
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Currency symbol position".i18n,
+                      subtitle:
+                          "Select the position of the currency symbol".i18n,
+                      dropdownValues: PreferencesOptions.currencySymbolPosition,
+                      selectedDropdownKey: currencySymbolPositionDropdownKey,
+                      sharedConfigKey: PreferencesKeys.currencySymbolPosition,
+                      onChanged: () {
+                        invalidateNumberPatternCache();
+                      },
+                    ),
+                    DropdownCustomizationItem(
+                      title: "Currency symbol spacing".i18n,
+                      subtitle: "Add space between symbol and amount".i18n,
+                      dropdownValues: PreferencesOptions.currencySymbolSpacing,
+                      selectedDropdownKey: currencySymbolSpacingDropdownKey,
+                      sharedConfigKey: PreferencesKeys.currencySymbolSpacing,
+                      onChanged: () {
+                        invalidateNumberPatternCache();
+                      },
                     ),
                     SettingSeparator(title: "Homepage settings".i18n),
                     DropdownCustomizationItem(
@@ -423,10 +462,12 @@ class CustomizationPageState extends State<CustomizationPage> {
                     DropdownCustomizationItem(
                       title: "Custom starting day of the month".i18n,
                       subtitle:
-                      "Define the starting day of the month for records that show in the app homepage".i18n,
+                          "Define the starting day of the month for records that show in the app homepage"
+                              .i18n,
                       dropdownValues: PreferencesOptions.monthDaysMap,
                       selectedDropdownKey: homepageRecordsMonthStartDay,
-                      sharedConfigKey: PreferencesKeys.homepageRecordsMonthStartDay,
+                      sharedConfigKey:
+                          PreferencesKeys.homepageRecordsMonthStartDay,
                     ),
                     DropdownCustomizationItem(
                       title:
@@ -454,10 +495,18 @@ class CustomizationPageState extends State<CustomizationPage> {
                       sharedConfigKey: PreferencesKeys.visualiseTagsInMainPage,
                     ),
                     SwitchCustomizationItem(
+                      title: "Visualise wallet name in the main page".i18n,
+                      subtitle:
+                          "Show or hide wallet name in the record list".i18n,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(
+                          prefs, PreferencesKeys.showWalletInRecordList)!,
+                      sharedConfigKey: PreferencesKeys.showWalletInRecordList,
+                    ),
+                    SwitchCustomizationItem(
                       title: "Show future recurrent records".i18n,
                       subtitle:
-                      "Generate and display upcoming recurrent records (they will be included in statistics)"
-                          .i18n,
+                          "Generate and display upcoming recurrent records (they will be included in statistics)"
+                              .i18n,
                       switchValue: PreferencesUtils.getOrDefault<bool>(
                           prefs, PreferencesKeys.showFutureRecords)!,
                       sharedConfigKey: PreferencesKeys.showFutureRecords,
@@ -490,8 +539,16 @@ class CustomizationPageState extends State<CustomizationPage> {
                       dropdownValues:
                           PreferencesOptions.amountInputKeyboardType,
                       selectedDropdownKey: amountInputKeyboardTypeDropdownKey,
-                      sharedConfigKey:
-                          PreferencesKeys.amountInputKeyboardType,
+                      sharedConfigKey: PreferencesKeys.amountInputKeyboardType,
+                    ),
+                    SwitchCustomizationItem(
+                      title: "Restore wallet amount on record deletion".i18n,
+                      subtitle:
+                          "When deleting a record, add back its amount to the wallet balance"
+                              .i18n,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(
+                          prefs, PreferencesKeys.restoreAmountOnDelete)!,
+                      sharedConfigKey: PreferencesKeys.restoreAmountOnDelete,
                     ),
                     SwitchCustomizationItem(
                       title: "Enable record's name suggestions".i18n,
