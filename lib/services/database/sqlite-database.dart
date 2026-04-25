@@ -544,34 +544,32 @@ class SqliteDatabase implements DatabaseInterface {
   Future<void> deleteDatabase() async {
     final db = (await database)!;
 
-    // Delete all transactional data
+    // Step 1: delete everything
     await db.execute("DELETE FROM records");
     await db.execute("DELETE FROM records_tags");
     await db.execute("DELETE FROM recurrent_record_patterns");
-
-    // Delete all categories
     await db.execute("DELETE FROM categories");
+    await db.execute("DELETE FROM wallets");
+    await db.execute("DELETE FROM profiles");
 
-    // Delete all non-default wallets (preserve the default wallet)
-    await db.execute("DELETE FROM wallets WHERE is_default = 0");
+    // Reset all auto-increment sequences to 0
+    for (final table in [
+      'records', 'records_tags', 'recurrent_record_patterns',
+      'categories', 'wallets', 'profiles',
+    ]) {
+      await db.execute(
+          "UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='$table'");
+    }
 
-    // Delete all non-default profiles (preserve the default profile)
-    await db.execute("DELETE FROM profiles WHERE is_default = 0");
-
-    // Reset auto-increment sequences for fully cleared tables
-    await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
-    await db
-        .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records_tags'");
-    await db.execute(
-        "UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_record_patterns'");
-    await db
-        .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
-
-    // Update sequences for profiles and wallets to match remaining rows
-    await db.execute(
-        "UPDATE SQLITE_SEQUENCE SET SEQ=(SELECT COALESCE(MAX(id), 0) FROM profiles) WHERE NAME='profiles'");
-    await db.execute(
-        "UPDATE SQLITE_SEQUENCE SET SEQ=(SELECT COALESCE(MAX(id), 0) FROM wallets) WHERE NAME='wallets'");
+    // Step 2: recreate Default Profile and its Default Wallet
+    final defaultProfileId = await db.rawInsert(
+      "INSERT INTO profiles (name, is_default) VALUES (?, 1)",
+      ["Default Profile".i18n],
+    );
+    await db.rawInsert(
+      "INSERT INTO wallets (name, is_default, is_predefined, sort_order, profile_id) VALUES (?, 1, 1, 0, ?)",
+      ["Default Wallet".i18n, defaultProfileId],
+    );
 
     _db = null;
   }
