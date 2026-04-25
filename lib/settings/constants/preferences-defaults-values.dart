@@ -46,7 +46,7 @@ class PreferencesDefaultValues {
         .DisplayedRecords.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordNotesVisible: 0,
     PreferencesKeys.visualiseTagsInMainPage: true, // Default to enabled
-    PreferencesKeys.showWalletInRecordList: true, // Default to enabled
+    PreferencesKeys.showWalletInRecordList: false, // Default to disabled
     PreferencesKeys.showFutureRecords: true, // Default to enabled
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4
