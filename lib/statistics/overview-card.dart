@@ -5,6 +5,7 @@ import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:piggybank/statistics/statistics-calculator.dart';
 import '../helpers/records-utility-functions.dart';
+import '../helpers/currency_breakdown_sheet.dart';
 import 'package:piggybank/i18n.dart';
 
 class OverviewCardAction {
@@ -27,25 +28,22 @@ class OverviewCard extends StatelessWidget {
   final DateTime? from;
   final DateTime? to;
   final List<DateTimeSeriesRecord> aggregatedRecords;
-  final double sumValues;
   final double? selectedAmount;
+  final DateTime? selectedDate;
   final bool isBalance;
   final List<OverviewCardAction> actions;
+  final Map<int, String?> walletCurrencyMap;
+  final RecordsTotalResult _convertedResult;
 
   OverviewCard(this.from, this.to, this.records, this.aggregationMethod,
-      {this.selectedAmount, this.isBalance = false, this.actions = const []})
+      {this.selectedAmount,
+      this.selectedDate,
+      this.isBalance = false,
+      this.actions = const [],
+      this.walletCurrencyMap = const {}})
       : aggregatedRecords = aggregateRecordsByDate(records, aggregationMethod),
-        sumValues = isBalance
-            ? records.fold(0.0, (acc, e) {
-                double val = e!.value!.abs();
-                return (acc as double) +
-                    (e.category!.categoryType == CategoryType.income
-                        ? val
-                        : -val);
-              })
-            : records
-                .fold(0.0, (acc, e) => (acc as double) + e!.value!.abs())
-                .abs();
+        _convertedResult = computeConvertedTotal(records, walletCurrencyMap,
+            isAbsValue: !isBalance);
 
   double get averageValue {
     switch (aggregationMethod) {
@@ -77,29 +75,143 @@ class OverviewCard extends StatelessWidget {
     }
   }
 
+  String _formatAmount(double value, String? currency) {
+    if (currency == null || currency.isEmpty) {
+      return getCurrencyValueString(value);
+    }
+    return formatAmountWithCurrency(value, currency);
+  }
+
+  /// Returns the records that belong to the selected bar (filtered by [selectedDate]).
+  List<Record?> _getSelectedRecords() {
+    if (selectedDate == null) return [];
+    return records.where((r) {
+      if (r == null) return false;
+      final recordDate = truncateDateTime(r.localDateTime, aggregationMethod);
+      return recordDate == selectedDate;
+    }).toList();
+  }
+
+  Widget _buildMainAmountWidget(BuildContext context) {
+    final defaultCurrency = getDefaultCurrency();
+    final mainStyle = Theme.of(context).textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onSurface,
+        );
+    final secondaryStyle = TextStyle(
+      fontSize: ((mainStyle?.fontSize ?? 24.0) * 0.65).clamp(12.0, double.infinity),
+      color: Colors.grey,
+    );
+
+    String? convertedAmountText;
+    String? originalAmountText;
+
+    if (selectedAmount != null) {
+      // Selected bar
+      final breakdown = selectedDate != null
+          ? buildCurrencyBreakdown(_getSelectedRecords(), walletCurrencyMap,
+              isAbsValue: !isBalance)
+          : <String, double>{};
+      final nonEmpty =
+          breakdown.entries.where((e) => e.key.isNotEmpty).toList();
+      final selOriginalCurrency =
+          nonEmpty.length == 1 ? nonEmpty.first.key : null;
+
+      if (defaultCurrency != null &&
+          defaultCurrency.isNotEmpty &&
+          selOriginalCurrency != null &&
+          selOriginalCurrency != defaultCurrency) {
+        final converted = convertAmount(
+            selectedAmount!, selOriginalCurrency, defaultCurrency);
+        if (converted != null) {
+          convertedAmountText =
+              formatCurrencyAmount(converted, defaultCurrency);
+          originalAmountText =
+              formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
+        } else {
+          convertedAmountText =
+              formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
+        }
+      } else if (selOriginalCurrency != null &&
+          selOriginalCurrency.isNotEmpty) {
+        convertedAmountText =
+            formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
+      } else if (_convertedResult.currency != null &&
+          _convertedResult.currency!.isNotEmpty) {
+        convertedAmountText =
+            formatCurrencyAmount(selectedAmount!, _convertedResult.currency!);
+      } else {
+        convertedAmountText = getCurrencyValueString(selectedAmount);
+      }
+    } else {
+      // Overall total
+      final breakdown = buildCurrencyBreakdown(records, walletCurrencyMap,
+          isAbsValue: !isBalance);
+      final nonEmpty =
+          breakdown.entries.where((e) => e.key.isNotEmpty).toList();
+      if (nonEmpty.length == 1 &&
+          defaultCurrency != null &&
+          defaultCurrency.isNotEmpty &&
+          nonEmpty.first.key != defaultCurrency) {
+        convertedAmountText =
+            formatCurrencyAmount(_convertedResult.total, defaultCurrency);
+        originalAmountText =
+            formatCurrencyAmount(nonEmpty.first.value, nonEmpty.first.key);
+      } else if (_convertedResult.currency != null &&
+          _convertedResult.currency!.isNotEmpty) {
+        convertedAmountText = formatCurrencyAmount(
+            _convertedResult.total, _convertedResult.currency!);
+      } else {
+        convertedAmountText = formatRecordsTotalResult(_convertedResult);
+      }
+    }
+
+    Widget amountWidget;
+    if (originalAmountText != null) {
+      amountWidget = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(convertedAmountText, style: mainStyle),
+          Text(originalAmountText, style: secondaryStyle),
+        ],
+      );
+    } else {
+      amountWidget = Text(convertedAmountText, style: mainStyle);
+    }
+
+    if (selectedAmount != null ||
+        !hasMixedCurrencies(records, walletCurrencyMap)) return amountWidget;
+
+    return GestureDetector(
+      onTap: () => showCurrencyBreakdownSheet(
+          context, records, walletCurrencyMap,
+          isAbsValue: !isBalance),
+      child: amountWidget,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (records.isEmpty) return SizedBox.shrink();
 
-    String prelude;
-    if (isBalance) {
-      prelude = sumValues >= 0 ? "You saved".i18n : "You overspent".i18n;
-    } else {
-      final categoryType = records.first!.category!.categoryType;
-      prelude = categoryType == CategoryType.expense
-          ? "You spent".i18n
-          : "Your income is".i18n;
-    }
+    // Cache computed values — getters iterate over all records each call
+    final average = averageValue;
+    final median = medianValue;
+
+    final breakdown = buildCurrencyBreakdown(records, walletCurrencyMap,
+        isAbsValue: !isBalance);
+    final nonEmptyCurrencies =
+        breakdown.entries.where((e) => e.key.isNotEmpty).toList();
+    final originalCurrency =
+        nonEmptyCurrencies.length == 1 ? nonEmptyCurrencies.first.key : null;
 
     String averageLabelKey;
     String medianLabelKey;
     switch (aggregationMethod) {
-      case AggregationMethod.DAY:
-        averageLabelKey = "Average of %s a day".i18n;
-        medianLabelKey = "Median of %s a day".i18n;
-        break;
+      // WEEK intentionally uses daily labels for intuitive comparison
       case AggregationMethod.WEEK:
-        // Show daily values for intuitive comparison (actual days, not 5 week bins)
+      case AggregationMethod.DAY:
         averageLabelKey = "Average of %s a day".i18n;
         medianLabelKey = "Median of %s a day".i18n;
         break;
@@ -117,7 +229,7 @@ class OverviewCard extends StatelessWidget {
     }
 
     final color = isBalance
-        ? (sumValues >= 0 ? Colors.green : Colors.redAccent)
+        ? (_convertedResult.total >= 0 ? Colors.green : Colors.redAccent)
         : (records.first!.category!.categoryType == CategoryType.expense
             ? Colors.redAccent
             : Colors.green);
@@ -131,20 +243,11 @@ class OverviewCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  prelude,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                Text(
-                  getCurrencyValueString(selectedAmount ?? sumValues),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                ),
+                _buildMainAmountWidget(context),
                 const SizedBox(height: 2),
                 Text(
-                  averageLabelKey.fill([getCurrencyValueString(averageValue)]),
+                  averageLabelKey
+                      .fill([_formatAmount(average, originalCurrency)]),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context)
                             .textTheme
@@ -155,7 +258,8 @@ class OverviewCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  medianLabelKey.fill([getCurrencyValueString(medianValue)]),
+                  medianLabelKey
+                      .fill([_formatAmount(median, originalCurrency)]),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context)
                             .textTheme

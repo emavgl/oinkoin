@@ -12,11 +12,11 @@
     "@astrojs/check": "^0.9.4",
     "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/sitemap": "^3.6.0",
-    "astro": "^5.16.11",
-    "typescript": "^5.7.2"
+    "astro": "^5.18.1",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@astrojs/tailwind": "^5.1.2",
-    "tailwindcss": "^3.4.17"
+    "@astrojs/tailwind": "^5.1.5",
+    "tailwindcss": "^3.4.19"
   }
 }

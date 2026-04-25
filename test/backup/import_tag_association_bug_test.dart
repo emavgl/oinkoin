@@ -57,6 +57,20 @@ void main() {
         .setMockMethodCallHandler(channel2, (MethodCall methodCall) async {
       return testDir;
     });
+
+    // Mock SharedPreferences
+    const MethodChannel prefsChannel =
+        MethodChannel('plugins.flutter.io/shared_preferences');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(prefsChannel, (MethodCall methodCall) async {
+      if (methodCall.method == 'getAll') {
+        return <String, dynamic>{};
+      }
+      if (methodCall.method == 'setString') {
+        return true;
+      }
+      return null;
+    });
   });
 
   tearDownAll(() async {
@@ -85,9 +99,11 @@ void main() {
     final records = [
       Record(-10, "Lunch", categories[0], DateTime.parse("2024-01-01 12:00:00"),
           id: 1), // Original ID: 1
-      Record(-20, "Dinner", categories[0], DateTime.parse("2024-01-01 19:00:00"),
+      Record(
+          -20, "Dinner", categories[0], DateTime.parse("2024-01-01 19:00:00"),
           id: 2), // Original ID: 2
-      Record(1000, "Salary", categories[1], DateTime.parse("2024-01-01 09:00:00"),
+      Record(
+          1000, "Salary", categories[1], DateTime.parse("2024-01-01 09:00:00"),
           id: 3), // Original ID: 3
     ];
 
@@ -102,10 +118,15 @@ void main() {
 
     when(mockDatabase.getAllRecords()).thenAnswer((_) async => records);
     when(mockDatabase.getAllCategories()).thenAnswer((_) async => categories);
-    when(mockDatabase.getRecurrentRecordPatterns())
-        .thenAnswer((_) async => []);
+    when(mockDatabase.getRecurrentRecordPatterns()).thenAnswer((_) async => []);
     when(mockDatabase.getAllRecordTagAssociations())
         .thenAnswer((_) async => recordTagAssociations);
+    when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
+    when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
+    when(mockDatabase.getDefaultWallet()).thenAnswer((_) async => null);
+    when(mockDatabase.getAllProfiles()).thenAnswer((_) async => []);
+    when(mockDatabase.getDefaultProfile()).thenAnswer((_) async => null);
+    when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
 
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
 
@@ -138,19 +159,22 @@ void main() {
     expect(capturedRecords.length, 3);
 
     final lunchRecord = capturedRecords.firstWhere((r) => r!.title == "Lunch");
-    final dinnerRecord = capturedRecords.firstWhere((r) => r!.title == "Dinner");
-    final salaryRecord = capturedRecords.firstWhere((r) => r!.title == "Salary");
+    final dinnerRecord =
+        capturedRecords.firstWhere((r) => r!.title == "Dinner");
+    final salaryRecord =
+        capturedRecords.firstWhere((r) => r!.title == "Salary");
 
     expect(lunchRecord!.tags, contains("food-tag-for-lunch"),
         reason: "Lunch record should have its tag populated from associations");
     expect(dinnerRecord!.tags, contains("food-tag-for-dinner"),
-        reason: "Dinner record should have its tag populated from associations");
+        reason:
+            "Dinner record should have its tag populated from associations");
     expect(salaryRecord!.tags, contains("income-tag-for-salary"),
-        reason: "Salary record should have its tag populated from associations");
+        reason:
+            "Salary record should have its tag populated from associations");
   });
 
-  testlib.test(
-      'demonstrate the label mismatch issue from user report is fixed',
+  testlib.test('demonstrate the label mismatch issue from user report is fixed',
       () async {
     // This test simulates the exact scenario from the user's report:
     // Labels (tags) should be correctly preserved during restore
@@ -158,17 +182,20 @@ void main() {
     // Setup: Source device has records with tags
     final categories = [
       Category("Santé", iconCodePoint: 1, categoryType: CategoryType.expense),
-      Category("Alimentation", iconCodePoint: 2, categoryType: CategoryType.expense),
+      Category("Alimentation",
+          iconCodePoint: 2, categoryType: CategoryType.expense),
       Category("Retraite", iconCodePoint: 3, categoryType: CategoryType.income),
     ];
 
     final records = [
       Record(-218, "Prestation Dentiste", categories[0],
-          DateTime.parse("2024-01-10 10:00:00"), id: 6),
+          DateTime.parse("2024-01-10 10:00:00"),
+          id: 6),
       Record(-17.74, "Alimentation", categories[1],
-          DateTime.parse("2024-01-09 10:00:00"), id: 7),
-      Record(1829, null, categories[2],
-          DateTime.parse("2024-01-10 10:00:00"), id: 8),
+          DateTime.parse("2024-01-09 10:00:00"),
+          id: 7),
+      Record(1829, null, categories[2], DateTime.parse("2024-01-10 10:00:00"),
+          id: 8),
     ];
 
     // Tags on source device
@@ -182,10 +209,15 @@ void main() {
 
     when(mockDatabase.getAllRecords()).thenAnswer((_) async => records);
     when(mockDatabase.getAllCategories()).thenAnswer((_) async => categories);
-    when(mockDatabase.getRecurrentRecordPatterns())
-        .thenAnswer((_) async => []);
+    when(mockDatabase.getRecurrentRecordPatterns()).thenAnswer((_) async => []);
     when(mockDatabase.getAllRecordTagAssociations())
         .thenAnswer((_) async => recordTagAssociations);
+    when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
+    when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
+    when(mockDatabase.getDefaultWallet()).thenAnswer((_) async => null);
+    when(mockDatabase.getAllProfiles()).thenAnswer((_) async => []);
+    when(mockDatabase.getDefaultProfile()).thenAnswer((_) async => null);
+    when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
 
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
 
@@ -210,12 +242,12 @@ void main() {
     await BackupService.importDataFromBackupFile(backupFile);
 
     // Verify tags are correctly populated on records
-    final dentistRecord = capturedRecords.firstWhere(
-        (r) => r!.title == "Prestation Dentiste");
-    final foodRecord = capturedRecords.firstWhere(
-        (r) => r!.title == "Alimentation");
-    final retirementRecord = capturedRecords.firstWhere(
-        (r) => r!.title == null);
+    final dentistRecord =
+        capturedRecords.firstWhere((r) => r!.title == "Prestation Dentiste");
+    final foodRecord =
+        capturedRecords.firstWhere((r) => r!.title == "Alimentation");
+    final retirementRecord =
+        capturedRecords.firstWhere((r) => r!.title == null);
 
     expect(dentistRecord!.tags, contains("dentist-tag"),
         reason: "Dentist record should have dentist-tag");

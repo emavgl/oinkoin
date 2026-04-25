@@ -47,6 +47,14 @@ class DropdownCustomizationItemState<T>
     selectedDropdownKey = widget.selectedDropdownKey;
   }
 
+  @override
+  void didUpdateWidget(covariant DropdownCustomizationItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedDropdownKey != oldWidget.selectedDropdownKey) {
+      selectedDropdownKey = widget.selectedDropdownKey;
+    }
+  }
+
   void setSharedConfig(T dropdownValue) {
     var sharedConfigKey = widget.sharedConfigKey;
     if (dropdownValue == null) {
@@ -104,33 +112,36 @@ class DropdownCustomizationItemState<T>
                   child: SingleChildScrollView(
                     child: StatefulBuilder(
                       builder: (BuildContext context, StateSetter setNewState) {
-                        return Column(
-                          children: [
-                            ...widget.dropdownValues.keys
-                                .map<Widget>((String value) {
-                              return Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                                child: RadioListTile<String>(
-                                  title: Text(
-                                    value,
-                                    style: TextStyle(fontSize: 16),
+                        return RadioGroup<String>(
+                          groupValue: selectedDropdownKey,
+                          onChanged: (String? value) {
+                            if (value == null) return;
+                            setNewState(() {
+                              selectedDropdownKey = value;
+                              setSharedConfig(widget.dropdownValues[value]!);
+                            });
+                            setState(() {
+                              selectedDropdownKey = value;
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              ...widget.dropdownValues.keys
+                                  .map<Widget>((String value) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                  child: RadioListTile<String>(
+                                    title: Text(
+                                      value,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    value: value,
                                   ),
-                                  value: value,
-                                  groupValue: selectedDropdownKey,
-                                  onChanged: (String? value) {
-                                    setNewState(() {
-                                      selectedDropdownKey = value!;
-                                      setSharedConfig(
-                                          widget.dropdownValues[value]!);
-                                    });
-                                    setState(() {
-                                      selectedDropdownKey = value!;
-                                    });
-                                  },
-                                ),
-                              );
-                            }).toList(),
-                          ],
+                                );
+                              }).toList(),
+                            ],
+                          ),
                         );
                       },
                     ),

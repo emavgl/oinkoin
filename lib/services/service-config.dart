@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,6 +13,7 @@ class ServiceConfig {
 
   static final DatabaseInterface database = SqliteDatabase.instance;
   static bool isPremium = false; // set in main.dart
+  static final ValueNotifier<bool> premiumNotifier = ValueNotifier(false);
   static SharedPreferences? sharedPreferences;
   static String localTimezone = "Europe/London"; // set in main
 
@@ -20,4 +22,9 @@ class ServiceConfig {
   static Locale? currencyLocale; // set in main.dart
   static NumberFormat? currencyNumberFormat; // set in main.dart
   static NumberFormat? currencyNumberFormatWithoutGrouping; // set in main.dart
+
+  static void togglePremium() {
+    isPremium = !isPremium;
+    premiumNotifier.value = isPremium;
+  }
 }

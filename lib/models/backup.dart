@@ -1,7 +1,9 @@
 import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/profile.dart';
 import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
+import 'package:piggybank/models/wallet.dart';
 
 import 'category.dart';
 import 'model.dart';
@@ -11,14 +13,22 @@ class Backup extends Model {
   List<Category?> categories;
   List<RecurrentRecordPattern> recurrentRecordsPattern;
   List<RecordTagAssociation> recordTagAssociations;
+  List<Wallet> wallets;
+  List<Profile> profiles;
   var created_at;
 
   String? packageName;
   String? version;
   String? databaseVersion;
 
+  /// Raw JSON string of user-defined currencies from SharedPreferences.
+  String? userCurrencies;
+
   Backup(this.packageName, this.version, this.databaseVersion, this.categories,
-      this.records, this.recurrentRecordsPattern, this.recordTagAssociations) {
+      this.records, this.recurrentRecordsPattern, this.recordTagAssociations,
+      {List<Wallet>? wallets, List<Profile>? profiles, this.userCurrencies})
+      : wallets = wallets ?? [],
+        profiles = profiles ?? [] {
     created_at = new DateTime.now().millisecondsSinceEpoch;
   }
 
@@ -32,21 +42,40 @@ class Backup extends Model {
           (index) => recurrentRecordsPattern[index].toMap()),
       'record_tag_associations': List.generate(recordTagAssociations.length,
           (index) => recordTagAssociations[index].toMap()),
+      'wallets': wallets.map((w) => w.toMap()).toList(),
+      'profiles': profiles.map((p) => p.toMap()).toList(),
       'created_at': created_at,
       'package_name': packageName ?? '',
       'version': version ?? '',
       'database_version': databaseVersion ?? '',
+      if (userCurrencies != null) 'user_currencies': userCurrencies,
     };
     return map;
   }
 
   static Backup fromMap(Map<String, dynamic> map) {
+    // Step 0: load profiles (backward compat: key may not exist in old backups)
+    List<Profile> profiles = [];
+    if (map.containsKey('profiles') && map['profiles'] != null) {
+      profiles = List.generate(map['profiles'].length, (i) {
+        return Profile.fromMap(Map<String, dynamic>.from(map['profiles'][i]));
+      });
+    }
+
+    // Step 0b: load wallets
+    List<Wallet> wallets = [];
+    if (map.containsKey('wallets') && map['wallets'] != null) {
+      wallets = List.generate(map['wallets'].length, (i) {
+        return Wallet.fromMap(Map<String, dynamic>.from(map['wallets'][i]));
+      });
+    }
+
     // Step 1: load categories
     var categories = List.generate(map["categories"].length, (i) {
       return Category.fromMap(map["categories"][i]);
     });
 
-    // Step 2: load records
+    // Step 2: load records (wallet_id is kept as-is for now; remapping happens in BackupService)
     var records = List.generate(map["records"].length, (i) {
       Map<String, dynamic> currentRowMap =
           Map<String, dynamic>.from(map["records"][i]);
@@ -95,9 +124,11 @@ class Backup extends Model {
     String? packageName = nonEmptyStringValue(map, 'package_name');
     String? version = nonEmptyStringValue(map, 'version');
     String? databaseVersion = nonEmptyStringValue(map, 'database_version');
+    String? userCurrencies = nonEmptyStringValue(map, 'user_currencies');
 
     return Backup(packageName, version, databaseVersion, categories, records,
-        recurrentRecordsPattern, recordTagAssociations);
+        recurrentRecordsPattern, recordTagAssociations,
+        wallets: wallets, profiles: profiles, userCurrencies: userCurrencies);
   }
 
   static String? nonEmptyStringValue(Map<String, dynamic> map, String key) {

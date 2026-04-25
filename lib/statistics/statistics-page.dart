@@ -10,7 +10,9 @@ class StatisticsPage extends StatefulWidget {
   final List<Record?> records;
   final DateTime? from;
   final DateTime? to;
-  StatisticsPage(this.from, this.to, this.records);
+  final Map<int, String?> walletCurrencyMap;
+  StatisticsPage(this.from, this.to, this.records,
+      {this.walletCurrencyMap = const {}});
 
   @override
   _StatisticsPageState createState() => _StatisticsPageState();
@@ -79,10 +81,12 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.to,
               widget.records
                   .where((element) =>
-                      element!.category!.categoryType == CategoryType.expense)
+                      element!.category!.categoryType == CategoryType.expense &&
+                      !element.isTransfer)
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
+              walletCurrencyMap: widget.walletCurrencyMap,
               onIntervalSelected: (newTitle, date, amount) {
                 setState(() {
                   _selectedIntervalTitle = newTitle;
@@ -95,10 +99,12 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.to,
               widget.records
                   .where((element) =>
-                      element!.category!.categoryType == CategoryType.income)
+                      element!.category!.categoryType == CategoryType.income &&
+                      !element.isTransfer)
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
+              walletCurrencyMap: widget.walletCurrencyMap,
               onIntervalSelected: (newTitle, date, amount) {
                 setState(() {
                   _selectedIntervalTitle = newTitle;
@@ -112,6 +118,7 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.records,
               selectedDate: _selectedDate,
               showRecordsToggle: true,
+              walletCurrencyMap: widget.walletCurrencyMap,
               onIntervalSelected: (newTitle, date) {
                 setState(() {
                   _selectedIntervalTitle = newTitle;

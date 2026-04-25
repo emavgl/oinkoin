@@ -18,6 +18,10 @@ class RecurrentRecordPattern {
   RecurrentPeriod? recurrentPeriod;
   DateTime? utcLastUpdate;
   Set<String> tags = {};
+  int? walletId;
+  int? transferWalletId;
+  double? transferValue;
+  int? profileId;
 
   RecurrentRecordPattern(this.value, this.title, this.category,
       this.utcDateTime, this.recurrentPeriod,
@@ -26,6 +30,10 @@ class RecurrentRecordPattern {
       this.utcEndDate,
       this.utcLastUpdate,
       this.timeZoneName,
+      this.walletId,
+      this.transferWalletId,
+      this.transferValue,
+      this.profileId,
       Set<String>? tags}) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
@@ -46,6 +54,10 @@ class RecurrentRecordPattern {
         utcDateTime = record.utcDateTime,
         description = record.description,
         timeZoneName = record.timeZoneName,
+        walletId = record.walletId,
+        transferWalletId = record.transferWalletId,
+        transferValue = record.transferValue,
+        profileId = record.profileId,
         tags = record.tags;
 
   /// Serialize to database
@@ -62,6 +74,10 @@ class RecurrentRecordPattern {
       'last_update': utcLastUpdate?.millisecondsSinceEpoch,
       'tags': tags.where((t) => t.trim().isNotEmpty).join(','),
       'end_date': utcEndDate?.millisecondsSinceEpoch,
+      'wallet_id': walletId,
+      'transfer_wallet_id': transferWalletId,
+      'transfer_value': transferValue,
+      'profile_id': profileId,
     };
     if (id != null) map['id'] = id;
     return map;
@@ -93,11 +109,11 @@ class RecurrentRecordPattern {
     }
 
     Set<String> tags = map['tags'] != null
-      ? (map['tags'] as String)
-        .split(',')
-        .where((t) => t.trim().isNotEmpty)
-        .toSet()
-      : {};
+        ? (map['tags'] as String)
+            .split(',')
+            .where((t) => t.trim().isNotEmpty)
+            .toSet()
+        : {};
 
     return RecurrentRecordPattern(
       map['value'],
@@ -110,6 +126,10 @@ class RecurrentRecordPattern {
       utcEndDate: utcEndDate,
       utcLastUpdate: utcLastUpdate,
       timeZoneName: timezone,
+      walletId: map['wallet_id'] as int?,
+      transferWalletId: map['transfer_wallet_id'] as int?,
+      transferValue: (map['transfer_value'] as num?)?.toDouble(),
+      profileId: map['profile_id'] as int?,
       tags: tags,
     );
   }

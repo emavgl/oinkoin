@@ -24,6 +24,7 @@ class UnifiedBalanceCard extends StatefulWidget {
   final DateTime? to;
   final Function(DateTime?)? onSelectionChanged;
   final DateTime? selectedDate;
+  final Map<int, String?> walletCurrencyMap;
 
   const UnifiedBalanceCard(
     this.from,
@@ -32,6 +33,7 @@ class UnifiedBalanceCard extends StatefulWidget {
     this.aggregationMethod, {
     this.onSelectionChanged,
     this.selectedDate,
+    this.walletCurrencyMap = const {},
   }) : super();
 
   @override
@@ -172,6 +174,7 @@ class _UnifiedBalanceCardState extends State<UnifiedBalanceCard> {
           _getFilteredRecords(),
           widget.aggregationMethod,
           isBalance: true,
+          walletCurrencyMap: widget.walletCurrencyMap,
           actions: [
             OverviewCardAction(
               icon: _showNetView

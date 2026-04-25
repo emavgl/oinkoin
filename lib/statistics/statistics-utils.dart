@@ -91,7 +91,7 @@ DateTime truncateDateTime(
   DateTime newDateTime;
   switch (aggregationMethod!) {
     case AggregationMethod.DAY:
-      newDateTime = new DateTime(dateTime.year, dateTime.month, dateTime.day);
+      newDateTime = DateTime(dateTime.year, dateTime.month, dateTime.day);
       break;
     case AggregationMethod.WEEK:
       // Truncate to the first day given the bin 1-7, 8-14, 15-21, 22-end of month
@@ -107,13 +107,13 @@ DateTime truncateDateTime(
       } else {
         truncatedDay = 29;
       }
-      newDateTime = new DateTime(dateTime.year, dateTime.month, truncatedDay);
+      newDateTime = DateTime(dateTime.year, dateTime.month, truncatedDay);
       break;
     case AggregationMethod.MONTH:
-      newDateTime = new DateTime(dateTime.year, dateTime.month);
+      newDateTime = DateTime(dateTime.year, dateTime.month);
       break;
     case AggregationMethod.YEAR:
-      newDateTime = new DateTime(dateTime.year);
+      newDateTime = DateTime(dateTime.year);
       break;
     case AggregationMethod.NOT_AGGREGATED:
       newDateTime = dateTime;
@@ -128,7 +128,7 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
   /// Record Day 1: 100 euro Food, 20 euro Food, 30 euro Transport
   /// Record Day 1: 150 euro,
   /// Available grouping: by day, month, year.
-  Map<DateTime?, DateTimeSeriesRecord> aggregatedByDay = new Map();
+  Map<DateTime?, DateTimeSeriesRecord> aggregatedByDay = {};
   for (var record in records) {
     DateTime? dateTime = truncateDateTime(record!.dateTime, aggregationMethod);
     double valueToAdd = record.value!.abs();
@@ -136,8 +136,8 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
       valueToAdd *= record.tags.length;
     }
     aggregatedByDay.update(dateTime,
-        (tsr) => new DateTimeSeriesRecord(dateTime, tsr.value + valueToAdd),
-        ifAbsent: () => new DateTimeSeriesRecord(dateTime, valueToAdd));
+        (tsr) => DateTimeSeriesRecord(dateTime, tsr.value + valueToAdd),
+        ifAbsent: () => DateTimeSeriesRecord(dateTime, valueToAdd));
   }
   List<DateTimeSeriesRecord> data = aggregatedByDay.values.toList();
   data.sort((a, b) => a.value.compareTo(b.value));
@@ -163,7 +163,7 @@ List<Record?> aggregateRecordsByDateAndCategory(
         Category category = recordsSameDateTimeSameCategory.value[0]!.category!;
         var value = recordsSameDateTimeSameCategory.value.fold(0,
             (dynamic previousValue, element) => previousValue + element!.value);
-        aggregatedRecord = new Record(value, category.name, category,
+        aggregatedRecord = Record(value, category.name, category,
             truncateDateTime(recordsByDatetime.key!, aggregationMethod));
         aggregatedRecord.aggregatedValues =
             recordsSameDateTimeSameCategory.value.length;
@@ -203,7 +203,7 @@ List<Record?> aggregateRecordsByDateAndTag(
             (dynamic previousValue, element) => previousValue + element!.value);
         // Use category name as title instead of tag for better display
         String? title = category?.name ?? tag;
-        aggregatedRecord = new Record(value, title, category,
+        aggregatedRecord = Record(value, title, category,
             truncateDateTime(recordsByDatetime.key!, aggregationMethod));
         aggregatedRecord.tags = {tag};
         aggregatedRecord.aggregatedValues =
@@ -230,8 +230,8 @@ DateTime getEndOfInterval(
     case AggregationMethod.DAY:
       return DateTime(start.year, start.month, start.day, 23, 59, 59);
     case AggregationMethod.WEEK:
-      // Calculate the end of the week bin (1-7, 8-14, 15-21, 22-end of month)
-      // based on the start day, not calendar week
+      // Calculate the end of the week bin (1-7, 8-14, 15-21, 22-28, 29-end)
+      // based on the start day, matching truncateDateTime bins
       int endDay;
       int startDay = start.day;
       if (startDay == 1) {
@@ -241,10 +241,9 @@ DateTime getEndOfInterval(
       } else if (startDay == 15) {
         endDay = 21;
       } else if (startDay == 22) {
-        endDay =
-            DateTime(start.year, start.month + 1, 0).day; // Last day of month
+        endDay = 28;
       } else {
-        // For any other day, assume end of month
+        // Day 29+ — last partial bin to end of month
         endDay = DateTime(start.year, start.month + 1, 0).day;
       }
       return DateTime(start.year, start.month, endDay, 23, 59, 59);

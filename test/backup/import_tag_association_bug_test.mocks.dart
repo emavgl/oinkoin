@@ -11,6 +11,8 @@ import 'package:piggybank/models/category.dart' as _i4;
 import 'package:piggybank/models/record-tag-association.dart' as _i7;
 import 'package:piggybank/models/record.dart' as _i6;
 import 'package:piggybank/models/recurrent-record-pattern.dart' as _i8;
+import 'package:piggybank/models/profile.dart' as _i10;
+import 'package:piggybank/models/wallet.dart' as _i9;
 import 'package:piggybank/services/database/database-interface.dart' as _i2;
 
 // ignore_for_file: type=lint
@@ -212,10 +214,12 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<DateTime?>);
 
   @override
-  _i3.Future<List<_i6.Record?>> getAllRecords() => (super.noSuchMethod(
+  _i3.Future<List<_i6.Record?>> getAllRecords({int? profileId}) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getAllRecords,
           [],
+          {#profileId: profileId},
         ),
         returnValue: _i3.Future<List<_i6.Record?>>.value(<_i6.Record?>[]),
       ) as _i3.Future<List<_i6.Record?>>);
@@ -223,8 +227,9 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
   @override
   _i3.Future<List<_i6.Record?>> getAllRecordsInInterval(
     DateTime? from,
-    DateTime? to,
-  ) =>
+    DateTime? to, {
+    int? profileId,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllRecordsInInterval,
@@ -232,6 +237,7 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
             from,
             to,
           ],
+          {#profileId: profileId},
         ),
         returnValue: _i3.Future<List<_i6.Record?>>.value(<_i6.Record?>[]),
       ) as _i3.Future<List<_i6.Record?>>);
@@ -379,11 +385,13 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<_i8.RecurrentRecordPattern>> getRecurrentRecordPatterns() =>
+  _i3.Future<List<_i8.RecurrentRecordPattern>> getRecurrentRecordPatterns(
+          {int? profileId}) =>
       (super.noSuchMethod(
         Invocation.method(
           #getRecurrentRecordPatterns,
           [],
+          {#profileId: profileId},
         ),
         returnValue: _i3.Future<List<_i8.RecurrentRecordPattern>>.value(
             <_i8.RecurrentRecordPattern>[]),
@@ -440,6 +448,183 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i9.Wallet>> getAllWallets({int? profileId}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getAllWallets,
+          [],
+          {#profileId: profileId},
+        ),
+        returnValue: _i3.Future<List<_i9.Wallet>>.value(<_i9.Wallet>[]),
+      ) as _i3.Future<List<_i9.Wallet>>);
+
+  @override
+  _i3.Future<List<_i10.Profile>> getAllProfiles() => (super.noSuchMethod(
+        Invocation.method(
+          #getAllProfiles,
+          [],
+        ),
+        returnValue:
+            _i3.Future<List<_i10.Profile>>.value(<_i10.Profile>[]),
+      ) as _i3.Future<List<_i10.Profile>>);
+
+  @override
+  _i3.Future<_i10.Profile?> getDefaultProfile() => (super.noSuchMethod(
+        Invocation.method(
+          #getDefaultProfile,
+          [],
+        ),
+        returnValue: _i3.Future<_i10.Profile?>.value(),
+      ) as _i3.Future<_i10.Profile?>);
+
+  @override
+  _i3.Future<_i10.Profile?> getProfileById(int? id) => (super.noSuchMethod(
+        Invocation.method(
+          #getProfileById,
+          [id],
+        ),
+        returnValue: _i3.Future<_i10.Profile?>.value(),
+      ) as _i3.Future<_i10.Profile?>);
+
+  @override
+  _i3.Future<int> addProfile(_i10.Profile? profile) => (super.noSuchMethod(
+        Invocation.method(
+          #addProfile,
+          [profile],
+        ),
+        returnValue: _i3.Future<int>.value(0),
+      ) as _i3.Future<int>);
+
+  @override
+  _i3.Future<void> updateProfile(_i10.Profile? profile) => (super.noSuchMethod(
+        Invocation.method(
+          #updateProfile,
+          [profile],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteProfileAndRecords(int? id) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteProfileAndRecords,
+          [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<_i9.Wallet?> getWalletById(int? id) => (super.noSuchMethod(
+        Invocation.method(
+          #getWalletById,
+          [id],
+        ),
+        returnValue: _i3.Future<_i9.Wallet?>.value(),
+      ) as _i3.Future<_i9.Wallet?>);
+
+  @override
+  _i3.Future<int> addWallet(_i9.Wallet? wallet) => (super.noSuchMethod(
+        Invocation.method(
+          #addWallet,
+          [wallet],
+        ),
+        returnValue: _i3.Future<int>.value(0),
+      ) as _i3.Future<int>);
+
+  @override
+  _i3.Future<void> updateWallet(
+    int? id,
+    _i9.Wallet? wallet,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateWallet,
+          [
+            id,
+            wallet,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteWalletAndRecords(int? id) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteWalletAndRecords,
+          [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> moveRecordsToWallet(
+    int? fromId,
+    int? toId,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #moveRecordsToWallet,
+          [
+            fromId,
+            toId,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> archiveWallet(
+    int? id,
+    bool? isArchived,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #archiveWallet,
+          [
+            id,
+            isArchived,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> setDefaultWallet(int? id) => (super.noSuchMethod(
+        Invocation.method(
+          #setDefaultWallet,
+          [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> resetWalletOrderIndexes(List<_i9.Wallet>? ordered) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #resetWalletOrderIndexes,
+          [ordered],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<_i9.Wallet?> getDefaultWallet() => (super.noSuchMethod(
+        Invocation.method(
+          #getDefaultWallet,
+          [],
+        ),
+        returnValue: _i3.Future<_i9.Wallet?>.value(),
+      ) as _i3.Future<_i9.Wallet?>);
 
   @override
   _i3.Future<void> deleteDatabase() => (super.noSuchMethod(

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/i18n.dart';
@@ -16,6 +17,7 @@ import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/tags/tags-page-view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'currencies-page.dart';
 import 'feedback-page.dart';
 
 // look here for how to store settings
@@ -23,7 +25,6 @@ import 'feedback-page.dart';
 //https://pub.dev/packages/shared_preferences
 
 class TabSettings extends StatelessWidget {
-
   static final _logger = Logger.withClass(TabSettings);
 
   static const double kSettingsItemsExtent = 75.0;
@@ -84,6 +85,13 @@ class TabSettings extends StatelessWidget {
     );
   }
 
+  goToCurrenciesPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CurrenciesPage()),
+    );
+  }
+
   goToBackupPage(BuildContext context) async {
     await Navigator.push(
       context,
@@ -99,11 +107,9 @@ class TabSettings extends StatelessWidget {
   }
 
   goToLogs(BuildContext context) async {
-    Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const LogScreen(),
-        )
-    );
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => const LogScreen(),
+    ));
   }
 
   Future<void> _launchURL(BuildContext context, String url) async {
@@ -134,7 +140,8 @@ class TabSettings extends StatelessWidget {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Could not open link. Make sure xdg-utils is installed.'),
+                content: Text(
+                    'Could not open link. Make sure xdg-utils is installed.'),
                 duration: Duration(seconds: 5),
               ),
             );
@@ -206,6 +213,33 @@ class TabSettings extends StatelessWidget {
               subtitle: "Visual settings and more".i18n,
               onPressed: () async => await goToCustomizationPage(context)),
           Divider(),
+          Stack(
+            children: [
+              SettingsItem(
+                  icon: Icon(
+                    Icons.currency_exchange,
+                    color: Colors.white,
+                  ),
+                  iconBackgroundColor: Colors.green.shade700,
+                  title: 'Currencies'.i18n,
+                  subtitle: "Manage your currencies and conversion rates".i18n,
+                  onPressed: ServiceConfig.isPremium
+                      ? () async => await goToCurrenciesPage(context)
+                      : () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PremiumSplashScreen()),
+                          );
+                        }),
+              !ServiceConfig.isPremium
+                  ? Container(
+                      margin: EdgeInsets.fromLTRB(8, 8, 0, 0),
+                      child: getProLabel(labelFontSize: 10.0),
+                    )
+                  : Container()
+            ],
+          ),
           SettingsItem(
               icon: Icon(
                 Icons.repeat,
@@ -282,8 +316,7 @@ class TabSettings extends StatelessWidget {
             iconBackgroundColor: Colors.tealAccent.shade700,
             title: 'Info'.i18n,
             subtitle: 'Privacy policy and credits'.i18n,
-            onPressed: () async => await _launchURL(
-                context,
+            onPressed: () async => await _launchURL(context,
                 "https://github.com/emavgl/oinkoin/blob/master/privacy-policy.md"),
           ),
           SettingsItem(
@@ -303,7 +336,7 @@ class TabSettings extends StatelessWidget {
           ),
           SettingsItem(
             icon: Icon(
-              Icons.mail_outline,
+              Icons.receipt_long,
               color: Colors.white,
             ),
             iconBackgroundColor: Colors.grey.shade700,
@@ -311,6 +344,22 @@ class TabSettings extends StatelessWidget {
             subtitle: "Got problems? Check out the logs".i18n,
             onPressed: () async => await goToLogs(context),
           ),
+          if (kDebugMode || ServiceConfig.packageName!.contains("alpha"))
+            ValueListenableBuilder<bool>(
+              valueListenable: ServiceConfig.premiumNotifier,
+              builder: (context, isPremium, child) {
+                return SettingsItem(
+                  icon: Icon(
+                    Icons.bug_report,
+                    color: Colors.white,
+                  ),
+                  iconBackgroundColor: Colors.grey.shade700,
+                  title: 'Debug: Switch Pro',
+                  subtitle: isPremium ? 'Premium: ON' : 'Premium: OFF',
+                  onPressed: ServiceConfig.togglePremium,
+                );
+              },
+            ),
         ],
       ),
     ));

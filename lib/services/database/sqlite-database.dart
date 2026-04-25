@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:piggybank/i18n.dart';
+
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,8 +19,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
+import '../../models/profile.dart';
 import '../../models/record-tag-association.dart';
+import '../../models/wallet.dart';
 import '../logger.dart';
+import '../profile-service.dart';
 import 'exceptions.dart';
 
 class SqliteDatabase implements DatabaseInterface {
@@ -29,7 +34,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 17;
+  static int get version => 25;
   static Database? _db;
 
   /// For testing only: allows setting a custom database instance
@@ -76,7 +81,7 @@ class SqliteDatabase implements DatabaseInterface {
 
       String _path = join(databasePath, 'movements.db');
       _logger.debug('Database path: $_path');
-      
+
       var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
           options:
               SqfliteLoggerOptions(type: SqfliteDatabaseFactoryLoggerType.all));
@@ -187,8 +192,9 @@ class SqliteDatabase implements DatabaseInterface {
     try {
       _logger.debug('Adding record: ${record?.title} (${record?.value})');
       final db = (await database)!;
+      record!.profileId ??= ProfileService.instance.activeProfileId;
       if (await getCategory(
-              record!.category!.name, record.category!.categoryType!) ==
+              record.category!.name, record.category!.categoryType!) ==
           null) {
         await addCategory(record.category);
       }
@@ -219,55 +225,61 @@ class SqliteDatabase implements DatabaseInterface {
       final db = (await database)!;
       Batch batch = db.batch();
 
-    for (var record in records) {
-      if (record == null) {
-        continue;
-      }
-      record.id = null;
+      for (var record in records) {
+        if (record == null) {
+          continue;
+        }
+        record.id = null;
 
-      // Update the INSERT statement to include the new column `time_zone_name`
-      batch.rawInsert("""
-      INSERT OR IGNORE INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id) 
-      SELECT ?, ?, ?, ?, ?, ?, ?, ?
+        record.profileId ??= ProfileService.instance.activeProfileId;
+        batch.rawInsert("""
+      INSERT OR IGNORE INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id, wallet_id, transfer_wallet_id, transfer_value, profile_id)
+      SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       WHERE NOT EXISTS (
-        SELECT 1 FROM records 
-        WHERE datetime = ? 
-          AND value = ? 
-          AND (title IS NULL OR title = ?) 
-          AND category_name = ? 
+        SELECT 1 FROM records
+        WHERE datetime = ?
+          AND value = ?
+          AND (title IS NULL OR title = ?)
+          AND category_name = ?
           AND category_type = ?
+          AND (profile_id IS NULL OR profile_id = ?)
       )
     """, [
-        record.title,
-        record.value,
-        record.utcDateTime.millisecondsSinceEpoch, // Use utcDateTime
-        record.timeZoneName, // Store the timezone name
-        record.category!.name,
-        record.category!.categoryType!.index,
-        record.description,
-        record.recurrencePatternId,
+          record.title,
+          record.value,
+          record.utcDateTime.millisecondsSinceEpoch,
+          record.timeZoneName,
+          record.category!.name,
+          record.category!.categoryType!.index,
+          record.description,
+          record.recurrencePatternId,
+          record.walletId,
+          record.transferWalletId,
+          record.transferValue,
+          record.profileId,
 
-        // Duplicate check values
-        record.utcDateTime.millisecondsSinceEpoch,
-        record.value,
-        record.title,
-        record.category!.name,
-        record.category!.categoryType!.index,
-      ]);
-    }
-
-    await batch.commit(noResult: true);
-    _logger.info('Batch insert committed: ${records.length} records');
-
-    // Insert tags for each record in a second batch after getting record IDs
-    Batch tagBatch = db.batch();
-    for (var record in records) {
-      if (record == null || record.tags.isEmpty) {
-        continue;
+          // Duplicate check values
+          record.utcDateTime.millisecondsSinceEpoch,
+          record.value,
+          record.title,
+          record.category!.name,
+          record.category!.categoryType!.index,
+          record.profileId,
+        ]);
       }
 
-      // Find the record ID by querying for the record we just inserted
-      var recordId = await db.rawQuery("""
+      await batch.commit(noResult: true);
+      _logger.info('Batch insert committed: ${records.length} records');
+
+      // Insert tags for each record in a second batch after getting record IDs
+      Batch tagBatch = db.batch();
+      for (var record in records) {
+        if (record == null || record.tags.isEmpty) {
+          continue;
+        }
+
+        // Find the record ID by querying for the record we just inserted
+        var recordId = await db.rawQuery("""
         SELECT id FROM records 
         WHERE datetime = ? 
           AND value = ? 
@@ -276,29 +288,29 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
         LIMIT 1
       """, [
-        record.utcDateTime.millisecondsSinceEpoch,
-        record.value,
-        record.title,
-        record.category!.name,
-        record.category!.categoryType!.index,
-      ]);
+          record.utcDateTime.millisecondsSinceEpoch,
+          record.value,
+          record.title,
+          record.category!.name,
+          record.category!.categoryType!.index,
+        ]);
 
-      if (recordId.isNotEmpty) {
-        final id = recordId.first['id'] as int;
-        for (String tag in record.tags) {
-          if (tag.trim().isNotEmpty) {
-            tagBatch.insert(
-              "records_tags",
-              {'record_id': id, 'tag_name': tag},
-              conflictAlgorithm: ConflictAlgorithm.ignore,
-            );
+        if (recordId.isNotEmpty) {
+          final id = recordId.first['id'] as int;
+          for (String tag in record.tags) {
+            if (tag.trim().isNotEmpty) {
+              tagBatch.insert(
+                "records_tags",
+                {'record_id': id, 'tag_name': tag},
+                conflictAlgorithm: ConflictAlgorithm.ignore,
+              );
+            }
           }
         }
       }
-    }
 
-    await tagBatch.commit(noResult: true);
-    _logger.info('Batch complete with tags');
+      await tagBatch.commit(noResult: true);
+      _logger.info('Batch complete with tags');
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
       rethrow;
@@ -342,8 +354,10 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<List<Record>> getAllRecords() async {
+  Future<List<Record>> getAllRecords({int? profileId}) async {
     final db = (await database)!;
+    final profileFilter =
+        profileId != null ? "WHERE m.profile_id = $profileId" : "";
     var maps = await db.rawQuery("""
             SELECT
                 m.*,
@@ -358,6 +372,7 @@ class SqliteDatabase implements DatabaseInterface {
                 ON m.category_name = c.name AND m.category_type = c.category_type
             LEFT JOIN records_tags AS rt
                 ON m.id = rt.record_id
+            $profileFilter
             GROUP BY m.id
         """);
     return List.generate(maps.length, (i) {
@@ -441,7 +456,8 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<List<Record>> getAllRecordsInInterval(
-      DateTime? localDateTimeFrom, DateTime? localDateTimeTo) async {
+      DateTime? localDateTimeFrom, DateTime? localDateTimeTo,
+      {int? profileId}) async {
     final db = (await database)!;
 
     final fromUtc =
@@ -450,6 +466,9 @@ class SqliteDatabase implements DatabaseInterface {
 
     final fromUnix = fromUtc.millisecondsSinceEpoch;
     final toUnix = toUtc.millisecondsSinceEpoch;
+
+    final profileFilter =
+        profileId != null ? "AND m.profile_id = $profileId" : "";
 
     var maps = await db.rawQuery("""
             SELECT
@@ -467,6 +486,7 @@ class SqliteDatabase implements DatabaseInterface {
             LEFT JOIN records_tags AS rt
                 ON m.id = rt.record_id
             WHERE m.datetime >= ? AND m.datetime <= ?
+            $profileFilter
             GROUP BY m.id
         """, [fromUnix, toUnix]);
 
@@ -517,18 +537,359 @@ class SqliteDatabase implements DatabaseInterface {
 
   Future<void> deleteDatabase() async {
     final db = (await database)!;
+
+    // Delete all transactional data
     await db.execute("DELETE FROM records");
-    await db.execute("DELETE FROM categories");
-    await db.execute("DELETE FROM recurrent_record_patterns");
     await db.execute("DELETE FROM records_tags");
+    await db.execute("DELETE FROM recurrent_record_patterns");
+
+    // Delete all categories
+    await db.execute("DELETE FROM categories");
+
+    // Delete all non-default wallets (preserve the default wallet)
+    await db.execute("DELETE FROM wallets WHERE is_default = 0");
+
+    // Delete all non-default profiles (preserve the default profile)
+    await db.execute("DELETE FROM profiles WHERE is_default = 0");
+
+    // Reset auto-increment sequences for fully cleared tables
     await db.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records'");
     await db
-        .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
+        .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records_tags'");
     await db.execute(
         "UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='recurrent_record_patterns'");
     await db
-        .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='records_tags'");
+        .execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='categories'");
+
+    // Update sequences for profiles and wallets to match remaining rows
+    await db.execute(
+        "UPDATE SQLITE_SEQUENCE SET SEQ=(SELECT COALESCE(MAX(id), 0) FROM profiles) WHERE NAME='profiles'");
+    await db.execute(
+        "UPDATE SQLITE_SEQUENCE SET SEQ=(SELECT COALESCE(MAX(id), 0) FROM wallets) WHERE NAME='wallets'");
+
     _db = null;
+  }
+
+  // Profile CRUD
+  @override
+  Future<List<Profile>> getAllProfiles() async {
+    final db = (await database)!;
+    final maps = await db.query('profiles', orderBy: 'id');
+    return maps
+        .map((m) => Profile.fromMap(Map<String, dynamic>.from(m)))
+        .toList();
+  }
+
+  @override
+  Future<Profile?> getDefaultProfile() async {
+    final db = (await database)!;
+    final maps = await db.query('profiles', where: 'is_default = 1', limit: 1);
+    if (maps.isEmpty) return null;
+    return Profile.fromMap(Map<String, dynamic>.from(maps.first));
+  }
+
+  @override
+  Future<void> setDefaultProfile(int id) async {
+    final db = (await database)!;
+    await db.rawUpdate('UPDATE profiles SET is_default = 0');
+    await db.rawUpdate('UPDATE profiles SET is_default = 1 WHERE id = ?', [id]);
+  }
+
+  @override
+  Future<Profile?> getProfileById(int id) async {
+    final db = (await database)!;
+    final maps = await db.query('profiles', where: 'id = ?', whereArgs: [id]);
+    if (maps.isEmpty) return null;
+    return Profile.fromMap(Map<String, dynamic>.from(maps.first));
+  }
+
+  @override
+  Future<int> addProfile(Profile profile) async {
+    final db = (await database)!;
+    final map = profile.toMap()..remove('id');
+    final profileId = await db.insert('profiles', map);
+    await db.rawInsert(
+      "INSERT INTO wallets (name, is_default, is_predefined, sort_order, profile_id, color) VALUES (?, 1, 1, 0, ?, ?)",
+      ["Default Wallet".i18n, profileId, "255:129:199:132"],
+    );
+    return profileId;
+  }
+
+  @override
+  Future<void> updateProfile(Profile profile) async {
+    final db = (await database)!;
+    final map = profile.toMap()..remove('id');
+    await db.update('profiles', map, where: 'id = ?', whereArgs: [profile.id]);
+  }
+
+  @override
+  Future<void> deleteProfileAndRecords(int id) async {
+    final db = (await database)!;
+    for (final table in ['records', 'recurrent_record_patterns', 'wallets']) {
+      await db.delete(table, where: 'profile_id = ?', whereArgs: [id]);
+    }
+    await db.delete('profiles', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Wallet implementation
+
+  static String _walletBalanceQuery({int? profileId}) {
+    final profileFilter =
+        profileId != null ? "WHERE w.profile_id = $profileId" : "";
+    return """
+    SELECT w.*,
+           COALESCE(SUM(r.value), 0) +
+           COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id), 0) +
+           w.initial_amount AS balance
+    FROM wallets w
+    LEFT JOIN records r ON r.wallet_id = w.id
+    $profileFilter
+    GROUP BY w.id
+    ORDER BY w.sort_order
+  """;
+  }
+
+  @override
+  Future<List<Wallet>> getAllWallets({int? profileId}) async {
+    final db = (await database)!;
+    final maps = await db.rawQuery(_walletBalanceQuery(profileId: profileId));
+    return maps
+        .map((m) => Wallet.fromMap(Map<String, dynamic>.from(m)))
+        .toList();
+  }
+
+  @override
+  Future<Wallet?> getWalletById(int id) async {
+    final db = (await database)!;
+    final maps = await db.rawQuery("""
+      SELECT w.*,
+             COALESCE(SUM(r.value), 0) +
+             COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id), 0) +
+             w.initial_amount AS balance
+      FROM wallets w
+      LEFT JOIN records r ON r.wallet_id = w.id
+      WHERE w.id = ?
+      GROUP BY w.id
+    """, [id]);
+    if (maps.isEmpty) return null;
+    return Wallet.fromMap(Map<String, dynamic>.from(maps.first));
+  }
+
+  @override
+  Future<Wallet?> getWalletByName(String name, int? profileId) async {
+    final db = (await database)!;
+    final maps = await db.rawQuery("""
+      SELECT w.*,
+             COALESCE(SUM(r.value), 0) +
+             COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id), 0) +
+             w.initial_amount AS balance
+      FROM wallets w
+      LEFT JOIN records r ON r.wallet_id = w.id
+      WHERE w.name = ? AND w.profile_id IS ?
+      GROUP BY w.id
+    """, [name, profileId]);
+    if (maps.isEmpty) return null;
+    return Wallet.fromMap(Map<String, dynamic>.from(maps.first));
+  }
+
+  @override
+  Future<int> addWallet(Wallet wallet) async {
+    _logger.debug('Adding wallet: ${wallet.name}');
+    final db = (await database)!;
+    wallet.profileId ??= ProfileService.instance.activeProfileId;
+    final map = wallet.toMap()..remove('id');
+    final id = await db.insert('wallets', map);
+    _logger.info('Wallet added: ID $id (${wallet.name})');
+    return id;
+  }
+
+  @override
+  Future<void> updateWallet(int id, Wallet wallet) async {
+    _logger.debug('Updating wallet ID $id: ${wallet.name}');
+    final db = (await database)!;
+    final map = wallet.toMap()..remove('id');
+    await db.update('wallets', map, where: 'id = ?', whereArgs: [id]);
+    _logger.info('Wallet updated: ID $id (${wallet.name})');
+  }
+
+  @override
+  Future<void> deleteWalletAndRecords(int id) async {
+    _logger.debug('Deleting wallet ID $id and its records');
+    final db = (await database)!;
+    final wasSystemDefault = Sqflite.firstIntValue(await db
+            .rawQuery('SELECT is_default FROM wallets WHERE id = ?', [id])) ==
+        1;
+    final wasPredefined = Sqflite.firstIntValue(await db.rawQuery(
+            'SELECT is_predefined FROM wallets WHERE id = ?', [id])) ==
+        1;
+
+    // Collect recurrence_ids from patterns being deleted so we can also
+    // clean up records that may have been generated with a mismatched
+    // wallet_id (e.g. NULL wallet due to a past import bug).
+    final patternRows = await db.query('recurrent_record_patterns',
+        columns: ['id'], where: 'wallet_id = ?', whereArgs: [id]);
+    final recurrenceIds = patternRows.map((r) => r['id'] as String).toList();
+
+    for (final table in ['records', 'recurrent_record_patterns']) {
+      await db.delete(table, where: 'wallet_id = ?', whereArgs: [id]);
+      await db.delete(table, where: 'transfer_wallet_id = ?', whereArgs: [id]);
+    }
+    await db.delete('wallets', where: 'id = ?', whereArgs: [id]);
+
+    // Delete any remaining records generated from the deleted patterns
+    // whose wallet_id may not match (e.g. NULL wallet).
+    if (recurrenceIds.isNotEmpty) {
+      final placeholders = recurrenceIds.map((_) => '?').join(',');
+      await db.delete('records',
+          where: 'recurrence_id IN ($placeholders)', whereArgs: recurrenceIds);
+    }
+
+    if (wasSystemDefault) await _ensureDefaultWallet(db);
+    if (wasPredefined) await _ensurePredefinedWallet(db);
+    _logger.info('Wallet ID $id deleted');
+  }
+
+  @override
+  Future<void> moveRecordsToWallet(int fromId, int toId) async {
+    _logger.debug('Moving records from wallet ID $fromId to wallet ID $toId');
+    final db = (await database)!;
+    for (final table in ['records', 'recurrent_record_patterns']) {
+      await _migrateWalletRefsInTable(db, table, fromId, toId);
+    }
+    _logger.info('Records moved from wallet ID $fromId to wallet ID $toId');
+  }
+
+  /// Migrates all wallet references from [fromId] to [toId] in [table].
+  ///
+  /// Transfers that would become self-referential (source == destination) are
+  /// deleted on both sides. All other wallet_id and transfer_wallet_id
+  /// references are updated to point to [toId].
+  Future<void> _migrateWalletRefsInTable(
+      dynamic db, String table, int fromId, int toId) async {
+    // Transfers between the two wallets would become self-transfers — delete both sides.
+    await db.delete(table,
+        where: 'wallet_id = ? AND transfer_wallet_id = ?',
+        whereArgs: [fromId, toId]);
+    await db.delete(table,
+        where: 'wallet_id = ? AND transfer_wallet_id = ?',
+        whereArgs: [toId, fromId]);
+    await db.rawUpdate(
+        'UPDATE $table SET wallet_id = ? WHERE wallet_id = ?', [toId, fromId]);
+    await db.rawUpdate(
+        'UPDATE $table SET transfer_wallet_id = ? WHERE transfer_wallet_id = ?',
+        [toId, fromId]);
+  }
+
+  @override
+  Future<void> archiveWallet(int id, bool isArchived) async {
+    _logger.debug('${isArchived ? 'Archiving' : 'Unarchiving'} wallet ID $id');
+    final db = (await database)!;
+    final wasSystemDefault = Sqflite.firstIntValue(await db
+            .rawQuery('SELECT is_default FROM wallets WHERE id = ?', [id])) ==
+        1;
+    final wasPredefined = Sqflite.firstIntValue(await db.rawQuery(
+            'SELECT is_predefined FROM wallets WHERE id = ?', [id])) ==
+        1;
+    await db.update(
+      'wallets',
+      {'is_archived': isArchived ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (isArchived && wasSystemDefault) await _ensureDefaultWallet(db);
+    if (isArchived && wasPredefined) await _ensurePredefinedWallet(db);
+    _logger.info('Wallet ID $id ${isArchived ? 'archived' : 'unarchived'}');
+  }
+
+  /// Promotes the first active wallet to default.
+  /// The original Default Wallet cannot be deleted, so there is always at least
+  /// one active wallet available.
+  Future<void> _ensureDefaultWallet(dynamic db) async {
+    final rows = await db.rawQuery(
+        'SELECT id FROM wallets WHERE is_archived = 0 ORDER BY sort_order LIMIT 1');
+    if (rows.isNotEmpty) {
+      final nextId = rows.first['id'] as int;
+      await db.rawUpdate('UPDATE wallets SET is_default = 0');
+      await db.rawUpdate(
+          'UPDATE wallets SET is_default = 1 WHERE id = ?', [nextId]);
+    }
+  }
+
+  Future<void> _ensurePredefinedWallet(dynamic db) async {
+    // If no predefined wallet, set the first non-archived wallet as predefined
+    final existingPredefined =
+        await db.rawQuery('SELECT id FROM wallets WHERE is_predefined = 1');
+    if (existingPredefined.isEmpty) {
+      final rows = await db.rawQuery(
+          'SELECT id FROM wallets WHERE is_archived = 0 ORDER BY sort_order LIMIT 1');
+      if (rows.isNotEmpty) {
+        final nextId = rows.first['id'] as int;
+        await db.rawUpdate(
+            'UPDATE wallets SET is_predefined = 1 WHERE id = ?', [nextId]);
+      }
+    }
+  }
+
+  @override
+  Future<void> setDefaultWallet(int id) async {
+    final db = (await database)!;
+    await db.rawUpdate('UPDATE wallets SET is_default = 0');
+    await db.rawUpdate('UPDATE wallets SET is_default = 1 WHERE id = ?', [id]);
+  }
+
+  @override
+  Future<void> setPredefinedWallet(int id) async {
+    final db = (await database)!;
+    await db.rawUpdate('UPDATE wallets SET is_predefined = 0');
+    await db
+        .rawUpdate('UPDATE wallets SET is_predefined = 1 WHERE id = ?', [id]);
+  }
+
+  @override
+  Future<Wallet?> getPredefinedWallet() async {
+    final db = (await database)!;
+    final maps = await db.rawQuery("""
+      SELECT w.*,
+             COALESCE(SUM(r.value), 0) +
+             COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id), 0) +
+             w.initial_amount AS balance
+      FROM wallets w
+      LEFT JOIN records r ON r.wallet_id = w.id
+      WHERE w.is_predefined = 1
+      GROUP BY w.id
+      LIMIT 1
+    """);
+    if (maps.isEmpty) return null;
+    return Wallet.fromMap(Map<String, dynamic>.from(maps.first));
+  }
+
+  @override
+  Future<void> resetWalletOrderIndexes(List<Wallet> ordered) async {
+    final db = (await database)!;
+    final batch = db.batch();
+    for (int i = 0; i < ordered.length; i++) {
+      batch.update('wallets', {'sort_order': i},
+          where: 'id = ?', whereArgs: [ordered[i].id]);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<Wallet?> getDefaultWallet() async {
+    final db = (await database)!;
+    final maps = await db.rawQuery("""
+      SELECT w.*,
+             COALESCE(SUM(r.value), 0) +
+             COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id), 0) +
+             w.initial_amount AS balance
+      FROM wallets w
+      LEFT JOIN records r ON r.wallet_id = w.id
+      WHERE w.is_default = 1
+      GROUP BY w.id
+      LIMIT 1
+    """);
+    if (maps.isEmpty) return null;
+    return Wallet.fromMap(Map<String, dynamic>.from(maps.first));
   }
 
   @override
@@ -606,6 +967,57 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
+  Future<void> deleteRecordsInBatch(List<int> ids) async {
+    if (ids.isEmpty) return;
+    _logger.debug('Batch deleting ${ids.length} records');
+    final db = (await database)!;
+    final placeholders = List.filled(ids.length, '?').join(',');
+    await db.delete("records", where: "id IN ($placeholders)", whereArgs: ids);
+    _logger.info('Batch deleted ${ids.length} records');
+    // There is a db trigger, deleting a record automatically delete the associated tags
+  }
+
+  @override
+  Future<void> updateRecordWalletInBatch(List<int> ids, int? walletId) async {
+    if (ids.isEmpty) return;
+    _logger.debug('Batch moving ${ids.length} records to wallet ID $walletId');
+    final db = (await database)!;
+    final placeholders = List.filled(ids.length, '?').join(',');
+    await db.update("records", {"wallet_id": walletId},
+        where: "id IN ($placeholders)", whereArgs: ids);
+    _logger.info('Batch moved ${ids.length} records to wallet ID $walletId');
+  }
+
+  @override
+  Future<void> duplicateRecordsInBatch(List<int> ids) async {
+    if (ids.isEmpty) return;
+    _logger.debug('Batch duplicating ${ids.length} records');
+    final now = DateTime.now().toUtc();
+
+    for (final id in ids) {
+      final record = await getRecordById(id);
+      if (record == null) continue;
+
+      final duplicate = Record(
+        record.value,
+        record.title,
+        record.category,
+        now,
+        description: record.description,
+        tags: Set.from(record.tags),
+        walletId: record.walletId,
+        transferWalletId: record.transferWalletId,
+        transferValue: record.transferValue,
+        recurrencePatternId: record.recurrencePatternId,
+        profileId: record.profileId,
+        timeZoneName: record.timeZoneName,
+      );
+      await addRecord(duplicate);
+    }
+    _logger.info('Batch duplicated ${ids.length} records');
+  }
+
+  @override
   Future<void> deleteFutureRecordsByPatternId(
       String recurrentPatternId, DateTime startingDate) async {
     final db = (await database)!;
@@ -617,11 +1029,15 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns() async {
+  Future<List<RecurrentRecordPattern>> getRecurrentRecordPatterns(
+      {int? profileId}) async {
     final db = (await database)!;
+    final profileFilter =
+        profileId != null ? "WHERE m.profile_id = $profileId" : "";
     var maps = await db.rawQuery("""
             SELECT m.*, c.name, c.color, c.category_type, c.icon, c.icon_emoji, c.is_archived, m.tags
             FROM recurrent_record_patterns as m LEFT JOIN categories as c ON m.category_name = c.name AND m.category_type = c.category_type
+            $profileFilter
         """);
 
     var results = List.generate(maps.length, (i) {
@@ -658,6 +1074,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     var uuid = Uuid().v4();
     recordPattern.id = uuid;
+    recordPattern.profileId ??= ProfileService.instance.activeProfileId;
     return await db.insert("recurrent_record_patterns", recordPattern.toMap());
   }
 

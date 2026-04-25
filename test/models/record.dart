@@ -115,11 +115,60 @@ void main() {
             testCategoryForMap.categoryType);
         expect(decodedRecord.description, 'Monthly internet provider bill');
         expect(decodedRecord.recurrencePatternId, 'internet-pattern-1');
-        expect(decodedRecord.tags, ['bill', 'home']);
+        // Note: tags are stored in a separate join table and are not included
+        // in toMap(), so they do not survive a toMap()/fromMap() round-trip.
 
         // Crucial test for UTC datetime and timezone name
         expect(decodedRecord.utcDateTime, fixedUtcTime);
         expect(decodedRecord.timeZoneName, timeZoneName);
+      });
+
+      test('should serialize and deserialize transferValue', () {
+        final category =
+            Category('Transfer', categoryType: CategoryType.expense);
+        final utcTime = DateTime.utc(2024, 1, 1, 12, 0, 0);
+
+        final record = Record(
+          -100.0,
+          'USD to EUR',
+          category,
+          utcTime,
+          walletId: 1,
+          transferWalletId: 2,
+          transferValue: 92.0,
+        );
+
+        final map = record.toMap();
+        expect(map['transfer_value'], 92.0);
+        expect(map['transfer_wallet_id'], 2);
+
+        map['category'] = category;
+        final decoded = Record.fromMap(map);
+        expect(decoded.transferValue, 92.0);
+        expect(decoded.transferWalletId, 2);
+        expect(decoded.isTransfer, true);
+      });
+
+      test('should handle null transferValue', () {
+        final category = Category('Food', categoryType: CategoryType.expense);
+        final utcTime = DateTime.utc(2024, 1, 1, 12, 0, 0);
+
+        final record = Record(
+          -50.0,
+          'Lunch',
+          category,
+          utcTime,
+          walletId: 1,
+        );
+
+        final map = record.toMap();
+        expect(map['transfer_value'], isNull);
+        expect(map['transfer_wallet_id'], isNull);
+
+        map['category'] = category;
+        final decoded = Record.fromMap(map);
+        expect(decoded.transferValue, isNull);
+        expect(decoded.isTransfer, false);
       });
     });
 

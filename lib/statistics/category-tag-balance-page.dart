@@ -52,9 +52,6 @@ class _CategoryTagBalancePageState extends State<CategoryTagBalancePage> {
   @override
   Widget build(BuildContext context) {
     String title = _selectedIntervalTitle ?? widget.title;
-    AggregationMethod currentViewAggregation = getAggregationMethodGivenTheTimeRange(widget.from, widget.to);
-
-    final bool hasTags = widget.records.any((r) => r != null && r.tags.isNotEmpty);
 
     return Scaffold(
       appBar: AppBar(

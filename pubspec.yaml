@@ -58,6 +58,7 @@ dependencies:
   local_auth: ^2.3.0
   timezone: ^0.10.1
   flutter_timezone: ^4.1.1
+  auto_size_text: ^3.0.0
 
 
 dev_dependencies:
