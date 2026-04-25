@@ -362,8 +362,12 @@ class TabRecordsController {
       _walletPrefsLoaded = true;
       _walletPrefsProfileId = ProfileService.instance.activeProfileId;
       selectedWallets = [];
+      final profileId = ProfileService.instance.activeProfileId;
+      if (profileId == null) {
+        onStateChanged();
+        return;
+      }
       final prefs = await SharedPreferences.getInstance();
-      final profileId = ProfileService.instance.activeProfileId!;
       final savedIds =
           prefs.getStringList(PreferencesKeys.homePageWalletFilter(profileId)) ?? [];
       if (savedIds.isNotEmpty) {
