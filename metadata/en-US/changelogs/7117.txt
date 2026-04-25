@@ -1,0 +1,2 @@
+- New translations
+- Add wallets, profiles and currencies (Pro)
