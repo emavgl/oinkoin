@@ -239,9 +239,10 @@ class SqliteDatabase implements DatabaseInterface {
         SELECT 1 FROM records
         WHERE datetime = ?
           AND value = ?
-          AND (title IS NULL OR title = ?)
+          AND title IS ?
           AND category_name = ?
           AND category_type = ?
+          AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
       )
     """, [
@@ -264,6 +265,7 @@ class SqliteDatabase implements DatabaseInterface {
           record.title,
           record.category!.name,
           record.category!.categoryType!.index,
+          record.walletId,
           record.profileId,
         ]);
       }
@@ -280,12 +282,14 @@ class SqliteDatabase implements DatabaseInterface {
 
         // Find the record ID by querying for the record we just inserted
         var recordId = await db.rawQuery("""
-        SELECT id FROM records 
-        WHERE datetime = ? 
-          AND value = ? 
-          AND (title IS NULL OR title = ?) 
-          AND category_name = ? 
+        SELECT id FROM records
+        WHERE datetime = ?
+          AND value = ?
+          AND title IS ?
+          AND category_name = ?
           AND category_type = ?
+          AND wallet_id IS ?
+          AND (profile_id IS NULL OR profile_id = ?)
         LIMIT 1
       """, [
           record.utcDateTime.millisecondsSinceEpoch,
@@ -293,6 +297,8 @@ class SqliteDatabase implements DatabaseInterface {
           record.title,
           record.category!.name,
           record.category!.categoryType!.index,
+          record.walletId,
+          record.profileId,
         ]);
 
         if (recordId.isNotEmpty) {
