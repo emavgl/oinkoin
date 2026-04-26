@@ -47,10 +47,6 @@ class TabRecordsAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isSelectMode) {
-      return _buildSelectionSliverAppBar(context);
-    }
-
     final headerFontSize = controller.getHeaderFontSize();
     final headerPaddingBottom = controller.getHeaderPaddingBottom();
     final canShiftBack = controller.canShiftBack();
@@ -58,15 +54,28 @@ class TabRecordsAppBar extends StatelessWidget {
 
     return SliverAppBar(
       elevation: 0,
+      forceElevated: isSelectMode,
       backgroundColor: Theme.of(context).primaryColor,
       automaticallyImplyLeading: false,
-      leading:
-          (profileName.isNotEmpty && isAppBarExpanded) ? _buildLeading() : null,
-      actions: _buildActions(),
       pinned: true,
       expandedHeight: MediaQuery.of(context).size.height * 0.20 < 180.0
           ? 180.0
           : MediaQuery.of(context).size.height * 0.20,
+      leading: isSelectMode
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: onClose,
+            )
+          : (profileName.isNotEmpty && isAppBarExpanded)
+              ? _buildLeading()
+              : null,
+      title: isSelectMode
+          ? Text(
+              "$selectedCount ${"selected".i18n}",
+              style: const TextStyle(color: Colors.white),
+            )
+          : null,
+      actions: isSelectMode ? _buildSelectionActions() : _buildActions(),
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: const <StretchMode>[
           StretchMode.zoomBackground,
@@ -76,68 +85,9 @@ class TabRecordsAppBar extends StatelessWidget {
         centerTitle: false,
         titlePadding: _getTitlePadding(
             headerPaddingBottom, canShiftBack, canShiftForward),
-        title: _buildTitle(headerFontSize, canShiftBack, canShiftForward),
-        background: _buildBackground(),
-      ),
-    );
-  }
-
-  Widget _buildSelectionSliverAppBar(BuildContext context) {
-    // Keep the same expandedHeight as normal mode to avoid a scroll-area jump.
-    final expandedHeight = MediaQuery.of(context).size.height * 0.20 < 180.0
-        ? 180.0
-        : MediaQuery.of(context).size.height * 0.20;
-
-    return SliverAppBar(
-      elevation: 0,
-      forceElevated: true,
-      backgroundColor: Theme.of(context).primaryColor,
-      automaticallyImplyLeading: false,
-      pinned: true,
-      expandedHeight: expandedHeight,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: onClose,
-      ),
-      title: Text(
-        "$selectedCount ${"selected".i18n}",
-        style: const TextStyle(color: Colors.white),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.white),
-          tooltip: "Delete".i18n,
-          onPressed: selectedCount > 0 ? onDelete : null,
-        ),
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
-          onSelected: (value) {
-            if (value == 'select_all') {
-              onSelectAll?.call();
-            } else if (value == 'duplicate') {
-              onDuplicate?.call();
-            } else if (value == 'move_wallet') {
-              onMoveToWallet?.call();
-            }
-          },
-          itemBuilder: (_) => [
-            PopupMenuItem(
-              value: 'select_all',
-              child: Text('Select all'.i18n),
-            ),
-            PopupMenuItem(
-              value: 'duplicate',
-              child: Text('Duplicate'.i18n),
-            ),
-            if (ServiceConfig.isPremium)
-              PopupMenuItem(
-                value: 'move_wallet',
-                child: Text('Move to wallet'.i18n),
-              ),
-          ],
-        ),
-      ],
-      flexibleSpace: FlexibleSpaceBar(
+        title: isSelectMode && !isAppBarExpanded
+            ? null
+            : _buildTitle(headerFontSize, canShiftBack, canShiftForward),
         background: _buildBackground(),
       ),
     );
@@ -181,6 +131,43 @@ class TabRecordsAppBar extends StatelessWidget {
       StyledPopupMenuButton(
         onSelected: onMenuItemSelected,
         scaleFactor: actionButtonScale,
+      ),
+    ];
+  }
+
+  List<Widget> _buildSelectionActions() {
+    return [
+      IconButton(
+        icon: const Icon(Icons.delete_outline, color: Colors.white),
+        tooltip: "Delete".i18n,
+        onPressed: selectedCount > 0 ? onDelete : null,
+      ),
+      PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert, color: Colors.white),
+        onSelected: (value) {
+          if (value == 'select_all') {
+            onSelectAll?.call();
+          } else if (value == 'duplicate') {
+            onDuplicate?.call();
+          } else if (value == 'move_wallet') {
+            onMoveToWallet?.call();
+          }
+        },
+        itemBuilder: (_) => [
+          PopupMenuItem(
+            value: 'select_all',
+            child: Text('Select all'.i18n),
+          ),
+          PopupMenuItem(
+            value: 'duplicate',
+            child: Text('Duplicate'.i18n),
+          ),
+          if (ServiceConfig.isPremium)
+            PopupMenuItem(
+              value: 'move_wallet',
+              child: Text('Move to wallet'.i18n),
+            ),
+        ],
       ),
     ];
   }
