@@ -1076,8 +1076,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<int> addRecurrentRecordPattern(
       RecurrentRecordPattern recordPattern) async {
     final db = (await database)!;
-    var uuid = Uuid().v4();
-    recordPattern.id = uuid;
+    recordPattern.id ??= Uuid().v4();
     recordPattern.profileId ??= ProfileService.instance.activeProfileId;
     return await db.insert("recurrent_record_patterns", recordPattern.toMap());
   }

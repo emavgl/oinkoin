@@ -111,8 +111,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         child: Text("Every two weeks".i18n, style: TextStyle(fontSize: 18.0))),
     DropdownMenuItem<int>(
         value: RecurrentPeriod.EveryFourWeeks.index,
-        child:
-            Text("Every four weeks".i18n, style: TextStyle(fontSize: 18.0))),
+        child: Text("Every four weeks".i18n, style: TextStyle(fontSize: 18.0))),
     DropdownMenuItem<int>(
       value: RecurrentPeriod.EveryMonth.index,
       child: Text("Every month".i18n, style: TextStyle(fontSize: 18.0)),
@@ -468,7 +467,6 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createDateAndRepeatCard() {
-    final bool isEditingPattern = passedRecurrentRecordPattern != null;
     final bool isRecordFromPattern = record!.recurrencePatternId != null;
 
     final bool showRepeatRow = record!.id == null || recurrentPeriod != null;
@@ -512,7 +510,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+          padding: EdgeInsets.fromLTRB(16, 12, 16, showRepeatRow ? 0 : 12),
           child: Row(
             children: [
               Expanded(
@@ -804,8 +802,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                   FocusScope.of(context).unfocus();
                                   DateTime initialDate = localDisplayEndDate ??
                                       DateTime.now().add(Duration(days: 365));
-                                  int firstDayOfWeek =
-                                      getFirstDayOfWeekIndex();
+                                  int firstDayOfWeek = getFirstDayOfWeekIndex();
                                   DateTime? result = await showDatePicker(
                                       context: context,
                                       initialDate: initialDate,
@@ -1253,14 +1250,15 @@ class EditRecordPageState extends State<EditRecordPage> {
                     if (continueDelete) {
                       if (widget.passedRecord != null) {
                         await database.deleteRecordById(record!.id);
-                        final restoreAmount = PreferencesUtils.getOrDefault<bool>(
-                            ServiceConfig.sharedPreferences!,
-                            PreferencesKeys.restoreAmountOnDelete)!;
+                        final restoreAmount =
+                            PreferencesUtils.getOrDefault<bool>(
+                                ServiceConfig.sharedPreferences!,
+                                PreferencesKeys.restoreAmountOnDelete)!;
                         if (!restoreAmount &&
                             record!.walletId != null &&
                             record!.value != null) {
-                          final wallet = await database
-                              .getWalletById(record!.walletId!);
+                          final wallet =
+                              await database.getWalletById(record!.walletId!);
                           if (wallet != null) {
                             wallet.initialAmount += record!.value!;
                             await database.updateWallet(wallet.id!, wallet);

@@ -79,7 +79,8 @@ class TabRecordsState extends State<TabRecords> {
   }
 
   void _exitSelectMode() {
-    _logger.debug('Exiting select mode (${_selectedRecordIds.length} records were selected)');
+    _logger.debug(
+        'Exiting select mode (${_selectedRecordIds.length} records were selected)');
     setState(() {
       _isSelectMode = false;
       _selectedRecordIds = {};
@@ -110,8 +111,9 @@ class TabRecordsState extends State<TabRecords> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text("Delete records?".i18n),
-        content: Text(
-            "Are you sure you want to delete %s record(s)?".i18n.fill([_selectedRecordIds.length.toString()])),
+        content: Text("Are you sure you want to delete %s record(s)?"
+            .i18n
+            .fill([_selectedRecordIds.length.toString()])),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -158,7 +160,8 @@ class TabRecordsState extends State<TabRecords> {
   Future<void> _batchDuplicate() async {
     // Copy IDs before async operations
     final idsToDuplicate = List<int>.from(_selectedRecordIds);
-    _logger.info('Batch duplicating ${idsToDuplicate.length} records: $idsToDuplicate');
+    _logger.info(
+        'Batch duplicating ${idsToDuplicate.length} records: $idsToDuplicate');
 
     // Exit select mode immediately
     if (mounted) {
@@ -186,8 +189,8 @@ class TabRecordsState extends State<TabRecords> {
   }
 
   Future<void> _batchMoveToWallet() async {
-    final wallets = await ServiceConfig.database.getAllWallets(
-        profileId: ProfileService.instance.activeProfileId);
+    final wallets = await ServiceConfig.database
+        .getAllWallets(profileId: ProfileService.instance.activeProfileId);
     if (!mounted) return;
     final chosenWallet = await showDialog<Wallet>(
       context: context,
@@ -197,7 +200,8 @@ class TabRecordsState extends State<TabRecords> {
 
     // Copy IDs before async operations
     final idsToMove = List<int>.from(_selectedRecordIds);
-    _logger.info('Batch moving ${idsToMove.length} records to wallet "${chosenWallet.name}" (ID ${chosenWallet.id})');
+    _logger.info(
+        'Batch moving ${idsToMove.length} records to wallet "${chosenWallet.name}" (ID ${chosenWallet.id})');
 
     // Exit select mode immediately
     if (mounted) {
@@ -206,8 +210,8 @@ class TabRecordsState extends State<TabRecords> {
 
     try {
       // Batch update wallet IDs (skips transfers with filter in DB)
-      await ServiceConfig.database.updateRecordWalletInBatch(
-          idsToMove, chosenWallet.id);
+      await ServiceConfig.database
+          .updateRecordWalletInBatch(idsToMove, chosenWallet.id);
       // Refresh list after all updates complete
       if (mounted) {
         await _controller.updateRecurrentRecordsAndFetchRecords();
@@ -227,10 +231,18 @@ class TabRecordsState extends State<TabRecords> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildBody(),
-      appBar: _buildAppBar(),
-      floatingActionButton: _buildFloatingActionButton(),
+    return PopScope(
+      canPop: !_isSelectMode,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (!didPop && _isSelectMode) {
+          _exitSelectMode();
+        }
+      },
+      child: Scaffold(
+        body: _buildBody(),
+        appBar: _buildAppBar(),
+        floatingActionButton: _buildFloatingActionButton(),
+      ),
     );
   }
 
@@ -282,8 +294,7 @@ class TabRecordsState extends State<TabRecords> {
 
   List<Widget> _buildSlivers() {
     return <Widget>[
-      if (!_controller.isSearchingEnabled)
-        _buildMainSliverAppBar(),
+      if (!_controller.isSearchingEnabled) _buildMainSliverAppBar(),
       _buildSummarySection(),
       if (_controller.filteredRecords.isEmpty) _buildEmptyState(),
       RecordsDayList(
