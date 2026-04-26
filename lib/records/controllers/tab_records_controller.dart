@@ -275,17 +275,21 @@ class TabRecordsController {
     List<Record?> newRecords;
     newRecords = await getRecordsByInterval(_database, intervalFrom, intervalTo,
         profileId: activeProfileId);
-    backgroundImageIndex = intervalFrom.month;
+    backgroundImageIndex = isFullYear(intervalFrom, intervalTo)
+        ? DateTime.now().month
+        : intervalFrom.month;
 
     // Filter future records to only include those within the current time interval.
     // Use calendar-date comparison in the record's own timezone to avoid cross-timezone
     // bleed (e.g. a Vienna-timezone May 1 record appearing in the April London view).
-    final fromDate = DateTime(intervalFrom.year, intervalFrom.month, intervalFrom.day);
-    final toDate   = DateTime(intervalTo.year,   intervalTo.month,   intervalTo.day);
+    final fromDate =
+        DateTime(intervalFrom.year, intervalFrom.month, intervalFrom.day);
+    final toDate = DateTime(intervalTo.year, intervalTo.month, intervalTo.day);
 
     List<Record> filteredFutureRecords = futureRecords.where((record) {
       final recordLocal = record.dateTime;
-      final recordDate  = DateTime(recordLocal.year, recordLocal.month, recordLocal.day);
+      final recordDate =
+          DateTime(recordLocal.year, recordLocal.month, recordLocal.day);
       return !recordDate.isBefore(fromDate) && !recordDate.isAfter(toDate);
     }).toList();
 
@@ -368,8 +372,9 @@ class TabRecordsController {
         return;
       }
       final prefs = await SharedPreferences.getInstance();
-      final savedIds =
-          prefs.getStringList(PreferencesKeys.homePageWalletFilter(profileId)) ?? [];
+      final savedIds = prefs
+              .getStringList(PreferencesKeys.homePageWalletFilter(profileId)) ??
+          [];
       if (savedIds.isNotEmpty) {
         final idSet = savedIds.map(int.tryParse).toSet();
         selectedWallets =
@@ -608,7 +613,9 @@ class TabRecordsController {
       header = getWeekStr(customIntervalFrom!);
     }
 
-    backgroundImageIndex = customIntervalFrom!.month;
+    backgroundImageIndex = isFullYear(customIntervalFrom!, customIntervalTo!)
+        ? DateTime.now().month
+        : customIntervalFrom!.month;
 
     // Fetch records (now sees customIntervalFrom is not null and uses it)
     await updateRecurrentRecordsAndFetchRecords();

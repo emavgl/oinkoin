@@ -147,7 +147,17 @@ class ShellState extends State<Shell> {
         if (currentNavigator != null && currentNavigator.canPop()) {
           // Let the current tab handle the back navigation
           currentNavigator.pop();
-        } else if (_currentIndex != 0) {
+          return;
+        }
+
+        // At the root of the current tab's navigator.
+        // Use maybePop to respect inner PopScopes (e.g., select mode in records).
+        if (currentNavigator != null) {
+          final bool handled = await currentNavigator.maybePop();
+          if (handled) return;
+        }
+
+        if (_currentIndex != 0) {
           // If we're at the root of a non-Home tab, navigate to Home
           setState(() {
             _currentIndex = 0;
