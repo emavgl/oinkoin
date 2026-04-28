@@ -115,7 +115,9 @@ class _StatisticsPageState extends State<StatisticsPage>
             BalanceTabPage(
               widget.from,
               widget.to,
-              widget.records,
+              widget.records
+                  .where((element) => !element!.isTransfer)
+                  .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
               walletCurrencyMap: widget.walletCurrencyMap,

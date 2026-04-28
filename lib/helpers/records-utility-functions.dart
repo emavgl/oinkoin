@@ -459,13 +459,17 @@ RecordsTotalResult computeConvertedTotal(
       .cast<String>()
       .toSet();
 
+  final defaultCurrency = getDefaultCurrency();
+
   if (uniqueCurrencies.isEmpty) {
     final total = nonNull.fold<double>(
         0.0, (sum, r) => sum + (isAbsValue ? r.value!.abs() : r.value!));
-    return RecordsTotalResult(total, null);
+    // If a default currency is set, treat no-currency records as being in that currency
+    final currency = (defaultCurrency != null && defaultCurrency.isNotEmpty)
+        ? defaultCurrency
+        : null;
+    return RecordsTotalResult(total, currency);
   }
-
-  final defaultCurrency = getDefaultCurrency();
 
   if (uniqueCurrencies.length == 1) {
     final walletCurrency = uniqueCurrencies.first;
@@ -561,7 +565,9 @@ bool getCurrencySymbolSpacing() {
 /// Inserts the currency symbol into a formatted number string.
 /// The symbol is placed at the beginning or end based on the user's preference.
 /// Adds a space between the symbol and the digits for left/right positions.
+/// Respects the [PreferencesKeys.showCurrencySymbol] setting.
 String insertCurrencySymbol(String formattedValue, String symbol) {
+  if (!getShowCurrencySymbol()) return formattedValue;
   if (symbol.isEmpty || formattedValue.isEmpty) return formattedValue;
   if (formattedValue.startsWith(symbol) || formattedValue.endsWith(symbol)) {
     return formattedValue;
@@ -722,6 +728,14 @@ Map<String, double> getConversionRates() {
   }
 }
 
+/// Returns whether the currency symbol should be shown next to amounts.
+bool getShowCurrencySymbol() {
+  final prefs = ServiceConfig.sharedPreferences;
+  if (prefs == null) return false;
+  return PreferencesUtils.getOrDefault<bool>(
+      prefs, PreferencesKeys.showCurrencySymbol)!;
+}
+
 /// Returns the default currency ISO code from preferences, or null if not set.
 String? getDefaultCurrency() {
   final prefs = ServiceConfig.sharedPreferences;
@@ -805,13 +819,17 @@ RecordsTotalResult computeCombinedBalanceResult(List<Wallet> wallets) {
       .toSet()
       .cast<String>();
 
+  final defaultCurrency = getDefaultCurrency();
+
   if (uniqueCurrencies.isEmpty) {
     final total =
         wallets.fold<double>(0.0, (sum, w) => sum + (w.balance ?? 0.0));
-    return RecordsTotalResult(total, null);
+    // If a default currency is set, treat no-currency wallets as being in that currency
+    final currency = (defaultCurrency != null && defaultCurrency.isNotEmpty)
+        ? defaultCurrency
+        : null;
+    return RecordsTotalResult(total, currency);
   }
-
-  final defaultCurrency = getDefaultCurrency();
 
   if (uniqueCurrencies.length == 1) {
     final walletCurrency = uniqueCurrencies.first;

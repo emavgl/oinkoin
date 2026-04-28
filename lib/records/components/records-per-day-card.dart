@@ -73,20 +73,17 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
     _loadWallets();
   }
 
   void _loadPreferences() {
+    final prefs = ServiceConfig.sharedPreferences!;
     _numberOfNoteLinesToShow = PreferencesUtils.getOrDefault<int>(
-        ServiceConfig.sharedPreferences!,
-        PreferencesKeys.homepageRecordNotesVisible)!;
+        prefs, PreferencesKeys.homepageRecordNotesVisible)!;
     _visualiseTags = PreferencesUtils.getOrDefault<bool>(
-        ServiceConfig.sharedPreferences!,
-        PreferencesKeys.visualiseTagsInMainPage)!;
+        prefs, PreferencesKeys.visualiseTagsInMainPage)!;
     _showWalletInRecordList = PreferencesUtils.getOrDefault<bool>(
-        ServiceConfig.sharedPreferences!,
-        PreferencesKeys.showWalletInRecordList)!;
+        prefs, PreferencesKeys.showWalletInRecordList)!;
   }
 
   Future<void> _loadWallets() async {
@@ -349,6 +346,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    _loadPreferences();
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
       child: Container(

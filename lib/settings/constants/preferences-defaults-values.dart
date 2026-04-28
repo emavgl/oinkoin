@@ -48,8 +48,9 @@ class PreferencesDefaultValues {
     PreferencesKeys.visualiseTagsInMainPage: true, // Default to enabled
     PreferencesKeys.showWalletInRecordList: false, // Default to disabled
     PreferencesKeys.showFutureRecords: true, // Default to enabled
+    PreferencesKeys.showCurrencySymbol: true, // Default to show currency symbols
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
-    PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4
+    PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4,
   };
 
   static String getLocaleGroupingSeparator() {

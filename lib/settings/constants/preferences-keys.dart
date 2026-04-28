@@ -67,6 +67,7 @@ class PreferencesKeys {
 
   // Currency
   static const defaultCurrency = 'defaultCurrency';
+  static const showCurrencySymbol = 'showCurrencySymbol';
   static const currencyConversionRates = 'currencyConversionRates';
   static const userCurrencies = 'userCurrencies';
 

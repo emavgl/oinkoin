@@ -186,9 +186,8 @@ class _EditWalletPageState extends State<EditWalletPage> {
         ),
         autofocus: passedWallet == null,
         validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Please enter a value".i18n;
-          }
+          // Empty is allowed — defaults to 0
+          if (value == null || value.isEmpty) return null;
           var numericValue = tryParseSignedCurrencyString(value);
           if (numericValue == null) {
             return "Not a valid format (use for example: %s)"

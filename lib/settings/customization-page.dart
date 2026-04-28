@@ -60,6 +60,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     await fetchMiscPreferences();
     await fetchStatisticsPreferences();
     await fetchHomepagePreferences();
+    await fetchCurrencyPreferences();
   }
 
   // All fetch preferences methods
@@ -176,6 +177,11 @@ class CustomizationPageState extends State<CustomizationPage> {
         PreferencesOptions.currencySymbolSpacing, currencySymbolSpacingValue);
   }
 
+  Future<void> fetchCurrencyPreferences() async {
+    showCurrencySymbol = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.showCurrencySymbol)!;
+  }
+
   Future<void> fetchHomepagePreferences() async {
     // Homepage time interval
     var userDefinedHomepageIntervalEnumIndex =
@@ -266,6 +272,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool amountInputAutoDecimalShift;
   late String currencySymbolPositionDropdownKey;
   late String currencySymbolSpacingDropdownKey;
+  late bool showCurrencySymbol;
 
   // Locks
   late bool appLockIsAvailable;
@@ -449,6 +456,13 @@ class CustomizationPageState extends State<CustomizationPage> {
                       onChanged: () {
                         invalidateNumberPatternCache();
                       },
+                    ),
+                    SwitchCustomizationItem(
+                      title: "Show currency symbol".i18n,
+                      subtitle:
+                          "Display the currency symbol next to amounts".i18n,
+                      switchValue: showCurrencySymbol,
+                      sharedConfigKey: PreferencesKeys.showCurrencySymbol,
                     ),
                     SettingSeparator(title: "Homepage settings".i18n),
                     DropdownCustomizationItem(
