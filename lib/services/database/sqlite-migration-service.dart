@@ -454,6 +454,32 @@ class SqliteMigrationService {
         "UPDATE wallets SET is_default = 1, is_predefined = 1 WHERE name = 'Default Wallet'");
   }
 
+  static Future<void> _migrateTo26(Database db) async {
+    // The "Set as predefined" feature was mistakenly calling
+    // setDefaultWallet() instead of setPredefinedWallet(), causing the
+    // system default to be moved away from the original Default Wallet.
+    // This migration restores the correct default.
+
+    // Find the original Default Wallet by name or fallback to oldest wallet
+    final localizedDefault = "Default Wallet".i18n;
+    var defaultWalletId = Sqflite.firstIntValue(await db.rawQuery(
+        "SELECT id FROM wallets WHERE name = ?", [localizedDefault]));
+    defaultWalletId ??= Sqflite.firstIntValue(await db.rawQuery(
+        "SELECT id FROM wallets WHERE name = 'Default Wallet'"));
+    defaultWalletId ??= Sqflite.firstIntValue(await db.rawQuery(
+        "SELECT id FROM wallets ORDER BY id ASC LIMIT 1"));
+
+    // Reset is_default on all wallets, then set the correct one
+    await db.rawUpdate("UPDATE wallets SET is_default = 0");
+    if (defaultWalletId != null) {
+      await db.rawUpdate(
+          "UPDATE wallets SET is_default = 1 WHERE id = ?", [defaultWalletId]);
+    }
+
+    _logger.info(
+        'Migration v26: restored is_default to wallet ID $defaultWalletId');
+  }
+
   static Future<void> _migrateTo23(Database db) async {
     // Step 1: Create profiles table
     var batch = db.batch();
@@ -504,6 +530,7 @@ class SqliteMigrationService {
     23: SqliteMigrationService._migrateTo23,
     24: SqliteMigrationService._migrateTo24,
     25: SqliteMigrationService._migrateTo25,
+    26: SqliteMigrationService._migrateTo26,
   };
 
   // Public Methods
