@@ -33,8 +33,9 @@ void main() {
     final db = ServiceConfig.database;
     await db.addCategory(category);
 
-    final localDate = DateTime(2026, 4, 28, 11, 20);
-    final utcDate = localDate.toUtc(); // 09:20 UTC
+    // Construct UTC datetime explicitly to be timezone-independent.
+    // April 28, 09:20 UTC = April 28, 11:20 Vienna (UTC+2).
+    final utcDate = DateTime.utc(2026, 4, 28, 9, 20);
 
     final pattern = RecurrentRecordPattern(
       10.0, "Test", category, utcDate, RecurrentPeriod.EveryDay,
