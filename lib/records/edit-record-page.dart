@@ -796,8 +796,9 @@ class EditRecordPageState extends State<EditRecordPage> {
                           onTap: canChangeEndDate
                               ? () async {
                                   FocusScope.of(context).unfocus();
+                                  // Default to 30 days from now (not 1 year, which is confusing)
                                   DateTime initialDate = localDisplayEndDate ??
-                                      DateTime.now().add(Duration(days: 365));
+                                      DateTime.now().add(Duration(days: 30));
                                   int firstDayOfWeek = getFirstDayOfWeekIndex();
                                   DateTime? result = await showDatePicker(
                                       context: context,
@@ -1169,6 +1170,14 @@ class EditRecordPageState extends State<EditRecordPage> {
     recordPattern.tags =
         _selectedTags; // Assign selected tags to the recurrent pattern
     if (id != null) {
+      // Preserve utcLastUpdate from the existing pattern so that
+      // generateRecurrentRecordsFromDateTime does not regenerate all records
+      // from the start date (which would create duplicates and ignore the last
+      // update position).
+      final existingPattern = await database.getRecurrentRecordPattern(id);
+      if (existingPattern != null) {
+        recordPattern.utcLastUpdate = existingPattern.utcLastUpdate;
+      }
       // Always use the current time to delete future records, not the pattern's
       // start date. Using the start date would delete all past historical records.
       final now = DateTime.now().toUtc();

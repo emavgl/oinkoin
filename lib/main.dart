@@ -32,13 +32,26 @@ main() async {
   try {
     tz_data.initializeTimeZones();
 
-    // Platform-specific timezone handling
-    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      // Use system timezone for desktop platforms
-      ServiceConfig.localTimezone = DateTime.now().timeZoneName;
-      logger.info('Desktop platform: using system timezone');
-    } else {
+    // Get the IANA timezone name (e.g. "Europe/Vienna").
+    // DateTime.now().timeZoneName returns abbreviations like "CEST" on some
+    // Linux distributions, which the timezone package cannot resolve.
+    // FlutterTimezone.getLocalTimezone() returns the proper IANA name on
+    // all supported platforms.
+    try {
       ServiceConfig.localTimezone = await FlutterTimezone.getLocalTimezone();
+    } catch (_) {
+      // Fallback for platforms where flutter_timezone does not work.
+      // On Linux, try to read /etc/timezone which contains the IANA name.
+      if (Platform.isLinux) {
+        try {
+          final tzFile = File('/etc/timezone');
+          if (await tzFile.exists()) {
+            final contents = await tzFile.readAsString();
+            ServiceConfig.localTimezone = contents.trim();
+          }
+        } catch (_) {}
+      }
+      ServiceConfig.localTimezone ??= DateTime.now().timeZoneName;
     }
     logger.info('Timezone initialized: ${ServiceConfig.localTimezone}');
 
