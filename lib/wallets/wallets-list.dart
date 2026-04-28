@@ -173,7 +173,7 @@ class _WalletsListState extends State<WalletsList> {
                           iconEmoji: wallet.iconEmoji,
                           iconDataFromDefaultIconSet: wallet.icon,
                           backgroundColor: wallet.color,
-                          overlayIcon: wallet.isDefault ? Icons.check : null,
+                          overlayIcon: wallet.isPredefined ? Icons.check : null,
                         ),
                       ],
                     )
@@ -181,7 +181,7 @@ class _WalletsListState extends State<WalletsList> {
                       iconEmoji: wallet.iconEmoji,
                       iconDataFromDefaultIconSet: wallet.icon,
                       backgroundColor: wallet.color,
-                      overlayIcon: wallet.isDefault ? Icons.check : null,
+                      overlayIcon: wallet.isPredefined ? Icons.check : null,
                     ),
               title: Text(wallet.name, style: const TextStyle(fontSize: 18)),
               trailing: _buildWalletBalanceWidget(wallet),
