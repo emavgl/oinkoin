@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
-import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/i18n.dart';
@@ -12,10 +11,7 @@ import 'package:piggybank/categories/category-sort-option.dart';
 class CategoryTabPageView extends StatefulWidget {
   final bool? goToEditMovementPage;
 
-  /// When provided, pre-selects this wallet in the new-record form.
-  final Wallet? preselectedWallet;
-
-  CategoryTabPageView({this.goToEditMovementPage, this.preselectedWallet, Key? key}) : super(key: key);
+  CategoryTabPageView({this.goToEditMovementPage, Key? key}) : super(key: key);
 
   @override
   CategoryTabPageViewState createState() => CategoryTabPageViewState();
@@ -344,7 +340,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                     enableManualSorting:
                         _selectedSortOption == SortOption.original,
                     onChangeOrder: onCategoriesReorder,
-                    preselectedWallet: widget.preselectedWallet)
+                    )
                 : Container(),
             _categories != null
                 ? CategoriesGrid(
@@ -355,8 +351,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                     goToEditMovementPage: widget.goToEditMovementPage,
                     enableManualSorting:
                         _selectedSortOption == SortOption.original,
-                    onChangeOrder: onCategoriesReorder,
-                    preselectedWallet: widget.preselectedWallet)
+                    onChangeOrder: onCategoriesReorder)
                 : Container(),
           ],
         ),

@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-04-25",
-    "total_keys": 388
+    "last_updated": "2026-04-26",
+    "total_keys": 429
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -301,6 +301,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Amount and Date/Time columns are required. No records will be imported without them.": {
+      "context": "Warning shown on CSV mapping screen when minimum required columns are not mapped",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Warning banner",
+      "meaning": "Alerts user that Amount and Date/Time columns must be mapped for import",
+      "notes": "Keep concise for mobile display",
+      "status": "verified"
+    },
     "Amount input keyboard type": {
       "key": "Amount input keyboard type",
       "context": null,
@@ -383,6 +392,16 @@
     },
     "Archiving the category you will NOT remove the associated records": {
       "key": "Archiving the category you will NOT remove the associated records",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Are you sure you want to delete %s record(s)?": {
+      "key": "Are you sure you want to delete %s record(s)?",
       "context": null,
       "file": null,
       "page": null,
@@ -531,6 +550,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Back": {
+      "context": "Generic back button label used in multiple CSV import screens",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart, csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV (multiple screens)",
+      "component": "OutlinedButton",
+      "meaning": "Navigate back to previous screen",
+      "notes": "Standard navigation label. Should use common mobile app convention in target language.",
+      "status": "verified"
+    },
     "Backup": {
       "key": "Backup",
       "context": "Settings menu item for backup functionality",
@@ -570,6 +598,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "CSV Preview": {
+      "context": "Section header showing a preview of parsed CSV data before mapping",
+      "file": "lib/settings/csv_import/csv_import_page.dart",
+      "page": "Settings > Import from CSV",
+      "component": "Card section header",
+      "meaning": "Preview of CSV file contents (first few rows in a table)",
+      "notes": "CSV is a technical term — keep as-is in most languages",
+      "status": "verified"
     },
     "Can't decrypt without a password": {
       "key": "Can't decrypt without a password",
@@ -691,6 +728,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Choose wallet": {
+      "key": "Choose wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Clear All Filters": {
       "key": "Clear All Filters",
       "context": null,
@@ -710,6 +757,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Clipboard is empty or does not contain valid CSV": {
+      "context": "Error shown when user taps 'Paste from Clipboard' but clipboard is empty or unparseable",
+      "file": "lib/settings/csv_import/csv_import_page.dart",
+      "page": "Settings > Import from CSV",
+      "component": "Error message in container",
+      "meaning": "No usable CSV content found in system clipboard",
+      "notes": "Keep CSV as-is in translations",
+      "status": "verified"
     },
     "Code (e.g., MYC)": {
       "key": "Code (e.g., MYC)",
@@ -741,6 +797,24 @@
       "notes": "Customization settings section",
       "status": "verified"
     },
+    "Continue": {
+      "context": "Button label to proceed from mapping screen to import summary",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "FilledButton",
+      "meaning": "Proceed to next step in the import flow",
+      "notes": "Common navigation term — use standard mobile app convention",
+      "status": "verified"
+    },
+    "Continue to Mapping": {
+      "context": "Button label to proceed from CSV preview to column mapping screen",
+      "file": "lib/settings/csv_import/csv_import_page.dart",
+      "page": "Settings > Import from CSV",
+      "component": "FilledButton",
+      "meaning": "Proceed to map CSV columns to Oinkoin fields",
+      "notes": "Clear action label",
+      "status": "verified"
+    },
     "Conversion Rates": {
       "key": "Conversion Rates",
       "context": null,
@@ -761,6 +835,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Could not parse CSV": {
+      "context": "Error message when CSV file content cannot be parsed",
+      "file": "lib/settings/csv_import/csv_import_page.dart",
+      "page": "Settings > Import from CSV",
+      "component": "Error message",
+      "meaning": "CSV content is malformed or uses unsupported format",
+      "notes": "Generic error — keep CSV as-is",
+      "status": "verified"
+    },
     "Create backup and change settings": {
       "key": "Create backup and change settings",
       "context": null,
@@ -770,6 +853,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Create wallets": {
+      "context": "Premium feature - ability to create and manage multiple wallets",
+      "file": "lib/premium/splash-screen.dart:210",
+      "page": "Premium/Upgrade Screen",
+      "component": "Feature list bullet point",
+      "meaning": "Users can create new wallet accounts to organize finances",
+      "notes": "Part of premium feature promotion",
+      "status": "verified"
     },
     "Critical action": {
       "key": "Critical action",
@@ -930,6 +1022,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Date range": {
+      "context": "Summary label showing the min-to-max date span of imported records",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Summary row label",
+      "meaning": "The time span from earliest to latest record date",
+      "notes": "Common financial/analytics term",
+      "status": "verified"
     },
     "Day": {
       "key": "Day",
@@ -1101,6 +1202,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Delete records?": {
+      "key": "Delete records?",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Delete tags": {
       "key": "Delete tags",
       "context": null,
@@ -1230,6 +1341,34 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Done": {
+      "context": "Button to dismiss the import result screen and return to settings",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Complete",
+      "component": "FilledButton",
+      "meaning": "Finish and close the import flow",
+      "notes": "Standard completion button label",
+      "status": "verified"
+    },
+    "Duplicate": {
+      "key": "Duplicate",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Duplicate records (same datetime, value, title, category, and wallet) will be skipped automatically.": {
+      "context": "Informational notice on the import summary screen about duplicate detection",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Info banner",
+      "meaning": "Explains that identical records won't be imported twice",
+      "notes": "May need adjustment for length in some languages. Keeps 'datetime' and other technical terms.",
+      "status": "verified"
     },
     "Edit": {
       "key": "Edit",
@@ -1771,6 +1910,51 @@
       "notes": null,
       "status": "pending"
     },
+    "Import": {
+      "context": "Button label to execute the CSV import on the summary screen",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "FilledButton",
+      "meaning": "Start importing records from CSV into the database",
+      "notes": "Standard action verb — already used in many UIs",
+      "status": "verified"
+    },
+    "Import Failed": {
+      "context": "Title on the failure result screen if CSV import encounters an error",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Failed",
+      "component": "AppBar title / dialog title",
+      "meaning": "Import operation did not complete successfully",
+      "notes": "Keep similar tone as existing 'Restore unsuccessful' string",
+      "status": "verified"
+    },
+    "Import Summary": {
+      "context": "Screen/appbar title for the pre-import summary page",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "AppBar title",
+      "meaning": "Overview of what will be imported before confirming",
+      "notes": "Standard summary page title",
+      "status": "verified"
+    },
+    "Import from CSV": {
+      "context": "Settings menu item label and screen title for the CSV import feature",
+      "file": "lib/settings/settings-page.dart, lib/settings/csv_import/csv_import_page.dart",
+      "page": "Settings > Import from CSV",
+      "component": "SettingsItem / AppBar title",
+      "meaning": "Feature to import financial records from a CSV file",
+      "notes": "Keep CSV as-is in translations. Positioned after 'Restore Backup' in settings.",
+      "status": "verified"
+    },
+    "Imported Record": {
+      "context": "Section header in live preview showing how a CSV row maps to an Oinkoin record",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Section label in preview card",
+      "meaning": "The resulting record after mapping CSV columns to Oinkoin fields",
+      "notes": "Paired with 'Original CSV Row' to show before/after mapping",
+      "status": "verified"
+    },
     "Include version and date in the name": {
       "key": "Include version and date in the name",
       "context": null,
@@ -1891,6 +2075,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Live Preview": {
+      "context": "Section header showing real-time preview of how current mapping affects a sample row",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Section title",
+      "meaning": "Updates instantly as user changes column mappings",
+      "notes": "Standard UI terminology",
+      "status": "verified"
+    },
     "Load": {
       "key": "Load",
       "context": null,
@@ -1961,6 +2154,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Manage multiple currencies": {
+      "context": "Premium feature - manage different currencies in wallets",
+      "file": "lib/premium/splash-screen.dart:237",
+      "page": "Premium/Upgrade Screen",
+      "component": "Feature list bullet point",
+      "meaning": "Support for multiple currencies with conversion rates",
+      "notes": "Part of premium feature promotion - complements currency settings",
+      "status": "verified"
+    },
     "Manage your currencies and conversion rates": {
       "key": "Manage your currencies and conversion rates",
       "context": null,
@@ -1980,6 +2182,24 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Map Columns": {
+      "context": "Screen title for the column mapping step of CSV import",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "AppBar title",
+      "meaning": "Map CSV column headers to Oinkoin record fields",
+      "notes": "'Map' means 'assign' or 'match up' here — not geographic mapping",
+      "status": "verified"
+    },
+    "Map each Oinkoin field to the corresponding column in your CSV file. Columns were auto-detected where possible.": {
+      "context": "Instructional text at the top of the mapping screen",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Info banner",
+      "meaning": "Explains how to use the mapping screen and that auto-detection has already been attempted",
+      "notes": "Oinkoin is a brand name — do not translate. CSV is a technical term.",
+      "status": "verified"
     },
     "Median of %s": {
       "key": "Median of %s",
@@ -2073,6 +2293,16 @@
     },
     "Move records to another wallet": {
       "key": "Move records to another wallet",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Move to wallet": {
+      "key": "Move to wallet",
       "context": null,
       "file": null,
       "page": null,
@@ -2411,6 +2641,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Original CSV Row": {
+      "context": "Section header in live preview showing the raw CSV data before mapping",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Section label in preview card",
+      "meaning": "The raw CSV row data before mapping to Oinkoin fields",
+      "notes": "Paired with 'Imported Record' to show before/after",
+      "status": "verified"
+    },
     "Original Order": {
       "key": "Original Order",
       "context": null,
@@ -2470,6 +2709,15 @@
       "meaning": "Password for encrypted backup",
       "notes": "Universal/technical term - keep in English across all locales",
       "status": "skip"
+    },
+    "Paste from Clipboard": {
+      "context": "Button label to import CSV content from the system clipboard",
+      "file": "lib/settings/csv_import/csv_import_page.dart",
+      "page": "Settings > Import from CSV",
+      "component": "Action card button",
+      "meaning": "Use CSV text currently copied to clipboard",
+      "notes": "Standard clipboard terminology",
+      "status": "verified"
     },
     "Phone keyboard (with math symbols)": {
       "key": "Phone keyboard (with math symbols)",
@@ -2550,6 +2798,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Please map at least Amount and Date/Time columns to continue.": {
+      "context": "Snackbar/validation message when user tries to proceed without minimum required columns",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "SnackBar message",
+      "meaning": "Amount and Date/Time are mandatory — user must map them before continuing",
+      "notes": "Keep Amount and Date/Time consistent with field labels used in the mapping UI",
+      "status": "verified"
     },
     "Please select a currency.": {
       "key": "Please select a currency.",
@@ -2641,6 +2898,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Records imported": {
+      "context": "Result summary label showing number of successfully imported records",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Complete",
+      "component": "Result row label",
+      "meaning": "Count of records that were imported into the database",
+      "notes": "Simple count label",
+      "status": "verified"
+    },
     "Records matching categories OR tags": {
       "key": "Records matching categories OR tags",
       "context": null,
@@ -2690,6 +2956,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Records to import": {
+      "context": "Summary row showing how many records will be imported",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Summary row label",
+      "meaning": "Number of parsable records ready for import",
+      "notes": "Pre-import count (before duplicates are skipped)",
+      "status": "verified"
     },
     "Recurrent Records": {
       "key": "Recurrent Records",
@@ -2880,6 +3155,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Select CSV File": {
+      "context": "Button label to open file picker for selecting a CSV file",
+      "file": "lib/settings/csv_import/csv_import_page.dart",
+      "page": "Settings > Import from CSV",
+      "component": "Action card button",
+      "meaning": "Choose a CSV file from device storage",
+      "notes": "Keep CSV as-is",
+      "status": "verified"
     },
     "Select Currency": {
       "key": "Select Currency",
@@ -3151,6 +3435,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Show all wallets": {
+      "key": "Show all wallets",
+      "context": "Button to clear wallet filter and show all wallets",
+      "file": "lib/wallets/wallets-tab-page.dart:581",
+      "page": "Wallets",
+      "component": "TextButton label",
+      "meaning": "Display all wallets (clear filter)",
+      "notes": "Button that clears the selected wallet filter",
+      "status": "verified"
+    },
     "Show archived categories": {
       "key": "Show archived categories",
       "context": null,
@@ -3291,6 +3585,24 @@
       "notes": null,
       "status": "pending"
     },
+    "Skipped (duplicates)": {
+      "context": "Result summary label for records that were duplicates and not imported",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Complete",
+      "component": "Result row label",
+      "meaning": "Count of records already present in the database (skipped)",
+      "notes": "Keep parenthetical — concise",
+      "status": "verified"
+    },
+    "Skipped (errors)": {
+      "context": "Result summary label for records that couldn't be parsed",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Complete",
+      "component": "Result row label",
+      "meaning": "Count of rows with unparseable data (skipped)",
+      "notes": "Keep parenthetical — concise",
+      "status": "verified"
+    },
     "Statistics": {
       "key": "Statistics",
       "context": null,
@@ -3330,6 +3642,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Support more profiles": {
+      "context": "Premium feature - create multiple financial profiles",
+      "file": "lib/premium/splash-screen.dart:183",
+      "page": "Premium/Upgrade Screen",
+      "component": "Feature list bullet point",
+      "meaning": "Users can create separate financial profiles for different purposes",
+      "notes": "Part of premium feature promotion",
+      "status": "verified"
     },
     "Switch to bar chart": {
       "key": "Switch to bar chart",
@@ -3591,6 +3912,42 @@
       "notes": null,
       "status": "pending"
     },
+    "Unique categories": {
+      "context": "Summary row showing the number of distinct categories found in the CSV",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Summary row label",
+      "meaning": "How many different category names appear in the CSV data",
+      "notes": "Standard statistical term",
+      "status": "verified"
+    },
+    "Unique tags": {
+      "context": "Summary row showing the number of distinct tags found in the CSV",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Summary row label",
+      "meaning": "How many different tag names appear in the CSV data",
+      "notes": "Standard statistical term",
+      "status": "verified"
+    },
+    "Unique wallets": {
+      "context": "Summary row showing the number of distinct wallet names found in the CSV",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Summary row label",
+      "meaning": "How many different wallet names appear in the CSV data",
+      "notes": "Standard statistical term. Shown alongside Unique categories and Unique tags.",
+      "status": "verified"
+    },
+    "Unparseable rows": {
+      "context": "Summary row showing how many CSV rows could not be parsed",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Summary row label (with warning icon)",
+      "meaning": "Rows that failed to parse and will be skipped",
+      "notes": "Keep concise. Shown with a warning/error color.",
+      "status": "verified"
+    },
     "Upgrade to": {
       "key": "Upgrade to",
       "context": null,
@@ -3690,6 +4047,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Warnings": {
+      "context": "Section header for warning messages on the import summary screen",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
+      "page": "Settings > Import from CSV > Import Summary",
+      "component": "Section label in warning card",
+      "meaning": "Header for a list of potential issues found during CSV parsing",
+      "notes": "Standard UI term",
+      "status": "verified"
     },
     "Weekly": {
       "key": "Weekly",
@@ -3871,6 +4237,16 @@
       "notes": null,
       "status": "pending"
     },
+    "selected": {
+      "key": "selected",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "space": {
       "key": "space",
       "context": null,
@@ -3889,43 +4265,6 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
-      "status": "verified"
-    },
-    "Create wallets": {
-      "context": "Premium feature - ability to create and manage multiple wallets",
-      "file": "lib/premium/splash-screen.dart:210",
-      "page": "Premium/Upgrade Screen",
-      "component": "Feature list bullet point",
-      "meaning": "Users can create new wallet accounts to organize finances",
-      "notes": "Part of premium feature promotion",
-      "status": "verified"
-    },
-    "Manage multiple currencies": {
-      "context": "Premium feature - manage different currencies in wallets",
-      "file": "lib/premium/splash-screen.dart:237",
-      "page": "Premium/Upgrade Screen",
-      "component": "Feature list bullet point",
-      "meaning": "Support for multiple currencies with conversion rates",
-      "notes": "Part of premium feature promotion - complements currency settings",
-      "status": "verified"
-    },
-    "Support more profiles": {
-      "context": "Premium feature - create multiple financial profiles",
-      "file": "lib/premium/splash-screen.dart:183",
-      "page": "Premium/Upgrade Screen",
-      "component": "Feature list bullet point",
-      "meaning": "Users can create separate financial profiles for different purposes",
-      "notes": "Part of premium feature promotion",
-      "status": "verified"
-    },
-    "Show all wallets": {
-      "key": "Show all wallets",
-      "context": "Button to clear wallet filter and show all wallets",
-      "file": "lib/wallets/wallets-tab-page.dart:581",
-      "page": "Wallets",
-      "component": "TextButton label",
-      "meaning": "Display all wallets (clear filter)",
-      "notes": "Button that clears the selected wallet filter",
       "status": "verified"
     }
   }

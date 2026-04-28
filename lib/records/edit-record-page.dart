@@ -35,22 +35,17 @@ class EditRecordPage extends StatefulWidget {
   final RecurrentRecordPattern? passedRecurrentRecordPattern;
   final bool readOnly;
 
-  /// When set, pre-selects this wallet for a new record instead of the default.
-  final Wallet? preselectedWallet;
-
   EditRecordPage(
       {Key? key,
       this.passedRecord,
       this.passedCategory,
       this.passedRecurrentRecordPattern,
-      this.readOnly = false,
-      this.preselectedWallet})
+      this.readOnly = false})
       : super(key: key);
 
   @override
   EditRecordPageState createState() => EditRecordPageState(this.passedRecord,
-      this.passedCategory, this.passedRecurrentRecordPattern, this.readOnly,
-      preselectedWallet: this.preselectedWallet);
+      this.passedCategory, this.passedRecurrentRecordPattern, this.readOnly);
 }
 
 class EditRecordPageState extends State<EditRecordPage> {
@@ -80,7 +75,6 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Wallet? _selectedWallet;
   Wallet? _selectedDestinationWallet;
-  Wallet? _preselectedWallet;
   int _totalWalletCount = 0;
   final _walletNameSizeGroup = AutoSizeGroup();
   final _dateTimeSizeGroup = AutoSizeGroup();
@@ -95,9 +89,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   final autoDec = getAmountInputAutoDecimalShift();
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
-      this.passedRecurrentRecordPattern, this.readOnly,
-      {Wallet? preselectedWallet})
-      : _preselectedWallet = preselectedWallet;
+      this.passedRecurrentRecordPattern, this.readOnly);
 
   static final recurrentIntervalDropdownList = [
     DropdownMenuItem<int>(
@@ -186,6 +178,10 @@ class EditRecordPageState extends State<EditRecordPage> {
         timeZoneName: passedRecurrentRecordPattern!.timeZoneName,
         description: passedRecurrentRecordPattern!.description,
         tags: passedRecurrentRecordPattern!.tags, // Pass tags from pattern
+        walletId: passedRecurrentRecordPattern!.walletId,
+        transferWalletId: passedRecurrentRecordPattern!.transferWalletId,
+        transferValue: passedRecurrentRecordPattern!.transferValue,
+        profileId: passedRecurrentRecordPattern!.profileId,
       );
       // Use the localDateTime for display
       localDisplayDate = passedRecurrentRecordPattern!.localDateTime;
@@ -1100,18 +1096,17 @@ class EditRecordPageState extends State<EditRecordPage> {
 
     Wallet? walletToSelect;
     if (record?.walletId != null) {
-      // Fall back to the Default Wallet if the assigned wallet no longer exists
+      // Fall back to the Predefined Wallet if the assigned wallet no longer exists
       walletToSelect = await database.getWalletById(record!.walletId!) ??
+          await database.getPredefinedWallet() ??
           await database.getDefaultWallet();
-    } else if (_preselectedWallet != null) {
-      // Use the wallet from the active home-tab filter
-      walletToSelect = _preselectedWallet;
     } else {
-      // Try default wallet first; if none, auto-select when only one wallet exists
-      walletToSelect = await database.getDefaultWallet();
+      // Start with the predefined wallet for new records
+      walletToSelect = await database.getPredefinedWallet();
       if (walletToSelect == null && activeWallets.length == 1) {
         walletToSelect = activeWallets.first;
       }
+      walletToSelect ??= await database.getDefaultWallet();
     }
 
     if (mounted) {
@@ -1174,12 +1169,15 @@ class EditRecordPageState extends State<EditRecordPage> {
     recordPattern.tags =
         _selectedTags; // Assign selected tags to the recurrent pattern
     if (id != null) {
+      // Always use the current time to delete future records, not the pattern's
+      // start date. Using the start date would delete all past historical records.
+      final now = DateTime.now().toUtc();
       if (recurrentPeriodHasBeenUpdated(recordPattern)) {
-        await database.deleteFutureRecordsByPatternId(id, record!.utcDateTime);
+        await database.deleteFutureRecordsByPatternId(id, now);
         await database.deleteRecurrentRecordPatternById(id);
         await database.addRecurrentRecordPattern(recordPattern);
       } else {
-        await database.deleteFutureRecordsByPatternId(id, record!.utcDateTime);
+        await database.deleteFutureRecordsByPatternId(id, now);
         await database.updateRecordPatternById(id, recordPattern);
       }
     } else {

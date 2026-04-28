@@ -411,16 +411,12 @@ class TabRecordsController {
     try {
       var categoryIsSet = await _isThereSomeCategory();
       if (categoryIsSet) {
-        // Pre-select the wallet from the active filter when exactly one is selected
-        final preselectedWallet =
-            selectedWallets.length == 1 ? selectedWallets.first : null;
         await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => CategoryTabPageView(
               goToEditMovementPage: true,
               key: _categoryTabPageViewStateKey,
-              preselectedWallet: preselectedWallet,
             ),
           ),
         );
