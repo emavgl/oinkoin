@@ -67,6 +67,11 @@ class _EditWalletPageState extends State<EditWalletPage> {
         isDefault: false,
         sortOrder: 0,
       );
+      final defaultCurrencyPref = ServiceConfig.sharedPreferences
+          ?.getString(PreferencesKeys.defaultCurrency);
+      if (defaultCurrencyPref != null && defaultCurrencyPref.isNotEmpty) {
+        _selectedCurrency = defaultCurrencyPref;
+      }
     } else {
       wallet = Wallet.fromMap(
           passedWallet!.toMap()..['balance'] = passedWallet!.balance);

@@ -379,6 +379,15 @@ class TabRecordsController {
         final idSet = savedIds.map(int.tryParse).toSet();
         selectedWallets =
             allWallets.where((w) => idSet.contains(w.id)).toList();
+        // Apply the wallet filter to already-fetched records
+        filterRecords();
+        // Also filter overview records if they were fetched separately
+        if (overviewRecords != null) {
+          overviewRecords = overviewRecords!
+              .where((r) => idSet.contains(r?.walletId))
+              .toList();
+        }
+        return;
       }
     }
     onStateChanged();
