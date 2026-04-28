@@ -12,7 +12,7 @@ import 'package:piggybank/services/logger.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/backup-page.dart';
 import 'package:piggybank/settings/backup-restore-dialogs.dart';
-import 'package:piggybank/settings/csv_import/csv_import_page.dart';
+// import 'package:piggybank/settings/csv_import/csv_import_page.dart';
 import 'package:piggybank/settings/customization-page.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/tags/tags-page-view.dart';
@@ -298,37 +298,38 @@ class TabSettings extends StatelessWidget {
                   : Container()
             ],
           ),
-          Stack(
-            children: [
-              SettingsItem(
-                icon: Icon(
-                  Icons.file_upload,
-                  color: Colors.white,
-                ),
-                iconBackgroundColor: Colors.indigo.shade600,
-                title: 'Import from CSV'.i18n,
-                subtitle: "Import records from a CSV file or clipboard".i18n,
-                onPressed: ServiceConfig.isPremium
-                    ? () async => await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const CsvImportPage()),
-                        )
-                    : () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PremiumSplashScreen()),
-                        );
-                      },
-              ),
-              if (!ServiceConfig.isPremium)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-                  child: getProLabel(labelFontSize: 10.0),
-                ),
-            ],
-          ),
+          // CSV import is temporarily hidden while still in development
+          // Stack(
+          //   children: [
+          //     SettingsItem(
+          //       icon: Icon(
+          //         Icons.file_upload,
+          //         color: Colors.white,
+          //       ),
+          //       iconBackgroundColor: Colors.indigo.shade600,
+          //       title: 'Import from CSV'.i18n,
+          //       subtitle: "Import records from a CSV file or clipboard".i18n,
+          //       onPressed: ServiceConfig.isPremium
+          //           ? () async => await Navigator.push(
+          //                 context,
+          //                 MaterialPageRoute(
+          //                     builder: (context) => const CsvImportPage()),
+          //               )
+          //           : () async {
+          //               await Navigator.push(
+          //                 context,
+          //                 MaterialPageRoute(
+          //                     builder: (context) => PremiumSplashScreen()),
+          //               );
+          //             },
+          //     ),
+          //     if (!ServiceConfig.isPremium)
+          //       Container(
+          //         margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+          //         child: getProLabel(labelFontSize: 10.0),
+          //       ),
+          //   ],
+          // ),
           SettingsItem(
             icon: Icon(
               Icons.delete_outline,
