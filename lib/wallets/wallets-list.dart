@@ -57,7 +57,7 @@ class _WalletsListState extends State<WalletsList> {
   }
 
   Future<void> _setAsPredefined(Wallet wallet) async {
-    await database.setDefaultWallet(wallet.id!);
+    await database.setPredefinedWallet(wallet.id!);
     if (widget.onChanged != null) widget.onChanged!();
   }
 
