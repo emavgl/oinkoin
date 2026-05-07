@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
@@ -39,6 +41,7 @@ class AmountSelector extends StatefulWidget {
 class _AmountSelectorState extends State<AmountSelector> {
   late String amountString;
   final autoDec = getAmountInputAutoDecimalShift();
+  Timer? _debounceTimer;
 
   double get valueToNumber {
     if (amountString.trim() == '') {
@@ -116,6 +119,7 @@ class _AmountSelectorState extends State<AmountSelector> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _focusNode.dispose();
     super.dispose();
   }
@@ -163,6 +167,33 @@ class _AmountSelectorState extends State<AmountSelector> {
     setState(() {});
   }
 
+  void _startAutoSolveTimer() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        _solveMathExpression();
+      }
+    });
+  }
+
+  void _solveMathExpression() {
+    // Only solve if there is actually an operator to solve
+    if (CalculatorOperator.exprHasOperator(amountString)) {
+      try {
+        final result = valueToNumber;
+        // If evaluation results in a valid finite number, update the state
+        if (!result.isInfinite && !result.isNaN) {
+          setState(() {
+            amountString = _parseInitialAmount(result);
+          });
+          HapticFeedback.lightImpact();
+        }
+      } catch (e) {
+        // Ignore errors for incomplete expressions (e.g., "10+")
+      }
+    }
+  }
+
   void addToAmount(String newText) {
     final decimalSep = getDecimalSeparator();
     final groupSep = getGroupingSeparator();
@@ -195,6 +226,8 @@ class _AmountSelectorState extends State<AmountSelector> {
       // This variable now contains the fully formatted string (e.g., "1,250.00")
       amountString = result.text;
     });
+
+    _startAutoSolveTimer();
   }
 
   submitAmount() {
@@ -222,6 +255,7 @@ class _AmountSelectorState extends State<AmountSelector> {
       amountString = amountString.substring(0, amountString.length - 1);
       HapticFeedback.lightImpact();
     });
+    _startAutoSolveTimer();
   }
 
   toggleCalculatorMode() {

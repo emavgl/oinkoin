@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_single_quotes
 
+import 'package:piggybank/helpers/records-utility-functions.dart';
+
 enum CalculatorOperator {
   add('+'),
   subtract('-'),
@@ -93,7 +95,11 @@ List<String> splitExprByNumbersAndOperator(String expression) {
 
 double evaluateExpression(String expression) {
   // Remove any whitespace from the input string
-  expression = expression.replaceAll(' ', '');
+  final decimalSep = getDecimalSeparator();
+  final groupSep = getGroupingSeparator();
+  expression = expression.replaceAll(' ', '')
+      .replaceAll(groupSep, '')
+      .replaceAll(decimalSep, '.'); // Convert local decimal (like ',') to '.'
 
   // Handle negative sign at the start of the expression
   if (expression.startsWith('-')) {
