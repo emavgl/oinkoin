@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-05-03",
-    "total_keys": 443
+    "last_updated": "2026-05-09",
+    "total_keys": 445
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -4391,6 +4391,26 @@
       "component": "SettingsItem subtitle",
       "meaning": "Describes the CSV import feature - import records from file or clipboard",
       "notes": "Keep CSV as-is. Subtitle under 'Import from CSV' menu item.",
+      "status": "verified"
+    },
+    "Colorize income and expenses": {
+      "key": "Colorize income and expenses",
+      "context": "Toggle label in Settings > Customization > Appearance section",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Enable/disable coloring of income amounts in green and expense amounts in red throughout the app",
+      "notes": "Keep translation concise; refers to financial transaction types, not literal colors in the text",
+      "status": "verified"
+    },
+    "Show income in green and expenses in red": {
+      "key": "Show income in green and expenses in red",
+      "context": "Subtitle/description for the colorize amounts toggle in Settings > Customization > Appearance",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Explains that enabling the toggle shows income amounts colored green and expense amounts colored red",
+      "notes": "Mentions specific colors (green, red) — translate the color names naturally in each language",
       "status": "verified"
     }
   }
