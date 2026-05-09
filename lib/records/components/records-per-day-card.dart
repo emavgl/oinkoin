@@ -178,9 +178,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          var reversedIndex = widget._movementDay.records!.length - i - 1;
-          return _buildMovementRow(
-              widget._movementDay.records![reversedIndex]!);
+          return _buildMovementRow(widget._movementDay.records![i]!);
         });
   }
 

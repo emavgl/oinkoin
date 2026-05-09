@@ -40,6 +40,12 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   Queue<RecordsPerDay> movementsPerDay = Queue();
   movementsGroups.forEach((date, groupedMovements) {
     if (groupedMovements.isNotEmpty) {
+      groupedMovements.sort((a, b) {
+        if (a == null || b == null) return 0;
+        final timeCmp = b.dateTime.compareTo(a.dateTime);
+        if (timeCmp != 0) return timeCmp;
+        return (b.id ?? 0).compareTo(a.id ?? 0);
+      });
       movementsPerDay.addFirst(RecordsPerDay(date, records: groupedMovements));
     }
   });
