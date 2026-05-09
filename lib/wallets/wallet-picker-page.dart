@@ -189,34 +189,44 @@ class _WalletPickerPageState extends State<WalletPickerPage> {
                         },
                       ),
                     ),
-                    if (widget.multiSelect &&
-                        widget.preferencesKey != null) ...[
-                      const Divider(height: 1),
-                      CheckboxListTile(
-                        value: _saveAsDefault,
-                        onChanged: (v) =>
-                            setState(() => _saveAsDefault = v ?? false),
-                        title: Text(
-                          "Save as default selection".i18n,
-                          style: const TextStyle(fontSize: 17),
-                        ),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 8),
-                      ),
-                    ],
                   ],
                 ),
+      bottomNavigationBar: widget.multiSelect
+          ? SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.preferencesKey != null) ...[
+                    CheckboxListTile(
+                      value: _saveAsDefault,
+                      onChanged: (v) =>
+                          setState(() => _saveAsDefault = v ?? false),
+                      title: Text(
+                        "Save as default selection".i18n,
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 4),
+                    ),
+                    const Divider(height: 1),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _confirmSelection,
+                        child: Text("Apply".i18n),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : null,
     );
 
-    if (!widget.multiSelect) return scaffold;
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _confirmSelection();
-      },
-      child: scaffold,
-    );
+    return scaffold;
   }
 }
