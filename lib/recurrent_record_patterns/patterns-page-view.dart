@@ -46,7 +46,8 @@ class PatternsPageViewState extends State<PatternsPageView> {
   }
 
   fetchRecurrentRecordPatternsFromDatabase() async {
-    var patterns = await database.getRecurrentRecordPatterns();
+    final profileId = ProfileService.instance.activeProfileId;
+    var patterns = await database.getRecurrentRecordPatterns(profileId: profileId);
     if (!mounted) return;
     setState(() {
       _recurrentRecordPatterns = patterns;

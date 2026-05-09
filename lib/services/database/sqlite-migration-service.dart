@@ -510,6 +510,27 @@ class SqliteMigrationService {
     await db.rawUpdate("UPDATE wallets SET profile_id = ?", [defaultProfileId]);
   }
 
+  static Future<void> _migrateTo27(Database db) async {
+    // Assign orphaned rows (profile_id IS NULL) in all profile-scoped tables
+    // to the default profile. These rows were created with a bug that skipped
+    // setting profile_id even after the profiles migration had already run.
+    final defaultProfileId = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT id FROM profiles WHERE is_default = 1"));
+    if (defaultProfileId != null) {
+      await db.rawUpdate(
+          "UPDATE records SET profile_id = ? WHERE profile_id IS NULL",
+          [defaultProfileId]);
+      await db.rawUpdate(
+          "UPDATE recurrent_record_patterns SET profile_id = ? WHERE profile_id IS NULL",
+          [defaultProfileId]);
+      await db.rawUpdate(
+          "UPDATE wallets SET profile_id = ? WHERE profile_id IS NULL",
+          [defaultProfileId]);
+      _logger.info(
+          'Migration v27: assigned orphaned rows to default profile $defaultProfileId');
+    }
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -531,6 +552,7 @@ class SqliteMigrationService {
     24: SqliteMigrationService._migrateTo24,
     25: SqliteMigrationService._migrateTo25,
     26: SqliteMigrationService._migrateTo26,
+    27: SqliteMigrationService._migrateTo27,
   };
 
   // Public Methods
