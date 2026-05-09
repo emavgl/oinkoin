@@ -152,6 +152,7 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
             categories: categoriesByType[CategoryType.income]!,
             hideHeaderOverride: sectionCount == 1,
             filteredRecords: filteredRecords,
+            categoryType: CategoryType.income,
           ),
         if (categoriesByType[CategoryType.expense]!.isNotEmpty)
           _buildCategoryTypeSection(
@@ -159,6 +160,7 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
             categories: categoriesByType[CategoryType.expense]!,
             hideHeaderOverride: sectionCount == 1,
             filteredRecords: filteredRecords,
+            categoryType: CategoryType.expense,
           ),
       ],
     );
@@ -292,6 +294,7 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
     required List<CategorySumTuple> categories,
     required bool hideHeaderOverride,
     required List<Record?> filteredRecords,
+    required CategoryType categoryType,
   }) {
     final totalSum =
         categories.fold<double>(0.0, (sum, cat) => sum + cat.value.abs());
@@ -315,7 +318,11 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
         isAbsValue: true);
     final nonEmptyCurrencies =
         breakdown.entries.where((e) => e.key.isNotEmpty).toList();
-    const headerStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+    final headerStyle = TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+      color: getAmountColor(categoryType, Theme.of(context).brightness),
+    );
     Widget formattedTotalWidget;
     if (nonEmptyCurrencies.length == 1 &&
         nonEmptyCurrencies.first.key != defaultCurrency) {

@@ -116,7 +116,9 @@ class _WalletsListState extends State<WalletsList> {
   Widget _buildWalletBalanceWidget(Wallet wallet) {
     final balance = wallet.balance ?? 0.0;
     final walletCurrency = wallet.currency;
-    const style = TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal);
+    final color = getBalanceColor(balance, Theme.of(context).brightness);
+    final style = TextStyle(
+        fontSize: 18.0, fontWeight: FontWeight.normal, color: color);
 
     if (walletCurrency == null || walletCurrency.isEmpty) {
       return Text(getCurrencyValueString(balance), style: style);

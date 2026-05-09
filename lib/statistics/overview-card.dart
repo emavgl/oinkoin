@@ -92,11 +92,11 @@ class OverviewCard extends StatelessWidget {
     }).toList();
   }
 
-  Widget _buildMainAmountWidget(BuildContext context) {
+  Widget _buildMainAmountWidget(BuildContext context, {Color? amountColor}) {
     final defaultCurrency = getDefaultCurrency();
     final mainStyle = Theme.of(context).textTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onSurface,
+          color: amountColor ?? Theme.of(context).colorScheme.onSurface,
         );
     final secondaryStyle = TextStyle(
       fontSize: ((mainStyle?.fontSize ?? 24.0) * 0.65).clamp(12.0, double.infinity),
@@ -228,11 +228,17 @@ class OverviewCard extends StatelessWidget {
         medianLabelKey = "Median of %s".i18n;
     }
 
+    final brightness = Theme.of(context).brightness;
     final color = isBalance
         ? (_convertedResult.total >= 0 ? Colors.green : Colors.redAccent)
         : (records.first!.category!.categoryType == CategoryType.expense
             ? Colors.redAccent
             : Colors.green);
+
+    final amountColor = isBalance
+        ? getBalanceColor(_convertedResult.total, brightness)
+        : getAmountColor(
+            records.first?.category?.categoryType, brightness);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
@@ -243,7 +249,7 @@ class OverviewCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildMainAmountWidget(context),
+                _buildMainAmountWidget(context, amountColor: amountColor),
                 const SizedBox(height: 2),
                 Text(
                   averageLabelKey

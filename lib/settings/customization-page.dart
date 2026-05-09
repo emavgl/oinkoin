@@ -359,6 +359,14 @@ class CustomizationPageState extends State<CustomizationPage> {
                       sharedConfigKey: PreferencesKeys.themeMode,
                       onChanged: () => MyApp.reloadTheme(),
                     ),
+                    SwitchCustomizationItem(
+                      title: "Colorize income and expenses".i18n,
+                      subtitle:
+                          "Show income in green and expenses in red".i18n,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(
+                          prefs, PreferencesKeys.colorizeAmounts)!,
+                      sharedConfigKey: PreferencesKeys.colorizeAmounts,
+                    ),
                     SettingSeparator(title: "Number & Formatting".i18n),
                     DropdownCustomizationItem(
                       title: "Decimal digits".i18n,

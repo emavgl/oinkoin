@@ -16,6 +16,7 @@ class DaysSummaryBox extends StatefulWidget {
   final List<Record?> records;
   final String walletLabel;
   final String walletBalanceString;
+  final double? walletBalance;
   final Map<int, String?> walletCurrencyMap;
   final VoidCallback? onWalletRowTap;
 
@@ -23,6 +24,7 @@ class DaysSummaryBox extends StatefulWidget {
     this.records, {
     required this.walletLabel,
     required this.walletBalanceString,
+    this.walletBalance,
     this.walletCurrencyMap = const {},
     this.onWalletRowTap,
   });
@@ -47,11 +49,16 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   Iterable<Record?> get _balanceRecords =>
       widget.records.where((record) => !record!.isTransfer);
 
-  Widget _buildAmountWidget(Iterable<Record?> records, {bool isAbsValue = true}) {
-    final result = computeConvertedTotal(records, widget.walletCurrencyMap,
-        isAbsValue: isAbsValue);
+  Widget _buildAmountWidget(Iterable<Record?> records,
+      {bool isAbsValue = true, Color? color, RecordsTotalResult? precomputed}) {
+    final result = precomputed ??
+        computeConvertedTotal(records, widget.walletCurrencyMap,
+            isAbsValue: isAbsValue);
     final text = formatRecordsTotalResult(result);
-    final textWidget = Text(text, style: _biggerFont, overflow: TextOverflow.ellipsis);
+    final style =
+        color != null ? _biggerFont.copyWith(color: color) : _biggerFont;
+    final textWidget =
+        Text(text, style: style, overflow: TextOverflow.ellipsis);
 
     if (!hasMixedCurrencies(records, widget.walletCurrencyMap)) return textWidget;
 
@@ -64,7 +71,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   }
 
   Widget _buildStatColumn(String label, Iterable<Record?> records,
-      {bool isAbsValue = true}) {
+      {bool isAbsValue = true, Color? color, RecordsTotalResult? precomputed}) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -72,7 +79,8 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
         children: [
           Text(label, style: _subtitleFont, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 5),
-          _buildAmountWidget(records, isAbsValue: isAbsValue),
+          _buildAmountWidget(records,
+              isAbsValue: isAbsValue, color: color, precomputed: precomputed),
         ],
       ),
     );
@@ -80,7 +88,12 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
     final dimColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final balanceResult = computeConvertedTotal(
+        _balanceRecords, widget.walletCurrencyMap,
+        isAbsValue: false);
+    final balanceColor = getBalanceColor(balanceResult.total, brightness);
     return Card(
         elevation: 1,
         margin: EdgeInsets.zero,
@@ -103,7 +116,11 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                     const Spacer(),
                     Text(
                       widget.walletBalanceString,
-                      style: _walletRowFont,
+                      style: widget.walletBalance != null
+                          ? _walletRowFont.copyWith(
+                              color: getBalanceColor(
+                                  widget.walletBalance!, brightness))
+                          : _walletRowFont,
                     ),
                     const SizedBox(width: 2),
                     Icon(Icons.chevron_right, size: 18, color: dimColor),
@@ -118,12 +135,17 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                 padding: const EdgeInsets.all(6.0),
                 child: Row(
                   children: <Widget>[
-                    _buildStatColumn("Income".i18n, _incomeRecords),
+                    _buildStatColumn("Income".i18n, _incomeRecords,
+                        color: getAmountColor(CategoryType.income, brightness)),
                     VerticalDivider(endIndent: 10, indent: 10),
-                    _buildStatColumn("Expenses".i18n, _expenseRecords),
+                    _buildStatColumn("Expenses".i18n, _expenseRecords,
+                        color: getAmountColor(
+                            CategoryType.expense, brightness)),
                     VerticalDivider(endIndent: 10, indent: 10),
                     _buildStatColumn("Balance".i18n, _balanceRecords,
-                        isAbsValue: false),
+                        isAbsValue: false,
+                        color: balanceColor,
+                        precomputed: balanceResult),
                   ],
                 ),
               ),

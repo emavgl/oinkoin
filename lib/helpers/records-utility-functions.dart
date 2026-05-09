@@ -17,6 +17,7 @@ import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 
 import 'datetime-utility-functions.dart';
+import 'package:piggybank/models/category-type.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   /// Groups the records by days using a Map<DateTime, List<Record>>.
@@ -647,6 +648,34 @@ String formatAmountWithCurrency(double amount, String currency) {
 
   return formatCurrencyAmount(amount, currency);
 }
+
+bool _colorizeEnabled() {
+  final prefs = ServiceConfig.sharedPreferences;
+  if (prefs == null) return false;
+  return PreferencesUtils.getOrDefault<bool>(
+      prefs, PreferencesKeys.colorizeAmounts)!;
+}
+
+Color _greenShade(Brightness brightness) =>
+    brightness == Brightness.dark ? Colors.green.shade400 : Colors.green.shade700;
+
+Color _redShade(Brightness brightness) =>
+    brightness == Brightness.dark ? Colors.red.shade400 : Colors.red.shade700;
+
+/// Returns the color to use for an amount of [type], or null if colorization
+/// is disabled or [type] is null/unrecognised.
+Color? getAmountColor(CategoryType? type, Brightness brightness) {
+  if (!_colorizeEnabled()) return null;
+  if (type == CategoryType.income) return _greenShade(brightness);
+  if (type == CategoryType.expense) return _redShade(brightness);
+  return null;
+}
+
+/// Returns the color for a balance/wallet [amount] (green when ≥ 0, red when
+/// negative), or null if colorization is disabled.
+Color? getBalanceColor(double amount, Brightness brightness) =>
+    getAmountColor(
+        amount >= 0 ? CategoryType.income : CategoryType.expense, brightness);
 
 /// Returns a Widget displaying [amount] in [currency].
 ///

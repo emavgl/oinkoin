@@ -38,6 +38,9 @@ class PreferencesKeys {
   // Lock
   static const enableAppLock = 'enableAppLock';
 
+  // Appearance
+  static const colorizeAmounts = 'colorizeAmounts';
+
   // Mics
   static const restoreAmountOnDelete = 'restoreAmountOnDelete';
   static const enableRecordNameSuggestions = 'enableRecordNameSuggestions';
