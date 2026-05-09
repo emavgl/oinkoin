@@ -1,5 +1,4 @@
 {
-	"main": "dist/_worker.js/index.js",
 	"name": "oinkoin-website",
   "compatibility_date": "2026-01-02",
   "compatibility_flags": [
