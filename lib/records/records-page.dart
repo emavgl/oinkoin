@@ -380,6 +380,7 @@ class TabRecordsState extends State<TabRecords> {
           _controller.overviewRecords ?? _controller.filteredRecords,
           walletLabel: _controller.walletRowLabel,
           walletBalanceString: _controller.selectedWalletsBalanceString,
+          walletBalance: _controller.selectedWalletsBalance,
           walletCurrencyMap: _controller.walletCurrencyMap,
           onWalletRowTap: () => _controller.navigateToWalletPicker(context),
         ),

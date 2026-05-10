@@ -46,7 +46,8 @@ class PatternsPageViewState extends State<PatternsPageView> {
   }
 
   fetchRecurrentRecordPatternsFromDatabase() async {
-    var patterns = await database.getRecurrentRecordPatterns();
+    final profileId = ProfileService.instance.activeProfileId;
+    var patterns = await database.getRecurrentRecordPatterns(profileId: profileId);
     if (!mounted) return;
     setState(() {
       _recurrentRecordPatterns = patterns;
@@ -68,19 +69,25 @@ class PatternsPageViewState extends State<PatternsPageView> {
     };
   }
 
+  Color? _amountColor(RecurrentRecordPattern pattern) =>
+      getAmountColor(pattern.category?.categoryType, Theme.of(context).brightness);
+
   Widget _buildPatternAmountWidget(RecurrentRecordPattern pattern) {
     final wallet =
         pattern.walletId != null ? _walletsById[pattern.walletId] : null;
 
     final patternCurrency = wallet?.currency;
+    final color = _amountColor(pattern);
+    final style =
+        color != null ? _biggerFont.copyWith(color: color) : _biggerFont;
 
     // No currency set
     if (patternCurrency == null || patternCurrency.isEmpty) {
-      return Text(getCurrencyValueString(pattern.value), style: _biggerFont);
+      return Text(getCurrencyValueString(pattern.value), style: style);
     }
 
     return buildAmountWithCurrencyWidget(pattern.value!, patternCurrency,
-        mainStyle: _biggerFont);
+        mainStyle: style);
   }
 
   final _biggerFont = const TextStyle(fontSize: 18.0);

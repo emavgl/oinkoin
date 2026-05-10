@@ -98,6 +98,12 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     });
   }
 
+  Color? _amountColor(Record record) {
+    if (record.isTransfer) return null;
+    return getAmountColor(
+        record.category?.categoryType, Theme.of(context).brightness);
+  }
+
   Widget _buildRecordAmountWidget(Record record) {
     final wallet =
         record.walletId != null ? _walletsById[record.walletId] : null;
@@ -107,14 +113,18 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
         ? effectiveMap[record.walletId]
         : wallet?.currency;
 
+    final color = _amountColor(record);
+    final style = color != null
+        ? _currencyFontStyle.copyWith(color: color)
+        : _currencyFontStyle;
+
     // No currency info at all — fall back to plain number
     if (recordCurrency == null || recordCurrency.isEmpty) {
-      return Text(getCurrencyValueString(record.value),
-          style: _currencyFontStyle);
+      return Text(getCurrencyValueString(record.value), style: style);
     }
 
     return buildAmountWithCurrencyWidget(record.value!, recordCurrency,
-        mainStyle: _currencyFontStyle);
+        mainStyle: style);
   }
 
   bool _dayHasMixedCurrencies(List<Record?> records) {
@@ -129,6 +139,20 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
       }
     }
     return currencies.length > 1;
+  }
+
+  double _dayBalanceNumeric() {
+    final records = widget._movementDay.records ?? [];
+    if (records.isEmpty) return widget._movementDay.balance;
+    final effectiveMap = _effectiveCurrencyMap;
+    if (!_dayHasMixedCurrencies(records)) {
+      return computeConvertedTotal(records, effectiveMap).total;
+    }
+    final defaultCurrency = getDefaultCurrency();
+    if (defaultCurrency != null) {
+      return computeTotalInCurrency(records, effectiveMap, defaultCurrency).total;
+    }
+    return computeConvertedTotal(records, effectiveMap).total;
   }
 
   String _formatDayBalance() {
@@ -178,9 +202,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
         },
         padding: const EdgeInsets.all(6.0),
         itemBuilder: /*1*/ (context, i) {
-          var reversedIndex = widget._movementDay.records!.length - i - 1;
-          return _buildMovementRow(
-              widget._movementDay.records![reversedIndex]!);
+          return _buildMovementRow(widget._movementDay.records![i]!);
         });
   }
 
@@ -393,7 +415,11 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
                       child: Text(
                         _formatDayBalance(),
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.normal),
+                            fontSize: 15,
+                            fontWeight: FontWeight.normal,
+                            color: getBalanceColor(
+                                _dayBalanceNumeric(),
+                                Theme.of(context).brightness)),
                         overflow: TextOverflow.ellipsis,
                       ),
                     )

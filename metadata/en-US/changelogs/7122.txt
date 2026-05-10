@@ -1,0 +1,4 @@
+- Sort records within a day by time descending
+- Add Apply button in select wallet picker
+- Bug fix
+

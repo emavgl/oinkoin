@@ -49,6 +49,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.showWalletInRecordList: false, // Default to disabled
     PreferencesKeys.showFutureRecords: true, // Default to enabled
     PreferencesKeys.showCurrencySymbol: true, // Default to show currency symbols
+    PreferencesKeys.colorizeAmounts: false, // Default to disabled
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4,
   };

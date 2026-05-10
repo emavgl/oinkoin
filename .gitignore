@@ -3,6 +3,8 @@
 *.log
 *.pyc
 *.swp
+__pycache__/
+package-lock.json
 .DS_Store
 .atom/
 .buildlog/

@@ -282,6 +282,10 @@ class WalletsTabPageState extends State<WalletsTabPage> {
     return computeCombinedBalanceString(_displayWallets);
   }
 
+  double _displayBalanceTotal() {
+    return computeCombinedBalanceResult(_displayWallets).total;
+  }
+
   bool get _canShowBreakdown {
     if (_displayWallets.isEmpty) return false;
     final defaultCurrency = getDefaultCurrency();
@@ -300,6 +304,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
   }
 
   Widget _buildBreakdown() {
+    final brightness = Theme.of(context).brightness;
     final Map<String, double> groupTotals = {};
     double noCurrencyTotal = 0.0;
     for (final wallet in _displayWallets) {
@@ -341,10 +346,11 @@ class WalletsTabPageState extends State<WalletsTabPage> {
             item.key.isEmpty
                 ? getCurrencyValueString(item.value)
                 : formatCurrencyAmount(item.value, item.key),
-            style: Theme.of(context)
-                .textTheme
-                .headlineLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: getBalanceColor(
+                      item.value, brightness),
+                ),
           ),
         ],
         if (defaultCurrency != null &&
@@ -365,10 +371,11 @@ class WalletsTabPageState extends State<WalletsTabPage> {
           ),
           Text(
             formatCurrencyAmount(conversionResult.total, defaultCurrency),
-            style: Theme.of(context)
-                .textTheme
-                .headlineLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: getBalanceColor(
+                      conversionResult.total, brightness),
+                ),
           ),
         ],
       ],
@@ -439,6 +446,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
     return Scaffold(
       appBar: AppBar(
         title: Text(_showArchived ? "Archived wallets".i18n : "Wallets".i18n),
@@ -557,7 +565,12 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                                     style: Theme.of(context)
                                         .textTheme
                                         .headlineLarge
-                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: getBalanceColor(
+                                              _displayBalanceTotal(),
+                                              brightness),
+                                        ),
                                   ),
                           ),
                         ],
