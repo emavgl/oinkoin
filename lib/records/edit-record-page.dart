@@ -26,6 +26,8 @@ import '../models/recurrent-record-pattern.dart';
 import '../models/wallet.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
+import 'amount_selector/amount_selector.dart';
+import 'amount_selector/formatting/number_formatter.dart';
 import 'components/tag_selection_dialog.dart';
 import 'components/wallet_transfer_row.dart';
 
@@ -965,7 +967,33 @@ class EditRecordPageState extends State<EditRecordPage> {
               margin: EdgeInsets.only(right: 10),
               child: Semantics(
                 identifier: 'amount-field',
-                child: TextFormField(
+                child:
+                amountInputKeyboardTypeIndex == 1
+                    ?
+                InkWell(
+                  onTap: () {
+                    _openCustomKeyboard(categorySign);
+                  },
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: OinKoinNumberFormatter.formatForDisplay(
+                      context,
+                      _textEditingController.text.isEmpty
+                          ? zeroHint
+                          : _textEditingController.text,
+                      integerStyle: TextStyle(
+                        fontSize: 32.0,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      decimalsStyle: TextStyle(
+                        fontSize: 32.0,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                )
+                :
+                TextFormField(
                     enabled: !readOnly,
                     controller: _textEditingController,
                     inputFormatters: buildAmountInputFormatters(
@@ -1007,6 +1035,29 @@ class EditRecordPageState extends State<EditRecordPage> {
           ],
         )));
   }
+
+  void _openCustomKeyboard(String categorySign) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => AmountSelector(
+        categorySign: categorySign,
+        title: "Amount".i18n,
+        // We pass the current value from the controller to the keyboard
+        initialAmount:
+        tryParseCurrencyString(_textEditingController.text) ?? 0.0,
+        onSubmit: (double amount) {
+          setState(() {
+            _textEditingController.text =
+                getCurrencyValueString(amount, turnOffGrouping: true);
+            changeRecordValue(_textEditingController.text);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
 
   void changeRecordValue(String text) {
     var numericValue = tryParseCurrencyString(text);
