@@ -740,6 +740,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     final decimalSep = getDecimalSeparator();
     final groupSep = getGroupingSeparator();
     final decDigits = getNumberDecimalDigits();
+    final shouldAutofocus = !readOnly &&
+        passedRecord == null &&
+        passedReccurrentRecordPattern == null;
 
     // We keep your zero hint logic for when the field is empty
     final zeroHint = (autoDec && decDigits > 0)
@@ -790,7 +793,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                         // The formatted amount text
                         Semantics(
                           identifier: 'amount-field',
-                          child: OinKoinNumberFormatter.formatForDisplay(
+                          child:
+                          amountInputKeyboardTypeIndex == 1
+                          ?
+                          OinKoinNumberFormatter.formatForDisplay(
                             context,
                             _textEditingController.text.isEmpty
                                 ? zeroHint
@@ -803,7 +809,47 @@ class EditRecordPageState extends State<EditRecordPage> {
                               fontSize: 32.0,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
-                          ),
+                          )
+
+                          : TextFormField(
+                            enabled: !readOnly,
+                            controller: _textEditingController,
+                            inputFormatters: buildAmountInputFormatters(
+                              decimalSep: decimalSep,
+                              groupSep: groupSep,
+                              autoDec: autoDec,
+                              decDigits: decDigits,
+                            ),
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              fontSize: 32.0,
+                                color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            keyboardType: getAmountInputKeyboardType(),
+                            decoration: InputDecoration(
+                                floatingLabelBehavior: FloatingLabelBehavior.always,
+                                hintText: zeroHint,
+                                labelText: "Amount".i18n
+                            ),
+                            autofocus: shouldAutofocus,
+                            onChanged: (text) {
+                              changeRecordValue(text);
+                            },
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "Please enter a value".i18n;
+                              }
+                              var numericValue = tryParseCurrencyString(value);
+                              if (numericValue == null) {
+                                return "Not a valid format (use for example: %s)"
+                                    .i18n
+                                    .fill([
+                                  getCurrencyValueString(1234.20, turnOffGrouping: true)
+                                ]);
+                              }
+                              return null;
+                            },
+                          )
                         ),
                       ],
                     ),
