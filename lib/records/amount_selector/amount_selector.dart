@@ -195,6 +195,15 @@ class _AmountSelectorState extends State<AmountSelector> {
   }
 
   void addToAmount(String newText) {
+    if (CalculatorOperator.isOperator(newText) &&
+        CalculatorOperator.exprEndsWithOperator(amountString)) {
+      amountString = amountString.substring(0, amountString.length - 1);
+    }
+    //
+    // // Protection against multiple decimals in the same number (keyboard support)
+    // if (newText == '.' && _currentNumberHasDecimal()) {
+    //   return;
+    // }
     final decimalSep = getDecimalSeparator();
     final groupSep = getGroupingSeparator();
     final decDigits = getNumberDecimalDigits();

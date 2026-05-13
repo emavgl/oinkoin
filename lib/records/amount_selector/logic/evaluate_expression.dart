@@ -102,7 +102,7 @@ double evaluateExpression(String expression) {
       .replaceAll(decimalSep, '.'); // Convert local decimal (like ',') to '.'
 
   // Handle negative sign at the start of the expression
-  if (expression.startsWith('-')) {
+  if (expression.isNotEmpty && CalculatorOperator.isOperator(expression[0])) {
     expression =
         '0$expression'; // Prepend 0 to allow for correct parsing, e.g., "-3+4" becomes "0-3+4"
   }
@@ -115,7 +115,7 @@ double evaluateExpression(String expression) {
   }
 
   if (expression.isEmpty) {
-    throw ArgumentError('Invalid expression: no numbers found.');
+    return 0;
   }
 
   final tokens = splitExprByNumbersAndOperator(expression);
