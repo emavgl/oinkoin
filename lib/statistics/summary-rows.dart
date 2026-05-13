@@ -26,6 +26,10 @@ abstract class SummaryRow extends StatelessWidget {
   final AggregationMethod? aggregationMethod;
   final bool showPercentage;
   final bool showProgressBar;
+  final String? currency;
+
+  final double originalValue;
+  final String? originalCurrency;
 
   const SummaryRow({
     Key? key,
@@ -40,6 +44,9 @@ abstract class SummaryRow extends StatelessWidget {
     this.aggregationMethod,
     this.showPercentage = true,
     this.showProgressBar = true,
+    this.currency,
+    this.originalValue = 0.0,
+    this.originalCurrency,
   }) : super(key: key);
 
   @override
@@ -47,8 +54,42 @@ abstract class SummaryRow extends StatelessWidget {
     final percentage = (100 * value.abs()) / totalSum;
     final percentageBar = value.abs() / maxSum;
     final percentageStr = percentage.toStringAsFixed(2);
-    final valueStr = getCurrencyValueString(value.abs());
     final biggerFont = const TextStyle(fontSize: 16.0);
+    final secondaryFont = const TextStyle(fontSize: 14.0, color: Colors.grey);
+
+    final bool hasCurrencyConversion = currency != null &&
+        currency!.isNotEmpty &&
+        originalCurrency != null &&
+        originalCurrency!.isNotEmpty &&
+        originalCurrency != currency;
+
+    Widget amountWidget;
+    if (hasCurrencyConversion) {
+      final originalStr =
+          formatCurrencyAmount(originalValue.abs(), originalCurrency!);
+      final convertedStr = formatCurrencyAmount(value.abs(), currency!);
+      final primaryText =
+          showPercentage ? '$convertedStr ($percentageStr%)' : convertedStr;
+      amountWidget = Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(primaryText, style: biggerFont, textAlign: TextAlign.right),
+          Text(originalStr, style: secondaryFont, textAlign: TextAlign.right),
+        ],
+      );
+    } else {
+      String valueStr;
+      if (currency != null && currency!.isNotEmpty) {
+        valueStr = formatCurrencyAmount(value.abs(), currency!);
+      } else {
+        valueStr = getCurrencyValueString(value.abs());
+      }
+      amountWidget = Text(
+        showPercentage ? '$valueStr ($percentageStr%)' : valueStr,
+        style: biggerFont,
+      );
+    }
 
     final List<Widget> columnChildren = [
       Row(
@@ -64,10 +105,7 @@ abstract class SummaryRow extends StatelessWidget {
           ),
           Container(
             margin: EdgeInsets.only(left: 5),
-            child: Text(
-              showPercentage ? "$valueStr ($percentageStr%)" : valueStr,
-              style: biggerFont,
-            ),
+            child: amountWidget,
           ),
         ],
       ),
@@ -128,6 +166,9 @@ class CategorySummaryRow extends SummaryRow {
     DateTime? to,
     DateTime? selectedDate,
     AggregationMethod? aggregationMethod,
+    String? currency,
+    double originalValue = 0.0,
+    String? originalCurrency,
   }) : super(
           key: key,
           label: category.name!,
@@ -139,6 +180,9 @@ class CategorySummaryRow extends SummaryRow {
           to: to,
           selectedDate: selectedDate,
           aggregationMethod: aggregationMethod,
+          currency: currency,
+          originalValue: originalValue,
+          originalCurrency: originalCurrency,
         );
 
   @override
@@ -212,6 +256,9 @@ class TagSummaryRow extends SummaryRow {
     DateTime? selectedDate,
     AggregationMethod? aggregationMethod,
     this.isBalance = false,
+    String? currency,
+    double originalValue = 0.0,
+    String? originalCurrency,
   }) : super(
           key: key,
           label: tag,
@@ -223,6 +270,9 @@ class TagSummaryRow extends SummaryRow {
           to: to,
           selectedDate: selectedDate,
           aggregationMethod: aggregationMethod,
+          currency: currency,
+          originalValue: originalValue,
+          originalCurrency: originalCurrency,
         );
 
   @override
@@ -304,6 +354,9 @@ class ViewAllSummaryRow extends SummaryRow {
     required double totalAmount,
     required this.onTapCallback,
     List<Record?> records = const [],
+    String? currency,
+    double originalValue = 0.0,
+    String? originalCurrency,
   }) : super(
           label: label,
           value: totalAmount,
@@ -312,6 +365,9 @@ class ViewAllSummaryRow extends SummaryRow {
           records: records,
           showPercentage: false,
           showProgressBar: false,
+          currency: currency,
+          originalValue: originalValue,
+          originalCurrency: originalCurrency,
         );
 
   @override

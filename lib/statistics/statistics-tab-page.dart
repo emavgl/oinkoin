@@ -25,6 +25,8 @@ class StatisticsTabPage extends StatefulWidget {
   final bool hideCategorySelection;
   final Function? onListBackCallback;
 
+  final Map<int, String?> walletCurrencyMap;
+
   StatisticsTabPage(this.from, this.to, this.records,
       {this.onIntervalSelected,
       this.selectedDate,
@@ -33,7 +35,8 @@ class StatisticsTabPage extends StatefulWidget {
       this.showRecordsToggle = false,
       this.hideTagsSelection = false,
       this.hideCategorySelection = false,
-      this.onListBackCallback})
+      this.onListBackCallback,
+      this.walletCurrencyMap = const {}})
       : super();
 
   @override
@@ -178,6 +181,8 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
       recordsToVisualize,
       aggregationMethod,
       selectedAmount: selectedAmount,
+      selectedDate: selectedDate,
+      walletCurrencyMap: widget.walletCurrencyMap,
       actions: <OverviewCardAction>[
         OverviewCardAction(
           icon: showPieChart ? Icons.bar_chart : Icons.pie_chart,
@@ -221,6 +226,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           showRecordsToggle: widget.showRecordsToggle,
           hideTagsSelection: widget.hideTagsSelection,
           hideCategorySelection: widget.hideCategorySelection,
+          walletCurrencyMap: widget.walletCurrencyMap,
           onGroupByTypeChanged: (newType) {
             setState(() {
               groupByType = newType;
@@ -303,6 +309,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           recordsForList,
           isSliver: true,
           onListBackCallback: widget.onListBackCallback,
+          walletCurrencyMap: widget.walletCurrencyMap,
         ));
         slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 75)));
       }

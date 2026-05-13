@@ -6,11 +6,20 @@ class CSVExporter {
 
   static final _logger = Logger.withClass(CSVExporter);
 
-  static createCSVFromRecordList(List<Record?> records) {
+  /// Creates a CSV string from a list of records.
+  ///
+  /// Transfers are excluded from the export. [walletNames] maps wallet IDs
+  /// to their display names so the CSV contains wallet names instead of IDs.
+  static createCSVFromRecordList(List<Record?> records, {Map<int, String>? walletNames}) {
     try {
-      _logger.debug('Creating CSV from ${records.length} records...');
-      var recordsMap =
-          List.generate(records.length, (index) => records[index]!.toCsvMap());
+      // Exclude transfers
+      final nonTransferRecords = records.where((r) => r != null && !r.isTransfer).toList();
+      _logger.debug('Creating CSV from ${nonTransferRecords.length} records (${records.length - nonTransferRecords.length} transfers excluded)...');
+
+      var recordsMap = List.generate(
+        nonTransferRecords.length,
+        (index) => nonTransferRecords[index]!.toCsvMap(walletNames: walletNames),
+      );
       List<List<dynamic>> csvLines = [];
       if (recordsMap.isNotEmpty) {
         recordsMap.forEach((element) {
@@ -21,7 +30,7 @@ class CSVExporter {
       } else {
         // Provide a default header if no records are present
         _logger.warning('No records to export, using default header');
-        csvLines.insert(0, ['title', 'value', 'datetime', 'category_name', 'category_type', 'description', 'tags']);
+        csvLines.insert(0, ['title', 'value', 'datetime', 'category_name', 'category_type', 'description', 'tags', 'wallet']);
       }
       var csv = ListToCsvConverter().convert(csvLines);
       _logger.info('CSV created: ${csvLines.length} lines (including header)');

@@ -12,6 +12,7 @@ import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'categories/categories-tab-page-edit.dart';
+import 'wallets/wallets-tab-page.dart';
 
 class Shell extends StatefulWidget {
   @override
@@ -25,10 +26,13 @@ class ShellState extends State<Shell> {
 
   final GlobalKey<TabRecordsState> _tabRecordsKey = GlobalKey();
   final GlobalKey<TabCategoriesState> _tabCategoriesKey = GlobalKey();
+  final GlobalKey<WalletsTabPageState> _tabWalletsKey = GlobalKey();
 
   final GlobalKey<NavigatorState> _homeNavigatorKey =
       GlobalKey<NavigatorState>();
   final GlobalKey<NavigatorState> _categoriesNavigatorKey =
+      GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _walletsNavigatorKey =
       GlobalKey<NavigatorState>();
   final GlobalKey<NavigatorState> _settingsNavigatorKey =
       GlobalKey<NavigatorState>();
@@ -129,9 +133,12 @@ class ShellState extends State<Shell> {
             currentNavigator = _homeNavigatorKey.currentState;
             break;
           case 1:
-            currentNavigator = _categoriesNavigatorKey.currentState;
+            currentNavigator = _walletsNavigatorKey.currentState;
             break;
           case 2:
+            currentNavigator = _categoriesNavigatorKey.currentState;
+            break;
+          case 3:
             currentNavigator = _settingsNavigatorKey.currentState;
             break;
         }
@@ -140,7 +147,17 @@ class ShellState extends State<Shell> {
         if (currentNavigator != null && currentNavigator.canPop()) {
           // Let the current tab handle the back navigation
           currentNavigator.pop();
-        } else if (_currentIndex != 0) {
+          return;
+        }
+
+        // At the root of the current tab's navigator.
+        // Use maybePop to respect inner PopScopes (e.g., select mode in records).
+        if (currentNavigator != null) {
+          final bool handled = await currentNavigator.maybePop();
+          if (handled) return;
+        }
+
+        if (_currentIndex != 0) {
           // If we're at the root of a non-Home tab, navigate to Home
           setState(() {
             _currentIndex = 0;
@@ -170,6 +187,19 @@ class ShellState extends State<Shell> {
             child: TickerMode(
               enabled: _currentIndex == 1,
               child: Navigator(
+                key: _walletsNavigatorKey,
+                onGenerateRoute: (settings) {
+                  return MaterialPageRoute(
+                      builder: (_) => WalletsTabPage(key: _tabWalletsKey));
+                },
+              ),
+            ),
+          ),
+          Offstage(
+            offstage: _currentIndex != 2,
+            child: TickerMode(
+              enabled: _currentIndex == 2,
+              child: Navigator(
                 key: _categoriesNavigatorKey,
                 onGenerateRoute: (settings) {
                   return MaterialPageRoute(
@@ -179,9 +209,9 @@ class ShellState extends State<Shell> {
             ),
           ),
           Offstage(
-            offstage: _currentIndex != 2,
+            offstage: _currentIndex != 3,
             child: TickerMode(
-              enabled: _currentIndex == 2,
+              enabled: _currentIndex == 3,
               child: Navigator(
                 key: _settingsNavigatorKey,
                 onGenerateRoute: (settings) {
@@ -203,6 +233,9 @@ class ShellState extends State<Shell> {
               await _tabRecordsKey.currentState?.onTabChange();
             }
             if (_currentIndex == 1) {
+              await _tabWalletsKey.currentState?.onTabChange();
+            }
+            if (_currentIndex == 2) {
               await _tabCategoriesKey.currentState?.onTabChange();
             }
           },
@@ -216,6 +249,17 @@ class ShellState extends State<Shell> {
               icon: Semantics(
                 identifier: 'home-tab',
                 child: Icon(Icons.home_outlined),
+              ),
+            ),
+            NavigationDestination(
+              label: "Wallets".i18n,
+              selectedIcon: Semantics(
+                identifier: 'wallets-tab-selected',
+                child: Icon(Icons.account_balance_wallet),
+              ),
+              icon: Semantics(
+                identifier: 'wallets-tab',
+                child: Icon(Icons.account_balance_wallet_outlined),
               ),
             ),
             NavigationDestination(

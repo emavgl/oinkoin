@@ -373,5 +373,128 @@ void main() {
         expect(record.tags, equals(tags));
       }
     });
+
+    test('generated records should have walletId from the recurrent pattern', () {
+      final patternStartDate = DateTime.utc(2023, 1, 1);
+      final endDate = DateTime.utc(2023, 1, 3);
+
+      final recordPattern = RecurrentRecordPattern(
+        -10.0,
+        "Wallet Recurrent",
+        category1,
+        patternStartDate,
+        RecurrentPeriod.EveryDay,
+        walletId: 42,
+      );
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+      expect(records.length, 3);
+      for (var record in records) {
+        expect(record.walletId, 42);
+      }
+    });
+
+    test('generated records should have transferWalletId from the recurrent pattern', () {
+      final patternStartDate = DateTime.utc(2023, 1, 1);
+      final endDate = DateTime.utc(2023, 1, 3);
+
+      final recordPattern = RecurrentRecordPattern(
+        -10.0,
+        "Transfer Recurrent",
+        category1,
+        patternStartDate,
+        RecurrentPeriod.EveryDay,
+        walletId: 1,
+        transferWalletId: 2,
+      );
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+      expect(records.length, 3);
+      for (var record in records) {
+        expect(record.walletId, 1);
+        expect(record.transferWalletId, 2);
+        expect(record.isTransfer, isTrue);
+      }
+    });
+
+    test('generated records without transferWalletId should not be transfers', () {
+      final patternStartDate = DateTime.utc(2023, 1, 1);
+      final endDate = DateTime.utc(2023, 1, 3);
+
+      final recordPattern = RecurrentRecordPattern(
+        -10.0,
+        "Normal Recurrent",
+        category1,
+        patternStartDate,
+        RecurrentPeriod.EveryDay,
+        walletId: 1,
+      );
+
+      final records = recurrentRecordService
+          .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+      expect(records.length, 3);
+      for (var record in records) {
+        expect(record.transferWalletId, isNull);
+        expect(record.isTransfer, isFalse);
+      }
+    });
+
+    test('RecurrentRecordPattern.fromRecord copies walletId and transferWalletId', () {
+      final sourceRecord = Record(
+        -50.0,
+        "Transfer",
+        category1,
+        DateTime.utc(2023, 6, 1),
+        walletId: 3,
+        transferWalletId: 7,
+      );
+
+      final pattern = RecurrentRecordPattern.fromRecord(
+        sourceRecord,
+        RecurrentPeriod.EveryMonth,
+      );
+
+      expect(pattern.walletId, 3);
+      expect(pattern.transferWalletId, 7);
+    });
+
+    test('RecurrentRecordPattern.fromRecord with no transfer sets transferWalletId to null', () {
+      final sourceRecord = Record(
+        -50.0,
+        "Expense",
+        category1,
+        DateTime.utc(2023, 6, 1),
+        walletId: 5,
+      );
+
+      final pattern = RecurrentRecordPattern.fromRecord(
+        sourceRecord,
+        RecurrentPeriod.EveryMonth,
+      );
+
+      expect(pattern.walletId, 5);
+      expect(pattern.transferWalletId, isNull);
+    });
+
+    test('RecurrentRecordPattern toMap and fromMap round-trip preserves transfer fields', () {
+      final pattern = RecurrentRecordPattern(
+        -100.0,
+        "Round-trip transfer",
+        category1,
+        DateTime.utc(2023, 3, 15),
+        RecurrentPeriod.EveryWeek,
+        walletId: 4,
+        transferWalletId: 9,
+      );
+
+      final map = pattern.toMap();
+      expect(map['wallet_id'], 4);
+      expect(map['transfer_wallet_id'], 9);
+    });
   });
 }

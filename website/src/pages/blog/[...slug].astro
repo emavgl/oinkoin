@@ -51,13 +51,18 @@ const { Content } = await post.render();
 </Layout>
 
 <style is:global>
-.prose h1, .prose h2, .prose h3, .prose h4 {
+.prose {
+  --content-font-size: 1.15rem;
+}
+.prose h2, .prose h3, .prose h4 {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-weight: 700;
   letter-spacing: -0.01em;
+  font-size: calc(var(--content-font-size) + 2px);
+  margin-top: 1.5em;
 }
-.prose p {
-  font-size: 1.15rem;
+.prose p, .prose li {
+  font-size: var(--content-font-size);
   color: #444;
 }
 .prose ul, .prose ol {
@@ -80,6 +85,9 @@ const { Content } = await post.render();
 .prose ul li::marker, .prose ol li::marker {
   color: #2563eb;
   font-size: 1em;
+}
+.prose hr {
+  margin: 2.5em 0;
 }
 .prose a {
   color: #2563eb;

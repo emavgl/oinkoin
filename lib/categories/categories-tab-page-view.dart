@@ -10,6 +10,7 @@ import 'package:piggybank/categories/category-sort-option.dart';
 
 class CategoryTabPageView extends StatefulWidget {
   final bool? goToEditMovementPage;
+
   CategoryTabPageView({this.goToEditMovementPage, Key? key}) : super(key: key);
 
   @override
@@ -88,6 +89,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   }
 
   void _showSortOptions() {
+    SortOption pendingOption = _selectedSortOption;
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -111,12 +113,12 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                       Row(
                         children: [
                           Checkbox(
-                            value: _isDefaultOrder || _selectedSortOption == _storedDefaultOption,
+                            value: _isDefaultOrder ||
+                                pendingOption == _storedDefaultOption,
                             onChanged: (value) {
                               setModalState(() {
                                 _isDefaultOrder = value ?? false;
                               });
-                              storeOnUserPreferences();
                             },
                           ),
                           Text("Make it default".i18n),
@@ -131,22 +133,19 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                   title: Text(
                     "Last Used".i18n,
                     style: TextStyle(
-                      color: _selectedSortOption == SortOption.lastUsed
+                      color: pendingOption == SortOption.lastUsed
                           ? Theme.of(context).colorScheme.primary
                           : null,
                     ),
                   ),
-                  trailing: _selectedSortOption == SortOption.lastUsed
+                  trailing: pendingOption == SortOption.lastUsed
                       ? Icon(Icons.check,
                           color: Theme.of(context).colorScheme.primary)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      _selectedSortOption = SortOption.lastUsed;
-                      _applySort(_selectedSortOption);
-                      storeOnUserPreferences();
+                      pendingOption = SortOption.lastUsed;
                     });
-                    Navigator.pop(context);
                   },
                 ),
                 ListTile(
@@ -154,22 +153,19 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                   title: Text(
                     "Name (Alphabetically)".i18n,
                     style: TextStyle(
-                      color: _selectedSortOption == SortOption.alphabetical
+                      color: pendingOption == SortOption.alphabetical
                           ? Theme.of(context).colorScheme.primary
                           : null,
                     ),
                   ),
-                  trailing: _selectedSortOption == SortOption.alphabetical
+                  trailing: pendingOption == SortOption.alphabetical
                       ? Icon(Icons.check,
-                      color: Theme.of(context).colorScheme.primary)
+                          color: Theme.of(context).colorScheme.primary)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      _selectedSortOption = SortOption.alphabetical;
-                      _applySort(_selectedSortOption);
-                      storeOnUserPreferences();
+                      pendingOption = SortOption.alphabetical;
                     });
-                    Navigator.pop(context);
                   },
                 ),
                 ListTile(
@@ -177,22 +173,19 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                   title: Text(
                     "Most Used".i18n,
                     style: TextStyle(
-                      color: _selectedSortOption == SortOption.mostUsed
+                      color: pendingOption == SortOption.mostUsed
                           ? Theme.of(context).colorScheme.primary
                           : null,
                     ),
                   ),
-                  trailing: _selectedSortOption == SortOption.mostUsed
+                  trailing: pendingOption == SortOption.mostUsed
                       ? Icon(Icons.check,
                           color: Theme.of(context).colorScheme.primary)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      _selectedSortOption = SortOption.mostUsed;
-                      _applySort(_selectedSortOption);
-                      storeOnUserPreferences();
+                      pendingOption = SortOption.mostUsed;
                     });
-                    Navigator.pop(context);
                   },
                 ),
                 ListTile(
@@ -200,23 +193,39 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                   title: Text(
                     "Original Order".i18n,
                     style: TextStyle(
-                      color: _selectedSortOption == SortOption.original
+                      color: pendingOption == SortOption.original
                           ? Theme.of(context).colorScheme.primary
                           : null,
                     ),
                   ),
-                  trailing: _selectedSortOption == SortOption.original
+                  trailing: pendingOption == SortOption.original
                       ? Icon(Icons.check,
                           color: Theme.of(context).colorScheme.primary)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      _selectedSortOption = SortOption.original;
-                      _applySort(_selectedSortOption);
-                      storeOnUserPreferences();
+                      pendingOption = SortOption.original;
                     });
-                    Navigator.pop(context);
                   },
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedSortOption = pendingOption;
+                        });
+                        _applySort(pendingOption);
+                        storeOnUserPreferences();
+                        Navigator.pop(context);
+                      },
+                      child: Text("Apply".i18n),
+                    ),
+                  ),
                 ),
               ],
             );
@@ -330,7 +339,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                     goToEditMovementPage: widget.goToEditMovementPage,
                     enableManualSorting:
                         _selectedSortOption == SortOption.original,
-                    onChangeOrder: onCategoriesReorder)
+                    onChangeOrder: onCategoriesReorder,
+                    )
                 : Container(),
             _categories != null
                 ? CategoriesGrid(

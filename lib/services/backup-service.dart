@@ -8,10 +8,13 @@ import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
+import 'package:piggybank/models/wallet.dart';
+import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/services/database/exceptions.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:piggybank/settings/backup-retention-period.dart';
+import 'package:piggybank/settings/currencies-page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../settings/constants/preferences-keys.dart';
@@ -24,14 +27,15 @@ import 'logger.dart';
 
 /// BackupService contains the methods to create/restore backup file
 class BackupService {
-
   static final _logger = Logger.withClass(BackupService);
 
-  static const String DEFAULT_STORAGE_DIR = "/storage/emulated/0/Documents/oinkoin";
+  static const String DEFAULT_STORAGE_DIR =
+      "/storage/emulated/0/Documents/oinkoin";
 
   static const String MANDATORY_BACKUP_SUFFIX = "obackup.json";
 
-  static String ERROR_MSG = "Unable to create a backup: please, delete manually the old backup".i18n;
+  static String ERROR_MSG =
+      "Unable to create a backup: please, delete manually the old backup".i18n;
 
   static const Duration AUTOMATIC_BACKUP_THRESHOLD = Duration(hours: 1);
 
@@ -87,7 +91,7 @@ class BackupService {
   }) async {
     try {
       _logger.info('Starting backup creation...');
-      
+
       // Generate backup file name if not provided
       backupFileName ??= await generateBackupFileName();
       _logger.debug('Backup filename: $backupFileName');
@@ -108,15 +112,22 @@ class BackupService {
       final databaseVersion = SqliteDatabase.version.toString();
 
       _logger.debug('Fetching data for backup...');
-      // Create the backup
+      // Create the backup (no profileId filter — backup all profiles)
       var records = await database.getAllRecords();
       var categories = await database.getAllCategories();
       var recurrentRecordPatterns = await database.getRecurrentRecordPatterns();
       var recordTagAssociations = await database.getAllRecordTagAssociations();
+      var wallets = await database.getAllWallets();
+      var profiles = await database.getAllProfiles();
+      var prefs = await SharedPreferences.getInstance();
+      var userCurrencies = prefs.getString(PreferencesKeys.userCurrencies);
 
-      _logger.info('Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags');
+      _logger.info(
+          'Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags, ${wallets.length} wallets, ${profiles.length} profiles');
 
-      var backup = Backup(appName, version, databaseVersion, categories, records, recurrentRecordPatterns, recordTagAssociations);
+      var backup = Backup(appName, version, databaseVersion, categories,
+          records, recurrentRecordPatterns, recordTagAssociations,
+          wallets: wallets, profiles: profiles, userCurrencies: userCurrencies);
       var backupJsonStr = jsonEncode(backup.toMap());
 
       // Encrypt the backup JSON string if an encryption password is provided
@@ -128,8 +139,9 @@ class BackupService {
       // Write on disk
       var backupJsonOnDisk = File("${path.path}/$backupFileName");
       var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
-      
-      _logger.info('Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
+
+      _logger.info(
+          'Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
       return result;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to create backup');
@@ -162,14 +174,17 @@ class BackupService {
 
       // Check if the time since the latest backup exceeds the threshold
       final now = DateTime.now();
-      final shouldBackup = now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
-      
+      final shouldBackup =
+          now.difference(latestBackupDate) > AUTOMATIC_BACKUP_THRESHOLD;
+
       if (shouldBackup) {
-        _logger.info("Last backup was ${now.difference(latestBackupDate).inHours}h ago, automatic backup needed");
+        _logger.info(
+            "Last backup was ${now.difference(latestBackupDate).inHours}h ago, automatic backup needed");
       } else {
-        _logger.debug("Last backup was ${now.difference(latestBackupDate).inMinutes}m ago, no backup needed yet");
+        _logger.debug(
+            "Last backup was ${now.difference(latestBackupDate).inMinutes}m ago, no backup needed yet");
       }
-      
+
       return shouldBackup;
     } catch (e, st) {
       _logger.handle(e, st, 'Error checking if automatic backup is needed');
@@ -196,9 +211,8 @@ class BackupService {
     bool enableVersionAndDateInBackupName = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableVersionAndDateInBackupName)!;
 
-    String? filename = !enableVersionAndDateInBackupName
-        ? await getDefaultFileName()
-        : null;
+    String? filename =
+        !enableVersionAndDateInBackupName ? await getDefaultFileName() : null;
 
     try {
       _logger.info('Creating automatic backup...');
@@ -226,8 +240,7 @@ class BackupService {
         prefs, PreferencesKeys.backupRetentionIntervalIndex);
 
     if (enableEncryptedBackup && backupRetentionIntervalIndex != null) {
-      var period =
-      BackupRetentionPeriod.values[backupRetentionIntervalIndex];
+      var period = BackupRetentionPeriod.values[backupRetentionIntervalIndex];
       if (period != BackupRetentionPeriod.ALWAYS) {
         final backupDir = await getDefaultBackupDirectory();
         return await removeOldBackups(period, Directory(backupDir));
@@ -235,7 +248,6 @@ class BackupService {
     }
     return false;
   }
-
 
   /// Imports data from a backup file. If an encryption password is provided,
   /// it attempts to decrypt the file content before importing.
@@ -256,7 +268,128 @@ class BackupService {
 
       var jsonMap = jsonDecode(fileContent);
       Backup backup = Backup.fromMap(jsonMap);
-      _logger.info('Importing: ${backup.records.length} records, ${backup.categories.length} categories');
+      _logger.info(
+          'Importing: ${backup.records.length} records, ${backup.categories.length} categories, ${backup.wallets.length} wallets');
+
+      // Restore user currencies before wallets so currencies are available
+      if (backup.userCurrencies != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            PreferencesKeys.userCurrencies, backup.userCurrencies!);
+        // Load custom currencies into CurrencyInfo so they're available when restoring wallets
+        final config = UserCurrencyConfig.fromJson(
+            jsonDecode(backup.userCurrencies!) as Map<String, dynamic>);
+        for (final currency in config.currencies) {
+          if (currency.isCustom) {
+            CurrencyInfo.addCustomCurrency(CurrencyInfo(
+              isoCode: currency.isoCode,
+              name: currency.customName!,
+              customSymbol: currency.customSymbol,
+            ));
+          }
+        }
+      }
+
+      // Insert profiles and build backup_id → new_db_id mapping
+      final profileIdMap =
+          <int, int>{}; // backup profile id → new db profile id
+      int? fallbackProfileId;
+
+      if (backup.profiles.isNotEmpty) {
+        // Check if a default profile already exists in the database
+        final existingDefaultProfile = await database.getDefaultProfile();
+        final int? existingDefaultProfileId = existingDefaultProfile?.id;
+
+        for (var backupProfile in backup.profiles) {
+          final backupId = backupProfile.id;
+
+          if (backupProfile.isDefault && existingDefaultProfileId != null) {
+            // Reuse the existing Default Profile instead of creating a duplicate
+            if (backupId != null) {
+              profileIdMap[backupId] = existingDefaultProfileId;
+            }
+            fallbackProfileId = existingDefaultProfileId;
+          } else {
+            backupProfile.id = null;
+            final newId = await database.addProfile(backupProfile);
+            if (backupId != null) {
+              profileIdMap[backupId] = newId;
+            }
+            if (backupProfile.isDefault) fallbackProfileId = newId;
+          }
+        }
+      } else {
+        // Old backup with no profiles: assign everything to the existing Default Profile
+        final defaultProfile = await database.getDefaultProfile();
+        fallbackProfileId = defaultProfile?.id;
+      }
+
+      // Insert wallets and build backup_id → new_db_id mapping
+      final walletIdMap = <int, int>{}; // backup wallet id → new db wallet id
+
+      // Check if a default wallet already exists in the database
+      final existingDefaultWallet = await database.getDefaultWallet();
+      final int? existingDefaultWalletId = existingDefaultWallet?.id;
+
+      // Get all existing wallets grouped by profile for name-based merging
+      final existingWalletsByProfile = <int?, List<Wallet>>{};
+      for (var profileId in profileIdMap.values.toSet()) {
+        final wallets = await database.getAllWallets(profileId: profileId);
+        existingWalletsByProfile[profileId] = wallets;
+      }
+
+      for (var backupWallet in backup.wallets) {
+        final backupId = backupWallet.id;
+        // Remap profile_id
+        if (backupWallet.profileId != null &&
+            profileIdMap.containsKey(backupWallet.profileId)) {
+          backupWallet.profileId = profileIdMap[backupWallet.profileId];
+        } else {
+          backupWallet.profileId = fallbackProfileId;
+        }
+
+        int? mappedWalletId;
+
+        // Check if this is a default wallet and reuse existing default
+        if (backupWallet.isDefault && existingDefaultWalletId != null) {
+          mappedWalletId = existingDefaultWalletId;
+        } else {
+          // Check if a wallet with the same name exists in the same profile
+          final existingInProfile =
+              existingWalletsByProfile[backupWallet.profileId] ?? [];
+          final match = existingInProfile.where(
+              (w) => w.name.toLowerCase() == backupWallet.name.toLowerCase());
+          if (match.isNotEmpty) {
+            mappedWalletId = match.first.id;
+          }
+        }
+
+        if (mappedWalletId != null) {
+          // Reuse existing wallet
+          if (backupId != null) {
+            walletIdMap[backupId] = mappedWalletId;
+          }
+        } else {
+          // Insert without the old id so the DB auto-assigns a new one
+          backupWallet.id = null;
+          final newId = await database.addWallet(backupWallet);
+          if (backupId != null) {
+            walletIdMap[backupId] = newId;
+          }
+          // Add to existing list for subsequent duplicates in same profile
+          final newWallet = await database.getWalletById(newId);
+          if (newWallet != null) {
+            existingWalletsByProfile
+                .putIfAbsent(backupWallet.profileId, () => [])
+                .add(newWallet);
+          }
+        }
+      }
+
+      // Records with no wallet mapping (old backups, missing wallet data, etc.)
+      // fall back to the Default Wallet, which always exists.
+      final defaultWallet = await database.getDefaultWallet();
+      final fallbackWalletId = defaultWallet?.id;
 
       // Add categories
       for (var backupCategory in backup.categories) {
@@ -270,21 +403,64 @@ class BackupService {
       // Build a map of record ID -> tags from the backup's tag associations
       final recordIdToTags = <int, Set<String>>{};
       for (var assoc in backup.recordTagAssociations) {
-        recordIdToTags.putIfAbsent(assoc.recordId, () => <String>{}).add(assoc.tagName);
+        recordIdToTags
+            .putIfAbsent(assoc.recordId, () => <String>{})
+            .add(assoc.tagName);
       }
 
-      // Populate record.tags so addRecordsInBatch Phase 2 handles ID remapping
+      // Populate record.tags and remap wallet_id + profile_id
       for (var record in backup.records) {
-        if (record?.id != null && recordIdToTags.containsKey(record!.id)) {
+        if (record == null) continue;
+        if (record.id != null && recordIdToTags.containsKey(record.id)) {
           record.tags = recordIdToTags[record.id]!;
+        }
+        // Remap profile_id from backup id to new db id
+        if (record.profileId != null &&
+            profileIdMap.containsKey(record.profileId)) {
+          record.profileId = profileIdMap[record.profileId];
+        } else {
+          record.profileId = fallbackProfileId;
+        }
+        // Remap wallet_id from backup id to new db id
+        if (record.walletId != null &&
+            walletIdMap.containsKey(record.walletId)) {
+          record.walletId = walletIdMap[record.walletId];
+        } else if (fallbackWalletId != null) {
+          record.walletId = fallbackWalletId;
+        }
+        // Remap transfer_wallet_id from backup id to new db id
+        if (record.transferWalletId != null &&
+            walletIdMap.containsKey(record.transferWalletId)) {
+          record.transferWalletId = walletIdMap[record.transferWalletId];
+        } else if (record.transferWalletId != null &&
+            !walletIdMap.containsKey(record.transferWalletId)) {
+          // Destination wallet not found in backup mapping — clear the transfer
+          record.transferWalletId = null;
         }
       }
 
       // Add records in batch — Phase 2 will correctly map tags to new IDs
       await database.addRecordsInBatch(backup.records);
 
-      // Add recurrent patterns
+      // Add recurrent patterns (remap profile_id)
       for (var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
+        // Remap profile_id
+        if (backupRecurrentPatterns.profileId != null &&
+            profileIdMap.containsKey(backupRecurrentPatterns.profileId)) {
+          backupRecurrentPatterns.profileId =
+              profileIdMap[backupRecurrentPatterns.profileId];
+        } else {
+          backupRecurrentPatterns.profileId = fallbackProfileId;
+        }
+        // Remap wallet_id — fall back to default wallet when the backup
+        // wallet is missing (mirrors the record remapping logic above).
+        if (backupRecurrentPatterns.walletId != null &&
+            walletIdMap.containsKey(backupRecurrentPatterns.walletId)) {
+          backupRecurrentPatterns.walletId =
+              walletIdMap[backupRecurrentPatterns.walletId];
+        } else if (fallbackWalletId != null) {
+          backupRecurrentPatterns.walletId = fallbackWalletId;
+        }
         String? recurrentPatternId = backupRecurrentPatterns.id;
         if (await database.getRecurrentRecordPattern(recurrentPatternId) ==
             null) {

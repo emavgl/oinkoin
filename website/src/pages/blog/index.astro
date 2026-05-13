@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 
 let posts = await getCollection('blog');
-posts = posts.sort((a, b) => new Date(b.data.pubDate) - new Date(a.data.pubDate));
+posts = posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
 ---
 
 <Layout

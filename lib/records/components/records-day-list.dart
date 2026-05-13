@@ -13,12 +13,22 @@ class RecordsDayList extends StatefulWidget {
   final Function? onListBackCallback;
   final bool isSliver;
   final int batchSize;
+  final Map<int, String?> walletCurrencyMap;
+  final bool isSelectMode;
+  final Set<int> selectedRecordIds;
+  final void Function(int)? onRecordLongPressed;
+  final void Function(int)? onRecordTapped;
 
   RecordsDayList(
     this.records, {
     this.onListBackCallback,
     this.isSliver = true,
     this.batchSize = 50,
+    this.walletCurrencyMap = const {},
+    this.isSelectMode = false,
+    this.selectedRecordIds = const {},
+    this.onRecordLongPressed,
+    this.onRecordTapped,
   });
 
   @override
@@ -28,7 +38,6 @@ class RecordsDayList extends StatefulWidget {
 class _RecordsDayListState extends State<RecordsDayList> {
   int _displayedCount = 0;
   late List<RecordsPerDay> _daysShown;
-  List<Record?>? _lastRecords;
 
   @override
   void initState() {
@@ -48,7 +57,6 @@ class _RecordsDayListState extends State<RecordsDayList> {
   void _updateDaysShown() {
     _daysShown = groupRecordsByDay(widget.records);
     _displayedCount = _daysShown.length.clamp(0, widget.batchSize);
-    _lastRecords = widget.records;
   }
 
   void _loadMore() {
@@ -79,6 +87,11 @@ class _RecordsDayListState extends State<RecordsDayList> {
             return RecordsPerDayCard(
               _daysShown[index],
               onListBackCallback: widget.onListBackCallback,
+              walletCurrencyMap: widget.walletCurrencyMap,
+              isSelectMode: widget.isSelectMode,
+              selectedRecordIds: widget.selectedRecordIds,
+              onRecordLongPressed: widget.onRecordLongPressed,
+              onRecordTapped: widget.onRecordTapped,
             );
           },
           childCount: _displayedCount + (hasMore ? 1 : 0),
@@ -97,6 +110,11 @@ class _RecordsDayListState extends State<RecordsDayList> {
           return RecordsPerDayCard(
             _daysShown[index],
             onListBackCallback: widget.onListBackCallback,
+            walletCurrencyMap: widget.walletCurrencyMap,
+            isSelectMode: widget.isSelectMode,
+            selectedRecordIds: widget.selectedRecordIds,
+            onRecordLongPressed: widget.onRecordLongPressed,
+            onRecordTapped: widget.onRecordTapped,
           );
         },
       );

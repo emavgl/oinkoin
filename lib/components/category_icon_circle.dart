@@ -7,6 +7,7 @@ class CategoryIconCircle extends StatelessWidget {
   final IconData? iconDataFromDefaultIconSet;
   final Color? backgroundColor;
   final IconData? overlayIcon;
+  final IconData? topOverlayIcon;
   final double mainIconSize;
   final double overlayIconSize;
   final double circleSize;
@@ -16,6 +17,7 @@ class CategoryIconCircle extends StatelessWidget {
     this.iconDataFromDefaultIconSet,
     this.backgroundColor,
     this.overlayIcon = null,
+    this.topOverlayIcon = null,
     this.mainIconSize = 20.0,
     this.overlayIconSize = 15.0,
     this.circleSize = 40.0,
@@ -49,31 +51,59 @@ class CategoryIconCircle extends StatelessWidget {
     );
   }
 
-  // Helper function to build the overlay icon container
+  // Helper function to build the bottom-right overlay icon container
   Widget _buildOverlayIcon(
       BuildContext context, IconData overlayIcon, bool iconBackground) {
-    return Container(
-      margin: EdgeInsets.only(left: circleSize - 8, top: circleSize - 18),
-      width: circleSize / 2,
-      height: circleSize / 2,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: iconBackground
-            ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.8),
+    return Transform.translate(
+      offset: Offset(circleSize - 10, circleSize - 16),
+      child: Container(
+        width: circleSize / 2,
+        height: circleSize / 2,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: iconBackground
+              ? Theme.of(context).colorScheme.surface
+              : Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.8),
+        ),
+        child: Icon(
+          overlayIcon,
+          size: overlayIconSize,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
-      child: Icon(
-        overlayIcon,
-        size: overlayIconSize,
-        color: Theme.of(context).colorScheme.onSurface,
+    );
+  }
+
+  // Helper function to build the top-right overlay icon container (symmetric to bottom)
+  Widget _buildTopOverlayIcon(
+      BuildContext context, IconData overlayIcon, bool iconBackground) {
+    return Transform.translate(
+      offset: Offset(circleSize - 10, -(circleSize / 2 - 16)),
+      child: Container(
+        width: circleSize / 2,
+        height: circleSize / 2,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: iconBackground
+              ? Theme.of(context).colorScheme.surface
+              : Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.8),
+        ),
+        child: Icon(
+          overlayIcon,
+          size: overlayIconSize,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
 
   // Main function for building icons with or without overlays
-  Widget _buildLeadingIcon(BuildContext context, {IconData? overlayIcon}) {
+  Widget _buildLeadingIcon(BuildContext context,
+      {IconData? overlayIcon, IconData? topOverlayIcon}) {
     var iconColor = iconEmoji == null
-        ? Colors.white
+        ? (backgroundColor != null
+            ? Colors.white
+            : Theme.of(context).colorScheme.onSurface)
         : Theme.of(context).colorScheme.onSurface;
     return Stack(
       children: [
@@ -83,14 +113,17 @@ class CategoryIconCircle extends StatelessWidget {
           backgroundColor ?? Theme.of(context).colorScheme.surface,
         ),
         if (overlayIcon != null)
-          _buildOverlayIcon(
-              context, overlayIcon, backgroundColor != null),
+          _buildOverlayIcon(context, overlayIcon, backgroundColor != null),
+        if (topOverlayIcon != null)
+          _buildTopOverlayIcon(
+              context, topOverlayIcon, backgroundColor != null),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return _buildLeadingIcon(context, overlayIcon: overlayIcon);
+    return _buildLeadingIcon(context,
+        overlayIcon: overlayIcon, topOverlayIcon: topOverlayIcon);
   }
 }

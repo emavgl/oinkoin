@@ -6,58 +6,160 @@ argument-hint: "[locale-file]"
 
 # Skill: translate
 
-Translate untranslated strings in a locale JSON file for the Oinkoin app.
+Translate missing strings key-by-key across all locale files (or a specific one).
 
 ## Usage
 ```
-/translate <locale-file>
+/translate [locale-file]
 ```
-Example: `/translate assets/locales/it.json`
-
-If no file is specified, address all the locale files
+- `/translate` — processes all locale files
+- `/translate it.json` — processes Italian only
 
 ---
 
 ## How translations work in this project
 
-- All locale files live in `assets/locales/` (e.g. `it.json`, `de.json`, `pt-BR.json`).
-- `assets/locales/en-US.json` is the **source of truth**: every key AND its English value are listed there.
-- Every other locale file has the **same keys**. A string is **untranslated** when its value is identical to its key (i.e. it was never localised and still reads in English).
-- A string is **already translated** when its value differs from its key. **Never touch those.**
+- All locale files live in `assets/locales/`.
+- `assets/locales/en-US.json` is the **source of truth**.
+- A string is **untranslated** when its value equals its key in a locale file.
+- `en-GB.json` is always skipped (near-identical to US English).
 
-## Step-by-step instructions
+---
 
-### 0. Sync keys with the codebase (always run first)
-Run the sync script from the project root to ensure `en-US.json` is up-to-date and stale keys are removed from all locale files:
-```
+## Workflow
+
+This skill uses `_automated_translation.json` at the project root to track context for every string. **Always check this file before translating.**
+
+### Step 0 — Sync keys and ensure tracking file is current
+```bash
 python3 scripts/update_en_strings.py
 ```
-This regenerates `en-US.json` from all `.i18n` strings found in `lib/`, and removes obsolete keys from every other locale file. Run it before translating so you are working against the current set of keys.
 
-### 1. Read the target locale file
-Read the full file specified by the user.
+Then verify tracking file is in sync:
+```bash
+# If keys were added/removed, regenerate the tracking file (see CLAUDE.md for script)
+```
 
-### 2. Identify untranslated strings
-A string is untranslated when `value == key`. Collect every such entry.
+### Step 1 — Discover what needs translating
+Run the discovery script to get a structured list of every key that is missing in one or more locale files:
 
-If there are no untranslated strings, tell the user and stop.
+```bash
+# All locales:
+python3 scripts/find_missing_translations.py
 
-### 3. For each untranslated string — look up context before translating
-Do **not** guess from the key text alone. For each untranslated key:
+# Specific locale(s):
+python3 scripts/find_missing_translations.py --locale it.json
+python3 scripts/find_missing_translations.py --locale it.json --locale de.json
+```
 
-- Search the Dart source code (Grep in `lib/`) for the exact key string to find where it is used.
-- Look at the surrounding widget/function/page to understand the context (e.g. is it a button label, a dialog title, an error message, a settings toggle description?).
-- Only then choose the most natural, contextually appropriate translation for the target language.
+Output is a JSON array:
+```json
+[
+  { "key": "Apply", "missing_locales": ["de.json", "fr.json", "it.json"] },
+  { "key": "Amount (Ascending)", "missing_locales": ["it.json"] }
+]
+```
 
-### 4. Write the translated strings
-Edit the locale file, replacing only the untranslated values. Keep every other entry byte-for-byte identical.
+If the array is empty, tell the user everything is translated and stop.
 
-### 5. Report what changed
-After editing, print a compact table of the strings you translated:
+### Step 2 — Process key by key
 
-| Key | Translation |
-|-----|-------------|
-| … | … |
+For **each entry** in the discovery output:
+
+**2a. Check _automated_translation.json for context**
+
+Look up the key in `_automated_translation.json`:
+```bash
+python3 -c "import json; d=json.load(open('_automated_translation.json')); print(json.dumps(d['keys']['your_key'], indent=2))"
+```
+
+Three possibilities:
+
+**Status = "verified"** — Context is documented, proceed to translation (2c)
+
+**Status = "pending"** — Context not yet researched, do research first (2b)
+
+**Status = "skip"** — Don't translate (brand names, technical terms, universal)
+
+**2b. If pending: Research and document context**
+
+Search the Dart source to understand where the key is used:
+```bash
+grep -rn "Key text here" lib/
+```
+
+Read the surrounding code (5-10 lines before/after) to understand:
+- **Page context**: Settings, Wallets, Records, Currencies, Categories, etc.?
+- **Component context**: Button label, dropdown option, form field, error message, dialog title, description text?
+- **User perspective**: What would the user see on screen? What does this word mean in that UI context?
+
+**Example**: 
+- "Left" in a currency symbol position dropdown = positional (left of amount), not directional
+- Context changes translation from simple directional to positional description
+
+Update `_automated_translation.json` with findings:
+```json
+{
+  "keys": {
+    "Left": {
+      "key": "Left",
+      "context": "Currency symbol position option",
+      "file": "lib/settings/constants/preferences-options.dart:136",
+      "page": "Settings > Currency Formatting",
+      "component": "currencySymbolPosition dropdown option",
+      "meaning": "Position the currency symbol to the LEFT of the amount (e.g., $100 vs 100$)",
+      "notes": "Positional context - pair with 'Default' and 'Right' options",
+      "status": "verified"
+    }
+  }
+}
+```
+
+**2c. Translate into all missing locales at once**
+
+With verified context in mind, produce the most natural translation for every locale in `missing_locales`:
+- **Context is the source of truth**: Use documented meaning, not literal word
+- Keep placeholders exactly as-is: `%s`, `%d`, `%1$s`, etc.
+- Match tone/terminology of already-translated strings in the same locale file
+- Strings with status="skip" should be kept as English (e.g., "Oinkoin Pro", "PIN", "CSV")
+- If the word is identical in English and target language, verify it's correct in context (often fine for tech terms)
+
+**2d. Write translations immediately**
+
+Apply all translations for this key to affected locale files in one batch:
+```bash
+python3 scripts/write_translations.py <<'EOF'
+{
+  "de.json":  { "Apply": "Anwenden" },
+  "fr.json":  { "Apply": "Appliquer" },
+  "it.json":  { "Apply": "Applica" }
+}
+EOF
+```
+
+The script only overwrites values that still equal their key (untranslated). Already-translated strings are never touched.
+
+### Step 3 — Continue with the next key
+Repeat Step 2 for every entry in the discovery output.
+
+### Step 4 — Report
+After processing all keys, print a compact summary table:
+
+| Key | Locale | Translation |
+|-----|--------|-------------|
+| Apply | it.json | Applica |
+| Apply | de.json | Anwenden |
+| … | … | … |
+
+---
+
+## Helper scripts reference
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/update_en_strings.py` | Sync `en-US.json` from source code and remove stale keys from all locales |
+| `scripts/find_missing_translations.py` | List every key that is untranslated in one or more locales |
+| `scripts/write_translations.py` | Apply a batch of translations from stdin JSON to locale files |
 
 ---
 
@@ -65,12 +167,5 @@ After editing, print a compact table of the strings you translated:
 
 - **Never modify already-translated strings** (value ≠ key).
 - **Never change keys** — only values.
-- Preserve placeholders exactly as written: `%s`, `%d`, `%1$s`, etc.
-- Match the tone and terminology of the strings that ARE already translated in the same file — consistency matters more than literal accuracy.
-- For technical or brand terms (e.g. "Oinkoin Pro", "PIN", "CSV", "JSON") keep them untranslated.
-- If a string has no natural translation (e.g. it is already the correct word in the target language), it is fine to leave the value equal to the key — but note this in your report.
-- Process the **whole file** in one pass; do not ask for confirmation before each string.
-
-## Exceptions
-
-For British english use en-GB.json - in this case, key and value will most of case matches. Consider all the strings as already translated and skip it.
+- Process the **entire discovery list** in one invocation; do not stop to ask for confirmation.
+- `en-GB.json` is always skipped.

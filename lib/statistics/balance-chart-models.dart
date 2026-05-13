@@ -52,7 +52,7 @@ class ComparisonDataAggregator {
       final truncated = truncateDateTime(record.dateTime, aggregationMethod);
       final key = config.getKey(truncated);
 
-      if (data.containsKey(key)) {
+      if (data.containsKey(key) && !record.isTransfer) {
         if (record.category?.categoryType == CategoryType.expense) {
           data[key]!.expenses += record.value?.abs() ?? 0;
         } else {

@@ -277,6 +277,11 @@ void main() {
     when(mockDatabase.getRecurrentRecordPatterns()).thenAnswer((_) async => []);
     when(mockDatabase.getAllRecordTagAssociations())
         .thenAnswer((_) async => originalAssociations);
+    when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
+    when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
+    when(mockDatabase.getDefaultWallet()).thenAnswer((_) async => null);
+    when(mockDatabase.getDefaultProfile()).thenAnswer((_) async => null);
+    when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
 
     when(mockDatabase.addRecordsInBatch(any))

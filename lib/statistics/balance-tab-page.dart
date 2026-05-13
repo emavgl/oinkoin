@@ -21,6 +21,8 @@ class BalanceTabPage extends StatefulWidget {
   final GroupByType? forceGroupByType;
   final Function? onListBackCallback;
 
+  final Map<int, String?> walletCurrencyMap;
+
   BalanceTabPage(this.from, this.to, this.records,
       {this.onIntervalSelected,
       this.selectedDate,
@@ -29,7 +31,8 @@ class BalanceTabPage extends StatefulWidget {
       this.hideCategorySelection = false,
       this.showRecordsToggle = false,
       this.forceGroupByType,
-      this.onListBackCallback})
+      this.onListBackCallback,
+      this.walletCurrencyMap = const {}})
       : super();
 
   @override
@@ -95,6 +98,7 @@ class BalanceTabPageState extends State<BalanceTabPage> {
         widget.records,
         aggregationMethod,
         selectedDate: selectedDate,
+        walletCurrencyMap: widget.walletCurrencyMap,
         onSelectionChanged: (date) {
           setState(() {
             selectedDate = date;
@@ -143,6 +147,7 @@ class BalanceTabPageState extends State<BalanceTabPage> {
           showRecordsToggle: widget.showRecordsToggle,
           hideTagsSelection: widget.hideTagsSelection,
           hideCategorySelection: widget.hideCategorySelection,
+          walletCurrencyMap: widget.walletCurrencyMap,
           onGroupByTypeChanged: (newType) {
             setState(() {
               groupByType = newType;
@@ -221,6 +226,7 @@ class BalanceTabPageState extends State<BalanceTabPage> {
           recordsForList,
           isSliver: true,
           onListBackCallback: widget.onListBackCallback,
+          walletCurrencyMap: widget.walletCurrencyMap,
         ));
         slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 75)));
       }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/components/styled_popup_menu_button.dart';
+import 'package:piggybank/services/service-config.dart';
 
 import '../../helpers/records-utility-functions.dart';
 import '../controllers/tab_records_controller.dart';
@@ -8,19 +10,39 @@ import 'styled_action_buttons.dart';
 class TabRecordsAppBar extends StatelessWidget {
   final TabRecordsController controller;
   final bool isAppBarExpanded;
+  final String profileName;
+  final VoidCallback onProfileTapped;
   final VoidCallback onDatePickerPressed;
   final VoidCallback onStatisticsPressed;
   final VoidCallback onSearchPressed;
   final Function(int) onMenuItemSelected;
 
+  // Select-mode props (all optional — only used when isSelectMode is true)
+  final bool isSelectMode;
+  final int selectedCount;
+  final VoidCallback? onClose;
+  final VoidCallback? onDelete;
+  final VoidCallback? onSelectAll;
+  final VoidCallback? onDuplicate;
+  final VoidCallback? onMoveToWallet;
+
   const TabRecordsAppBar({
     Key? key,
     required this.controller,
     required this.isAppBarExpanded,
+    required this.profileName,
+    required this.onProfileTapped,
     required this.onDatePickerPressed,
     required this.onStatisticsPressed,
     required this.onSearchPressed,
     required this.onMenuItemSelected,
+    this.isSelectMode = false,
+    this.selectedCount = 0,
+    this.onClose,
+    this.onDelete,
+    this.onSelectAll,
+    this.onDuplicate,
+    this.onMoveToWallet,
   }) : super(key: key);
 
   @override
@@ -32,14 +54,30 @@ class TabRecordsAppBar extends StatelessWidget {
 
     return SliverAppBar(
       elevation: 0,
+      forceElevated: isSelectMode,
       backgroundColor: Theme.of(context).primaryColor,
-      actions: _buildActions(),
+      automaticallyImplyLeading: false,
       pinned: true,
       expandedHeight: MediaQuery.of(context).size.height * 0.20 < 180.0
           ? 180.0
           : MediaQuery.of(context).size.height * 0.20,
+      leading: isSelectMode
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: onClose,
+            )
+          : (profileName.isNotEmpty && isAppBarExpanded)
+              ? _buildLeading()
+              : null,
+      title: isSelectMode
+          ? Text(
+              "$selectedCount ${"selected".i18n}",
+              style: const TextStyle(color: Colors.white),
+            )
+          : null,
+      actions: isSelectMode ? _buildSelectionActions() : _buildActions(),
       flexibleSpace: FlexibleSpaceBar(
-        stretchModes: <StretchMode>[
+        stretchModes: const <StretchMode>[
           StretchMode.zoomBackground,
           StretchMode.blurBackground,
           StretchMode.fadeTitle,
@@ -47,9 +85,24 @@ class TabRecordsAppBar extends StatelessWidget {
         centerTitle: false,
         titlePadding: _getTitlePadding(
             headerPaddingBottom, canShiftBack, canShiftForward),
-        title: _buildTitle(headerFontSize, canShiftBack, canShiftForward),
+        title: isSelectMode && !isAppBarExpanded
+            ? null
+            : _buildTitle(headerFontSize, canShiftBack, canShiftForward),
         background: _buildBackground(),
       ),
+    );
+  }
+
+  /// Profile button with icon and initials in the AppBar leading slot.
+  Widget _buildLeading() {
+    return Row(
+      children: [
+        StyledActionButton(
+          icon: Icons.person,
+          onPressed: onProfileTapped,
+          semanticsId: 'profile',
+        ),
+      ],
     );
   }
 
@@ -78,6 +131,43 @@ class TabRecordsAppBar extends StatelessWidget {
       StyledPopupMenuButton(
         onSelected: onMenuItemSelected,
         scaleFactor: actionButtonScale,
+      ),
+    ];
+  }
+
+  List<Widget> _buildSelectionActions() {
+    return [
+      IconButton(
+        icon: const Icon(Icons.delete_outline, color: Colors.white),
+        tooltip: "Delete".i18n,
+        onPressed: selectedCount > 0 ? onDelete : null,
+      ),
+      PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert, color: Colors.white),
+        onSelected: (value) {
+          if (value == 'select_all') {
+            onSelectAll?.call();
+          } else if (value == 'duplicate') {
+            onDuplicate?.call();
+          } else if (value == 'move_wallet') {
+            onMoveToWallet?.call();
+          }
+        },
+        itemBuilder: (_) => [
+          PopupMenuItem(
+            value: 'select_all',
+            child: Text('Select all'.i18n),
+          ),
+          PopupMenuItem(
+            value: 'duplicate',
+            child: Text('Duplicate'.i18n),
+          ),
+          if (ServiceConfig.isPremium)
+            PopupMenuItem(
+              value: 'move_wallet',
+              child: Text('Move to wallet'.i18n),
+            ),
+        ],
       ),
     ];
   }
@@ -138,13 +228,17 @@ class TabRecordsAppBar extends StatelessWidget {
 
   EdgeInsets _getTitlePadding(
       double headerPaddingBottom, bool canShiftBack, bool canShiftForward) {
-    return !isAppBarExpanded
-        ? EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom)
-        : EdgeInsets.fromLTRB(
-            canShiftBack ? 0 : 15,
-            15,
-            canShiftForward ? 0 : 15,
-            headerPaddingBottom,
-          );
+    if (!isAppBarExpanded) {
+      // When collapsed the title sits in the toolbar alongside the leading
+      // widget (56 dp) — use the standard Material offset (56 + 16 = 72) so
+      // the text doesn't slide behind the profile circle.
+      return EdgeInsets.fromLTRB(15, 15, 15, headerPaddingBottom);
+    }
+    return EdgeInsets.fromLTRB(
+      canShiftBack ? 0 : 15,
+      15,
+      canShiftForward ? 0 : 15,
+      headerPaddingBottom,
+    );
   }
 }
