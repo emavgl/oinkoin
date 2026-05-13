@@ -44,13 +44,17 @@ class _AmountSelectorState extends State<AmountSelector> {
   Timer? _debounceTimer;
 
   double get valueToNumber {
-    if (amountString.trim() == '') {
-      return 0;
-    } else if (amountString.trim() == '-' || amountString.trim() == '-0') {
-      return -0;
-    }
+    try {
+      if (amountString.trim() == '') {
+        return 0;
+      } else if (amountString.trim() == '-' || amountString.trim() == '-0') {
+        return -0;
+      }
 
-    return evaluateExpression(amountString).roundWithDecimals(2);
+      return evaluateExpression(amountString).roundWithDecimals(2);
+    } catch (e) {
+      return 0;
+    }
   }
 
   final FocusNode _focusNode = FocusNode();
@@ -199,11 +203,11 @@ class _AmountSelectorState extends State<AmountSelector> {
         CalculatorOperator.exprEndsWithOperator(amountString)) {
       amountString = amountString.substring(0, amountString.length - 1);
     }
-    //
-    // // Protection against multiple decimals in the same number (keyboard support)
-    // if (newText == '.' && _currentNumberHasDecimal()) {
-    //   return;
-    // }
+
+    // Protection against multiple decimals in the same number (keyboard support)
+    if (newText == '.' && _currentNumberHasDecimal()) {
+      return;
+    }
     final decimalSep = getDecimalSeparator();
     final groupSep = getGroupingSeparator();
     final decDigits = getNumberDecimalDigits();
@@ -255,8 +259,7 @@ class _AmountSelectorState extends State<AmountSelector> {
   }
 
   void removeLastCharFromAmount() {
-    if (amountString.isEmpty ||
-        amountString == CalculatorOperator.subtract.symbol) {
+    if (amountString.isEmpty) {
       return;
     }
 

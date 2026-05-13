@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
+import '../logic/evaluate_expression.dart';
 
 import '../../formatter/group-separator-formatter.dart'
     show GroupSeparatorFormatter;
@@ -67,6 +68,12 @@ class OinKoinNumberFormatter {
           TextEditingValue.empty,
           TextEditingValue(text: amountStr)
       ).text;
+    }
+
+    // If it's a mathematical expression, don't try to split it into rich parts
+    // as it can contain multiple decimal separators.
+    if (CalculatorOperator.exprHasOperator(amountStr)) {
+      return Text(visualValue, style: integerStyle);
     }
 
     List<String> parts = visualValue.split(decimalSep);

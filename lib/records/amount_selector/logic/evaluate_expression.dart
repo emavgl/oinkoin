@@ -84,12 +84,16 @@ enum CalculatorOperator {
     return values.map((op) => op.symbol);
   }
 }
-
 List<String> splitExprByNumbersAndOperator(String expression) {
   final operators = CalculatorOperator.getAllSymbols().join("|\\");
+  final decimalSep = getDecimalSeparator();
   // ignore: prefer_interpolation_to_compose_strings
   return RegExp(
-    r'(\d+\.?\d*|\' + operators + ')',
+    r'(\d+[' +
+        RegExp.escape(decimalSep) +
+        r']?\d*|\' +
+        operators +
+        ')',
   ).allMatches(expression).map((m) => m.group(0)!).toList();
 }
 
@@ -97,14 +101,16 @@ double evaluateExpression(String expression) {
   // Remove any whitespace from the input string
   final decimalSep = getDecimalSeparator();
   final groupSep = getGroupingSeparator();
-  expression = expression.replaceAll(' ', '')
+  expression = expression
+      .replaceAll(' ', '')
       .replaceAll(groupSep, '')
       .replaceAll(decimalSep, '.'); // Convert local decimal (like ',') to '.'
 
-  // Handle negative sign at the start of the expression
-  if (expression.isNotEmpty && CalculatorOperator.isOperator(expression[0])) {
-    expression =
-        '0$expression'; // Prepend 0 to allow for correct parsing, e.g., "-3+4" becomes "0-3+4"
+  // Handle leading operators (e.g., "+5", "-5", "÷5", "X5") or decimal point (".5")
+  if (expression.isNotEmpty &&
+      (CalculatorOperator.isOperator(expression[0]) ||
+          expression.startsWith('.'))) {
+    expression = '0$expression';
   }
 
   // Ignore trailing operators by removing them if present
@@ -118,7 +124,7 @@ double evaluateExpression(String expression) {
     return 0;
   }
 
-  final tokens = splitExprByNumbersAndOperator(expression);
+  final tokens = splitExprByNumbersAndOperator(expression.replaceAll('.', decimalSep));
 
   List<String> postfix = _infixToPostfix(tokens);
   return _evaluatePostfix(postfix);
