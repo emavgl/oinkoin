@@ -9,6 +9,8 @@
   "Add a new record": "Agregar un nuevo registro",
   "Add a note": "Agrega una nota",
   "Add currency": "Agregar moneda",
+  "Add expense": "Agregar gasto",
+  "Add income": "Agregar ingreso",
   "Add recurrent expenses": "Agregar gastos recurrentes",
   "Add selected tags (%s)": "Agregar etiquetas seleccionadas (%s)",
   "Add space between symbol and amount": "Agregar espacio entre símbolo y cantidad",

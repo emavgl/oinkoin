@@ -59,6 +59,7 @@ dependencies:
   timezone: ^0.10.1
   flutter_timezone: ^4.1.1
   auto_size_text: ^3.0.0
+  quick_actions: ^1.1.0
 
 
 dev_dependencies:

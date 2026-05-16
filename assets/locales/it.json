@@ -9,6 +9,8 @@
   "Add a new record": "Aggiungi un nuovo movimento.",
   "Add a note": "Aggiungi note",
   "Add currency": "Aggiungi valuta",
+  "Add expense": "Aggiungi spesa",
+  "Add income": "Aggiungi entrata",
   "Add recurrent expenses": "Aggiungi spese ricorrenti",
   "Add selected tags (%s)": "Aggiungi i tag selezionati (%s)",
   "Add space between symbol and amount": "Aggiungi spazio tra simbolo e importo",

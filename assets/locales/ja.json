@@ -9,6 +9,8 @@
   "Add a new record": "新しい記録を追加",
   "Add a note": "メモを追加",
   "Add currency": "通貨を追加",
+  "Add expense": "支出を追加",
+  "Add income": "収入を追加",
   "Add recurrent expenses": "定期支出を追加",
   "Add selected tags (%s)": "選択中のタグを追加 (%s)",
   "Add space between symbol and amount": "シンボルと金額の間にスペースを追加",

@@ -20,6 +20,11 @@ class Shell extends StatefulWidget {
 }
 
 class ShellState extends State<Shell> {
+  /// Singleton-like access for external refresh calls (e.g., quick actions).
+  static ShellState? _instance;
+  /// Returns the current ShellState instance, if mounted.
+  static ShellState? get instance => _instance;
+
   int _currentIndex = 0;
   final LocalAuthentication auth = LocalAuthentication();
   Future<bool>? authFuture = null;
@@ -64,7 +69,19 @@ class ShellState extends State<Shell> {
   @override
   void initState() {
     super.initState();
+    _instance = this;
     authFuture = _authenticate();
+  }
+
+  @override
+  void dispose() {
+    if (_instance == this) _instance = null;
+    super.dispose();
+  }
+
+  /// Refreshes the home tab's records list (e.g., after a quick action added a record).
+  void refreshHomeTab() {
+    _tabRecordsKey.currentState?.onTabChange();
   }
 
   @override

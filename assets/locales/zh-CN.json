@@ -9,6 +9,8 @@
   "Add a new record": "添加新记录",
   "Add a note": "添加备注",
   "Add currency": "添加货币",
+  "Add expense": "添加支出",
+  "Add income": "添加收入",
   "Add recurrent expenses": "添加定期支出",
   "Add selected tags (%s)": "添加已选标签（%s）",
   "Add space between symbol and amount": "在符号和金额之间添加空格",

@@ -9,6 +9,8 @@
   "Add a new record": "Добавить новую запись",
   "Add a note": "Добавить заметку",
   "Add currency": "Добавить валюту",
+  "Add expense": "Добавить расход",
+  "Add income": "Добавить доход",
   "Add recurrent expenses": "Добавить регулярные расходы",
   "Add selected tags (%s)": "Добавить выбранные теги (%s)",
   "Add space between symbol and amount": "Добавить пробел между символом и суммой",
