@@ -11,13 +11,13 @@
 /// await AppReviewDialog.show(
 ///   context,
 ///   supportEmail: 'hello@example.com',
-///   supportWebsitePage: 'https://example.com/support',
-///   minPositiveRating: 3.5,
+///   storePackageName: 'com.example.myapp',
 /// );
 /// ```
+///
+/// No localisation delegate needed — the dialog detects the device locale
+/// automatically, or you can pass an explicit [locale].
 library app_review_dialog;
 
 export 'src/app_review_dialog.dart'
-    show AppReviewDialog, AppReviewDialogResult;
-export 'src/app_review_localizations.dart'
-    show AppReviewLocalizations;
+    show AppReviewDialog, AppReviewDialogResult, AppReviewDialogAction;

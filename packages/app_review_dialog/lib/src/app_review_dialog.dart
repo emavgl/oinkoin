@@ -1,12 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'app_review_localizations.dart';
+import 'strings.dart';
 
 /// Result returned by [AppReviewDialog.show].
-///
-/// [rating] is the star count the user selected (0.0 – 5.0, half-step).
-/// [action] describes what happened after rating.
 enum AppReviewDialogAction { ratedPositive, ratedNegative, dismissed }
 
 class AppReviewDialogResult {
@@ -20,117 +19,106 @@ class AppReviewDialogResult {
 }
 
 // ---------------------------------------------------------------------------
-// Static entry points
+// Static entry point
 // ---------------------------------------------------------------------------
 
-/// Shows the review dialog and returns the result when the dialog is closed.
+/// Shows the review dialog and returns the result.
 ///
-/// All string overrides are optional; whenever omitted, the default
-/// localised text is used.
+/// [supportEmail] is **required**. [storePackageName] and
+/// [supportWebsitePage] are optional.
 ///
-/// [context], [supportEmail] are **required**.
-Future<AppReviewDialogResult?> show(
-  BuildContext context, {
-  required String supportEmail,
-  String? supportWebsitePage,
-  String? storePackageName,
-  double minPositiveRating = 3.5,
-  String? title,
-  String? positiveTitle,
-  String? positiveSubtitle,
-  String? negativeTitle,
-  String? negativeSubtitle,
-  String? ratingLabel,
-  String? rateButtonLabel,
-  String? supportButtonLabel,
-  String? emailButtonLabel,
-}) {
-  return showDialog<AppReviewDialogResult>(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) => AppReviewDialog(
-      supportEmail: supportEmail,
-      supportWebsitePage: supportWebsitePage,
-      storePackageName: storePackageName,
-      minPositiveRating: minPositiveRating,
-      title: title,
-      positiveTitle: positiveTitle,
-      positiveSubtitle: positiveSubtitle,
-      negativeTitle: negativeTitle,
-      negativeSubtitle: negativeSubtitle,
-      ratingLabel: ratingLabel,
-      rateButtonLabel: rateButtonLabel,
-      supportButtonLabel: supportButtonLabel,
-      emailButtonLabel: emailButtonLabel,
-    ),
-  );
-}
-
+/// If [locale] is not provided, the device locale is auto-detected.
 // ---------------------------------------------------------------------------
 // Widget
 // ---------------------------------------------------------------------------
 
 class AppReviewDialog extends StatefulWidget {
-  /// Email address for the feedback button (mandatory).
-  final String supportEmail;
-
-  /// URL of the support/contribute web page (optional).
-  /// If provided, a "Support & Contribute" button appears on the positive path.
-  final String? supportWebsitePage;
-
-  /// Google Play package name (e.g. `com.example.app`) for the "Rate in store"
-  /// button.  The dialog constructs a `market://details?id=…` deep link
-  /// automatically, falling back to the https Play Store URL if needed.
+  /// Shows the review dialog and returns the result.
   ///
-  /// If not provided the button still pops with
-  /// [AppReviewDialogAction.ratedPositive] so the caller can handle the rating
-  /// themselves.
+  /// [supportEmail] is **required**. [storePackageName] and
+  /// [supportWebsitePage] are optional.
+  ///
+  /// If [locale] is not provided, the device locale is auto-detected.
+  /// Every string shown in the dialog can be overridden.
+  static Future<AppReviewDialogResult?> show(
+    BuildContext context, {
+    required String supportEmail,
+    String? storePackageName,
+    String? supportWebsitePage,
+    double minPositiveRating = 3.5,
+    Locale? locale,
+    String? title,
+    String? ratingLabel,
+    String? positiveTitle,
+    String? positiveSubtitle,
+    String? negativeTitle,
+    String? negativeSubtitle,
+    String? rateButtonLabel,
+    String? supportButtonLabel,
+    String? emailButtonLabel,
+  }) {
+    return showDialog<AppReviewDialogResult>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => AppReviewDialog(
+        supportEmail: supportEmail,
+        storePackageName: storePackageName,
+        supportWebsitePage: supportWebsitePage,
+        minPositiveRating: minPositiveRating,
+        locale: locale ?? _detectLocale(),
+        title: title,
+        ratingLabel: ratingLabel,
+        positiveTitle: positiveTitle,
+        positiveSubtitle: positiveSubtitle,
+        negativeTitle: negativeTitle,
+        negativeSubtitle: negativeSubtitle,
+        rateButtonLabel: rateButtonLabel,
+        supportButtonLabel: supportButtonLabel,
+        emailButtonLabel: emailButtonLabel,
+      ),
+    );
+  }
+
+  static Locale _detectLocale() {
+    try {
+      final localeName = Platform.localeName;
+      final parts = localeName.split('_');
+      if (parts.length == 2) return Locale(parts[0], parts[1]);
+      return Locale(parts[0]);
+    } catch (_) {
+      return const Locale('en');
+    }
+  }
+  final String supportEmail;
   final String? storePackageName;
-
-  /// Rating (0–5) above which the positive flow is shown. Default 3.5.
+  final String? supportWebsitePage;
   final double minPositiveRating;
+  final Locale locale;
 
-  // -- string overrides (null → use localised default) --
-
-  /// Dialog title before the user has rated.
+  // String overrides
   final String? title;
-
-  /// Title shown when rating >= [minPositiveRating].
-  final String? positiveTitle;
-
-  /// Subtitle shown when rating >= [minPositiveRating].
-  final String? positiveSubtitle;
-
-  /// Title shown when rating < [minPositiveRating].
-  final String? negativeTitle;
-
-  /// Subtitle shown when rating < [minPositiveRating].
-  final String? negativeSubtitle;
-
-  /// Instruction text shown above the stars.
   final String? ratingLabel;
-
-  /// Label for the “Rate in Store” button.
+  final String? positiveTitle;
+  final String? positiveSubtitle;
+  final String? negativeTitle;
+  final String? negativeSubtitle;
   final String? rateButtonLabel;
-
-  /// Label for the “Support & Contribute” button.
   final String? supportButtonLabel;
-
-  /// Label for the “Send Feedback” email button.
   final String? emailButtonLabel;
 
   const AppReviewDialog({
     super.key,
     required this.supportEmail,
-    this.supportWebsitePage,
     this.storePackageName,
+    this.supportWebsitePage,
     this.minPositiveRating = 3.5,
+    required this.locale,
     this.title,
+    this.ratingLabel,
     this.positiveTitle,
     this.positiveSubtitle,
     this.negativeTitle,
     this.negativeSubtitle,
-    this.ratingLabel,
     this.rateButtonLabel,
     this.supportButtonLabel,
     this.emailButtonLabel,
@@ -140,41 +128,39 @@ class AppReviewDialog extends StatefulWidget {
   State<AppReviewDialog> createState() => _AppReviewDialogState();
 }
 
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+
 enum _Screen { rating, positive, negative }
 
 class _AppReviewDialogState extends State<AppReviewDialog> {
   double _rating = 0.0;
   _Screen _screen = _Screen.rating;
 
-  // -----------------------------------------------------------------------
-  // Helpers
-  // -----------------------------------------------------------------------
-
-  AppReviewLocalizations _l10n() => AppReviewLocalizations.of(context);
-
-  String _s(String? override, String Function(AppReviewLocalizations l) def) =>
-      override ?? def(_l10n());
-
-  // Star layout
   static const _starCount = 5;
   static const _starSize = 44.0;
 
-  // Half-star hit zones
+  // Lookup the closest-matching localised string
+  String _l(String? override, String Function(AppReviewStrings s) selector) {
+    if (override != null) return override;
+    final s = AppReviewStrings.lookup(widget.locale);
+    return selector(s);
+  }
+
+  // Star hit detection ---------------------------------------------
+
   int? _starIndexFromPosition(double localDx) {
     final fullStar = _starSize * _starCount;
     if (localDx < 0 || localDx > fullStar + 8) return null;
-
-    // Clamp into 0 … _starCount
     int idx = (localDx / _starSize).floor();
     if (idx < 0) idx = 0;
     if (idx >= _starCount) idx = _starCount - 1;
-
     return idx;
   }
 
   double _ratingForStar(int idx, double localDx) {
     final fraction = (localDx - idx * _starSize) / _starSize;
-    // First 35% → empty (keep idx), 35-65% → half, 65+% → full
     if (fraction < 0.35) return idx.toDouble();
     if (fraction < 0.65) return idx + 0.5;
     return idx + 1.0;
@@ -184,10 +170,8 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     final box = context.findRenderObject() as RenderBox;
     final local = box.globalToLocal(d.globalPosition);
     final idx = _starIndexFromPosition(local.dx);
-    if (idx == null || _rating > 0) return; // already rated
-    final newRating = _ratingForStar(idx, local.dx);
-    setState(() { _rating = newRating; });
-    // After brief animation, switch screen
+    if (idx == null || _rating > 0) return;
+    setState(() => _rating = _ratingForStar(idx, local.dx));
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       setState(() {
@@ -198,17 +182,9 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     });
   }
 
-  // -----------------------------------------------------------------------
-  // Lifecycle
-  // -----------------------------------------------------------------------
+  // Actions ---------------------------------------------------------
 
-
-
-  // -----------------------------------------------------------------------
-  // Actions
-  // -----------------------------------------------------------------------
-
-  Future<void> _dismiss() async {
+  void _dismiss() {
     Navigator.of(context).pop(
       AppReviewDialogResult(_rating, AppReviewDialogAction.dismissed),
     );
@@ -226,19 +202,44 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // Build
-  // -----------------------------------------------------------------------
+  void _rateInStore() {
+    if (widget.storePackageName != null) {
+      _openUrl('market://details?id=${widget.storePackageName}',
+          httpsFallback:
+              'https://play.google.com/store/apps/details?id=${widget.storePackageName}');
+    }
+    Navigator.of(context).pop(
+      AppReviewDialogResult(_rating, AppReviewDialogAction.ratedPositive),
+    );
+  }
+
+  void _openSupport() {
+    if (widget.supportWebsitePage != null) {
+      _openUrl(widget.supportWebsitePage!);
+    }
+    Navigator.of(context).pop(
+      AppReviewDialogResult(_rating, AppReviewDialogAction.ratedPositive),
+    );
+  }
+
+  void _sendEmail() {
+    _openUrl('mailto:${widget.supportEmail}'
+        '?subject=App Feedback'
+        '&body=');
+    Navigator.of(context).pop(
+      AppReviewDialogResult(_rating, AppReviewDialogAction.ratedNegative),
+    );
+  }
+
+  // Build -----------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
 
     return WillPopScope(
       onWillPop: () async {
-        Navigator.of(context).pop(
-          AppReviewDialogResult(_rating, AppReviewDialogAction.dismissed),
-        );
+        _dismiss();
         return false;
       },
       child: Dialog(
@@ -249,14 +250,14 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
           curve: Curves.easeOutCubic,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-            child: _buildBody(colorScheme),
+            child: _body(cs),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBody(ColorScheme cs) {
+  Widget _body(ColorScheme cs) {
     switch (_screen) {
       case _Screen.rating:
         return _buildRating(cs);
@@ -267,23 +268,16 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     }
   }
 
-  // -- Rating step -----------------------------------------------
+  // -- Rating -------------------------------------------------------
 
   Widget _buildRating(ColorScheme cs) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          _s(widget.title, (l) => l.title),
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: cs.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        Text(_l(widget.title, (s) => s.title),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: cs.onSurface),
+            textAlign: TextAlign.center),
         const SizedBox(height: 24),
-        // Stars
         GestureDetector(
           onTapDown: _onTapDown,
           behavior: HitTestBehavior.opaque,
@@ -306,27 +300,20 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeOutBack,
                   builder: (_, value, __) {
-                    final t = value.clamp(0.0, 1.0);
-                        return Transform.scale(
-                      scale: t,
-                        child: Icon(
-                          icon,
-                          size: _starSize,
-                          color: cs.primary,
-                        ),
-                      );
-                    },
-                  );
+                    return Transform.scale(
+                      scale: value.clamp(0.0, 1.0),
+                      child: Icon(icon, size: _starSize, color: cs.primary),
+                    );
+                  },
+                );
               }),
             ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          _s(widget.ratingLabel, (l) => l.ratingLabel),
-          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
-          textAlign: TextAlign.center,
-        ),
+        Text(_l(widget.ratingLabel, (s) => s.ratingLabel),
+            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+            textAlign: TextAlign.center),
         const SizedBox(height: 4),
         TextButton(
           onPressed: _dismiss,
@@ -339,7 +326,7 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     );
   }
 
-  // -- Negative outcome ------------------------------------------
+  // -- Negative -----------------------------------------------------
 
   Widget _buildNegative(ColorScheme cs) {
     return Column(
@@ -348,39 +335,19 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
         const SizedBox(height: 4),
         Icon(Icons.mail_outline, size: 40, color: cs.primary),
         const SizedBox(height: 16),
-        Text(
-          _s(widget.negativeTitle, (l) => l.negativeTitle),
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: cs.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        Text(_l(widget.negativeTitle, (s) => s.negativeTitle),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: cs.onSurface),
+            textAlign: TextAlign.center),
         const SizedBox(height: 8),
-        Text(
-          _s(widget.negativeSubtitle, (l) => l.negativeSubtitle),
-          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
-          textAlign: TextAlign.center,
-        ),
+        Text(_l(widget.negativeSubtitle, (s) => s.negativeSubtitle),
+            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+            textAlign: TextAlign.center),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: () {
-              _openUrl('mailto:${widget.supportEmail}'
-                  '?subject=App Feedback'
-                  '&body=');
-              Navigator.of(context).pop(
-                AppReviewDialogResult(
-                  _rating,
-                  AppReviewDialogAction.ratedNegative,
-                ),
-              );
-            },
-            child: Text(
-              _s(widget.emailButtonLabel, (l) => l.emailButtonLabel),
-            ),
+            onPressed: _sendEmail,
+            child: Text(_l(widget.emailButtonLabel, (s) => s.emailButtonLabel)),
           ),
         ),
         const SizedBox(height: 4),
@@ -395,7 +362,7 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     );
   }
 
-  // -- Positive outcome ------------------------------------------
+  // -- Positive -----------------------------------------------------
 
   Widget _buildPositive(ColorScheme cs) {
     return Column(
@@ -404,42 +371,19 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
         const SizedBox(height: 4),
         Icon(Icons.favorite, size: 40, color: cs.primary),
         const SizedBox(height: 16),
-        Text(
-          _s(widget.positiveTitle, (l) => l.positiveTitle),
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: cs.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        Text(_l(widget.positiveTitle, (s) => s.positiveTitle),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: cs.onSurface),
+            textAlign: TextAlign.center),
         const SizedBox(height: 8),
-        Text(
-          _s(widget.positiveSubtitle, (l) => l.positiveSubtitle),
-          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
-          textAlign: TextAlign.center,
-        ),
+        Text(_l(widget.positiveSubtitle, (s) => s.positiveSubtitle),
+            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+            textAlign: TextAlign.center),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: () {
-              if (widget.storePackageName != null) {
-                // Try the Play Store deep link first
-                _openUrl('market://details?id=${widget.storePackageName}',
-                    httpsFallback:
-                        'https://play.google.com/store/apps/details?id=${widget.storePackageName}');
-              }
-              Navigator.of(context).pop(
-                AppReviewDialogResult(
-                  _rating,
-                  AppReviewDialogAction.ratedPositive,
-                ),
-              );
-            },
-            child: Text(
-              _s(widget.rateButtonLabel, (l) => l.rateButtonLabel),
-            ),
+            onPressed: _rateInStore,
+            child: Text(_l(widget.rateButtonLabel, (s) => s.rateButtonLabel)),
           ),
         ),
         if (widget.supportWebsitePage != null) ...[
@@ -447,18 +391,8 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () {
-                _openUrl(widget.supportWebsitePage!);
-                Navigator.of(context).pop(
-                  AppReviewDialogResult(
-                    _rating,
-                    AppReviewDialogAction.ratedPositive,
-                  ),
-                );
-              },
-              child: Text(
-                _s(widget.supportButtonLabel, (l) => l.supportButtonLabel),
-              ),
+              onPressed: _openSupport,
+              child: Text(_l(widget.supportButtonLabel, (s) => s.supportButtonLabel)),
             ),
           ),
         ],

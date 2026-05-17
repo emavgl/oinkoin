@@ -1,7 +1,8 @@
 name: app_review_dialog
-description: A beautiful in-app rating dialog for Flutter. Shows a star rating prompt; positive ratings ask the user to leave a store review, while lower ratings invite feedback via email.
+description: A beautiful, localised in-app rating dialog for Flutter. Shows a star rating prompt with half-star granularity. Positive ratings invite a store review; lower ratings open a feedback email.
 version: 1.0.0
-homepage: https://oinkoin.com
+repository: https://github.com/emavgl/app_review_dialog
+issue_tracker: https://github.com/emavgl/app_review_dialog/issues
 
 environment:
   sdk: '>=2.17.0 <4.0.0'
@@ -10,9 +11,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  intl: any
   url_launcher: ^6.0.0
 
 dev_dependencies:

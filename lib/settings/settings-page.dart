@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_review_dialog/app_review_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
@@ -351,6 +352,24 @@ class TabSettings extends StatelessWidget {
               );
             },
           ),
+          if (Platform.isAndroid || kDebugMode || ServiceConfig.packageName!.contains("alpha"))
+            SettingsItem(
+              icon: Icon(
+                Icons.star_border,
+                color: Colors.white,
+              ),
+              iconBackgroundColor: Colors.amber.shade600,
+              title: 'Rate the app'.i18n,
+              subtitle: "Tell us how much you enjoy Oinkoin".i18n,
+              onPressed: () async {
+                await AppReviewDialog.show(
+                  context,
+                  supportEmail: 'emavgl.app@gmail.com',
+                  storePackageName: ServiceConfig.packageName,
+                  supportWebsitePage: 'https://oinkoin.com/support',
+                );
+              },
+            ),
           SettingsItem(
             icon: Icon(
               Icons.receipt_long,
