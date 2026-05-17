@@ -44,6 +44,7 @@ class AppReviewDialog extends StatefulWidget {
     BuildContext context, {
     required String supportEmail,
     String? storePackageName,
+    String? appStoreId,
     String? supportWebsitePage,
     double minPositiveRating = 3.5,
     Locale? locale,
@@ -64,6 +65,7 @@ class AppReviewDialog extends StatefulWidget {
       builder: (_) => AppReviewDialog(
         supportEmail: supportEmail,
         storePackageName: storePackageName,
+        appStoreId: appStoreId,
         supportWebsitePage: supportWebsitePage,
         minPositiveRating: minPositiveRating,
         locale: locale ?? _detectLocale(),
@@ -93,6 +95,7 @@ class AppReviewDialog extends StatefulWidget {
   }
   final String supportEmail;
   final String? storePackageName;
+  final String? appStoreId;
   final String? supportWebsitePage;
   final double minPositiveRating;
   final Locale locale;
@@ -113,6 +116,7 @@ class AppReviewDialog extends StatefulWidget {
     super.key,
     required this.supportEmail,
     this.storePackageName,
+    this.appStoreId,
     this.supportWebsitePage,
     this.minPositiveRating = 3.5,
     required this.locale,
@@ -194,10 +198,15 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
   }
 
   void _rateInStore() {
-    if (widget.storePackageName != null) {
+    if (Platform.isAndroid && widget.storePackageName != null) {
       _openUrl('market://details?id=${widget.storePackageName}',
           httpsFallback:
               'https://play.google.com/store/apps/details?id=${widget.storePackageName}');
+    } else if (Platform.isIOS && widget.appStoreId != null) {
+      _openUrl(
+          'itms-apps://itunes.apple.com/app/id${widget.appStoreId}',
+          httpsFallback:
+              'https://apps.apple.com/app/id${widget.appStoreId}');
     }
     Navigator.of(context).pop(
       AppReviewDialogResult(_rating, AppReviewDialogAction.ratedPositive),
