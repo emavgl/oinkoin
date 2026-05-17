@@ -85,12 +85,24 @@ class FeedbackPage extends StatelessWidget {
 
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: mode);
-        } else {
-          if (context.mounted) {
+        } else if (url.startsWith("market://")) {
+          // Fallback: try the https Play Store URL
+          final httpsUrl = url.replaceFirst(
+            "market://details?id=",
+            "https://play.google.com/store/apps/details?id=",
+          );
+          final httpsUri = Uri.parse(httpsUrl);
+          if (await canLaunchUrl(httpsUri)) {
+            await launchUrl(httpsUri, mode: mode);
+          } else if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text("Could not open link".i18n)),
             );
           }
+        } else if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Could not open link".i18n)),
+          );
         }
       }
     } catch (e) {
@@ -111,7 +123,7 @@ class FeedbackPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Help & Support".i18n),
+        title: Text("Support".i18n),
       ),
       body: SingleChildScrollView(
         child: Align(
@@ -127,7 +139,7 @@ class FeedbackPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
-                  "We're here to help!".i18n,
+                  "Support the project".i18n,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -155,8 +167,8 @@ class FeedbackPage extends StatelessWidget {
                 icon: Icons.help_outline,
                 iconColor: Colors.blue.shade600,
                 iconBackgroundColor: Colors.blue.shade50,
-                title: "Help & Support".i18n,
-                subtitle: "Visit our support page with FAQs, donation info, and more"
+                title: "Support & Contribute".i18n,
+                subtitle: "Visit our support page with ways to contribute"
                     .i18n,
                 onTap: () => _openWebsite(
                   context,
@@ -183,12 +195,13 @@ class FeedbackPage extends StatelessWidget {
 
               SizedBox(height: 12),
 
-              // --- Rate the app card (Play Store only) ---
+              // --- Rate the app card (Play Store / alpha builds) ---
               FutureBuilder<bool>(
                 future: isInstalledFromPlayStore(),
                 builder: (context, snapshot) {
                   final isPlayStore = snapshot.data == true;
-                  if (!isPlayStore) return SizedBox.shrink();
+                  final isAlpha = ServiceConfig.packageName?.contains("alpha") == true;
+                  if (!isPlayStore && !isAlpha) return SizedBox.shrink();
 
                   return FutureBuilder<String?>(
                     future: _getAppStorePackageName(),
@@ -205,7 +218,7 @@ class FeedbackPage extends StatelessWidget {
                             "Love Oinkoin? Leave a review on Google Play".i18n,
                         onTap: () => _openWebsite(
                           context,
-                          "https://play.google.com/store/apps/details?id=$pkgName",
+                          "market://details?id=$pkgName",
                         ),
                       );
                     },

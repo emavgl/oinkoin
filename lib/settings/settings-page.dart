@@ -342,8 +342,8 @@ class TabSettings extends StatelessWidget {
               color: Colors.white,
             ),
             iconBackgroundColor: Colors.blue.shade700,
-            title: 'Help & Support'.i18n,
-            subtitle: "Email, rate the app, or visit our support page".i18n,
+            title: 'Support'.i18n,
+            subtitle: "Get help, give feedback, or contribute".i18n,
             onPressed: () async {
               await Navigator.push(
                 context,
