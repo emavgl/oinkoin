@@ -144,7 +144,6 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
 
   static const _starCount = 5;
   static const _starSize = 44.0;
-  final GlobalKey _starRowKey = GlobalKey();
 
   // Lookup the closest-matching localised string
   String _l(String? override, String Function(AppReviewStrings s) selector) {
@@ -156,9 +155,7 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
   // Star hit detection ---------------------------------------------
 
   void _onTapDown(TapDownDetails d) {
-    final RenderBox? box = _starRowKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final localDx = box.globalToLocal(d.globalPosition).dx;
+    final localDx = d.localPosition.dx;
     if (localDx < 0 || localDx > _starSize * _starCount) return;
     final idx = (localDx / _starSize).floor();
     setState(() => _rating = idx + 1.0);
@@ -273,11 +270,9 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
           onTapDown: _onTapDown,
           behavior: HitTestBehavior.opaque,
           child: SizedBox(
+            width: _starSize * _starCount,
             height: _starSize,
             child: Row(
-              key: _starRowKey,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_starCount, (i) {
                 final filled = i < _rating.round();
                 final icon = filled ? Icons.star : Icons.star_border;
