@@ -135,7 +135,7 @@ class FeedbackPage extends StatelessWidget {
           alignment: Alignment.center,
           child: Column(
             children: <Widget>[
-              SizedBox(height: 16),
+              SizedBox(height: 8),
               Image.asset(
                 'assets/images/feedback.png',
                 width: 200,
