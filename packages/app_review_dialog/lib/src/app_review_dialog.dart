@@ -141,7 +141,7 @@ enum _Screen { rating, positive, negative }
 class _AppReviewDialogState extends State<AppReviewDialog> {
   double _rating = 0.0;
   _Screen _screen = _Screen.rating;
-  int _tapCount = 0;
+  int _lastTappedIndex = -1;
 
   static const _starCount = 5;
   static const _starSize = 44.0;
@@ -161,7 +161,7 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     final idx = (localDx / _starSize).floor();
     setState(() {
       _rating = idx + 1.0;
-      _tapCount++;
+      _lastTappedIndex = idx;
     });
   }
 
@@ -280,11 +280,12 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
               children: List.generate(_starCount, (i) {
                 final filled = i < _rating.round();
                 final icon = filled ? Icons.star : Icons.star_border;
+                final justTapped = i == _lastTappedIndex;
                 return TweenAnimationBuilder<double>(
-                  key: ValueKey('${_tapCount}_$i'),
-                  tween: Tween(begin: 0.2, end: 1.0),
-                  duration: const Duration(milliseconds: 350),
-                  curve: Curves.elasticOut,
+                  key: ValueKey('$_rating${justTapped ? '_tap' : ''}_$i'),
+                  tween: Tween(begin: justTapped ? 0.3 : 1.0, end: 1.0),
+                  duration: Duration(milliseconds: justTapped ? 600 : 0),
+                  curve: justTapped ? Curves.elasticOut : Curves.linear,
                   builder: (_, value, __) {
                     return Transform.scale(
                       scale: value.clamp(0.0, 1.0),
