@@ -33,7 +33,7 @@ Future<AppReviewDialogResult?> show(
   BuildContext context, {
   required String supportEmail,
   String? supportWebsitePage,
-  String? storeUrl,
+  String? storePackageName,
   double minPositiveRating = 3.5,
   String? title,
   String? positiveTitle,
@@ -51,7 +51,7 @@ Future<AppReviewDialogResult?> show(
     builder: (_) => AppReviewDialog(
       supportEmail: supportEmail,
       supportWebsitePage: supportWebsitePage,
-      storeUrl: storeUrl,
+      storePackageName: storePackageName,
       minPositiveRating: minPositiveRating,
       title: title,
       positiveTitle: positiveTitle,
@@ -78,11 +78,14 @@ class AppReviewDialog extends StatefulWidget {
   /// If provided, a "Support & Contribute" button appears on the positive path.
   final String? supportWebsitePage;
 
-  /// URL of the app store listing (optional).
-  /// If provided, the "Rate in store" button opens this URL.
-  /// If not provided, the button still pops with [AppReviewDialogAction.ratedPositive]
-  /// so the caller can handle the rating themselves.
-  final String? storeUrl;
+  /// Google Play package name (e.g. `com.example.app`) for the "Rate in store"
+  /// button.  The dialog constructs a `market://details?id=…` deep link
+  /// automatically, falling back to the https Play Store URL if needed.
+  ///
+  /// If not provided the button still pops with
+  /// [AppReviewDialogAction.ratedPositive] so the caller can handle the rating
+  /// themselves.
+  final String? storePackageName;
 
   /// Rating (0–5) above which the positive flow is shown. Default 3.5.
   final double minPositiveRating;
@@ -120,7 +123,7 @@ class AppReviewDialog extends StatefulWidget {
     super.key,
     required this.supportEmail,
     this.supportWebsitePage,
-    this.storeUrl,
+    this.storePackageName,
     this.minPositiveRating = 3.5,
     this.title,
     this.positiveTitle,
@@ -211,10 +214,15 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
     );
   }
 
-  Future<void> _openUrl(String url) async {
+  Future<void> _openUrl(String url, {String? httpsFallback}) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else if (httpsFallback != null) {
+      final fbUri = Uri.parse(httpsFallback);
+      if (await canLaunchUrl(fbUri)) {
+        await launchUrl(fbUri, mode: LaunchMode.externalApplication);
+      }
     }
   }
 
@@ -416,8 +424,11 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
           width: double.infinity,
           child: FilledButton(
             onPressed: () {
-              if (widget.storeUrl != null) {
-                _openUrl(widget.storeUrl!);
+              if (widget.storePackageName != null) {
+                // Try the Play Store deep link first
+                _openUrl('market://details?id=${widget.storePackageName}',
+                    httpsFallback:
+                        'https://play.google.com/store/apps/details?id=${widget.storePackageName}');
               }
               Navigator.of(context).pop(
                 AppReviewDialogResult(
