@@ -11,6 +11,7 @@ class AppReviewStrings {
   final String rateButtonLabel;
   final String supportButtonLabel;
   final String emailButtonLabel;
+  final String continueLabel;
 
   const AppReviewStrings({
     required this.title,
@@ -22,41 +23,33 @@ class AppReviewStrings {
     required this.rateButtonLabel,
     required this.supportButtonLabel,
     required this.emailButtonLabel,
+    required this.continueLabel,
   });
 
-  /// Returns the best-matching [AppReviewStrings] for [locale],
-  /// falling back to English.
   static AppReviewStrings lookup(Locale locale) {
-    // Exact match language+country
     final fullKey = '${locale.languageCode}_${locale.countryCode}'.toLowerCase();
     if (_data.containsKey(fullKey) && locale.countryCode != null) {
       return _data[fullKey]!;
     }
-    // Language-only match
     final langKey = locale.languageCode;
     if (_data.containsKey(langKey)) return _data[langKey]!;
-    // Fallback
     return _data['en']!;
   }
 }
-
-// ---------------------------------------------------------------------------
-// String data — 22 locales, keyed by language code or language_country
-// ---------------------------------------------------------------------------
 
 const _data = <String, AppReviewStrings>{
   'en': AppReviewStrings(
     title: 'How much do you enjoy the app?',
     ratingLabel: 'Tap to rate',
     positiveTitle: 'Thank you!',
-    positiveSubtitle: "We'd be grateful if you could share the love leaving a review in the store!",
+    positiveSubtitle: 'We\'d be grateful if you could share the love leaving a review in the store!',
     negativeTitle: 'How can we make it better?',
     negativeSubtitle: 'Your feedback helps us improve.',
     rateButtonLabel: 'Rate in store',
     supportButtonLabel: 'Support & Contribute',
     emailButtonLabel: 'Send us an email',
-  ),
-  'ar': AppReviewStrings(
+    continueLabel: 'Continue',
+  ),  'ar': AppReviewStrings(
     title: 'ما مدى استمتاعك بالتطبيق؟',
     ratingLabel: 'اضغط للتقييم',
     positiveTitle: 'شكراً لك!',
@@ -66,8 +59,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'تقييم في المتجر',
     supportButtonLabel: 'الدعم والمساهمة',
     emailButtonLabel: 'أرسل لنا بريداً إلكترونياً',
-  ),
-  'ca': AppReviewStrings(
+    continueLabel: 'متابعة',
+  ),  'ca': AppReviewStrings(
     title: 'Quant t\'agrada l\'app?',
     ratingLabel: 'Toca per valorar',
     positiveTitle: 'Gràcies!',
@@ -77,8 +70,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Valorar a la botiga',
     supportButtonLabel: 'Suport i contribuir',
     emailButtonLabel: 'Envia\'ns un correu',
-  ),
-  'da': AppReviewStrings(
+    continueLabel: 'Continua',
+  ),  'da': AppReviewStrings(
     title: 'Hvor godt kan du lide appen?',
     ratingLabel: 'Tryk for at bedømme',
     positiveTitle: 'Tak!',
@@ -88,8 +81,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Bedøm i butik',
     supportButtonLabel: 'Support & Bidrag',
     emailButtonLabel: 'Send os en e-mail',
-  ),
-  'de': AppReviewStrings(
+    continueLabel: 'Fortsæt',
+  ),  'de': AppReviewStrings(
     title: 'Wie sehr gefällt dir die App?',
     ratingLabel: 'Tippe zum Bewerten',
     positiveTitle: 'Vielen Dank!',
@@ -99,8 +92,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Im Store bewerten',
     supportButtonLabel: 'Support & Mitwirken',
     emailButtonLabel: 'E-Mail senden',
-  ),
-  'el': AppReviewStrings(
+    continueLabel: 'Weiter',
+  ),  'el': AppReviewStrings(
     title: 'Πόσο απολαμβάνετε την εφαρμογή;',
     ratingLabel: 'Πατήστε για βαθμολόγηση',
     positiveTitle: 'Ευχαριστούμε!',
@@ -110,8 +103,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Αξιολόγηση στο κατάστημα',
     supportButtonLabel: 'Υποστήριξη & Συνεισφορά',
     emailButtonLabel: 'Στείλτε μας email',
-  ),
-  'es': AppReviewStrings(
+    continueLabel: 'Συνέχεια',
+  ),  'es': AppReviewStrings(
     title: '¿Cuánto disfrutas la app?',
     ratingLabel: 'Toca para valorar',
     positiveTitle: '¡Gracias!',
@@ -121,8 +114,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Valorar en la tienda',
     supportButtonLabel: 'Soporte y contribuir',
     emailButtonLabel: 'Envíanos un correo',
-  ),
-  'fr': AppReviewStrings(
+    continueLabel: 'Continuar',
+  ),  'fr': AppReviewStrings(
     title: 'À quel point aimez-vous l\'application ?',
     ratingLabel: 'Appuyez pour noter',
     positiveTitle: 'Merci !',
@@ -132,8 +125,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Noter sur le store',
     supportButtonLabel: 'Support & Contribuer',
     emailButtonLabel: 'Envoyez-nous un e-mail',
-  ),
-  'hr': AppReviewStrings(
+    continueLabel: 'Continuer',
+  ),  'hr': AppReviewStrings(
     title: 'Koliko uživate u aplikaciji?',
     ratingLabel: 'Dodirnite za ocjenu',
     positiveTitle: 'Hvala!',
@@ -143,8 +136,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Ocijeni u trgovini',
     supportButtonLabel: 'Podrška & Doprinesi',
     emailButtonLabel: 'Pošaljite nam e-mail',
-  ),
-  'it': AppReviewStrings(
+    continueLabel: 'Nastavi',
+  ),  'it': AppReviewStrings(
     title: 'Quanto ti piace l\'app?',
     ratingLabel: 'Tocca per valutare',
     positiveTitle: 'Grazie!',
@@ -154,8 +147,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Valuta nello store',
     supportButtonLabel: 'Supporto & Contribuisci',
     emailButtonLabel: 'Inviaci un\'email',
-  ),
-  'ja': AppReviewStrings(
+    continueLabel: 'Continua',
+  ),  'ja': AppReviewStrings(
     title: 'このアプリはどのくらいお楽しみいただいていますか？',
     ratingLabel: 'タップして評価',
     positiveTitle: 'ありがとうございます！',
@@ -165,8 +158,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'ストアで評価する',
     supportButtonLabel: 'サポート & 貢献',
     emailButtonLabel: 'メールを送信',
-  ),
-  'or': AppReviewStrings(
+    continueLabel: '続ける',
+  ),  'or': AppReviewStrings(
     title: 'ଆପଣ ଆପଟି କେତେ ଉପଭୋଗ କରନ୍ତି?',
     ratingLabel: 'ମୂଲ୍ୟାଙ୍କନ ପାଇଁ ଟାପ କରନ୍ତୁ',
     positiveTitle: 'ଧନ୍ୟବାଦ!',
@@ -176,8 +169,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'ଷ୍ଟୋରରେ ମୂଲ୍ୟାଙ୍କନ କରନ୍ତୁ',
     supportButtonLabel: 'ସମର୍ଥନ ଏବଂ ଯୋଗଦାନ',
     emailButtonLabel: 'ଆମକୁ ଇମେଲ ପଠାନ୍ତୁ',
-  ),
-  'pl': AppReviewStrings(
+    continueLabel: 'ଜାରୀ ରଖନ୍ତୁ',
+  ),  'pl': AppReviewStrings(
     title: 'Jak bardzo podoba Ci się ta aplikacja?',
     ratingLabel: 'Dotknij, aby ocenić',
     positiveTitle: 'Dziękujemy!',
@@ -187,8 +180,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Oceń w sklepie',
     supportButtonLabel: 'Wsparcie & Współtwórz',
     emailButtonLabel: 'Wyślij nam e-mail',
-  ),
-  'pt': AppReviewStrings(
+    continueLabel: 'Kontynuuj',
+  ),  'pt': AppReviewStrings(
     title: 'Quanto você gosta do app?',
     ratingLabel: 'Toque para avaliar',
     positiveTitle: 'Obrigado!',
@@ -198,8 +191,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Avaliar na loja',
     supportButtonLabel: 'Suporte & Contribuir',
     emailButtonLabel: 'Envie-nos um e-mail',
-  ),
-  'pt_br': AppReviewStrings(
+    continueLabel: 'Continuar',
+  ),  'pt_br': AppReviewStrings(
     title: 'Quanto você gosta do app?',
     ratingLabel: 'Toque para avaliar',
     positiveTitle: 'Obrigado!',
@@ -209,8 +202,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Avaliar na loja',
     supportButtonLabel: 'Suporte & Contribuir',
     emailButtonLabel: 'Envie-nos um e-mail',
-  ),
-  'pt_pt': AppReviewStrings(
+    continueLabel: 'Continuar',
+  ),  'pt_pt': AppReviewStrings(
     title: 'Quanto gosta da app?',
     ratingLabel: 'Toque para avaliar',
     positiveTitle: 'Obrigado!',
@@ -220,8 +213,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Avaliar na loja',
     supportButtonLabel: 'Apoio & Contribuir',
     emailButtonLabel: 'Envie-nos um e-mail',
-  ),
-  'ru': AppReviewStrings(
+    continueLabel: 'Continuar',
+  ),  'ru': AppReviewStrings(
     title: 'Насколько вам нравится приложение?',
     ratingLabel: 'Нажмите, чтобы оценить',
     positiveTitle: 'Спасибо!',
@@ -231,8 +224,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Оценить в магазине',
     supportButtonLabel: 'Поддержка & Вклад',
     emailButtonLabel: 'Отправить нам письмо',
-  ),
-  'ta': AppReviewStrings(
+    continueLabel: 'Продолжить',
+  ),  'ta': AppReviewStrings(
     title: 'இந்த ஆப்ஸை நீங்கள் எவ்வளவு விரும்புகிறீர்கள்?',
     ratingLabel: 'மதிப்பிட தட்டவும்',
     positiveTitle: 'நன்றி!',
@@ -242,8 +235,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'கடையில் மதிப்பிடுங்கள்',
     supportButtonLabel: 'ஆதரவு & பங்களிப்பு',
     emailButtonLabel: 'எங்களுக்கு மின்னஞ்சல் அனுப்புங்கள்',
-  ),
-  'tr': AppReviewStrings(
+    continueLabel: 'தொடரவும்',
+  ),  'tr': AppReviewStrings(
     title: 'Uygulamayı ne kadar beğendiniz?',
     ratingLabel: 'Değerlendirmek için dokun',
     positiveTitle: 'Teşekkürler!',
@@ -253,8 +246,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Mağazada değerlendir',
     supportButtonLabel: 'Destek & Katkıda Bulun',
     emailButtonLabel: 'Bize e-posta gönderin',
-  ),
-  'uk': AppReviewStrings(
+    continueLabel: 'Devam',
+  ),  'uk': AppReviewStrings(
     title: 'Наскільки вам подобається застосунок?',
     ratingLabel: 'Торкніться, щоб оцінити',
     positiveTitle: 'Дякуємо!',
@@ -264,8 +257,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Оцінити в магазині',
     supportButtonLabel: 'Підтримка та внесок',
     emailButtonLabel: 'Надіслати нам лист',
-  ),
-  'vec': AppReviewStrings(
+    continueLabel: 'Продовжити',
+  ),  'vec': AppReviewStrings(
     title: 'Quanto te piaze l\'app?',
     ratingLabel: 'Toca par valutar',
     positiveTitle: 'Grasie!',
@@ -275,8 +268,8 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: 'Valuta inte el store',
     supportButtonLabel: 'Suporto & Contribuissi',
     emailButtonLabel: 'Màndane na email',
-  ),
-  'zh': AppReviewStrings(
+    continueLabel: 'Continua',
+  ),  'zh': AppReviewStrings(
     title: '您有多喜欢这个应用？',
     ratingLabel: '点击评分',
     positiveTitle: '谢谢！',
@@ -286,5 +279,6 @@ const _data = <String, AppReviewStrings>{
     rateButtonLabel: '在商店中评价',
     supportButtonLabel: '支持与贡献',
     emailButtonLabel: '给我们发送邮件',
-  ),
+    continueLabel: '继续',
+  )
 };

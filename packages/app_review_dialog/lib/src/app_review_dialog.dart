@@ -56,6 +56,7 @@ class AppReviewDialog extends StatefulWidget {
     String? rateButtonLabel,
     String? supportButtonLabel,
     String? emailButtonLabel,
+    String? continueButtonLabel,
   }) {
     return showDialog<AppReviewDialogResult>(
       context: context,
@@ -75,6 +76,7 @@ class AppReviewDialog extends StatefulWidget {
         rateButtonLabel: rateButtonLabel,
         supportButtonLabel: supportButtonLabel,
         emailButtonLabel: emailButtonLabel,
+        continueButtonLabel: continueButtonLabel,
       ),
     );
   }
@@ -105,6 +107,7 @@ class AppReviewDialog extends StatefulWidget {
   final String? rateButtonLabel;
   final String? supportButtonLabel;
   final String? emailButtonLabel;
+  final String? continueButtonLabel;
 
   const AppReviewDialog({
     super.key,
@@ -122,6 +125,7 @@ class AppReviewDialog extends StatefulWidget {
     this.rateButtonLabel,
     this.supportButtonLabel,
     this.emailButtonLabel,
+    this.continueButtonLabel,
   });
 
   @override
@@ -167,18 +171,16 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
   }
 
   void _onTapDown(TapDownDetails d) {
-    final box = context.findRenderObject() as RenderBox;
-    final local = box.globalToLocal(d.globalPosition);
-    final idx = _starIndexFromPosition(local.dx);
-    if (idx == null || _rating > 0) return;
-    setState(() => _rating = _ratingForStar(idx, local.dx));
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      setState(() {
-        _screen = _rating >= widget.minPositiveRating
-            ? _Screen.positive
-            : _Screen.negative;
-      });
+    final idx = _starIndexFromPosition(d.localPosition.dx);
+    if (idx == null) return;
+    setState(() => _rating = _ratingForStar(idx, d.localPosition.dx));
+  }
+
+  void _onContinue() {
+    setState(() {
+      _screen = _rating >= widget.minPositiveRating
+          ? _Screen.positive
+          : _Screen.negative;
     });
   }
 
@@ -271,6 +273,7 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
   // -- Rating -------------------------------------------------------
 
   Widget _buildRating(ColorScheme cs) {
+    final cancelLabel = MaterialLocalizations.of(context).cancelButtonLabel;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -284,7 +287,8 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
           child: SizedBox(
             height: _starSize,
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_starCount, (i) {
                 final filled = _rating - i;
                 IconData icon;
@@ -310,17 +314,19 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        Text(_l(widget.ratingLabel, (s) => s.ratingLabel),
-            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
-            textAlign: TextAlign.center),
-        const SizedBox(height: 4),
-        TextButton(
-          onPressed: _dismiss,
-          child: Text(
-            MaterialLocalizations.of(context).cancelButtonLabel,
-            style: TextStyle(color: cs.onSurfaceVariant),
-          ),
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            OutlinedButton(
+              onPressed: _dismiss,
+              child: Text(cancelLabel),
+            ),
+            FilledButton(
+              onPressed: _rating > 0 ? _onContinue : null,
+              child: Text(_l(widget.continueButtonLabel, (s) => s.continueLabel)),
+            ),
+          ],
         ),
       ],
     );
