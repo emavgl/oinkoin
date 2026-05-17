@@ -1,0 +1,228 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = "Oinkoin Pro Features";
+const description = "Discover all the extra features available in Oinkoin Pro — the premium version of the open-source expense tracker.";
+---
+
+<Layout title={title} description={description}>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 mb-6 shadow-lg">
+            <span class="text-white text-xl font-extrabold tracking-tight">Pro</span>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+            Oinkoin Pro
+          </h1>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Unlock the full potential of Oinkoin with powerful features for advanced expense tracking. Your purchase also directly supports the open-source development of the app!
+          </p>
+        </div>
+
+        <!-- vs Section -->
+        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 mb-10 border border-amber-100">
+          <div class="flex items-center justify-center gap-4 mb-4">
+            <span class="text-sm font-semibold text-gray-500 px-4 py-1.5 bg-white rounded-lg border border-gray-200">Free</span>
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+            <span class="text-sm font-semibold text-amber-700 px-4 py-1.5 bg-amber-100 rounded-lg border border-amber-300">Pro</span>
+          </div>
+          <p class="text-center text-gray-700 text-sm">
+            The free version covers all the basics — track expenses, manage categories, and keep your data private. <strong class="text-gray-900">Pro adds powerful tools</strong> for those who need more control and flexibility.
+          </p>
+        </div>
+
+        <!-- Feature list -->
+        <div class="space-y-5">
+          <!-- Filter records -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Advanced Date Filters</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Filter your records by a specific year or a custom date range. Perfect for reviewing spending over time, preparing tax reports, or analyzing seasonal trends. The free version limits you to the default monthly view.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Icon pack and color picker -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Full Icon Pack &amp; Color Picker</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Access the complete library of category icons and a full color picker. Personalize your categories with any color and icon combination you like. The free version includes a limited set of icons and colors.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Backup & Restore -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Backup &amp; Restore</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Create full backups of all your data and restore them whenever needed. Safeguard your financial history when switching devices or just for peace of mind. The free version can create backups but restoring requires Pro.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recurrent expenses -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-pink-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Recurrent Expenses</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Set up recurring transactions — rent, subscriptions, utilities, or any regular payment. Oinkoin automatically creates them on schedule so you never miss tracking a recurring expense. The free version supports only one-time records.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multiple profiles -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Multiple Profiles</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Create and manage multiple profiles within the same app. Great for families sharing a device, separating personal and business finances, or managing expenses for different projects. The free version is limited to a single profile.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multiple wallets -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Multiple Wallets</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Organize your money across multiple wallets — checking, savings, cash, or any account you use. Keep everything separate and clearly visible. The free version is limited to the default wallet.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multiple currencies -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Multi-Currency Support</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Add and manage multiple currencies with custom conversion rates. Perfect for travelers, expats, or anyone dealing with different currencies. The free version supports a single currency.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Batch move records -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">Batch Move Records</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Select multiple records at once and move them to a different wallet in a single action. Saves time when reorganizing your finances across wallets. The free version requires moving records one by one.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CSV Import -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">CSV Import</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Import transactions from CSV files — ideal for migrating from other finance apps or importing bank statements. Map columns to Oinkoin fields with a flexible mapping interface. The free version does not include CSV import.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- App Lock -->
+          <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-900">App Lock</h3>
+                <p class="text-gray-600 mt-1 leading-relaxed">
+                  Protect the app with a PIN or biometric authentication (fingerprint, face unlock). Your financial data stays private even if someone else picks up your device. Available only in Pro.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center mt-12 pt-8 border-t border-gray-200">
+          <a href="https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold text-base shadow-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Get Oinkoin Pro on Google Play
+          </a>
+          <p class="text-sm text-gray-500 mt-3">Also available on <a href="https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">F-Droid</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
