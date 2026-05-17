@@ -155,28 +155,13 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
 
   // Star hit detection ---------------------------------------------
 
-  int? _starIndexFromPosition(double dxRelativeToRow) {
-    if (dxRelativeToRow < 0 || dxRelativeToRow > _starSize * _starCount) return null;
-    int idx = (dxRelativeToRow / _starSize).floor();
-    if (idx < 0) idx = 0;
-    if (idx >= _starCount) idx = _starCount - 1;
-    return idx;
-  }
-
-  double _ratingForStar(int idx, double dxRelativeToRow) {
-    final fraction = (dxRelativeToRow - idx * _starSize) / _starSize;
-    if (fraction < 0.35) return idx.toDouble();
-    if (fraction < 0.65) return idx + 0.5;
-    return idx + 1.0;
-  }
-
   void _onTapDown(TapDownDetails d) {
     final RenderBox? box = _starRowKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final localPos = box.globalToLocal(d.globalPosition);
-    final idx = _starIndexFromPosition(localPos.dx);
-    if (idx == null) return;
-    setState(() => _rating = _ratingForStar(idx, localPos.dx));
+    final localDx = box.globalToLocal(d.globalPosition).dx;
+    if (localDx < 0 || localDx > _starSize * _starCount) return;
+    final idx = (localDx / _starSize).floor();
+    setState(() => _rating = idx + 1.0);
   }
 
   void _onContinue() {
@@ -294,15 +279,8 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_starCount, (i) {
-                final filled = _rating - i;
-                IconData icon;
-                if (filled >= 1.0) {
-                  icon = Icons.star;
-                } else if (filled >= 0.5) {
-                  icon = Icons.star_half;
-                } else {
-                  icon = Icons.star_border;
-                }
+                final filled = i < _rating.round();
+                final icon = filled ? Icons.star : Icons.star_border;
                 return TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0.0, end: 1.0),
                   duration: const Duration(milliseconds: 400),
