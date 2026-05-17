@@ -60,8 +60,7 @@ dependencies:
   flutter_timezone: ^4.1.1
   auto_size_text: ^3.0.0
   quick_actions: ^1.1.0
-  app_review_dialog:
-    path: ../app_review_dialog
+  app_review_dialog: ^1.0.0
 
 
 dev_dependencies:

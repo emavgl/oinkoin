@@ -36,9 +36,10 @@ packages:
   app_review_dialog:
     dependency: "direct main"
     description:
-      path: "../app_review_dialog"
-      relative: true
-    source: path
+      name: app_review_dialog
+      sha256: c18d945815a0cc770c0151c693ee9dbd7fc3a8fcedfe4ffa4d7390890160a1a1
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   args:
     dependency: transitive

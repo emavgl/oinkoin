@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:app_review_dialog/app_review_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/logger.dart';
@@ -8,6 +9,7 @@ import '../models/wallet.dart';
 import '../profiles/profiles-page.dart';
 import '../services/profile-service.dart';
 import '../services/service-config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'components/days-summary-box-card.dart';
 import 'components/records-day-list.dart';
 import 'components/tab_records_app_bar.dart';
@@ -292,6 +294,35 @@ class TabRecordsState extends State<TabRecords> {
     );
   }
 
+  Future<void> _onRecordListBack() async {
+    await _controller.updateRecurrentRecordsAndFetchRecords();
+    await _maybeShowReviewDialog();
+  }
+
+  Future<void> _maybeShowReviewDialog() async {
+    if (!mounted) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    const key = 'app_review_dialog_shown';
+    if (prefs.getBool(key) == true) return;
+
+    final records = await ServiceConfig.database.getAllRecords(
+        profileId: ProfileService.instance.activeProfileId);
+    if (records.length < 50) return;
+
+    await prefs.setBool(key, true);
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+    final pkg = ServiceConfig.packageName ?? '';
+    await AppReviewDialog.show(
+      context,
+      supportEmail: 'emavgl.app@gmail.com',
+      storePackageName: pkg.contains('alpha') ? 'com.github.emavgl.piggybank' : pkg,
+      supportWebsitePage: 'https://oinkoin.com/support',
+    );
+  }
+
   List<Widget> _buildSlivers() {
     return <Widget>[
       if (!_controller.isSearchingEnabled) _buildMainSliverAppBar(),
@@ -299,7 +330,7 @@ class TabRecordsState extends State<TabRecords> {
       if (_controller.filteredRecords.isEmpty) _buildEmptyState(),
       RecordsDayList(
         _controller.filteredRecords,
-        onListBackCallback: _controller.updateRecurrentRecordsAndFetchRecords,
+        onListBackCallback: _onRecordListBack,
         walletCurrencyMap: _controller.walletCurrencyMap,
         isSelectMode: _isSelectMode,
         selectedRecordIds: _selectedRecordIds,
