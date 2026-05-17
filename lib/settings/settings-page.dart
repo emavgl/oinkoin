@@ -338,12 +338,12 @@ class TabSettings extends StatelessWidget {
           ),
           SettingsItem(
             icon: Icon(
-              Icons.mail_outline,
+              Icons.support_agent,
               color: Colors.white,
             ),
-            iconBackgroundColor: Colors.red.shade700,
-            title: 'Feedback'.i18n,
-            subtitle: "Send us a feedback".i18n,
+            iconBackgroundColor: Colors.blue.shade700,
+            title: 'Help & Support'.i18n,
+            subtitle: "Email, rate the app, or visit our support page".i18n,
             onPressed: () async {
               await Navigator.push(
                 context,
