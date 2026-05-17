@@ -150,6 +150,9 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
   static const _starCount = 5;
   static const _starSize = 44.0;
 
+  bool get _showRateButton =>
+      widget.storePackageName != null || widget.appStoreId != null;
+
   // Lookup the closest-matching localised string
   String _l(String? override, String Function(AppReviewStrings s) selector) {
     if (override != null) return override;
@@ -381,13 +384,15 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
             style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
             textAlign: TextAlign.center),
         const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: _rateInStore,
-            child: Text(_l(widget.rateButtonLabel, (s) => s.rateButtonLabel)),
+        if (_showRateButton) ...[
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _rateInStore,
+              child: Text(_l(widget.rateButtonLabel, (s) => s.rateButtonLabel)),
+            ),
           ),
-        ),
+        ],
         if (widget.supportWebsitePage != null) ...[
           const SizedBox(height: 10),
           SizedBox(
