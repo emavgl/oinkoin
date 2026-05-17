@@ -317,7 +317,7 @@ class TabRecordsState extends State<TabRecords> {
     final pkg = ServiceConfig.packageName ?? '';
     await AppReviewDialog.show(
       context,
-      supportEmail: 'emavgl.app@gmail.com',
+      supportEmail: 'support@oinkoin.com',
       storePackageName: pkg.contains('alpha') ? 'com.github.emavgl.piggybank' : pkg,
       supportWebsitePage: 'https://oinkoin.com/support',
     );
