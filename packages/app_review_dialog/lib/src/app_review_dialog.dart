@@ -144,6 +144,7 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
 
   static const _starCount = 5;
   static const _starSize = 44.0;
+  final GlobalKey _starRowKey = GlobalKey();
 
   // Lookup the closest-matching localised string
   String _l(String? override, String Function(AppReviewStrings s) selector) {
@@ -154,26 +155,28 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
 
   // Star hit detection ---------------------------------------------
 
-  int? _starIndexFromPosition(double localDx) {
-    final fullStar = _starSize * _starCount;
-    if (localDx < 0 || localDx > fullStar + 8) return null;
-    int idx = (localDx / _starSize).floor();
+  int? _starIndexFromPosition(double dxRelativeToRow) {
+    if (dxRelativeToRow < 0 || dxRelativeToRow > _starSize * _starCount) return null;
+    int idx = (dxRelativeToRow / _starSize).floor();
     if (idx < 0) idx = 0;
     if (idx >= _starCount) idx = _starCount - 1;
     return idx;
   }
 
-  double _ratingForStar(int idx, double localDx) {
-    final fraction = (localDx - idx * _starSize) / _starSize;
+  double _ratingForStar(int idx, double dxRelativeToRow) {
+    final fraction = (dxRelativeToRow - idx * _starSize) / _starSize;
     if (fraction < 0.35) return idx.toDouble();
     if (fraction < 0.65) return idx + 0.5;
     return idx + 1.0;
   }
 
   void _onTapDown(TapDownDetails d) {
-    final idx = _starIndexFromPosition(d.localPosition.dx);
+    final RenderBox? box = _starRowKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final localPos = box.globalToLocal(d.globalPosition);
+    final idx = _starIndexFromPosition(localPos.dx);
     if (idx == null) return;
-    setState(() => _rating = _ratingForStar(idx, d.localPosition.dx));
+    setState(() => _rating = _ratingForStar(idx, localPos.dx));
   }
 
   void _onContinue() {
@@ -287,6 +290,7 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
           child: SizedBox(
             height: _starSize,
             child: Row(
+              key: _starRowKey,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_starCount, (i) {
@@ -316,15 +320,19 @@ class _AppReviewDialogState extends State<AppReviewDialog> {
         ),
         const SizedBox(height: 24),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            OutlinedButton(
-              onPressed: _dismiss,
-              child: Text(cancelLabel),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _dismiss,
+                child: Text(cancelLabel),
+              ),
             ),
-            FilledButton(
-              onPressed: _rating > 0 ? _onContinue : null,
-              child: Text(_l(widget.continueButtonLabel, (s) => s.continueLabel)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: _rating > 0 ? _onContinue : null,
+                child: Text(_l(widget.continueButtonLabel, (s) => s.continueLabel)),
+              ),
             ),
           ],
         ),
