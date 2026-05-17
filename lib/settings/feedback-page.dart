@@ -113,7 +113,12 @@ class FeedbackPage extends StatelessWidget {
   Future<String?> _getAppStorePackageName() async {
     try {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      return packageInfo.packageName;
+      var name = packageInfo.packageName;
+      // Alpha builds should still link to the free version on the store
+      if (name.contains("alpha")) {
+        return "com.github.emavgl.piggybank";
+      }
+      return name;
     } catch (e) {
       return null;
     }
@@ -130,7 +135,7 @@ class FeedbackPage extends StatelessWidget {
           alignment: Alignment.center,
           child: Column(
             children: <Widget>[
-              SizedBox(height: 32),
+              SizedBox(height: 16),
               Image.asset(
                 'assets/images/feedback.png',
                 width: 200,
