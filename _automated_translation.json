@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-05-16",
-    "total_keys": 444
+    "last_updated": "2026-05-17",
+    "total_keys": 456
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -2721,7 +2721,7 @@
       "component": "Text/label",
       "meaning": "The premium version of Oinkoin app",
       "notes": "Universal/technical term - keep in English across all locales",
-      "status": "skip"
+      "status": "verified"
     },
     "Once set, you can't see the password": {
       "key": "Once set, you can't see the password",
@@ -4405,6 +4405,126 @@
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
       "status": "verified"
+    },
+    "Support": {
+      "key": "Support",
+      "context": "Settings menu entry and page title for help & support",
+      "file": "lib/settings/settings-page.dart, lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "settings list item title, app bar title",
+      "meaning": "Navigation entry to access help, email, and app rating options",
+      "notes": "Short menu item - keep concise",
+      "status": "verified"
+    },
+    "Support & Contribute": {
+      "key": "Support & Contribute",
+      "context": "Card title on the support page linking to the website support page",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Link to the website support page that has help info and contribution options",
+      "notes": "Conveys both getting help and contributing to the project",
+      "status": "verified"
+    },
+    "Support the project": {
+      "key": "Support the project",
+      "context": "Heading on the support page, above the action cards",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "page heading",
+      "meaning": "Main heading encouraging users to support the open-source project",
+      "notes": "Warm, inviting tone",
+      "status": "verified"
+    },
+    "Choose how you'd like to get in touch or support the project.": {
+      "key": "Choose how you'd like to get in touch or support the project.",
+      "context": "Subtitle on the support page, below the heading",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "page subtitle",
+      "meaning": "Describes the available options: contact or contribute",
+      "notes": "Longer explanatory text",
+      "status": "verified"
+    },
+    "Send an Email": {
+      "key": "Send an Email",
+      "context": "Card title on the support page for the email option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Button/card that opens the email client to write to the developer",
+      "notes": "Short action label",
+      "status": "verified"
+    },
+    "Write us directly — we read every message": {
+      "key": "Write us directly — we read every message",
+      "context": "Card subtitle on the support page for the email option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Encourages users to email, assuring them their feedback is valued",
+      "notes": "Friendly tone, keep the em dash",
+      "status": "verified"
+    },
+    "Visit our support page with ways to contribute": {
+      "key": "Visit our support page with ways to contribute",
+      "context": "Card subtitle on the support page for the web support option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Describes that the web page has both help information and contribution options",
+      "notes": "Replaces 'donation' language with 'contribute'",
+      "status": "verified"
+    },
+    "Rate the app": {
+      "key": "Rate the app",
+      "context": "Card title on the support page for the Play Store rating option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Button that opens the Play Store to leave a review",
+      "notes": "Short action label, only shown for Play Store installs or alpha builds",
+      "status": "verified"
+    },
+    "Love Oinkoin? Leave a review on Google Play": {
+      "key": "Love Oinkoin? Leave a review on Google Play",
+      "context": "Card subtitle on the support page for the rating option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Encourages users to leave a positive review on Google Play",
+      "notes": "Keep 'Google Play' as-is in most languages",
+      "status": "verified"
+    },
+    "Get help, give feedback, or contribute": {
+      "key": "Get help, give feedback, or contribute",
+      "context": "Subtitle for the Support entry in the Settings list",
+      "file": "lib/settings/settings-page.dart",
+      "page": "Settings",
+      "component": "settings list item subtitle",
+      "meaning": "Brief description of what the Support page offers",
+      "notes": "Short and descriptive for a settings subtitle",
+      "status": "verified"
+    },
+    "Could not open link": {
+      "key": "Could not open link",
+      "context": "Snackbar error message when a URL cannot be opened",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "error snackbar",
+      "meaning": "Tells the user the link could not be opened",
+      "notes": "Brief error message",
+      "status": "verified"
+    },
+    "1 \\${_selectedCurrency ?? '[currency]'} =": {
+      "key": "1 \\${_selectedCurrency ?? '[currency]'} =",
+      "context": "Conversion rate input label in currency settings",
+      "file": "lib/settings/currency-conversion-rates-page.dart",
+      "page": "Settings > Currencies",
+      "component": "input field label",
+      "meaning": "Label above a field where the user enters the conversion rate for a currency",
+      "notes": "Contains template placeholders - keep the structure and placeholders as-is, only translate the '=' may need adaptation in RTL languages",
+      "status": "skip"
     }
   }
 }

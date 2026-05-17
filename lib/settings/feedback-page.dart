@@ -126,6 +126,8 @@ class FeedbackPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Support".i18n),
@@ -135,7 +137,6 @@ class FeedbackPage extends StatelessWidget {
           alignment: Alignment.center,
           child: Column(
             children: <Widget>[
-              SizedBox(height: 8),
               Image.asset(
                 'assets/images/feedback.png',
                 width: 200,
@@ -148,7 +149,7 @@ class FeedbackPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade800,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -160,7 +161,7 @@ class FeedbackPage extends StatelessWidget {
                       .i18n,
                   style: TextStyle(
                     fontSize: 15,
-                    color: Colors.grey.shade600,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -238,7 +239,7 @@ class FeedbackPage extends StatelessWidget {
                 "${ServiceConfig.packageName} ${ServiceConfig.version}",
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey.shade400,
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                 ),
               ),
 
@@ -271,10 +272,13 @@ class _SupportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24),
       child: Material(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         elevation: 0,
         child: InkWell(
@@ -283,7 +287,7 @@ class _SupportCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: colorScheme.outlineVariant),
             ),
             padding: EdgeInsets.all(16),
             child: Row(
@@ -307,7 +311,7 @@ class _SupportCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade800,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       SizedBox(height: 4),
@@ -315,7 +319,7 @@ class _SupportCard extends StatelessWidget {
                         subtitle,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey.shade500,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -323,7 +327,7 @@ class _SupportCard extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right,
-                  color: Colors.grey.shade400,
+                  color: colorScheme.onSurfaceVariant,
                   size: 24,
                 ),
               ],
