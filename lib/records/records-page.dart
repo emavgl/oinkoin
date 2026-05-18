@@ -8,6 +8,7 @@ import 'package:piggybank/services/logger.dart';
 import '../models/wallet.dart';
 import '../profiles/profiles-page.dart';
 import '../services/profile-service.dart';
+import '../helpers/review-prompt-service.dart';
 import '../services/service-config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'components/days-summary-box-card.dart';
@@ -303,21 +304,24 @@ class TabRecordsState extends State<TabRecords> {
     if (!mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
-    const key = 'app_review_dialog_shown';
-    if (prefs.getBool(key) == true) return;
+    final prompt = ReviewPromptService(prefs);
 
     final recordCount = await ServiceConfig.database.getCountRecords();
-    if (recordCount < 50) return;
-
-    await prefs.setBool(key, true);
+    if (!prompt.shouldShow(recordCount)) return;
 
     final pkg = ServiceConfig.packageName ?? '';
-    await AppReviewDialog.show(
+    final result = await AppReviewDialog.show(
       context,
       supportEmail: 'support@oinkoin.com',
       storePackageName: pkg.contains('alpha') ? 'com.github.emavgl.piggybank' : pkg,
       supportWebsitePage: 'https://oinkoin.com/support',
     );
+
+    if (result != null && result.action != AppReviewDialogAction.dismissed) {
+      await prompt.markPermanentlyShown();
+    } else {
+      await prompt.markDismissed(recordCount);
+    }
   }
 
   List<Widget> _buildSlivers() {
