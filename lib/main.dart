@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:piggybank/categories/categories-tab-page-view.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,12 +18,64 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
 import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 
 import 'i18n.dart';
 
 final logger = Logger.withContext("main");
+
+/// Pending quick action that arrived before the navigator was ready.
+String? _pendingQuickAction;
+
+/// Initializes quick actions for the app home screen.
+void _setupQuickActions() {
+  const QuickActions quickActions = QuickActions();
+  
+  quickActions.initialize((shortcutType) {
+    _pendingQuickAction = shortcutType;
+    _handlePendingQuickAction();
+  });
+  
+  quickActions.setShortcutItems(<ShortcutItem>[
+    ShortcutItem(
+      type: 'add_expense',
+      localizedTitle: 'Add expense'.i18n,
+      icon: 'ic_quick_add_expense',
+    ),
+    ShortcutItem(
+      type: 'add_income',
+      localizedTitle: 'Add income'.i18n,
+      icon: 'ic_quick_add_income',
+    ),
+  ]);
+}
+
+/// Handles a pending quick action by navigating to the appropriate screen.
+/// Refreshes the home tab after the record is saved and the user returns.
+void _handlePendingQuickAction() {
+  final action = _pendingQuickAction;
+  if (action == null) return;
+  
+  final navigator = AppCore.navigatorKey.currentState;
+  if (navigator == null) return;
+  
+  _pendingQuickAction = null;
+  
+  final int tabIndex = (action == 'add_expense') ? 0 : 1;
+  navigator.push(
+    MaterialPageRoute(
+      builder: (_) => CategoryTabPageView(
+        goToEditMovementPage: true,
+        initialTabIndex: tabIndex,
+      ),
+    ),
+  ).then((_) {
+    // After the record is saved and the user returns to Shell, refresh home tab
+    ShellState.instance?.refreshHomeTab();
+  });
+}
 
 main() async {
   DartPluginRegistrant.ensureInitialized();
@@ -86,6 +140,9 @@ main() async {
     final themeMode = await MaterialThemeInstance.getThemeMode();
     logger.info('Theme loaded: $themeMode');
 
+    // Initialize quick actions after translations are loaded
+    _setupQuickActions();
+
     logger.info('App initialization completed successfully');
 
     runApp(
@@ -99,6 +156,11 @@ main() async {
         ),
       ),
     );
+
+    // Handle any pending quick action that arrived before navigation was ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handlePendingQuickAction();
+    });
   } catch (e, st) {
     logger.handle(e, st, 'Critical error during app initialization');
     rethrow;
@@ -198,6 +260,9 @@ class _MyAppState extends State<MyApp> {
 }
 
 class AppCore extends StatelessWidget {
+  /// Global navigator key used for quick actions navigation from outside the widget tree.
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   // Declare languageLocale as a final instance variable
   final ThemeData lightTheme;
   final ThemeData darkTheme;
@@ -212,6 +277,7 @@ class AppCore extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: AppCore.navigatorKey,
       locale: I18n.locale,
       localizationsDelegates: I18n.localizationsDelegates,
       supportedLocales: I18n.supportedLocales,

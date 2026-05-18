@@ -388,6 +388,14 @@ class SqliteDatabase implements DatabaseInterface {
     });
   }
 
+  @override
+  Future<int> getCountRecords() async {
+    final db = (await database)!;
+    final result =
+        await db.rawQuery("SELECT COUNT(*) AS cnt FROM records");
+    return result.first["cnt"] as int;
+  }
+
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName) async {
     final db = (await database)!;

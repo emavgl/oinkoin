@@ -56,6 +56,10 @@ class TabRecordsController {
   bool _walletPrefsLoaded = false;
   int? _walletPrefsProfileId;
 
+  // Future records state (for adjusting wallet balances)
+  bool _showFutureRecords = true;
+  List<Record> _futureRecords = [];
+
   String header = "";
   String _activeProfileName = '';
   int backgroundImageIndex = DateTime.now().month;
@@ -293,6 +297,14 @@ class TabRecordsController {
       return !recordDate.isBefore(fromDate) && !recordDate.isAfter(toDate);
     }).toList();
 
+    // Store future records within the current view interval for wallet balance
+    // adjustment. We use filteredFutureRecords (only those visible in the current
+    // interval) rather than the full futureRecords list, so the wallet balance
+    // at the top of the summary card stays consistent with the records shown
+    // in the income/expenses/balance section below.
+    _showFutureRecords = showFutureRecords;
+    _futureRecords = filteredFutureRecords;
+
     // Merge future records with database records (only if enabled)
     List<Record?> allRecords = showFutureRecords
         ? [...newRecords, ...filteredFutureRecords]
@@ -314,10 +326,29 @@ class TabRecordsController {
       HomepageTimeInterval recordTimeIntervalEnum =
           mapOverviewTimeIntervalToHomepageTimeInterval(
               overviewTimeIntervalEnum);
-      var fetchedRecords = await getRecordsByHomepageTimeInterval(
-          _database, recordTimeIntervalEnum,
+      var overviewInterval = await getTimeIntervalFromHomepageTimeInterval(
+          _database, recordTimeIntervalEnum);
+      var overviewFrom = overviewInterval[0];
+      var overviewTo = overviewInterval[1];
+      var overviewDbRecords = await getRecordsByInterval(
+          _database, overviewFrom, overviewTo,
           profileId: activeProfileId);
-      overviewRecords = fetchedRecords;
+
+      // When showFutureRecords is enabled, also merge future records
+      // that fall within the overview interval, keeping the wallet balance
+      // consistent with the income/expenses displayed in the summary card.
+      if (showFutureRecords && futureRecords.isNotEmpty) {
+        final fromDate = DateTime(overviewFrom.year, overviewFrom.month, overviewFrom.day);
+        final toDate = DateTime(overviewTo.year, overviewTo.month, overviewTo.day);
+        final matchingFuture = futureRecords.where((record) {
+          final recordLocal = record.dateTime;
+          final recordDate = DateTime(recordLocal.year, recordLocal.month, recordLocal.day);
+          return !recordDate.isBefore(fromDate) && !recordDate.isAfter(toDate);
+        }).toList();
+        overviewRecords = [...overviewDbRecords, ...matchingFuture];
+      } else {
+        overviewRecords = overviewDbRecords;
+      }
     }
 
     // Refresh wallet balances since records have changed
@@ -355,6 +386,39 @@ class TabRecordsController {
     final wallets = await _database.getAllWallets(
         profileId: ProfileService.instance.activeProfileId);
     allWallets = wallets.where((w) => !w.isArchived).toList();
+
+    // When showFutureRecords is enabled, adjust wallet balances to include
+    // future (planned) record amounts that are generated in-memory but not
+    // persisted to the database. This ensures the wallet balance displayed
+    // on the homepage matches what users see in the record list.
+    if (_showFutureRecords && _futureRecords.isNotEmpty) {
+      // Compute future record sums per wallet
+      final futureSumByWallet = <int, double>{};
+      for (final record in _futureRecords) {
+        if (record.walletId != null) {
+          futureSumByWallet.update(
+            record.walletId!,
+            (sum) => sum + (record.value ?? 0.0),
+            ifAbsent: () => (record.value ?? 0.0),
+          );
+        }
+        // For transfers, also adjust the destination wallet's balance
+        if (record.transferWalletId != null && record.transferValue != null) {
+          futureSumByWallet.update(
+            record.transferWalletId!,
+            (sum) => sum + record.transferValue!.abs(),
+            ifAbsent: () => record.transferValue!.abs(),
+          );
+        }
+      }
+
+      // Apply future record adjustments to wallet balances
+      for (final wallet in allWallets) {
+        if (wallet.id != null && futureSumByWallet.containsKey(wallet.id)) {
+          wallet.balance = (wallet.balance ?? 0.0) + futureSumByWallet[wallet.id]!;
+        }
+      }
+    }
     if (selectedWallets.isNotEmpty) {
       // Re-sync selectedWallets so balances stay fresh after external edits
       final selectedIds = selectedWallets.map((w) => w.id).toSet();

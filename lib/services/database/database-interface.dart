@@ -35,6 +35,7 @@ abstract class DatabaseInterface {
   Future<void> duplicateRecordsInBatch(List<int> ids);
   Future<DateTime?> getDateTimeFirstRecord();
   Future<List<Record?>> getAllRecords({int? profileId});
+  Future<int> getCountRecords();
   Future<List<Record?>> getAllRecordsInInterval(DateTime? from, DateTime? to,
       {int? profileId});
   Future<Record?> getMatchingRecord(Record? record);

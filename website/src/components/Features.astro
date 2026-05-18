@@ -1,65 +1,73 @@
 ---
 const features = [
   {
-    title: 'Privacy Focused',
-    description: 'Works completely offline. Your data never leaves your device. No tracking, no analytics, no cloud sync.',
-    icon: '🔒'
+    title: 'Completely Offline',
+    description: 'Works entirely on your device. No internet required, no servers, no data ever leaves your phone or computer.',
+    icon: 'offline'
   },
   {
-    title: 'No Ads',
-    description: 'Clean interface without advertisements or distractions. Focus on your finances, not spam.',
-    icon: '🚫'
+    title: 'No Ads, No Tracking',
+    description: 'Zero advertisements, zero analytics, zero data collection. Just a clean expense tracker that respects your privacy.',
+    icon: 'shield'
   },
   {
-    title: 'Battery Efficient',
-    description: 'Only consumes power when you use it. No background processes or unnecessary battery drain.',
-    icon: '🔋'
+    title: 'No Account Needed',
+    description: 'Open the app and start tracking immediately. No registration, no email, no setup — just your finances.',
+    icon: 'user'
   },
   {
-    title: 'Simple Categories',
-    description: 'Organize expenses with customizable categories. Add tags for detailed tracking.',
-    icon: '📁'
+    title: 'Clear Statistics & Charts',
+    description: 'Understand your spending at a glance with clean, readable charts. Filter by month, year, category, or wallet.',
+    icon: 'chart'
   },
   {
-    title: 'Clear Statistics',
-    description: 'Understand your spending with clear, understandable charts and insights. Filter by date range or category.',
-    icon: '📊'
+    title: 'Custom Categories & Tags',
+    description: 'Organize expenses your way with customizable categories, icons, colors, and tags for detailed tracking.',
+    icon: 'grid'
   },
   {
-    title: 'Secure Backups',
-    description: 'Export your data to CSV or create encrypted backups. Restore anytime, anywhere.',
-    icon: '💾'
+    title: 'Backup & Restore',
+    description: 'Export to CSV or create encrypted backups of all your data. Restore anytime, on any device.',
+    icon: 'backup'
   },
   {
     title: 'Cross-Platform',
-    description: 'Available for Android and Linux. Use Oinkoin on your phone or desktop, with the same privacy-first experience.',
-    icon: '📱'
+    description: 'Available for Android and Linux. Same app, same data format, same privacy-first experience everywhere.',
+    icon: 'devices'
   },
   {
     title: 'Open Source',
-    description: 'Oinkoin is fully open source. Anyone can inspect, contribute, or audit the code for transparency and trust.',
-    icon: '💻'
-  },
-  {
-    title: 'No Account Required',
-    description: 'Start tracking your expenses instantly. No registration, no email, no setup—just open the app and go.',
-    icon: '⚡'
+    description: 'Fully open source under GPLv3. Anyone can inspect, contribute, or audit the code for complete transparency.',
+    icon: 'code'
   }
 ];
+
+const icons = {
+  offline: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728m-2.829-2.829a5 5 0 000-7.07m-4.243 4.243a1 1 0 010-1.414M3 3l18 18"/></svg>`,
+  shield: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
+  user: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>`,
+  chart: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>`,
+  grid: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3"/></svg>`,
+  backup: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>`,
+  devices: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>`,
+  code: `<svg class="w-6 h-6 text-blue-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>`,
+};
 ---
 
 <section class="py-20 bg-gray-50">
   <div class="container mx-auto px-6">
     <div class="max-w-6xl mx-auto">
-      <h2 class="text-3xl font-bold text-gray-900 mb-4">Features</h2>
-      <p class="text-gray-600 mb-12 text-lg">Everything you need for simple, secure expense tracking</p>
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight">Features</h2>
+        <p class="text-gray-500 text-lg max-w-2xl mx-auto">Everything you need for simple, private expense tracking — nothing you don't.</p>
+      </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {features.map((feature) => (
-          <article class="bg-white p-6 rounded-lg border border-gray-200">
-            <div class="text-3xl mb-3">{feature.icon}</div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">{feature.title}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+          <article class="bg-white p-6 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all">
+            <Fragment set:html={icons[feature.icon]} />
+            <h3 class="text-base font-semibold text-gray-900 mb-2">{feature.title}</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
           </article>
         ))}
       </div>

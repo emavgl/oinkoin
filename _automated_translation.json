@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-05-09",
-    "total_keys": 445
+    "last_updated": "2026-05-17",
+    "total_keys": 456
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -110,6 +110,26 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Add expense": {
+      "key": "Add expense",
+      "context": "Quick action shortcut label for adding a new expense record directly from the device home screen",
+      "file": "lib/main.dart",
+      "page": "Home screen quick action (platform-level)",
+      "component": "ShortcutItem localizedTitle",
+      "meaning": "A quick action button on the device home screen that opens the app to add a new expense",
+      "notes": "Short text for a home screen quick action icon. Keep concise.",
+      "status": "verified"
+    },
+    "Add income": {
+      "key": "Add income",
+      "context": "Quick action shortcut label for adding a new income record directly from the device home screen",
+      "file": "lib/main.dart",
+      "page": "Home screen quick action (platform-level)",
+      "component": "ShortcutItem localizedTitle",
+      "meaning": "A quick action button on the device home screen that opens the app to add a new income",
+      "notes": "Short text for a home screen quick action icon. Keep concise.",
+      "status": "verified"
     },
     "Add recurrent expenses": {
       "key": "Add recurrent expenses",
@@ -301,15 +321,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Amount and Date/Time columns are required. No records will be imported without them.": {
-      "context": "Warning shown on CSV mapping screen when minimum required columns are not mapped",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
-      "page": "Settings > Import from CSV > Map Columns",
-      "component": "Warning banner",
-      "meaning": "Alerts user that Amount and Date/Time columns must be mapped for import",
-      "notes": "Keep concise for mobile display",
-      "status": "verified"
-    },
     "Amount input keyboard type": {
       "key": "Amount input keyboard type",
       "context": null,
@@ -319,6 +330,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Amount, Category, and Date/Time columns are required. No records will be imported without them.": {
+      "context": "Warning banner on CSV mapping screen when required columns are not mapped",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:654",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Warning banner",
+      "meaning": "Amount, Category, and Date/Time are the three minimum required columns for import",
+      "notes": "Keep technical terms Amount, Category, Date/Time consistent with field labels",
+      "status": "verified"
     },
     "App protected by PIN or biometric check": {
       "key": "App protected by PIN or biometric check",
@@ -550,15 +570,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Back": {
-      "context": "Generic back button label used in multiple CSV import screens",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart, csv_import_summary_screen.dart",
-      "page": "Settings > Import from CSV (multiple screens)",
-      "component": "OutlinedButton",
-      "meaning": "Navigate back to previous screen",
-      "notes": "Standard navigation label. Should use common mobile app convention in target language.",
-      "status": "verified"
-    },
     "Backup": {
       "key": "Backup",
       "context": "Settings menu item for backup functionality",
@@ -785,6 +796,16 @@
       "component": "Expansion tile title",
       "meaning": "Select color for category/wallet/tag",
       "notes": "Label for color selection UI",
+      "status": "verified"
+    },
+    "Colorize income and expenses": {
+      "key": "Colorize income and expenses",
+      "context": "Toggle label in Settings > Customization > Appearance section",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Enable/disable coloring of income amounts in green and expense amounts in red throughout the app",
+      "notes": "Keep translation concise; refers to financial transaction types, not literal colors in the text",
       "status": "verified"
     },
     "Colors": {
@@ -1241,6 +1262,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Display the currency symbol next to amounts": {
+      "context": "Subtitle/description for the show currency symbol toggle",
+      "file": "lib/settings/customization-page.dart:462-463",
+      "page": "Settings > Customization",
+      "component": "Switch tile subtitle",
+      "meaning": "When enabled, currency symbol is shown alongside monetary amounts",
+      "notes": "Descriptive text under 'Show currency symbol' toggle",
+      "status": "verified"
     },
     "Displayed records": {
       "key": "Displayed records",
@@ -1946,6 +1976,15 @@
       "notes": "Keep CSV as-is in translations. Positioned after 'Restore Backup' in settings.",
       "status": "verified"
     },
+    "Import records from a CSV file or clipboard": {
+      "context": "Subtitle description for the CSV import settings menu item",
+      "file": "lib/settings/settings-page.dart:310",
+      "page": "Settings",
+      "component": "SettingsItem subtitle",
+      "meaning": "Describes the CSV import feature - import records from file or clipboard",
+      "notes": "Keep CSV as-is. Subtitle under 'Import from CSV' menu item.",
+      "status": "verified"
+    },
     "Imported Record": {
       "context": "Section header in live preview showing how a CSV row maps to an Oinkoin record",
       "file": "lib/settings/csv_import/csv_mapping_screen.dart",
@@ -1953,6 +1992,15 @@
       "component": "Section label in preview card",
       "meaning": "The resulting record after mapping CSV columns to Oinkoin fields",
       "notes": "Paired with 'Original CSV Row' to show before/after mapping",
+      "status": "verified"
+    },
+    "Importing records": {
+      "context": "Loading text shown during CSV import execution",
+      "file": "lib/settings/csv_import/csv_import_summary_screen.dart:131",
+      "page": "Settings > Import from CSV > Importing",
+      "component": "Loading state text",
+      "meaning": "Records are being imported into the database",
+      "notes": "Shown with progress indicator during import",
       "status": "verified"
     },
     "Include version and date in the name": {
@@ -2094,6 +2142,24 @@
       "notes": null,
       "status": "pending"
     },
+    "Load Mapping": {
+      "context": "Icon button tooltip for loading a saved column mapping",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:428",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "IconButton tooltip",
+      "meaning": "Load a previously saved column mapping preset",
+      "notes": "Short tooltip label",
+      "status": "verified"
+    },
+    "Load Saved Mapping": {
+      "context": "Dialog title for loading a previously saved column mapping",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:320",
+      "page": "Settings > Import from CSV > Load Saved Mapping",
+      "component": "Dialog title",
+      "meaning": "Select and load a previously saved column mapping preset",
+      "notes": "Dialog title for saved mapping list",
+      "status": "verified"
+    },
     "Localization": {
       "key": "Localization",
       "context": null,
@@ -2199,6 +2265,24 @@
       "component": "Info banner",
       "meaning": "Explains how to use the mapping screen and that auto-detection has already been attempted",
       "notes": "Oinkoin is a brand name — do not translate. CSV is a technical term.",
+      "status": "verified"
+    },
+    "Mapping \"$name\" saved.": {
+      "context": "SnackBar confirmation shown after saving a column mapping",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:247",
+      "page": "Settings > Import from CSV > Save Mapping",
+      "component": "SnackBar message",
+      "meaning": "Column mapping was saved successfully with the given name",
+      "notes": "$name placeholder is the user-entered mapping name. Keep $name placeholder.",
+      "status": "verified"
+    },
+    "Mapping name": {
+      "context": "Hint text in text field for naming a saved column mapping",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:271",
+      "page": "Settings > Import from CSV > Save Mapping",
+      "component": "TextField hint",
+      "meaning": "Prompt user to enter a name for their column mapping preset",
+      "notes": "Short hint text in input field",
       "status": "verified"
     },
     "Median of %s": {
@@ -2361,6 +2445,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Next Sample": {
+      "context": "Button to cycle to next sample CSV row in the live preview",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:853",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "OutlinedButton label",
+      "meaning": "Show the next sample row to preview how mapping applies",
+      "notes": "Short button label - keep concise",
+      "status": "verified"
+    },
     "No": {
       "key": "No",
       "context": "Dialog negative button",
@@ -2470,6 +2563,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "No saved mappings found.": {
+      "context": "Empty state text when no saved column mappings exist",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:298",
+      "page": "Settings > Import from CSV > Load Saved Mapping",
+      "component": "Empty state message",
+      "meaning": "User hasn't saved any column mappings yet",
+      "notes": "Appears in the load mapping dialog when list is empty",
+      "status": "verified"
     },
     "No tags applied.": {
       "key": "No tags applied.",
@@ -2619,7 +2721,7 @@
       "component": "Text/label",
       "meaning": "The premium version of Oinkoin app",
       "notes": "Universal/technical term - keep in English across all locales",
-      "status": "skip"
+      "status": "verified"
     },
     "Once set, you can't see the password": {
       "key": "Once set, you can't see the password",
@@ -2699,6 +2801,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Parsing CSV data": {
+      "context": "Loading text shown during CSV file parsing",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:445",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Loading state text",
+      "meaning": "CSV file is being parsed and analyzed",
+      "notes": "Shown with progress indicator while processing CSV. Keep CSV.",
+      "status": "verified"
     },
     "Password": {
       "key": "Password",
@@ -2799,13 +2910,13 @@
       "notes": null,
       "status": "pending"
     },
-    "Please map at least Amount and Date/Time columns to continue.": {
-      "context": "Snackbar/validation message when user tries to proceed without minimum required columns",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart",
+    "Please map the Amount, Category, and Date/Time columns to continue.": {
+      "context": "Validation snackbar message when user tries to proceed without minimum required columns",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:388",
       "page": "Settings > Import from CSV > Map Columns",
       "component": "SnackBar message",
-      "meaning": "Amount and Date/Time are mandatory — user must map them before continuing",
-      "notes": "Keep Amount and Date/Time consistent with field labels used in the mapping UI",
+      "meaning": "Prompt user to map required columns before continuing to summary",
+      "notes": "Keep technical field names Amount, Category, Date/Time consistent with UI labels",
       "status": "verified"
     },
     "Please select a currency.": {
@@ -3095,6 +3206,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Save Mapping": {
+      "context": "Dialog title and icon button tooltip for saving column mapping",
+      "file": "lib/settings/csv_import/csv_mapping_screen.dart:266, 422",
+      "page": "Settings > Import from CSV > Map Columns",
+      "component": "Dialog title / icon button tooltip",
+      "meaning": "Save current column mapping as a named preset for reuse",
+      "notes": "Clear action label",
+      "status": "verified"
     },
     "Save as default selection": {
       "key": "Save as default selection",
@@ -3515,6 +3635,15 @@
       "notes": null,
       "status": "pending"
     },
+    "Show currency symbol": {
+      "context": "Toggle title for showing/hiding currency symbol",
+      "file": "lib/settings/customization-page.dart:461",
+      "page": "Settings > Customization",
+      "component": "Switch tile title",
+      "meaning": "Toggle to show or hide currency symbol next to amounts",
+      "notes": "Toggle switch title in customization settings",
+      "status": "verified"
+    },
     "Show future recurrent records": {
       "key": "Show future recurrent records",
       "context": null,
@@ -3524,6 +3653,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Show income in green and expenses in red": {
+      "key": "Show income in green and expenses in red",
+      "context": "Subtitle/description for the colorize amounts toggle in Settings > Customization > Appearance",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Explains that enabling the toggle shows income amounts colored green and expense amounts colored red",
+      "notes": "Mentions specific colors (green, red) — translate the color names naturally in each language",
+      "status": "verified"
     },
     "Show or hide tags in the record list": {
       "key": "Show or hide tags in the record list",
@@ -4267,151 +4406,125 @@
       "notes": "Used for customizing string separators - translate as the actual character name",
       "status": "verified"
     },
-    "Amount, Category, and Date/Time columns are required. No records will be imported without them.": {
-      "context": "Warning banner on CSV mapping screen when required columns are not mapped",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:654",
-      "page": "Settings > Import from CSV > Map Columns",
-      "component": "Warning banner",
-      "meaning": "Amount, Category, and Date/Time are the three minimum required columns for import",
-      "notes": "Keep technical terms Amount, Category, Date/Time consistent with field labels",
+    "Support": {
+      "key": "Support",
+      "context": "Settings menu entry and page title for help & support",
+      "file": "lib/settings/settings-page.dart, lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "settings list item title, app bar title",
+      "meaning": "Navigation entry to access help, email, and app rating options",
+      "notes": "Short menu item - keep concise",
       "status": "verified"
     },
-    "Please map the Amount, Category, and Date/Time columns to continue.": {
-      "context": "Validation snackbar message when user tries to proceed without minimum required columns",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:388",
-      "page": "Settings > Import from CSV > Map Columns",
-      "component": "SnackBar message",
-      "meaning": "Prompt user to map required columns before continuing to summary",
-      "notes": "Keep technical field names Amount, Category, Date/Time consistent with UI labels",
+    "Support & Contribute": {
+      "key": "Support & Contribute",
+      "context": "Card title on the support page linking to the website support page",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Link to the website support page that has help info and contribution options",
+      "notes": "Conveys both getting help and contributing to the project",
       "status": "verified"
     },
-    "Next Sample": {
-      "context": "Button to cycle to next sample CSV row in the live preview",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:853",
-      "page": "Settings > Import from CSV > Map Columns",
-      "component": "OutlinedButton label",
-      "meaning": "Show the next sample row to preview how mapping applies",
-      "notes": "Short button label - keep concise",
+    "Support the project": {
+      "key": "Support the project",
+      "context": "Heading on the support page, above the action cards",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "page heading",
+      "meaning": "Main heading encouraging users to support the open-source project",
+      "notes": "Warm, inviting tone",
       "status": "verified"
     },
-    "Mapping name": {
-      "context": "Hint text in text field for naming a saved column mapping",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:271",
-      "page": "Settings > Import from CSV > Save Mapping",
-      "component": "TextField hint",
-      "meaning": "Prompt user to enter a name for their column mapping preset",
-      "notes": "Short hint text in input field",
+    "Choose how you'd like to get in touch or support the project.": {
+      "key": "Choose how you'd like to get in touch or support the project.",
+      "context": "Subtitle on the support page, below the heading",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "page subtitle",
+      "meaning": "Describes the available options: contact or contribute",
+      "notes": "Longer explanatory text",
       "status": "verified"
     },
-    "Importing records": {
-      "context": "Loading text shown during CSV import execution",
-      "file": "lib/settings/csv_import/csv_import_summary_screen.dart:131",
-      "page": "Settings > Import from CSV > Importing",
-      "component": "Loading state text",
-      "meaning": "Records are being imported into the database",
-      "notes": "Shown with progress indicator during import",
+    "Send an Email": {
+      "key": "Send an Email",
+      "context": "Card title on the support page for the email option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Button/card that opens the email client to write to the developer",
+      "notes": "Short action label",
       "status": "verified"
     },
-    "No saved mappings found.": {
-      "context": "Empty state text when no saved column mappings exist",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:298",
-      "page": "Settings > Import from CSV > Load Saved Mapping",
-      "component": "Empty state message",
-      "meaning": "User hasn't saved any column mappings yet",
-      "notes": "Appears in the load mapping dialog when list is empty",
+    "Write us directly — we read every message": {
+      "key": "Write us directly — we read every message",
+      "context": "Card subtitle on the support page for the email option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Encourages users to email, assuring them their feedback is valued",
+      "notes": "Friendly tone, keep the em dash",
       "status": "verified"
     },
-    "Load Saved Mapping": {
-      "context": "Dialog title for loading a previously saved column mapping",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:320",
-      "page": "Settings > Import from CSV > Load Saved Mapping",
-      "component": "Dialog title",
-      "meaning": "Select and load a previously saved column mapping preset",
-      "notes": "Dialog title for saved mapping list",
+    "Visit our support page with ways to contribute": {
+      "key": "Visit our support page with ways to contribute",
+      "context": "Card subtitle on the support page for the web support option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Describes that the web page has both help information and contribution options",
+      "notes": "Replaces 'donation' language with 'contribute'",
       "status": "verified"
     },
-    "Mapping \"$name\" saved.": {
-      "context": "SnackBar confirmation shown after saving a column mapping",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:247",
-      "page": "Settings > Import from CSV > Save Mapping",
-      "component": "SnackBar message",
-      "meaning": "Column mapping was saved successfully with the given name",
-      "notes": "$name placeholder is the user-entered mapping name. Keep $name placeholder.",
+    "Rate the app": {
+      "key": "Rate the app",
+      "context": "Card title on the support page for the Play Store rating option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Button that opens the Play Store to leave a review",
+      "notes": "Short action label, only shown for Play Store installs or alpha builds",
       "status": "verified"
     },
-    "Save Mapping": {
-      "context": "Dialog title and icon button tooltip for saving column mapping",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:266, 422",
-      "page": "Settings > Import from CSV > Map Columns",
-      "component": "Dialog title / icon button tooltip",
-      "meaning": "Save current column mapping as a named preset for reuse",
-      "notes": "Clear action label",
+    "Love Oinkoin? Leave a review on Google Play": {
+      "key": "Love Oinkoin? Leave a review on Google Play",
+      "context": "Card subtitle on the support page for the rating option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Encourages users to leave a positive review on Google Play",
+      "notes": "Keep 'Google Play' as-is in most languages",
       "status": "verified"
     },
-    "Load Mapping": {
-      "context": "Icon button tooltip for loading a saved column mapping",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:428",
-      "page": "Settings > Import from CSV > Map Columns",
-      "component": "IconButton tooltip",
-      "meaning": "Load a previously saved column mapping preset",
-      "notes": "Short tooltip label",
-      "status": "verified"
-    },
-    "Parsing CSV data": {
-      "context": "Loading text shown during CSV file parsing",
-      "file": "lib/settings/csv_import/csv_mapping_screen.dart:445",
-      "page": "Settings > Import from CSV > Map Columns",
-      "component": "Loading state text",
-      "meaning": "CSV file is being parsed and analyzed",
-      "notes": "Shown with progress indicator while processing CSV. Keep CSV.",
-      "status": "verified"
-    },
-    "Display the currency symbol next to amounts": {
-      "context": "Subtitle/description for the show currency symbol toggle",
-      "file": "lib/settings/customization-page.dart:462-463",
-      "page": "Settings > Customization",
-      "component": "Switch tile subtitle",
-      "meaning": "When enabled, currency symbol is shown alongside monetary amounts",
-      "notes": "Descriptive text under 'Show currency symbol' toggle",
-      "status": "verified"
-    },
-    "Show currency symbol": {
-      "context": "Toggle title for showing/hiding currency symbol",
-      "file": "lib/settings/customization-page.dart:461",
-      "page": "Settings > Customization",
-      "component": "Switch tile title",
-      "meaning": "Toggle to show or hide currency symbol next to amounts",
-      "notes": "Toggle switch title in customization settings",
-      "status": "verified"
-    },
-    "Import records from a CSV file or clipboard": {
-      "context": "Subtitle description for the CSV import settings menu item",
-      "file": "lib/settings/settings-page.dart:310",
+    "Get help, give feedback, or contribute": {
+      "key": "Get help, give feedback, or contribute",
+      "context": "Subtitle for the Support entry in the Settings list",
+      "file": "lib/settings/settings-page.dart",
       "page": "Settings",
-      "component": "SettingsItem subtitle",
-      "meaning": "Describes the CSV import feature - import records from file or clipboard",
-      "notes": "Keep CSV as-is. Subtitle under 'Import from CSV' menu item.",
+      "component": "settings list item subtitle",
+      "meaning": "Brief description of what the Support page offers",
+      "notes": "Short and descriptive for a settings subtitle",
       "status": "verified"
     },
-    "Colorize income and expenses": {
-      "key": "Colorize income and expenses",
-      "context": "Toggle label in Settings > Customization > Appearance section",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization",
-      "component": "SwitchCustomizationItem title",
-      "meaning": "Enable/disable coloring of income amounts in green and expense amounts in red throughout the app",
-      "notes": "Keep translation concise; refers to financial transaction types, not literal colors in the text",
+    "Could not open link": {
+      "key": "Could not open link",
+      "context": "Snackbar error message when a URL cannot be opened",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "error snackbar",
+      "meaning": "Tells the user the link could not be opened",
+      "notes": "Brief error message",
       "status": "verified"
     },
-    "Show income in green and expenses in red": {
-      "key": "Show income in green and expenses in red",
-      "context": "Subtitle/description for the colorize amounts toggle in Settings > Customization > Appearance",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Explains that enabling the toggle shows income amounts colored green and expense amounts colored red",
-      "notes": "Mentions specific colors (green, red) — translate the color names naturally in each language",
-      "status": "verified"
+    "1 \\${_selectedCurrency ?? '[currency]'} =": {
+      "key": "1 \\${_selectedCurrency ?? '[currency]'} =",
+      "context": "Conversion rate input label in currency settings",
+      "file": "lib/settings/currency-conversion-rates-page.dart",
+      "page": "Settings > Currencies",
+      "component": "input field label",
+      "meaning": "Label above a field where the user enters the conversion rate for a currency",
+      "notes": "Contains template placeholders - keep the structure and placeholders as-is, only translate the '=' may need adaptation in RTL languages",
+      "status": "skip"
     }
   }
 }

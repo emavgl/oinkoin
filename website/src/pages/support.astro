@@ -1,0 +1,230 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = "Support Oinkoin";
+const description = "Support the open-source development of Oinkoin — a privacy-focused expense tracker built by a single developer and community contributors.";
+---
+
+<Layout title={title} description={description}>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 mb-6">
+            <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+            Support Oinkoin
+          </h1>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Your support helps keep this project alive — free, open source, and independent.
+          </p>
+        </div>
+
+        <!-- About section -->
+        <div class="bg-gray-50 rounded-2xl p-8 mb-16">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">A project born from passion (and necessity)</h2>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            Oinkoin is an <strong class="text-gray-900">open-source project</strong> built with care and attention to detail. Behind it there is a <strong class="text-gray-900">single person</strong> — the main developer — along with a couple of incredible open-source contributors who help improve the app, fix bugs, and add features.
+          </p>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            It started because I needed an expense tracker I could trust. Every app I tried was either packed with ads, collecting my data, pushing a subscription, or way too complicated for what should be a simple tool. So I built my own — and decided to share it with everyone.
+          </p>
+          <p class="text-gray-700 leading-relaxed">
+            There is no corporation, no VC funding, and no team of paid developers. Just a genuine effort to create a simple, private, and beautiful expense tracker that anyone can use without being tracked, served ads, or locked into a subscription.
+          </p>
+        </div>
+
+        <!-- Feedback & Contributions -->
+        <div class="mb-16">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 text-center">Feedback &amp; Contributions</h2>
+          <p class="text-gray-600 text-center mb-6">
+            Found a bug? Have an idea for a new feature? Want to share feedback? I'd love to hear from you.
+          </p>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <a href="https://github.com/emavgl/oinkoin/issues"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="block group">
+              <div class="bg-white border-2 border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all h-full">
+                <div class="flex items-center gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-gray-900 group-hover:text-gray-700 transition-colors">GitHub Issues</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Report bugs &amp; request features</p>
+                  </div>
+                </div>
+              </div>
+            </a>
+            <a href="mailto:support@oinkoin.com"
+               class="block group">
+              <div class="bg-white border-2 border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all h-full">
+                <div class="flex items-center gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-gray-900 group-hover:text-gray-700 transition-colors">Email</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">support@oinkoin.com</p>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Donations -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Donations</h2>
+        <p class="text-gray-600 text-center mb-8">Any donation is welcome. Thank you for your support! 🙏</p>
+
+        <div class="bg-gray-50 rounded-2xl p-8 mb-10">
+          <p class="text-gray-700 leading-relaxed">
+            Every donation, no matter how small, makes a real difference. It helps cover infrastructure costs, supports development time, and — most importantly — shows that people care about this project and want to see it thrive.
+          </p>
+        </div>
+
+                <!-- Why support -->
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Why donate?</h2>
+          <ul class="space-y-3">
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </span>
+              <span class="text-gray-700"><strong class="text-gray-900">Keep the project alive</strong> — Ongoing development, bug fixes, and new features require time and effort.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </span>
+              <span class="text-gray-700"><strong class="text-gray-900">Cover infrastructure costs</strong> — Servers, domains, signing keys, and distribution fees add up.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </span>
+              <span class="text-gray-700"><strong class="text-gray-900">Support independence</strong> — No ads, no data collection, no corporate pressure. Just good software.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </span>
+              <span class="text-gray-700"><strong class="text-gray-900">Show your appreciation</strong> — If Oinkoin helps you manage your finances, your support means the world.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="space-y-10">
+          <!-- Oinkoin PRO -->
+          <a href="https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="block group">
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-md transition-all">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+                  <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-lg font-semibold text-gray-900 group-hover:text-amber-700 transition-colors">Buy Oinkoin PRO on Google Play</h3>
+                  <p class="text-gray-600 text-sm mt-1">Get the Pro version on Google Play. You get extra features, and your purchase directly supports development.</p>
+                </div>
+                <div class="flex-shrink-0 self-center">
+                  <svg class="w-5 h-5 text-gray-400 group-hover:text-amber-500 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Buy Me a Coffee -->
+          <a href="https://buymeacoffee.com/emavgl"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="block group">
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-md transition-all">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+                  <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zm4.5-2l.447-.894A2 2 0 0110.763 5H12a2 2 0 011.789 1.106L14.5 6M6 6h8"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-lg font-semibold text-gray-900 group-hover:text-amber-700 transition-colors">Buy Me a Coffee ☕</h3>
+                  <p class="text-gray-600 text-sm mt-1">Support with a one-time or monthly donation through Buy Me a Coffee. Every coffee helps!</p>
+                </div>
+                <div class="flex-shrink-0 self-center">
+                  <svg class="w-5 h-5 text-gray-400 group-hover:text-amber-500 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Cryptocurrency section -->
+          <div class="bg-gray-50 rounded-2xl p-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              Cryptocurrency
+            </h3>
+            <div class="space-y-4">
+              <!-- Bitcoin -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Bitcoin</label>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-4 py-3">
+                  <code id="btc-address" class="text-sm text-gray-800 break-all select-all font-mono">bc1qscnas903lcycrkaw7ztflskwld87k8wxgc0sx8</code>
+                  <button onclick="navigator.clipboard.writeText('bc1qscnas903lcycrkaw7ztflskwld87k8wxgc0sx8').then(() => { this.textContent = 'Copied!'; setTimeout(() => { this.textContent = 'Copy'; }, 2000); })"
+                          class="flex-shrink-0 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <!-- Monero -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Monero</label>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-4 py-3">
+                  <code id="xmr-address" class="text-xs text-gray-800 break-all select-all font-mono leading-relaxed">44LmMThH7jMgi5pGpRtQVxCXUr9tNSenhSm97g3zgXQZPS1bwMMqxSR7M7yFcbQ9uUJAwHTJ4gXENKXZdaTDopv9QU2aGni</code>
+                  <button onclick="navigator.clipboard.writeText('44LmMThH7jMgi5pGpRtQVxCXUr9tNSenhSm97g3zgXQZPS1bwMMqxSR7M7yFcbQ9uUJAwHTJ4gXENKXZdaTDopv9QU2aGni').then(() => { this.textContent = 'Copied!'; setTimeout(() => { this.textContent = 'Copy'; }, 2000); })"
+                          class="flex-shrink-0 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">Please double-check addresses before sending any cryptocurrency.</p>
+          </div>
+        </div>
+
+        <!-- Closing note -->
+        <div class="text-center mt-12 pt-8 border-t border-gray-200">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 mb-4">
+            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </div>
+          <p class="text-gray-700 text-lg leading-relaxed max-w-xl mx-auto">
+            Thank you for considering a donation. Your support means more than you know — it's what keeps open-source projects like this one alive. 💙
+          </p>
+          <p class="text-gray-500 text-sm mt-4">
+            — <a href="https://github.com/emavgl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">emavgl</a> &amp; the Oinkoin contributors
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

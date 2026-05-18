@@ -10,8 +10,9 @@ import 'package:piggybank/categories/category-sort-option.dart';
 
 class CategoryTabPageView extends StatefulWidget {
   final bool? goToEditMovementPage;
+  final int initialTabIndex;
 
-  CategoryTabPageView({this.goToEditMovementPage, Key? key}) : super(key: key);
+  CategoryTabPageView({this.goToEditMovementPage, this.initialTabIndex = 0, Key? key}) : super(key: key);
 
   @override
   CategoryTabPageViewState createState() => CategoryTabPageViewState();
@@ -302,6 +303,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
+      initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
           title: Text('Select the category'.i18n),
