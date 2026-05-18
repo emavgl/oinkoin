@@ -306,14 +306,11 @@ class TabRecordsState extends State<TabRecords> {
     const key = 'app_review_dialog_shown';
     if (prefs.getBool(key) == true) return;
 
-    final records = await ServiceConfig.database.getAllRecords(
-        profileId: ProfileService.instance.activeProfileId);
-    if (records.length < 50) return;
+    final recordCount = await ServiceConfig.database.getCountRecords();
+    if (recordCount < 50) return;
 
     await prefs.setBool(key, true);
-    await Future.delayed(const Duration(seconds: 2));
 
-    if (!mounted) return;
     final pkg = ServiceConfig.packageName ?? '';
     await AppReviewDialog.show(
       context,

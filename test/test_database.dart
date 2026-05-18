@@ -304,6 +304,27 @@ Future main() async {
       expect(matchingRecord?.tags, containsAll(['match-tag']));
     });
 
+    test('getCountRecords should return 0 when there are no records',
+        () async {
+      DatabaseInterface db = ServiceConfig.database;
+      final count = await db.getCountRecords();
+      expect(count, 0);
+    });
+
+    test('getCountRecords should return the total number of records',
+        () async {
+      DatabaseInterface db = ServiceConfig.database;
+      await db.addCategory(testCategoryExpense);
+      var records = List.generate(
+          4,
+          (i) => Record(10.0 * (i + 1), "Record $i", testCategoryExpense,
+              DateTime.utc(2023, 1, 1 + i)));
+      await db.addRecordsInBatch(records);
+
+      final count = await db.getCountRecords();
+      expect(count, 4);
+    });
+
     test(
         'deleteFutureRecordsByPatternId should remove records with a specific pattern ID after a certain date',
         () async {
