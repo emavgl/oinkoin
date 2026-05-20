@@ -68,6 +68,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   DateTime? lastCharInsertedMillisecond;
   late bool enableRecordNameSuggestions;
   late int amountInputKeyboardTypeIndex;
+  late String categorySign;
 
   DateTime? localDisplayDate;
   DateTime? localDisplayEndDate;
@@ -252,8 +253,18 @@ class EditRecordPageState extends State<EditRecordPage> {
       }
     });
 
+    categorySign = record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+
     String initialValue = record?.title ?? "";
     _typeAheadController.text = initialValue;
+
+    if (amountInputKeyboardTypeIndex == 1) {
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            _openCustomKeyboard(categorySign);
+          }
+      );
+    }
   }
 
   @override
@@ -924,8 +935,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     final zeroHint = (autoDec && decDigits > 0)
         ? '0$decimalSep${List.filled(decDigits, '0').join()}'
         : '0';
-    String categorySign =
-        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+
     return Container(
         color: Theme.of(context).colorScheme.secondaryContainer,
         child: IntrinsicHeight(
