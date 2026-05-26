@@ -41,6 +41,7 @@ class PreferencesOptions {
         "Україна": "uk-UA",
         "Veneto": "vec-IT",
         "简化字": "zh-CN",
+        "Հայերեն": "hy",
       };
 
   static Map<String, int> get firstDayOfWeekDropdown => {
