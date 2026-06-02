@@ -216,6 +216,88 @@ If a translation is discovered to be wrong:
 2. Retranslated with positional context in mind
 3. Similar fix for "Right", "With space", "Without space" options
 
+## Adding a New Language
+
+A new language must be registered in **4 places** to work correctly.
+
+### 1. Translation file
+
+Create `assets/locales/<code>.json` (e.g. `assets/locales/ko.json` for Korean).
+
+- Copy `assets/locales/en-US.json` as a starting point
+- Translate all values (not keys)
+- The filename (minus `.json`) becomes the locale tag
+
+### 2. Android locale config
+
+Add an entry to `android/app/src/main/res/xml/locales_config.xml`:
+
+```xml
+<locale android:name="<code>"/>
+```
+
+- Simple language (e.g. Korean): `<locale android:name="ko"/>`
+- With country (e.g. Korean - South Korea): `<locale android:name="ko-KR"/>`
+
+### 3. Language dropdown
+
+Add an entry to `languageDropdown` in `lib/settings/constants/preferences-options.dart`:
+
+```dart
+"한국어": "ko",
+"한국어 (대한민국)": "ko-KR",
+```
+
+- The **key** (left) is what the user sees in the language picker — write it in the language itself (endonym)
+- The **value** (right) is the locale code used internally — must match step 4
+
+### 4. Supported locales
+
+Add a `Locale` to `supportedLocales` in `lib/services/locale-service.dart`:
+
+```dart
+// Simple language (language code only):
+const Locale.fromSubtags(languageCode: 'ko'),
+
+// With country code:
+const Locale.fromSubtags(languageCode: 'ko', countryCode: "KR"),
+```
+
+### Checklist
+
+| # | File | What to add |
+|---|------|-------------|
+| 1 | `assets/locales/<code>.json` | Translated strings file |
+| 2 | `android/app/src/main/res/xml/locales_config.xml` | `<locale android:name="<code>"/>` |
+| 3 | `lib/settings/constants/preferences-options.dart` | Endonym → code entry in `languageDropdown` |
+| 4 | `lib/services/locale-service.dart` | `Locale.fromSubtags(...)` in `supportedLocales` |
+
+### Example: Adding Korean (`ko`)
+
+**`assets/locales/ko.json`**
+```json
+{
+  "Save": "저장",
+  "Cancel": "취소",
+  ...
+}
+```
+
+**`android/app/src/main/res/xml/locales_config.xml`**
+```xml
+<locale android:name="ko"/>
+```
+
+**`lib/settings/constants/preferences-options.dart`**
+```dart
+"한국어": "ko",
+```
+
+**`lib/services/locale-service.dart`**
+```dart
+const Locale.fromSubtags(languageCode: 'ko'),
+```
+
 ## Commands Quick Reference
 
 ```bash
