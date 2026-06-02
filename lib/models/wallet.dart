@@ -47,7 +47,7 @@ class Wallet extends Model {
     if (iconEmoji == null) {
       if (iconCodePoint == null ||
           categoryIcons.where((i) => i.codePoint == iconCodePoint).isEmpty) {
-        icon = FontAwesomeIcons.wallet;
+        icon = FontAwesomeIcons.wallet.data;
         iconCodePoint = icon!.codePoint;
       } else {
         icon = categoryIcons.where((i) => i.codePoint == iconCodePoint).first;

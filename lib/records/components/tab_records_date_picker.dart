@@ -34,7 +34,7 @@ class TabRecordsDatePicker extends StatelessWidget {
         _buildDialogOption(
           context,
           title: "Month".i18n,
-          icon: FontAwesomeIcons.calendarDays,
+          icon: FontAwesomeIcons.calendarDays.data,
           color: boxBackgroundColor,
           onPressed: () => _pickMonth(context),
         ),
@@ -43,7 +43,7 @@ class TabRecordsDatePicker extends StatelessWidget {
           title: "Year".i18n,
           subtitle:
               !ServiceConfig.isPremium ? "Available on Oinkoin Pro".i18n : null,
-          icon: FontAwesomeIcons.calendarDay,
+          icon: FontAwesomeIcons.calendarDay.data,
           color: boxBackgroundColor,
           enabled: ServiceConfig.isPremium,
           onPressed: ServiceConfig.isPremium
@@ -55,7 +55,7 @@ class TabRecordsDatePicker extends StatelessWidget {
           title: "Date Range".i18n,
           subtitle:
               !ServiceConfig.isPremium ? "Available on Oinkoin Pro".i18n : null,
-          icon: FontAwesomeIcons.calendarWeek,
+          icon: FontAwesomeIcons.calendarWeek.data,
           color: boxBackgroundColor,
           enabled: ServiceConfig.isPremium,
           onPressed: ServiceConfig.isPremium
@@ -66,7 +66,7 @@ class TabRecordsDatePicker extends StatelessWidget {
           _buildDialogOption(
             context,
             title: "Reset to default dates".i18n,
-            icon: FontAwesomeIcons.calendarXmark,
+            icon: FontAwesomeIcons.calendarXmark.data,
             color: boxBackgroundColor,
             onPressed: () => _resetToDefault(context),
           ),
