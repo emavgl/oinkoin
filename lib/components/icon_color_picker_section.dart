@@ -388,7 +388,7 @@ class _IconColorPickerSectionState extends State<IconColorPickerSection> {
             ),
             ...List.generate(_icons.length, (index) {
               return IconButton(
-                icon: FaIcon(_icons[index]),
+                icon: Icon(_icons[index]),
                 color: (_chosenIconIndex == index)
                     ? Theme.of(context).colorScheme.error
                     : Theme.of(context)

@@ -9,17 +9,18 @@ import 'package:piggybank/models/category.dart';
 Category _createFullCategory({
   String name = 'Test Category',
   Color color = Colors.blue,
-  IconData icon = FontAwesomeIcons.house,
+  IconData? icon,
   CategoryType type = CategoryType.income,
   int recordCount = 10,
   String iconEmoji = '💸',
   bool isArchived = true,
   int sortOrder = 5,
 }) {
+  final effectiveIcon = icon ?? FontAwesomeIcons.house.data;
   return Category(
     name,
     color: color,
-    iconCodePoint: icon.codePoint,
+    iconCodePoint: effectiveIcon.codePoint,
     categoryType: type,
     lastUsed: DateTime(2023, 1, 1),
     recordCount: recordCount,
@@ -74,7 +75,7 @@ void main() {
       expect(decodedCategory.color, isNull);
       expect(decodedCategory.iconCodePoint,
           equals(FontAwesomeIcons.question.codePoint));
-      expect(decodedCategory.icon, equals(FontAwesomeIcons.question));
+      expect(decodedCategory.icon, equals(FontAwesomeIcons.question.data));
       expect(decodedCategory.lastUsed, isNull);
       expect(decodedCategory.recordCount, equals(0));
       expect(decodedCategory.iconEmoji, isNull);
@@ -112,7 +113,7 @@ void main() {
   group('Category Constructor Logic', () {
     test('should set a default icon if iconCodePoint is null', () {
       final category = Category('Default Icon');
-      expect(category.icon, equals(FontAwesomeIcons.question));
+      expect(category.icon, equals(FontAwesomeIcons.question.data));
       expect(
           category.iconCodePoint, equals(FontAwesomeIcons.question.codePoint));
     });
