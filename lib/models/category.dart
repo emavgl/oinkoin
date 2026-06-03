@@ -54,7 +54,7 @@ class Category extends Model {
           categoryIcons
               .where((i) => i.codePoint == this.iconCodePoint)
               .isEmpty) {
-        this.icon = FontAwesomeIcons.question;
+        this.icon = FontAwesomeIcons.question.data;
         this.iconCodePoint = this.icon!.codePoint;
       } else {
         this.icon =

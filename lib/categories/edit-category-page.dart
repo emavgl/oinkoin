@@ -42,7 +42,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
     Category category = new Category(null);
     if (this.passedCategory == null) {
       category.color = Category.colors[0];
-      category.icon = FontAwesomeIcons.question;
+      category.icon = FontAwesomeIcons.question.data;
       category.iconCodePoint = category.icon!.codePoint;
       category.categoryType = categoryType;
     } else {
