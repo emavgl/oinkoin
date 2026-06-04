@@ -1,0 +1,4 @@
+{
+  "pr_title": "fix: remove 5-year date limit from date range picker",
+  "pr_content": "## Summary\n\nRemoves the artificial 5-year limit on the date range picker's `firstDate`, allowing users with more than 5 years of data (e.g., imported from CSV exports spanning 10+ years) to search across their full history.\n\n### Changes\n\n- **`lib/records/components/tab_records_date_picker.dart`**: Changed `_pickDateRange`'s `firstDate` from `DateTime(currentDate.year - 5, currentDate.month)` to `DateTime(1970)`, removing the arbitrary 5-year cap. This is consistent with other date pickers in the app (e.g., `edit-record-page.dart` uses `DateTime(1970)`).\n\nFixes #364"
+}
