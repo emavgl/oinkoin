@@ -150,7 +150,7 @@ class TabRecordsDatePicker extends StatelessWidget {
   Future<void> _pickDateRange(BuildContext context) async {
     DateTime currentDate = DateTime.now();
     DateTime lastDate = DateTime(currentDate.year + 1, currentDate.month + 1);
-    DateTime firstDate = DateTime(currentDate.year - 5, currentDate.month);
+    DateTime firstDate = DateTime(1970);
     DateTimeRange initialDateTimeRange = DateTimeRange(
       start: DateTime.now().subtract(Duration(days: 7)),
       end: currentDate,
