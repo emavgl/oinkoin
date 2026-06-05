@@ -61,6 +61,81 @@ void main() {
     controller = TabRecordsController(onStateChanged: () {});
   });
 
+  group('matchesSmartSearch', () {
+    test('should match single word query', () {
+      expect(controller.matchesSmartSearch('Product Name A', 'product'),
+          isTrue);
+    });
+
+    test('should match multi-word query (all words match)', () {
+      expect(
+          controller.matchesSmartSearch('Product Name A', 'product name'),
+          isTrue);
+    });
+
+    test('should match partial second word query', () {
+      expect(
+          controller.matchesSmartSearch('Product Name A', 'product n'),
+          isTrue);
+    });
+
+    test('should match when query has only start of each word', () {
+      expect(
+          controller.matchesSmartSearch('Product Name A', 'pro nam'),
+          isTrue);
+    });
+
+    test('should match case-insensitively with multi-word query', () {
+      expect(
+          controller.matchesSmartSearch('PRODUCT NAME A', 'product name'),
+          isTrue);
+    });
+
+    test('should match description field with multi-word query', () {
+      expect(
+          controller.matchesSmartSearch(
+              'Gas station purchase', 'gas station'),
+          isTrue);
+    });
+
+    test(
+        'should not match when one query term does not match any word', () {
+      expect(
+          controller.matchesSmartSearch('Product Name A', 'product xyz'),
+          isFalse);
+    });
+
+    test('should not match when no words match', () {
+      expect(controller.matchesSmartSearch('Product Name A', 'xyz'),
+          isFalse);
+    });
+
+    test('should return false for null text', () {
+      expect(controller.matchesSmartSearch(null, 'query'), isFalse);
+    });
+
+    test('should return false for empty text', () {
+      expect(controller.matchesSmartSearch('', 'query'), isFalse);
+    });
+
+    test('should return false for empty query', () {
+      expect(
+          controller.matchesSmartSearch('Product Name A', ''), isFalse);
+    });
+
+    test('should match with hyphenated words', () {
+      expect(
+          controller.matchesSmartSearch(
+              'well-known brand', 'well brand'),
+          isTrue);
+    });
+
+    test('should match single word against partial word', () {
+      expect(controller.matchesSmartSearch('Product Name A', 'prod'),
+          isTrue);
+    });
+  });
+
   group('shiftMonthWeekYear', () {
     test(
         'should shift month forward by 1 with custom interval set to a full month',
@@ -187,7 +262,7 @@ void main() {
         PreferencesKeys.homepageTimeInterval,
         HomepageTimeInterval.CurrentWeek.index,
       );
-      // Pin firstDayOfWeek to Monday so getStartOfWeek() is deterministic
+      // Pin firstDayOfWeek to Monday so getFirstDayOfWeekIndex() is deterministic
       // regardless of I18n.locale state (which may be altered by other test files).
       await sharedPreferences.setInt(
         PreferencesKeys.firstDayOfWeek,
