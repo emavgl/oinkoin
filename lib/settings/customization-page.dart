@@ -367,6 +367,17 @@ class CustomizationPageState extends State<CustomizationPage> {
                           prefs, PreferencesKeys.colorizeAmounts)!,
                       sharedConfigKey: PreferencesKeys.colorizeAmounts,
                     ),
+                    SwitchCustomizationItem(
+                      title: "Reverse monthly images".i18n,
+                      subtitle:
+                          "Show images appropriate for Southern Hemisphere seasons"
+                              .i18n,
+                      switchValue: PreferencesUtils.getOrDefault<bool>(
+                          prefs, PreferencesKeys.reverseMonthlyImages)!,
+                      sharedConfigKey: PreferencesKeys.reverseMonthlyImages,
+                      proLabel: !ServiceConfig.isPremium,
+                      enabled: ServiceConfig.isPremium,
+                    ),
                     SettingSeparator(title: "Number & Formatting".i18n),
                     DropdownCustomizationItem(
                       title: "Decimal digits".i18n,
