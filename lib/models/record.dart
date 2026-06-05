@@ -102,6 +102,42 @@ class Record extends Model {
 
   bool get isTransfer => transferWalletId != null;
 
+  /// Creates a copy of this record with the given fields replaced.
+  /// If [tags] is null, the original tags set is preserved (not a copy).
+  Record copyWith({
+    int? id,
+    double? value,
+    String? title,
+    String? description,
+    Category? category,
+    Set<String>? tags,
+    DateTime? utcDateTime,
+    String? timeZoneName,
+    String? recurrencePatternId,
+    int? walletId,
+    int? transferWalletId,
+    double? transferValue,
+    int? profileId,
+    bool? isFutureRecord,
+  }) {
+    return Record(
+      value ?? this.value,
+      title ?? this.title,
+      category ?? this.category,
+      utcDateTime ?? this.utcDateTime,
+      id: id ?? this.id,
+      description: description ?? this.description,
+      recurrencePatternId: recurrencePatternId ?? this.recurrencePatternId,
+      timeZoneName: timeZoneName ?? this.timeZoneName,
+      walletId: walletId ?? this.walletId,
+      transferWalletId: transferWalletId ?? this.transferWalletId,
+      transferValue: transferValue ?? this.transferValue,
+      profileId: profileId ?? this.profileId,
+      tags: tags ?? this.tags,
+      isFutureRecord: isFutureRecord ?? this.isFutureRecord,
+    );
+  }
+
   Map<String, dynamic> toCsvMap({Map<int, String>? walletNames}) {
     final walletName =
         walletId != null ? (walletNames?[walletId] ?? '') : '';

@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/record.dart';
 import 'package:piggybank/records/controllers/tab_records_controller.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -463,6 +464,213 @@ void main() {
       // February only has 29 days in 2024. Start should be Feb 29.
       expect(controller.customIntervalFrom!.month, 2);
       expect(controller.customIntervalFrom!.day, 29);
+    });
+  });
+
+  group('_applyTransferAwareWalletFilter', () {
+    final incomeCategory = Category(
+      'Income',
+      iconCodePoint: 2,
+      categoryType: CategoryType.income,
+      color: Colors.green,
+    );
+    final expenseCategory = Category(
+      'Expense',
+      iconCodePoint: 3,
+      categoryType: CategoryType.expense,
+      color: Colors.red,
+    );
+
+    Record _expense({required int walletId, required double value}) {
+      return Record(
+        value,
+        'Test expense',
+        expenseCategory,
+        DateTime(2026, 6, 1).toUtc(),
+        walletId: walletId,
+      );
+    }
+
+    Record _income({required int walletId, required double value}) {
+      return Record(
+        value,
+        'Test income',
+        incomeCategory,
+        DateTime(2026, 6, 1).toUtc(),
+        walletId: walletId,
+      );
+    }
+
+    Record _transfer({
+      required int sourceWalletId,
+      required int destWalletId,
+      required double value,
+    }) {
+      return Record(
+        value,
+        'Test transfer',
+        expenseCategory,
+        DateTime(2026, 6, 1).toUtc(),
+        walletId: sourceWalletId,
+        transferWalletId: destWalletId,
+        transferValue: value.abs(),
+      );
+    }
+
+    test('no wallet filter returns all records unchanged', () {
+      final records = [
+        _expense(walletId: 1, value: -50),
+        _income(walletId: 2, value: 100),
+        _transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter(records, {});
+
+      expect(result, hasLength(3));
+      expect(result[0]!.value, -50);
+      expect(result[0]!.walletId, 1);
+      expect(result[1]!.value, 100);
+      expect(result[1]!.walletId, 2);
+      expect(result[2]!.value, -30);
+      expect(result[2]!.walletId, 1);
+      expect(result[2]!.transferWalletId, 2);
+    });
+
+    test('filter by source wallet includes transfer with original value', () {
+      final records = [
+        _expense(walletId: 1, value: -50),
+        _income(walletId: 2, value: 100),
+        _transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter(records, {1});
+
+      // Only wallet 1 records + the transfer from 1→2
+      expect(result, hasLength(2));
+      expect(result[0]!.value, -50);
+      expect(result[0]!.walletId, 1);
+      // Transfer from wallet 1 appears with original (negative) value
+      expect(result[1]!.value, -30);
+      expect(result[1]!.walletId, 1);
+      expect(result[1]!.transferWalletId, 2);
+    });
+
+    test(
+        'filter by destination wallet includes transfer with negated positive value',
+        () {
+      final records = [
+        _expense(walletId: 1, value: -50),
+        _income(walletId: 2, value: 100),
+        _transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter(records, {2});
+
+      // Only wallet 2 records + the transfer arriving at 2
+      expect(result, hasLength(2));
+      expect(result[0]!.value, 100);
+      expect(result[0]!.walletId, 2);
+      // Transfer arriving at wallet 2 shows positive value
+      expect(result[1]!.value, 30);
+      expect(result[1]!.walletId, 1);
+      expect(result[1]!.transferWalletId, 2);
+    });
+
+    test('filter by both wallets includes transfer once with original value',
+        () {
+      final records = [
+        _expense(walletId: 1, value: -50),
+        _income(walletId: 2, value: 100),
+        _transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter(records, {1, 2});
+
+      // All three records, but the transfer must appear exactly once
+      expect(result, hasLength(3));
+      expect(result[0]!.value, -50);
+      expect(result[0]!.walletId, 1);
+      expect(result[1]!.value, 100);
+      expect(result[1]!.walletId, 2);
+      // Transfer appears once with original (negative) value
+      expect(result[2]!.value, -30);
+      expect(result[2]!.walletId, 1);
+      expect(result[2]!.transferWalletId, 2);
+    });
+
+    test('non-transfer records pass through unchanged', () {
+      final records = [
+        _expense(walletId: 1, value: -50),
+        _expense(walletId: 2, value: -20),
+        _income(walletId: 3, value: 100),
+      ];
+
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter(records, {1, 3});
+
+      expect(result, hasLength(2));
+      expect(result[0]!.value, -50);
+      expect(result[0]!.walletId, 1);
+      expect(result[1]!.value, 100);
+      expect(result[1]!.walletId, 3);
+    });
+
+    test('transfer with null value does not crash', () {
+      final transfer = Record(
+        null,
+        'Null value transfer',
+        expenseCategory,
+        DateTime(2026, 6, 1).toUtc(),
+        walletId: 1,
+        transferWalletId: 2,
+      );
+
+      final result = TabRecordsController._applyTransferAwareWalletFilter(
+          [transfer], {2});
+
+      expect(result, hasLength(1));
+      expect(result[0]!.value, isNull);
+      expect(result[0]!.walletId, 1);
+      expect(result[0]!.transferWalletId, 2);
+    });
+
+    test('empty records list returns empty list', () {
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter([], {1});
+
+      expect(result, isEmpty);
+    });
+
+    test('filter by wallet that does not match any record returns empty', () {
+      final records = [
+        _expense(walletId: 1, value: -50),
+        _transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter(records, {99});
+
+      expect(result, isEmpty);
+    });
+
+    test('transfer from and to the same wallet shows once with original value',
+        () {
+      // Edge case: a transfer where source == destination
+      final records = [
+        _transfer(sourceWalletId: 1, destWalletId: 1, value: -50),
+      ];
+
+      final result =
+          TabRecordsController._applyTransferAwareWalletFilter(records, {1});
+
+      expect(result, hasLength(1));
+      expect(result[0]!.value, -50);
+      expect(result[0]!.walletId, 1);
+      expect(result[0]!.transferWalletId, 1);
     });
   });
 }

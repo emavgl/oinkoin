@@ -191,43 +191,42 @@ class TabRecordsController {
     // Wallet filter
     if (selectedWallets.isNotEmpty) {
       final selectedIds = selectedWallets.map((w) => w.id).toSet();
-      final extraRecords = <Record?>[];
-      tempRecords = tempRecords.where((r) {
-        final matchesSource = selectedIds.contains(r?.walletId);
-        final matchesDest =
-            r?.isTransfer == true && selectedIds.contains(r?.transferWalletId);
-
-        if (matchesDest && !matchesSource) {
-          // When only the destination wallet is selected, create a copy
-          // with the value negated so it shows as positive from the
-          // destination's perspective
-          extraRecords.add(Record(
-            r!.value != null ? -(r.value!) : null,
-            r.title,
-            r.category,
-            r.utcDateTime,
-            id: r.id,
-            description: r.description,
-            recurrencePatternId: r.recurrencePatternId,
-            timeZoneName: r.timeZoneName,
-            walletId: r.walletId,
-            transferWalletId: r.transferWalletId,
-            transferValue: r.transferValue,
-            profileId: r.profileId,
-            tags: Set.from(r.tags),
-            isFutureRecord: r.isFutureRecord,
-          ));
-        }
-
-        return matchesSource || matchesDest;
-      }).toList();
-      tempRecords.addAll(extraRecords);
+      tempRecords = _applyTransferAwareWalletFilter(tempRecords, selectedIds);
     }
 
     if (!const DeepCollectionEquality().equals(filteredRecords, tempRecords)) {
       filteredRecords = tempRecords;
       onStateChanged();
     }
+  }
+
+  /// Applies a wallet filter that respects both source ([Record.walletId]) and
+  /// destination ([Record.transferWalletId]) wallets.
+  ///
+  /// When a transfer matches only by destination wallet, a copy of the record
+  /// is created with the value negated so it displays as positive (money
+  /// arriving at the destination).
+  @visibleForTesting
+  static List<Record?> _applyTransferAwareWalletFilter(
+    List<Record?> records,
+    Set<int?> selectedWalletIds,
+  ) {
+    final extraRecords = <Record?>[];
+    final filtered = records.where((r) {
+      final matchesSource = selectedWalletIds.contains(r?.walletId);
+      final matchesDest = r?.isTransfer == true &&
+          selectedWalletIds.contains(r?.transferWalletId);
+
+      if (matchesDest && !matchesSource) {
+        extraRecords.add(r!.copyWith(
+          value: r.value != null ? -(r.value!) : null,
+        ));
+      }
+
+      return matchesSource || matchesDest;
+    }).toList();
+    filtered.addAll(extraRecords);
+    return filtered;
   }
 
   @visibleForTesting
@@ -486,34 +485,8 @@ class TabRecordsController {
         filterRecords();
         // Also filter overview records if they were fetched separately
         if (overviewRecords != null) {
-          final extraOverview = <Record?>[];
-          overviewRecords = overviewRecords!.where((r) {
-            final matchesSource = idSet.contains(r?.walletId);
-            final matchesDest = r?.isTransfer == true &&
-                idSet.contains(r?.transferWalletId);
-
-            if (matchesDest && !matchesSource) {
-              extraOverview.add(Record(
-                r!.value != null ? -(r.value!) : null,
-                r.title,
-                r.category,
-                r.utcDateTime,
-                id: r.id,
-                description: r.description,
-                recurrencePatternId: r.recurrencePatternId,
-                timeZoneName: r.timeZoneName,
-                walletId: r.walletId,
-                transferWalletId: r.transferWalletId,
-                transferValue: r.transferValue,
-                profileId: r.profileId,
-                tags: Set.from(r.tags),
-                isFutureRecord: r.isFutureRecord,
-              ));
-            }
-
-            return matchesSource || matchesDest;
-          }).toList();
-          overviewRecords!.addAll(extraOverview);
+          overviewRecords =
+              _applyTransferAwareWalletFilter(overviewRecords!, idSet);
         }
         return;
       }
