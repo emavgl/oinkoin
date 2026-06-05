@@ -125,6 +125,18 @@ void main() {
         // ((8 + 5) % 12) + 1 = 2
         expect(result.assetName, 'assets/images/bkg-2.png');
       });
+
+      test('returns default image on invalid month index with reversal', () {
+        // Even with reversal enabled, out-of-range indices should return default
+        final result1 = getBackgroundImage(-1);
+        expect(result1.assetName, 'assets/images/bkg-default.png');
+
+        final result2 = getBackgroundImage(0);
+        expect(result2.assetName, 'assets/images/bkg-default.png');
+
+        final result3 = getBackgroundImage(13);
+        expect(result3.assetName, 'assets/images/bkg-default.png');
+      });
     });
 
     group('when sharedPreferences is null', () {
