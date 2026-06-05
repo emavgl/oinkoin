@@ -258,7 +258,7 @@ AssetImage getBackgroundImage(int monthIndex) {
   } else {
     try {
       bool reverseMonths = ServiceConfig.sharedPreferences
-              ?.getBool('reverseMonthlyImages') ??
+              ?.getBool(PreferencesKeys.reverseMonthlyImages) ??
           false;
       // For Southern Hemisphere: offset by 6 months so January shows July's image
       int displayMonth = reverseMonths ? ((monthIndex + 5) % 12) + 1 : monthIndex;
