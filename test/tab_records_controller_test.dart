@@ -517,7 +517,9 @@ void main() {
       );
     }
 
-    test('no wallet filter returns all records unchanged', () {
+    test('empty wallet set matches nothing (no-op guard at call site)', () {
+      // In production, the helper is only called when selectedWallets
+      // is non-empty. An empty set means nothing matches.
       final records = [
         _expense(walletId: 1, value: -50),
         _income(walletId: 2, value: 100),
@@ -527,14 +529,7 @@ void main() {
       final result =
           TabRecordsController._applyTransferAwareWalletFilter(records, {});
 
-      expect(result, hasLength(3));
-      expect(result[0]!.value, -50);
-      expect(result[0]!.walletId, 1);
-      expect(result[1]!.value, 100);
-      expect(result[1]!.walletId, 2);
-      expect(result[2]!.value, -30);
-      expect(result[2]!.walletId, 1);
-      expect(result[2]!.transferWalletId, 2);
+      expect(result, isEmpty);
     });
 
     test('filter by source wallet includes transfer with original value', () {

@@ -42,6 +42,7 @@ class Record extends Model {
     this.profileId,
     Set<String>? tags,
     this.isFutureRecord = false,
+    this.aggregatedValues = 1,
   }) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
@@ -119,6 +120,7 @@ class Record extends Model {
     double? transferValue,
     int? profileId,
     bool? isFutureRecord,
+    int? aggregatedValues,
   }) {
     return Record(
       value ?? this.value,
@@ -135,6 +137,7 @@ class Record extends Model {
       profileId: profileId ?? this.profileId,
       tags: tags ?? this.tags,
       isFutureRecord: isFutureRecord ?? this.isFutureRecord,
+      aggregatedValues: aggregatedValues ?? this.aggregatedValues,
     );
   }
 

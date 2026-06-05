@@ -203,30 +203,33 @@ class TabRecordsController {
   /// Applies a wallet filter that respects both source ([Record.walletId]) and
   /// destination ([Record.transferWalletId]) wallets.
   ///
-  /// When a transfer matches only by destination wallet, a copy of the record
-  /// is created with the value negated so it displays as positive (money
-  /// arriving at the destination).
+  /// When a transfer matches only by destination wallet, the record's value is
+  /// negated so it displays as positive (money arriving at the destination).
+  /// When a transfer matches by source wallet (or both), the original record is
+  /// used as-is. This ensures the transfer appears exactly once regardless of
+  /// which wallet(s) are selected.
   @visibleForTesting
   static List<Record?> _applyTransferAwareWalletFilter(
     List<Record?> records,
     Set<int?> selectedWalletIds,
   ) {
-    final extraRecords = <Record?>[];
-    final filtered = records.where((r) {
+    final result = <Record?>[];
+    for (final r in records) {
       final matchesSource = selectedWalletIds.contains(r?.walletId);
       final matchesDest = r?.isTransfer == true &&
           selectedWalletIds.contains(r?.transferWalletId);
 
-      if (matchesDest && !matchesSource) {
-        extraRecords.add(r!.copyWith(
+      if (matchesSource) {
+        // Source match: include the original record as-is
+        result.add(r);
+      } else if (matchesDest) {
+        // Destination match only: include a negated copy (money arriving)
+        result.add(r!.copyWith(
           value: r.value != null ? -(r.value!) : null,
         ));
       }
-
-      return matchesSource || matchesDest;
-    }).toList();
-    filtered.addAll(extraRecords);
-    return filtered;
+    }
+    return result;
   }
 
   @visibleForTesting
