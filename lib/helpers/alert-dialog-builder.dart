@@ -54,8 +54,8 @@ class AlertDialogBuilder {
       title: Text(title),
       content: (subtitle != null) ? Text(subtitle!) : null,
       actions: [
-        trueButton,
         falseButton,
+        trueButton,
       ],
     );
   }
