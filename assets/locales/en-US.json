@@ -398,6 +398,7 @@
   "Tags (%d)": "Tags (%d)",
   "Tags must be a single word without commas.": "Tags must be a single word without commas.",
   "The data from the backup file are now restored.": "The data from the backup file are now restored.",
+  "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.": "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.",
   "Theme style": "Theme style",
   "These rates are used to combine balances across wallets with different currencies.": "These rates are used to combine balances across wallets with different currencies.",
   "This currency already exists": "This currency already exists",
