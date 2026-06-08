@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/utils/constants.dart';
@@ -142,10 +143,10 @@ class TabRecordsController {
       tempRecords = records.where((record) {
         bool matchesSearch = !hasSearch;
         if (hasSearch) {
-          matchesSearch = _matchesSmartSearch(record?.title, query) ||
-              _matchesSmartSearch(record?.description, query) ||
-              _matchesSmartSearch(record?.category?.name, query) ||
-              _matchesSmartSearch(record?.tags.join(" "), query);
+          matchesSearch = matchesSmartSearch(record?.title, query) ||
+              matchesSmartSearch(record?.description, query) ||
+              matchesSmartSearch(record?.category?.name, query) ||
+              matchesSmartSearch(record?.tags.join(" "), query);
         }
 
         // Categories
@@ -200,19 +201,28 @@ class TabRecordsController {
     }
   }
 
-  bool _matchesSmartSearch(String? text, String query) {
-    if (text == null || text.isEmpty) return false;
+  @visibleForTesting
+  bool matchesSmartSearch(String? text, String query) {
+    if (text == null || text.isEmpty || query.isEmpty) return false;
 
     final textLower = text.toLowerCase();
+    final queryLower = query.toLowerCase();
 
-    // Split the text into words (handling multiple spaces, punctuation, etc.)
+    // Split both the text and query into words (handling multiple spaces, punctuation, etc.)
     final words = textLower
         .split(RegExp(r'[\s\-_.,;:!?()]+'))
         .where((word) => word.isNotEmpty)
         .toList();
 
-    // Check if any word starts with the query
-    return words.any((word) => word.startsWith(query));
+    final queryTerms = queryLower
+        .split(RegExp(r'[\s\-_.,;:!?()]+'))
+        .where((term) => term.isNotEmpty)
+        .toList();
+
+    if (words.isEmpty || queryTerms.isEmpty) return false;
+
+    // All query terms must match at least one word (AND logic)
+    return queryTerms.every((term) => words.any((word) => word.startsWith(term)));
   }
 
   // Data fetching

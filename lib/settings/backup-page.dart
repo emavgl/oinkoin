@@ -10,6 +10,7 @@ import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import '../helpers/alert-dialog-builder.dart';
 import '../services/platform-file-service.dart';
 import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
@@ -65,6 +66,23 @@ class BackupPageState extends State<BackupPage> {
   }
 
   shareDatabase() async {
+    // Show a warning dialog explaining this is not the app backup
+    AlertDialogBuilder dbDialog = AlertDialogBuilder("Export Database".i18n)
+        .addSubtitle(
+            "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.".i18n)
+        .addTrueButtonName("OK".i18n)
+        .addFalseButtonName("Cancel".i18n);
+    bool? proceed = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return dbDialog.build(context);
+      },
+    );
+
+    if (proceed != true) {
+      return;
+    }
+
     String databasePath;
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
       // For desktop platforms, use application documents directory

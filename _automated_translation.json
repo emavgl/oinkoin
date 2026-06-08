@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-05-17",
-    "total_keys": 456
+    "last_updated": "2026-06-05",
+    "total_keys": 457
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -1729,6 +1729,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.": {
+      "key": "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.",
+      "context": "Warning dialog when clicking Export Database button",
+      "file": "lib/settings/backup-page.dart:69",
+      "page": "Settings > Backup",
+      "component": "AlertDialog subtitle",
+      "meaning": "Informs users that the database export is not the same as the app backup, and is meant for advanced users",
+      "notes": "Keep the technical tone; 'Export Backup' is a UI label that should match the actual button text in the app",
+      "status": "verified"
     },
     "Filter Logic": {
       "key": "Filter Logic",
