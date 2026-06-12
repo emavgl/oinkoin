@@ -257,9 +257,18 @@ AssetImage getBackgroundImage(int monthIndex) {
     return AssetImage('assets/images/bkg-default.png');
   } else {
     try {
-      String fileName = monthIndex > 0 && monthIndex <= 12
-          ? monthIndex.toString()
-          : "default";
+      bool reverseMonths = ServiceConfig.sharedPreferences
+              ?.getBool(PreferencesKeys.reverseMonthlyImages) ??
+          false;
+      // For Southern Hemisphere: offset by 6 months so January shows July's image
+      String fileName;
+      if (monthIndex > 0 && monthIndex <= 12) {
+        final displayMonth =
+            reverseMonths ? ((monthIndex + 5) % 12) + 1 : monthIndex;
+        fileName = displayMonth.toString();
+      } else {
+        fileName = "default";
+      }
       return AssetImage('assets/images/bkg-' + fileName + '.png');
     } on Exception catch (_) {
       return AssetImage('assets/images/bkg-default.png');
