@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-06-05",
-    "total_keys": 457
+    "total_keys": 459
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -49,6 +49,16 @@
       "component": "TextFormField label",
       "meaning": "Input field for entering conversion ratio (e.g., '1 EUR = [amount] USD')",
       "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "1 \\${_selectedCurrency ?? '[currency]'} =": {
+      "key": "1 \\${_selectedCurrency ?? '[currency]'} =",
+      "context": "Conversion rate input label in currency settings",
+      "file": "lib/settings/currency-conversion-rates-page.dart",
+      "page": "Settings > Currencies",
+      "component": "input field label",
+      "meaning": "Label above a field where the user enters the conversion rate for a currency",
+      "notes": "Contains template placeholders - keep the structure and placeholders as-is, only translate the '=' may need adaptation in RTL languages",
       "status": "skip"
     },
     "Add Currency": {
@@ -729,6 +739,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Choose how you'd like to get in touch or support the project.": {
+      "key": "Choose how you'd like to get in touch or support the project.",
+      "context": "Subtitle on the support page, below the heading",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "page subtitle",
+      "meaning": "Describes the available options: contact or contribute",
+      "notes": "Longer explanatory text",
+      "status": "verified"
+    },
     "Choose the main currency": {
       "key": "Choose the main currency",
       "context": null,
@@ -855,6 +875,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Could not open link": {
+      "key": "Could not open link",
+      "context": "Snackbar error message when a URL cannot be opened",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "error snackbar",
+      "meaning": "Tells the user the link could not be opened",
+      "notes": "Brief error message",
+      "status": "verified"
     },
     "Could not parse CSV": {
       "context": "Error message when CSV file content cannot be parsed",
@@ -1840,6 +1870,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Get help, give feedback, or contribute": {
+      "key": "Get help, give feedback, or contribute",
+      "context": "Subtitle for the Support entry in the Settings list",
+      "file": "lib/settings/settings-page.dart",
+      "page": "Settings",
+      "component": "settings list item subtitle",
+      "meaning": "Brief description of what the Support page offers",
+      "notes": "Short and descriptive for a settings subtitle",
+      "status": "verified"
+    },
     "Got problems? Check out the logs": {
       "key": "Got problems? Check out the logs",
       "context": null,
@@ -2188,6 +2228,16 @@
       "component": "Menu item title",
       "meaning": "View application logs",
       "notes": "Debug/diagnostic logs viewer",
+      "status": "verified"
+    },
+    "Love Oinkoin? Leave a review on Google Play": {
+      "key": "Love Oinkoin? Leave a review on Google Play",
+      "context": "Card subtitle on the support page for the rating option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Encourages users to leave a positive review on Google Play",
+      "notes": "Keep 'Google Play' as-is in most languages",
       "status": "verified"
     },
     "Main": {
@@ -2999,6 +3049,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Rate the app": {
+      "key": "Rate the app",
+      "context": "Card title on the support page for the Play Store rating option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Button that opens the Play Store to leave a review",
+      "notes": "Short action label, only shown for Play Store installs or alpha builds",
+      "status": "verified"
+    },
     "Record name": {
       "key": "Record name",
       "context": null,
@@ -3176,6 +3236,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Reverse monthly images": {
+      "key": "Reverse monthly images",
+      "context": "Toggle label in Settings > Customization > Appearance section to reverse monthly background images for Southern Hemisphere users",
+      "file": "lib/settings/customization-page.dart:364",
+      "page": "Settings > Customization > Appearance",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "When enabled, monthly background images are shifted by 6 months so January shows July's image (summer) and vice versa, matching Southern Hemisphere seasons",
+      "notes": "Translation should convey that months are reversed/shifted for the Southern Hemisphere. Use terms like 'invertir' (ES), 'invertire' (IT), 'umkehren' (DE). May be a premium-only feature for non-premium users.",
+      "status": "verified"
     },
     "Right": {
       "key": "Right",
@@ -3465,6 +3535,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Send an Email": {
+      "key": "Send an Email",
+      "context": "Card title on the support page for the email option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Button/card that opens the email client to write to the developer",
+      "notes": "Short action label",
+      "status": "verified"
+    },
     "Send us a feedback": {
       "key": "Send us a feedback",
       "context": null,
@@ -3664,6 +3744,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Show images appropriate for Southern Hemisphere seasons": {
+      "key": "Show images appropriate for Southern Hemisphere seasons",
+      "context": "Subtitle/description for the reverse monthly images toggle in Settings > Customization > Appearance",
+      "file": "lib/settings/customization-page.dart:365-366",
+      "page": "Settings > Customization > Appearance",
+      "component": "Switch tile subtitle",
+      "meaning": "Explains that toggling this will make background images match the Southern Hemisphere's seasonal calendar (summer in December-February, winter in June-August)",
+      "notes": "Descriptive text that should clearly explain the purpose. Keep 'Southern Hemisphere' as a geographical term",
+      "status": "verified"
+    },
     "Show income in green and expenses in red": {
       "key": "Show income in green and expenses in red",
       "context": "Subtitle/description for the colorize amounts toggle in Settings > Customization > Appearance",
@@ -3792,6 +3882,26 @@
       "notes": null,
       "status": "pending"
     },
+    "Support": {
+      "key": "Support",
+      "context": "Settings menu entry and page title for help & support",
+      "file": "lib/settings/settings-page.dart, lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "settings list item title, app bar title",
+      "meaning": "Navigation entry to access help, email, and app rating options",
+      "notes": "Short menu item - keep concise",
+      "status": "verified"
+    },
+    "Support & Contribute": {
+      "key": "Support & Contribute",
+      "context": "Card title on the support page linking to the website support page",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card title",
+      "meaning": "Link to the website support page that has help info and contribution options",
+      "notes": "Conveys both getting help and contributing to the project",
+      "status": "verified"
+    },
     "Support more profiles": {
       "context": "Premium feature - create multiple financial profiles",
       "file": "lib/premium/splash-screen.dart:183",
@@ -3799,6 +3909,16 @@
       "component": "Feature list bullet point",
       "meaning": "Users can create separate financial profiles for different purposes",
       "notes": "Part of premium feature promotion",
+      "status": "verified"
+    },
+    "Support the project": {
+      "key": "Support the project",
+      "context": "Heading on the support page, above the action cards",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "page heading",
+      "meaning": "Main heading encouraging users to support the open-source project",
+      "notes": "Warm, inviting tone",
       "status": "verified"
     },
     "Switch to bar chart": {
@@ -4147,6 +4267,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Visit our support page with ways to contribute": {
+      "key": "Visit our support page with ways to contribute",
+      "context": "Card subtitle on the support page for the web support option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Describes that the web page has both help information and contribution options",
+      "notes": "Replaces 'donation' language with 'contribute'",
+      "status": "verified"
+    },
     "Visual settings and more": {
       "key": "Visual settings and more",
       "context": null,
@@ -4296,6 +4426,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Write us directly — we read every message": {
+      "key": "Write us directly — we read every message",
+      "context": "Card subtitle on the support page for the email option",
+      "file": "lib/settings/feedback-page.dart",
+      "page": "Settings > Support",
+      "component": "action card subtitle",
+      "meaning": "Encourages users to email, assuring them their feedback is valued",
+      "notes": "Friendly tone, keep the em dash",
+      "status": "verified"
+    },
     "Year": {
       "key": "Year",
       "context": null,
@@ -4415,126 +4555,6 @@
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
       "status": "verified"
-    },
-    "Support": {
-      "key": "Support",
-      "context": "Settings menu entry and page title for help & support",
-      "file": "lib/settings/settings-page.dart, lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "settings list item title, app bar title",
-      "meaning": "Navigation entry to access help, email, and app rating options",
-      "notes": "Short menu item - keep concise",
-      "status": "verified"
-    },
-    "Support & Contribute": {
-      "key": "Support & Contribute",
-      "context": "Card title on the support page linking to the website support page",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "action card title",
-      "meaning": "Link to the website support page that has help info and contribution options",
-      "notes": "Conveys both getting help and contributing to the project",
-      "status": "verified"
-    },
-    "Support the project": {
-      "key": "Support the project",
-      "context": "Heading on the support page, above the action cards",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "page heading",
-      "meaning": "Main heading encouraging users to support the open-source project",
-      "notes": "Warm, inviting tone",
-      "status": "verified"
-    },
-    "Choose how you'd like to get in touch or support the project.": {
-      "key": "Choose how you'd like to get in touch or support the project.",
-      "context": "Subtitle on the support page, below the heading",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "page subtitle",
-      "meaning": "Describes the available options: contact or contribute",
-      "notes": "Longer explanatory text",
-      "status": "verified"
-    },
-    "Send an Email": {
-      "key": "Send an Email",
-      "context": "Card title on the support page for the email option",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "action card title",
-      "meaning": "Button/card that opens the email client to write to the developer",
-      "notes": "Short action label",
-      "status": "verified"
-    },
-    "Write us directly — we read every message": {
-      "key": "Write us directly — we read every message",
-      "context": "Card subtitle on the support page for the email option",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "action card subtitle",
-      "meaning": "Encourages users to email, assuring them their feedback is valued",
-      "notes": "Friendly tone, keep the em dash",
-      "status": "verified"
-    },
-    "Visit our support page with ways to contribute": {
-      "key": "Visit our support page with ways to contribute",
-      "context": "Card subtitle on the support page for the web support option",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "action card subtitle",
-      "meaning": "Describes that the web page has both help information and contribution options",
-      "notes": "Replaces 'donation' language with 'contribute'",
-      "status": "verified"
-    },
-    "Rate the app": {
-      "key": "Rate the app",
-      "context": "Card title on the support page for the Play Store rating option",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "action card title",
-      "meaning": "Button that opens the Play Store to leave a review",
-      "notes": "Short action label, only shown for Play Store installs or alpha builds",
-      "status": "verified"
-    },
-    "Love Oinkoin? Leave a review on Google Play": {
-      "key": "Love Oinkoin? Leave a review on Google Play",
-      "context": "Card subtitle on the support page for the rating option",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "action card subtitle",
-      "meaning": "Encourages users to leave a positive review on Google Play",
-      "notes": "Keep 'Google Play' as-is in most languages",
-      "status": "verified"
-    },
-    "Get help, give feedback, or contribute": {
-      "key": "Get help, give feedback, or contribute",
-      "context": "Subtitle for the Support entry in the Settings list",
-      "file": "lib/settings/settings-page.dart",
-      "page": "Settings",
-      "component": "settings list item subtitle",
-      "meaning": "Brief description of what the Support page offers",
-      "notes": "Short and descriptive for a settings subtitle",
-      "status": "verified"
-    },
-    "Could not open link": {
-      "key": "Could not open link",
-      "context": "Snackbar error message when a URL cannot be opened",
-      "file": "lib/settings/feedback-page.dart",
-      "page": "Settings > Support",
-      "component": "error snackbar",
-      "meaning": "Tells the user the link could not be opened",
-      "notes": "Brief error message",
-      "status": "verified"
-    },
-    "1 \\${_selectedCurrency ?? '[currency]'} =": {
-      "key": "1 \\${_selectedCurrency ?? '[currency]'} =",
-      "context": "Conversion rate input label in currency settings",
-      "file": "lib/settings/currency-conversion-rates-page.dart",
-      "page": "Settings > Currencies",
-      "component": "input field label",
-      "meaning": "Label above a field where the user enters the conversion rate for a currency",
-      "notes": "Contains template placeholders - keep the structure and placeholders as-is, only translate the '=' may need adaptation in RTL languages",
-      "status": "skip"
     }
   }
 }
