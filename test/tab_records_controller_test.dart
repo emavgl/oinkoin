@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/record.dart';
 import 'package:piggybank/records/controllers/tab_records_controller.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -463,6 +464,185 @@ void main() {
       // February only has 29 days in 2024. Start should be Feb 29.
       expect(controller.customIntervalFrom!.month, 2);
       expect(controller.customIntervalFrom!.day, 29);
+    });
+  });
+
+  group('_applyTransferAwareWalletFilter', () {
+    final expenseCategory = Category(
+      'Expense',
+      iconCodePoint: 1,
+      categoryType: CategoryType.expense,
+      color: Colors.red,
+    );
+    final incomeCategory = Category(
+      'Income',
+      iconCodePoint: 2,
+      categoryType: CategoryType.income,
+      color: Colors.green,
+    );
+
+    Record expense({required int walletId, required double value}) => Record(
+          value,
+          'Expense',
+          expenseCategory,
+          DateTime(2026, 6, 1).toUtc(),
+          walletId: walletId,
+        );
+
+    Record income({required int walletId, required double value}) => Record(
+          value,
+          'Income',
+          incomeCategory,
+          DateTime(2026, 6, 1).toUtc(),
+          walletId: walletId,
+        );
+
+    Record transfer({
+      required int sourceWalletId,
+      required int destWalletId,
+      required double value,
+      double? transferValue,
+    }) =>
+        Record(
+          value,
+          'Transfer',
+          expenseCategory,
+          DateTime(2026, 6, 1).toUtc(),
+          walletId: sourceWalletId,
+          transferWalletId: destWalletId,
+          transferValue: transferValue,
+        );
+
+    test('empty wallet set returns nothing', () {
+      final records = [
+        expense(walletId: 1, value: -50),
+        transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter(records, {});
+      expect(result, isEmpty);
+    });
+
+    test('non-transfer records for unselected wallet are excluded', () {
+      final records = [
+        expense(walletId: 1, value: -50),
+        income(walletId: 2, value: 100),
+      ];
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter(records, {1});
+      expect(result, hasLength(1));
+      expect(result.first!.walletId, 1);
+    });
+
+    test('filter by source wallet: transfer included with original value', () {
+      final records = [
+        expense(walletId: 1, value: -50),
+        income(walletId: 2, value: 100),
+        transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter(records, {1});
+      expect(result, hasLength(2));
+      final t = result[1]!;
+      expect(t.value, -30);
+      expect(t.walletId, 1);
+      expect(t.transferWalletId, 2);
+      expect(t.isDestinationTransferView, false);
+    });
+
+    test(
+        'filter by destination wallet: transfer shown as positive, wallet IDs unchanged',
+        () {
+      final records = [
+        expense(walletId: 1, value: -50),
+        income(walletId: 2, value: 100),
+        transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter(records, {2});
+      expect(result, hasLength(2));
+      final t = result[1]!;
+      // value becomes positive received amount
+      expect(t.value, 30);
+      // wallet IDs are NOT swapped — source and destination remain correct
+      expect(t.walletId, 1);
+      expect(t.transferWalletId, 2);
+      expect(t.isDestinationTransferView, true);
+      // original record was not mutated
+      expect(records[2]!.isDestinationTransferView, false);
+    });
+
+    test(
+        'cross-currency transfer: destination view uses transferValue, wallet IDs unchanged',
+        () {
+      // 100 USD leaving wallet 1, 90 EUR arriving at wallet 2
+      final records = [
+        transfer(
+            sourceWalletId: 1,
+            destWalletId: 2,
+            value: -100,
+            transferValue: 90),
+      ];
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter(records, {2});
+      expect(result, hasLength(1));
+      final t = result.first!;
+      expect(t.value, 90); // transferValue, not negated source value
+      // wallet IDs unchanged — currency widget uses transferWalletId for dest currency
+      expect(t.walletId, 1);
+      expect(t.transferWalletId, 2);
+      expect(t.isDestinationTransferView, true);
+    });
+
+    test(
+        'same-currency transfer: destination view uses value.abs() when transferValue is null',
+        () {
+      final records = [
+        transfer(sourceWalletId: 1, destWalletId: 2, value: -75),
+      ];
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter(records, {2});
+      expect(result.first!.value, 75);
+    });
+
+    test('both wallets selected: transfer appears once with source perspective',
+        () {
+      final records = [
+        expense(walletId: 1, value: -50),
+        income(walletId: 2, value: 100),
+        transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+      ];
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter(records, {1, 2});
+      expect(result, hasLength(3));
+      final t = result[2]!;
+      // Source perspective: unchanged
+      expect(t.value, -30);
+      expect(t.walletId, 1);
+      expect(t.transferWalletId, 2);
+      expect(t.isDestinationTransferView, false);
+    });
+
+    test('transfer with null value does not crash, value stays null', () {
+      final t = Record(
+        null,
+        'Null transfer',
+        expenseCategory,
+        DateTime(2026, 6, 1).toUtc(),
+        walletId: 1,
+        transferWalletId: 2,
+      );
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter([t], {2});
+      expect(result, hasLength(1));
+      expect(result.first!.value, null);
+      expect(result.first!.isDestinationTransferView, true);
+    });
+
+    test('null record in list is skipped', () {
+      final result =
+          TabRecordsController.applyTransferAwareWalletFilter([null], {1});
+      expect(result, isEmpty);
     });
   });
 }
