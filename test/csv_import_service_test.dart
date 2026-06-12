@@ -272,16 +272,16 @@ void main() {
     });
 
     test(
-        'handles Monify mixed: period as both thousands and decimal (e.g. "1.150.82" = 1150.82)',
+        'handles Monify format: comma decimal + period thousands ("1.052,6" = 1052.6)',
         () {
-      // Monify uses period as both grouping and decimal separator
-      expect(CsvImportService.parseMoney('1.150.82'), 1150.82);
+      // Monify: comma is always decimal, period is always thousands
+      expect(CsvImportService.parseMoney('1.052,6'), 1052.6);
     });
 
     test(
-        'handles negative Monify mixed: "-1.150.82" = -1150.82',
+        'handles negative Monify format: "-1.052,6" = -1052.6',
         () {
-      expect(CsvImportService.parseMoney('-1.150.82'), -1150.82);
+      expect(CsvImportService.parseMoney('-1.052,6'), -1052.6);
     });
 
     test('handles Monify "1.244" as thousands (1244)', () {
