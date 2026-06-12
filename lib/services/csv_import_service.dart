@@ -274,15 +274,29 @@ class CsvImportService {
         clean = clean.replaceAll(',', '');
       }
     } else if (clean.contains('.')) {
-      // Only period present — apply same heuristic as comma:
-      // if there are >3 digits after the last period (e.g. "1.000"),
-      // or multiple periods (e.g. "1.000.000"), treat as thousands
-      // separator and remove; otherwise it's the decimal separator.
-      if (clean.length - clean.lastIndexOf('.') > 3 ||
-          clean.indexOf('.') != clean.lastIndexOf('.')) {
-        clean = clean.replaceAll('.', '');
+      // Only period present — Monify and some European apps use period
+      // as both thousands and decimal separator (e.g. "1.150.82" = 1150.82).
+      final periods = '.'.allMatches(clean).length;
+      if (periods == 1) {
+        // Single period — apply distance heuristic (mirrors comma logic).
+        if (clean.length - clean.lastIndexOf('.') > 3) {
+          clean = clean.replaceAll('.', ''); // thousands separator
+        }
+        // Otherwise it's the decimal separator — leave as-is.
+      } else {
+        // Multiple periods.
+        final afterLast = clean.substring(clean.lastIndexOf('.') + 1);
+        if (afterLast.length == 2) {
+          // Exactly 2 digits after last period — it's the decimal separator;
+          // all preceding periods are thousands separators.
+          clean = clean.replaceAll('.', '');
+          clean =
+              '${clean.substring(0, clean.length - 2)}.${clean.substring(clean.length - 2)}';
+        } else {
+          // Otherwise all periods are thousands separators.
+          clean = clean.replaceAll('.', '');
+        }
       }
-      // Otherwise, period is already the decimal separator — leave as-is
     }
 
     try {

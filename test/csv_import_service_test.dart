@@ -270,6 +270,23 @@ void main() {
     test('handles negative with period as thousands', () {
       expect(CsvImportService.parseMoney('-1.000'), -1000.0);
     });
+
+    test(
+        'handles Monify mixed: period as both thousands and decimal (e.g. "1.150.82" = 1150.82)',
+        () {
+      // Monify uses period as both grouping and decimal separator
+      expect(CsvImportService.parseMoney('1.150.82'), 1150.82);
+    });
+
+    test(
+        'handles negative Monify mixed: "-1.150.82" = -1150.82',
+        () {
+      expect(CsvImportService.parseMoney('-1.150.82'), -1150.82);
+    });
+
+    test('handles Monify "1.244" as thousands (1244)', () {
+      expect(CsvImportService.parseMoney('1.244'), 1244.0);
+    });
   });
 
   group('CsvImportService.parseToMs', () {
