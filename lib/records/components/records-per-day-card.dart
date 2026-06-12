@@ -109,8 +109,13 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
         record.walletId != null ? _walletsById[record.walletId] : null;
 
     final effectiveMap = _effectiveCurrencyMap;
-    final recordCurrency = record.walletId != null
-        ? effectiveMap[record.walletId]
+    // For destination-view copies, the received amount is in the destination
+    // wallet's currency, so look up transferWalletId instead of walletId.
+    final currencyWalletId = record.isDestinationTransferView
+        ? record.transferWalletId
+        : record.walletId;
+    final recordCurrency = currencyWalletId != null
+        ? effectiveMap[currencyWalletId]
         : wallet?.currency;
 
     final color = _amountColor(record);
@@ -249,13 +254,19 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
           ? () => widget.onRecordTapped?.call(movement.id!)
           : !widget.isSelectMode
               ? () async {
+                  // Destination-view copies carry a modified value (received
+                  // amount, not original) — always edit the canonical DB record.
+                  final recordToEdit = movement.isDestinationTransferView &&
+                          movement.id != null
+                      ? (await _database.getRecordById(movement.id!)) ??
+                          movement
+                      : movement;
                   await Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => EditRecordPage(
-                                passedRecord: movement,
-                                readOnly: movement
-                                    .isFutureRecord, // Future records are read-only
+                                passedRecord: recordToEdit,
+                                readOnly: movement.isFutureRecord,
                               )));
                   if (widget.onListBackCallback != null)
                     await widget.onListBackCallback!();
