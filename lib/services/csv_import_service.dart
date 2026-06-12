@@ -273,8 +273,17 @@ class CsvImportService {
         // Otherwise treat as thousands separator and remove
         clean = clean.replaceAll(',', '');
       }
+    } else if (clean.contains('.')) {
+      // Only period present — apply same heuristic as comma:
+      // if there are >3 digits after the last period (e.g. "1.000"),
+      // or multiple periods (e.g. "1.000.000"), treat as thousands
+      // separator and remove; otherwise it's the decimal separator.
+      if (clean.length - clean.lastIndexOf('.') > 3 ||
+          clean.indexOf('.') != clean.lastIndexOf('.')) {
+        clean = clean.replaceAll('.', '');
+      }
+      // Otherwise, period is already the decimal separator — leave as-is
     }
-    // If only period present, it's already the decimal separator
 
     try {
       final result = double.parse(clean);

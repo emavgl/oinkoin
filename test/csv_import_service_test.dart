@@ -228,6 +228,48 @@ void main() {
     test('handles whitespace', () {
       expect(CsvImportService.parseMoney('  42  '), 42.0);
     });
+
+    test('handles period as thousands separator (e.g. "1.000" = 1000)', () {
+      expect(CsvImportService.parseMoney('1.000'), 1000.0);
+    });
+
+    test('handles period as decimal when 2 digits after (e.g. "1.50" = 1.5)',
+        () {
+      expect(CsvImportService.parseMoney('1.50'), 1.5);
+    });
+
+    test('handles multiple periods as thousands (e.g. "1.000.000" = 1M)', () {
+      expect(CsvImportService.parseMoney('1.000.000'), 1000000.0);
+    });
+
+    test('handles European thousands+decimal (e.g. "1.000,50" = 1000.50)', () {
+      expect(
+          CsvImportService.parseMoney('1.000,50'), closeTo(1000.50, 0.01));
+    });
+
+    test('handles zero with periods as thousands (e.g. "1.000,00" = 1000.00)',
+        () {
+      expect(
+          CsvImportService.parseMoney('1.000,00'), closeTo(1000.00, 0.01));
+    });
+
+    test(
+        'handles Monify export: "1.000" (1000€ without cents)',
+        () {
+      // Monify exports amounts without cents using period as thousands separator
+      expect(CsvImportService.parseMoney('1.000'), 1000.0);
+      expect(CsvImportService.parseMoney('2.500'), 2500.0);
+    });
+
+    test(
+        'handles Monify export: "50.32" (amount with cents, period as decimal)',
+        () {
+      expect(CsvImportService.parseMoney('50.32'), 50.32);
+    });
+
+    test('handles negative with period as thousands', () {
+      expect(CsvImportService.parseMoney('-1.000'), -1000.0);
+    });
   });
 
   group('CsvImportService.parseToMs', () {
