@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For PlatformException
-import 'package:local_auth/local_auth.dart'; // Ensure this is added in pubspec.yaml
+import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:piggybank/helpers/amount-input-utils.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/records-page.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
@@ -238,70 +239,78 @@ class ShellState extends State<Shell> {
             ),
           ),
         ]),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _currentIndex,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          onDestinationSelected: (int index) async {
-            setState(() {
-              _currentIndex = index;
-            });
-            // refresh data whenever changing the tab
-            if (_currentIndex == 0) {
-              await _tabRecordsKey.currentState?.onTabChange();
-            }
-            if (_currentIndex == 1) {
-              await _tabWalletsKey.currentState?.onTabChange();
-            }
-            if (_currentIndex == 2) {
-              await _tabCategoriesKey.currentState?.onTabChange();
-            }
-          },
-          destinations: [
-            NavigationDestination(
-              label: "Home".i18n,
-              selectedIcon: Semantics(
-                identifier: 'home-tab-selected',
-                child: Icon(Icons.home),
+        bottomNavigationBar: ValueListenableBuilder<bool>(
+          valueListenable: inAppKeyboardOpen,
+          builder: (context, isOpen, child) => AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            child: isOpen ? const SizedBox.shrink() : child!,
+          ),
+          child: NavigationBar(
+            selectedIndex: _currentIndex,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            onDestinationSelected: (int index) async {
+              setState(() {
+                _currentIndex = index;
+              });
+              // refresh data whenever changing the tab
+              if (_currentIndex == 0) {
+                await _tabRecordsKey.currentState?.onTabChange();
+              }
+              if (_currentIndex == 1) {
+                await _tabWalletsKey.currentState?.onTabChange();
+              }
+              if (_currentIndex == 2) {
+                await _tabCategoriesKey.currentState?.onTabChange();
+              }
+            },
+            destinations: [
+              NavigationDestination(
+                label: "Home".i18n,
+                selectedIcon: Semantics(
+                  identifier: 'home-tab-selected',
+                  child: Icon(Icons.home),
+                ),
+                icon: Semantics(
+                  identifier: 'home-tab',
+                  child: Icon(Icons.home_outlined),
+                ),
               ),
-              icon: Semantics(
-                identifier: 'home-tab',
-                child: Icon(Icons.home_outlined),
+              NavigationDestination(
+                label: "Wallets".i18n,
+                selectedIcon: Semantics(
+                  identifier: 'wallets-tab-selected',
+                  child: Icon(Icons.account_balance_wallet),
+                ),
+                icon: Semantics(
+                  identifier: 'wallets-tab',
+                  child: Icon(Icons.account_balance_wallet_outlined),
+                ),
               ),
-            ),
-            NavigationDestination(
-              label: "Wallets".i18n,
-              selectedIcon: Semantics(
-                identifier: 'wallets-tab-selected',
-                child: Icon(Icons.account_balance_wallet),
+              NavigationDestination(
+                label: "Categories".i18n,
+                selectedIcon: Semantics(
+                  identifier: 'categories-tab-selected',
+                  child: Icon(Icons.category),
+                ),
+                icon: Semantics(
+                  identifier: 'categories-tab',
+                  child: Icon(Icons.category_outlined),
+                ),
               ),
-              icon: Semantics(
-                identifier: 'wallets-tab',
-                child: Icon(Icons.account_balance_wallet_outlined),
+              NavigationDestination(
+                label: "Settings".i18n,
+                selectedIcon: Semantics(
+                  identifier: 'settings-tab-selected',
+                  child: Icon(Icons.settings),
+                ),
+                icon: Semantics(
+                  identifier: 'settings-tab',
+                  child: Icon(Icons.settings_outlined),
+                ),
               ),
-            ),
-            NavigationDestination(
-              label: "Categories".i18n,
-              selectedIcon: Semantics(
-                identifier: 'categories-tab-selected',
-                child: Icon(Icons.category),
-              ),
-              icon: Semantics(
-                identifier: 'categories-tab',
-                child: Icon(Icons.category_outlined),
-              ),
-            ),
-            NavigationDestination(
-              label: "Settings".i18n,
-              selectedIcon: Semantics(
-                identifier: 'settings-tab-selected',
-                child: Icon(Icons.settings),
-              ),
-              icon: Semantics(
-                identifier: 'settings-tab',
-                child: Icon(Icons.settings_outlined),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

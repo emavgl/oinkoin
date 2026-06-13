@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/components/wallet_icon_square.dart';
 import 'package:piggybank/components/icon_color_picker_section.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
+import 'package:piggybank/components/amount_input_field.dart';
 import 'package:piggybank/helpers/amount-input-utils.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
@@ -47,8 +48,6 @@ class _EditWalletPageState extends State<EditWalletPage> {
   String? _selectedCurrency;
   final _formKey = GlobalKey<FormState>();
   final _balanceController = TextEditingController();
-  late int amountInputKeyboardTypeIndex;
-  final bool autoDec = getAmountInputAutoDecimalShift();
   Timer? _mathDebounce;
 
   _EditWalletPageState(this.passedWallet);
@@ -56,8 +55,6 @@ class _EditWalletPageState extends State<EditWalletPage> {
   @override
   void initState() {
     super.initState();
-
-    amountInputKeyboardTypeIndex = getAmountInputKeyboardTypeIndex();
 
     if (passedWallet == null) {
       wallet = Wallet(
@@ -79,19 +76,12 @@ class _EditWalletPageState extends State<EditWalletPage> {
       _selectedCurrency = passedWallet!.currency;
     }
 
-    // Initialize balance field — same logic as EditRecordPage
     if (passedWallet == null) {
-      // New wallet: leave empty (hint shows "0"), unless autoDec is on
-      if (autoDec) {
-        final decSep = getDecimalSeparator();
-        final decDigits = getNumberDecimalDigits();
-        final zeroText = decDigits <= 0
-            ? '0'
-            : '0$decSep${List.filled(decDigits, '0').join()}';
-        _balanceController.value = _balanceController.value.copyWith(
+      final zeroText = buildZeroAmountText();
+      if (zeroText != '0') {
+        _balanceController.value = TextEditingValue(
           text: zeroText,
           selection: TextSelection.collapsed(offset: zeroText.length),
-          composing: TextRange.empty,
         );
       }
     } else {
@@ -173,42 +163,22 @@ class _EditWalletPageState extends State<EditWalletPage> {
   }
 
   Widget _getBalanceField() {
-    final decimalSep = getDecimalSeparator();
-    final groupSep = getGroupingSeparator();
-    final decDigits = getNumberDecimalDigits();
-    final zeroHint = (autoDec && decDigits > 0)
-        ? '0$decimalSep${List.filled(decDigits, '0').join()}'
-        : '0';
     return Container(
-      margin: EdgeInsets.fromLTRB(15, 5, 15, 5),
-      child: TextFormField(
+      margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+      child: AmountInputField(
         controller: _balanceController,
-        inputFormatters: buildAmountInputFormatters(
-          decimalSep: decimalSep,
-          groupSep: groupSep,
-          autoDec: autoDec,
-          decDigits: decDigits,
-        ),
-        autofocus: passedWallet == null,
+        labelText: "Balance".i18n,
+        allowNegative: true,
+        autofocus: false,
         validator: (value) {
           // Empty is allowed — defaults to 0
           if (value == null || value.isEmpty) return null;
           var numericValue = tryParseSignedCurrencyString(value);
           if (numericValue == null) {
-            return "Not a valid format (use for example: %s)"
-                .i18n
-                .fill([getCurrencyValueString(1234.20, turnOffGrouping: true)]);
+            return amountFormatErrorMessage();
           }
           return null;
         },
-        textAlign: TextAlign.end,
-        style: TextStyle(
-            fontSize: 32.0, color: Theme.of(context).colorScheme.onSurface),
-        keyboardType: getAmountInputKeyboardType(amountInputKeyboardTypeIndex,
-            signed: true),
-        decoration: InputDecoration(
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            hintText: zeroHint),
       ),
     );
   }

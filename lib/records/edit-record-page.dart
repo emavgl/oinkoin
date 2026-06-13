@@ -16,6 +16,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/components/amount_input_field.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -65,7 +66,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   late String currency;
   DateTime? lastCharInsertedMillisecond;
   late bool enableRecordNameSuggestions;
-  late int amountInputKeyboardTypeIndex;
+  late String categorySign;
 
   DateTime? localDisplayDate;
   DateTime? localDisplayEndDate;
@@ -82,11 +83,8 @@ class EditRecordPageState extends State<EditRecordPage> {
   bool _hasTime = false;
   TimeOfDay? _selectedTime;
 
-  // Original values captured at init to detect changes in pattern-linked records
   DateTime? _originalUtcDateTime;
   double? _originalValue;
-
-  final autoDec = getAmountInputAutoDecimalShift();
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedRecurrentRecordPattern, this.readOnly);
@@ -128,9 +126,6 @@ class EditRecordPageState extends State<EditRecordPage> {
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.enableRecordNameSuggestions)!;
-    amountInputKeyboardTypeIndex = PreferencesUtils.getOrDefault<int>(
-        ServiceConfig.sharedPreferences!,
-        PreferencesKeys.amountInputKeyboardType)!;
 
     // Loading parameters passed to the page
 
@@ -148,8 +143,10 @@ class EditRecordPageState extends State<EditRecordPage> {
         _hasTime = true;
         _selectedTime = TimeOfDay(hour: localDT.hour, minute: localDT.minute);
       }
-      _textEditingController.text =
-          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: false);
+      final v = record!.value!.abs();
+      _textEditingController.text = v % 1 == 0
+          ? v.toInt().toString()
+          : v.toString().replaceAll('.', getDecimalSeparator());
       if (record!.recurrencePatternId != null) {
         database
             .getRecurrentRecordPattern(record!.recurrencePatternId)
@@ -193,8 +190,10 @@ class EditRecordPageState extends State<EditRecordPage> {
         _selectedTime = TimeOfDay(hour: localDT.hour, minute: localDT.minute);
       }
 
-      _textEditingController.text =
-          getCurrencyValueString(record!.value!.abs(), turnOffGrouping: true);
+      final v = record!.value!.abs();
+      _textEditingController.text = v % 1 == 0
+          ? v.toInt().toString()
+          : v.toString().replaceAll('.', getDecimalSeparator());
       setState(() {
         recurrentPeriod = passedRecurrentRecordPattern!.recurrentPeriod;
         recurrentPeriodIndex =
@@ -211,21 +210,16 @@ class EditRecordPageState extends State<EditRecordPage> {
       _hasTime = true;
       _selectedTime = TimeOfDay(hour: now.hour, minute: now.minute);
       _selectedTags = {};
-      if (autoDec && record!.value == null) {
-        final decSep = getDecimalSeparator();
-        final decDigits = getNumberDecimalDigits();
-
-        final zeroText = decDigits <= 0
-            ? '0'
-            : '0$decSep${List.filled(decDigits, '0').join()}';
-
-        _textEditingController.value = _textEditingController.value.copyWith(
-          text: zeroText,
-          selection: TextSelection.collapsed(offset: zeroText.length),
-          composing: TextRange.empty,
-        );
-
-        changeRecordValue(zeroText);
+      if (record!.value == null) {
+        final zeroText = buildZeroAmountText();
+        if (zeroText != '0') {
+          _textEditingController.value = _textEditingController.value.copyWith(
+            text: zeroText,
+            selection: TextSelection.collapsed(offset: zeroText.length),
+            composing: TextRange.empty,
+          );
+          changeRecordValue(zeroText);
+        }
       }
     }
 
@@ -249,6 +243,8 @@ class EditRecordPageState extends State<EditRecordPage> {
         );
       }
     });
+
+    categorySign = record?.category?.categoryType == CategoryType.expense ? "-" : "+";
 
     String initialValue = record?.title ?? "";
     _typeAheadController.text = initialValue;
@@ -913,21 +909,14 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createAmountCard() {
-    final decimalSep = getDecimalSeparator();
-    final groupSep = getGroupingSeparator();
-    final decDigits = getNumberDecimalDigits();
     final shouldAutofocus = !readOnly &&
         passedRecord == null &&
         passedRecurrentRecordPattern == null;
-    final zeroHint = (autoDec && decDigits > 0)
-        ? '0$decimalSep${List.filled(decDigits, '0').join()}'
-        : '0';
-    String categorySign =
-        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+
     return Container(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        child: IntrinsicHeight(
-            child: Row(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      child: IntrinsicHeight(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
@@ -960,52 +949,26 @@ class EditRecordPageState extends State<EditRecordPage> {
               ),
             ),
             Expanded(
-                child: Container(
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.only(right: 10),
-              child: Semantics(
-                identifier: 'amount-field',
-                child: TextFormField(
-                    enabled: !readOnly,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(right: 10),
+                child: Semantics(
+                  identifier: 'amount-field',
+                  child: AmountInputField(
                     controller: _textEditingController,
-                    inputFormatters: buildAmountInputFormatters(
-                      decimalSep: decimalSep,
-                      groupSep: groupSep,
-                      autoDec: autoDec,
-                      decDigits: decDigits,
-                    ),
+                    labelText: "Amount".i18n,
+                    enabled: !readOnly,
+                    allowNegative: false,
                     autofocus: shouldAutofocus,
-                    onChanged: (text) {
-                      changeRecordValue(text);
-                    },
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Please enter a value".i18n;
-                      }
-                      var numericValue = tryParseCurrencyString(value);
-                      if (numericValue == null) {
-                        return "Not a valid format (use for example: %s)"
-                            .i18n
-                            .fill([
-                          getCurrencyValueString(1234.20, turnOffGrouping: true)
-                        ]);
-                      }
-                      return null;
-                    },
-                    textAlign: TextAlign.end,
-                    style: TextStyle(
-                        fontSize: 32.0,
-                        color: Theme.of(context).colorScheme.onSurface),
-                    keyboardType: getAmountInputKeyboardType(
-                        amountInputKeyboardTypeIndex),
-                    decoration: InputDecoration(
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        hintText: zeroHint,
-                        labelText: "Amount".i18n)),
+                    onChanged: changeRecordValue,
+                  ),
+                ),
               ),
-            ))
+            ),
           ],
-        )));
+        ),
+      ),
+    );
   }
 
   void changeRecordValue(String text) {
@@ -1453,29 +1416,43 @@ class EditRecordPageState extends State<EditRecordPage> {
     return Scaffold(
       appBar: _getAppBar(),
       resizeToAvoidBottomInset: false,
-      body: SingleChildScrollView(child: _getForm()),
+      body: ValueListenableBuilder<double>(
+        valueListenable: inAppKeyboardHeight,
+        builder: (context, kbHeight, _) => SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: kbHeight),
+          child: _getForm(),
+        ),
+      ),
       floatingActionButton: readOnly
           ? null
-          : FloatingActionButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  if (isARecurrentPattern()) {
-                    String? recurrentPatternId;
-                    if (passedRecurrentRecordPattern != null) {
-                      recurrentPatternId =
-                          this.passedRecurrentRecordPattern!.id;
+          : ValueListenableBuilder<double>(
+              valueListenable: inAppKeyboardHeight,
+              builder: (context, kbHeight, child) => Padding(
+                padding: EdgeInsets.only(bottom: kbHeight),
+                child: child,
+              ),
+              child: FloatingActionButton(
+                heroTag: null,
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    if (isARecurrentPattern()) {
+                      String? recurrentPatternId;
+                      if (passedRecurrentRecordPattern != null) {
+                        recurrentPatternId =
+                            this.passedRecurrentRecordPattern!.id;
+                      }
+                      await addOrUpdateRecurrentPattern(
+                        id: recurrentPatternId,
+                      );
+                    } else {
+                      await addOrUpdateRecord();
                     }
-                    await addOrUpdateRecurrentPattern(
-                      id: recurrentPatternId,
-                    );
-                  } else {
-                    await addOrUpdateRecord();
                   }
-                }
-              },
-              tooltip: 'Save'.i18n,
-              child: Semantics(
-                  identifier: 'save-button', child: const Icon(Icons.save)),
+                },
+                tooltip: 'Save'.i18n,
+                child: Semantics(
+                    identifier: 'save-button', child: const Icon(Icons.save)),
+              ),
             ),
     );
   }

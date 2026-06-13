@@ -10,6 +10,9 @@ class DropdownCustomizationItem<T> extends StatefulWidget {
   final String selectedDropdownKey;
   final String sharedConfigKey;
   final Function()? onChanged;
+  /// Optional per-option trailing widgets, keyed by the same strings as
+  /// [dropdownValues]. Used to show colour swatches, icons, etc.
+  final Map<String, Widget>? optionTrailingWidgets;
 
   DropdownCustomizationItem(
       {required this.title,
@@ -17,7 +20,8 @@ class DropdownCustomizationItem<T> extends StatefulWidget {
       required this.dropdownValues,
       required this.selectedDropdownKey,
       required this.sharedConfigKey,
-      this.onChanged});
+      this.onChanged,
+      this.optionTrailingWidgets});
 
   @override
   DropdownCustomizationItemState<T> createState() =>
@@ -137,6 +141,7 @@ class DropdownCustomizationItemState<T>
                                       style: TextStyle(fontSize: 16),
                                     ),
                                     value: value,
+                                    secondary: widget.optionTrailingWidgets?[value],
                                   ),
                                 );
                               }).toList(),
