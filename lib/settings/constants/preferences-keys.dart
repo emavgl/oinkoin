@@ -82,4 +82,5 @@ class PreferencesKeys {
   static const inAppKeyboardScale = 'inAppKeyboardScale';
   static const inAppKeyboardBackgroundColorIndex = 'inAppKeyboardBackgroundColorIndex';
   static const inAppKeyboardButtonColorIndex = 'inAppKeyboardButtonColorIndex';
+  static const inAppKeyboardTextColorIndex = 'inAppKeyboardTextColorIndex';
 }

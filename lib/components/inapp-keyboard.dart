@@ -21,6 +21,7 @@ const List<Color?> kKeyboardBgColors = [
   Color(0xFF37474F), // 5 Slate
   Color(0xFF9E9E9E), // 6 Grey
   null, // 7 Page background → scaffoldBackgroundColor
+  Color(0xFFEEEEEE), // 8 Light grey
 ];
 
 // Fixed button color palette. Index 0 (null) = use the app theme color.
@@ -30,7 +31,6 @@ const List<Color?> kKeyboardButtonColors = [
   Color(0xFFFFFFFF), // White
   Color(0xFFEEEEEE), // Light grey
   Color(0xFF424242), // Dark grey
-  Colors.transparent, // Transparent
 ];
 
 class InAppKeyboard extends StatefulWidget {
@@ -74,6 +74,10 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
       ServiceConfig.sharedPreferences!,
       PreferencesKeys.inAppKeyboardButtonColorIndex)!;
 
+  int get _textColorIndex => PreferencesUtils.getOrDefault<int>(
+      ServiceConfig.sharedPreferences!,
+      PreferencesKeys.inAppKeyboardTextColorIndex)!;
+
   /// Fixed palette entries are used directly.
   /// null entries are resolved against the active theme by index.
   Color _resolvedBgColor(BuildContext context) {
@@ -100,20 +104,19 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
     return fixed ?? Theme.of(context).colorScheme.surface;
   }
 
-  /// For fixed button colors, derive text color from luminance.
-  /// Transparent buttons reveal the keyboard background, so contrast is
-  /// computed against that instead.
-  /// For Default, fall back to the theme's onSurface.
+  /// Explicit text color setting (1=white, 2=black) takes priority.
+  /// Auto (0): derived from button background luminance.
   Color _resolvedButtonTextColor(BuildContext context) {
+    switch (_textColorIndex) {
+      case 1: return Colors.white;
+      case 2: return Colors.black87;
+      default: break;
+    }
     final fixed = _buttonColorIndex > 0 &&
             _buttonColorIndex < kKeyboardButtonColors.length
         ? kKeyboardButtonColors[_buttonColorIndex]
         : null;
     if (fixed == null) return Theme.of(context).colorScheme.onSurface;
-    if (fixed == Colors.transparent) {
-      final bg = _resolvedBgColor(context);
-      return bg.computeLuminance() > 0.4 ? Colors.black87 : Colors.white;
-    }
     return fixed.computeLuminance() > 0.4 ? Colors.black87 : Colors.white;
   }
 

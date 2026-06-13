@@ -160,6 +160,7 @@ class PreferencesOptions {
         "Slate".i18n: 5,
         "Grey".i18n: 6,
         "Page background".i18n: 7,
+        "Light grey".i18n: 8,
       };
 
   static Map<String, int> get inAppKeyboardButtonColorOptions => {
@@ -168,6 +169,11 @@ class PreferencesOptions {
         "White".i18n: 2,
         "Light grey".i18n: 3,
         "Dark grey".i18n: 4,
-        "Transparent".i18n: 5,
+      };
+
+  static Map<String, int> get inAppKeyboardTextColorOptions => {
+        "Auto".i18n: 0,
+        "White".i18n: 1,
+        "Black".i18n: 2,
       };
 }

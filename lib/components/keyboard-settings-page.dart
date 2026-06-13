@@ -20,6 +20,7 @@ class _KeyboardSettingsPageState extends State<KeyboardSettingsPage> {
   late String keyboardScaleKey;
   late String bgColorKey;
   late String buttonColorKey;
+  late String textColorKey;
 
   static String _keyFromMap<T>(Map<String, T> map, T value) {
     return map.entries
@@ -55,19 +56,15 @@ class _KeyboardSettingsPageState extends State<KeyboardSettingsPage> {
       PreferencesOptions.inAppKeyboardButtonColorOptions,
       PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.inAppKeyboardButtonColorIndex)!,
     );
+    textColorKey = _keyFromMap(
+      PreferencesOptions.inAppKeyboardTextColorOptions,
+      PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.inAppKeyboardTextColorIndex)!,
+    );
   }
 
   /// Builds a small filled circle for the given [color].
   /// Light colors get a grey border so they're visible against a white dialog.
-  /// Transparent gets an outline-only circle with a diagonal strike-through.
   Widget _colorDot(Color color) {
-    if (color == Colors.transparent) {
-      return SizedBox(
-        width: 22,
-        height: 22,
-        child: CustomPaint(painter: _TransparentDotPainter()),
-      );
-    }
     final needsBorder = color.computeLuminance() > 0.85;
     return Container(
       width: 22,
@@ -189,6 +186,14 @@ class _KeyboardSettingsPageState extends State<KeyboardSettingsPage> {
                     onChanged: () => setState(() => _loadPreferences()),
                     optionTrailingWidgets: _buttonColorSwatches(context),
                   ),
+                  DropdownCustomizationItem(
+                    title: 'Button text color'.i18n,
+                    subtitle: 'Select the keyboard button text color'.i18n,
+                    dropdownValues: PreferencesOptions.inAppKeyboardTextColorOptions,
+                    selectedDropdownKey: textColorKey,
+                    sharedConfigKey: PreferencesKeys.inAppKeyboardTextColorIndex,
+                    onChanged: () => setState(() => _loadPreferences()),
+                  ),
                 ],
               ),
             ),
@@ -212,24 +217,3 @@ class _KeyboardSettingsPageState extends State<KeyboardSettingsPage> {
   }
 }
 
-/// Draws a circle outline with a diagonal strike-through to represent
-/// a transparent (no-fill) colour option.
-class _TransparentDotPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final r = size.width / 2;
-    final center = Offset(r, r);
-    final paint = Paint()
-      ..color = Colors.grey.shade400
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    canvas.drawCircle(center, r - 1, paint);
-    // Diagonal line top-right → bottom-left, clipped to the circle
-    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: center, radius: r - 1)));
-    canvas.drawLine(Offset(size.width * 0.75, size.height * 0.15),
-        Offset(size.width * 0.25, size.height * 0.85), paint);
-  }
-
-  @override
-  bool shouldRepaint(_TransparentDotPainter old) => false;
-}

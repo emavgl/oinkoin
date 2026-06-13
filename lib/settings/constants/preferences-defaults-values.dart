@@ -56,6 +56,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.inAppKeyboardScale: 1,
     PreferencesKeys.inAppKeyboardBackgroundColorIndex: 0,
     PreferencesKeys.inAppKeyboardButtonColorIndex: 0,
+    PreferencesKeys.inAppKeyboardTextColorIndex: 0,
   };
 
   static String getLocaleGroupingSeparator() {
