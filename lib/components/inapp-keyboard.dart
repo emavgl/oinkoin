@@ -394,7 +394,7 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
   }
 }
 
-enum CalculatorButtonStyle { submit, main, secondary }
+enum CalculatorButtonStyle { submit, secondary }
 
 class CalculatorButton extends StatelessWidget {
   final String? text;
@@ -417,7 +417,7 @@ class CalculatorButton extends StatelessWidget {
     this.onLongPress,
     this.flex = 1,
     this.disabled = false,
-    this.style = CalculatorButtonStyle.main,
+    this.style = CalculatorButtonStyle.secondary,
     this.bgColorOverride,
     this.textColorOverride,
   }) : assert(

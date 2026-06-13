@@ -1,18 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/records/amount_selector/utils/padding.extension.dart';
 
-/// Useful class if you want to differentiate the dismissal of the modal from a return of a result with a null value
-class ModalResult<T> {
-  final T? result;
-
-  const ModalResult(this.result);
-
-  @override
-  String toString() {
-    return 'ModalResult: $result';
-  }
-}
-
 class ModalContainer extends StatelessWidget {
   const ModalContainer({
     super.key,

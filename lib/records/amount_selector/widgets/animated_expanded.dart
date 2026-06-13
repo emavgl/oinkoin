@@ -99,38 +99,3 @@ class _AnimatedExpandedState extends State<AnimatedExpanded>
     );
   }
 }
-
-/// A widget that switches between two children with an animated size transition.
-///
-/// [AnimatedSizeSwitcher] ensures that the old widget remains visible until the new one
-/// has fully transitioned in, making the transition smoother. It uses [AnimatedSwitcher]
-/// internally, with a custom transition that animates the size of the child widget.
-class AnimatedSizeSwitcher extends StatelessWidget {
-  const AnimatedSizeSwitcher({
-    required this.child,
-    this.duration = const Duration(milliseconds: 800),
-    this.enabled = true,
-    this.axis = Axis.vertical,
-    super.key,
-  });
-
-  final Widget child;
-  final Duration duration;
-  final bool enabled;
-  final Axis axis;
-
-  @override
-  Widget build(BuildContext context) {
-    if (enabled == false) return child;
-
-    return AnimatedSize(
-      curve: Curves.easeInOutCubicEmphasized,
-      duration: duration,
-      clipBehavior: Clip.hardEdge,
-      child: AnimatedSwitcher(
-        duration: Duration(milliseconds: duration.inMilliseconds ~/ 4),
-        child: child,
-      ),
-    );
-  }
-}
