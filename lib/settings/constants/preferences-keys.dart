@@ -77,4 +77,9 @@ class PreferencesKeys {
 
   // Profile
   static const activeProfileId = 'activeProfileId';
+
+  // InApp keyboard appearance
+  static const inAppKeyboardScale = 'inAppKeyboardScale';
+  static const inAppKeyboardBackgroundColorIndex = 'inAppKeyboardBackgroundColorIndex';
+  static const inAppKeyboardButtonColorIndex = 'inAppKeyboardButtonColorIndex';
 }
