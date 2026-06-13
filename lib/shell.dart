@@ -244,7 +244,11 @@ class ShellState extends State<Shell> {
           builder: (context, isOpen, child) => AnimatedSize(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeOut,
-            child: isOpen ? const SizedBox.shrink() : child!,
+            // Collapse the nav bar but keep a spacer equal to the system
+            // navigation bar inset so the Scaffold body never extends behind it.
+            child: isOpen
+                ? SizedBox(height: MediaQuery.paddingOf(context).bottom)
+                : child!,
           ),
           child: NavigationBar(
             selectedIndex: _currentIndex,

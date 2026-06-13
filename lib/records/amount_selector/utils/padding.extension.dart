@@ -1,45 +1,25 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-
-double _bottomOsHeightAdjustment = 10;
 
 extension PaddingExtension on EdgeInsets {
   EdgeInsets withSafeBottom(BuildContext context) {
-    double bottomSafeAreaPadding = MediaQuery.paddingOf(context).bottom;
-
-    if (bottomSafeAreaPadding > 0) {
-      bottomSafeAreaPadding = max(
-        bottomSafeAreaPadding - _bottomOsHeightAdjustment,
-        _bottomOsHeightAdjustment,
-      );
-    }
-
+    final safeBottom = MediaQuery.paddingOf(context).bottom;
     return EdgeInsets.only(
       left: left,
       top: top,
       right: right,
-      bottom: bottom + bottomSafeAreaPadding,
+      bottom: bottom + safeBottom,
     );
   }
 }
 
 extension PaddingDirectionalExtension on EdgeInsetsDirectional {
   EdgeInsetsDirectional withSafeBottom(BuildContext context) {
-    double bottomSafeAreaPadding = MediaQuery.paddingOf(context).bottom;
-
-    if (bottomSafeAreaPadding > 0) {
-      bottomSafeAreaPadding = max(
-        bottomSafeAreaPadding - _bottomOsHeightAdjustment,
-        _bottomOsHeightAdjustment,
-      );
-    }
-
+    final safeBottom = MediaQuery.paddingOf(context).bottom;
     return EdgeInsetsDirectional.only(
       start: start,
       top: top,
       end: end,
-      bottom: bottom + bottomSafeAreaPadding,
+      bottom: bottom + safeBottom,
     );
   }
 }
