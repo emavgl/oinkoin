@@ -13,14 +13,14 @@ import 'package:piggybank/components/keyboard-settings-page.dart';
 // Fixed background color palette.
 // null entries are theme-resolved in _resolvedBgColor (see switch there).
 const List<Color?> kKeyboardBgColors = [
-  null,                 // 0 Default  → colorScheme.secondaryContainer
-  Color(0xFF1C1C1E),   // 1 Black
-  Color(0xFFFFFFFF),   // 2 White
-  Color(0xFF1A237E),   // 3 Navy
-  Color(0xFF1B5E20),   // 4 Forest
-  Color(0xFF37474F),   // 5 Slate
-  Color(0xFF9E9E9E),   // 6 Grey
-  null,                 // 7 Page background → scaffoldBackgroundColor
+  null, // 0 Default  → colorScheme.secondaryContainer
+  Color(0xFF1C1C1E), // 1 Black
+  Color(0xFFFFFFFF), // 2 White
+  Color(0xFF1A237E), // 3 Navy
+  Color(0xFF1B5E20), // 4 Forest
+  Color(0xFF37474F), // 5 Slate
+  Color(0xFF9E9E9E), // 6 Grey
+  null, // 7 Page background → scaffoldBackgroundColor
 ];
 
 // Fixed button color palette. Index 0 (null) = use the app theme color.
@@ -77,20 +77,24 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
   /// Fixed palette entries are used directly.
   /// null entries are resolved against the active theme by index.
   Color _resolvedBgColor(BuildContext context) {
-    final paletteColor = _bgColorIndex >= 0 && _bgColorIndex < kKeyboardBgColors.length
-        ? kKeyboardBgColors[_bgColorIndex]
-        : null;
+    final paletteColor =
+        _bgColorIndex >= 0 && _bgColorIndex < kKeyboardBgColors.length
+            ? kKeyboardBgColors[_bgColorIndex]
+            : null;
     if (paletteColor != null) return paletteColor;
     switch (_bgColorIndex) {
-      case 7: return Theme.of(context).scaffoldBackgroundColor;
-      default: return Theme.of(context).colorScheme.secondaryContainer;
+      case 7:
+        return Theme.of(context).scaffoldBackgroundColor;
+      default:
+        return Theme.of(context).colorScheme.secondaryContainer;
     }
   }
 
   /// Index 0 → theme's surface (adapts to light/dark).
   /// Any other index → fixed color from the palette.
   Color _resolvedButtonBgColor(BuildContext context) {
-    final fixed = _buttonColorIndex > 0 && _buttonColorIndex < kKeyboardButtonColors.length
+    final fixed = _buttonColorIndex > 0 &&
+            _buttonColorIndex < kKeyboardButtonColors.length
         ? kKeyboardButtonColors[_buttonColorIndex]
         : null;
     return fixed ?? Theme.of(context).colorScheme.surface;
@@ -101,7 +105,8 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
   /// computed against that instead.
   /// For Default, fall back to the theme's onSurface.
   Color _resolvedButtonTextColor(BuildContext context) {
-    final fixed = _buttonColorIndex > 0 && _buttonColorIndex < kKeyboardButtonColors.length
+    final fixed = _buttonColorIndex > 0 &&
+            _buttonColorIndex < kKeyboardButtonColors.length
         ? kKeyboardButtonColors[_buttonColorIndex]
         : null;
     if (fixed == null) return Theme.of(context).colorScheme.onSurface;
@@ -154,8 +159,8 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
   }
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
-    final keyIsPressed =
-        event.runtimeType == KeyDownEvent || event.runtimeType == KeyRepeatEvent;
+    final keyIsPressed = event.runtimeType == KeyDownEvent ||
+        event.runtimeType == KeyRepeatEvent;
     if (!keyIsPressed) return KeyEventResult.ignored;
 
     for (int i = 0; i <= 9; i++) {
@@ -186,7 +191,8 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
 
   TextEditingValue _applyFormatters(
       TextEditingValue oldValue, TextEditingValue newValue) {
-    return _formatters.fold(newValue, (v, f) => f.formatEditUpdate(oldValue, v));
+    return _formatters.fold(
+        newValue, (v, f) => f.formatEditUpdate(oldValue, v));
   }
 
   void _pressKey(String char) {
@@ -300,90 +306,105 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 520),
                   child: Container(
-                margin: EdgeInsets.only(top: 16 * scale),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
+                    margin: EdgeInsets.only(top: 16 * scale),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              btn(
+                                  onClick: () => _pressKey('*'),
+                                  text: '×',
+                                  style: CalculatorButtonStyle.secondary),
+                              btn(onClick: () => _pressKey('1'), text: '1'),
+                              btn(onClick: () => _pressKey('4'), text: '4'),
+                              btn(onClick: () => _pressKey('7'), text: '7'),
+                              btn(
+                                  onClick: _openSettings,
+                                  icon: Icons.settings_outlined,
+                                  style: CalculatorButtonStyle.secondary),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              btn(
+                                  onClick: () => _pressKey('/'),
+                                  text: '÷',
+                                  style: CalculatorButtonStyle.secondary),
+                              btn(onClick: () => _pressKey('2'), text: '2'),
+                              btn(onClick: () => _pressKey('5'), text: '5'),
+                              btn(onClick: () => _pressKey('8'), text: '8'),
+                              btn(onClick: () => _pressKey('0'), text: '0'),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              btn(
+                                  onClick: () => _pressKey('-'),
+                                  text: '-',
+                                  style: CalculatorButtonStyle.secondary),
+                              btn(onClick: () => _pressKey('3'), text: '3'),
+                              btn(onClick: () => _pressKey('6'), text: '6'),
+                              btn(onClick: () => _pressKey('9'), text: '9'),
+                              btn(
+                                onClick: () => _pressKey(getDecimalSeparator()),
+                                text: getDecimalSeparator(),
+                                disabled: _currentNumberHasDecimal(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              btn(
+                                  onClick: () => _pressKey('+'),
+                                  text: '+',
+                                  style: CalculatorButtonStyle.secondary),
+                              btn(
+                                onClick: _backspace,
+                                onLongPress: _clear,
+                                style: CalculatorButtonStyle.secondary,
+                                icon: Icons.backspace_outlined,
+                              ),
+                              btn(
+                                onClick: _toggleSign,
+                                style: CalculatorButtonStyle.secondary,
+                                icon: Icons.exposure_rounded,
+                                flex: widget.enableSignToggleButton ? 1 : 0,
+                              ),
+                              btn(
+                                disabled: valueToNumber.isInfinite ||
+                                    valueToNumber.isNaN,
+                                onClick: _submit,
+                                icon: Icons.check_rounded,
+                                style: CalculatorButtonStyle.submit,
+                                flex: widget.enableSignToggleButton ? 2 : 3,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          btn(onClick: () => _pressKey('*'), text: '×', style: CalculatorButtonStyle.secondary),
-                          btn(onClick: () => _pressKey('1'), text: '1'),
-                          btn(onClick: () => _pressKey('4'), text: '4'),
-                          btn(onClick: () => _pressKey('7'), text: '7'),
-                          btn(onClick: _openSettings, icon: Icons.settings_outlined, style: CalculatorButtonStyle.secondary),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          btn(onClick: () => _pressKey('/'), text: '÷', style: CalculatorButtonStyle.secondary),
-                          btn(onClick: () => _pressKey('2'), text: '2'),
-                          btn(onClick: () => _pressKey('5'), text: '5'),
-                          btn(onClick: () => _pressKey('8'), text: '8'),
-                          btn(onClick: () => _pressKey('0'), text: '0'),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          btn(onClick: () => _pressKey('-'), text: '-', style: CalculatorButtonStyle.secondary),
-                          btn(onClick: () => _pressKey('3'), text: '3'),
-                          btn(onClick: () => _pressKey('6'), text: '6'),
-                          btn(onClick: () => _pressKey('9'), text: '9'),
-                          btn(
-                            onClick: () => _pressKey(getDecimalSeparator()),
-                            text: getDecimalSeparator(),
-                            disabled: _currentNumberHasDecimal(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          btn(onClick: () => _pressKey('+'), text: '+', style: CalculatorButtonStyle.secondary),
-                          btn(
-                            onClick: _backspace,
-                            onLongPress: _clear,
-                            style: CalculatorButtonStyle.secondary,
-                            icon: Icons.backspace_outlined,
-                          ),
-                          btn(
-                            onClick: _toggleSign,
-                            style: CalculatorButtonStyle.secondary,
-                            icon: Icons.exposure_rounded,
-                            flex: widget.enableSignToggleButton ? 1 : 0,
-                          ),
-                          btn(
-                            disabled: valueToNumber.isInfinite ||
-                                valueToNumber.isNaN,
-                            onClick: _submit,
-                            icon: Icons.check_rounded,
-                            style: CalculatorButtonStyle.submit,
-                            flex: widget.enableSignToggleButton ? 2 : 3,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
                 ),
               ),
             ),
@@ -394,7 +415,7 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
   }
 }
 
-enum CalculatorButtonStyle { submit, secondary }
+enum CalculatorButtonStyle { main, submit, secondary }
 
 class CalculatorButton extends StatelessWidget {
   final String? text;
@@ -455,7 +476,8 @@ class CalculatorButton extends StatelessWidget {
   }
 
   ElevatedButton _elevatedButton(BuildContext context) {
-    Color textColor = textColorOverride ?? Theme.of(context).colorScheme.onSurface;
+    Color textColor =
+        textColorOverride ?? Theme.of(context).colorScheme.onSurface;
     Color bgColor = bgColorOverride ?? Theme.of(context).colorScheme.surface;
 
     // Submit and special icons always override the resolved colors.
