@@ -145,6 +145,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
   final GlobalKey _keyboardSizeKey = GlobalKey();
   final FocusNode _focusNode = FocusNode();
   bool _isClosing = false;
+  ModalRoute<dynamic>? _observedRoute;
 
   @override
   void initState() {
@@ -162,18 +163,36 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Watch the host route's animation so we can tear down the overlay the
+    // instant a programmatic or AppBar-back navigation begins — before the
+    // page transition plays — rather than waiting for dispose().
+    final route = ModalRoute.of(context);
+    if (route != _observedRoute) {
+      _observedRoute?.animation?.removeStatusListener(_onRouteAnimationStatus);
+      _observedRoute = route;
+      _observedRoute?.animation?.addStatusListener(_onRouteAnimationStatus);
+    }
+  }
+
+  void _onRouteAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.reverse && _overlayEntry != null) {
+      _removeOverlay();
+      inAppKeyboardOpen.value = false;
+      inAppKeyboardHeight.value = 0.0;
+    }
+  }
+
+  @override
   void dispose() {
+    _observedRoute?.animation?.removeStatusListener(_onRouteAnimationStatus);
     widget.controller.removeListener(_onControllerChanged);
     WidgetsBinding.instance.removeObserver(this);
     _focusNode.dispose();
     _removeOverlay();
-    // Defer the notifier write: dispose() can fire while the tree is locked
-    // (e.g. AppBar back button navigation), and a synchronous ValueNotifier
-    // update would try to rebuild ValueListenableBuilder during that phase.
     if (inAppKeyboardOpen.value) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        inAppKeyboardOpen.value = false;
-      });
+      inAppKeyboardOpen.value = false;
     }
     super.dispose();
   }
