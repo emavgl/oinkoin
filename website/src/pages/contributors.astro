@@ -1,0 +1,146 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = "Contributors — Oinkoin";
+const description = "Meet the people who built Oinkoin — developers and translators from around the world.";
+
+const maintainer = {
+  login: "emavgl",
+  name: "Emanuele Viglianisi",
+  role: "Creator & maintainer",
+  url: "https://github.com/emavgl",
+  avatar: "https://avatars.githubusercontent.com/u/6958722?v=4",
+};
+
+const codeContributors = [
+  { login: "NiazSagor",         name: "Niaz Sagor",          role: "Custom keyboard, decimal input",        url: "https://github.com/NiazSagor",         avatar: "https://avatars.githubusercontent.com/u/50655067?v=4",  lang: null },
+  { login: "raulsorrentino",    name: "Raul Sorrentino",     role: "UI test automation",                    url: "https://github.com/raulsorrentino",    avatar: "https://avatars.githubusercontent.com/u/47747453?v=4",  lang: null },
+  { login: "TeoOG",             name: "Theodoros Gkoltsios", role: "Code & Greek translation",              url: "https://github.com/TeoOG",             avatar: "https://avatars.githubusercontent.com/u/48798079?v=4",  lang: "el" },
+  { login: "StefanoBerlatoFBK", name: "Stefano Berlato",    role: "Code contributor",                      url: "https://github.com/StefanoBerlatoFBK", avatar: "https://avatars.githubusercontent.com/u/64246386?v=4",  lang: null },
+  { login: "emvi-dt",           name: "emvi-dt",             role: "Code contributor",                      url: "https://github.com/emvi-dt",           avatar: "https://avatars.githubusercontent.com/u/157117563?v=4", lang: null },
+  { login: "Sgt-Spaghetti",     name: "Sgt-Spaghetti",      role: "Code & English GB translation",         url: "https://github.com/Sgt-Spaghetti",     avatar: "https://avatars.githubusercontent.com/u/43071419?v=4",  lang: "en-GB" },
+  { login: "DSiekmeier",        name: "DSiekmeier",          role: "Code & German translation",             url: "https://github.com/DSiekmeier",        avatar: "https://avatars.githubusercontent.com/u/17233627?v=4",  lang: "de" },
+  { login: "luispeterle",       name: "Luis Peterle",        role: "Code & Portuguese Brazil translation",  url: "https://github.com/luispeterle",       avatar: "https://avatars.githubusercontent.com/u/125824186?v=4", lang: "pt-BR" },
+  { login: "mrestivill",        name: "mrestivill",          role: "Code & Catalan translation",            url: "https://github.com/mrestivill",        avatar: "https://avatars.githubusercontent.com/u/2283852?v=4",   lang: "ca" },
+  { login: "PrasannaVenkadesh", name: "Prasanna Venkadesh", role: "Code & Tamil translation",              url: "https://github.com/PrasannaVenkadesh", avatar: "https://avatars.githubusercontent.com/u/788244?v=4",    lang: "ta-IN" },
+  { login: "Samvel27",          name: "Samvel",              role: "Code & Armenian translation",           url: "https://github.com/Samvel27",          avatar: "https://avatars.githubusercontent.com/u/173548698?v=4", lang: "hy" },
+  { login: "monta-gh",          name: "monta-gh",            role: "Code & Japanese translation",           url: "https://github.com/monta-gh",          avatar: "https://avatars.githubusercontent.com/u/205591834?v=4", lang: "ja" },
+  { login: "qvalentin",         name: "qvalentin",           role: "Record name typeahead",                 url: "https://github.com/qvalentin",         avatar: "https://avatars.githubusercontent.com/u/36446499?v=4",  lang: null },
+  { login: "yurtpage",          name: "Yurt Page",           role: "Code & metadata translation",           url: "https://github.com/yurtpage",          avatar: "https://avatars.githubusercontent.com/u/155876573?v=4", lang: null },
+];
+
+const translatorsOnly = [
+  { login: "demoshreder", name: "demoshreder", lang: "Tamil (ta-IN)", url: "https://github.com/demoshreder", avatar: "https://avatars.githubusercontent.com/u/0?v=4" },
+];
+
+const langFlags: Record<string, string> = {
+  "el":    "🇬🇷",
+  "en-GB": "🇬🇧",
+  "de":    "🇩🇪",
+  "pt-BR": "🇧🇷",
+  "ca":    "🏴",
+  "ta-IN": "🇮🇳",
+  "hy":    "🇦🇲",
+  "ja":    "🇯🇵",
+};
+---
+
+<Layout title={title} description={description}>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="max-w-4xl mx-auto">
+
+        <!-- Header -->
+        <div class="text-center mb-16">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 mb-6">
+            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+            Contributors
+          </h1>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Oinkoin is built by volunteers from around the world — developers who add features and translators who make it accessible to everyone.
+          </p>
+        </div>
+
+        <!-- Maintainer -->
+        <div class="mb-12">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-purple-600 mb-4">Maintainer</h2>
+          <a href={maintainer.url} target="_blank" rel="noopener noreferrer"
+             class="flex items-center gap-4 p-4 rounded-2xl border border-gray-200 hover:border-purple-200 hover:bg-purple-50 transition-colors group">
+            <img src={maintainer.avatar} alt={maintainer.name} class="w-14 h-14 rounded-full ring-2 ring-purple-100" />
+            <div>
+              <div class="font-semibold text-gray-900 group-hover:text-purple-700">{maintainer.name}</div>
+              <div class="text-sm text-gray-500">@{maintainer.login} · {maintainer.role}</div>
+            </div>
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-purple-400 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Code Contributors -->
+        <div class="mb-12">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-purple-600 mb-4">Code Contributors</h2>
+          <div class="grid sm:grid-cols-2 gap-3">
+            {codeContributors.map(c => (
+              <a href={c.url} target="_blank" rel="noopener noreferrer"
+                 class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-200 hover:bg-purple-50 transition-colors group">
+                <img src={c.avatar} alt={c.name} class="w-10 h-10 rounded-full" />
+                <div class="min-w-0">
+                  <div class="font-medium text-sm text-gray-900 group-hover:text-purple-700 truncate">
+                    {c.name}
+                    {c.lang && <span class="ml-1 text-base" title={c.lang}>{langFlags[c.lang] ?? "🌐"}</span>}
+                  </div>
+                  <div class="text-xs text-gray-500 truncate">@{c.login} · {c.role}</div>
+                </div>
+                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-purple-400 ml-auto shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Translators -->
+        <div class="mb-12">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-purple-600 mb-4">Translators</h2>
+          <div class="grid sm:grid-cols-2 gap-3">
+            {translatorsOnly.map(c => (
+              <a href={c.url} target="_blank" rel="noopener noreferrer"
+                 class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-200 hover:bg-purple-50 transition-colors group">
+                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-semibold text-sm shrink-0">
+                  {c.name[0].toUpperCase()}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-medium text-sm text-gray-900 group-hover:text-purple-700 truncate">{c.name}</div>
+                  <div class="text-xs text-gray-500 truncate">@{c.login} · {c.lang}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+          <p class="mt-4 text-sm text-gray-500 text-center">
+            Additional translations contributed by the community via
+            <a href="https://crowdin.com" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:underline">Crowdin</a>.
+          </p>
+        </div>
+
+        <!-- CTA -->
+        <div class="bg-gray-50 rounded-2xl p-8 text-center">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Want to contribute?</h3>
+          <p class="text-gray-600 mb-6 text-sm">Help us by translating, reporting bugs, or submitting a pull request.</p>
+          <a href="https://github.com/emavgl/oinkoin" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-700 transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+            </svg>
+            View on GitHub
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</Layout>
