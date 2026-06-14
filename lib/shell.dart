@@ -161,10 +161,10 @@ class ShellState extends State<Shell> {
             break;
         }
 
-        // Check if the current tab's navigator can pop
+        // Check if the current tab's navigator can pop.
+        // Use maybePop so inner PopScopes (e.g., in-app keyboard) can intercept first.
         if (currentNavigator != null && currentNavigator.canPop()) {
-          // Let the current tab handle the back navigation
-          currentNavigator.pop();
+          await currentNavigator.maybePop();
           return;
         }
 

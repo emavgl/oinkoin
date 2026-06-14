@@ -138,8 +138,7 @@ class _InAppKeyboardField extends StatefulWidget {
   State<_InAppKeyboardField> createState() => _InAppKeyboardFieldState();
 }
 
-class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
-    with WidgetsBindingObserver {
+class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
   OverlayEntry? _overlayEntry;
   final GlobalKey<_KeyboardOverlayState> _overlayKey = GlobalKey();
   final GlobalKey _keyboardSizeKey = GlobalKey();
@@ -150,10 +149,6 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    // Propagate any controller change (from InApp keyboard or hardware keyboard)
-    // to the form via onChanged, since TextFormField.onChanged does not fire on
-    // programmatic controller updates.
     widget.controller.addListener(_onControllerChanged);
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -166,8 +161,8 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Watch the host route's animation so we can tear down the overlay the
-    // instant a programmatic or AppBar-back navigation begins — before the
-    // page transition plays — rather than waiting for dispose().
+    // instant an AppBar-back navigation begins — before the page transition
+    // plays — rather than waiting for dispose().
     final route = ModalRoute.of(context);
     if (route != _observedRoute) {
       _observedRoute?.animation?.removeStatusListener(_onRouteAnimationStatus);
@@ -188,7 +183,6 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
   void dispose() {
     _observedRoute?.animation?.removeStatusListener(_onRouteAnimationStatus);
     widget.controller.removeListener(_onControllerChanged);
-    WidgetsBinding.instance.removeObserver(this);
     _focusNode.dispose();
     _removeOverlay();
     if (inAppKeyboardOpen.value) {
@@ -199,17 +193,6 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
 
   void _onControllerChanged() {
     widget.onChanged?.call(widget.controller.text);
-  }
-
-  // Intercepts the Android back button without pushing any route, so the page
-  // behind stays fully interactive and focus is never stolen from the field.
-  @override
-  Future<bool> didPopRoute() async {
-    if (_overlayEntry != null) {
-      await _doClose();
-      return true;
-    }
-    return false;
   }
 
   void _removeOverlay() {
@@ -248,9 +231,10 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
     );
     Overlay.of(context).insert(_overlayEntry!);
     inAppKeyboardOpen.value = true;
+    // Rebuild so PopScope.canPop updates to false immediately.
+    setState(() {});
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Measure the rendered keyboard height so pages can add matching scroll padding.
       final box = _keyboardSizeKey.currentContext?.findRenderObject() as RenderBox?;
       if (box != null) inAppKeyboardHeight.value = box.size.height;
       if (mounted) _focusNode.requestFocus();
@@ -259,35 +243,44 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField>
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: widget.controller,
-      focusNode: _focusNode,
-      keyboardType: TextInputType.none,
-      enabled: widget.enabled,
-      autofocus: widget.autofocus,
-      autovalidateMode: widget.autovalidateMode,
-      inputFormatters: buildAmountInputFormatters(
-        decimalSep: getDecimalSeparator(),
-        groupSep: getGroupingSeparator(),
-        autoDec: getAmountInputAutoDecimalShift(),
-        decDigits: getNumberDecimalDigits(),
-      ),
-      validator: widget.validator,
-      // onChanged omitted: _onControllerChanged (registered in initState) covers
-      // both InApp-keyboard updates and hardware-keyboard input uniformly.
-      onTap: _openKeyboard,
-      textAlign: TextAlign.end,
-      style: TextStyle(
-        fontSize: 32.0,
-        color: widget.enabled
-            ? Theme.of(context).colorScheme.onSurface
-            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-      ),
-      decoration: InputDecoration(
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelText: widget.labelText,
-        hintText: buildZeroAmountText(),
-        suffixText: widget.suffixText,
+    // PopScope intercepts the hardware back button (Navigator.maybePop) when
+    // the keyboard is open: blocks the pop and closes the keyboard instead.
+    // Navigator.pop() — used by the AppBar back button — ignores canPop and
+    // always pops; _onRouteAnimationStatus handles that path by removing the
+    // overlay as soon as the route starts reversing.
+    return PopScope(
+      canPop: _overlayEntry == null,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _doClose();
+      },
+      child: TextFormField(
+        controller: widget.controller,
+        focusNode: _focusNode,
+        keyboardType: TextInputType.none,
+        enabled: widget.enabled,
+        autofocus: widget.autofocus,
+        autovalidateMode: widget.autovalidateMode,
+        inputFormatters: buildAmountInputFormatters(
+          decimalSep: getDecimalSeparator(),
+          groupSep: getGroupingSeparator(),
+          autoDec: getAmountInputAutoDecimalShift(),
+          decDigits: getNumberDecimalDigits(),
+        ),
+        validator: widget.validator,
+        onTap: _openKeyboard,
+        textAlign: TextAlign.end,
+        style: TextStyle(
+          fontSize: 32.0,
+          color: widget.enabled
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+        ),
+        decoration: InputDecoration(
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          labelText: widget.labelText,
+          hintText: buildZeroAmountText(),
+          suffixText: widget.suffixText,
+        ),
       ),
     );
   }

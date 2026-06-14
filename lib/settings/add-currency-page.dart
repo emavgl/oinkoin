@@ -113,6 +113,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Add Currency".i18n),
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
       body: Form(
         key: _formKey,

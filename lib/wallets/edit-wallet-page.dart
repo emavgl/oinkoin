@@ -281,6 +281,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
     return AppBar(
       title:
           Text(passedWallet == null ? "New Wallet".i18n : "Edit Wallet".i18n),
+      leading: BackButton(onPressed: () => Navigator.pop(context)),
       actions: [
         if (passedWallet != null)
           IconButton(

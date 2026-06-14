@@ -136,6 +136,7 @@ class _CurrencyConversionRatesPageState
     return Scaffold(
       appBar: AppBar(
         title: Text("Currency".i18n),
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

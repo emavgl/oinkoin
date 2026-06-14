@@ -1186,6 +1186,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     return AppBar(
         backgroundColor: bgColor,
         foregroundColor: fgColor,
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
         title: Text(
           readOnly ? 'View record'.i18n : 'Edit record'.i18n,
         ),
