@@ -7,6 +7,7 @@ import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
 import 'package:piggybank/records/formatter/calculator-normalizer.dart';
 import 'package:piggybank/records/formatter/group-separator-formatter.dart';
+import 'package:piggybank/records/formatter/max_decimal_digits_formatter.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
@@ -153,6 +154,11 @@ List<TextInputFormatter> buildAmountInputFormatters({
     if (!autoDec)
       GroupSeparatorFormatter(
         groupSep: groupSep,
+        decimalSep: decimalSep,
+      ),
+    if (!autoDec)
+      MaxDecimalDigitsFormatter(
+        decimalDigits: decDigits,
         decimalSep: decimalSep,
       ),
   ];
