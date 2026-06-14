@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/components/amount_input_field.dart';
+import 'package:piggybank/helpers/amount-input-utils.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/wallets/currency-picker-page.dart';
@@ -96,17 +99,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
 
     if (!_formKey.currentState!.validate()) return;
 
-    final ratio = double.tryParse(_ratioController.text);
-    if (ratio == null || ratio <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Please enter a valid conversion ratio.".i18n),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-      return;
-    }
-
+    final ratio = tryParseCurrencyString(_ratioController.text)!;
     Navigator.of(context).pop(
       UserCurrency(isoCode: _selectedCurrency!, ratioToMain: ratio),
     );
@@ -120,6 +113,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Add Currency".i18n),
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
       body: Form(
         key: _formKey,
@@ -182,29 +176,21 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              AmountInputField(
                 controller: _ratioController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                autofocus: false,
+                labelText: "1 ${_selectedCurrency ?? '[currency]'} =".i18n,
+                suffixText: mainSymbol,
+                allowNegative: false,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter a value".i18n;
                   }
-                  final parsed = double.tryParse(value);
+                  final parsed = tryParseCurrencyString(value);
                   if (parsed == null || parsed <= 0) {
-                    return "Enter a positive number".i18n;
+                    return amountFormatErrorMessage();
                   }
                   return null;
                 },
-                decoration: InputDecoration(
-                  labelText: "1 ${_selectedCurrency ?? '[currency]'} =".i18n,
-                  suffixText: mainSymbol,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  hintText: '0.00',
-                ),
               ),
               const SizedBox(height: 32),
             ],

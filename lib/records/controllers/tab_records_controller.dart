@@ -191,14 +191,50 @@ class TabRecordsController {
     // Wallet filter
     if (selectedWallets.isNotEmpty) {
       final selectedIds = selectedWallets.map((w) => w.id).toSet();
-      tempRecords =
-          tempRecords.where((r) => selectedIds.contains(r?.walletId)).toList();
+      tempRecords = applyTransferAwareWalletFilter(tempRecords, selectedIds);
     }
 
     if (!const DeepCollectionEquality().equals(filteredRecords, tempRecords)) {
       filteredRecords = tempRecords;
       onStateChanged();
     }
+  }
+
+  /// Filters [records] to those belonging to [selectedWalletIds], treating
+  /// transfers as visible from both source and destination perspectives.
+  ///
+  /// - Source match: include the record unchanged (negative value, money out).
+  /// - Destination-only match: include a copy with [value] set to the received
+  ///   amount ([transferValue] for cross-currency, otherwise `value.abs()`).
+  ///   [isDestinationTransferView] is set to true so the UI resolves the
+  ///   display currency from [transferWalletId] instead of [walletId].
+  /// - Both wallets selected: include once via the source match (no duplicate).
+  @visibleForTesting
+  static List<Record?> applyTransferAwareWalletFilter(
+    List<Record?> records,
+    Set<int?> selectedWalletIds,
+  ) {
+    final result = <Record?>[];
+    for (final r in records) {
+      final matchesSource = selectedWalletIds.contains(r?.walletId);
+      final matchesDest = r?.isTransfer == true &&
+          selectedWalletIds.contains(r?.transferWalletId);
+
+      if (matchesSource) {
+        result.add(r);
+      } else if (matchesDest) {
+        // Show from destination perspective: use the received amount as value.
+        // transferValue holds the destination-currency amount for cross-currency
+        // transfers; fall back to value.abs() for same-currency ones.
+        final receivedAmount =
+            r!.transferValue ?? (r.value != null ? r.value!.abs() : null);
+        result.add(r.copyWith(
+          value: receivedAmount,
+          isDestinationTransferView: true,
+        ));
+      }
+    }
+    return result;
   }
 
   @visibleForTesting
@@ -457,9 +493,8 @@ class TabRecordsController {
         filterRecords();
         // Also filter overview records if they were fetched separately
         if (overviewRecords != null) {
-          overviewRecords = overviewRecords!
-              .where((r) => idSet.contains(r?.walletId))
-              .toList();
+          overviewRecords =
+              applyTransferAwareWalletFilter(overviewRecords!, idSet);
         }
         return;
       }

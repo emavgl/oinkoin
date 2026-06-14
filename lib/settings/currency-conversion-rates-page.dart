@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/components/amount_input_field.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/currency.dart';
@@ -92,7 +93,7 @@ class _CurrencyConversionRatesPageState
   }
 
   void _onRateChanged(String fromCurrency, String text) {
-    final rate = double.tryParse(text);
+    final rate = tryParseCurrencyString(text);
     final key = '${fromCurrency}_$_defaultCurrency';
     if (rate != null && rate > 0) {
       _rates[key] = rate;
@@ -135,6 +136,7 @@ class _CurrencyConversionRatesPageState
     return Scaffold(
       appBar: AppBar(
         title: Text("Currency".i18n),
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -262,6 +264,7 @@ class _CurrencyConversionRatesPageState
 
   Widget _buildRateRow(String currency) {
     final controller = _controllers[currency];
+    if (controller == null) return const SizedBox.shrink();
     final info = CurrencyInfo.byCode(currency);
     final defaultInfo = CurrencyInfo.byCode(_defaultCurrency!);
     final walletNames = _wallets
@@ -287,17 +290,10 @@ class _CurrencyConversionRatesPageState
               const SizedBox(width: 12),
               Expanded(
                 flex: 1,
-                child: TextField(
+                child: AmountInputField(
                   controller: controller,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    hintText: '0.00',
-                  ),
+                  allowNegative: false,
+                  onChanged: (text) => _onRateChanged(currency, text),
                 ),
               ),
               const SizedBox(width: 8),

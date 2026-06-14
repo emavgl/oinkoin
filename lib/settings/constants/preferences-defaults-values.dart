@@ -37,7 +37,7 @@ class PreferencesDefaultValues {
         true, // Default to restoring the amount
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
     PreferencesKeys.amountInputKeyboardType:
-        0, // Default to phone keyboard (with math symbols)
+        2, // Default to in-app keyboard
     PreferencesKeys.homepageTimeInterval: HomepageTimeInterval
         .CurrentMonth.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordsMonthStartDay:
@@ -53,6 +53,10 @@ class PreferencesDefaultValues {
     PreferencesKeys.reverseMonthlyImages: false, // Default to disabled
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4,
+    PreferencesKeys.inAppKeyboardScale: 1,
+    PreferencesKeys.inAppKeyboardBackgroundColorIndex: 0,
+    PreferencesKeys.inAppKeyboardButtonColorIndex: 0,
+    PreferencesKeys.inAppKeyboardTextColorIndex: 0,
   };
 
   static String getLocaleGroupingSeparator() {

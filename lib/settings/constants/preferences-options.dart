@@ -131,6 +131,7 @@ class PreferencesOptions {
   static Map<String, int> get amountInputKeyboardType => {
         "Phone keyboard (with math symbols)".i18n: 0,
         "Number keyboard".i18n: 1,
+        "InApp keyboard".i18n: 2,
       };
 
   static Map<String, int> get currencySymbolPosition => {
@@ -142,5 +143,37 @@ class PreferencesOptions {
   static Map<String, int> get currencySymbolSpacing => {
         "With space".i18n: 0,
         "Without space".i18n: 1,
+      };
+
+  static Map<String, int> get inAppKeyboardScaleOptions => {
+        "Small".i18n: 0,
+        "Medium".i18n: 1,
+        "Large".i18n: 2,
+      };
+
+  static Map<String, int> get inAppKeyboardBackgroundColorOptions => {
+        "Default".i18n: 0,
+        "Black".i18n: 1,
+        "White".i18n: 2,
+        "Navy".i18n: 3,
+        "Forest".i18n: 4,
+        "Slate".i18n: 5,
+        "Grey".i18n: 6,
+        "Page background".i18n: 7,
+        "Light grey".i18n: 8,
+      };
+
+  static Map<String, int> get inAppKeyboardButtonColorOptions => {
+        "Default".i18n: 0,
+        "Black".i18n: 1,
+        "White".i18n: 2,
+        "Light grey".i18n: 3,
+        "Dark grey".i18n: 4,
+      };
+
+  static Map<String, int> get inAppKeyboardTextColorOptions => {
+        "Auto".i18n: 0,
+        "White".i18n: 1,
+        "Black".i18n: 2,
       };
 }
