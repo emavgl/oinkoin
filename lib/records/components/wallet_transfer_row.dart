@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/components/wallet_icon_square.dart';
+import 'package:piggybank/helpers/amount-input-utils.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/wallet.dart';
@@ -31,6 +32,7 @@ class WalletTransferRow extends StatelessWidget {
 
   Future<void> _pickSourceWallet(BuildContext context) async {
     if (readOnly) return;
+    dismissInAppKeyboard();
     final selected = await Navigator.push<Wallet>(
       context,
       MaterialPageRoute(builder: (_) => WalletPickerPage()),
@@ -42,6 +44,7 @@ class WalletTransferRow extends StatelessWidget {
 
   Future<void> _pickDestinationWallet(BuildContext context) async {
     if (readOnly) return;
+    dismissInAppKeyboard();
     final selected = await Navigator.push<Wallet>(
       context,
       MaterialPageRoute(

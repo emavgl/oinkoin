@@ -18,7 +18,7 @@ import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/tags/tags-page-view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'contributors-page.dart';
+// import 'contributors-page.dart';
 import 'csv_import/csv_import_page.dart';
 import 'currencies-page.dart';
 import 'feedback-page.dart';
@@ -337,21 +337,21 @@ class TabSettings extends StatelessWidget {
             onPressed: () async => await _launchURL(context,
                 "https://github.com/emavgl/oinkoin/blob/master/privacy-policy.md"),
           ),
-          SettingsItem(
-            icon: Icon(
-              Icons.people_outline,
-              color: Colors.white,
-            ),
-            iconBackgroundColor: Colors.deepPurple.shade400,
-            title: 'Contributors'.i18n,
-            subtitle: 'The people who built Oinkoin'.i18n,
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ContributorsPage()),
-              );
-            },
-          ),
+          // SettingsItem(
+          //   icon: Icon(
+          //     Icons.people_outline,
+          //     color: Colors.white,
+          //   ),
+          //   iconBackgroundColor: Colors.deepPurple.shade400,
+          //   title: 'Contributors'.i18n,
+          //   subtitle: 'The people who built Oinkoin'.i18n,
+          //   onPressed: () async {
+          //     await Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => ContributorsPage()),
+          //     );
+          //   },
+          // ),
           SettingsItem(
             icon: Icon(
               Icons.support_agent,

@@ -197,10 +197,17 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _save,
-        tooltip: "Save".i18n,
-        child: const Icon(Icons.save),
+      floatingActionButton: ValueListenableBuilder<double>(
+        valueListenable: inAppKeyboardHeight,
+        builder: (context, kbHeight, child) => Padding(
+          padding: EdgeInsets.only(bottom: kbHeight),
+          child: child,
+        ),
+        child: FloatingActionButton(
+          onPressed: _save,
+          tooltip: "Save".i18n,
+          child: const Icon(Icons.save),
+        ),
       ),
     );
   }

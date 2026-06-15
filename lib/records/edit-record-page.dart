@@ -386,6 +386,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         if (readOnly) {
           return; // do nothing
         }
+        dismissInAppKeyboard();
         var selectedCategory = await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => CategoryTabPageView()),
@@ -512,6 +513,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                     onTap: () async {
                       if (readOnly) return;
                       FocusScope.of(context).unfocus();
+                      dismissInAppKeyboard();
                       DateTime initialDate = localDisplayDate ?? DateTime.now();
                       int firstDayOfWeek = getFirstDayOfWeekIndex();
                       DateTime? result = await showDatePicker(
@@ -577,6 +579,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                 onTap: () async {
                   if (readOnly) return;
                   FocusScope.of(context).unfocus();
+                  dismissInAppKeyboard();
                   final TimeOfDay? result = await showTimePicker(
                     context: context,
                     initialTime: _selectedTime ?? TimeOfDay.now(),
@@ -620,6 +623,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                     onTap: () async {
                       if (readOnly) return;
                       FocusScope.of(context).unfocus();
+                      dismissInAppKeyboard();
                       final TimeOfDay? result = await showTimePicker(
                         context: context,
                         initialTime: _selectedTime ?? TimeOfDay.now(),
@@ -726,6 +730,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                                           : null,
                                       onTap: () {
                                         FocusScope.of(context).unfocus();
+                                        dismissInAppKeyboard();
                                       },
                                       value: recurrentPeriodIndex,
                                       underline: SizedBox(),
@@ -792,6 +797,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                           onTap: canChangeEndDate
                               ? () async {
                                   FocusScope.of(context).unfocus();
+                                  dismissInAppKeyboard();
                                   // Default to 30 days from now (not 1 year, which is confusing)
                                   DateTime initialDate = localDisplayEndDate ??
                                       DateTime.now().add(Duration(days: 30));
@@ -1159,6 +1165,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   void _openTagSelectionDialog() async {
+    dismissInAppKeyboard();
     if (ServiceConfig.isPremium) {
       final selectedTags = await Navigator.push<Set<String>>(
         context,
