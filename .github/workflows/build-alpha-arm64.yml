@@ -47,6 +47,13 @@ jobs:
           echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
           cp key.properties android/key.properties
 
+      - name: Print signing key fingerprint
+        run: |
+          STORE_PASS=$(grep storePassword key.properties | cut -d= -f2)
+          KEY_ALIAS=$(grep keyAlias key.properties | cut -d= -f2)
+          keytool -printcert -file <(keytool -exportcert -keystore upload-keystore.jks -alias "$KEY_ALIAS" -storepass "$STORE_PASS" 2>/dev/null) 2>/dev/null | grep SHA256
+          rm -f upload-keystore.jks
+
       - name: Build Alpha APK for arm64
         run: submodules/flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor alpha --release --target-platform android-arm64
         env:
