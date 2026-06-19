@@ -709,17 +709,16 @@ class CsvImportService {
 
     final totalBeforeBatch = records.length;
 
-    // 4. Insert records without duplicate check — CSV rows represent explicit
-    //    user intent, so every row is imported as a distinct record.
+    // 4. Insert records in batch (duplicate detection via INSERT OR IGNORE)
     _logger.info('Inserting $totalBeforeBatch records in batch...');
     final recordsBefore = (await db.getAllRecords()).length;
-    await db.addRecordsInBatchNoDuplicateCheck(records);
+    await db.addRecordsInBatch(records);
     onProgress?.call(0.95);
 
     // 5. Count how many were actually inserted
     final recordsAfter = (await db.getAllRecords()).length;
     final actuallyInserted = recordsAfter - recordsBefore;
-    final duplicateCount = max(0, totalBeforeBatch - actuallyInserted);
+    final duplicateCount = totalBeforeBatch - actuallyInserted;
 
     _logger.info(
       'Import complete: $actuallyInserted inserted, '
