@@ -219,10 +219,36 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> addRecordsInBatch(List<Record?> records) async {
+  Future<void> addRecordsInBatch(List<Record?> records,
+      {bool skipDuplicateCheck = false}) async {
     try {
       _logger.debug('Adding ${records.length} records in batch...');
       final db = (await database)!;
+
+      if (skipDuplicateCheck) {
+        // Relaxed mode: insert every record without deduplication.
+        // Used by CSV import where rows represent explicit user intent.
+        for (var record in records) {
+          if (record == null) continue;
+          record.id = null;
+          record.profileId ??= ProfileService.instance.activeProfileId;
+          final id = await db.insert('records', record.toMap());
+          // Insert tags immediately with the known record ID
+          for (final tag in record.tags) {
+            if (tag.trim().isNotEmpty) {
+              await db.insert(
+                'records_tags',
+                {'record_id': id, 'tag_name': tag},
+                conflictAlgorithm: ConflictAlgorithm.ignore,
+              );
+            }
+          }
+        }
+        _logger.info(
+            'Batch insert committed (skipDuplicateCheck): ${records.length} records');
+        return;
+      }
+
       Batch batch = db.batch();
 
       for (var record in records) {
