@@ -335,25 +335,31 @@ class SqliteDatabase implements DatabaseInterface {
           'Adding ${records.length} records in batch (no duplicate check)...');
       final db = (await database)!;
 
-      // Insert each record individually so we can capture its auto-generated
-      // ID for correct tag association. No deduplication is performed —
-      // every record is inserted as-is.
-      for (var record in records) {
-        if (record == null) continue;
-        record.id = null;
-        record.profileId ??= ProfileService.instance.activeProfileId;
-        final id = await db.insert('records', record.toMap());
-        // Insert tags immediately with the known record ID
-        for (final tag in record.tags) {
-          if (tag.trim().isNotEmpty) {
-            await db.insert(
-              'records_tags',
-              {'record_id': id, 'tag_name': tag},
-              conflictAlgorithm: ConflictAlgorithm.ignore,
-            );
+      // Wrap in a single transaction so all inserts are atomic: if the
+      // process crashes mid-import, the database is not left in a partial
+      // state.  Using a single transaction also avoids N implicit
+      // per-insert transactions, improving performance on large imports.
+      await db.transaction((txn) async {
+        // Insert each record individually so we can capture its auto-generated
+        // ID for correct tag association. No deduplication is performed —
+        // every record is inserted as-is.
+        for (var record in records) {
+          if (record == null) continue;
+          record.id = null;
+          record.profileId ??= ProfileService.instance.activeProfileId;
+          final id = await txn.insert('records', record.toMap());
+          // Insert tags immediately with the known record ID
+          for (final tag in record.tags) {
+            if (tag.trim().isNotEmpty) {
+              await txn.insert(
+                'records_tags',
+                {'record_id': id, 'tag_name': tag},
+                conflictAlgorithm: ConflictAlgorithm.ignore,
+              );
+            }
           }
         }
-      }
+      });
 
       _logger.info(
           'Batch insert committed (no duplicate check): ${records.length} records');
