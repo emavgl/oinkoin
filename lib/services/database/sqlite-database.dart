@@ -244,6 +244,7 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
           AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
+          AND description IS ?
       )
     """, [
           record.title,
@@ -267,6 +268,7 @@ class SqliteDatabase implements DatabaseInterface {
           record.category!.categoryType!.index,
           record.walletId,
           record.profileId,
+          record.description,
         ]);
       }
 
@@ -290,6 +292,7 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
           AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
+          AND description IS ?
         LIMIT 1
       """, [
           record.utcDateTime.millisecondsSinceEpoch,
@@ -299,6 +302,7 @@ class SqliteDatabase implements DatabaseInterface {
           record.category!.categoryType!.index,
           record.walletId,
           record.profileId,
+          record.description,
         ]);
 
         if (recordId.isNotEmpty) {
