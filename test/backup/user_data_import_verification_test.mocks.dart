@@ -188,15 +188,23 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<int>);
 
   @override
-  _i3.Future<void> addRecordsInBatch(
-    List<_i6.Record?>? records, {
-    bool? skipDuplicateCheck = false,
-  }) =>
+  _i3.Future<void> addRecordsInBatch(List<_i6.Record?>? records) =>
       (super.noSuchMethod(
         Invocation.method(
           #addRecordsInBatch,
           [records],
-          {#skipDuplicateCheck: skipDuplicateCheck},
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> addRecordsInBatchNoDuplicateCheck(
+          List<_i6.Record?>? records) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #addRecordsInBatchNoDuplicateCheck,
+          [records],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),

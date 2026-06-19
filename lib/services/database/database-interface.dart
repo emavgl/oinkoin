@@ -29,8 +29,8 @@ abstract class DatabaseInterface {
   Future<void> deleteRecordById(int? id);
   Future<void> deleteRecordsInBatch(List<int> ids);
   Future<int> addRecord(Record? record);
-  Future<void> addRecordsInBatch(List<Record?> records,
-      {bool skipDuplicateCheck = false});
+  Future<void> addRecordsInBatch(List<Record?> records);
+  Future<void> addRecordsInBatchNoDuplicateCheck(List<Record?> records);
   Future<int?> updateRecordById(int? recordId, Record? newRecord);
   Future<void> updateRecordWalletInBatch(List<int> ids, int? walletId);
   Future<void> duplicateRecordsInBatch(List<int> ids);

@@ -219,36 +219,10 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> addRecordsInBatch(List<Record?> records,
-      {bool skipDuplicateCheck = false}) async {
+  Future<void> addRecordsInBatch(List<Record?> records) async {
     try {
       _logger.debug('Adding ${records.length} records in batch...');
       final db = (await database)!;
-
-      if (skipDuplicateCheck) {
-        // Relaxed mode: insert every record without deduplication.
-        // Used by CSV import where rows represent explicit user intent.
-        for (var record in records) {
-          if (record == null) continue;
-          record.id = null;
-          record.profileId ??= ProfileService.instance.activeProfileId;
-          final id = await db.insert('records', record.toMap());
-          // Insert tags immediately with the known record ID
-          for (final tag in record.tags) {
-            if (tag.trim().isNotEmpty) {
-              await db.insert(
-                'records_tags',
-                {'record_id': id, 'tag_name': tag},
-                conflictAlgorithm: ConflictAlgorithm.ignore,
-              );
-            }
-          }
-        }
-        _logger.info(
-            'Batch insert committed (skipDuplicateCheck): ${records.length} records');
-        return;
-      }
-
       Batch batch = db.batch();
 
       for (var record in records) {
@@ -349,6 +323,42 @@ class SqliteDatabase implements DatabaseInterface {
       _logger.info('Batch complete with tags');
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> addRecordsInBatchNoDuplicateCheck(
+      List<Record?> records) async {
+    try {
+      _logger.debug(
+          'Adding ${records.length} records in batch (no duplicate check)...');
+      final db = (await database)!;
+
+      // Insert each record individually so we can capture its auto-generated
+      // ID for correct tag association. No deduplication is performed —
+      // every record is inserted as-is.
+      for (var record in records) {
+        if (record == null) continue;
+        record.id = null;
+        record.profileId ??= ProfileService.instance.activeProfileId;
+        final id = await db.insert('records', record.toMap());
+        // Insert tags immediately with the known record ID
+        for (final tag in record.tags) {
+          if (tag.trim().isNotEmpty) {
+            await db.insert(
+              'records_tags',
+              {'record_id': id, 'tag_name': tag},
+              conflictAlgorithm: ConflictAlgorithm.ignore,
+            );
+          }
+        }
+      }
+
+      _logger.info(
+          'Batch insert committed (no duplicate check): ${records.length} records');
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to add records in batch (no dup check)');
       rethrow;
     }
   }
