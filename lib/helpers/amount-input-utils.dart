@@ -92,6 +92,20 @@ final ValueNotifier<bool> inAppKeyboardOpen = ValueNotifier(false);
 /// Consumed by pages that need to add scroll padding so content stays reachable.
 final ValueNotifier<double> inAppKeyboardHeight = ValueNotifier(0.0);
 
+VoidCallback? _inAppKeyboardCloseCallback;
+
+/// Registers the callback that closes the in-app keyboard overlay.
+/// Called by [_InAppKeyboardFieldState] when the keyboard opens.
+void registerInAppKeyboardClose(VoidCallback? callback) {
+  _inAppKeyboardCloseCallback = callback;
+}
+
+/// Immediately closes the in-app keyboard without animation.
+/// Safe to call at any time; no-op when the keyboard is not open.
+void dismissInAppKeyboard() {
+  _inAppKeyboardCloseCallback?.call();
+}
+
 /// Reads the amountInputKeyboardType preference as an [AmountKeyboardMode].
 AmountKeyboardMode getAmountKeyboardMode() {
   return AmountKeyboardMode.fromPrefValue(getAmountInputKeyboardTypeIndex());

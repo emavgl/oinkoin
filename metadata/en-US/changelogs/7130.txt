@@ -1,0 +1,3 @@
+- Fix in-app keyboard not closing when tapping other fields or pickers
+- Fix FAB hidden behind in-app keyboard on wallet and currency pages
+- Limit decimal digits during typing in amount fields

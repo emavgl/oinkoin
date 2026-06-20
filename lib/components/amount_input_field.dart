@@ -150,6 +150,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
   void initState() {
     super.initState();
     widget.controller.addListener(_onControllerChanged);
+    _focusNode.addListener(_onFocusChanged);
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _openKeyboard();
@@ -176,6 +177,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
       _removeOverlay();
       inAppKeyboardOpen.value = false;
       inAppKeyboardHeight.value = 0.0;
+      registerInAppKeyboardClose(null);
     }
   }
 
@@ -183,8 +185,10 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
   void dispose() {
     _observedRoute?.animation?.removeStatusListener(_onRouteAnimationStatus);
     widget.controller.removeListener(_onControllerChanged);
+    _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     _removeOverlay();
+    registerInAppKeyboardClose(null);
     if (inAppKeyboardOpen.value) {
       inAppKeyboardOpen.value = false;
     }
@@ -193,6 +197,10 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
 
   void _onControllerChanged() {
     widget.onChanged?.call(widget.controller.text);
+  }
+
+  void _onFocusChanged() {
+    if (!_focusNode.hasFocus) _doCloseImmediately();
   }
 
   void _removeOverlay() {
@@ -207,7 +215,18 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
     inAppKeyboardOpen.value = false;
     inAppKeyboardHeight.value = 0.0;
     _removeOverlay();
+    registerInAppKeyboardClose(null);
     if (mounted) setState(() => _isClosing = false);
+  }
+
+  void _doCloseImmediately() {
+    if (_overlayEntry == null) return;
+    _isClosing = false;
+    inAppKeyboardOpen.value = false;
+    inAppKeyboardHeight.value = 0.0;
+    _removeOverlay();
+    registerInAppKeyboardClose(null);
+    if (mounted) setState(() {});
   }
 
   void _openKeyboard() {
@@ -230,6 +249,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
       ),
     );
     Overlay.of(context).insert(_overlayEntry!);
+    registerInAppKeyboardClose(_doCloseImmediately);
     inAppKeyboardOpen.value = true;
     // Rebuild so PopScope.canPop updates to false immediately.
     setState(() {});
