@@ -106,6 +106,9 @@ class CsvImportService {
       content = content.substring(1);
     }
 
+    // Normalise line endings so \r\n works with eol: '\n'
+    content = content.replaceAll('\r\n', '\n');
+
     // Auto-detect delimiter from first 4096 chars
     final sniffSample =
         content.length > 4096 ? content.substring(0, 4096) : content;

@@ -103,6 +103,27 @@ void main() {
       expect(rows.length, 2);
       expect(rows[0]['title'], 'First');
     });
+
+    test('parses CRLF quoted-field CSV (regression: Curve cash export)', () {
+      // CRLF line endings with all-quoted fields — previously the \r was
+      // consumed as field content inside the quoted string, causing all
+      // subsequent rows to be merged into the header row.
+      final content = '"Date","Description","Amount"\r\n'
+          '"20/12/2022","Amazon","-0.99"\r\n'
+          '"17/12/2022","Costa Coffee","-6.85"\r\n'
+          '"08/12/2022","Reiker","50.25"\r\n';
+      final parsed = CsvImportService.parseCsv(content);
+      final headers = parsed.headers;
+      final rows = parsed.rows;
+
+      expect(headers, ['Date', 'Description', 'Amount']);
+      expect(rows.length, 3);
+      expect(rows[0]['Date'], '20/12/2022');
+      expect(rows[0]['Description'], 'Amazon');
+      expect(rows[0]['Amount'], '-0.99');
+      expect(rows[1]['Description'], 'Costa Coffee');
+      expect(rows[2]['Amount'], '50.25');
+    });
   });
 
   group('CsvImportService.autoMap', () {
@@ -243,19 +264,15 @@ void main() {
     });
 
     test('handles European thousands+decimal (e.g. "1.000,50" = 1000.50)', () {
-      expect(
-          CsvImportService.parseMoney('1.000,50'), closeTo(1000.50, 0.01));
+      expect(CsvImportService.parseMoney('1.000,50'), closeTo(1000.50, 0.01));
     });
 
     test('handles zero with periods as thousands (e.g. "1.000,00" = 1000.00)',
         () {
-      expect(
-          CsvImportService.parseMoney('1.000,00'), closeTo(1000.00, 0.01));
+      expect(CsvImportService.parseMoney('1.000,00'), closeTo(1000.00, 0.01));
     });
 
-    test(
-        'handles Monify export: "1.000" (1000€ without cents)',
-        () {
+    test('handles Monify export: "1.000" (1000€ without cents)', () {
       // Monify exports amounts without cents using period as thousands separator
       expect(CsvImportService.parseMoney('1.000'), 1000.0);
       expect(CsvImportService.parseMoney('2.500'), 2500.0);
@@ -278,9 +295,7 @@ void main() {
       expect(CsvImportService.parseMoney('1.052,6'), 1052.6);
     });
 
-    test(
-        'handles negative Monify format: "-1.052,6" = -1052.6',
-        () {
+    test('handles negative Monify format: "-1.052,6" = -1052.6', () {
       expect(CsvImportService.parseMoney('-1.052,6'), -1052.6);
     });
 
