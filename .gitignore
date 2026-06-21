@@ -73,6 +73,7 @@ package-lock.json
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 /android/key.properties
+/assets/adi-registration.properties
 /build-debug-files/
 /store-assets/
 /build-debug-file/
