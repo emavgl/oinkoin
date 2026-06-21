@@ -8,10 +8,10 @@ import 'dart:async' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:piggybank/models/category-type.dart' as _i5;
 import 'package:piggybank/models/category.dart' as _i4;
+import 'package:piggybank/models/profile.dart' as _i10;
 import 'package:piggybank/models/record-tag-association.dart' as _i7;
 import 'package:piggybank/models/record.dart' as _i6;
 import 'package:piggybank/models/recurrent-record-pattern.dart' as _i8;
-import 'package:piggybank/models/profile.dart' as _i10;
 import 'package:piggybank/models/wallet.dart' as _i9;
 import 'package:piggybank/services/database/database-interface.dart' as _i2;
 
@@ -169,6 +169,16 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<void>);
 
   @override
+  _i3.Future<void> deleteRecordsInBatch(List<int>? ids) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteRecordsInBatch,
+          [ids],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<int> addRecord(_i6.Record? record) => (super.noSuchMethod(
         Invocation.method(
           #addRecord,
@@ -182,6 +192,18 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       (super.noSuchMethod(
         Invocation.method(
           #addRecordsInBatch,
+          [records],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> addRecordsInBatchNoDuplicateCheck(
+          List<_i6.Record?>? records) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #addRecordsInBatchNoDuplicateCheck,
           [records],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -205,6 +227,34 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<int?>);
 
   @override
+  _i3.Future<void> updateRecordWalletInBatch(
+    List<int>? ids,
+    int? walletId,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateRecordWalletInBatch,
+          [
+            ids,
+            walletId,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> duplicateRecordsInBatch(List<int>? ids) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #duplicateRecordsInBatch,
+          [ids],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<DateTime?> getDateTimeFirstRecord() => (super.noSuchMethod(
         Invocation.method(
           #getDateTimeFirstRecord,
@@ -223,6 +273,15 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
         ),
         returnValue: _i3.Future<List<_i6.Record?>>.value(<_i6.Record?>[]),
       ) as _i3.Future<List<_i6.Record?>>);
+
+  @override
+  _i3.Future<int> getCountRecords() => (super.noSuchMethod(
+        Invocation.method(
+          #getCountRecords,
+          [],
+        ),
+        returnValue: _i3.Future<int>.value(0),
+      ) as _i3.Future<int>);
 
   @override
   _i3.Future<List<_i6.Record?>> getAllRecordsInInterval(
@@ -466,8 +525,7 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
           #getAllProfiles,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i10.Profile>>.value(<_i10.Profile>[]),
+        returnValue: _i3.Future<List<_i10.Profile>>.value(<_i10.Profile>[]),
       ) as _i3.Future<List<_i10.Profile>>);
 
   @override
@@ -478,6 +536,16 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
         ),
         returnValue: _i3.Future<_i10.Profile?>.value(),
       ) as _i3.Future<_i10.Profile?>);
+
+  @override
+  _i3.Future<void> setDefaultProfile(int? id) => (super.noSuchMethod(
+        Invocation.method(
+          #setDefaultProfile,
+          [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
   _i3.Future<_i10.Profile?> getProfileById(int? id) => (super.noSuchMethod(
@@ -522,6 +590,22 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
         Invocation.method(
           #getWalletById,
           [id],
+        ),
+        returnValue: _i3.Future<_i9.Wallet?>.value(),
+      ) as _i3.Future<_i9.Wallet?>);
+
+  @override
+  _i3.Future<_i9.Wallet?> getWalletByName(
+    String? name,
+    int? profileId,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getWalletByName,
+          [
+            name,
+            profileId,
+          ],
         ),
         returnValue: _i3.Future<_i9.Wallet?>.value(),
       ) as _i3.Future<_i9.Wallet?>);
@@ -607,15 +691,23 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> resetWalletOrderIndexes(List<_i9.Wallet>? ordered) =>
-      (super.noSuchMethod(
+  _i3.Future<void> setPredefinedWallet(int? id) => (super.noSuchMethod(
         Invocation.method(
-          #resetWalletOrderIndexes,
-          [ordered],
+          #setPredefinedWallet,
+          [id],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<_i9.Wallet?> getPredefinedWallet() => (super.noSuchMethod(
+        Invocation.method(
+          #getPredefinedWallet,
+          [],
+        ),
+        returnValue: _i3.Future<_i9.Wallet?>.value(),
+      ) as _i3.Future<_i9.Wallet?>);
 
   @override
   _i3.Future<_i9.Wallet?> getDefaultWallet() => (super.noSuchMethod(
@@ -625,6 +717,17 @@ class MockDatabaseInterface extends _i1.Mock implements _i2.DatabaseInterface {
         ),
         returnValue: _i3.Future<_i9.Wallet?>.value(),
       ) as _i3.Future<_i9.Wallet?>);
+
+  @override
+  _i3.Future<void> resetWalletOrderIndexes(List<_i9.Wallet>? ordered) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #resetWalletOrderIndexes,
+          [ordered],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> deleteDatabase() => (super.noSuchMethod(

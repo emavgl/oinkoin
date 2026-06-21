@@ -244,6 +244,7 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
           AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
+          AND description IS ?
       )
     """, [
           record.title,
@@ -267,6 +268,7 @@ class SqliteDatabase implements DatabaseInterface {
           record.category!.categoryType!.index,
           record.walletId,
           record.profileId,
+          record.description,
         ]);
       }
 
@@ -290,6 +292,7 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
           AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
+          AND description IS ?
         LIMIT 1
       """, [
           record.utcDateTime.millisecondsSinceEpoch,
@@ -299,6 +302,7 @@ class SqliteDatabase implements DatabaseInterface {
           record.category!.categoryType!.index,
           record.walletId,
           record.profileId,
+          record.description,
         ]);
 
         if (recordId.isNotEmpty) {
@@ -319,6 +323,93 @@ class SqliteDatabase implements DatabaseInterface {
       _logger.info('Batch complete with tags');
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> addRecordsInBatchNoDuplicateCheck(
+      List<Record?> records) async {
+    try {
+      _logger.debug(
+          'Adding ${records.length} records in batch (no duplicate check)...');
+      final db = (await database)!;
+      Batch batch = db.batch();
+
+      // Phase 1: batch-insert every record without any deduplication.
+      // Uses plain INSERT INTO (not INSERT OR IGNORE) so every row is stored.
+      for (var record in records) {
+        if (record == null) continue;
+        record.id = null;
+        record.profileId ??= ProfileService.instance.activeProfileId;
+        batch.rawInsert("""
+      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id, wallet_id, transfer_wallet_id, transfer_value, profile_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, [
+          record.title,
+          record.value,
+          record.utcDateTime.millisecondsSinceEpoch,
+          record.timeZoneName,
+          record.category!.name,
+          record.category!.categoryType!.index,
+          record.description,
+          record.recurrencePatternId,
+          record.walletId,
+          record.transferWalletId,
+          record.transferValue,
+          record.profileId,
+        ]);
+      }
+
+      await batch.commit(noResult: true);
+      _logger
+          .info('Batch insert committed (no dup check): ${records.length} records');
+
+      // Phase 2: insert tags (same field-matching approach as addRecordsInBatch)
+      Batch tagBatch = db.batch();
+      for (var record in records) {
+        if (record == null || record.tags.isEmpty) continue;
+
+        var recordId = await db.rawQuery("""
+        SELECT id FROM records
+        WHERE datetime = ?
+          AND value = ?
+          AND title IS ?
+          AND category_name = ?
+          AND category_type = ?
+          AND wallet_id IS ?
+          AND (profile_id IS NULL OR profile_id = ?)
+          AND description IS ?
+        LIMIT 1
+      """, [
+          record.utcDateTime.millisecondsSinceEpoch,
+          record.value,
+          record.title,
+          record.category!.name,
+          record.category!.categoryType!.index,
+          record.walletId,
+          record.profileId,
+          record.description,
+        ]);
+
+        if (recordId.isNotEmpty) {
+          final id = recordId.first['id'] as int;
+          for (String tag in record.tags) {
+            if (tag.trim().isNotEmpty) {
+              tagBatch.insert(
+                "records_tags",
+                {'record_id': id, 'tag_name': tag},
+                conflictAlgorithm: ConflictAlgorithm.ignore,
+              );
+            }
+          }
+        }
+      }
+
+      await tagBatch.commit(noResult: true);
+      _logger.info('Batch complete with tags');
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to add records in batch (no dup check)');
       rethrow;
     }
   }
