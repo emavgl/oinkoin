@@ -119,9 +119,12 @@ int getAmountInputKeyboardTypeIndex() {
 
 /// Returns the zero placeholder text for amount fields.
 /// Returns `"0.00"` (locale-appropriate) when auto-decimal is on, `"0"` otherwise.
-String buildZeroAmountText() {
+///
+/// If [decimalDigits] is provided, it overrides the global [getNumberDecimalDigits]
+/// so hint text matches the expected decimal count for the specific field.
+String buildZeroAmountText({int? decimalDigits}) {
   if (!getAmountInputAutoDecimalShift()) return '0';
-  final decDigits = getNumberDecimalDigits();
+  final decDigits = decimalDigits ?? getNumberDecimalDigits();
   if (decDigits <= 0) return '0';
   final decSep = getDecimalSeparator();
   return '0$decSep${List.filled(decDigits, '0').join()}';

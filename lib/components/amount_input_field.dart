@@ -109,7 +109,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: widget.labelText,
-        hintText: buildZeroAmountText(),
+        hintText: buildZeroAmountText(decimalDigits: widget.decimalDigits),
         suffixText: widget.suffixText,
       ),
     );
@@ -253,7 +253,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
             controller: widget.controller,
             enableSignToggleButton: widget.allowNegative,
             onSubmit: (_) => _doClose(),
-            decDigits: widget.decimalDigits,
+            decimalDigits: widget.decimalDigits,
           ),
         ),
       ),
@@ -308,7 +308,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.always,
           labelText: widget.labelText,
-          hintText: buildZeroAmountText(),
+          hintText: buildZeroAmountText(decimalDigits: widget.decimalDigits),
           suffixText: widget.suffixText,
         ),
       ),
