@@ -181,6 +181,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                 labelText: "1 ${_selectedCurrency ?? '[currency]'} =".i18n,
                 suffixText: mainSymbol,
                 allowNegative: false,
+                decimalDigits: 6,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter a value".i18n;
