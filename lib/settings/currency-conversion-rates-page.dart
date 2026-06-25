@@ -293,6 +293,7 @@ class _CurrencyConversionRatesPageState
                 child: AmountInputField(
                   controller: controller,
                   allowNegative: false,
+                  decimalDigits: 6,
                   onChanged: (text) => _onRateChanged(currency, text),
                 ),
               ),
