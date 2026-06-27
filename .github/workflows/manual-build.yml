@@ -111,11 +111,11 @@ jobs:
 
       - name: Build Linux packages (.deb, .rpm, and AppImage)
         run: |
-          # Add submodule Flutter to PATH first (so flutter_distributor uses it)
+          # Add submodule Flutter to PATH first (so fastforge uses it)
           export PATH="$(pwd)/submodules/flutter/bin:$PATH"
           
-          # Install flutter_distributor
-          dart pub global activate flutter_distributor
+          # Install fastforge
+          dart pub global activate fastforge
           export PATH="$HOME/.pub-cache/bin:$PATH"
           
           # Install tools for building .rpm and AppImage packages
@@ -131,7 +131,7 @@ jobs:
           flutter --version
           
           # Build .deb, .rpm, and AppImage packages
-          flutter_distributor release --name=linux-release --jobs=release-linux-deb,release-linux-rpm,release-linux-appimage
+          fastforge release --name=linux-release --jobs=release-linux-deb,release-linux-rpm,release-linux-appimage
 
       - name: Upload .deb as artifact
         uses: actions/upload-artifact@v4

@@ -12,8 +12,8 @@ void main() {
     });
 
     test('Default value for showFutureRecords should be true', () {
-      final defaultValue = PreferencesDefaultValues.defaultValues[
-          PreferencesKeys.showFutureRecords];
+      final defaultValue = PreferencesDefaultValues
+          .defaultValues[PreferencesKeys.showFutureRecords];
       expect(defaultValue, true);
     });
 
@@ -69,4 +69,3 @@ void main() {
     });
   });
 }
-
