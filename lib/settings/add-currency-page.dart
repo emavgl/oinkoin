@@ -39,8 +39,8 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
   final _ratioController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  /// Per-currency decimal digit override. Null means "use global default".
-  int? _decimalDigits;
+  /// Per-currency decimal digit override. -1 means "use global default".
+  int _decimalDigits = -1;
 
   /// The set of available decimal digit options shown in the dropdown.
   static const List<int> _decimalDigitOptions = [
@@ -54,7 +54,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
     if (widget.preFilledRatio != null) {
       _ratioController.text = widget.preFilledRatio.toString();
     }
-    _decimalDigits = widget.preFilledDecimalDigits;
+    _decimalDigits = widget.preFilledDecimalDigits ?? -1;
   }
 
   @override
@@ -117,7 +117,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
       UserCurrency(
         isoCode: _selectedCurrency!,
         ratioToMain: ratio,
-        decimalDigits: _decimalDigits,
+        decimalDigits: _decimalDigits >= 0 ? _decimalDigits : null,
       ),
     );
   }
@@ -252,7 +252,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                 items: [
                   // "Use default" option
                   DropdownMenuItem<int>(
-                    value: null,
+                    value: -1,
                     child: Text("Use global default (%s)".i18n.fill([
                       getNumberDecimalDigits().toString(),
                     ])),
@@ -265,6 +265,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                   }),
                 ],
                 onChanged: (value) {
+                  if (value == null) return;
                   setState(() {
                     _decimalDigits = value;
                   });
