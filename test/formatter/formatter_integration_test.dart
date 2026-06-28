@@ -188,6 +188,62 @@ void main() {
       });
     });
 
+    group('8 decimal digits (Bitcoin-style) with auto-decimal', () {
+      late AutoDecimalShiftFormatter autoDecimal;
+      late GroupSeparatorFormatter groupSep;
+      late List<TextInputFormatter> formatters;
+
+      setUp(() {
+        autoDecimal = AutoDecimalShiftFormatter(
+          decimalDigits: 8,
+          decimalSep: '.',
+          groupSep: ',',
+        );
+        groupSep = GroupSeparatorFormatter(
+          decimalSep: '.',
+          groupSep: ',',
+        );
+        formatters = [autoDecimal, groupSep];
+      });
+
+      test('typing 12345678 should show 0.12345678', () {
+        final oldValue = TextEditingValue(text: '1234567');
+        final newValue = TextEditingValue(text: '12345678');
+
+        final result = applyFormatters(oldValue, newValue, formatters);
+
+        expect(result.text, '0.12345678');
+      });
+
+      test('typing 123456789 should show 1.23456789', () {
+        final oldValue = TextEditingValue(text: '12345678');
+        final newValue = TextEditingValue(text: '123456789');
+
+        final result = applyFormatters(oldValue, newValue, formatters);
+
+        expect(result.text, '1.23456789');
+      });
+
+      test('large number 100000000000 should format correctly', () {
+        final oldValue = TextEditingValue(text: '10000000000');
+        final newValue = TextEditingValue(text: '100000000000');
+
+        final result = applyFormatters(oldValue, newValue, formatters);
+
+        // 100000000000 -> 1000.00000000 with group separators
+        expect(result.text, '1,000.00000000');
+      });
+
+      test('typing 5 should become 0.00000005', () {
+        final oldValue = TextEditingValue.empty;
+        final newValue = TextEditingValue(text: '5');
+
+        final result = applyFormatters(oldValue, newValue, formatters);
+
+        expect(result.text, '0.00000005');
+      });
+    });
+
     group('Edge cases in formatter chain', () {
       late List<TextInputFormatter> formatters;
 

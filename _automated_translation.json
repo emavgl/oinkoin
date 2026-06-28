@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-06-05",
-    "total_keys": 459
+    "last_updated": "2026-06-28",
+    "total_keys": 492
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -49,16 +49,6 @@
       "component": "TextFormField label",
       "meaning": "Input field for entering conversion ratio (e.g., '1 EUR = [amount] USD')",
       "notes": "Universal/technical term - keep in English across all locales",
-      "status": "skip"
-    },
-    "1 \\${_selectedCurrency ?? '[currency]'} =": {
-      "key": "1 \\${_selectedCurrency ?? '[currency]'} =",
-      "context": "Conversion rate input label in currency settings",
-      "file": "lib/settings/currency-conversion-rates-page.dart",
-      "page": "Settings > Currencies",
-      "component": "input field label",
-      "meaning": "Label above a field where the user enters the conversion rate for a currency",
-      "notes": "Contains template placeholders - keep the structure and placeholders as-is, only translate the '=' may need adaptation in RTL languages",
       "status": "skip"
     },
     "Add Currency": {
@@ -213,6 +203,26 @@
     },
     "Additional Settings": {
       "key": "Additional Settings",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Additional translations contributed via Crowdin.": {
+      "key": "Additional translations contributed via Crowdin.",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Adjust the overall keyboard scale": {
+      "key": "Adjust the overall keyboard scale",
       "context": null,
       "file": null,
       "page": null,
@@ -490,6 +500,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Auto": {
+      "key": "Auto",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Auto decimal input": {
       "key": "Auto decimal input",
       "context": null,
@@ -580,6 +600,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Background color": {
+      "key": "Background color",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Backup": {
       "key": "Backup",
       "context": "Settings menu item for backup functionality",
@@ -612,6 +642,36 @@
     },
     "Balance": {
       "key": "Balance",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Black": {
+      "key": "Black",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Button color": {
+      "key": "Button color",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Button text color": {
+      "key": "Button text color",
       "context": null,
       "file": null,
       "page": null,
@@ -779,16 +839,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": {
-      "key": "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Clipboard is empty or does not contain valid CSV": {
       "context": "Error shown when user taps 'Paste from Clipboard' but clipboard is empty or unparseable",
       "file": "lib/settings/csv_import/csv_import_page.dart",
@@ -798,8 +848,38 @@
       "notes": "Keep CSV as-is in translations",
       "status": "verified"
     },
+    "Code & translation": {
+      "key": "Code & translation",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Code (e.g., MYC)": {
       "key": "Code (e.g., MYC)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Code Contributors": {
+      "key": "Code Contributors",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Code contributor": {
+      "key": "Code contributor",
       "context": null,
       "file": null,
       "page": null,
@@ -855,6 +935,16 @@
       "meaning": "Proceed to map CSV columns to Oinkoin fields",
       "notes": "Clear action label",
       "status": "verified"
+    },
+    "Contributors": {
+      "key": "Contributors",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
     },
     "Conversion Rates": {
       "key": "Conversion Rates",
@@ -913,6 +1003,16 @@
       "meaning": "Users can create new wallet accounts to organize finances",
       "notes": "Part of premium feature promotion",
       "status": "verified"
+    },
+    "Creator & maintainer": {
+      "key": "Creator & maintainer",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
     },
     "Critical action": {
       "key": "Critical action",
@@ -1044,6 +1144,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Dark grey": {
+      "key": "Dark grey",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Data is deleted": {
       "key": "Data is deleted",
       "context": null,
@@ -1103,6 +1213,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Decimal places": {
+      "key": "Decimal places",
+      "context": "Label for the decimal digits dropdown in the edit currency page",
+      "file": "lib/settings/add-currency-page.dart:241",
+      "page": "Currencies > Add/Edit Currency",
+      "component": "DropdownButtonFormField label",
+      "meaning": "Number of decimal digits to display for this currency",
+      "notes": "Refers to per-currency decimal digit override setting",
+      "status": "verified"
+    },
     "Decimal separator": {
       "key": "Decimal separator",
       "context": null,
@@ -1121,6 +1241,16 @@
       "component": "currencySymbolPosition dropdown",
       "meaning": "Use default/standard position for currency symbol in this locale",
       "notes": "Localized appearance depends on NumberFormat defaults",
+      "status": "verified"
+    },
+    "Default (%s)": {
+      "key": "Default (%s)",
+      "context": "Hint text in decimal digits dropdown showing the global default value",
+      "file": "lib/settings/add-currency-page.dart:249",
+      "page": "Currencies > Add/Edit Currency",
+      "component": "DropdownButtonFormField hint",
+      "meaning": "Placeholder text indicating the default decimal digits value, with %s replaced by the number (e.g., 'Default (2)')",
+      "notes": "%s is replaced with the global decimal digits number",
       "status": "verified"
     },
     "Default (System)": {
@@ -1560,16 +1690,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Enter a positive number": {
-      "key": "Enter a positive number",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Enter an encryption password": {
       "key": "Enter an encryption password",
       "context": null,
@@ -1740,16 +1860,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Feedback": {
-      "key": "Feedback",
-      "context": "Settings menu item for feedback",
-      "file": "lib/settings/settings-page.dart:327",
-      "page": "Settings",
-      "component": "Menu item title",
-      "meaning": "Send feedback to app developers",
-      "notes": "Universal/technical term - keep in English across all locales",
-      "status": "skip"
-    },
     "File will have a unique name": {
       "key": "File will have a unique name",
       "context": null,
@@ -1759,16 +1869,6 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
-    },
-    "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.": {
-      "key": "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.",
-      "context": "Warning dialog when clicking Export Database button",
-      "file": "lib/settings/backup-page.dart:69",
-      "page": "Settings > Backup",
-      "component": "AlertDialog subtitle",
-      "meaning": "Informs users that the database export is not the same as the app backup, and is meant for advanced users",
-      "notes": "Keep the technical tone; 'Export Backup' is a UI label that should match the actual button text in the app",
-      "status": "verified"
     },
     "Filter Logic": {
       "key": "Filter Logic",
@@ -1850,6 +1950,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Forest": {
+      "key": "Forest",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Full category icon pack and color picker": {
       "key": "Full category icon pack and color picker",
       "context": null,
@@ -1882,6 +1992,16 @@
     },
     "Got problems? Check out the logs": {
       "key": "Got problems? Check out the logs",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Grey": {
+      "key": "Grey",
       "context": null,
       "file": null,
       "page": null,
@@ -2053,6 +2173,16 @@
       "notes": "Shown with progress indicator during import",
       "status": "verified"
     },
+    "InApp keyboard": {
+      "key": "InApp keyboard",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Include version and date in the name": {
       "key": "Include version and date in the name",
       "context": null,
@@ -2113,8 +2243,48 @@
       "notes": null,
       "status": "pending"
     },
+    "Keyboard Settings": {
+      "key": "Keyboard Settings",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Keyboard Type": {
+      "key": "Keyboard Type",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Keyboard size": {
+      "key": "Keyboard size",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Language": {
       "key": "Language",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Large": {
+      "key": "Large",
       "context": null,
       "file": null,
       "page": null,
@@ -2155,6 +2325,16 @@
     },
     "Light": {
       "key": "Light",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Light grey": {
+      "key": "Light grey",
       "context": null,
       "file": null,
       "page": null,
@@ -2252,6 +2432,16 @@
     },
     "Main Currency": {
       "key": "Main Currency",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Maintainer": {
+      "key": "Maintainer",
       "context": null,
       "file": null,
       "page": null,
@@ -2385,6 +2575,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Medium": {
+      "key": "Medium",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Monday": {
       "key": "Monday",
       "context": null,
@@ -2477,6 +2677,16 @@
     },
     "Name (e.g., My Currency)": {
       "key": "Name (e.g., My Currency)",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Navy": {
+      "key": "Navy",
       "context": null,
       "file": null,
       "page": null,
@@ -2753,6 +2963,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Number of decimal places for this currency (e.g., 8 for Bitcoin)": {
+      "key": "Number of decimal places for this currency (e.g., 8 for Bitcoin)",
+      "context": "Subtitle explanation for the decimal digits setting on the edit currency page",
+      "file": "lib/settings/add-currency-page.dart:228",
+      "page": "Currencies > Add/Edit Currency",
+      "component": "Text subtitle",
+      "meaning": "Explains that the number of decimal places can be set per currency, with Bitcoin as example needing 8",
+      "notes": "Example-oriented description",
+      "status": "verified"
+    },
     "Number of rows to display": {
       "key": "Number of rows to display",
       "context": null,
@@ -2782,6 +3002,16 @@
       "meaning": "The premium version of Oinkoin app",
       "notes": "Universal/technical term - keep in English across all locales",
       "status": "verified"
+    },
+    "Oinkoin is built by volunteers from around the world. Thank you!": {
+      "key": "Oinkoin is built by volunteers from around the world. Thank you!",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
     },
     "Once set, you can't see the password": {
       "key": "Once set, you can't see the password",
@@ -2862,6 +3092,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Page background": {
+      "key": "Page background",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Parsing CSV data": {
       "context": "Loading text shown during CSV file parsing",
       "file": "lib/settings/csv_import/csv_mapping_screen.dart:445",
@@ -2922,16 +3162,6 @@
     },
     "Please enter a profile name": {
       "key": "Please enter a profile name",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
-    "Please enter a valid conversion ratio.": {
-      "key": "Please enter a valid conversion ratio.",
       "context": null,
       "file": null,
       "page": null,
@@ -3008,6 +3238,26 @@
       "meaning": "This wallet/category comes pre-defined with the app",
       "notes": "Appears as small label under wallet/category name",
       "status": "verified"
+    },
+    "Preview": {
+      "key": "Preview",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Preview keyboard": {
+      "key": "Preview keyboard",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
     },
     "Privacy policy and credits": {
       "key": "Privacy policy and credits",
@@ -3485,6 +3735,36 @@
       "notes": null,
       "status": "pending"
     },
+    "Select the keyboard background color": {
+      "key": "Select the keyboard background color",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the keyboard button color": {
+      "key": "Select the keyboard button color",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Select the keyboard button text color": {
+      "key": "Select the keyboard button text color",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Select the keyboard layout for amount input": {
       "key": "Select the keyboard layout for amount input",
       "context": null,
@@ -3525,16 +3805,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Send a feedback": {
-      "key": "Send a feedback",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Send an Email": {
       "key": "Send an Email",
       "context": "Card title on the support page for the email option",
@@ -3544,16 +3814,6 @@
       "meaning": "Button/card that opens the email client to write to the developer",
       "notes": "Short action label",
       "status": "verified"
-    },
-    "Send us a feedback": {
-      "key": "Send us a feedback",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
     },
     "Set as predefined for app start": {
       "key": "Set as predefined for app start",
@@ -3842,6 +4102,26 @@
       "notes": "Keep parenthetical — concise",
       "status": "verified"
     },
+    "Slate": {
+      "key": "Slate",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Small": {
+      "key": "Small",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Statistics": {
       "key": "Statistics",
       "context": null,
@@ -4041,6 +4321,26 @@
       "notes": null,
       "status": "pending"
     },
+    "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.": {
+      "key": "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.",
+      "context": "Warning dialog when clicking Export Database button",
+      "file": "lib/settings/backup-page.dart:69",
+      "page": "Settings > Backup",
+      "component": "AlertDialog subtitle",
+      "meaning": "Informs users that the database export is not the same as the app backup, and is meant for advanced users",
+      "notes": "Keep the technical tone; 'Export Backup' is a UI label that should match the actual button text in the app",
+      "status": "verified"
+    },
+    "The people who built Oinkoin": {
+      "key": "The people who built Oinkoin",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
     "Theme style": {
       "key": "Theme style",
       "context": null,
@@ -4123,6 +4423,16 @@
     },
     "Total in %s": {
       "key": "Total in %s",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "Translators": {
+      "key": "Translators",
       "context": null,
       "file": null,
       "page": null,
@@ -4246,6 +4556,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Use global default (%s)": {
+      "key": "Use global default (%s)",
+      "context": "Dropdown option to use the global default decimal digits instead of a per-currency override",
+      "file": "lib/settings/add-currency-page.dart:256",
+      "page": "Currencies > Add/Edit Currency",
+      "component": "DropdownMenuItem option",
+      "meaning": "Option to clear the per-currency override and fall back to the global decimal digits setting",
+      "notes": "%s is replaced with the global decimal digits number",
+      "status": "verified"
     },
     "Used by": {
       "key": "Used by",
@@ -4388,6 +4708,16 @@
     },
     "When typing `dot`, it types `comma` instead": {
       "key": "When typing `dot`, it types `comma` instead",
+      "context": null,
+      "file": null,
+      "page": null,
+      "component": null,
+      "meaning": null,
+      "notes": null,
+      "status": "pending"
+    },
+    "White": {
+      "key": "White",
       "context": null,
       "file": null,
       "page": null,

@@ -26,6 +26,8 @@ class AmountInputField extends StatefulWidget {
     this.onChanged,
     this.autofocus = false,
     this.autovalidateMode = AutovalidateMode.disabled,
+    this.currencyCode,
+    this.decimalDigits,
   });
 
   final TextEditingController controller;
@@ -44,6 +46,15 @@ class AmountInputField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final bool autofocus;
   final AutovalidateMode autovalidateMode;
+
+  /// When set, per-currency decimal digits (configured in Currencies → Edit)
+  /// override the global decimal digits setting for this field.
+  final String? currencyCode;
+
+  /// Direct decimal digits override. When non-null, takes highest priority
+  /// over both the global default and any per-currency lookup.
+  /// Used for live preview when editing a currency's decimal digits.
+  final int? decimalDigits;
 
   @override
   State<AmountInputField> createState() => _AmountInputFieldState();
@@ -64,6 +75,9 @@ class _AmountInputFieldState extends State<AmountInputField> {
     final mode = getAmountKeyboardMode();
     final validator = widget.validator ?? _defaultValidator;
 
+    final decDigits = widget.decimalDigits ??
+        getNumberDecimalDigitsForCurrency(widget.currencyCode);
+
     if (mode == AmountKeyboardMode.inAppKeyboard) {
       return _InAppKeyboardField(
         controller: widget.controller,
@@ -75,6 +89,8 @@ class _AmountInputFieldState extends State<AmountInputField> {
         onChanged: widget.onChanged,
         autovalidateMode: widget.autovalidateMode,
         autofocus: widget.autofocus,
+        currencyCode: widget.currencyCode,
+        decimalDigits: widget.decimalDigits,
       );
     }
 
@@ -87,7 +103,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
         decimalSep: getDecimalSeparator(),
         groupSep: getGroupingSeparator(),
         autoDec: getAmountInputAutoDecimalShift(),
-        decDigits: getNumberDecimalDigits(),
+        decDigits: decDigits,
       ),
       validator: validator,
       onChanged: widget.onChanged,
@@ -102,7 +118,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: widget.labelText,
-        hintText: buildZeroAmountText(),
+        hintText: buildZeroAmountText(decimalDigits: decDigits),
         suffixText: widget.suffixText,
       ),
     );
@@ -122,6 +138,8 @@ class _InAppKeyboardField extends StatefulWidget {
     this.suffixText,
     this.onChanged,
     this.autofocus = false,
+    this.currencyCode,
+    this.decimalDigits,
   });
 
   final TextEditingController controller;
@@ -133,6 +151,8 @@ class _InAppKeyboardField extends StatefulWidget {
   final String? suffixText;
   final ValueChanged<String>? onChanged;
   final bool autofocus;
+  final String? currencyCode;
+  final int? decimalDigits;
 
   @override
   State<_InAppKeyboardField> createState() => _InAppKeyboardFieldState();
@@ -244,6 +264,8 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
             controller: widget.controller,
             enableSignToggleButton: widget.allowNegative,
             onSubmit: (_) => _doClose(),
+            currencyCode: widget.currencyCode,
+            decimalDigits: widget.decimalDigits,
           ),
         ),
       ),
@@ -268,6 +290,9 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
     // Navigator.pop() — used by the AppBar back button — ignores canPop and
     // always pops; _onRouteAnimationStatus handles that path by removing the
     // overlay as soon as the route starts reversing.
+    final decDigits = widget.decimalDigits ??
+        getNumberDecimalDigitsForCurrency(widget.currencyCode);
+
     return PopScope(
       canPop: _overlayEntry == null,
       onPopInvokedWithResult: (didPop, _) {
@@ -284,7 +309,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
           decimalSep: getDecimalSeparator(),
           groupSep: getGroupingSeparator(),
           autoDec: getAmountInputAutoDecimalShift(),
-          decDigits: getNumberDecimalDigits(),
+          decDigits: decDigits,
         ),
         validator: widget.validator,
         onTap: _openKeyboard,
@@ -298,7 +323,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.always,
           labelText: widget.labelText,
-          hintText: buildZeroAmountText(),
+          hintText: buildZeroAmountText(decimalDigits: decDigits),
           suffixText: widget.suffixText,
         ),
       ),

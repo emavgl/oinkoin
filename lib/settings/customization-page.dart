@@ -285,6 +285,7 @@ class CustomizationPageState extends State<CustomizationPage> {
   static void invalidateNumberPatternCache() {
     ServiceConfig.currencyNumberFormat = null;
     ServiceConfig.currencyNumberFormatWithoutGrouping = null;
+    ServiceConfig.perCurrencyNumberFormatCache.clear();
   }
 
   static void invalidateOverwritePreferences() async {

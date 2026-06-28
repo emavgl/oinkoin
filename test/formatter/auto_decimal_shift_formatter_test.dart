@@ -268,6 +268,87 @@ void main() {
         expect(result.text, '1.234');
       });
     });
+
+    group('8 decimal digits (Bitcoin-style)', () {
+      late AutoDecimalShiftFormatter formatter8;
+
+      setUp(() {
+        formatter8 = AutoDecimalShiftFormatter(
+          decimalDigits: 8,
+          decimalSep: '.',
+          groupSep: ',',
+        );
+      });
+
+      test('single digit with 8 decimal places', () {
+        final oldValue = TextEditingValue.empty;
+        final newValue = TextEditingValue(text: '5');
+
+        final result = formatter8.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '0.00000005');
+      });
+
+      test('two digits with 8 decimal places', () {
+        final oldValue = TextEditingValue(text: '5');
+        final newValue = TextEditingValue(text: '50');
+
+        final result = formatter8.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '0.00000050');
+      });
+
+      test('eight digits with 8 decimal places', () {
+        final oldValue = TextEditingValue(text: '1234567');
+        final newValue = TextEditingValue(text: '12345678');
+
+        final result = formatter8.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '0.12345678');
+      });
+
+      test('nine digits with 8 decimal places', () {
+        final oldValue = TextEditingValue(text: '12345678');
+        final newValue = TextEditingValue(text: '123456789');
+
+        final result = formatter8.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '1.23456789');
+      });
+
+      test('large amount with 8 decimal places', () {
+        final oldValue = TextEditingValue(text: '100000000');
+        final newValue = TextEditingValue(text: '1000000000');
+
+        final result = formatter8.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '10.00000000');
+      });
+
+      test('zero decimal digits formatter still returns unchanged', () {
+        final formatterZero = AutoDecimalShiftFormatter(
+          decimalDigits: 0,
+          decimalSep: '.',
+          groupSep: ',',
+        );
+
+        final oldValue = TextEditingValue.empty;
+        final newValue = TextEditingValue(text: '500');
+
+        final result = formatterZero.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '500');
+      });
+
+      test('mathematical expression with 8 decimal places', () {
+        final oldValue = TextEditingValue(text: '100+20');
+        final newValue = TextEditingValue(text: '1000+200');
+
+        final result = formatter8.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '0.00001000+0.00000200');
+      });
+    });
   });
 
   group('LeadingZeroIntegerTrimmerFormatter', () {

@@ -170,6 +170,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
         labelText: "Balance".i18n,
         allowNegative: true,
         autofocus: false,
+        currencyCode: _selectedCurrency,
         validator: (value) {
           // Empty is allowed — defaults to 0
           if (value == null || value.isEmpty) return null;

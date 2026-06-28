@@ -87,6 +87,22 @@ int getNumberDecimalDigits() {
   )!;
 }
 
+/// Returns the number of decimal digits for a specific currency.
+///
+/// If [currencyCode] is non-null and the user has configured a per-currency
+/// decimal digit override in their currency config, that value is returned.
+/// Otherwise, falls back to the global default from Settings.
+int getNumberDecimalDigitsForCurrency(String? currencyCode) {
+  final defaultDigits = getNumberDecimalDigits();
+  if (currencyCode == null || currencyCode.isEmpty) return defaultDigits;
+  final config = getUserCurrencyConfig();
+  final currency = config.getByCode(currencyCode);
+  if (currency?.decimalDigits != null && currency!.decimalDigits! >= 0) {
+    return currency!.decimalDigits!;
+  }
+  return defaultDigits;
+}
+
 bool getAmountInputAutoDecimalShift() {
   if (getNumberDecimalDigits() <= 0) return false;
   return PreferencesUtils.getOrDefault<bool>(
@@ -109,13 +125,13 @@ bool usesWesternArabicNumerals(Locale locale) {
 }
 
 NumberFormat getNumberFormatWithCustomizations(
-    {turnOffGrouping = false, locale}) {
+    {turnOffGrouping = false, locale, int? decimalDigits}) {
   NumberFormat? numberFormat;
 
   String? userDefinedGroupSeparator = PreferencesUtils.getOrDefault<String?>(
       ServiceConfig.sharedPreferences!, PreferencesKeys.groupSeparator);
 
-  int decimalDigits = PreferencesUtils.getOrDefault<int>(
+  decimalDigits ??= PreferencesUtils.getOrDefault<int>(
       ServiceConfig.sharedPreferences!, PreferencesKeys.numberDecimalDigits)!;
 
   try {
@@ -542,15 +558,38 @@ RecordsTotalResult computeTotalInCurrency(
 
 /// Formats [value] with currency symbol, position, and locale-appropriate
 /// separators using the customized number format.
+///
+/// Uses per-currency decimal digits when the currency has a configured
+/// override (set in Currencies → Edit), otherwise falls back to the global
+/// decimal digits setting.
 String formatCurrencyAmount(double value, String currencyCode) {
-  var numberFormat = ServiceConfig.currencyNumberFormat;
-  if (numberFormat == null) {
-    setNumberFormatCache();
+  final perCurrencyDecDigits =
+      getNumberDecimalDigitsForCurrency(currencyCode);
+  final globalDecDigits = getNumberDecimalDigits();
+
+  NumberFormat? numberFormat;
+  if (perCurrencyDecDigits == globalDecDigits) {
+    // Use the cached global format when digits match.
     numberFormat = ServiceConfig.currencyNumberFormat;
+    if (numberFormat == null) {
+      setNumberFormatCache();
+      numberFormat = ServiceConfig.currencyNumberFormat;
+    }
+  } else {
+    // Use (or populate) the per-currency cache.
+    numberFormat = ServiceConfig.perCurrencyNumberFormatCache
+        .putIfAbsent(perCurrencyDecDigits, () {
+      return getNumberFormatWithCustomizations(
+        decimalDigits: perCurrencyDecDigits,
+      );
+    });
   }
+  // Guaranteed non-null: getNumberFormatWithCustomizations always returns
+  // a NumberFormat, and setNumberFormatCache assigns one.
+  numberFormat ??= getNumberFormatWithCustomizations();
 
   final currencySymbol = getCurrencySymbol(currencyCode);
-  final formatted = numberFormat!.format(value);
+  final formatted = numberFormat.format(value);
   return insertCurrencySymbol(formatted, currencySymbol);
 }
 
