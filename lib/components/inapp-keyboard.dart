@@ -40,12 +40,16 @@ class InAppKeyboard extends StatefulWidget {
     this.onSubmit,
     this.enableSignToggleButton = true,
     this.title,
+    this.currencyCode,
   });
 
   final TextEditingController controller;
   final String? title;
   final bool enableSignToggleButton;
   final void Function(double amount)? onSubmit;
+
+  /// When set, per-currency decimal digits override the global default.
+  final String? currencyCode;
 
   @override
   State<InAppKeyboard> createState() => _InAppKeyboardState();
@@ -125,7 +129,9 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
       final trimmed = _text.trim();
       if (trimmed.isEmpty) return 0;
       if (trimmed == '-' || trimmed == '-0') return 0;
-      return evaluateExpression(trimmed).roundWithDecimals(2);
+      final decDigits =
+          getNumberDecimalDigitsForCurrency(widget.currencyCode);
+      return evaluateExpression(trimmed).roundWithDecimals(decDigits);
     } catch (_) {
       return 0;
     }
@@ -143,7 +149,7 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
       decimalSep: getDecimalSeparator(),
       groupSep: getGroupingSeparator(),
       autoDec: getAmountInputAutoDecimalShift(),
-      decDigits: getNumberDecimalDigits(),
+      decDigits: getNumberDecimalDigitsForCurrency(widget.currencyCode),
     );
     widget.controller.addListener(_onControllerChanged);
     _focusAttachment = _focusNode.attach(context, onKeyEvent: _handleKeyEvent);

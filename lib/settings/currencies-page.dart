@@ -16,11 +16,16 @@ class UserCurrency {
   final String? customSymbol;
   final String? customName;
 
+  /// Number of decimal digits for this currency (e.g., 8 for Bitcoin).
+  /// When null, the global default from Settings is used.
+  final int? decimalDigits;
+
   UserCurrency({
     required this.isoCode,
     required this.ratioToMain,
     this.customSymbol,
     this.customName,
+    this.decimalDigits,
   });
 
   bool get isCustom => customName != null;
@@ -30,12 +35,14 @@ class UserCurrency {
     double? ratioToMain,
     String? customSymbol,
     String? customName,
+    int? decimalDigits,
   }) {
     return UserCurrency(
       isoCode: isoCode ?? this.isoCode,
       ratioToMain: ratioToMain ?? this.ratioToMain,
       customSymbol: customSymbol ?? this.customSymbol,
       customName: customName ?? this.customName,
+      decimalDigits: decimalDigits ?? this.decimalDigits,
     );
   }
 
@@ -44,6 +51,7 @@ class UserCurrency {
         'ratioToMain': ratioToMain,
         if (customSymbol != null) 'customSymbol': customSymbol,
         if (customName != null) 'customName': customName,
+        if (decimalDigits != null) 'decimalDigits': decimalDigits,
       };
 
   factory UserCurrency.fromJson(Map<String, dynamic> json) {
@@ -52,6 +60,7 @@ class UserCurrency {
       ratioToMain: (json['ratioToMain'] as num).toDouble(),
       customSymbol: json['customSymbol'] as String?,
       customName: json['customName'] as String?,
+      decimalDigits: json['decimalDigits'] as int?,
     );
   }
 }
@@ -255,6 +264,7 @@ class _CurrenciesPageState extends State<CurrenciesPage> {
           existingCodes: _config.isoCodes,
           preSelectedCurrency: userCurrency.isoCode,
           preFilledRatio: userCurrency.ratioToMain,
+          preFilledDecimalDigits: userCurrency.decimalDigits,
         ),
       ),
     );
