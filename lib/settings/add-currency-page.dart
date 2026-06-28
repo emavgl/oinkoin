@@ -199,6 +199,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                 suffixText: mainSymbol,
                 allowNegative: false,
                 currencyCode: _selectedCurrency,
+                decimalDigits: _decimalDigits >= 0 ? _decimalDigits : null,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter a value".i18n;
@@ -246,9 +247,6 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 ),
                 isExpanded: true,
-                hint: Text("Default (%s)".i18n.fill([
-                  getNumberDecimalDigits().toString(),
-                ])),
                 items: [
                   // "Use default" option
                   DropdownMenuItem<int>(

@@ -576,10 +576,13 @@ String formatCurrencyAmount(double value, String currencyCode) {
       numberFormat = ServiceConfig.currencyNumberFormat;
     }
   } else {
-    // Build a temporary format with per-currency decimal digits.
-    numberFormat = getNumberFormatWithCustomizations(
-      decimalDigits: perCurrencyDecDigits,
-    );
+    // Use (or populate) the per-currency cache.
+    numberFormat = ServiceConfig.perCurrencyNumberFormatCache
+        .putIfAbsent(perCurrencyDecDigits, () {
+      return getNumberFormatWithCustomizations(
+        decimalDigits: perCurrencyDecDigits,
+      );
+    });
   }
   // Guaranteed non-null: getNumberFormatWithCustomizations always returns
   // a NumberFormat, and setNumberFormatCache assigns one.
