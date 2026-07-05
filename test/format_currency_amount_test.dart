@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/currencies-page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 
@@ -73,6 +74,85 @@ void main() {
 
       expect(result, contains('-'));
       expect(result, contains('1,234.56'));
+    });
+  });
+
+  group('formatCurrencyAmount with per-currency decimal digits', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
+      ServiceConfig.currencyLocale = const Locale('en', 'US');
+      await ServiceConfig.sharedPreferences!
+          .setString(PreferencesKeys.decimalSeparator, '.');
+      await ServiceConfig.sharedPreferences!
+          .setString(PreferencesKeys.groupSeparator, ',');
+      await ServiceConfig.sharedPreferences!
+          .setInt(PreferencesKeys.numberDecimalDigits, 2);
+      setNumberFormatCache();
+    });
+
+    test('uses the global decimal digits for a currency without an override',
+        () async {
+      await saveUserCurrencyConfig(UserCurrencyConfig(
+        mainCurrency: 'EUR',
+        currencies: [UserCurrency(isoCode: 'EUR', ratioToMain: 1.0)],
+      ));
+
+      final result = formatCurrencyAmount(1234.5, 'EUR');
+
+      expect(result, contains('1,234.50'));
+    });
+
+    test('uses the configured per-currency decimal digits (e.g. 8 for Bitcoin)',
+        () async {
+      await saveUserCurrencyConfig(UserCurrencyConfig(
+        mainCurrency: 'EUR',
+        currencies: [
+          UserCurrency(isoCode: 'BTC', ratioToMain: 45000, decimalDigits: 8),
+        ],
+      ));
+
+      final result = formatCurrencyAmount(0.00000001, 'BTC');
+
+      expect(result, contains('0.00000001'));
+    });
+
+    test('two currencies with different overrides format independently',
+        () async {
+      await saveUserCurrencyConfig(UserCurrencyConfig(
+        mainCurrency: 'EUR',
+        currencies: [
+          UserCurrency(isoCode: 'EUR', ratioToMain: 1.0),
+          UserCurrency(isoCode: 'BTC', ratioToMain: 45000, decimalDigits: 8),
+        ],
+      ));
+
+      final eurResult = formatCurrencyAmount(1234.5, 'EUR');
+      final btcResult = formatCurrencyAmount(1.5, 'BTC');
+
+      expect(eurResult, contains('1,234.50'));
+      expect(btcResult, contains('1.50000000'));
+    });
+
+    test('reflects an updated override after the cache is invalidated',
+        () async {
+      await saveUserCurrencyConfig(UserCurrencyConfig(
+        mainCurrency: 'EUR',
+        currencies: [
+          UserCurrency(isoCode: 'BTC', ratioToMain: 45000, decimalDigits: 4),
+        ],
+      ));
+      expect(formatCurrencyAmount(1.5, 'BTC'), contains('1.5000'));
+
+      await saveUserCurrencyConfig(UserCurrencyConfig(
+        mainCurrency: 'EUR',
+        currencies: [
+          UserCurrency(isoCode: 'BTC', ratioToMain: 45000, decimalDigits: 6),
+        ],
+      ));
+      ServiceConfig.perCurrencyNumberFormatCache.clear();
+
+      expect(formatCurrencyAmount(1.5, 'BTC'), contains('1.500000'));
     });
   });
 

@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-06-05",
-    "total_keys": 459
+    "last_updated": "2026-07-05",
+    "total_keys": 460
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -4554,6 +4554,16 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
+      "status": "verified"
+    },
+    "Use global default (%s)": {
+      "key": "Use global default (%s)",
+      "context": "Decimal digits dropdown option on the Add/Edit Currency page",
+      "file": "lib/settings/add-currency-page.dart",
+      "page": "Settings > Currencies > Add/Edit Currency",
+      "component": "DropdownMenuItem label in the per-currency decimal digits dropdown",
+      "meaning": "Option meaning 'use the global decimal digits setting' instead of a per-currency override. %s is replaced with the current global digit count (e.g. 'Use global default (2)').",
+      "notes": "Keep the %s placeholder intact; it is filled with a number via .fill().",
       "status": "verified"
     }
   }

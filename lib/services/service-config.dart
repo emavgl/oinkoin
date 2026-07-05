@@ -23,6 +23,11 @@ class ServiceConfig {
   static NumberFormat? currencyNumberFormat; // set in main.dart
   static NumberFormat? currencyNumberFormatWithoutGrouping; // set in main.dart
 
+  /// Cache of per-currency [NumberFormat] instances keyed by decimal digit
+  /// count. Populated lazily by [formatCurrencyAmount], cleared whenever the
+  /// global format is invalidated.
+  static final Map<int, NumberFormat> perCurrencyNumberFormatCache = {};
+
   static void togglePremium() {
     isPremium = !isPremium;
     premiumNotifier.value = isPremium;
