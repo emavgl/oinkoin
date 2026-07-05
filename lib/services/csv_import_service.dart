@@ -585,10 +585,11 @@ class CsvImportService {
 
   /// Imports records from the parsed CSV rows into the database.
   ///
-  /// Uses the same duplicate-handling as [BackupService.importDataFromBackupFile]:
   ///  - Categories are inserted with [ElementAlreadyExists] catch.
-  ///  - Records use [DatabaseInterface.addRecordsInBatch] which skips
-  ///    duplicates via `INSERT OR IGNORE`.
+  ///  - Records use [DatabaseInterface.addRecordsInBatchNoDuplicateCheck], so
+  ///    every CSV row is imported as-is, unlike
+  ///    [BackupService.importDataFromBackupFile] which relies on
+  ///    [DatabaseInterface.addRecordsInBatch] to skip duplicates.
   ///  - Tags are inserted after records are committed.
   static Future<CsvImportResult> importRecords(
     List<Map<String, String>> rows,
