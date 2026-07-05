@@ -27,6 +27,7 @@ class AmountInputField extends StatefulWidget {
     this.autofocus = false,
     this.autovalidateMode = AutovalidateMode.disabled,
     this.decimalDigits,
+    this.unlimitedDecimals = false,
   });
 
   final TextEditingController controller;
@@ -47,9 +48,13 @@ class AmountInputField extends StatefulWidget {
   final AutovalidateMode autovalidateMode;
 
   /// Overrides the global [getNumberDecimalDigits] when non-null.
-  /// Used for fields that need more decimal precision, such as currency
-  /// conversion ratios.
+  /// Ignored when [unlimitedDecimals] is true.
   final int? decimalDigits;
+
+  /// When true, no cap is placed on the number of decimal digits the user
+  /// can type. Used for fields like the currency conversion ratio, where
+  /// truncating precision would defeat the purpose of the field.
+  final bool unlimitedDecimals;
 
   @override
   State<AmountInputField> createState() => _AmountInputFieldState();
@@ -61,7 +66,11 @@ class _AmountInputFieldState extends State<AmountInputField> {
     final parsed = widget.allowNegative
         ? tryParseSignedCurrencyString(value)
         : tryParseCurrencyString(value);
-    if (parsed == null) return amountFormatErrorMessage();
+    if (parsed == null) {
+      return amountFormatErrorMessage(
+        decimalDigits: widget.unlimitedDecimals ? null : widget.decimalDigits,
+      );
+    }
     return null;
   }
 
@@ -82,6 +91,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
         autovalidateMode: widget.autovalidateMode,
         autofocus: widget.autofocus,
         decimalDigits: widget.decimalDigits,
+        unlimitedDecimals: widget.unlimitedDecimals,
       );
     }
 
@@ -94,7 +104,8 @@ class _AmountInputFieldState extends State<AmountInputField> {
         decimalSep: getDecimalSeparator(),
         groupSep: getGroupingSeparator(),
         autoDec: getAmountInputAutoDecimalShift(),
-        decDigits: widget.decimalDigits ?? getNumberDecimalDigits(),
+        decDigits: resolveDecimalDigits(widget.decimalDigits),
+        unlimitedDecimals: widget.unlimitedDecimals,
       ),
       validator: validator,
       onChanged: widget.onChanged,
@@ -130,6 +141,7 @@ class _InAppKeyboardField extends StatefulWidget {
     this.onChanged,
     this.autofocus = false,
     this.decimalDigits,
+    this.unlimitedDecimals = false,
   });
 
   final TextEditingController controller;
@@ -142,6 +154,7 @@ class _InAppKeyboardField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final bool autofocus;
   final int? decimalDigits;
+  final bool unlimitedDecimals;
 
   @override
   State<_InAppKeyboardField> createState() => _InAppKeyboardFieldState();
@@ -254,6 +267,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
             enableSignToggleButton: widget.allowNegative,
             onSubmit: (_) => _doClose(),
             decimalDigits: widget.decimalDigits,
+            unlimitedDecimals: widget.unlimitedDecimals,
           ),
         ),
       ),
@@ -294,7 +308,8 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
           decimalSep: getDecimalSeparator(),
           groupSep: getGroupingSeparator(),
           autoDec: getAmountInputAutoDecimalShift(),
-          decDigits: widget.decimalDigits ?? getNumberDecimalDigits(),
+          decDigits: resolveDecimalDigits(widget.decimalDigits),
+          unlimitedDecimals: widget.unlimitedDecimals,
         ),
         validator: widget.validator,
         onTap: _openKeyboard,

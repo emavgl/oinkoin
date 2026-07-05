@@ -41,6 +41,7 @@ class InAppKeyboard extends StatefulWidget {
     this.enableSignToggleButton = true,
     this.title,
     this.decimalDigits,
+    this.unlimitedDecimals = false,
   });
 
   final TextEditingController controller;
@@ -49,7 +50,12 @@ class InAppKeyboard extends StatefulWidget {
   final void Function(double amount)? onSubmit;
 
   /// Overrides the global [getNumberDecimalDigits] when non-null.
+  /// Ignored when [unlimitedDecimals] is true.
   final int? decimalDigits;
+
+  /// When true, no cap is placed on the number of decimal digits the user
+  /// can type, and the typed/evaluated value is not rounded.
+  final bool unlimitedDecimals;
 
   @override
   State<InAppKeyboard> createState() => _InAppKeyboardState();
@@ -129,8 +135,10 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
       final trimmed = _text.trim();
       if (trimmed.isEmpty) return 0;
       if (trimmed == '-' || trimmed == '-0') return 0;
-      return evaluateExpression(trimmed)
-          .roundWithDecimals(widget.decimalDigits ?? 2);
+      final result = evaluateExpression(trimmed);
+      return widget.unlimitedDecimals
+          ? result.toDouble()
+          : result.roundWithDecimals(resolveDecimalDigits(widget.decimalDigits));
     } catch (_) {
       return 0;
     }
@@ -148,7 +156,8 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
       decimalSep: getDecimalSeparator(),
       groupSep: getGroupingSeparator(),
       autoDec: getAmountInputAutoDecimalShift(),
-      decDigits: widget.decimalDigits ?? getNumberDecimalDigits(),
+      decDigits: resolveDecimalDigits(widget.decimalDigits),
+      unlimitedDecimals: widget.unlimitedDecimals,
     );
     widget.controller.addListener(_onControllerChanged);
     _focusAttachment = _focusNode.attach(context, onKeyEvent: _handleKeyEvent);
