@@ -28,6 +28,7 @@ class AmountInputField extends StatefulWidget {
     this.autovalidateMode = AutovalidateMode.disabled,
     this.decimalDigits,
     this.unlimitedDecimals = false,
+    this.currencyCode,
   });
 
   final TextEditingController controller;
@@ -56,11 +57,21 @@ class AmountInputField extends StatefulWidget {
   /// truncating precision would defeat the purpose of the field.
   final bool unlimitedDecimals;
 
+  /// When set (and [decimalDigits] is null), the decimal digits configured
+  /// for this currency (Currencies → Edit) override the global default.
+  /// Ignored when [unlimitedDecimals] is true.
+  final String? currencyCode;
+
   @override
   State<AmountInputField> createState() => _AmountInputFieldState();
 }
 
 class _AmountInputFieldState extends State<AmountInputField> {
+  int get _resolvedDecimalDigits => resolveDecimalDigits(
+        widget.decimalDigits,
+        currencyCode: widget.currencyCode,
+      );
+
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) return "Please enter a value".i18n;
     final parsed = widget.allowNegative
@@ -68,7 +79,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
         : tryParseCurrencyString(value);
     if (parsed == null) {
       return amountFormatErrorMessage(
-        decimalDigits: widget.unlimitedDecimals ? null : widget.decimalDigits,
+        decimalDigits: widget.unlimitedDecimals ? null : _resolvedDecimalDigits,
       );
     }
     return null;
@@ -78,6 +89,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
   Widget build(BuildContext context) {
     final mode = getAmountKeyboardMode();
     final validator = widget.validator ?? _defaultValidator;
+    final decDigits = _resolvedDecimalDigits;
 
     if (mode == AmountKeyboardMode.inAppKeyboard) {
       return _InAppKeyboardField(
@@ -92,6 +104,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
         autofocus: widget.autofocus,
         decimalDigits: widget.decimalDigits,
         unlimitedDecimals: widget.unlimitedDecimals,
+        currencyCode: widget.currencyCode,
       );
     }
 
@@ -104,7 +117,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
         decimalSep: getDecimalSeparator(),
         groupSep: getGroupingSeparator(),
         autoDec: getAmountInputAutoDecimalShift(),
-        decDigits: resolveDecimalDigits(widget.decimalDigits),
+        decDigits: decDigits,
         unlimitedDecimals: widget.unlimitedDecimals,
       ),
       validator: validator,
@@ -120,7 +133,8 @@ class _AmountInputFieldState extends State<AmountInputField> {
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: widget.labelText,
-        hintText: buildZeroAmountText(decimalDigits: widget.decimalDigits),
+        hintText:
+            widget.unlimitedDecimals ? '0' : buildZeroAmountText(decimalDigits: decDigits),
         suffixText: widget.suffixText,
       ),
     );
@@ -142,6 +156,7 @@ class _InAppKeyboardField extends StatefulWidget {
     this.autofocus = false,
     this.decimalDigits,
     this.unlimitedDecimals = false,
+    this.currencyCode,
   });
 
   final TextEditingController controller;
@@ -155,12 +170,18 @@ class _InAppKeyboardField extends StatefulWidget {
   final bool autofocus;
   final int? decimalDigits;
   final bool unlimitedDecimals;
+  final String? currencyCode;
 
   @override
   State<_InAppKeyboardField> createState() => _InAppKeyboardFieldState();
 }
 
 class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
+  int get _resolvedDecimalDigits => resolveDecimalDigits(
+        widget.decimalDigits,
+        currencyCode: widget.currencyCode,
+      );
+
   OverlayEntry? _overlayEntry;
   final GlobalKey<_KeyboardOverlayState> _overlayKey = GlobalKey();
   final GlobalKey _keyboardSizeKey = GlobalKey();
@@ -268,6 +289,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
             onSubmit: (_) => _doClose(),
             decimalDigits: widget.decimalDigits,
             unlimitedDecimals: widget.unlimitedDecimals,
+            currencyCode: widget.currencyCode,
           ),
         ),
       ),
@@ -292,6 +314,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
     // Navigator.pop() — used by the AppBar back button — ignores canPop and
     // always pops; _onRouteAnimationStatus handles that path by removing the
     // overlay as soon as the route starts reversing.
+    final decDigits = _resolvedDecimalDigits;
     return PopScope(
       canPop: _overlayEntry == null,
       onPopInvokedWithResult: (didPop, _) {
@@ -308,7 +331,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
           decimalSep: getDecimalSeparator(),
           groupSep: getGroupingSeparator(),
           autoDec: getAmountInputAutoDecimalShift(),
-          decDigits: resolveDecimalDigits(widget.decimalDigits),
+          decDigits: decDigits,
           unlimitedDecimals: widget.unlimitedDecimals,
         ),
         validator: widget.validator,
@@ -323,7 +346,9 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.always,
           labelText: widget.labelText,
-          hintText: buildZeroAmountText(decimalDigits: widget.decimalDigits),
+          hintText: widget.unlimitedDecimals
+              ? '0'
+              : buildZeroAmountText(decimalDigits: decDigits),
           suffixText: widget.suffixText,
         ),
       ),

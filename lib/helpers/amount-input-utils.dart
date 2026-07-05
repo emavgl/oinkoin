@@ -117,14 +117,6 @@ int getAmountInputKeyboardTypeIndex() {
       ServiceConfig.sharedPreferences!, PreferencesKeys.amountInputKeyboardType)!;
 }
 
-/// Resolves the effective decimal-digit count for an amount field:
-/// [fieldOverride] when set, otherwise the global [getNumberDecimalDigits]
-/// preference. Centralizes the fallback so every amount-input call site
-/// (formatters, hint text, rounding) agrees on the same value.
-int resolveDecimalDigits(int? fieldOverride) {
-  return fieldOverride ?? getNumberDecimalDigits();
-}
-
 /// Returns the zero placeholder text for amount fields.
 /// Returns `"0.00"` (locale-appropriate) when auto-decimal is on, `"0"` otherwise.
 ///
