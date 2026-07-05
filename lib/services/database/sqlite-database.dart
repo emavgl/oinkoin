@@ -244,7 +244,7 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
           AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
-          AND description IS ?
+          AND COALESCE(description, '') = COALESCE(?, '')
       )
     """, [
           record.title,
@@ -292,7 +292,7 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
           AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
-          AND description IS ?
+          AND COALESCE(description, '') = COALESCE(?, '')
         LIMIT 1
       """, [
           record.utcDateTime.millisecondsSinceEpoch,
@@ -379,7 +379,7 @@ class SqliteDatabase implements DatabaseInterface {
           AND category_type = ?
           AND wallet_id IS ?
           AND (profile_id IS NULL OR profile_id = ?)
-          AND description IS ?
+          AND COALESCE(description, '') = COALESCE(?, '')
         LIMIT 1
       """, [
           record.utcDateTime.millisecondsSinceEpoch,
