@@ -1,6 +1,6 @@
 ---
 name: new-release
-description: Creates a GitHub pre-release for Oinkoin with a tag, release name, and bullet-point changelog. Use when the user wants to ship a new version.
+description: Creates a GitHub pre-release for Oinkoin with a tag, release name, and a one-line changelog summary. Use when the user wants to ship a new version.
 argument-hint: "<version>"
 ---
 
@@ -37,10 +37,11 @@ git log <previous-tag>..HEAD --oneline
 
 ### Step 4 — Draft the changelog with the user
 
-From the commit list, propose a set of bullet points that summarise the user-facing changes. Rules:
-- Each bullet must be **under 100 characters** (including the leading `- `)
+From the commit list, propose a single-line summary of the user-facing changes. Rules:
+- The whole changelog is **one line, under 100 characters total** — not a bullet list, not per-bullet
+- Do not reference issue/PR numbers (e.g. no `(#123)`)
 - Skip internal/chore commits (version bumps, CI, typos) unless they matter to users
-- Group related commits into a single bullet when it reads more clearly
+- Condense multiple changes into a single concise sentence rather than listing them separately
 - Write in plain English, present tense ("Add X", "Fix Y", "Improve Z")
 - Show the draft to the user and **ask for approval or edits** before creating the release
 
