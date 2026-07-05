@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
@@ -38,6 +39,19 @@ Future main() async {
   // Setup sqflite_common_ffi for flutter test
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Mock path_provider channel so getApplicationDocumentsDirectory works in test
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (MethodCall methodCall) async {
+        if (methodCall.method == 'getApplicationDocumentsDirectory') {
+          return '/tmp';
+        }
+        return null;
+      },
+    );
+
     // Initialize FFI
     sqfliteFfiInit();
     // Change the default factory
@@ -217,6 +231,53 @@ Future main() async {
       expect(allRecords.length, 2);
       expect(allRecords[0]?.tags, containsAll(['morning']));
       expect(allRecords[1]?.tags, containsAll(['evening', 'drink']));
+    });
+
+    test(
+        'addRecordsInBatch should not treat same-date same-amount records with different descriptions as duplicates',
+        () async {
+      DatabaseInterface db = ServiceConfig.database;
+      await db.addCategory(testCategoryExpense);
+      final sameDate = DateTime.utc(2024, 6, 14, 12, 0, 0);
+      var record1 = Record(
+          15.0, "Coffee", testCategoryExpense, sameDate,
+          description: "Morning coffee",
+          tags: {'morning'});
+      var record2 = Record(
+          15.0, "Coffee", testCategoryExpense, sameDate,
+          description: "Afternoon coffee",
+          tags: {'afternoon'});
+      await db.addRecordsInBatch([record1, record2]);
+      var allRecords = await db.getAllRecords();
+      expect(allRecords.length, 2,
+          reason:
+              'Two records with same date, amount, and title but different descriptions should both be imported');
+      // Verify tags for each record
+      expect(
+          allRecords.any((r) => r!.tags.contains('morning')), isTrue,
+          reason: 'morning tag should be on at least one record');
+      expect(
+          allRecords.any((r) => r!.tags.contains('afternoon')), isTrue,
+          reason: 'afternoon tag should be on at least one record');
+    });
+
+    test(
+        'addRecordsInBatch should treat same-date same-amount same-description records as duplicates',
+        () async {
+      DatabaseInterface db = ServiceConfig.database;
+      await db.addCategory(testCategoryExpense);
+      final sameDate = DateTime.utc(2024, 6, 14, 12, 0, 0);
+      var record1 = Record(
+          15.0, "Coffee", testCategoryExpense, sameDate,
+          description: "My coffee");
+      var record2 = Record(
+          15.0, "Coffee", testCategoryExpense, sameDate,
+          description: "My coffee");
+      await db.addRecordsInBatch([record1, record2]);
+      var allRecords = await db.getAllRecords();
+      expect(allRecords.length, 1,
+          reason:
+              'Two identical records (same date, amount, title, description) should be treated as duplicates');
     });
 
     test('updateRecordById should modify an existing record', () async {
