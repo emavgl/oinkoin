@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-07-05",
-    "total_keys": 460
+    "total_keys": 489
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -49,16 +49,6 @@
       "component": "TextFormField label",
       "meaning": "Input field for entering conversion ratio (e.g., '1 EUR = [amount] USD')",
       "notes": "Universal/technical term - keep in English across all locales",
-      "status": "skip"
-    },
-    "1 \\${_selectedCurrency ?? '[currency]'} =": {
-      "key": "1 \\${_selectedCurrency ?? '[currency]'} =",
-      "context": "Conversion rate input label in currency settings",
-      "file": "lib/settings/currency-conversion-rates-page.dart",
-      "page": "Settings > Currencies",
-      "component": "input field label",
-      "meaning": "Label above a field where the user enters the conversion rate for a currency",
-      "notes": "Contains template placeholders - keep the structure and placeholders as-is, only translate the '=' may need adaptation in RTL languages",
       "status": "skip"
     },
     "Add Currency": {
@@ -220,6 +210,26 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Additional translations contributed via Crowdin.": {
+      "key": "Additional translations contributed via Crowdin.",
+      "context": "Contributors page footnote below the translators list",
+      "file": "lib/settings/contributors-page.dart:93",
+      "page": "Settings > Contributors",
+      "component": "Small caption text",
+      "meaning": "Credits translators who contributed via the Crowdin platform but aren't individually listed",
+      "notes": "'Crowdin' is a proper noun/platform name, keep as-is",
+      "status": "verified"
+    },
+    "Adjust the overall keyboard scale": {
+      "key": "Adjust the overall keyboard scale",
+      "context": "Subtitle under 'Keyboard size' dropdown in keyboard settings",
+      "file": "lib/components/keyboard-settings-page.dart:165",
+      "page": "Settings > Keyboard Settings",
+      "component": "Dropdown subtitle text",
+      "meaning": "Describes that the dropdown controls the overall size/scale of the in-app numeric keyboard",
+      "notes": null,
+      "status": "verified"
     },
     "All": {
       "key": "All",
@@ -490,6 +500,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Auto": {
+      "key": "Auto",
+      "context": "Option in the keyboard button text color dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:175",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardTextColorOptions dropdown option",
+      "meaning": "Automatically choose a readable text color based on the selected button color, rather than a fixed color",
+      "notes": "Same word used generically for 'automatic' behaviour; keep short",
+      "status": "verified"
+    },
     "Auto decimal input": {
       "key": "Auto decimal input",
       "context": null,
@@ -580,6 +600,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Background color": {
+      "key": "Background color",
+      "context": "Dropdown title for choosing the in-app keyboard's background color",
+      "file": "lib/components/keyboard-settings-page.dart:172",
+      "page": "Settings > Keyboard Settings",
+      "component": "DropdownCustomizationItem title",
+      "meaning": "Label for the setting that controls the background color behind the in-app numeric keyboard",
+      "notes": null,
+      "status": "verified"
+    },
     "Backup": {
       "key": "Backup",
       "context": "Settings menu item for backup functionality",
@@ -619,6 +649,36 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Black": {
+      "key": "Black",
+      "context": "Color name option shared by the keyboard background, button, and text color dropdowns",
+      "file": "lib/settings/constants/preferences-options.dart:156",
+      "page": "Settings > Keyboard Settings",
+      "component": "Color dropdown option (color swatch shown alongside)",
+      "meaning": "The color black, used as a fixed color choice for keyboard customization",
+      "notes": "Simple color name, translate as the standard word for black",
+      "status": "verified"
+    },
+    "Button color": {
+      "key": "Button color",
+      "context": "Dropdown title for choosing the in-app keyboard's button color",
+      "file": "lib/components/keyboard-settings-page.dart:181",
+      "page": "Settings > Keyboard Settings",
+      "component": "DropdownCustomizationItem title",
+      "meaning": "Label for the setting that controls the fill color of the keyboard's number/action buttons",
+      "notes": null,
+      "status": "verified"
+    },
+    "Button text color": {
+      "key": "Button text color",
+      "context": "Dropdown title for choosing the in-app keyboard's button text/label color",
+      "file": "lib/components/keyboard-settings-page.dart:190",
+      "page": "Settings > Keyboard Settings",
+      "component": "DropdownCustomizationItem title",
+      "meaning": "Label for the setting that controls the color of the digits/symbols printed on the keyboard buttons",
+      "notes": null,
+      "status": "verified"
     },
     "CSV Preview": {
       "context": "Section header showing a preview of parsed CSV data before mapping",
@@ -779,16 +839,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!": {
-      "key": "Clicking the button below you can send us a feedback email. Your feedback is very appreciated and will help us to grow!",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Clipboard is empty or does not contain valid CSV": {
       "context": "Error shown when user taps 'Paste from Clipboard' but clipboard is empty or unparseable",
       "file": "lib/settings/csv_import/csv_import_page.dart",
@@ -796,6 +846,16 @@
       "component": "Error message in container",
       "meaning": "No usable CSV content found in system clipboard",
       "notes": "Keep CSV as-is in translations",
+      "status": "verified"
+    },
+    "Code & translation": {
+      "key": "Code & translation",
+      "context": "Contributor role shown when a code contributor also provided a translation",
+      "file": "lib/settings/contributors-page.dart:77",
+      "page": "Settings > Contributors",
+      "component": "Contributor tile subtitle, combined with '· {language}'",
+      "meaning": "Indicates the person contributed both code and a translation for a specific language",
+      "notes": "Displayed as 'Code & translation · German (de)' - keep concise",
       "status": "verified"
     },
     "Code (e.g., MYC)": {
@@ -807,6 +867,26 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Code Contributors": {
+      "key": "Code Contributors",
+      "context": "Section header on the Contributors page listing people who contributed code",
+      "file": "lib/settings/contributors-page.dart:71",
+      "page": "Settings > Contributors",
+      "component": "_SectionHeader label",
+      "meaning": "Heading introducing the list of code contributors",
+      "notes": null,
+      "status": "verified"
+    },
+    "Code contributor": {
+      "key": "Code contributor",
+      "context": "Contributor role for someone who contributed code only (no translation)",
+      "file": "lib/settings/contributors-page.dart:78",
+      "page": "Settings > Contributors",
+      "component": "Contributor tile subtitle",
+      "meaning": "Indicates the person's contribution was code, not translation",
+      "notes": "Singular form, contrasts with 'Code & translation'",
+      "status": "verified"
     },
     "Color": {
       "key": "Color",
@@ -854,6 +934,16 @@
       "component": "FilledButton",
       "meaning": "Proceed to map CSV columns to Oinkoin fields",
       "notes": "Clear action label",
+      "status": "verified"
+    },
+    "Contributors": {
+      "key": "Contributors",
+      "context": "Title of the app's Contributors page (currently linked from About/Settings)",
+      "file": "lib/settings/contributors-page.dart:47",
+      "page": "Settings > Contributors",
+      "component": "AppBar title / settings menu item title",
+      "meaning": "Page listing people who built/contributed to Oinkoin",
+      "notes": null,
       "status": "verified"
     },
     "Conversion Rates": {
@@ -912,6 +1002,16 @@
       "component": "Feature list bullet point",
       "meaning": "Users can create new wallet accounts to organize finances",
       "notes": "Part of premium feature promotion",
+      "status": "verified"
+    },
+    "Creator & maintainer": {
+      "key": "Creator & maintainer",
+      "context": "Role label for the app's original creator and maintainer (single entry at top of Contributors page)",
+      "file": "lib/settings/contributors-page.dart:67",
+      "page": "Settings > Contributors",
+      "component": "Contributor tile subtitle",
+      "meaning": "Describes the person who created and continues to maintain Oinkoin",
+      "notes": null,
       "status": "verified"
     },
     "Critical action": {
@@ -1043,6 +1143,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Dark grey": {
+      "key": "Dark grey",
+      "context": "Color name option in the keyboard button color dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:171",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardButtonColorOptions dropdown option",
+      "meaning": "A dark shade of grey used as a fixed button color choice",
+      "notes": "Pairs with 'Light grey' - keep both distinguishable",
+      "status": "verified"
     },
     "Data is deleted": {
       "key": "Data is deleted",
@@ -1560,16 +1670,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Enter a positive number": {
-      "key": "Enter a positive number",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Enter an encryption password": {
       "key": "Enter an encryption password",
       "context": null,
@@ -1740,16 +1840,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Feedback": {
-      "key": "Feedback",
-      "context": "Settings menu item for feedback",
-      "file": "lib/settings/settings-page.dart:327",
-      "page": "Settings",
-      "component": "Menu item title",
-      "meaning": "Send feedback to app developers",
-      "notes": "Universal/technical term - keep in English across all locales",
-      "status": "skip"
-    },
     "File will have a unique name": {
       "key": "File will have a unique name",
       "context": null,
@@ -1759,16 +1849,6 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
-    },
-    "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.": {
-      "key": "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.",
-      "context": "Warning dialog when clicking Export Database button",
-      "file": "lib/settings/backup-page.dart:69",
-      "page": "Settings > Backup",
-      "component": "AlertDialog subtitle",
-      "meaning": "Informs users that the database export is not the same as the app backup, and is meant for advanced users",
-      "notes": "Keep the technical tone; 'Export Backup' is a UI label that should match the actual button text in the app",
-      "status": "verified"
     },
     "Filter Logic": {
       "key": "Filter Logic",
@@ -1850,6 +1930,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Forest": {
+      "key": "Forest",
+      "context": "Color name option in the keyboard background color dropdown (a dark green theme)",
+      "file": "lib/settings/constants/preferences-options.dart:159",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardBackgroundColorOptions dropdown option",
+      "meaning": "A forest-green fixed background color choice for the in-app keyboard",
+      "notes": "Named color like 'Navy'/'Slate' - translate as a descriptive green color name, not literally 'forest' the noun",
+      "status": "verified"
+    },
     "Full category icon pack and color picker": {
       "key": "Full category icon pack and color picker",
       "context": null,
@@ -1889,6 +1979,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Grey": {
+      "key": "Grey",
+      "context": "Color name option in the keyboard background color dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:161",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardBackgroundColorOptions dropdown option",
+      "meaning": "The color grey used as a fixed background color choice",
+      "notes": "Distinct from 'Light grey'/'Dark grey' variants used elsewhere",
+      "status": "verified"
     },
     "Grouping separator": {
       "key": "Grouping separator",
@@ -2053,6 +2153,16 @@
       "notes": "Shown with progress indicator during import",
       "status": "verified"
     },
+    "InApp keyboard": {
+      "key": "InApp keyboard",
+      "context": "Option in the amount-input keyboard type dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:134",
+      "page": "Settings > Keyboard Settings (and Customization)",
+      "component": "amountInputKeyboardType dropdown option",
+      "meaning": "Selects Oinkoin's own custom on-screen numeric keypad (as opposed to the OS system keyboard) for entering amounts",
+      "notes": "'InApp' is a compact adjective meaning 'built into the app'; keep 'keyboard' as the noun. Compare with 'Number keyboard' and 'Phone keyboard (with math symbols)'",
+      "status": "verified"
+    },
     "Include version and date in the name": {
       "key": "Include version and date in the name",
       "context": null,
@@ -2113,6 +2223,36 @@
       "notes": null,
       "status": "pending"
     },
+    "Keyboard Settings": {
+      "key": "Keyboard Settings",
+      "context": "Title of the dedicated keyboard settings page",
+      "file": "lib/components/keyboard-settings-page.dart:143",
+      "page": "Settings > Keyboard Settings",
+      "component": "AppBar title",
+      "meaning": "Page where the user configures amount-input keyboard type and in-app keyboard appearance",
+      "notes": null,
+      "status": "verified"
+    },
+    "Keyboard Type": {
+      "key": "Keyboard Type",
+      "context": "Section header at the top of the Keyboard Settings page",
+      "file": "lib/components/keyboard-settings-page.dart:148",
+      "page": "Settings > Keyboard Settings",
+      "component": "SettingSeparator title",
+      "meaning": "Groups the setting that lets the user choose which keyboard is used for amount input",
+      "notes": null,
+      "status": "verified"
+    },
+    "Keyboard size": {
+      "key": "Keyboard size",
+      "context": "Dropdown title controlling the in-app keyboard's scale (Small/Medium/Large)",
+      "file": "lib/components/keyboard-settings-page.dart:164",
+      "page": "Settings > Keyboard Settings",
+      "component": "DropdownCustomizationItem title",
+      "meaning": "Label for the setting that resizes the in-app numeric keyboard",
+      "notes": null,
+      "status": "verified"
+    },
     "Language": {
       "key": "Language",
       "context": null,
@@ -2122,6 +2262,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Large": {
+      "key": "Large",
+      "context": "Option in the in-app keyboard size dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:151",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardScaleOptions dropdown option",
+      "meaning": "Makes the in-app keyboard buttons bigger",
+      "notes": "Pairs with 'Small'/'Medium'",
+      "status": "verified"
     },
     "Last Used": {
       "key": "Last Used",
@@ -2162,6 +2312,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Light grey": {
+      "key": "Light grey",
+      "context": "Color name option shared by the keyboard background and button color dropdowns",
+      "file": "lib/settings/constants/preferences-options.dart:163",
+      "page": "Settings > Keyboard Settings",
+      "component": "Color dropdown option",
+      "meaning": "A light shade of grey used as a fixed color choice",
+      "notes": "Pairs with 'Dark grey' in the button color dropdown, and with 'Grey' in the background dropdown",
+      "status": "verified"
     },
     "Limit records by categories": {
       "key": "Limit records by categories",
@@ -2259,6 +2419,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Maintainer": {
+      "key": "Maintainer",
+      "context": "Section header on the Contributors page above the app creator's entry",
+      "file": "lib/settings/contributors-page.dart:63",
+      "page": "Settings > Contributors",
+      "component": "_SectionHeader label",
+      "meaning": "Heading introducing the person who maintains the project",
+      "notes": null,
+      "status": "verified"
     },
     "Make it default": {
       "key": "Make it default",
@@ -2385,6 +2555,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Medium": {
+      "key": "Medium",
+      "context": "Option in the in-app keyboard size dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:150",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardScaleOptions dropdown option",
+      "meaning": "The default/middle in-app keyboard button size",
+      "notes": "Pairs with 'Small'/'Large'",
+      "status": "verified"
+    },
     "Monday": {
       "key": "Monday",
       "context": null,
@@ -2484,6 +2664,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Navy": {
+      "key": "Navy",
+      "context": "Color name option in the keyboard background color dropdown (a dark blue theme)",
+      "file": "lib/settings/constants/preferences-options.dart:158",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardBackgroundColorOptions dropdown option",
+      "meaning": "A navy-blue fixed background color choice for the in-app keyboard",
+      "notes": "Named color like 'Forest'/'Slate' - translate as a descriptive dark blue color name",
+      "status": "verified"
     },
     "Never delete": {
       "key": "Never delete",
@@ -2735,13 +2925,13 @@
     },
     "Number keyboard": {
       "key": "Number keyboard",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
+      "context": "Option in the amount-input keyboard type dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:133",
+      "page": "Settings > Keyboard Settings (and Customization)",
+      "component": "amountInputKeyboardType dropdown option",
+      "meaning": "Selects the OS system numeric keyboard (TextInputType.number) for entering amounts",
+      "notes": "Contrast with 'Phone keyboard (with math symbols)' and 'InApp keyboard'",
+      "status": "verified"
     },
     "Number of categories/tags in Pie Chart": {
       "key": "Number of categories/tags in Pie Chart",
@@ -2781,6 +2971,16 @@
       "component": "Text/label",
       "meaning": "The premium version of Oinkoin app",
       "notes": "Universal/technical term - keep in English across all locales",
+      "status": "skip"
+    },
+    "Oinkoin is built by volunteers from around the world. Thank you!": {
+      "key": "Oinkoin is built by volunteers from around the world. Thank you!",
+      "context": "Intro text at the top of the Contributors page",
+      "file": "lib/settings/contributors-page.dart:54",
+      "page": "Settings > Contributors",
+      "component": "Centered caption text",
+      "meaning": "Thanks volunteer contributors from around the world for building the app",
+      "notes": "'Oinkoin' is the app's brand name, keep as-is",
       "status": "verified"
     },
     "Once set, you can't see the password": {
@@ -2862,6 +3062,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Page background": {
+      "key": "Page background",
+      "context": "Option in the keyboard background color dropdown that matches the app's own scaffold/page background instead of a fixed color",
+      "file": "lib/settings/constants/preferences-options.dart:162",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardBackgroundColorOptions dropdown option",
+      "meaning": "Makes the keyboard background blend with the rest of the app's page (theme-following), rather than using a fixed color like Black/Navy/Forest",
+      "notes": "See lib/components/keyboard-settings-page.dart:89 (index 7 resolves to Theme.of(context).scaffoldBackgroundColor)",
+      "status": "verified"
+    },
     "Parsing CSV data": {
       "context": "Loading text shown during CSV file parsing",
       "file": "lib/settings/csv_import/csv_mapping_screen.dart:445",
@@ -2922,16 +3132,6 @@
     },
     "Please enter a profile name": {
       "key": "Please enter a profile name",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
-    "Please enter a valid conversion ratio.": {
-      "key": "Please enter a valid conversion ratio.",
       "context": null,
       "file": null,
       "page": null,
@@ -3007,6 +3207,26 @@
       "component": "Subtitle/badge text",
       "meaning": "This wallet/category comes pre-defined with the app",
       "notes": "Appears as small label under wallet/category name",
+      "status": "verified"
+    },
+    "Preview": {
+      "key": "Preview",
+      "context": "AppBar title of the full-screen page that previews the in-app keyboard live",
+      "file": "lib/components/keyboard-settings-page.dart:115",
+      "page": "Settings > Keyboard Settings > Preview",
+      "component": "AppBar title",
+      "meaning": "Title of the screen where the user can type with the customized keyboard to see the result",
+      "notes": null,
+      "status": "verified"
+    },
+    "Preview keyboard": {
+      "key": "Preview keyboard",
+      "context": "Button label at the bottom of Keyboard Settings that opens the live preview screen",
+      "file": "lib/components/keyboard-settings-page.dart:208",
+      "page": "Settings > Keyboard Settings",
+      "component": "OutlinedButton.icon label",
+      "meaning": "Opens a screen to try out the customized in-app keyboard before leaving settings",
+      "notes": null,
       "status": "verified"
     },
     "Privacy policy and credits": {
@@ -3485,6 +3705,36 @@
       "notes": null,
       "status": "pending"
     },
+    "Select the keyboard background color": {
+      "key": "Select the keyboard background color",
+      "context": "Subtitle under the 'Background color' dropdown in keyboard settings",
+      "file": "lib/components/keyboard-settings-page.dart:173",
+      "page": "Settings > Keyboard Settings",
+      "component": "Dropdown subtitle text",
+      "meaning": "Describes the action of choosing a background color for the in-app keyboard",
+      "notes": null,
+      "status": "verified"
+    },
+    "Select the keyboard button color": {
+      "key": "Select the keyboard button color",
+      "context": "Subtitle under the 'Button color' dropdown in keyboard settings",
+      "file": "lib/components/keyboard-settings-page.dart:182",
+      "page": "Settings > Keyboard Settings",
+      "component": "Dropdown subtitle text",
+      "meaning": "Describes the action of choosing a fill color for the in-app keyboard's buttons",
+      "notes": null,
+      "status": "verified"
+    },
+    "Select the keyboard button text color": {
+      "key": "Select the keyboard button text color",
+      "context": "Subtitle under the 'Button text color' dropdown in keyboard settings",
+      "file": "lib/components/keyboard-settings-page.dart:191",
+      "page": "Settings > Keyboard Settings",
+      "component": "Dropdown subtitle text",
+      "meaning": "Describes the action of choosing the color of the digits/labels on the in-app keyboard's buttons",
+      "notes": null,
+      "status": "verified"
+    },
     "Select the keyboard layout for amount input": {
       "key": "Select the keyboard layout for amount input",
       "context": null,
@@ -3525,16 +3775,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Send a feedback": {
-      "key": "Send a feedback",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Send an Email": {
       "key": "Send an Email",
       "context": "Card title on the support page for the email option",
@@ -3544,16 +3784,6 @@
       "meaning": "Button/card that opens the email client to write to the developer",
       "notes": "Short action label",
       "status": "verified"
-    },
-    "Send us a feedback": {
-      "key": "Send us a feedback",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
     },
     "Set as predefined for app start": {
       "key": "Set as predefined for app start",
@@ -3842,6 +4072,26 @@
       "notes": "Keep parenthetical — concise",
       "status": "verified"
     },
+    "Slate": {
+      "key": "Slate",
+      "context": "Color name option in the keyboard background color dropdown (a dark blue-grey theme)",
+      "file": "lib/settings/constants/preferences-options.dart:160",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardBackgroundColorOptions dropdown option",
+      "meaning": "A slate (dark blue-grey) fixed background color choice for the in-app keyboard",
+      "notes": "Named color like 'Navy'/'Forest' - translate as a descriptive blue-grey color name",
+      "status": "verified"
+    },
+    "Small": {
+      "key": "Small",
+      "context": "Option in the in-app keyboard size dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:149",
+      "page": "Settings > Keyboard Settings",
+      "component": "inAppKeyboardScaleOptions dropdown option",
+      "meaning": "Makes the in-app keyboard buttons smaller",
+      "notes": "Pairs with 'Medium'/'Large'",
+      "status": "verified"
+    },
     "Statistics": {
       "key": "Statistics",
       "context": null,
@@ -4041,6 +4291,26 @@
       "notes": null,
       "status": "pending"
     },
+    "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.": {
+      "key": "The database export is not the app backup. Use 'Export Backup' to create a backup of your data. The database file is intended for advanced users who want to access the raw data or use it with other apps.",
+      "context": "Warning dialog when clicking Export Database button",
+      "file": "lib/settings/backup-page.dart:69",
+      "page": "Settings > Backup",
+      "component": "AlertDialog subtitle",
+      "meaning": "Informs users that the database export is not the same as the app backup, and is meant for advanced users",
+      "notes": "Keep the technical tone; 'Export Backup' is a UI label that should match the actual button text in the app",
+      "status": "verified"
+    },
+    "The people who built Oinkoin": {
+      "key": "The people who built Oinkoin",
+      "context": "Subtitle for a Contributors settings menu item (currently commented out/unused in settings-page.dart, but the string is still extracted since it's used elsewhere or reserved)",
+      "file": "lib/settings/settings-page.dart:347",
+      "page": "Settings",
+      "component": "Settings menu item subtitle",
+      "meaning": "Short description of the Contributors page shown as a settings list item subtitle",
+      "notes": "Currently only appears in a commented-out block; translate normally since it may be re-enabled",
+      "status": "verified"
+    },
     "Theme style": {
       "key": "Theme style",
       "context": null,
@@ -4130,6 +4400,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Translators": {
+      "key": "Translators",
+      "context": "Section header on the Contributors page listing people who only contributed translations",
+      "file": "lib/settings/contributors-page.dart:82",
+      "page": "Settings > Contributors",
+      "component": "_SectionHeader label",
+      "meaning": "Heading introducing the list of translation-only contributors",
+      "notes": null,
+      "status": "verified"
     },
     "Transport": {
       "key": "Transport",
@@ -4246,6 +4526,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Use global default (%s)": {
+      "key": "Use global default (%s)",
+      "context": "Decimal digits dropdown option on the Add/Edit Currency page",
+      "file": "lib/settings/add-currency-page.dart",
+      "page": "Settings > Currencies > Add/Edit Currency",
+      "component": "DropdownMenuItem label in the per-currency decimal digits dropdown",
+      "meaning": "Option meaning 'use the global decimal digits setting' instead of a per-currency override. %s is replaced with the current global digit count (e.g. 'Use global default (2)').",
+      "notes": "Keep the %s placeholder intact; it is filled with a number via .fill().",
+      "status": "verified"
     },
     "Used by": {
       "key": "Used by",
@@ -4395,6 +4685,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "White": {
+      "key": "White",
+      "context": "Color name option shared by the keyboard background, button, and text color dropdowns",
+      "file": "lib/settings/constants/preferences-options.dart:157",
+      "page": "Settings > Keyboard Settings",
+      "component": "Color dropdown option",
+      "meaning": "The color white, used as a fixed color choice for keyboard customization",
+      "notes": "Simple color name",
+      "status": "verified"
     },
     "With space": {
       "key": "With space",
@@ -4554,16 +4854,6 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
-      "status": "verified"
-    },
-    "Use global default (%s)": {
-      "key": "Use global default (%s)",
-      "context": "Decimal digits dropdown option on the Add/Edit Currency page",
-      "file": "lib/settings/add-currency-page.dart",
-      "page": "Settings > Currencies > Add/Edit Currency",
-      "component": "DropdownMenuItem label in the per-currency decimal digits dropdown",
-      "meaning": "Option meaning 'use the global decimal digits setting' instead of a per-currency override. %s is replaced with the current global digit count (e.g. 'Use global default (2)').",
-      "notes": "Keep the %s placeholder intact; it is filled with a number via .fill().",
       "status": "verified"
     }
   }
