@@ -37,10 +37,10 @@ packages:
     dependency: "direct main"
     description:
       name: app_review_dialog
-      sha256: "184285c825970aea4804ffed2b3459bf6e828bf9d2ee21d4905ec24d875b7cb2"
+      sha256: a10fe86c25986a6e84cdc239962dec72c9767b2daad7e6a4044c464eda4d78ad
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   args:
     dependency: transitive
     description:
