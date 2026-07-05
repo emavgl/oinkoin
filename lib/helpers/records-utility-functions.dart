@@ -108,14 +108,18 @@ bool usesWesternArabicNumerals(Locale locale) {
   return numberFormat.format(1234).contains("1234");
 }
 
+/// Builds a [NumberFormat] using the user's locale/separator customizations.
+///
+/// If [decimalDigits] is provided, it overrides the global
+/// [PreferencesKeys.numberDecimalDigits] preference for this format only.
 NumberFormat getNumberFormatWithCustomizations(
-    {turnOffGrouping = false, locale}) {
+    {turnOffGrouping = false, locale, int? decimalDigits}) {
   NumberFormat? numberFormat;
 
   String? userDefinedGroupSeparator = PreferencesUtils.getOrDefault<String?>(
       ServiceConfig.sharedPreferences!, PreferencesKeys.groupSeparator);
 
-  int decimalDigits = PreferencesUtils.getOrDefault<int>(
+  decimalDigits ??= PreferencesUtils.getOrDefault<int>(
       ServiceConfig.sharedPreferences!, PreferencesKeys.numberDecimalDigits)!;
 
   try {

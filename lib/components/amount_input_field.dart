@@ -26,6 +26,8 @@ class AmountInputField extends StatefulWidget {
     this.onChanged,
     this.autofocus = false,
     this.autovalidateMode = AutovalidateMode.disabled,
+    this.decimalDigits,
+    this.unlimitedDecimals = false,
   });
 
   final TextEditingController controller;
@@ -45,6 +47,15 @@ class AmountInputField extends StatefulWidget {
   final bool autofocus;
   final AutovalidateMode autovalidateMode;
 
+  /// Overrides the global [getNumberDecimalDigits] when non-null.
+  /// Ignored when [unlimitedDecimals] is true.
+  final int? decimalDigits;
+
+  /// When true, no cap is placed on the number of decimal digits the user
+  /// can type. Used for fields like the currency conversion ratio, where
+  /// truncating precision would defeat the purpose of the field.
+  final bool unlimitedDecimals;
+
   @override
   State<AmountInputField> createState() => _AmountInputFieldState();
 }
@@ -55,7 +66,11 @@ class _AmountInputFieldState extends State<AmountInputField> {
     final parsed = widget.allowNegative
         ? tryParseSignedCurrencyString(value)
         : tryParseCurrencyString(value);
-    if (parsed == null) return amountFormatErrorMessage();
+    if (parsed == null) {
+      return amountFormatErrorMessage(
+        decimalDigits: widget.unlimitedDecimals ? null : widget.decimalDigits,
+      );
+    }
     return null;
   }
 
@@ -75,6 +90,8 @@ class _AmountInputFieldState extends State<AmountInputField> {
         onChanged: widget.onChanged,
         autovalidateMode: widget.autovalidateMode,
         autofocus: widget.autofocus,
+        decimalDigits: widget.decimalDigits,
+        unlimitedDecimals: widget.unlimitedDecimals,
       );
     }
 
@@ -87,7 +104,8 @@ class _AmountInputFieldState extends State<AmountInputField> {
         decimalSep: getDecimalSeparator(),
         groupSep: getGroupingSeparator(),
         autoDec: getAmountInputAutoDecimalShift(),
-        decDigits: getNumberDecimalDigits(),
+        decDigits: resolveDecimalDigits(widget.decimalDigits),
+        unlimitedDecimals: widget.unlimitedDecimals,
       ),
       validator: validator,
       onChanged: widget.onChanged,
@@ -102,7 +120,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: widget.labelText,
-        hintText: buildZeroAmountText(),
+        hintText: buildZeroAmountText(decimalDigits: widget.decimalDigits),
         suffixText: widget.suffixText,
       ),
     );
@@ -122,6 +140,8 @@ class _InAppKeyboardField extends StatefulWidget {
     this.suffixText,
     this.onChanged,
     this.autofocus = false,
+    this.decimalDigits,
+    this.unlimitedDecimals = false,
   });
 
   final TextEditingController controller;
@@ -133,6 +153,8 @@ class _InAppKeyboardField extends StatefulWidget {
   final String? suffixText;
   final ValueChanged<String>? onChanged;
   final bool autofocus;
+  final int? decimalDigits;
+  final bool unlimitedDecimals;
 
   @override
   State<_InAppKeyboardField> createState() => _InAppKeyboardFieldState();
@@ -244,6 +266,8 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
             controller: widget.controller,
             enableSignToggleButton: widget.allowNegative,
             onSubmit: (_) => _doClose(),
+            decimalDigits: widget.decimalDigits,
+            unlimitedDecimals: widget.unlimitedDecimals,
           ),
         ),
       ),
@@ -284,7 +308,8 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
           decimalSep: getDecimalSeparator(),
           groupSep: getGroupingSeparator(),
           autoDec: getAmountInputAutoDecimalShift(),
-          decDigits: getNumberDecimalDigits(),
+          decDigits: resolveDecimalDigits(widget.decimalDigits),
+          unlimitedDecimals: widget.unlimitedDecimals,
         ),
         validator: widget.validator,
         onTap: _openKeyboard,
@@ -298,7 +323,7 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.always,
           labelText: widget.labelText,
-          hintText: buildZeroAmountText(),
+          hintText: buildZeroAmountText(decimalDigits: widget.decimalDigits),
           suffixText: widget.suffixText,
         ),
       ),
