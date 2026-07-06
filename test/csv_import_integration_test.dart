@@ -114,7 +114,7 @@ void main() {
     expect(values, contains(3000.0));
   });
 
-  test('import skips duplicate records', () async {
+  test('import same CSV twice creates duplicate records', () async {
     const csv = 'title,amount,date,category\n'
         'Groceries,-45.50,2024-01-15,Food';
 
@@ -127,16 +127,14 @@ void main() {
 
     // First import
     await importCsvString(csv, mapping);
+    expect(
+        (await ServiceConfig.database.getAllRecords()).length, 1);
 
-    final recordsAfterFirst = await ServiceConfig.database.getAllRecords();
-    final count1 = recordsAfterFirst.length;
-    expect(count1, 1);
-
-    // Second import of same data — should be skipped as duplicate
+    // Second import — CSV import does not deduplicate, so the row is
+    // imported again as a distinct transaction.
     await importCsvString(csv, mapping);
-
-    final recordsAfterSecond = await ServiceConfig.database.getAllRecords();
-    expect(recordsAfterSecond.length, count1); // no new records
+    expect(
+        (await ServiceConfig.database.getAllRecords()).length, 2);
   });
 
   test('import assigns records to the default wallet', () async {
@@ -419,7 +417,8 @@ void main() {
     expect(myBankWallets.length, 1);
   });
 
-  test('import same CSV twice with wallets skips duplicates', () async {
+  test('import same CSV twice with wallets creates duplicate records',
+      () async {
     const csv = 'title,amount,date,category,wallet\n'
         'Coffee,-5,2024-06-01,Food,Cash\n'
         'Rent,-800,2024-06-01,Housing,Bank\n'
@@ -435,14 +434,16 @@ void main() {
 
     // First import
     await importCsvString(csv, mapping);
-    final records1 = await ServiceConfig.database.getAllRecords();
-    expect(records1.length, 3);
+    expect(
+        (await ServiceConfig.database.getAllRecords()).length, 3);
 
-    // Second import — same data, should be skipped
+    // Second import — CSV import does not deduplicate, so rows are
+    // imported again as distinct transactions.
     await importCsvString(csv, mapping);
-    final records2 = await ServiceConfig.database.getAllRecords();
-    expect(records2.length, 3); // no new records
+    expect(
+        (await ServiceConfig.database.getAllRecords()).length, 6);
 
+    // Wallets should not be duplicated (they're deduplicated by name)
     final wallets = await ServiceConfig.database.getAllWallets();
     expect(wallets.where((w) => w.name == 'Cash').length, 1);
     expect(wallets.where((w) => w.name == 'Bank').length, 1);

@@ -40,12 +40,28 @@ class InAppKeyboard extends StatefulWidget {
     this.onSubmit,
     this.enableSignToggleButton = true,
     this.title,
+    this.decimalDigits,
+    this.unlimitedDecimals = false,
+    this.currencyCode,
   });
 
   final TextEditingController controller;
   final String? title;
   final bool enableSignToggleButton;
   final void Function(double amount)? onSubmit;
+
+  /// Overrides the global [getNumberDecimalDigits] when non-null.
+  /// Ignored when [unlimitedDecimals] is true.
+  final int? decimalDigits;
+
+  /// When true, no cap is placed on the number of decimal digits the user
+  /// can type, and the typed/evaluated value is not rounded.
+  final bool unlimitedDecimals;
+
+  /// When set (and [decimalDigits] is null), the decimal digits configured
+  /// for this currency (Currencies → Edit) override the global default.
+  /// Ignored when [unlimitedDecimals] is true.
+  final String? currencyCode;
 
   @override
   State<InAppKeyboard> createState() => _InAppKeyboardState();
@@ -120,12 +136,20 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
     return fixed.computeLuminance() > 0.4 ? Colors.black87 : Colors.white;
   }
 
+  int get _resolvedDecimalDigits => resolveDecimalDigits(
+        widget.decimalDigits,
+        currencyCode: widget.currencyCode,
+      );
+
   double get valueToNumber {
     try {
       final trimmed = _text.trim();
       if (trimmed.isEmpty) return 0;
       if (trimmed == '-' || trimmed == '-0') return 0;
-      return evaluateExpression(trimmed).roundWithDecimals(2);
+      final result = evaluateExpression(trimmed);
+      return widget.unlimitedDecimals
+          ? result.toDouble()
+          : result.roundWithDecimals(_resolvedDecimalDigits);
     } catch (_) {
       return 0;
     }
@@ -143,7 +167,8 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
       decimalSep: getDecimalSeparator(),
       groupSep: getGroupingSeparator(),
       autoDec: getAmountInputAutoDecimalShift(),
-      decDigits: getNumberDecimalDigits(),
+      decDigits: _resolvedDecimalDigits,
+      unlimitedDecimals: widget.unlimitedDecimals,
     );
     widget.controller.addListener(_onControllerChanged);
     _focusAttachment = _focusNode.attach(context, onKeyEvent: _handleKeyEvent);

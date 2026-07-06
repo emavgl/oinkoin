@@ -107,6 +107,58 @@ void main() {
       expect(copy.customSymbol, equals('M'));
       expect(copy.customName, equals('My Currency'));
     });
+
+    test('decimalDigits defaults to null (use global default)', () {
+      final currency = UserCurrency(isoCode: 'EUR', ratioToMain: 1.0);
+      expect(currency.decimalDigits, isNull);
+    });
+
+    test('should serialize decimalDigits to JSON when set', () {
+      final currency =
+          UserCurrency(isoCode: 'BTC', ratioToMain: 45000, decimalDigits: 8);
+
+      final json = currency.toJson();
+
+      expect(json['decimalDigits'], equals(8));
+    });
+
+    test('should omit decimalDigits from JSON when null', () {
+      final currency = UserCurrency(isoCode: 'EUR', ratioToMain: 1.0);
+
+      final json = currency.toJson();
+
+      expect(json.containsKey('decimalDigits'), isFalse);
+    });
+
+    test('should deserialize decimalDigits from JSON', () {
+      final json = {
+        'isoCode': 'BTC',
+        'ratioToMain': 45000.0,
+        'decimalDigits': 8,
+      };
+
+      final currency = UserCurrency.fromJson(json);
+
+      expect(currency.decimalDigits, equals(8));
+    });
+
+    test('should deserialize with null decimalDigits when absent', () {
+      final json = {'isoCode': 'EUR', 'ratioToMain': 1.0};
+
+      final currency = UserCurrency.fromJson(json);
+
+      expect(currency.decimalDigits, isNull);
+    });
+
+    test('copyWith updates decimalDigits', () {
+      final original =
+          UserCurrency(isoCode: 'BTC', ratioToMain: 45000, decimalDigits: 8);
+
+      final copy = original.copyWith(decimalDigits: 4);
+
+      expect(copy.decimalDigits, equals(4));
+      expect(copy.isoCode, equals('BTC'));
+    });
   });
 
   group('CurrencyInfo', () {

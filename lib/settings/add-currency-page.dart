@@ -18,12 +18,16 @@ class AddCurrencyPage extends StatefulWidget {
   /// When non-null, pre-fills the conversion ratio field.
   final double? preFilledRatio;
 
+  /// When non-null, pre-fills the decimal digits override (for editing).
+  final int? preFilledDecimalDigits;
+
   const AddCurrencyPage({
     Key? key,
     required this.mainCurrency,
     required this.existingCodes,
     this.preSelectedCurrency,
     this.preFilledRatio,
+    this.preFilledDecimalDigits,
   }) : super(key: key);
 
   @override
@@ -35,6 +39,14 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
   final _ratioController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  /// Per-currency decimal digits override. Null means "use global default".
+  int? _decimalDigits;
+
+  /// Options shown in the decimal digits dropdown. Goes up to 8 (rather than
+  /// the global setting's 0-4) so currencies that need more precision (e.g.
+  /// 8 for Bitcoin) can be configured individually.
+  static const List<int> _decimalDigitOptions = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +54,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
     if (widget.preFilledRatio != null) {
       _ratioController.text = widget.preFilledRatio.toString();
     }
+    _decimalDigits = widget.preFilledDecimalDigits;
   }
 
   @override
@@ -101,7 +114,11 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
 
     final ratio = tryParseCurrencyString(_ratioController.text)!;
     Navigator.of(context).pop(
-      UserCurrency(isoCode: _selectedCurrency!, ratioToMain: ratio),
+      UserCurrency(
+        isoCode: _selectedCurrency!,
+        ratioToMain: ratio,
+        decimalDigits: _decimalDigits,
+      ),
     );
   }
 
@@ -181,6 +198,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                 labelText: "1 ${_selectedCurrency ?? '[currency]'} =".i18n,
                 suffixText: mainSymbol,
                 allowNegative: false,
+                unlimitedDecimals: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter a value".i18n;
@@ -191,6 +209,53 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 24),
+
+              // Decimal digits
+              Text(
+                "Decimal digits".i18n,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  "Select the number of decimal digits".i18n,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.6),
+                      ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int?>(
+                initialValue: _decimalDigits,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                ),
+                isExpanded: true,
+                items: [
+                  DropdownMenuItem<int?>(
+                    value: null,
+                    child: Text("Use global default (%s)"
+                        .i18n
+                        .fill([getNumberDecimalDigits().toString()])),
+                  ),
+                  for (final digits in _decimalDigitOptions)
+                    DropdownMenuItem<int?>(
+                      value: digits,
+                      child: Text("$digits"),
+                    ),
+                ],
+                onChanged: (value) => setState(() => _decimalDigits = value),
               ),
               const SizedBox(height: 32),
             ],

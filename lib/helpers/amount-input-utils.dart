@@ -119,19 +119,30 @@ int getAmountInputKeyboardTypeIndex() {
 
 /// Returns the zero placeholder text for amount fields.
 /// Returns `"0.00"` (locale-appropriate) when auto-decimal is on, `"0"` otherwise.
-String buildZeroAmountText() {
+///
+/// If [decimalDigits] is provided, it overrides the global [getNumberDecimalDigits]
+/// so hint text matches the expected decimal count for the specific field.
+String buildZeroAmountText({int? decimalDigits}) {
   if (!getAmountInputAutoDecimalShift()) return '0';
-  final decDigits = getNumberDecimalDigits();
+  final decDigits = resolveDecimalDigits(decimalDigits);
   if (decDigits <= 0) return '0';
   final decSep = getDecimalSeparator();
   return '0$decSep${List.filled(decDigits, '0').join()}';
 }
 
 /// Shared validation error message for unparseable amount strings.
-String amountFormatErrorMessage() {
+///
+/// The example shown reflects the field's actual expected precision: pass
+/// [decimalDigits] to match a field's override, or leave it null to use the
+/// global [getNumberDecimalDigits] preference.
+String amountFormatErrorMessage({int? decimalDigits}) {
+  final exampleFormat = getNumberFormatWithCustomizations(
+    turnOffGrouping: true,
+    decimalDigits: decimalDigits,
+  );
   return "Not a valid format (use for example: %s)"
       .i18n
-      .fill([getCurrencyValueString(1234.20, turnOffGrouping: true)]);
+      .fill([exampleFormat.format(1234.20)]);
 }
 
 /// Returns the [RegExp] used to deny characters not valid in an amount field.
@@ -141,12 +152,21 @@ RegExp buildAmountAllowedRegex() {
 }
 
 /// Builds the list of [TextInputFormatter]s used by amount input fields.
+///
+/// If [unlimitedDecimals] is true, no cap is placed on the number of decimal
+/// digits the user can type: [MaxDecimalDigitsFormatter] is omitted and
+/// [AutoDecimalShiftFormatter] is forced off, since shifting digits into
+/// place from the right only makes sense for a fixed decimal-digit count.
+/// Used for fields like the currency conversion ratio, where truncating
+/// precision would defeat the purpose of the field.
 List<TextInputFormatter> buildAmountInputFormatters({
   required String decimalSep,
   required String groupSep,
   required bool autoDec,
   required int decDigits,
+  bool unlimitedDecimals = false,
 }) {
+  final effectiveAutoDec = autoDec && !unlimitedDecimals;
   return [
     CalculatorNormalizer(
       overwriteDot: getOverwriteDotValue(),
@@ -159,18 +179,18 @@ List<TextInputFormatter> buildAmountInputFormatters({
       decimalSep: decimalSep,
       groupSep: groupSep,
     ),
-    if (autoDec)
+    if (effectiveAutoDec)
       AutoDecimalShiftFormatter(
         decimalDigits: decDigits,
         decimalSep: decimalSep,
         groupSep: groupSep,
       ),
-    if (!autoDec)
+    if (!effectiveAutoDec)
       GroupSeparatorFormatter(
         groupSep: groupSep,
         decimalSep: decimalSep,
       ),
-    if (!autoDec)
+    if (!effectiveAutoDec && !unlimitedDecimals)
       MaxDecimalDigitsFormatter(
         decimalDigits: decDigits,
         decimalSep: decimalSep,

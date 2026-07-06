@@ -14,6 +14,7 @@ import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/currencies-page.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 
 import 'datetime-utility-functions.dart';
@@ -87,6 +88,21 @@ int getNumberDecimalDigits() {
   )!;
 }
 
+/// Resolves the effective decimal-digit count for an amount field.
+///
+/// Priority: [fieldOverride] (an explicit per-field value) wins first, then
+/// the per-currency override configured for [currencyCode] (see
+/// [getCurrencyDecimalDigitsOverride]), then the global
+/// [getNumberDecimalDigits] preference. Centralizes the fallback so every
+/// amount-input call site (formatters, hint text, rounding, display
+/// formatting) agrees on the same value.
+int resolveDecimalDigits(int? fieldOverride, {String? currencyCode}) {
+  if (fieldOverride != null) return fieldOverride;
+  final currencyOverride = getCurrencyDecimalDigitsOverride(currencyCode);
+  if (currencyOverride != null) return currencyOverride;
+  return getNumberDecimalDigits();
+}
+
 bool getAmountInputAutoDecimalShift() {
   if (getNumberDecimalDigits() <= 0) return false;
   return PreferencesUtils.getOrDefault<bool>(
@@ -108,14 +124,18 @@ bool usesWesternArabicNumerals(Locale locale) {
   return numberFormat.format(1234).contains("1234");
 }
 
+/// Builds a [NumberFormat] using the user's locale/separator customizations.
+///
+/// If [decimalDigits] is provided, it overrides the global
+/// [PreferencesKeys.numberDecimalDigits] preference for this format only.
 NumberFormat getNumberFormatWithCustomizations(
-    {turnOffGrouping = false, locale}) {
+    {turnOffGrouping = false, locale, int? decimalDigits}) {
   NumberFormat? numberFormat;
 
   String? userDefinedGroupSeparator = PreferencesUtils.getOrDefault<String?>(
       ServiceConfig.sharedPreferences!, PreferencesKeys.groupSeparator);
 
-  int decimalDigits = PreferencesUtils.getOrDefault<int>(
+  decimalDigits ??= PreferencesUtils.getOrDefault<int>(
       ServiceConfig.sharedPreferences!, PreferencesKeys.numberDecimalDigits)!;
 
   try {
@@ -542,16 +562,34 @@ RecordsTotalResult computeTotalInCurrency(
 
 /// Formats [value] with currency symbol, position, and locale-appropriate
 /// separators using the customized number format.
+///
+/// Uses [currencyCode]'s per-currency decimal digits override when
+/// configured (see [getCurrencyDecimalDigitsOverride]), otherwise falls back
+/// to the global decimal digits setting.
 String formatCurrencyAmount(double value, String currencyCode) {
-  var numberFormat = ServiceConfig.currencyNumberFormat;
-  if (numberFormat == null) {
-    setNumberFormatCache();
-    numberFormat = ServiceConfig.currencyNumberFormat;
-  }
-
+  final decDigits = resolveDecimalDigits(null, currencyCode: currencyCode);
+  final numberFormat = _numberFormatForDecimalDigits(decDigits);
   final currencySymbol = getCurrencySymbol(currencyCode);
-  final formatted = numberFormat!.format(value);
+  final formatted = numberFormat.format(value);
   return insertCurrencySymbol(formatted, currencySymbol);
+}
+
+/// Returns a [NumberFormat] for [decDigits], reusing the cached global format
+/// when it already uses that many digits, otherwise reading/populating
+/// [ServiceConfig.perCurrencyNumberFormatCache].
+NumberFormat _numberFormatForDecimalDigits(int decDigits) {
+  if (decDigits == getNumberDecimalDigits()) {
+    var numberFormat = ServiceConfig.currencyNumberFormat;
+    if (numberFormat == null) {
+      setNumberFormatCache();
+      numberFormat = ServiceConfig.currencyNumberFormat;
+    }
+    return numberFormat!;
+  }
+  return ServiceConfig.perCurrencyNumberFormatCache.putIfAbsent(
+    decDigits,
+    () => getNumberFormatWithCustomizations(decimalDigits: decDigits),
+  );
 }
 
 /// Gets the currency symbol for a given currency code.

@@ -317,10 +317,12 @@ class TabRecordsState extends State<TabRecords> {
       supportWebsitePage: 'https://oinkoin.com/support',
     );
 
-    if (result != null && result.action != AppReviewDialogAction.dismissed) {
-      await prompt.markPermanentlyShown();
-    } else {
+    if (result.action == AppReviewDialogAction.dismissed) {
+      // Backed out via back button/gesture or tapped outside: ask again later.
       await prompt.markDismissed(recordCount);
+    } else {
+      // Explicit "Cancel", or engaged (rated and proceeded): never ask again.
+      await prompt.markPermanentlyShown();
     }
   }
 

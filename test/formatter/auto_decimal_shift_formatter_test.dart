@@ -268,6 +268,54 @@ void main() {
         expect(result.text, '1.234');
       });
     });
+
+    group('6 decimal digits (conversion ratio)', () {
+      late AutoDecimalShiftFormatter formatter6;
+
+      setUp(() {
+        formatter6 = AutoDecimalShiftFormatter(
+          decimalDigits: 6,
+          decimalSep: '.',
+          groupSep: ',',
+        );
+      });
+
+      test('single digit becomes 0.00000X', () {
+        final oldValue = TextEditingValue.empty;
+        final newValue = TextEditingValue(text: '5');
+
+        final result = formatter6.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '0.000005');
+      });
+
+      test('two digits becomes 0.0000XX', () {
+        final oldValue = TextEditingValue(text: '5');
+        final newValue = TextEditingValue(text: '50');
+
+        final result = formatter6.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '0.000050');
+      });
+
+      test('six digits becomes 0.XXXXXX', () {
+        final oldValue = TextEditingValue(text: '26315');
+        final newValue = TextEditingValue(text: '263150');
+
+        final result = formatter6.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '0.263150');
+      });
+
+      test('seven digits shifts decimal correctly', () {
+        final oldValue = TextEditingValue(text: '263150');
+        final newValue = TextEditingValue(text: '2631500');
+
+        final result = formatter6.formatEditUpdate(oldValue, newValue);
+
+        expect(result.text, '2.631500');
+      });
+    });
   });
 
   group('LeadingZeroIntegerTrimmerFormatter', () {

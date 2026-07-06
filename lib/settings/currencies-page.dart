@@ -16,11 +16,17 @@ class UserCurrency {
   final String? customSymbol;
   final String? customName;
 
+  /// Number of decimal digits used when entering/displaying amounts in this
+  /// currency (e.g. 8 for Bitcoin). When null, the global
+  /// [PreferencesKeys.numberDecimalDigits] setting is used instead.
+  final int? decimalDigits;
+
   UserCurrency({
     required this.isoCode,
     required this.ratioToMain,
     this.customSymbol,
     this.customName,
+    this.decimalDigits,
   });
 
   bool get isCustom => customName != null;
@@ -30,12 +36,14 @@ class UserCurrency {
     double? ratioToMain,
     String? customSymbol,
     String? customName,
+    int? decimalDigits,
   }) {
     return UserCurrency(
       isoCode: isoCode ?? this.isoCode,
       ratioToMain: ratioToMain ?? this.ratioToMain,
       customSymbol: customSymbol ?? this.customSymbol,
       customName: customName ?? this.customName,
+      decimalDigits: decimalDigits ?? this.decimalDigits,
     );
   }
 
@@ -44,6 +52,7 @@ class UserCurrency {
         'ratioToMain': ratioToMain,
         if (customSymbol != null) 'customSymbol': customSymbol,
         if (customName != null) 'customName': customName,
+        if (decimalDigits != null) 'decimalDigits': decimalDigits,
       };
 
   factory UserCurrency.fromJson(Map<String, dynamic> json) {
@@ -52,6 +61,7 @@ class UserCurrency {
       ratioToMain: (json['ratioToMain'] as num).toDouble(),
       customSymbol: json['customSymbol'] as String?,
       customName: json['customName'] as String?,
+      decimalDigits: json['decimalDigits'] as int?,
     );
   }
 }
@@ -145,6 +155,14 @@ Future<void> saveUserCurrencyConfig(UserCurrencyConfig config) async {
 /// Returns the list of user-defined currency ISO codes.
 List<String> getUserCurrencyCodes() {
   return getUserCurrencyConfig().isoCodes;
+}
+
+/// Returns the per-currency decimal digits override configured for
+/// [currencyCode], or null if [currencyCode] is unset or has no override
+/// (in which case callers should fall back to the global default).
+int? getCurrencyDecimalDigitsOverride(String? currencyCode) {
+  if (currencyCode == null || currencyCode.isEmpty) return null;
+  return getUserCurrencyConfig().getByCode(currencyCode)?.decimalDigits;
 }
 
 class CurrenciesPage extends StatefulWidget {
@@ -255,6 +273,7 @@ class _CurrenciesPageState extends State<CurrenciesPage> {
           existingCodes: _config.isoCodes,
           preSelectedCurrency: userCurrency.isoCode,
           preFilledRatio: userCurrency.ratioToMain,
+          preFilledDecimalDigits: userCurrency.decimalDigits,
         ),
       ),
     );

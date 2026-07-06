@@ -588,10 +588,11 @@ class CsvImportService {
 
   /// Imports records from the parsed CSV rows into the database.
   ///
-  /// Uses the same duplicate-handling as [BackupService.importDataFromBackupFile]:
   ///  - Categories are inserted with [ElementAlreadyExists] catch.
-  ///  - Records use [DatabaseInterface.addRecordsInBatch] which skips
-  ///    duplicates via `INSERT OR IGNORE`.
+  ///  - Records use [DatabaseInterface.addRecordsInBatchNoDuplicateCheck], so
+  ///    every CSV row is imported as-is, unlike
+  ///    [BackupService.importDataFromBackupFile] which relies on
+  ///    [DatabaseInterface.addRecordsInBatch] to skip duplicates.
   ///  - Tags are inserted after records are committed.
   static Future<CsvImportResult> importRecords(
     List<Map<String, String>> rows,
@@ -712,27 +713,26 @@ class CsvImportService {
 
     final totalBeforeBatch = records.length;
 
-    // 4. Insert records in batch (duplicate detection via INSERT OR IGNORE)
-    _logger.info('Inserting $totalBeforeBatch records in batch...');
-    final recordsBefore = (await db.getAllRecords()).length;
-    await db.addRecordsInBatch(records);
+    // 4. Insert records — uses addRecordsInBatchNoDuplicateCheck so every CSV
+    //    row is imported as a distinct transaction.  The original duplicate
+    //    detection (INSERT OR IGNORE) was too aggressive for CSV imports,
+    //    flagging same-day same-amount transactions as duplicates even when
+    //    their descriptions differed.
+    _logger.info('Inserting $totalBeforeBatch records...');
+    await db.addRecordsInBatchNoDuplicateCheck(records);
     onProgress?.call(0.95);
 
-    // 5. Count how many were actually inserted
-    final recordsAfter = (await db.getAllRecords()).length;
-    final actuallyInserted = recordsAfter - recordsBefore;
-    final duplicateCount = totalBeforeBatch - actuallyInserted;
-
+    // 5. Report results.  Since no deduplication is performed all parsable
+    //    records are imported, so the duplicate count is always 0.
     _logger.info(
-      'Import complete: $actuallyInserted inserted, '
-      '$duplicateCount duplicates skipped, '
+      'Import complete: $totalBeforeBatch inserted, '
       '$skippedErrors parse errors, '
-      'total records in DB now: $recordsAfter',
+      'total records in DB now: ${(await db.getAllRecords()).length}',
     );
 
     return CsvImportResult(
-      imported: actuallyInserted,
-      skippedDuplicates: duplicateCount,
+      imported: totalBeforeBatch,
+      skippedDuplicates: 0,
       skippedErrors: skippedErrors,
       totalRows: rows.length,
     );

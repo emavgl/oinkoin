@@ -967,6 +967,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                     allowNegative: false,
                     autofocus: shouldAutofocus,
                     onChanged: changeRecordValue,
+                    currencyCode: _selectedWallet?.currency,
                   ),
                 ),
               ),
