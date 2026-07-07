@@ -40,7 +40,7 @@ class PreferencesKeys {
 
   // Appearance
   static const colorizeAmounts = 'colorizeAmounts';
-  static const reverseMonthlyImages = 'reverseMonthlyImages';
+  static const simplifyHomeAppBar = 'simplifyHomeAppBar';
 
   // Mics
   static const restoreAmountOnDelete = 'restoreAmountOnDelete';

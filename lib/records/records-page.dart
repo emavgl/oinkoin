@@ -10,6 +10,8 @@ import '../profiles/profiles-page.dart';
 import '../services/profile-service.dart';
 import '../helpers/review-prompt-service.dart';
 import '../services/service-config.dart';
+import '../settings/constants/preferences-keys.dart';
+import '../settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'components/days-summary-box-card.dart';
 import 'components/records-day-list.dart';
@@ -350,6 +352,8 @@ class TabRecordsState extends State<TabRecords> {
     return TabRecordsAppBar(
       controller: _controller,
       isAppBarExpanded: _isAppBarExpanded,
+      simplifyAppBar: PreferencesUtils.getOrDefault<bool>(
+          ServiceConfig.sharedPreferences!, PreferencesKeys.simplifyHomeAppBar)!,
       profileName: _controller.activeProfileName,
       onProfileTapped: () => _navigateToProfilesPage(),
       onDatePickerPressed: () => _showDatePicker(),

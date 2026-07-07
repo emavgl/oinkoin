@@ -369,15 +369,13 @@ class CustomizationPageState extends State<CustomizationPage> {
                       sharedConfigKey: PreferencesKeys.colorizeAmounts,
                     ),
                     SwitchCustomizationItem(
-                      title: "Reverse monthly images".i18n,
+                      title: "Remove the homepage image".i18n,
                       subtitle:
-                          "Show images appropriate for Southern Hemisphere seasons"
+                          "Switch to a simplified appbar without the image"
                               .i18n,
                       switchValue: PreferencesUtils.getOrDefault<bool>(
-                          prefs, PreferencesKeys.reverseMonthlyImages)!,
-                      sharedConfigKey: PreferencesKeys.reverseMonthlyImages,
-                      proLabel: !ServiceConfig.isPremium,
-                      enabled: ServiceConfig.isPremium,
+                          prefs, PreferencesKeys.simplifyHomeAppBar)!,
+                      sharedConfigKey: PreferencesKeys.simplifyHomeAppBar,
                     ),
                     SettingSeparator(title: "Number & Formatting".i18n),
                     DropdownCustomizationItem(

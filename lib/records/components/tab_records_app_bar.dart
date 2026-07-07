@@ -10,6 +10,7 @@ import 'styled_action_buttons.dart';
 class TabRecordsAppBar extends StatelessWidget {
   final TabRecordsController controller;
   final bool isAppBarExpanded;
+  final bool simplifyAppBar;
   final String profileName;
   final VoidCallback onProfileTapped;
   final VoidCallback onDatePickerPressed;
@@ -30,6 +31,7 @@ class TabRecordsAppBar extends StatelessWidget {
     Key? key,
     required this.controller,
     required this.isAppBarExpanded,
+    this.simplifyAppBar = false,
     required this.profileName,
     required this.onProfileTapped,
     required this.onDatePickerPressed,
@@ -51,6 +53,32 @@ class TabRecordsAppBar extends StatelessWidget {
     final headerPaddingBottom = controller.getHeaderPaddingBottom();
     final canShiftBack = controller.canShiftBack();
     final canShiftForward = controller.canShiftForward();
+
+    if (simplifyAppBar) {
+      return SliverAppBar(
+        elevation: 0,
+        forceElevated: isSelectMode,
+        backgroundColor: Theme.of(context).primaryColor,
+        automaticallyImplyLeading: false,
+        pinned: true,
+        leading: isSelectMode
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: onClose,
+              )
+            : (profileName.isNotEmpty ? _buildLeading() : null),
+        title: isSelectMode
+            ? Text(
+                "$selectedCount ${"selected".i18n}",
+                style: const TextStyle(color: Colors.white),
+              )
+            : null,
+        actions: isSelectMode ? _buildSelectionActions() : _buildActions(),
+        bottom: isSelectMode
+            ? null
+            : _buildBottomBar(headerFontSize, canShiftBack, canShiftForward),
+      );
+    }
 
     return SliverAppBar(
       elevation: 0,
@@ -89,6 +117,19 @@ class TabRecordsAppBar extends StatelessWidget {
             ? null
             : _buildTitle(headerFontSize, canShiftBack, canShiftForward),
         background: _buildBackground(),
+      ),
+    );
+  }
+
+  /// Bottom row of the simplified app bar: the period text with its shift
+  /// arrows, mirroring the search app bar's two-row (toolbar + bottom) shape.
+  PreferredSizeWidget _buildBottomBar(
+      double headerFontSize, bool canShiftBack, bool canShiftForward) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(48),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 5, 10),
+        child: _buildTitle(headerFontSize, canShiftBack, canShiftForward),
       ),
     );
   }
@@ -174,10 +215,11 @@ class TabRecordsAppBar extends StatelessWidget {
 
   Widget _buildTitle(
       double headerFontSize, bool canShiftBack, bool canShiftForward) {
+    final bool showShiftButtons = simplifyAppBar || isAppBarExpanded;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        if (isAppBarExpanded && canShiftBack)
+        if (showShiftButtons && canShiftBack)
           _buildShiftButton(Icons.arrow_left, -1),
         Expanded(
           child: Semantics(
@@ -190,7 +232,7 @@ class TabRecordsAppBar extends StatelessWidget {
             ),
           ),
         ),
-        if (isAppBarExpanded && canShiftForward)
+        if (showShiftButtons && canShiftForward)
           _buildShiftButton(Icons.arrow_right, 1),
       ],
     );

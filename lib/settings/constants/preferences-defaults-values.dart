@@ -50,7 +50,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.showFutureRecords: true, // Default to enabled
     PreferencesKeys.showCurrencySymbol: true, // Default to show currency symbols
     PreferencesKeys.colorizeAmounts: false, // Default to disabled
-    PreferencesKeys.reverseMonthlyImages: false, // Default to disabled
+    PreferencesKeys.simplifyHomeAppBar: false, // Default to disabled
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4,
     PreferencesKeys.inAppKeyboardScale: 1,
