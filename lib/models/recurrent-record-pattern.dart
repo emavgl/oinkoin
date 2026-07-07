@@ -22,6 +22,9 @@ class RecurrentRecordPattern {
   int? transferWalletId;
   double? transferValue;
   int? profileId;
+  // Only meaningful when recurrentPeriod == RecurrentPeriod.Custom.
+  int? customIntervalValue;
+  CustomIntervalUnit? customIntervalUnit;
 
   RecurrentRecordPattern(this.value, this.title, this.category,
       this.utcDateTime, this.recurrentPeriod,
@@ -34,6 +37,8 @@ class RecurrentRecordPattern {
       this.transferWalletId,
       this.transferValue,
       this.profileId,
+      this.customIntervalValue,
+      this.customIntervalUnit,
       Set<String>? tags}) {
     if (timeZoneName == null) {
       timeZoneName = ServiceConfig.localTimezone;
@@ -48,6 +53,8 @@ class RecurrentRecordPattern {
     this.recurrentPeriod, {
     this.id,
     this.utcEndDate,
+    this.customIntervalValue,
+    this.customIntervalUnit,
   })  : value = record.value,
         title = record.title,
         category = record.category,
@@ -78,6 +85,8 @@ class RecurrentRecordPattern {
       'transfer_wallet_id': transferWalletId,
       'transfer_value': transferValue,
       'profile_id': profileId,
+      'custom_interval_value': customIntervalValue,
+      'custom_interval_unit': customIntervalUnit?.index,
     };
     if (id != null) map['id'] = id;
     return map;
@@ -115,6 +124,8 @@ class RecurrentRecordPattern {
             .toSet()
         : {};
 
+    final int? customIntervalUnitIndex = map['custom_interval_unit'] as int?;
+
     return RecurrentRecordPattern(
       map['value'],
       map['title'],
@@ -130,6 +141,10 @@ class RecurrentRecordPattern {
       transferWalletId: map['transfer_wallet_id'] as int?,
       transferValue: (map['transfer_value'] as num?)?.toDouble(),
       profileId: map['profile_id'] as int?,
+      customIntervalValue: map['custom_interval_value'] as int?,
+      customIntervalUnit: customIntervalUnitIndex != null
+          ? CustomIntervalUnit.values[customIntervalUnitIndex]
+          : null,
       tags: tags,
     );
   }

@@ -185,8 +185,8 @@ void main() {
     test('four-weekly recurrent', () {
       final dateTime = DateTime.utc(2020, 10, 1);
       final endDate = DateTime.utc(2020, 11, 30);
-      final recordPattern = RecurrentRecordPattern(
-          1, "Four-Weekly", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
+      final recordPattern = RecurrentRecordPattern(1, "Four-Weekly", category1,
+          dateTime, RecurrentPeriod.EveryFourWeeks);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
@@ -203,8 +203,8 @@ void main() {
     test('four-weekly recurrent spanning multiple months', () {
       final dateTime = DateTime.utc(2020, 1, 15);
       final endDate = DateTime.utc(2020, 6, 30);
-      final recordPattern = RecurrentRecordPattern(
-          1, "Four-Weekly-Long", category1, dateTime, RecurrentPeriod.EveryFourWeeks);
+      final recordPattern = RecurrentRecordPattern(1, "Four-Weekly-Long",
+          category1, dateTime, RecurrentPeriod.EveryFourWeeks);
 
       final records = recurrentRecordService
           .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
@@ -374,7 +374,8 @@ void main() {
       }
     });
 
-    test('generated records should have walletId from the recurrent pattern', () {
+    test('generated records should have walletId from the recurrent pattern',
+        () {
       final patternStartDate = DateTime.utc(2023, 1, 1);
       final endDate = DateTime.utc(2023, 1, 3);
 
@@ -396,7 +397,9 @@ void main() {
       }
     });
 
-    test('generated records should have transferWalletId from the recurrent pattern', () {
+    test(
+        'generated records should have transferWalletId from the recurrent pattern',
+        () {
       final patternStartDate = DateTime.utc(2023, 1, 1);
       final endDate = DateTime.utc(2023, 1, 3);
 
@@ -421,7 +424,8 @@ void main() {
       }
     });
 
-    test('generated records without transferWalletId should not be transfers', () {
+    test('generated records without transferWalletId should not be transfers',
+        () {
       final patternStartDate = DateTime.utc(2023, 1, 1);
       final endDate = DateTime.utc(2023, 1, 3);
 
@@ -444,7 +448,9 @@ void main() {
       }
     });
 
-    test('RecurrentRecordPattern.fromRecord copies walletId and transferWalletId', () {
+    test(
+        'RecurrentRecordPattern.fromRecord copies walletId and transferWalletId',
+        () {
       final sourceRecord = Record(
         -50.0,
         "Transfer",
@@ -463,7 +469,9 @@ void main() {
       expect(pattern.transferWalletId, 7);
     });
 
-    test('RecurrentRecordPattern.fromRecord with no transfer sets transferWalletId to null', () {
+    test(
+        'RecurrentRecordPattern.fromRecord with no transfer sets transferWalletId to null',
+        () {
       final sourceRecord = Record(
         -50.0,
         "Expense",
@@ -481,7 +489,9 @@ void main() {
       expect(pattern.transferWalletId, isNull);
     });
 
-    test('RecurrentRecordPattern toMap and fromMap round-trip preserves transfer fields', () {
+    test(
+        'RecurrentRecordPattern toMap and fromMap round-trip preserves transfer fields',
+        () {
       final pattern = RecurrentRecordPattern(
         -100.0,
         "Round-trip transfer",
@@ -495,6 +505,201 @@ void main() {
       final map = pattern.toMap();
       expect(map['wallet_id'], 4);
       expect(map['transfer_wallet_id'], 9);
+    });
+
+    group('RecurrentPeriod.Custom generation', () {
+      test('custom every 6 days behaves like a 6-day step', () {
+        final dateTime = DateTime.utc(2020, 2, 20);
+        final endDate = DateTime.utc(2020, 3, 13);
+        final recordPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Days",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 6,
+          customIntervalUnit: CustomIntervalUnit.day,
+        );
+
+        final records = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+        final expectedDates = [
+          DateTime(2020, 2, 20),
+          DateTime(2020, 2, 26),
+          DateTime(2020, 3, 3),
+          DateTime(2020, 3, 9),
+        ];
+
+        _assertRecordsMatchDates(records, expectedDates);
+      });
+
+      test('custom every 3 weeks behaves like a 21-day step', () {
+        final dateTime = DateTime.utc(2020, 10, 1);
+        final endDate = DateTime.utc(2020, 12, 1);
+        final recordPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Weeks",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 3,
+          customIntervalUnit: CustomIntervalUnit.week,
+        );
+
+        final records = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+        final expectedDates = [
+          DateTime(2020, 10, 1),
+          DateTime(2020, 10, 22),
+          DateTime(2020, 11, 12),
+        ];
+
+        _assertRecordsMatchDates(records, expectedDates);
+      });
+
+      test(
+          'custom every 6 months solves the reported bi-annual payment use case',
+          () {
+        final dateTime = DateTime.utc(2020, 1, 15);
+        final endDate = DateTime.utc(2021, 6, 30);
+        final recordPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Six-Months",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 6,
+          customIntervalUnit: CustomIntervalUnit.month,
+        );
+
+        final records = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+        final expectedDates = [
+          DateTime(2020, 1, 15),
+          DateTime(2020, 7, 15),
+          DateTime(2021, 1, 15),
+        ];
+
+        _assertRecordsMatchDates(records, expectedDates);
+      });
+
+      test('custom every month behaves like RecurrentPeriod.EveryMonth', () {
+        final dateTime = DateTime.utc(2020, 2, 20);
+        final endDate = DateTime.utc(2020, 5, 25);
+        final customPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Monthly",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 1,
+          customIntervalUnit: CustomIntervalUnit.month,
+        );
+        final fixedPattern = RecurrentRecordPattern(
+            1, "Monthly", category1, dateTime, RecurrentPeriod.EveryMonth);
+
+        final customRecords = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(customPattern, endDate);
+        final fixedRecords = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(fixedPattern, endDate);
+
+        expect(customRecords.length, fixedRecords.length);
+        for (var i = 0; i < customRecords.length; i++) {
+          expect(customRecords[i].localDateTime.year,
+              fixedRecords[i].localDateTime.year);
+          expect(customRecords[i].localDateTime.month,
+              fixedRecords[i].localDateTime.month);
+          expect(customRecords[i].localDateTime.day,
+              fixedRecords[i].localDateTime.day);
+        }
+      });
+
+      test('custom every 2 years respects month-rollover handling', () {
+        final dateTime = DateTime.utc(2020, 1, 5);
+        final endDate = DateTime.utc(2024, 12, 30);
+        final recordPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Years",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 2,
+          customIntervalUnit: CustomIntervalUnit.year,
+        );
+
+        final records = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+        final expectedDates = [
+          DateTime(2020, 1, 5),
+          DateTime(2022, 1, 5),
+          DateTime(2024, 1, 5),
+        ];
+
+        _assertRecordsMatchDates(records, expectedDates);
+      });
+
+      test('custom interval without a value only produces the initial record',
+          () {
+        final dateTime = DateTime.utc(2020, 1, 1);
+        final endDate = DateTime.utc(2020, 6, 1);
+        final recordPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Missing-Value",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalUnit: CustomIntervalUnit.month,
+        );
+
+        final records = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+        // The first record is always emitted regardless of recurrence type;
+        // an incomplete custom interval must not generate further records.
+        _assertRecordsMatchDates(records, [DateTime(2020, 1, 1)]);
+      });
+
+      test('custom interval without a unit only produces the initial record',
+          () {
+        final dateTime = DateTime.utc(2020, 1, 1);
+        final endDate = DateTime.utc(2020, 6, 1);
+        final recordPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Missing-Unit",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 3,
+        );
+
+        final records = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+        _assertRecordsMatchDates(records, [DateTime(2020, 1, 1)]);
+      });
+
+      test('custom interval with a non-positive value is ignored', () {
+        final dateTime = DateTime.utc(2020, 1, 1);
+        final endDate = DateTime.utc(2020, 6, 1);
+        final recordPattern = RecurrentRecordPattern(
+          1,
+          "Custom-Zero-Value",
+          category1,
+          dateTime,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 0,
+          customIntervalUnit: CustomIntervalUnit.month,
+        );
+
+        final records = recurrentRecordService
+            .generateRecurrentRecordsFromDateTime(recordPattern, endDate);
+
+        _assertRecordsMatchDates(records, [DateTime(2020, 1, 1)]);
+      });
     });
   });
 }

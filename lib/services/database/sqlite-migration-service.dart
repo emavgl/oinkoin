@@ -112,7 +112,9 @@ class SqliteMigrationService {
                 wallet_id INTEGER,
                 transfer_wallet_id INTEGER,
                 transfer_value REAL,
-                profile_id INTEGER
+                profile_id INTEGER,
+                custom_interval_value INTEGER,
+                custom_interval_unit INTEGER
             );
         """;
     batch.execute(query);
@@ -531,6 +533,13 @@ class SqliteMigrationService {
     }
   }
 
+  static Future<void> _migrateTo28(Database db) async {
+    await safeAlterTable(db,
+        "ALTER TABLE recurrent_record_patterns ADD COLUMN custom_interval_value INTEGER;");
+    await safeAlterTable(db,
+        "ALTER TABLE recurrent_record_patterns ADD COLUMN custom_interval_unit INTEGER;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -553,6 +562,7 @@ class SqliteMigrationService {
     25: SqliteMigrationService._migrateTo25,
     26: SqliteMigrationService._migrateTo26,
     27: SqliteMigrationService._migrateTo27,
+    28: SqliteMigrationService._migrateTo28,
   };
 
   // Public Methods

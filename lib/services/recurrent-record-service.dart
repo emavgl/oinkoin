@@ -190,6 +190,29 @@ class RecurrentRecordService {
         case RecurrentPeriod.EveryYear:
           addRecordsByPeriod(12, isMonth: true);
           break;
+        case RecurrentPeriod.Custom:
+          final unit = recordPattern.customIntervalUnit;
+          final value = recordPattern.customIntervalValue;
+          if (unit == null || value == null || value <= 0) {
+            _logger.warning(
+                'Skipping pattern with invalid custom interval: ${recordPattern.title}');
+            break;
+          }
+          switch (unit) {
+            case CustomIntervalUnit.day:
+              addRecordsByPeriod(value);
+              break;
+            case CustomIntervalUnit.week:
+              addRecordsByPeriod(value * 7);
+              break;
+            case CustomIntervalUnit.month:
+              addRecordsByPeriod(value, isMonth: true);
+              break;
+            case CustomIntervalUnit.year:
+              addRecordsByPeriod(value * 12, isMonth: true);
+              break;
+          }
+          break;
         default:
           break;
       }

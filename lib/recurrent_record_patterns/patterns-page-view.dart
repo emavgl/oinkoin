@@ -12,6 +12,62 @@ import '../components/category_icon_circle.dart';
 import '../models/recurrent-period.dart';
 import 'package:piggybank/i18n.dart';
 
+/// Groups patterns by their effective recurrence: the RecurrentPeriod, plus
+/// the custom interval value/unit when the period is [RecurrentPeriod.Custom]
+/// (patterns with different custom intervals are shown in separate groups).
+class _GroupKey {
+  final RecurrentPeriod period;
+  final int? customIntervalValue;
+  final CustomIntervalUnit? customIntervalUnit;
+
+  const _GroupKey(
+      this.period, this.customIntervalValue, this.customIntervalUnit);
+
+  @override
+  bool operator ==(Object other) =>
+      other is _GroupKey &&
+      other.period == period &&
+      other.customIntervalValue == customIntervalValue &&
+      other.customIntervalUnit == customIntervalUnit;
+
+  @override
+  int get hashCode =>
+      Object.hash(period, customIntervalValue, customIntervalUnit);
+}
+
+enum _RecurrenceUnitBucket { day, week, month, year }
+
+/// Classifies a pattern's recurrence into the calendar unit that should drive
+/// its subtitle/sort order (e.g. a custom "every 2 weeks" pattern behaves
+/// like [RecurrentPeriod.EveryTwoWeeks] for display purposes).
+_RecurrenceUnitBucket _unitBucketFor(
+    RecurrentPeriod? period, CustomIntervalUnit? customUnit) {
+  switch (period) {
+    case RecurrentPeriod.EveryDay:
+      return _RecurrenceUnitBucket.day;
+    case RecurrentPeriod.EveryWeek:
+    case RecurrentPeriod.EveryTwoWeeks:
+    case RecurrentPeriod.EveryFourWeeks:
+      return _RecurrenceUnitBucket.week;
+    case RecurrentPeriod.EveryYear:
+      return _RecurrenceUnitBucket.year;
+    case RecurrentPeriod.Custom:
+      switch (customUnit) {
+        case CustomIntervalUnit.day:
+          return _RecurrenceUnitBucket.day;
+        case CustomIntervalUnit.week:
+          return _RecurrenceUnitBucket.week;
+        case CustomIntervalUnit.year:
+          return _RecurrenceUnitBucket.year;
+        case CustomIntervalUnit.month:
+        case null:
+          return _RecurrenceUnitBucket.month;
+      }
+    default: // EveryMonth, EveryThreeMonths, EveryFourMonths, null
+      return _RecurrenceUnitBucket.month;
+  }
+}
+
 class PatternsPageView extends StatefulWidget {
   @override
   PatternsPageViewState createState() => PatternsPageViewState();
@@ -95,17 +151,15 @@ class PatternsPageViewState extends State<PatternsPageView> {
 
   String _recurrenceSubtitle(RecurrentRecordPattern pattern) {
     final dt = pattern.localDateTime;
-    switch (pattern.recurrentPeriod) {
-      case RecurrentPeriod.EveryDay:
+    switch (
+        _unitBucketFor(pattern.recurrentPeriod, pattern.customIntervalUnit)) {
+      case _RecurrenceUnitBucket.day:
         return '';
-      case RecurrentPeriod.EveryWeek:
-      case RecurrentPeriod.EveryTwoWeeks:
-      case RecurrentPeriod.EveryFourWeeks:
+      case _RecurrenceUnitBucket.week:
         return DateFormat.EEEE().format(DateTime(dt.year, dt.month, dt.day));
-      case RecurrentPeriod.EveryYear:
+      case _RecurrenceUnitBucket.year:
         return DateFormat.MMMd().format(DateTime(dt.year, dt.month, dt.day));
-      default:
-        // EveryMonth, EveryThreeMonths, EveryFourMonths
+      case _RecurrenceUnitBucket.month:
         return "${"Day".i18n} ${dt.day}";
     }
   }
@@ -148,32 +202,31 @@ class PatternsPageViewState extends State<PatternsPageView> {
     );
   }
 
-  Map<RecurrentPeriod, List<RecurrentRecordPattern>> _groupPatternsByPeriod() {
-    Map<RecurrentPeriod, List<RecurrentRecordPattern>> grouped = {};
+  Map<_GroupKey, List<RecurrentRecordPattern>> _groupPatternsByPeriod() {
+    Map<_GroupKey, List<RecurrentRecordPattern>> grouped = {};
 
     for (var pattern in _recurrentRecordPatterns!) {
       if (pattern.recurrentPeriod != null) {
-        if (!grouped.containsKey(pattern.recurrentPeriod)) {
-          grouped[pattern.recurrentPeriod!] = [];
-        }
-        grouped[pattern.recurrentPeriod!]!.add(pattern);
+        final key = _GroupKey(pattern.recurrentPeriod!,
+            pattern.customIntervalValue, pattern.customIntervalUnit);
+        grouped.putIfAbsent(key, () => []).add(pattern);
       }
     }
 
     for (var entry in grouped.entries) {
-      final period = entry.key;
+      final bucket =
+          _unitBucketFor(entry.key.period, entry.key.customIntervalUnit);
       entry.value.sort((a, b) {
         final aDate = a.localDateTime;
         final bDate = b.localDateTime;
-        switch (period) {
-          case RecurrentPeriod.EveryWeek:
-          case RecurrentPeriod.EveryTwoWeeks:
-          case RecurrentPeriod.EveryFourWeeks:
+        switch (bucket) {
+          case _RecurrenceUnitBucket.week:
             return aDate.weekday.compareTo(bDate.weekday);
-          case RecurrentPeriod.EveryYear:
+          case _RecurrenceUnitBucket.year:
             final cmp = aDate.month.compareTo(bDate.month);
             return cmp != 0 ? cmp : aDate.day.compareTo(bDate.day);
-          default:
+          case _RecurrenceUnitBucket.day:
+          case _RecurrenceUnitBucket.month:
             return aDate.day.compareTo(bDate.day);
         }
       });
@@ -232,14 +285,17 @@ class PatternsPageViewState extends State<PatternsPageView> {
     return getCurrencyValueString(total);
   }
 
-  Widget _buildGroupHeader(RecurrentPeriod period, String formattedSum) {
+  Widget _buildGroupHeader(_GroupKey groupKey, String formattedSum) {
+    final label = recurrentPeriodDisplayString(groupKey.period,
+        customIntervalValue: groupKey.customIntervalValue,
+        customIntervalUnit: groupKey.customIntervalUnit);
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            recurrentPeriodString(period),
+            label,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           Text(

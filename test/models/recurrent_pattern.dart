@@ -138,6 +138,147 @@ void main() {
       });
     });
 
+    group('Custom interval', () {
+      test('main constructor stores customIntervalValue/customIntervalUnit',
+          () {
+        final pattern = RecurrentRecordPattern(
+          75.0,
+          'Car insurance',
+          testCategory,
+          DateTime.utc(2025, 1, 1),
+          RecurrentPeriod.Custom,
+          customIntervalValue: 6,
+          customIntervalUnit: CustomIntervalUnit.month,
+        );
+
+        expect(pattern.recurrentPeriod, RecurrentPeriod.Custom);
+        expect(pattern.customIntervalValue, 6);
+        expect(pattern.customIntervalUnit, CustomIntervalUnit.month);
+      });
+
+      test('customIntervalValue/customIntervalUnit default to null', () {
+        final pattern = RecurrentRecordPattern(
+          10.0,
+          'Coffee',
+          testCategory,
+          DateTime.utc(2025, 1, 1),
+          RecurrentPeriod.EveryMonth,
+        );
+
+        expect(pattern.customIntervalValue, isNull);
+        expect(pattern.customIntervalUnit, isNull);
+      });
+
+      test('fromRecord constructor forwards the custom interval', () {
+        final record = Record(
+          20.0,
+          'Gym',
+          testCategory,
+          DateTime.utc(2025, 1, 1),
+        );
+
+        final pattern = RecurrentRecordPattern.fromRecord(
+          record,
+          RecurrentPeriod.Custom,
+          customIntervalValue: 10,
+          customIntervalUnit: CustomIntervalUnit.day,
+        );
+
+        expect(pattern.recurrentPeriod, RecurrentPeriod.Custom);
+        expect(pattern.customIntervalValue, 10);
+        expect(pattern.customIntervalUnit, CustomIntervalUnit.day);
+      });
+
+      test('toMap serializes the custom interval as a value and unit index',
+          () {
+        final pattern = RecurrentRecordPattern(
+          75.0,
+          'Car insurance',
+          testCategory,
+          DateTime.utc(2025, 1, 1),
+          RecurrentPeriod.Custom,
+          customIntervalValue: 6,
+          customIntervalUnit: CustomIntervalUnit.month,
+        );
+
+        final map = pattern.toMap();
+        expect(map['custom_interval_value'], 6);
+        expect(map['custom_interval_unit'], CustomIntervalUnit.month.index);
+      });
+
+      test('toMap serializes null custom interval fields as null', () {
+        final pattern = RecurrentRecordPattern(
+          10.0,
+          'Coffee',
+          testCategory,
+          DateTime.utc(2025, 1, 1),
+          RecurrentPeriod.EveryMonth,
+        );
+
+        final map = pattern.toMap();
+        expect(map['custom_interval_value'], isNull);
+        expect(map['custom_interval_unit'], isNull);
+      });
+
+      test('fromMap deserializes a fully specified custom interval', () {
+        final map = {
+          'value': 75.0,
+          'title': 'Car insurance',
+          'datetime': DateTime.utc(2025, 1, 1).millisecondsSinceEpoch,
+          'timezone': 'Europe/Rome',
+          'category_name': testCategory.name,
+          'category_type': testCategory.categoryType?.index,
+          'description': null,
+          'recurrent_period': RecurrentPeriod.Custom.index,
+          'custom_interval_value': 6,
+          'custom_interval_unit': CustomIntervalUnit.month.index,
+        };
+
+        final pattern = RecurrentRecordPattern.fromMap(map);
+
+        expect(pattern.recurrentPeriod, RecurrentPeriod.Custom);
+        expect(pattern.customIntervalValue, 6);
+        expect(pattern.customIntervalUnit, CustomIntervalUnit.month);
+      });
+
+      test('fromMap tolerates missing custom interval columns (pre-migration)',
+          () {
+        final map = {
+          'value': 10.0,
+          'title': 'Coffee',
+          'datetime': DateTime.utc(2025, 1, 1).millisecondsSinceEpoch,
+          'timezone': 'Europe/Rome',
+          'category_name': testCategory.name,
+          'category_type': testCategory.categoryType?.index,
+          'description': null,
+          'recurrent_period': RecurrentPeriod.EveryMonth.index,
+        };
+
+        final pattern = RecurrentRecordPattern.fromMap(map);
+
+        expect(pattern.customIntervalValue, isNull);
+        expect(pattern.customIntervalUnit, isNull);
+      });
+
+      test('toMap/fromMap round-trip preserves the custom interval', () {
+        final pattern = RecurrentRecordPattern(
+          75.0,
+          'Car insurance',
+          testCategory,
+          DateTime.utc(2025, 1, 1),
+          RecurrentPeriod.Custom,
+          customIntervalValue: 6,
+          customIntervalUnit: CustomIntervalUnit.month,
+        );
+
+        final decoded = RecurrentRecordPattern.fromMap(pattern.toMap());
+
+        expect(decoded.recurrentPeriod, RecurrentPeriod.Custom);
+        expect(decoded.customIntervalValue, 6);
+        expect(decoded.customIntervalUnit, CustomIntervalUnit.month);
+      });
+    });
+
     group('Tag deserialization edge cases', () {
       test('Empty string produces empty tag set', () {
         final map = {

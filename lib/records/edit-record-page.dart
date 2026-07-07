@@ -27,6 +27,7 @@ import '../models/recurrent-record-pattern.dart';
 import '../models/wallet.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
+import 'components/custom_interval_dialog.dart';
 import 'components/tag_selection_dialog.dart';
 import 'components/wallet_transfer_row.dart';
 
@@ -62,6 +63,8 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   RecurrentPeriod? recurrentPeriod;
   int? recurrentPeriodIndex;
+  int? _customIntervalValue;
+  CustomIntervalUnit? _customIntervalUnit;
 
   late String currency;
   DateTime? lastCharInsertedMillisecond;
@@ -117,7 +120,11 @@ class EditRecordPageState extends State<EditRecordPage> {
     DropdownMenuItem<int>(
       value: RecurrentPeriod.EveryYear.index,
       child: Text("Every year".i18n, style: TextStyle(fontSize: 18.0)),
-    )
+    ),
+    DropdownMenuItem<int>(
+      value: RecurrentPeriod.Custom.index,
+      child: Text("Custom".i18n, style: TextStyle(fontSize: 18.0)),
+    ),
   ];
 
   @override
@@ -156,6 +163,8 @@ class EditRecordPageState extends State<EditRecordPage> {
               recurrentPeriod = value.recurrentPeriod;
               recurrentPeriodIndex = value.recurrentPeriod!.index;
               localDisplayEndDate = value.localEndDate;
+              _customIntervalValue = value.customIntervalValue;
+              _customIntervalUnit = value.customIntervalUnit;
             });
           }
         });
@@ -198,6 +207,9 @@ class EditRecordPageState extends State<EditRecordPage> {
         recurrentPeriod = passedRecurrentRecordPattern!.recurrentPeriod;
         recurrentPeriodIndex =
             passedRecurrentRecordPattern!.recurrentPeriod!.index;
+        _customIntervalValue =
+            passedRecurrentRecordPattern!.customIntervalValue;
+        _customIntervalUnit = passedRecurrentRecordPattern!.customIntervalUnit;
       });
       // Initialize selected tags for existing recurrent pattern
       _selectedTags = Set.from(passedRecurrentRecordPattern!.tags);
@@ -244,7 +256,8 @@ class EditRecordPageState extends State<EditRecordPage> {
       }
     });
 
-    categorySign = record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+    categorySign =
+        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
 
     String initialValue = record?.title ?? "";
     _typeAheadController.text = initialValue;
@@ -718,14 +731,74 @@ class EditRecordPageState extends State<EditRecordPage> {
                                         child: DropdownButton<int>(
                                       iconSize: 0.0,
                                       items: recurrentIntervalDropdownList,
+                                      selectedItemBuilder: (context) =>
+                                          recurrentIntervalDropdownList
+                                              .map((item) {
+                                        final period =
+                                            RecurrentPeriod.values[item.value!];
+                                        return Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            recurrentPeriodDisplayString(period,
+                                                customIntervalValue:
+                                                    _customIntervalValue,
+                                                customIntervalUnit:
+                                                    _customIntervalUnit),
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.normal,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant),
+                                          ),
+                                        );
+                                      }).toList(),
                                       onChanged: canChangeRepeat
-                                          ? (value) {
-                                              setState(() {
-                                                recurrentPeriodIndex = value;
-                                                recurrentPeriod =
-                                                    RecurrentPeriod
-                                                        .values[value!];
-                                              });
+                                          ? (value) async {
+                                              if (value == null) return;
+                                              if (value ==
+                                                  RecurrentPeriod
+                                                      .Custom.index) {
+                                                // Open a dialog rather than
+                                                // committing to Custom
+                                                // immediately: this keeps
+                                                // recurrentPeriod/Index
+                                                // untouched (so the dropdown
+                                                // stays on its previous
+                                                // selection) unless the user
+                                                // explicitly confirms a valid
+                                                // interval. Dismissing via
+                                                // the barrier, back button, or
+                                                // Cancel all resolve to null.
+                                                final result = await showDialog<
+                                                    CustomIntervalSelection>(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      CustomIntervalDialog(
+                                                    initialValue:
+                                                        _customIntervalValue,
+                                                    initialUnit:
+                                                        _customIntervalUnit,
+                                                  ),
+                                                );
+                                                if (result == null) return;
+                                                setState(() {
+                                                  recurrentPeriodIndex = value;
+                                                  recurrentPeriod =
+                                                      RecurrentPeriod.Custom;
+                                                  _customIntervalValue =
+                                                      result.value;
+                                                  _customIntervalUnit =
+                                                      result.unit;
+                                                });
+                                              } else {
+                                                setState(() {
+                                                  recurrentPeriodIndex = value;
+                                                  recurrentPeriod =
+                                                      RecurrentPeriod
+                                                          .values[value];
+                                                });
+                                              }
                                             }
                                           : null,
                                       onTap: () {
@@ -735,25 +808,14 @@ class EditRecordPageState extends State<EditRecordPage> {
                                       value: recurrentPeriodIndex,
                                       underline: SizedBox(),
                                       isExpanded: true,
-                                      hint: recurrentPeriod == null
-                                          ? Text(
-                                              "Not repeat".i18n,
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant),
-                                            )
-                                          : Text(
-                                              recurrentPeriodString(
-                                                  recurrentPeriod),
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.normal,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant),
-                                            ),
+                                      hint: Text(
+                                        "Not repeat".i18n,
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant),
+                                      ),
                                     )),
                                     Visibility(
                                       child: getProLabel(labelFontSize: 12.0),
@@ -770,6 +832,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                                           setState(() {
                                             recurrentPeriod = null;
                                             recurrentPeriodIndex = null;
+                                            _customIntervalValue = null;
+                                            _customIntervalUnit = null;
                                           });
                                         },
                                       ),
@@ -1116,10 +1180,20 @@ class EditRecordPageState extends State<EditRecordPage> {
   recurrentPeriodHasBeenUpdated(RecurrentRecordPattern toSet) {
     bool recurrentPeriodHasChanged = toSet.recurrentPeriod!.index !=
         passedRecurrentRecordPattern!.recurrentPeriod!.index;
+    // A custom interval can change (e.g. "every 3 months" -> "every 6 months")
+    // without the RecurrentPeriod enum value itself changing.
+    bool customIntervalHasChanged =
+        toSet.recurrentPeriod == RecurrentPeriod.Custom &&
+            (toSet.customIntervalValue !=
+                    passedRecurrentRecordPattern!.customIntervalValue ||
+                toSet.customIntervalUnit !=
+                    passedRecurrentRecordPattern!.customIntervalUnit);
     // Compare the UTC timestamps
     bool startingDateHasChanged = toSet.utcDateTime.millisecondsSinceEpoch !=
         passedRecurrentRecordPattern!.utcDateTime.millisecondsSinceEpoch;
-    return recurrentPeriodHasChanged || startingDateHasChanged;
+    return recurrentPeriodHasChanged ||
+        customIntervalHasChanged ||
+        startingDateHasChanged;
   }
 
   addOrUpdateRecurrentPattern({id}) async {
@@ -1136,6 +1210,12 @@ class EditRecordPageState extends State<EditRecordPage> {
       recurrentPeriod!,
       id: id,
       utcEndDate: localDisplayEndDate?.toUtc(),
+      customIntervalValue: recurrentPeriod == RecurrentPeriod.Custom
+          ? _customIntervalValue
+          : null,
+      customIntervalUnit: recurrentPeriod == RecurrentPeriod.Custom
+          ? _customIntervalUnit
+          : null,
     );
     recordPattern.tags =
         _selectedTags; // Assign selected tags to the recurrent pattern
