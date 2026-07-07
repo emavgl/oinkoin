@@ -3457,16 +3457,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Reverse monthly images": {
-      "key": "Reverse monthly images",
-      "context": "Toggle label in Settings > Customization > Appearance section to reverse monthly background images for Southern Hemisphere users",
-      "file": "lib/settings/customization-page.dart:364",
-      "page": "Settings > Customization > Appearance",
-      "component": "SwitchCustomizationItem title",
-      "meaning": "When enabled, monthly background images are shifted by 6 months so January shows July's image (summer) and vice versa, matching Southern Hemisphere seasons",
-      "notes": "Translation should convey that months are reversed/shifted for the Southern Hemisphere. Use terms like 'invertir' (ES), 'invertire' (IT), 'umkehren' (DE). May be a premium-only feature for non-premium users.",
-      "status": "verified"
-    },
     "Right": {
       "key": "Right",
       "context": "Currency symbol position option",
@@ -3974,16 +3964,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Show images appropriate for Southern Hemisphere seasons": {
-      "key": "Show images appropriate for Southern Hemisphere seasons",
-      "context": "Subtitle/description for the reverse monthly images toggle in Settings > Customization > Appearance",
-      "file": "lib/settings/customization-page.dart:365-366",
-      "page": "Settings > Customization > Appearance",
-      "component": "Switch tile subtitle",
-      "meaning": "Explains that toggling this will make background images match the Southern Hemisphere's seasonal calendar (summer in December-February, winter in June-August)",
-      "notes": "Descriptive text that should clearly explain the purpose. Keep 'Southern Hemisphere' as a geographical term",
-      "status": "verified"
-    },
     "Show income in green and expenses in red": {
       "key": "Show income in green and expenses in red",
       "context": "Subtitle/description for the colorize amounts toggle in Settings > Customization > Appearance",
@@ -4053,6 +4033,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Remove the homepage image": {
+      "key": "Remove the homepage image",
+      "context": "Switch toggle title in Settings > Customization > Appearance, controlling the appearance of the main record-list screen's top app bar",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Appearance",
+      "component": "Switch tile title",
+      "meaning": "Toggle to replace the expandable/collapsible header (with background image) on the homepage with a plain, non-collapsing two-row app bar (same solid color as the search bar) while keeping the same buttons in the same positions",
+      "notes": "'Home' refers to the app's main record-list screen (homepage), not a house. 'Homepage image' is the seasonal/monthly background picture behind the header.",
+      "status": "verified"
     },
     "Skipped (duplicates)": {
       "context": "Result summary label for records that were duplicates and not imported",
@@ -4169,6 +4159,16 @@
       "component": "page heading",
       "meaning": "Main heading encouraging users to support the open-source project",
       "notes": "Warm, inviting tone",
+      "status": "verified"
+    },
+    "Switch to a simplified appbar without the image": {
+      "key": "Switch to a simplified appbar without the image",
+      "context": "Subtitle/description for the 'Remove the homepage image' toggle in Settings > Customization > Appearance",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Appearance",
+      "component": "Switch tile subtitle",
+      "meaning": "Explains what enabling the toggle does: replaces the homepage's expandable/collapsible header (with background image) with a plain, non-collapsing app bar, same buttons stay visible",
+      "notes": "Refers to the app's main record-list screen header (SliverAppBar). 'Appbar' is the top navigation/toolbar area of the screen; keep this meaning even if the target language doesn't have a single-word equivalent.",
       "status": "verified"
     },
     "Switch to bar chart": {
