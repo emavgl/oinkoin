@@ -63,6 +63,7 @@
   "Backup encryption": "تشفير النسخ الاحتياطية",
   "Backup/Restore the application data": "نسخ احتياطي/استعادة بيانات التطبيق",
   "Balance": "الرصيد",
+  "Balance as of %s": "الرصيد اعتبارًا من %s",
   "Black": "أسود",
   "Button color": "لون الزر",
   "Button text color": "لون نص الزر",

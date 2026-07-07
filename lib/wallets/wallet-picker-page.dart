@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:piggybank/components/wallet_icon_square.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
@@ -26,11 +27,17 @@ class WalletPickerPage extends StatefulWidget {
   /// selection under this key in SharedPreferences.
   final String? preferencesKey;
 
+  /// When provided, wallet balances shown are a point-in-time snapshot as of
+  /// this date (inclusive) instead of the live balance, and a banner informs
+  /// the user of this.
+  final DateTime? asOfDate;
+
   WalletPickerPage({
     this.excludeWalletId,
     this.multiSelect = false,
     this.initiallySelected = const [],
     this.preferencesKey,
+    this.asOfDate,
   });
 
   @override
@@ -51,8 +58,11 @@ class _WalletPickerPageState extends State<WalletPickerPage> {
   }
 
   Future<void> _loadWallets() async {
-    final wallets = await database.getAllWallets(
-        profileId: ProfileService.instance.activeProfileId);
+    final wallets = widget.asOfDate != null
+        ? await database.getWalletsBalanceAsOf(widget.asOfDate!,
+            profileId: ProfileService.instance.activeProfileId)
+        : await database.getAllWallets(
+            profileId: ProfileService.instance.activeProfileId);
     final prefs = await SharedPreferences.getInstance();
     final savedIndex = prefs.getInt(PreferencesKeys.walletListSortOption);
     final sortOption = (savedIndex != null &&
@@ -126,6 +136,22 @@ class _WalletPickerPageState extends State<WalletPickerPage> {
               ? Center(child: Text("No wallets available".i18n))
               : Column(
                   children: [
+                    if (widget.asOfDate != null)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        child: Text(
+                          "Balance as of %s"
+                              .i18n
+                              .fill([DateFormat.yMMMd().format(widget.asOfDate!)]),
+                          style: const TextStyle(
+                              fontSize: 13, fontStyle: FontStyle.italic),
+                        ),
+                      ),
                     if (widget.multiSelect)
                       ListTile(
                         title: Text(

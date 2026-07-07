@@ -61,6 +61,11 @@ class TabRecordsController {
   bool _showFutureRecords = true;
   List<Record> _futureRecords = [];
 
+  // Point-in-time balance state: when the selected period has fully elapsed
+  // (its end is before today), wallet balances are overridden to reflect
+  // their value as of the end of that period, instead of the live total.
+  DateTime? _balanceAsOfDate;
+
   String header = "";
   String _activeProfileName = '';
   int backgroundImageIndex = DateTime.now().month;
@@ -237,6 +242,16 @@ class TabRecordsController {
     return result;
   }
 
+  /// Returns true when [intervalTo] (the end of a viewed period) falls
+  /// entirely before the start of [now]'s calendar day — i.e. the period has
+  /// fully elapsed and its wallet balance should be a point-in-time snapshot
+  /// rather than the live total.
+  @visibleForTesting
+  static bool isPastPeriodEnd(DateTime intervalTo, DateTime now) {
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    return intervalTo.isBefore(startOfToday);
+  }
+
   @visibleForTesting
   bool matchesSmartSearch(String? text, String query) {
     if (text == null || text.isEmpty || query.isEmpty) return false;
@@ -291,6 +306,12 @@ class TabRecordsController {
       intervalTo = interval[1];
       header = getHeaderFromHomepageTimeInterval(hti);
     }
+
+    // If the viewed period has already fully elapsed, wallet balances should
+    // reflect their value as of the end of that period rather than the live
+    // total (see _loadWallets).
+    _balanceAsOfDate =
+        isPastPeriodEnd(intervalTo, DateTime.now()) ? intervalTo : null;
 
     // Check if future records should be shown
     final prefs = await SharedPreferences.getInstance();
@@ -465,6 +486,27 @@ class TabRecordsController {
         }
       }
     }
+
+    // For a fully-elapsed period, replace the live balance with a
+    // point-in-time snapshot as of the end of that period. Future records
+    // never apply here: a future record is by definition dated after "end of
+    // today", which can't fall inside a period that already ended before
+    // today, so the adjustment above is always a no-op in this branch.
+    if (_balanceAsOfDate != null) {
+      final asOfWallets = await _database.getWalletsBalanceAsOf(
+          _balanceAsOfDate!,
+          profileId: ProfileService.instance.activeProfileId);
+      final asOfBalanceById = {
+        for (final w in asOfWallets)
+          if (w.id != null) w.id!: w.balance
+      };
+      for (final wallet in allWallets) {
+        if (wallet.id != null && asOfBalanceById.containsKey(wallet.id)) {
+          wallet.balance = asOfBalanceById[wallet.id];
+        }
+      }
+    }
+
     if (selectedWallets.isNotEmpty) {
       // Re-sync selectedWallets so balances stay fresh after external edits
       final selectedIds = selectedWallets.map((w) => w.id).toSet();
@@ -511,6 +553,7 @@ class TabRecordsController {
           initiallySelected: selectedWallets,
           preferencesKey: PreferencesKeys.homePageWalletFilter(
               ProfileService.instance.activeProfileId!),
+          asOfDate: _balanceAsOfDate,
         ),
       ),
     );
@@ -784,6 +827,10 @@ class TabRecordsController {
   }
 
   Map<int, String?> get walletCurrencyMap => buildWalletCurrencyMap(allWallets);
+
+  /// The end-of-period date wallet balances are currently snapshotted to, or
+  /// null when showing the live balance (current/future period).
+  DateTime? get balanceAsOfDate => _balanceAsOfDate;
 
   String get walletRowLabel {
     if (selectedWallets.isEmpty) return "All accounts".i18n;

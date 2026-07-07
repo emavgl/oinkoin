@@ -63,6 +63,7 @@
   "Backup encryption": "Kryptering af sikkerhedskopi",
   "Backup/Restore the application data": "Sikkerhedskopier/gendan appdata",
   "Balance": "Saldo",
+  "Balance as of %s": "Saldo pr. %s",
   "Black": "Sort",
   "Button color": "Knapfarve",
   "Button text color": "Knaptekstfarve",
