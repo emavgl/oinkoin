@@ -5,8 +5,10 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/records/controllers/tab_records_controller.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
@@ -643,6 +645,122 @@ void main() {
       final result =
           TabRecordsController.applyTransferAwareWalletFilter([null], {1});
       expect(result, isEmpty);
+    });
+  });
+
+  group('isPastPeriodEnd', () {
+    test('a past month end is before today', () {
+      final now = DateTime(2026, 7, 7);
+      final intervalTo = DateTime(2026, 5, 31, 23, 59, 59);
+      expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isTrue);
+    });
+
+    test('the current month end (today still within the month) is not past',
+        () {
+      final now = DateTime(2026, 7, 7);
+      final intervalTo = DateTime(2026, 7, 31, 23, 59, 59);
+      expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isFalse);
+    });
+
+    test('a period ending exactly at the start of today is not past', () {
+      final now = DateTime(2026, 7, 7, 15, 30);
+      final intervalTo = DateTime(2026, 7, 7, 0, 0, 0);
+      expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isFalse);
+    });
+
+    test('a period ending yesterday at 23:59:59 is past', () {
+      final now = DateTime(2026, 7, 7, 0, 30);
+      final intervalTo = DateTime(2026, 7, 6, 23, 59, 59);
+      expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isTrue);
+    });
+
+    test('a future period end is not past', () {
+      final now = DateTime(2026, 7, 7);
+      final intervalTo = DateTime(2026, 12, 31, 23, 59, 59);
+      expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isFalse);
+    });
+  });
+
+  group('point-in-time wallet balance for past periods', () {
+    final testCategory2 = Category(
+      'Test Category',
+      iconCodePoint: 1,
+      categoryType: CategoryType.expense,
+      color: Colors.blue,
+    );
+
+    Future<void> _insertRecord(
+        int walletId, double value, DateTime datetime) async {
+      final sqliteDb = database as SqliteDatabase;
+      final rawDb = (await sqliteDb.database)!;
+      await rawDb.rawInsert("""
+        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
+        VALUES ('Record', ?, ?, 'UTC', ?, ?, ?)
+      """, [
+        value,
+        datetime.toUtc().millisecondsSinceEpoch,
+        testCategory2.name,
+        testCategory2.categoryType!.index,
+        walletId
+      ]);
+    }
+
+    test(
+        'a past period shows the balance as of its end, excluding records dated after it',
+        () async {
+      final walletId =
+          await database.addWallet(Wallet('Test Wallet', initialAmount: 100.0));
+
+      // Always-in-the-past reference period, computed relative to "now" so
+      // this test doesn't rot.
+      final now = DateTime.now();
+      final periodMonthDate = DateTime(now.year, now.month - 3, 1);
+      final periodFrom =
+          DateTime(periodMonthDate.year, periodMonthDate.month, 1);
+      final periodTo =
+          getEndOfMonth(periodMonthDate.year, periodMonthDate.month);
+
+      await _insertRecord(walletId, -30.0, periodFrom.add(const Duration(days: 5)));
+      // Dated after the period end (but still in the past relative to "now").
+      await _insertRecord(
+          walletId, -1000.0, periodTo.add(const Duration(days: 10)));
+
+      controller.updateCustomInterval(periodFrom, periodTo, 'Test Period');
+      await controller.updateRecurrentRecordsAndFetchRecords();
+
+      expect(controller.balanceAsOfDate, isNotNull);
+      final wallet = controller.allWallets.firstWhere((w) => w.id == walletId);
+      // balance = initial(100) + in-period record(-30) = 70, excludes -1000
+      expect(wallet.balance, closeTo(70.0, 0.001));
+    });
+
+    test(
+        'the current month keeps the live balance, including same-month records dated after today',
+        () async {
+      final walletId =
+          await database.addWallet(Wallet('Test Wallet', initialAmount: 100.0));
+
+      final now = DateTime.now();
+      final periodFrom = DateTime(now.year, now.month, 1);
+      final periodTo = getEndOfMonth(now.year, now.month);
+
+      // A persisted record dated later in the current month (relative to
+      // "now", it may be in the future, but it's already in the DB — same as
+      // if the user manually pre-entered it).
+      final laterThisMonth = periodTo.isAfter(now.add(const Duration(days: 1)))
+          ? now.add(const Duration(days: 1))
+          : periodTo;
+      await _insertRecord(walletId, -40.0, laterThisMonth);
+
+      controller.updateCustomInterval(periodFrom, periodTo, 'This Month');
+      await controller.updateRecurrentRecordsAndFetchRecords();
+
+      expect(controller.balanceAsOfDate, isNull);
+      final wallet = controller.allWallets.firstWhere((w) => w.id == walletId);
+      // balance = initial(100) + record(-40) = 60, matching today's live
+      // (unbounded) behavior — the record isn't excluded just because it's
+      // dated a day after "now".
+      expect(wallet.balance, closeTo(60.0, 0.001));
     });
   });
 }

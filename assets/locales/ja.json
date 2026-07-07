@@ -63,6 +63,7 @@
   "Backup encryption": "バックアップの暗号化",
   "Backup/Restore the application data": "アプリデータのバックアップ/復元",
   "Balance": "残高",
+  "Balance as of %s": "%s時点の残高",
   "Black": "黒",
   "Button color": "ボタンの色",
   "Button text color": "ボタン文字の色",

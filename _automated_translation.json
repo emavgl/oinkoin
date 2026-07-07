@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-07-07",
-    "total_keys": 496
+    "total_keys": 497
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -650,6 +650,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Balance as of %s": {
+      "key": "Balance as of %s",
+      "context": "Banner shown above the wallet list when the picker is opened from a past-period homepage view",
+      "file": "lib/wallets/wallet-picker-page.dart:143-153",
+      "page": "Homepage Accounts row -> Wallet picker/breakdown",
+      "component": "Info banner text above the wallet list",
+      "meaning": "Tells the user the balance figures shown for each wallet are a point-in-time snapshot as of the end of the previously-viewed (past) period, not the live balance. %s is replaced with a formatted date, e.g. 'Balance as of Jan 15, 2026'.",
+      "notes": "Keep %s as a placeholder for the date; date itself is formatted separately via DateFormat.yMMMd and is not part of this translated string.",
+      "status": "verified"
+    },
     "Black": {
       "key": "Black",
       "context": "Color name option shared by the keyboard background, button, and text color dropdowns",
@@ -1094,6 +1104,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Custom": {
+      "key": "Custom",
+      "context": "Repeat-period dropdown option letting the user define an arbitrary recurrence interval (e.g. every 6 months) instead of picking one of the fixed presets (day/week/month/year).",
+      "file": "lib/models/recurrent-period.dart; lib/records/edit-record-page.dart:92-121",
+      "page": "Edit record / Edit recurrent pattern > Repeat field",
+      "component": "DropdownMenuItem label in the repeat-interval dropdown",
+      "meaning": "Selects the custom-interval mode: user enters a number and picks a unit (days/weeks/months/years).",
+      "notes": "Same generic word as elsewhere in the app; here it specifically means 'user-defined recurrence interval'.",
+      "status": "verified"
+    },
     "Custom order": {
       "key": "Custom order",
       "context": null,
@@ -1202,6 +1222,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Days": {
+      "key": "Days",
+      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number (matches the app's existing simple i18n pattern, no singular/plural agreement).",
+      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
+      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
+      "component": "DropdownMenuItem label",
+      "meaning": "The custom recurrence interval is measured in days.",
+      "notes": "Always plural, used together with a numeric field, e.g. '6' + 'Days'.",
+      "status": "verified"
     },
     "Decimal digits": {
       "key": "Decimal digits",
@@ -1670,6 +1700,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Enter a valid number": {
+      "key": "Enter a valid number",
+      "context": "Form validation error shown under the custom-interval numeric field when the entered value is empty, non-numeric, or not a positive integer.",
+      "file": "lib/records/edit-record-page.dart (custom-interval-value-field validator)",
+      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval value field",
+      "component": "TextFormField validator error text",
+      "meaning": "Tells the user the interval count they entered is invalid and must be a positive whole number.",
+      "notes": "Generic validation message; keep concise, no specific number format needed.",
+      "status": "verified"
+    },
     "Enter an encryption password": {
       "key": "Enter an encryption password",
       "context": null,
@@ -1709,6 +1749,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Every %d %s": {
+      "key": "Every %d %s",
+      "context": "Template for the human-readable label of a custom recurrence interval, e.g. 'Every 6 Months'. %d is the numeric interval value, %s is the pluralized unit noun (Days/Weeks/Months/Years).",
+      "file": "lib/models/recurrent-period.dart (customIntervalString)",
+      "page": "Recurrent Records list (group header) and Edit record > Repeat field",
+      "component": "Composed label string (number + unit)",
+      "meaning": "Describes how often a custom recurring pattern repeats.",
+      "notes": "Word order may not translate literally in every language (the unit noun is inserted after the count); keep the two placeholders in the same relative order if possible, or reorder as your language's grammar requires.",
+      "status": "verified"
     },
     "Every day": {
       "key": "Every day",
@@ -2604,6 +2654,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Months": {
+      "key": "Months",
+      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number.",
+      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
+      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
+      "component": "DropdownMenuItem label",
+      "meaning": "The custom recurrence interval is measured in months.",
+      "notes": "Always plural, used together with a numeric field, e.g. '6' + 'Months' (the motivating use case: a bi-annual payment).",
+      "status": "verified"
     },
     "Most Used": {
       "key": "Most Used",
@@ -4636,6 +4696,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Weeks": {
+      "key": "Weeks",
+      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number.",
+      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
+      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
+      "component": "DropdownMenuItem label",
+      "meaning": "The custom recurrence interval is measured in weeks.",
+      "notes": "Always plural, used together with a numeric field, e.g. '3' + 'Weeks'.",
+      "status": "verified"
+    },
     "What should happen to the records in this wallet? Transfer records involving this wallet will always be deleted.": {
       "key": "What should happen to the records in this wallet? Transfer records involving this wallet will always be deleted.",
       "context": null,
@@ -4746,6 +4816,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Years": {
+      "key": "Years",
+      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number.",
+      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
+      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
+      "component": "DropdownMenuItem label",
+      "meaning": "The custom recurrence interval is measured in years.",
+      "notes": "Always plural, used together with a numeric field, e.g. '2' + 'Years'.",
+      "status": "verified"
+    },
     "Yes": {
       "key": "Yes",
       "context": "Dialog positive button",
@@ -4854,76 +4934,6 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
-      "status": "verified"
-    },
-    "Custom": {
-      "key": "Custom",
-      "context": "Repeat-period dropdown option letting the user define an arbitrary recurrence interval (e.g. every 6 months) instead of picking one of the fixed presets (day/week/month/year).",
-      "file": "lib/models/recurrent-period.dart; lib/records/edit-record-page.dart:92-121",
-      "page": "Edit record / Edit recurrent pattern > Repeat field",
-      "component": "DropdownMenuItem label in the repeat-interval dropdown",
-      "meaning": "Selects the custom-interval mode: user enters a number and picks a unit (days/weeks/months/years).",
-      "notes": "Same generic word as elsewhere in the app; here it specifically means 'user-defined recurrence interval'.",
-      "status": "verified"
-    },
-    "Every %d %s": {
-      "key": "Every %d %s",
-      "context": "Template for the human-readable label of a custom recurrence interval, e.g. 'Every 6 Months'. %d is the numeric interval value, %s is the pluralized unit noun (Days/Weeks/Months/Years).",
-      "file": "lib/models/recurrent-period.dart (customIntervalString)",
-      "page": "Recurrent Records list (group header) and Edit record > Repeat field",
-      "component": "Composed label string (number + unit)",
-      "meaning": "Describes how often a custom recurring pattern repeats.",
-      "notes": "Word order may not translate literally in every language (the unit noun is inserted after the count); keep the two placeholders in the same relative order if possible, or reorder as your language's grammar requires.",
-      "status": "verified"
-    },
-    "Days": {
-      "key": "Days",
-      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number (matches the app's existing simple i18n pattern, no singular/plural agreement).",
-      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
-      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
-      "component": "DropdownMenuItem label",
-      "meaning": "The custom recurrence interval is measured in days.",
-      "notes": "Always plural, used together with a numeric field, e.g. '6' + 'Days'.",
-      "status": "verified"
-    },
-    "Weeks": {
-      "key": "Weeks",
-      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number.",
-      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
-      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
-      "component": "DropdownMenuItem label",
-      "meaning": "The custom recurrence interval is measured in weeks.",
-      "notes": "Always plural, used together with a numeric field, e.g. '3' + 'Weeks'.",
-      "status": "verified"
-    },
-    "Months": {
-      "key": "Months",
-      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number.",
-      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
-      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
-      "component": "DropdownMenuItem label",
-      "meaning": "The custom recurrence interval is measured in months.",
-      "notes": "Always plural, used together with a numeric field, e.g. '6' + 'Months' (the motivating use case: a bi-annual payment).",
-      "status": "verified"
-    },
-    "Years": {
-      "key": "Years",
-      "context": "Unit option in the custom-interval unit dropdown, always shown in plural form regardless of the entered number.",
-      "file": "lib/models/recurrent-period.dart (customIntervalUnitString); lib/records/edit-record-page.dart (custom-interval-unit-field)",
-      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval unit dropdown",
-      "component": "DropdownMenuItem label",
-      "meaning": "The custom recurrence interval is measured in years.",
-      "notes": "Always plural, used together with a numeric field, e.g. '2' + 'Years'.",
-      "status": "verified"
-    },
-    "Enter a valid number": {
-      "key": "Enter a valid number",
-      "context": "Form validation error shown under the custom-interval numeric field when the entered value is empty, non-numeric, or not a positive integer.",
-      "file": "lib/records/edit-record-page.dart (custom-interval-value-field validator)",
-      "page": "Edit record / Edit recurrent pattern > Repeat field > Custom interval value field",
-      "component": "TextFormField validator error text",
-      "meaning": "Tells the user the interval count they entered is invalid and must be a positive whole number.",
-      "notes": "Generic validation message; keep concise, no specific number format needed.",
       "status": "verified"
     }
   }

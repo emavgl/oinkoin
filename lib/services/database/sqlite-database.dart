@@ -736,16 +736,22 @@ class SqliteDatabase implements DatabaseInterface {
 
   // Wallet implementation
 
-  static String _walletBalanceQuery({int? profileId}) {
+  static String _walletBalanceQuery(
+      {int? profileId, bool hasAsOfDate = false}) {
     final profileFilter =
         profileId != null ? "WHERE w.profile_id = $profileId" : "";
+    // When hasAsOfDate is true, the caller binds the as-of cutoff (as UTC
+    // millis) twice, in textual order: once for the transfer subquery, once
+    // for the main join.
+    final asOfTransferFilter = hasAsOfDate ? "AND t.datetime <= ?" : "";
+    final asOfRecordFilter = hasAsOfDate ? "AND r.datetime <= ?" : "";
     return """
     SELECT w.*,
            COALESCE(SUM(r.value), 0) +
-           COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id), 0) +
+           COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id $asOfTransferFilter), 0) +
            w.initial_amount AS balance
     FROM wallets w
-    LEFT JOIN records r ON r.wallet_id = w.id
+    LEFT JOIN records r ON r.wallet_id = w.id $asOfRecordFilter
     $profileFilter
     GROUP BY w.id
     ORDER BY w.sort_order
@@ -756,6 +762,20 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<Wallet>> getAllWallets({int? profileId}) async {
     final db = (await database)!;
     final maps = await db.rawQuery(_walletBalanceQuery(profileId: profileId));
+    return maps
+        .map((m) => Wallet.fromMap(Map<String, dynamic>.from(m)))
+        .toList();
+  }
+
+  @override
+  Future<List<Wallet>> getWalletsBalanceAsOf(DateTime asOfDate,
+      {int? profileId}) async {
+    final db = (await database)!;
+    final asOfUnix = asOfDate.toUtc().millisecondsSinceEpoch;
+    final maps = await db.rawQuery(
+      _walletBalanceQuery(profileId: profileId, hasAsOfDate: true),
+      [asOfUnix, asOfUnix],
+    );
     return maps
         .map((m) => Wallet.fromMap(Map<String, dynamic>.from(m)))
         .toList();
