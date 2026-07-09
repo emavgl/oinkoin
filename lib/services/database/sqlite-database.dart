@@ -13,9 +13,9 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common/sqflite_logger.dart';
+import 'package:piggybank/services/backup-service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
@@ -56,7 +56,7 @@ class SqliteDatabase implements DatabaseInterface {
       _logger.info('Initializing database...');
 
       // Initialize FFI for desktop platforms (Linux, Windows, macOS)
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         _logger.debug('Initializing sqflite FFI for desktop platform');
         sqfliteFfiInit();
         databaseFactory = databaseFactoryFfi;

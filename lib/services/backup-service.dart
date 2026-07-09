@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:i18n_extension/default.i18n.dart';
 import 'package:intl/intl.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
@@ -29,8 +30,9 @@ import 'logger.dart';
 class BackupService {
   static final _logger = Logger.withClass(BackupService);
 
-  static const String DEFAULT_STORAGE_DIR =
-      "/storage/emulated/0/Documents/oinkoin";
+  static const String DEFAULT_STORAGE_DIR = Platform.isAndroid
+      ? '/storage/emulated/0/Documents/oinkoin'
+      : '${Platform.environment["HOME"]}/.oinkoin';
 
   static const String MANDATORY_BACKUP_SUFFIX = "obackup.json";
 
@@ -44,16 +46,18 @@ class BackupService {
 
   /// Gets the platform-appropriate default backup directory
   /// Android: /storage/emulated/0/Documents/oinkoin
-  /// Linux/Desktop: ~/Documents/oinkoin
+  /// Linux: ~/.oinkoin
+  /// macOS: /Users/<user>/Documents
+  /// Windows: AppData/Local/oinkoin
   static Future<String> getDefaultBackupDirectory() async {
-    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      // Desktop: use Documents directory
+    if (Platform.isMacOS) {
+      // macOS
       final documentsDir = await getApplicationDocumentsDirectory();
       return '${documentsDir.parent.path}/Documents/oinkoin';
-    } else {
-      // Android/iOS: use the original path
+    } else if (Platform.isAndroid)
       return DEFAULT_STORAGE_DIR;
-    }
+    else
+      return (await getApplicationDocumentsDirectory()).path;
   }
 
   /// Generates a backup file name containing the app package name, version, and current time.

@@ -621,7 +621,7 @@ class TabRecordsController {
   Future<void> _showNoCategoryDialog(BuildContext context) async {
     AlertDialogBuilder noCategoryDialog = AlertDialogBuilder(
             "No Category is set yet.".i18n)
-        .addTrueButtonName("OK")
+        .renameTrueButtonName("OK")
         .addSubtitle(
             "You need to set a category first. Go to Category tab and add a new category."
                 .i18n);

@@ -1,1 +1,6 @@
-enum OverviewTimeInterval { DisplayedRecords, FixCurrentMonth, FixCurrentYear, FixAllRecords }
+enum OverviewTimeInterval {
+  DisplayedRecords,
+  FixCurrentMonth,
+  FixCurrentYear,
+  FixAllRecords
+}

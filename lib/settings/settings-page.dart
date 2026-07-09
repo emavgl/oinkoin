@@ -39,8 +39,8 @@ class TabSettings extends StatelessWidget {
     AlertDialogBuilder premiumDialog =
         AlertDialogBuilder("Critical action".i18n)
             .addSubtitle("Do you really want to delete all the data?".i18n)
-            .addTrueButtonName("Yes".i18n)
-            .addFalseButtonName("No".i18n);
+            .renameTrueButtonName("Yes".i18n)
+            .renameFalseButtonName("No".i18n);
     var ok = await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -51,7 +51,7 @@ class TabSettings extends StatelessWidget {
       AlertDialogBuilder resultDialog =
           AlertDialogBuilder("Data is deleted".i18n)
               .addSubtitle("All the data has been deleted".i18n)
-              .addTrueButtonName("OK");
+              .hideFalseButton();
       await showDialog(
           context: context,
           builder: (BuildContext context) {

@@ -19,8 +19,11 @@ void main() {
 
     final recurrentRecordService = RecurrentRecordService();
 
-    test('RecordsPerDay should include future records in balance calculation when enabled', () {
-      final category = Category("Test Category", categoryType: CategoryType.expense);
+    test(
+        'RecordsPerDay should include future records in balance calculation when enabled',
+        () {
+      final category =
+          Category("Test Category", categoryType: CategoryType.expense);
       final today = DateTime.now();
       final dateKey = DateTime(today.year, today.month, today.day);
 
@@ -42,7 +45,8 @@ void main() {
         isFutureRecord: true,
       );
 
-      final recordsPerDay = RecordsPerDay(dateKey, records: [pastRecord, futureRecord]);
+      final recordsPerDay =
+          RecordsPerDay(dateKey, records: [pastRecord, futureRecord]);
 
       // When future records setting is enabled, they should be included in calculations
       expect(recordsPerDay.expenses, -300.0); // -100 + -200
@@ -50,8 +54,11 @@ void main() {
       expect(recordsPerDay.balance, -300.0);
     });
 
-    test('RecordsPerDay should include future income records in calculation when enabled', () {
-      final incomeCategory = Category("Salary", categoryType: CategoryType.income);
+    test(
+        'RecordsPerDay should include future income records in calculation when enabled',
+        () {
+      final incomeCategory =
+          Category("Salary", categoryType: CategoryType.income);
       final today = DateTime.now();
       final dateKey = DateTime(today.year, today.month, today.day);
 
@@ -71,7 +78,8 @@ void main() {
         isFutureRecord: true,
       );
 
-      final recordsPerDay = RecordsPerDay(dateKey, records: [pastIncome, futureIncome]);
+      final recordsPerDay =
+          RecordsPerDay(dateKey, records: [pastIncome, futureIncome]);
 
       // Should include both past and future income when future records are enabled
       expect(recordsPerDay.income, 1500.0); // 500 + 1000
@@ -79,8 +87,11 @@ void main() {
       expect(recordsPerDay.balance, 1500.0);
     });
 
-    test('RecordsPerDay with only future records should include them in balance', () {
-      final category = Category("Future Category", categoryType: CategoryType.expense);
+    test(
+        'RecordsPerDay with only future records should include them in balance',
+        () {
+      final category =
+          Category("Future Category", categoryType: CategoryType.expense);
       final today = DateTime.now();
       final dateKey = DateTime(today.year, today.month, today.day);
 
@@ -101,7 +112,8 @@ void main() {
         isFutureRecord: true,
       );
 
-      final recordsPerDay = RecordsPerDay(dateKey, records: [futureRecord1, futureRecord2]);
+      final recordsPerDay =
+          RecordsPerDay(dateKey, records: [futureRecord1, futureRecord2]);
 
       // Future records are included when the setting is enabled
       expect(recordsPerDay.expenses, -300.0);
@@ -136,8 +148,10 @@ void main() {
       expect(futureRecord.isFutureRecord, false);
     });
 
-    test('Monthly recurrent pattern generates correct future records count', () {
-      final category = Category("Monthly Bill", categoryType: CategoryType.expense);
+    test('Monthly recurrent pattern generates correct future records count',
+        () {
+      final category =
+          Category("Monthly Bill", categoryType: CategoryType.expense);
       final startDate = DateTime(2024, 1, 1).toUtc();
       final endOfYear = DateTime(2024, 12, 31, 23, 59).toUtc();
 
@@ -149,7 +163,8 @@ void main() {
         RecurrentPeriod.EveryMonth,
       );
 
-      final records = recurrentRecordService.generateRecurrentRecordsFromDateTime(
+      final records =
+          recurrentRecordService.generateRecurrentRecordsFromDateTime(
         pattern,
         endOfYear,
       );
@@ -165,7 +180,8 @@ void main() {
     });
 
     test('Weekly pattern with future view date generates correct records', () {
-      final category = Category("Weekly Task", categoryType: CategoryType.expense);
+      final category =
+          Category("Weekly Task", categoryType: CategoryType.expense);
       final startDate = DateTime(2024, 1, 1).toUtc(); // Monday
       final endDate = DateTime(2024, 1, 29).toUtc(); // 4 weeks later
 
@@ -177,7 +193,8 @@ void main() {
         RecurrentPeriod.EveryWeek,
       );
 
-      final records = recurrentRecordService.generateRecurrentRecordsFromDateTime(
+      final records =
+          recurrentRecordService.generateRecurrentRecordsFromDateTime(
         pattern,
         endDate,
       );
@@ -203,14 +220,23 @@ void main() {
       expect(futureRecord.tags, tags);
     });
 
-    test('Mixed past and future records maintain their flags independently', () {
+    test('Mixed past and future records maintain their flags independently',
+        () {
       final category = Category("Mixed Category");
 
       final records = [
-        Record(100.0, "Past 1", category, DateTime.now().subtract(Duration(days: 2)).toUtc(), isFutureRecord: false),
-        Record(200.0, "Past 2", category, DateTime.now().subtract(Duration(days: 1)).toUtc(), isFutureRecord: false),
-        Record(300.0, "Future 1", category, DateTime.now().add(Duration(days: 1)).toUtc(), isFutureRecord: true),
-        Record(400.0, "Future 2", category, DateTime.now().add(Duration(days: 2)).toUtc(), isFutureRecord: true),
+        Record(100.0, "Past 1", category,
+            DateTime.now().subtract(Duration(days: 2)).toUtc(),
+            isFutureRecord: false),
+        Record(200.0, "Past 2", category,
+            DateTime.now().subtract(Duration(days: 1)).toUtc(),
+            isFutureRecord: false),
+        Record(300.0, "Future 1", category,
+            DateTime.now().add(Duration(days: 1)).toUtc(),
+            isFutureRecord: true),
+        Record(400.0, "Future 2", category,
+            DateTime.now().add(Duration(days: 2)).toUtc(),
+            isFutureRecord: true),
       ];
 
       final pastRecords = records.where((r) => !r.isFutureRecord).toList();
@@ -223,4 +249,3 @@ void main() {
     });
   });
 }
-

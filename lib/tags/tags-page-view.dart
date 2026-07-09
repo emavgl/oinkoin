@@ -63,10 +63,9 @@ class TagsPageViewState extends State<TagsPageView> {
           title: Text('Delete tags'.i18n),
           content: Text(selectedTags.length == 1
               ? 'Are you sure you want to delete this tag?'.i18n
-              : 'Are you sure you want to delete these %s tags?'.i18n.fill(
-              [selectedTags.length.toString()]
-          )
-          ),
+              : 'Are you sure you want to delete these %s tags?'
+                  .i18n
+                  .fill([selectedTags.length.toString()])),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
