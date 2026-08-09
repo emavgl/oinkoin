@@ -1101,10 +1101,17 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   addOrUpdateRecord() async {
-    _recalculateTransferValue();
+    if (ServiceConfig.walletsEnabled) {
+      _recalculateTransferValue();
+      record!.walletId = _selectedWallet?.id;
+      record!.transferWalletId = _selectedDestinationWallet?.id;
+    } else if (record!.id == null) {
+      // New record while wallets are disabled: silently assign the default
+      // wallet so that re-enabling wallets keeps data consistent. Existing
+      // records keep their current wallet/transfer assignment untouched.
+      record!.walletId = (await database.getDefaultWallet())?.id;
+    }
     record!.tags = _selectedTags; // Assign selected tags to the record
-    record!.walletId = _selectedWallet?.id;
-    record!.transferWalletId = _selectedDestinationWallet?.id;
     if (record!.recurrencePatternId != null) {
       final dateChanged = _originalUtcDateTime != null &&
           record!.utcDateTime.millisecondsSinceEpoch !=
@@ -1125,6 +1132,12 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Future<void> _initWallet() async {
+    if (!ServiceConfig.walletsEnabled) {
+      // Wallets feature disabled: no wallet selection shown or restored.
+      _selectedWallet = null;
+      _selectedDestinationWallet = null;
+      return;
+    }
     final allWallets = await database.getAllWallets(
         profileId: ProfileService.instance.activeProfileId);
     final activeWallets = allWallets.where((w) => !w.isArchived).toList();
@@ -1198,9 +1211,15 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   addOrUpdateRecurrentPattern({id}) async {
     // Assign wallet and transfer fields before creating the pattern
-    _recalculateTransferValue();
-    record!.walletId = _selectedWallet?.id;
-    record!.transferWalletId = _selectedDestinationWallet?.id;
+    if (ServiceConfig.walletsEnabled) {
+      _recalculateTransferValue();
+      record!.walletId = _selectedWallet?.id;
+      record!.transferWalletId = _selectedDestinationWallet?.id;
+    } else if (id == null) {
+      // New recurrent pattern while wallets are disabled: silently assign the
+      // default wallet. Existing patterns keep their wallet assignment.
+      record!.walletId = (await database.getDefaultWallet())?.id;
+    }
     if (id == null) {
       _appendTransferNoteToDescription();
     }
@@ -1350,8 +1369,10 @@ class EditRecordPageState extends State<EditRecordPage> {
           Divider(height: 1),
           _createCategoryCard(),
           Divider(height: 1),
-          _createWalletCard(),
-          Divider(height: 1),
+          if (ServiceConfig.walletsEnabled) ...[
+            _createWalletCard(),
+            Divider(height: 1),
+          ],
           _createDateAndRepeatCard(),
           Divider(height: 1),
           _createTagsSection(),

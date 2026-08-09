@@ -10,6 +10,10 @@ class DropdownCustomizationItem<T> extends StatefulWidget {
   final String selectedDropdownKey;
   final String sharedConfigKey;
   final Function()? onChanged;
+
+  /// When false, the row is greyed out and cannot be tapped.
+  final bool enabled;
+
   /// Optional per-option trailing widgets, keyed by the same strings as
   /// [dropdownValues]. Used to show colour swatches, icons, etc.
   final Map<String, Widget>? optionTrailingWidgets;
@@ -21,6 +25,7 @@ class DropdownCustomizationItem<T> extends StatefulWidget {
       required this.selectedDropdownKey,
       required this.sharedConfigKey,
       this.onChanged,
+      this.enabled = true,
       this.optionTrailingWidgets});
 
   @override
@@ -141,7 +146,8 @@ class DropdownCustomizationItemState<T>
                                       style: TextStyle(fontSize: 16),
                                     ),
                                     value: value,
-                                    secondary: widget.optionTrailingWidgets?[value],
+                                    secondary:
+                                        widget.optionTrailingWidgets?[value],
                                   ),
                                 );
                               }).toList(),
@@ -176,10 +182,16 @@ class DropdownCustomizationItemState<T>
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () {
-        showSelectionDialog(context);
-      },
-      title: Text(widget.title, style: titleTextStyle),
+      onTap: widget.enabled
+          ? () {
+              showSelectionDialog(context);
+            }
+          : null,
+      enabled: widget.enabled,
+      title: Text(widget.title,
+          style: titleTextStyle.copyWith(
+            color: widget.enabled ? null : Theme.of(context).disabledColor,
+          )),
       subtitle: Text(
         selectedDropdownKey,
         style: TextStyle(

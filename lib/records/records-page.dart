@@ -315,7 +315,8 @@ class TabRecordsState extends State<TabRecords> {
     final result = await AppReviewDialog.show(
       context,
       supportEmail: 'support@oinkoin.com',
-      storePackageName: pkg.contains('alpha') ? 'com.github.emavgl.piggybank' : pkg,
+      storePackageName:
+          pkg.contains('alpha') ? 'com.github.emavgl.piggybank' : pkg,
       supportWebsitePage: 'https://oinkoin.com/support',
     );
 
@@ -367,7 +368,9 @@ class TabRecordsState extends State<TabRecords> {
       onDelete: _batchDelete,
       onSelectAll: _selectAll,
       onDuplicate: _batchDuplicate,
-      onMoveToWallet: ServiceConfig.isPremium ? _batchMoveToWallet : null,
+      onMoveToWallet: (ServiceConfig.isPremium && ServiceConfig.walletsEnabled)
+          ? _batchMoveToWallet
+          : null,
     );
   }
 
@@ -393,7 +396,10 @@ class TabRecordsState extends State<TabRecords> {
         onDelete: _batchDelete,
         onSelectAll: _selectAll,
         onDuplicate: _batchDuplicate,
-        onMoveToWallet: ServiceConfig.isPremium ? _batchMoveToWallet : null,
+        onMoveToWallet:
+            (ServiceConfig.isPremium && ServiceConfig.walletsEnabled)
+                ? _batchMoveToWallet
+                : null,
       );
     }
 
@@ -410,10 +416,15 @@ class TabRecordsState extends State<TabRecords> {
   }
 
   Widget _buildSummarySection() {
+    // Hide the wallet/accounts bar when the wallets feature is disabled or the
+    // "Show wallet bar on the homepage" toggle is off. The Income/Expenses/
+    // Balance stats are always shown.
+    final showWalletBar =
+        ServiceConfig.walletsEnabled && ServiceConfig.showWalletBarOnHomepage;
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.only(bottom: 5),
-        height: 130,
+        height: showWalletBar ? 130 : 75,
         child: DaysSummaryBox(
           _controller.overviewRecords ?? _controller.filteredRecords,
           walletLabel: _controller.walletRowLabel,
@@ -421,6 +432,7 @@ class TabRecordsState extends State<TabRecords> {
           walletBalance: _controller.selectedWalletsBalance,
           walletCurrencyMap: _controller.walletCurrencyMap,
           onWalletRowTap: () => _controller.navigateToWalletPicker(context),
+          showWalletRow: showWalletBar,
         ),
       ),
     );

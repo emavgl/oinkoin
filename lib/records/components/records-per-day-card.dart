@@ -87,6 +87,14 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   }
 
   Future<void> _loadWallets() async {
+    if (!ServiceConfig.walletsEnabled) {
+      if (mounted && _walletsById.isNotEmpty) {
+        setState(() {
+          _walletsById = {};
+        });
+      }
+      return;
+    }
     final wallets = await _database.getAllWallets(
         profileId: ProfileService.instance.activeProfileId);
     if (!mounted) return;
@@ -155,7 +163,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     }
     final defaultCurrency = getDefaultCurrency();
     if (defaultCurrency != null) {
-      return computeTotalInCurrency(records, effectiveMap, defaultCurrency).total;
+      return computeTotalInCurrency(records, effectiveMap, defaultCurrency)
+          .total;
     }
     return computeConvertedTotal(records, effectiveMap).total;
   }
@@ -232,7 +241,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
             height: 42,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.88),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.88),
             ),
             child: const Icon(Icons.check, color: Colors.white, size: 20),
           ),
@@ -256,11 +266,11 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
               ? () async {
                   // Destination-view copies carry a modified value (received
                   // amount, not original) — always edit the canonical DB record.
-                  final recordToEdit = movement.isDestinationTransferView &&
-                          movement.id != null
-                      ? (await _database.getRecordById(movement.id!)) ??
-                          movement
-                      : movement;
+                  final recordToEdit =
+                      movement.isDestinationTransferView && movement.id != null
+                          ? (await _database.getRecordById(movement.id!)) ??
+                              movement
+                          : movement;
                   await Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -272,9 +282,10 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
                     await widget.onListBackCallback!();
                 }
               : null,
-      onLongPress: widget.isSelectMode || movement.isFutureRecord || movement.id == null
-          ? null
-          : () => widget.onRecordLongPressed?.call(movement.id!),
+      onLongPress:
+          widget.isSelectMode || movement.isFutureRecord || movement.id == null
+              ? null
+              : () => widget.onRecordLongPressed?.call(movement.id!),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -306,7 +317,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          if (_showWalletInRecordList &&
+          if (ServiceConfig.walletsEnabled &&
+              _showWalletInRecordList &&
               !movement.isFutureRecord &&
               movement.walletId != null &&
               _walletsById.containsKey(movement.walletId))
@@ -334,7 +346,10 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
 
     Widget result = Container(
       color: isSelected
-          ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.4)
+          ? Theme.of(context)
+              .colorScheme
+              .primaryContainer
+              .withValues(alpha: 0.4)
           : null,
       child: listTile,
     );
@@ -428,8 +443,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.normal,
-                            color: getBalanceColor(
-                                _dayBalanceNumeric(),
+                            color: getBalanceColor(_dayBalanceNumeric(),
                                 Theme.of(context).brightness)),
                         overflow: TextOverflow.ellipsis,
                       ),

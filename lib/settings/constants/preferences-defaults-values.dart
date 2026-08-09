@@ -36,8 +36,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.restoreAmountOnDelete:
         true, // Default to restoring the amount
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
-    PreferencesKeys.amountInputKeyboardType:
-        2, // Default to in-app keyboard
+    PreferencesKeys.amountInputKeyboardType: 2, // Default to in-app keyboard
     PreferencesKeys.homepageTimeInterval: HomepageTimeInterval
         .CurrentMonth.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordsMonthStartDay:
@@ -48,7 +47,12 @@ class PreferencesDefaultValues {
     PreferencesKeys.visualiseTagsInMainPage: true, // Default to enabled
     PreferencesKeys.showWalletInRecordList: false, // Default to disabled
     PreferencesKeys.showFutureRecords: true, // Default to enabled
-    PreferencesKeys.showCurrencySymbol: true, // Default to show currency symbols
+    PreferencesKeys.walletsEnabled: true, // Default to enabled
+    PreferencesKeys.walletBalanceMode:
+        0, // 0 = always latest, 1 = end of interval
+    PreferencesKeys.showWalletBarOnHomepage: true, // Default to enabled
+    PreferencesKeys.showCurrencySymbol:
+        true, // Default to show currency symbols
     PreferencesKeys.colorizeAmounts: false, // Default to disabled
     PreferencesKeys.simplifyHomeAppBar: false, // Default to disabled
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,

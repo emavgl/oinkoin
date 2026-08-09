@@ -180,4 +180,9 @@ class PreferencesOptions {
         "White".i18n: 1,
         "Black".i18n: 2,
       };
+
+  static Map<String, int> get walletBalanceMode => {
+        "Always the latest value".i18n: 0,
+        "Value at the end of the time interval".i18n: 1,
+      };
 }

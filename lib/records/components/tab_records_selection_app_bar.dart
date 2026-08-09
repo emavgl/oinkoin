@@ -60,7 +60,7 @@ class TabRecordsSelectionAppBar extends StatelessWidget
               value: 'duplicate',
               child: Text('Duplicate'.i18n),
             ),
-            if (ServiceConfig.isPremium)
+            if (ServiceConfig.isPremium && ServiceConfig.walletsEnabled)
               PopupMenuItem(
                 value: 'move_wallet',
                 child: Text('Move to wallet'.i18n),

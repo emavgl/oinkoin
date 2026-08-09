@@ -20,6 +20,11 @@ class DaysSummaryBox extends StatefulWidget {
   final Map<int, String?> walletCurrencyMap;
   final VoidCallback? onWalletRowTap;
 
+  /// When false, the wallet header row (and its divider) is hidden, showing
+  /// only the Income / Expenses / Balance stats. Used when the wallets feature
+  /// is disabled or the "Show wallet bar on the homepage" toggle is off.
+  final bool showWalletRow;
+
   DaysSummaryBox(
     this.records, {
     required this.walletLabel,
@@ -27,6 +32,7 @@ class DaysSummaryBox extends StatefulWidget {
     this.walletBalance,
     this.walletCurrencyMap = const {},
     this.onWalletRowTap,
+    this.showWalletRow = true,
   });
 
   @override
@@ -60,7 +66,8 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
     final textWidget =
         Text(text, style: style, overflow: TextOverflow.ellipsis);
 
-    if (!hasMixedCurrencies(records, widget.walletCurrencyMap)) return textWidget;
+    if (!hasMixedCurrencies(records, widget.walletCurrencyMap))
+      return textWidget;
 
     return GestureDetector(
       onLongPress: () => showCurrencyBreakdownSheet(
@@ -89,7 +96,8 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final dimColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final dimColor =
+        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     final balanceResult = computeConvertedTotal(
         _balanceRecords, widget.walletCurrencyMap,
         isAbsValue: false);
@@ -102,33 +110,36 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Wallet header row
-            InkWell(
-              onTap: widget.onWalletRowTap,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                child: Row(
-                  children: [
-                    Text(
-                      widget.walletLabel,
-                      style: _walletRowFont,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    Text(
-                      widget.walletBalanceString,
-                      style: widget.walletBalance != null
-                          ? _walletRowFont.copyWith(
-                              color: getBalanceColor(
-                                  widget.walletBalance!, brightness))
-                          : _walletRowFont,
-                    ),
-                    const SizedBox(width: 2),
-                    Icon(Icons.chevron_right, size: 18, color: dimColor),
-                  ],
+            if (widget.showWalletRow) ...[
+              InkWell(
+                onTap: widget.onWalletRowTap,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        widget.walletLabel,
+                        style: _walletRowFont,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Spacer(),
+                      Text(
+                        widget.walletBalanceString,
+                        style: widget.walletBalance != null
+                            ? _walletRowFont.copyWith(
+                                color: getBalanceColor(
+                                    widget.walletBalance!, brightness))
+                            : _walletRowFont,
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(Icons.chevron_right, size: 18, color: dimColor),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const Divider(height: 1),
+              const Divider(height: 1),
+            ],
             // Income / Expenses / Balance row
             Expanded(
               child: Padding(
@@ -139,8 +150,8 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                         color: getAmountColor(CategoryType.income, brightness)),
                     VerticalDivider(endIndent: 10, indent: 10),
                     _buildStatColumn("Expenses".i18n, _expenseRecords,
-                        color: getAmountColor(
-                            CategoryType.expense, brightness)),
+                        color:
+                            getAmountColor(CategoryType.expense, brightness)),
                     VerticalDivider(endIndent: 10, indent: 10),
                     _buildStatColumn("Balance".i18n, _balanceRecords,
                         isAbsValue: false,

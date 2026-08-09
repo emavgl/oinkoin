@@ -73,6 +73,17 @@ abstract class DatabaseInterface {
   /// When [profileId] is provided, only wallets for that profile are returned.
   Future<List<Wallet>> getAllWallets({int? profileId});
 
+  /// Returns all wallets with balance computed only from records dated on or
+  /// before [asOfDate] (inclusive) — a point-in-time snapshot, e.g. "balance
+  /// at the end of May". Used to reconcile with monthly bank statements.
+  ///
+  /// Known limitation: [Wallet.initialAmount] carries no timestamp and is
+  /// applied uniformly, exactly as it is for the live balance. If the user
+  /// adjusts it to correct balance drift, the correction bleeds backward into
+  /// every past snapshot too.
+  Future<List<Wallet>> getWalletsBalanceAsOf(DateTime asOfDate,
+      {int? profileId});
+
   // Profile CRUD
   Future<List<Profile>> getAllProfiles();
   Future<Profile?> getDefaultProfile();
