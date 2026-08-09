@@ -101,7 +101,13 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
     final balanceResult = computeConvertedTotal(
         _balanceRecords, widget.walletCurrencyMap,
         isAbsValue: false);
-    final balanceColor = getBalanceColor(balanceResult.total, brightness);
+    final balanceColor = getAmountColor(balanceResult.total, brightness);
+    final incomeColor = getAmountColor(
+        computeConvertedTotal(_incomeRecords, widget.walletCurrencyMap).total,
+        brightness);
+    final expenseColor = getAmountColor(
+        computeConvertedTotal(_expenseRecords, widget.walletCurrencyMap).total,
+        brightness);
     return Card(
         elevation: 1,
         margin: EdgeInsets.zero,
@@ -128,7 +134,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                         widget.walletBalanceString,
                         style: widget.walletBalance != null
                             ? _walletRowFont.copyWith(
-                                color: getBalanceColor(
+                                color: getAmountColor(
                                     widget.walletBalance!, brightness))
                             : _walletRowFont,
                       ),
@@ -147,11 +153,10 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                 child: Row(
                   children: <Widget>[
                     _buildStatColumn("Income".i18n, _incomeRecords,
-                        color: getAmountColor(CategoryType.income, brightness)),
+                        color: incomeColor),
                     VerticalDivider(endIndent: 10, indent: 10),
                     _buildStatColumn("Expenses".i18n, _expenseRecords,
-                        color:
-                            getAmountColor(CategoryType.expense, brightness)),
+                        color: expenseColor),
                     VerticalDivider(endIndent: 10, indent: 10),
                     _buildStatColumn("Balance".i18n, _balanceRecords,
                         isAbsValue: false,

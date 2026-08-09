@@ -108,8 +108,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
 
   Color? _amountColor(Record record) {
     if (record.isTransfer) return null;
-    return getAmountColor(
-        record.category?.categoryType, Theme.of(context).brightness);
+    return getAmountColor(record.value ?? 0.0, Theme.of(context).brightness);
   }
 
   Widget _buildRecordAmountWidget(Record record) {
@@ -443,7 +442,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.normal,
-                            color: getBalanceColor(_dayBalanceNumeric(),
+                            color: getAmountColor(_dayBalanceNumeric(),
                                 Theme.of(context).brightness)),
                         overflow: TextOverflow.ellipsis,
                       ),

@@ -103,7 +103,8 @@ class PatternsPageViewState extends State<PatternsPageView> {
 
   fetchRecurrentRecordPatternsFromDatabase() async {
     final profileId = ProfileService.instance.activeProfileId;
-    var patterns = await database.getRecurrentRecordPatterns(profileId: profileId);
+    var patterns =
+        await database.getRecurrentRecordPatterns(profileId: profileId);
     if (!mounted) return;
     setState(() {
       _recurrentRecordPatterns = patterns;
@@ -126,7 +127,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
   }
 
   Color? _amountColor(RecurrentRecordPattern pattern) =>
-      getAmountColor(pattern.category?.categoryType, Theme.of(context).brightness);
+      getAmountColor(pattern.value ?? 0.0, Theme.of(context).brightness);
 
   Widget _buildPatternAmountWidget(RecurrentRecordPattern pattern) {
     final wallet =

@@ -32,12 +32,12 @@ String? _pendingQuickAction;
 /// Initializes quick actions for the app home screen.
 void _setupQuickActions() {
   const QuickActions quickActions = QuickActions();
-  
+
   quickActions.initialize((shortcutType) {
     _pendingQuickAction = shortcutType;
     _handlePendingQuickAction();
   });
-  
+
   quickActions.setShortcutItems(<ShortcutItem>[
     ShortcutItem(
       type: 'add_expense',
@@ -57,21 +57,23 @@ void _setupQuickActions() {
 void _handlePendingQuickAction() {
   final action = _pendingQuickAction;
   if (action == null) return;
-  
+
   final navigator = AppCore.navigatorKey.currentState;
   if (navigator == null) return;
-  
+
   _pendingQuickAction = null;
-  
+
   final int tabIndex = (action == 'add_expense') ? 0 : 1;
-  navigator.push(
+  navigator
+      .push(
     MaterialPageRoute(
       builder: (_) => CategoryTabPageView(
         goToEditMovementPage: true,
         initialTabIndex: tabIndex,
       ),
     ),
-  ).then((_) {
+  )
+      .then((_) {
     // After the record is saved and the user returns to Shell, refresh home tab
     ShellState.instance?.refreshHomeTab();
   });
@@ -105,16 +107,18 @@ main() async {
           }
         } catch (_) {}
       }
-      ServiceConfig.localTimezone ??= DateTime.now().timeZoneName;
     }
     logger.info('Timezone initialized: ${ServiceConfig.localTimezone}');
-
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     ServiceConfig.packageName = packageInfo.packageName;
     ServiceConfig.version = packageInfo.version;
-    ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro") || Platform.isLinux || Platform.isWindows || Platform.isMacOS;
-    logger.info('Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})');
+    ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro") ||
+        Platform.isLinux ||
+        Platform.isWindows ||
+        Platform.isMacOS;
+    logger.info(
+        'Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})');
 
     ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
     await MyI18n.loadTranslations();
@@ -129,7 +133,8 @@ main() async {
     final languageLocale = LocaleService.resolveLanguageLocale();
     final currencyLocale = LocaleService.resolveCurrencyLocale();
     LocaleService.setCurrencyLocale(currencyLocale);
-    logger.info('Locale configured: language=$languageLocale, currency=$currencyLocale');
+    logger.info(
+        'Locale configured: language=$languageLocale, currency=$currencyLocale');
 
     final lightTheme = await MaterialThemeInstance.getLightTheme();
     final darkTheme = await MaterialThemeInstance.getDarkTheme();
@@ -257,7 +262,8 @@ class _MyAppState extends State<MyApp> {
 
 class AppCore extends StatelessWidget {
   /// Global navigator key used for quick actions navigation from outside the widget tree.
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   // Declare languageLocale as a final instance variable
   final ThemeData lightTheme;

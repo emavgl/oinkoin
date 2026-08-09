@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/statistics/statistics-tab-page.dart';
 import 'package:piggybank/statistics/balance-tab-page.dart';
 import 'package:piggybank/i18n.dart';
@@ -11,8 +12,9 @@ class StatisticsPage extends StatefulWidget {
   final DateTime? from;
   final DateTime? to;
   final Map<int, String?> walletCurrencyMap;
+  final Map<int, Wallet> walletMap;
   StatisticsPage(this.from, this.to, this.records,
-      {this.walletCurrencyMap = const {}});
+      {this.walletCurrencyMap = const {}, this.walletMap = const {}});
 
   @override
   _StatisticsPageState createState() => _StatisticsPageState();
@@ -87,6 +89,7 @@ class _StatisticsPageState extends State<StatisticsPage>
               selectedDate: _selectedDate,
               showRecordsToggle: true,
               walletCurrencyMap: widget.walletCurrencyMap,
+              walletMap: widget.walletMap,
               onIntervalSelected: (newTitle, date, amount) {
                 setState(() {
                   _selectedIntervalTitle = newTitle;
@@ -105,6 +108,7 @@ class _StatisticsPageState extends State<StatisticsPage>
               selectedDate: _selectedDate,
               showRecordsToggle: true,
               walletCurrencyMap: widget.walletCurrencyMap,
+              walletMap: widget.walletMap,
               onIntervalSelected: (newTitle, date, amount) {
                 setState(() {
                   _selectedIntervalTitle = newTitle;
@@ -115,12 +119,11 @@ class _StatisticsPageState extends State<StatisticsPage>
             BalanceTabPage(
               widget.from,
               widget.to,
-              widget.records
-                  .where((element) => !element!.isTransfer)
-                  .toList(),
+              widget.records.where((element) => !element!.isTransfer).toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
               walletCurrencyMap: widget.walletCurrencyMap,
+              walletMap: widget.walletMap,
               onIntervalSelected: (newTitle, date) {
                 setState(() {
                   _selectedIntervalTitle = newTitle;

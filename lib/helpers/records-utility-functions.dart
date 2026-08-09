@@ -18,7 +18,6 @@ import 'package:piggybank/settings/currencies-page.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 
 import 'datetime-utility-functions.dart';
-import 'package:piggybank/models/category-type.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   /// Groups the records by days using a Map<DateTime, List<Record>>.
@@ -277,8 +276,9 @@ AssetImage getBackgroundImage(int monthIndex) {
     return AssetImage('assets/images/bkg-default.png');
   } else {
     try {
-      String fileName =
-          (monthIndex > 0 && monthIndex <= 12) ? monthIndex.toString() : "default";
+      String fileName = (monthIndex > 0 && monthIndex <= 12)
+          ? monthIndex.toString()
+          : "default";
       return AssetImage('assets/images/bkg-' + fileName + '.png');
     } on Exception catch (_) {
       return AssetImage('assets/images/bkg-default.png');
@@ -693,26 +693,20 @@ bool _colorizeEnabled() {
       prefs, PreferencesKeys.colorizeAmounts)!;
 }
 
-Color _greenShade(Brightness brightness) =>
-    brightness == Brightness.dark ? Colors.green.shade400 : Colors.green.shade700;
+Color _greenShade(Brightness brightness) => brightness == Brightness.dark
+    ? Colors.green.shade400
+    : Colors.green.shade700;
 
 Color _redShade(Brightness brightness) =>
     brightness == Brightness.dark ? Colors.red.shade400 : Colors.red.shade700;
 
-/// Returns the color to use for an amount of [type], or null if colorization
-/// is disabled or [type] is null/unrecognised.
-Color? getAmountColor(CategoryType? type, Brightness brightness) {
+/// Returns the color used to display [amount], based purely on its sign:
+/// green when positive or zero, red when negative. Returns null when amount
+/// colorization is disabled.
+Color? getAmountColor(double amount, Brightness brightness) {
   if (!_colorizeEnabled()) return null;
-  if (type == CategoryType.income) return _greenShade(brightness);
-  if (type == CategoryType.expense) return _redShade(brightness);
-  return null;
+  return amount >= 0 ? _greenShade(brightness) : _redShade(brightness);
 }
-
-/// Returns the color for a balance/wallet [amount] (green when ≥ 0, red when
-/// negative), or null if colorization is disabled.
-Color? getBalanceColor(double amount, Brightness brightness) =>
-    getAmountColor(
-        amount >= 0 ? CategoryType.income : CategoryType.expense, brightness);
 
 /// Returns a Widget displaying [amount] in [currency].
 ///

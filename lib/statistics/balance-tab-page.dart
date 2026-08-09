@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:piggybank/statistics/statistics-summary-card.dart';
@@ -17,11 +18,13 @@ class BalanceTabPage extends StatefulWidget {
   final Widget? footer;
   final bool hideTagsSelection;
   final bool hideCategorySelection;
+  final bool hideWalletsSelection;
   final bool showRecordsToggle;
   final GroupByType? forceGroupByType;
   final Function? onListBackCallback;
 
   final Map<int, String?> walletCurrencyMap;
+  final Map<int, Wallet> walletMap;
 
   BalanceTabPage(this.from, this.to, this.records,
       {this.onIntervalSelected,
@@ -29,10 +32,12 @@ class BalanceTabPage extends StatefulWidget {
       this.footer,
       this.hideTagsSelection = false,
       this.hideCategorySelection = false,
+      this.hideWalletsSelection = false,
       this.showRecordsToggle = false,
       this.forceGroupByType,
       this.onListBackCallback,
-      this.walletCurrencyMap = const {}})
+      this.walletCurrencyMap = const {},
+      this.walletMap = const {}})
       : super();
 
   @override
@@ -43,8 +48,6 @@ class BalanceTabPageState extends State<BalanceTabPage> {
   AggregationMethod? aggregationMethod;
   DateTime? selectedDate;
   late GroupByType groupByType;
-  String? selectedCategory;
-  List<String>? topCategories;
 
   @override
   void initState() {
@@ -140,23 +143,18 @@ class BalanceTabPageState extends State<BalanceTabPage> {
           from: widget.from,
           to: widget.to,
           selectedDate: selectedDate,
-          selectedCategoryOrTag: selectedCategory,
-          topCategories: topCategories,
           groupByType: groupByType,
           showHeaders: true,
+          isBalance: true,
           showRecordsToggle: widget.showRecordsToggle,
           hideTagsSelection: widget.hideTagsSelection,
           hideCategorySelection: widget.hideCategorySelection,
+          hideWalletsSelection: widget.hideWalletsSelection,
           walletCurrencyMap: widget.walletCurrencyMap,
+          walletMap: widget.walletMap,
           onGroupByTypeChanged: (newType) {
             setState(() {
               groupByType = newType;
-              // Don't clear selectedCategory/topCategories when switching to Records
-              // We need them to filter the records list
-              if (newType != GroupByType.records) {
-                selectedCategory = null;
-                topCategories = null;
-              }
             });
           },
         ),
@@ -175,28 +173,6 @@ class BalanceTabPageState extends State<BalanceTabPage> {
             return truncateDateTime(r!.dateTime, aggregationMethod) ==
                 selectedDate;
           }).toList();
-        }
-
-        // Filter by selected category/tag if any
-        if (selectedCategory != null && topCategories != null) {
-          if (selectedCategory == "Others".i18n) {
-            // Show records for items not in topCategories
-            recordsForList = recordsForList.where((r) {
-              if (groupByType == GroupByType.tag) {
-                return r?.tags.any((tag) => !topCategories!.contains(tag)) ??
-                    false;
-              }
-              return !topCategories!.contains(r?.category?.name);
-            }).toList();
-          } else {
-            // Show records for the selected category or tag
-            recordsForList = recordsForList.where((r) {
-              if (groupByType == GroupByType.tag) {
-                return r?.tags.contains(selectedCategory) ?? false;
-              }
-              return r?.category?.name == selectedCategory;
-            }).toList();
-          }
         }
 
         recordsForList = List.from(recordsForList)

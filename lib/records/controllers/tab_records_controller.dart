@@ -616,6 +616,7 @@ class TabRecordsController {
 
   void navigateToStatisticsPage(BuildContext context) {
     final currencyMap = walletCurrencyMap;
+    final wallets = walletMap;
     if (customIntervalTo == null) {
       var hti = getHomepageTimeIntervalEnumSetting();
       getTimeIntervalFromHomepageTimeInterval(_database, hti)
@@ -624,7 +625,7 @@ class TabRecordsController {
                 MaterialPageRoute(
                   builder: (context) => StatisticsPage(userDefinedInterval[0],
                       userDefinedInterval[1], filteredRecords,
-                      walletCurrencyMap: currencyMap),
+                      walletCurrencyMap: currencyMap, walletMap: wallets),
                 ),
               ));
     } else {
@@ -633,7 +634,7 @@ class TabRecordsController {
         MaterialPageRoute(
           builder: (context) => StatisticsPage(
               customIntervalFrom, customIntervalTo, filteredRecords,
-              walletCurrencyMap: currencyMap),
+              walletCurrencyMap: currencyMap, walletMap: wallets),
         ),
       );
     }
@@ -850,6 +851,11 @@ class TabRecordsController {
   }
 
   Map<int, String?> get walletCurrencyMap => buildWalletCurrencyMap(allWallets);
+
+  Map<int, Wallet> get walletMap => {
+        for (final w in allWallets)
+          if (w.id != null) w.id!: w
+      };
 
   /// The end-of-period date wallet balances are currently snapshotted to, or
   /// null when showing the live balance (current/future period).

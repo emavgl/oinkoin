@@ -28,4 +28,4 @@ class StringSeriesRecord {
 
 enum AggregationMethod { DAY, WEEK, MONTH, YEAR, NOT_AGGREGATED }
 
-enum GroupByType { category, tag, records }
+enum GroupByType { category, tag, wallet, records }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:piggybank/statistics/statistics-calculator.dart';
@@ -34,6 +33,7 @@ class OverviewCard extends StatelessWidget {
   final List<OverviewCardAction> actions;
   final Map<int, String?> walletCurrencyMap;
   final RecordsTotalResult _convertedResult;
+  final double _signedTotal;
 
   OverviewCard(this.from, this.to, this.records, this.aggregationMethod,
       {this.selectedAmount,
@@ -43,7 +43,8 @@ class OverviewCard extends StatelessWidget {
       this.walletCurrencyMap = const {}})
       : aggregatedRecords = aggregateRecordsByDate(records, aggregationMethod),
         _convertedResult = computeConvertedTotal(records, walletCurrencyMap,
-            isAbsValue: !isBalance);
+            isAbsValue: !isBalance),
+        _signedTotal = computeConvertedTotal(records, walletCurrencyMap).total;
 
   double get averageValue {
     switch (aggregationMethod) {
@@ -99,7 +100,8 @@ class OverviewCard extends StatelessWidget {
           color: amountColor ?? Theme.of(context).colorScheme.onSurface,
         );
     final secondaryStyle = TextStyle(
-      fontSize: ((mainStyle?.fontSize ?? 24.0) * 0.65).clamp(12.0, double.infinity),
+      fontSize:
+          ((mainStyle?.fontSize ?? 24.0) * 0.65).clamp(12.0, double.infinity),
       color: Colors.grey,
     );
 
@@ -229,16 +231,9 @@ class OverviewCard extends StatelessWidget {
     }
 
     final brightness = Theme.of(context).brightness;
-    final color = isBalance
-        ? (_convertedResult.total >= 0 ? Colors.green : Colors.redAccent)
-        : (records.first!.category!.categoryType == CategoryType.expense
-            ? Colors.redAccent
-            : Colors.green);
-
-    final amountColor = isBalance
-        ? getBalanceColor(_convertedResult.total, brightness)
-        : getAmountColor(
-            records.first?.category?.categoryType, brightness);
+    final amountColor = getAmountColor(_signedTotal, brightness);
+    final color =
+        amountColor ?? (_signedTotal >= 0 ? Colors.green : Colors.redAccent);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),

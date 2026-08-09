@@ -32,6 +32,7 @@ Record createRecord({
   required Category category,
   required DateTime dateTime,
   Set<String> tags = const {},
+  int? walletId,
 }) {
   return Record(
     value,
@@ -40,6 +41,7 @@ Record createRecord({
     dateTime.toUtc(),
     timeZoneName: 'UTC',
     tags: tags,
+    walletId: walletId,
   );
 }
 
@@ -561,6 +563,163 @@ void main() {
         final result = RecordFilters.withTags(records);
 
         expect(result.isEmpty, isTrue);
+      });
+    });
+
+    group('byWallet', () {
+      test('returns all records when walletId is null', () {
+        final records = [
+          createRecord(
+              value: 10,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+          createRecord(
+              value: 20,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 2),
+        ];
+
+        final result = RecordFilters.byWallet(records, null, null);
+
+        expect(result.length, 2);
+      });
+
+      test('filters by wallet id correctly', () {
+        final records = [
+          createRecord(
+              value: 10,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+          createRecord(
+              value: 20,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 2),
+          createRecord(
+              value: 30,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+        ];
+
+        final result = RecordFilters.byWallet(records, '1', null);
+
+        expect(result.length, 2);
+        expect(result.every((r) => r?.walletId == 1), isTrue);
+      });
+
+      test('filters "Others" wallets correctly', () {
+        final topWallets = ['1', '2'];
+        final records = [
+          createRecord(
+              value: 10,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+          createRecord(
+              value: 20,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 2),
+          createRecord(
+              value: 30,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 3),
+        ];
+
+        final result = RecordFilters.byWallet(records, 'Others', topWallets);
+
+        expect(result.length, 1);
+        expect(result.first?.walletId, 3);
+      });
+
+      test('returns records with a wallet when "Others" without topWallets',
+          () {
+        final records = [
+          createRecord(
+              value: 10,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+          createRecord(
+              value: 20,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: null),
+        ];
+
+        final result = RecordFilters.byWallet(records, 'Others', null);
+
+        expect(result.length, 1);
+      });
+    });
+
+    group('forWalletAggregation', () {
+      test('filters by selected wallet', () {
+        final records = [
+          createRecord(
+              value: 10,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+          createRecord(
+              value: 20,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+          createRecord(
+              value: 30,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 2),
+        ];
+
+        final result = RecordFilters.forWalletAggregation(
+          records,
+          null,
+          null,
+          '1',
+          null,
+        );
+
+        expect(result.length, 2);
+        expect(result.every((r) => r?.walletId == 1), isTrue);
+      });
+
+      test('handles "Others" wallet with exclusions', () {
+        final topWallets = ['1'];
+        final records = [
+          createRecord(
+              value: 10,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 1),
+          createRecord(
+              value: 20,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 2),
+          createRecord(
+              value: 30,
+              category: groceriesCategory,
+              dateTime: DateTime(2026, 2, 1),
+              walletId: 3),
+        ];
+
+        final result = RecordFilters.forWalletAggregation(
+          records,
+          null,
+          null,
+          'Others',
+          topWallets,
+        );
+
+        expect(result.length, 2);
+        expect(result.every((r) => r?.walletId != 1), isTrue);
       });
     });
 

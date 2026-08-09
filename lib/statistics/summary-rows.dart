@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/components/category_icon_circle.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:piggybank/statistics/category-tag-records-page.dart';
 import 'package:piggybank/statistics/category-tag-balance-page.dart';
-import 'package:piggybank/statistics/record-filters.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 
@@ -143,12 +143,6 @@ abstract class SummaryRow extends StatelessWidget {
 
   /// Called when the row is tapped. Must be implemented by subclasses.
   void onTap(BuildContext context);
-
-  /// Filters records by date if a date is selected.
-  List<Record?> filterRecordsByDate(List<Record?> recordsToFilter) {
-    return RecordFilters.byDate(
-        recordsToFilter, selectedDate, aggregationMethod);
-  }
 }
 
 /// Widget that displays a row for a single category in the summary list.
@@ -381,4 +375,106 @@ class ViewAllSummaryRow extends SummaryRow {
 
   @override
   void onTap(BuildContext context) => onTapCallback();
+}
+
+/// Widget that displays a row for a single wallet in the summary list.
+class WalletSummaryRow extends SummaryRow {
+  final Wallet wallet;
+  final bool isBalance;
+
+  WalletSummaryRow({
+    Key? key,
+    required this.wallet,
+    required double value,
+    required double maxSum,
+    required double totalSum,
+    required List<Record?> records,
+    DateTime? from,
+    DateTime? to,
+    DateTime? selectedDate,
+    AggregationMethod? aggregationMethod,
+    this.isBalance = false,
+    String? currency,
+    double originalValue = 0.0,
+    String? originalCurrency,
+  }) : super(
+          key: key,
+          label: wallet.name,
+          value: value,
+          maxSum: maxSum,
+          totalSum: totalSum,
+          records: records,
+          from: from,
+          to: to,
+          selectedDate: selectedDate,
+          aggregationMethod: aggregationMethod,
+          currency: currency,
+          originalValue: originalValue,
+          originalCurrency: originalCurrency,
+        );
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return CategoryIconCircle(
+      iconEmoji: wallet.iconEmoji,
+      iconDataFromDefaultIconSet: wallet.icon,
+      backgroundColor: wallet.color,
+    );
+  }
+
+  @override
+  void onTap(BuildContext context) {
+    final walletRecords =
+        records.where((element) => element?.walletId == wallet.id).toList();
+
+    DateTime? detailFrom = from;
+    DateTime? detailTo = to;
+    List<Record?> detailRecords = walletRecords;
+    DateTime? detailSelectedDate = selectedDate;
+
+    if (selectedDate != null) {
+      detailFrom = selectedDate;
+      detailTo = getEndOfInterval(selectedDate!, aggregationMethod);
+      detailRecords = walletRecords.where((r) {
+        final recordDate = r!.dateTime;
+        return !recordDate.isBefore(detailFrom!) &&
+            !recordDate.isAfter(detailTo!);
+      }).toList();
+      detailSelectedDate = null;
+    }
+    String intervalTitle = getDateRangeStr(detailFrom!, detailTo!);
+
+    if (isBalance) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CategoryTagBalancePage(
+            title: "$intervalTitle: ${wallet.name}",
+            records: detailRecords,
+            from: detailFrom!,
+            to: detailTo!,
+            aggregationMethod: aggregationMethod,
+            selectedDate: detailSelectedDate,
+            walletName: wallet.name,
+          ),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CategoryTagRecordsPage(
+            title: "$intervalTitle: ${wallet.name}",
+            records: detailRecords,
+            from: detailFrom,
+            to: detailTo,
+            aggregationMethod: aggregationMethod,
+            headerColor: wallet.color,
+            selectedDate: detailSelectedDate,
+            walletName: wallet.name,
+          ),
+        ),
+      );
+    }
+  }
 }

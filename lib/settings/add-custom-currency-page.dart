@@ -74,8 +74,6 @@ class _AddCustomCurrencyPageState extends State<AddCustomCurrencyPage> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.editCurrency != null;
-    final mainInfo = CurrencyInfo.byCode(widget.mainCurrency);
-    final mainSymbol = mainInfo?.symbol ?? widget.mainCurrency;
 
     return Scaffold(
       appBar: AppBar(

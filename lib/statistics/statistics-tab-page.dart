@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/statistics/overview-card.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-summary-card.dart';
@@ -10,6 +11,7 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/statistics/bar-chart-card.dart';
 import 'package:piggybank/statistics/categories-pie-chart.dart';
 import 'package:piggybank/statistics/tags-pie-chart.dart';
+import 'package:piggybank/statistics/wallets-pie-chart.dart';
 import 'package:piggybank/records/components/records-day-list.dart';
 
 class StatisticsTabPage extends StatefulWidget {
@@ -23,9 +25,11 @@ class StatisticsTabPage extends StatefulWidget {
   final bool showRecordsToggle;
   final bool hideTagsSelection;
   final bool hideCategorySelection;
+  final bool hideWalletsSelection;
   final Function? onListBackCallback;
 
   final Map<int, String?> walletCurrencyMap;
+  final Map<int, Wallet> walletMap;
 
   StatisticsTabPage(this.from, this.to, this.records,
       {this.onIntervalSelected,
@@ -35,8 +39,10 @@ class StatisticsTabPage extends StatefulWidget {
       this.showRecordsToggle = false,
       this.hideTagsSelection = false,
       this.hideCategorySelection = false,
+      this.hideWalletsSelection = false,
       this.onListBackCallback,
-      this.walletCurrencyMap = const {}})
+      this.walletCurrencyMap = const {},
+      this.walletMap = const {}})
       : super();
 
   @override
@@ -52,6 +58,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
   List<String>? topCategories;
   bool showPieChart = false;
   late GroupByType groupByType;
+  GroupByType? filterGroupByType;
 
   @override
   void initState() {
@@ -118,6 +125,21 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
               selectedAmount = amount;
               selectedCategory = tag;
               topCategories = topTags;
+              filterGroupByType = groupByType;
+            });
+          },
+        );
+      } else if (groupByType == GroupByType.wallet) {
+        chartWidget = WalletsPieChart(
+          recordsToVisualize,
+          walletMap: widget.walletMap,
+          selectedWalletId: selectedCategory,
+          onSelectionChanged: (amount, walletId, topWallets) {
+            setState(() {
+              selectedAmount = amount;
+              selectedCategory = walletId;
+              topCategories = topWallets;
+              filterGroupByType = groupByType;
             });
           },
         );
@@ -130,6 +152,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
               selectedAmount = amount;
               selectedCategory = category;
               topCategories = topCats;
+              filterGroupByType = groupByType;
             });
           },
         );
@@ -193,6 +216,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
               selectedDate = null;
               selectedCategory = null;
               topCategories = null;
+              filterGroupByType = null;
               if (widget.onIntervalSelected != null) {
                 widget.onIntervalSelected!(null, null, null);
               }
@@ -226,7 +250,9 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           showRecordsToggle: widget.showRecordsToggle,
           hideTagsSelection: widget.hideTagsSelection,
           hideCategorySelection: widget.hideCategorySelection,
+          hideWalletsSelection: widget.hideWalletsSelection,
           walletCurrencyMap: widget.walletCurrencyMap,
+          walletMap: widget.walletMap,
           onGroupByTypeChanged: (newType) {
             setState(() {
               groupByType = newType;
@@ -235,6 +261,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
               if (newType != GroupByType.records) {
                 selectedCategory = null;
                 topCategories = null;
+                filterGroupByType = null;
                 selectedAmount = null;
                 if (widget.onIntervalSelected != null) {
                   widget.onIntervalSelected!(null, null, null);
@@ -265,17 +292,22 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           if (selectedCategory == "Others".i18n) {
             // Show records for items not in topCategories
             recordsForList = recordsForList.where((r) {
-              if (groupByType == GroupByType.tag) {
+              if (filterGroupByType == GroupByType.tag) {
                 return r?.tags.any((tag) => !topCategories!.contains(tag)) ??
                     false;
+              } else if (filterGroupByType == GroupByType.wallet) {
+                if (r?.walletId == null) return false;
+                return !topCategories!.contains(r!.walletId.toString());
               }
               return !topCategories!.contains(r?.category?.name);
             }).toList();
           } else {
-            // Show records for the selected category or tag
+            // Show records for the selected category, tag or wallet
             recordsForList = recordsForList.where((r) {
-              if (groupByType == GroupByType.tag) {
+              if (filterGroupByType == GroupByType.tag) {
                 return r?.tags.contains(selectedCategory) ?? false;
+              } else if (filterGroupByType == GroupByType.wallet) {
+                return r?.walletId?.toString() == selectedCategory;
               }
               return r?.category?.name == selectedCategory;
             }).toList();

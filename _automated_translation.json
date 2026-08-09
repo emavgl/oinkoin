@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-08-09",
-    "total_keys": 505
+    "total_keys": 509
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5014,6 +5014,46 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
+      "status": "verified"
+    },
+    "Wallets (%d)": {
+      "key": "Wallets (%d)",
+      "context": "Group-by dropdown toggle showing wallet split with wallet count, e.g. 'Wallets (3)'",
+      "file": "lib/statistics/group-by-dropdown.dart",
+      "page": "Statistics page > group-by dropdown",
+      "component": "toggle token label",
+      "meaning": "Switches statistics grouping to split by wallet; %d is the number of wallets with records",
+      "notes": "Keep %d placeholder. Mirror of 'Tags (%d)' pattern.",
+      "status": "verified"
+    },
+    "All wallets": {
+      "key": "All wallets",
+      "context": "View-all row shown when a date interval is selected in wallet split",
+      "file": "lib/statistics/statistics-summary-card.dart",
+      "page": "Statistics page > Wallets split > summary list",
+      "component": "view-all summary row label",
+      "meaning": "Tapping shows all records across all wallets for the selected period",
+      "notes": "Mirror of 'All tags'/'All categories' rows.",
+      "status": "verified"
+    },
+    "No wallets found": {
+      "key": "No wallets found",
+      "context": "Empty state in wallet split and snackbar when no records have a wallet",
+      "file": "lib/statistics/group-by-dropdown.dart, lib/statistics/statistics-summary-card.dart",
+      "page": "Statistics page > Wallets split",
+      "component": "empty-state text / SnackBar",
+      "meaning": "No wallet data available to show a wallet breakdown",
+      "notes": "Mirror of 'No tags found'.",
+      "status": "verified"
+    },
+    "Unknown wallet": {
+      "key": "Unknown wallet",
+      "context": "Fallback label for a record whose walletId is not present in the loaded wallet map",
+      "file": "lib/statistics/wallets-pie-chart.dart, lib/statistics/statistics-summary-card.dart",
+      "page": "Statistics page > Wallets split",
+      "component": "pie chart legend / summary row label",
+      "meaning": "Wallet could not be resolved (e.g. archived or deleted wallet)",
+      "notes": "Used defensively when walletMap lacks an id.",
       "status": "verified"
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 import 'package:piggybank/statistics/statistics-tab-page.dart';
@@ -15,6 +16,7 @@ class CategoryTagRecordsPage extends StatefulWidget {
   final DateTime? to;
   final AggregationMethod? aggregationMethod;
   final Category? category; // null if it's a tag
+  final String? walletName; // set if it's a wallet
   final Color? headerColor;
   final DateTime? selectedDate;
   final Map<int, String?> walletCurrencyMap;
@@ -26,6 +28,7 @@ class CategoryTagRecordsPage extends StatefulWidget {
     required this.to,
     required this.aggregationMethod,
     this.category,
+    this.walletName,
     this.headerColor,
     this.selectedDate,
     this.walletCurrencyMap = const {},
@@ -40,6 +43,7 @@ class _CategoryTagRecordsPageState extends State<CategoryTagRecordsPage> {
   String? _selectedIntervalTitle;
   DateTime? _selectedIntervalDate;
   Map<int, String?> _effectiveCurrencyMap = {};
+  Map<int, Wallet> _effectiveWalletMap = {};
 
   @override
   void initState() {
@@ -49,19 +53,23 @@ class _CategoryTagRecordsPageState extends State<CategoryTagRecordsPage> {
     _currentRecords.sort((a, b) => b!.dateTime.compareTo(a!.dateTime));
 
     if (widget.walletCurrencyMap.isEmpty) {
-      _loadCurrencyMap();
+      _loadWalletData();
     } else {
       _effectiveCurrencyMap = widget.walletCurrencyMap;
     }
   }
 
-  Future<void> _loadCurrencyMap() async {
+  Future<void> _loadWalletData() async {
     final db = ServiceConfig.database;
     final wallets = await db.getAllWallets(
         profileId: ProfileService.instance.activeProfileId);
     if (!mounted) return;
     setState(() {
       _effectiveCurrencyMap = buildWalletCurrencyMap(wallets);
+      _effectiveWalletMap = {
+        for (final w in wallets)
+          if (w.id != null) w.id!: w
+      };
     });
   }
 
@@ -91,8 +99,10 @@ class _CategoryTagRecordsPageState extends State<CategoryTagRecordsPage> {
         forceGroupByType: GroupByType.records,
         showRecordsToggle: true,
         hideCategorySelection: widget.category != null,
-        hideTagsSelection: widget.category == null,
+        hideTagsSelection: widget.category == null && widget.walletName == null,
+        hideWalletsSelection: widget.walletName != null,
         walletCurrencyMap: _effectiveCurrencyMap,
+        walletMap: _effectiveWalletMap,
         onListBackCallback: () {
           setState(() {
             // No need to manually sort _currentRecords anymore if we rely on StatisticsTabPage

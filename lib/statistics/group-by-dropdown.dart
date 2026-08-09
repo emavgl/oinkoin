@@ -3,6 +3,7 @@ import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/record-filters.dart';
+import 'package:piggybank/services/service-config.dart';
 
 /// A toggle widget that allows switching between Category, Tags, and Records views.
 ///
@@ -19,6 +20,7 @@ class GroupByDropdown extends StatelessWidget {
   final bool showRecordsToggle;
   final bool hideTagsSelection;
   final bool hideCategorySelection;
+  final bool hideWalletsSelection;
 
   const GroupByDropdown({
     Key? key,
@@ -32,6 +34,7 @@ class GroupByDropdown extends StatelessWidget {
     this.showRecordsToggle = false,
     this.hideTagsSelection = false,
     this.hideCategorySelection = false,
+    this.hideWalletsSelection = false,
   }) : super(key: key);
 
   @override
@@ -42,6 +45,14 @@ class GroupByDropdown extends StatelessWidget {
     final uniqueTags =
         recordsToCheck.expand<String>((r) => r?.tags ?? <String>[]).toSet();
     final tagCount = uniqueTags.length;
+
+    final walletsEnabled = ServiceConfig.walletsEnabled;
+    final hasWalletRecords = recordsToCheck.any((r) => r?.walletId != null);
+    final uniqueWalletIds = recordsToCheck
+        .where((r) => r?.walletId != null)
+        .map<int>((r) => r!.walletId!)
+        .toSet();
+    final walletCount = uniqueWalletIds.length;
 
     final tokens = <Widget>[];
     final isDetailView =
@@ -87,32 +98,71 @@ class GroupByDropdown extends StatelessWidget {
       ));
     }
 
+    void addWalletsToggle() {
+      if (!walletsEnabled) return;
+      addSeparator();
+      tokens.add(_buildWalletToggles(
+        walletCount: walletCount,
+        isSelected: groupByType == GroupByType.wallet,
+        hasWalletRecords: hasWalletRecords,
+        context: context,
+      ));
+    }
+
     // Determine token order based on view type
     if (isDetailView) {
       if (showRecordsToggle) addRecordsToggle();
       if (!hideCategorySelection) addCategoriesToggle();
       if (!hideTagsSelection) addTagsToggle();
+      if (!hideWalletsSelection) addWalletsToggle();
     } else {
       if (!hideCategorySelection) addCategoriesToggle();
       if (!hideTagsSelection) addTagsToggle();
+      if (!hideWalletsSelection) addWalletsToggle();
       if (showRecordsToggle) addRecordsToggle();
     }
 
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
-      child: Row(children: tokens),
+      child: Wrap(
+        spacing: 0,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: tokens,
+      ),
     );
   }
 
   /// Filters records based on current selection state.
   List<Record?> _getFilteredRecords() {
-    return RecordFilters.byMultipleCriteria(
-      records,
-      date: selectedDate,
-      aggregationMethod: aggregationMethod,
-      tag: selectedCategoryOrTag,
-      topCategories: topCategories,
-    );
+    switch (groupByType) {
+      case GroupByType.tag:
+        return RecordFilters.byMultipleCriteria(
+          records,
+          date: selectedDate,
+          aggregationMethod: aggregationMethod,
+          tag: selectedCategoryOrTag,
+          topCategories: topCategories,
+        );
+      case GroupByType.wallet:
+        return RecordFilters.byMultipleCriteria(
+          records,
+          date: selectedDate,
+          aggregationMethod: aggregationMethod,
+          walletId: selectedCategoryOrTag,
+          topCategories: topCategories,
+        );
+      case GroupByType.category:
+      case GroupByType.records:
+        return RecordFilters.byMultipleCriteria(
+          records,
+          date: selectedDate,
+          aggregationMethod: aggregationMethod,
+          category: selectedCategoryOrTag,
+          topCategories: topCategories,
+        );
+    }
   }
 
   /// Builds a clickable token for a grouping option.
@@ -155,6 +205,39 @@ class GroupByDropdown extends StatelessWidget {
           return;
         }
         onGroupByTypeChanged(GroupByType.tag);
+      },
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? null : Colors.grey,
+        ),
+      ),
+    );
+  }
+
+  /// Builds the wallet token with special handling for when no wallets exist.
+  Widget _buildWalletToggles({
+    required int walletCount,
+    required bool isSelected,
+    required bool hasWalletRecords,
+    required BuildContext context,
+  }) {
+    final label = walletCount > 0
+        ? "Wallets (%d)".i18n.fill([walletCount])
+        : "Wallets (%d)".i18n.fill([0]);
+
+    return InkWell(
+      onTap: () {
+        if (!hasWalletRecords) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("No wallets found".i18n),
+            duration: Duration(seconds: 2),
+          ));
+          return;
+        }
+        onGroupByTypeChanged(GroupByType.wallet);
       },
       child: Text(
         label,

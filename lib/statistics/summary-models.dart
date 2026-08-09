@@ -27,3 +27,12 @@ class CategorySumTuple extends SumTuple<Category> {
             originalValue: originalValue,
             originalCurrency: originalCurrency);
 }
+
+class WalletSumTuple extends SumTuple<int> {
+  WalletSumTuple(int walletId, double value,
+      {String? currency, double originalValue = 0.0, String? originalCurrency})
+      : super(walletId, value,
+            currency: currency,
+            originalValue: originalValue,
+            originalCurrency: originalCurrency);
+}

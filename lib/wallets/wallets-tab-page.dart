@@ -60,8 +60,8 @@ class WalletsTabPageState extends State<WalletsTabPage> {
 
   Future<void> _storeOnUserPreferences() async {
     if (_isDefaultOrder) {
-      await ServiceConfig.sharedPreferences
-          ?.setInt(PreferencesKeys.walletListSortOption, _selectedSortOption.index);
+      await ServiceConfig.sharedPreferences?.setInt(
+          PreferencesKeys.walletListSortOption, _selectedSortOption.index);
       setState(() {
         _storedDefaultOption = _selectedSortOption;
       });
@@ -348,8 +348,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                 : formatCurrencyAmount(item.value, item.key),
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: getBalanceColor(
-                      item.value, brightness),
+                  color: getAmountColor(item.value, brightness),
                 ),
           ),
         ],
@@ -373,8 +372,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
             formatCurrencyAmount(conversionResult.total, defaultCurrency),
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: getBalanceColor(
-                      conversionResult.total, brightness),
+                  color: getAmountColor(conversionResult.total, brightness),
                 ),
           ),
         ],
@@ -420,7 +418,8 @@ class WalletsTabPageState extends State<WalletsTabPage> {
   /// Wallets filtered by archive status (and active wallet filter) and sorted by the selected sort option.
   List<Wallet> get _walletsByArchiveStatusSorted {
     if (_wallets == null) return [];
-    var filtered = _wallets!.where((w) => w.isArchived == _showArchived).toList();
+    var filtered =
+        _wallets!.where((w) => w.isArchived == _showArchived).toList();
     if (!_showArchived && _selectedWallets.isNotEmpty) {
       final selectedIds = _selectedWallets.map((w) => w.id).toSet();
       filtered = filtered.where((w) => selectedIds.contains(w.id)).toList();
@@ -430,12 +429,10 @@ class WalletsTabPageState extends State<WalletsTabPage> {
         filtered.sort((a, b) => a.name.compareTo(b.name));
         break;
       case WalletSortOption.byAmountAsc:
-        filtered.sort(
-            (a, b) => (a.balance ?? 0.0).compareTo(b.balance ?? 0.0));
+        filtered.sort((a, b) => (a.balance ?? 0.0).compareTo(b.balance ?? 0.0));
         break;
       case WalletSortOption.byAmountDesc:
-        filtered.sort(
-            (a, b) => (b.balance ?? 0.0).compareTo(a.balance ?? 0.0));
+        filtered.sort((a, b) => (b.balance ?? 0.0).compareTo(a.balance ?? 0.0));
         break;
       case WalletSortOption.original:
         // already ordered by sort_order from the DB query
@@ -567,7 +564,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                                         .headlineLarge
                                         ?.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          color: getBalanceColor(
+                                          color: getAmountColor(
                                               _displayBalanceTotal(),
                                               brightness),
                                         ),
