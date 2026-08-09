@@ -64,7 +64,8 @@ class _TagsPieChartState extends State<TagsPieChart> {
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
     defaultColorsPalette = charts.MaterialPalette.getOrderedPalettes(tagCount)
-        .map((palette) => palette.shadeDefault).toList();
+        .map((palette) => palette.shadeDefault)
+        .toList();
     defaultColorsPalette.add(charts.ColorUtil.fromDartColor(otherTagColor));
 
     TagChartData chartData = _prepareData(widget.records);
@@ -85,7 +86,8 @@ class _TagsPieChartState extends State<TagsPieChart> {
           return color.lighter.lighter;
         },
         domainFn: (LinearTagRecord recordsUnderTag, _) => recordsUnderTag.tag!,
-        measureFn: (LinearTagRecord recordsUnderTag, _) => recordsUnderTag.value,
+        measureFn: (LinearTagRecord recordsUnderTag, _) =>
+            recordsUnderTag.value,
         data: _preparedData,
       ),
     ];
@@ -95,20 +97,27 @@ class _TagsPieChartState extends State<TagsPieChart> {
 
   TagChartData _prepareData(List<Record?> records) {
     Map<String, double> aggregatedTagsValuesTemporaryMap = {};
-    double totalSum = 0;
 
+    // Sum each tag's raw (signed) values so refunds reduce the net.
     for (var record in records) {
       if (record != null) {
         for (var tag in record.tags) {
-          totalSum += record.value!.abs();
           aggregatedTagsValuesTemporaryMap.update(
             tag,
-            (value) => value + record.value!.abs(),
-            ifAbsent: () => record.value!.abs(),
+            (value) => value + record.value!,
+            ifAbsent: () => record.value!,
           );
         }
       }
     }
+
+    // Slices are magnitudes: abs of each tag's net total.
+    for (final key in aggregatedTagsValuesTemporaryMap.keys.toList()) {
+      aggregatedTagsValuesTemporaryMap[key] =
+          aggregatedTagsValuesTemporaryMap[key]!.abs();
+    }
+    double totalSum =
+        aggregatedTagsValuesTemporaryMap.values.fold(0.0, (a, b) => a + b);
 
     var aggregatedTagsAndValues =
         aggregatedTagsValuesTemporaryMap.entries.toList();
@@ -163,11 +172,12 @@ class _TagsPieChartState extends State<TagsPieChart> {
             if (tagName == "Others".i18n) {
               // Add value for each tag that is NOT a top tag
               int otherTagsInRecord = r.tags.where((t) => !_isTopTag(t)).length;
-              tagSum += r.value!.abs() * otherTagsInRecord;
+              tagSum += r.value! * otherTagsInRecord;
             } else if (r.tags.contains(tagName)) {
-              tagSum += r.value!.abs();
+              tagSum += r.value!;
             }
           }
+          tagSum = tagSum.abs();
 
           final List<String> topTagNames = linearRecords
               .where((lr) => lr.tag != "Others".i18n)

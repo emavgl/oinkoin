@@ -107,18 +107,25 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
 
   WalletChartData _prepareData(List<Record?> records) {
     Map<int, double> aggregatedWalletsValuesTemporaryMap = {};
-    double totalSum = 0;
 
+    // Sum each wallet's raw (signed) values so refunds reduce the net.
     for (var record in records) {
       if (record != null && record.walletId != null) {
-        totalSum += record.value!.abs();
         aggregatedWalletsValuesTemporaryMap.update(
           record.walletId!,
-          (value) => value + record.value!.abs(),
-          ifAbsent: () => record.value!.abs(),
+          (value) => value + record.value!,
+          ifAbsent: () => record.value!,
         );
       }
     }
+
+    // Slices are magnitudes: abs of each wallet's net total.
+    for (final key in aggregatedWalletsValuesTemporaryMap.keys.toList()) {
+      aggregatedWalletsValuesTemporaryMap[key] =
+          aggregatedWalletsValuesTemporaryMap[key]!.abs();
+    }
+    double totalSum =
+        aggregatedWalletsValuesTemporaryMap.values.fold(0.0, (a, b) => a + b);
 
     var aggregatedWalletsAndValues =
         aggregatedWalletsValuesTemporaryMap.entries.toList();
@@ -178,12 +185,13 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
             if (r == null) continue;
             if (walletId == "Others".i18n) {
               if (r.walletId != null && !_isTopWallet(r.walletId!)) {
-                walletSum += r.value!.abs();
+                walletSum += r.value!;
               }
             } else if (r.walletId?.toString() == walletId) {
-              walletSum += r.value!.abs();
+              walletSum += r.value!;
             }
           }
+          walletSum = walletSum.abs();
 
           final List<String> topWalletIds = linearRecords
               .where((lr) => lr.walletId != null)

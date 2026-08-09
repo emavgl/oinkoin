@@ -29,7 +29,8 @@ class CategoriesPieChart extends StatefulWidget {
   final Function(double?, String?, List<String>?)? onSelectionChanged;
   final String? selectedCategory;
 
-  CategoriesPieChart(this.records, {this.onSelectionChanged, this.selectedCategory});
+  CategoriesPieChart(this.records,
+      {this.onSelectionChanged, this.selectedCategory});
 
   @override
   _CategoriesPieChartState createState() => _CategoriesPieChartState();
@@ -73,9 +74,12 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
     categoryCount = PreferencesUtils.getOrDefault<int>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
-    defaultColorsPalette = charts.MaterialPalette.getOrderedPalettes(categoryCount)
-        .map((palette) => palette.shadeDefault).toList();
-    defaultColorsPalette.add(charts.ColorUtil.fromDartColor(otherCategoryColor));
+    defaultColorsPalette =
+        charts.MaterialPalette.getOrderedPalettes(categoryCount)
+            .map((palette) => palette.shadeDefault)
+            .toList();
+    defaultColorsPalette
+        .add(charts.ColorUtil.fromDartColor(otherCategoryColor));
 
     ChartData chartData = _prepareData(widget.records);
     _preparedData = chartData.data;
@@ -89,7 +93,8 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
         id: 'Expenses'.i18n,
         colorFn: (LinearRecord datum, i) {
           final color = _preparedColors[i!];
-          if (_selectedCategory == null || _selectedCategory == datum.category) {
+          if (_selectedCategory == null ||
+              _selectedCategory == datum.category) {
             return color;
           }
           return color.lighter.lighter;
@@ -107,16 +112,23 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
 
   ChartData _prepareData(List<Record?> records) {
     Map<Category, double> aggregatedCategoriesValuesTemporaryMap = {};
-    double totalSum = 0;
 
+    // Sum each category's raw (signed) values so refunds reduce the net.
     for (var record in records) {
-      totalSum += record!.value!.abs();
       aggregatedCategoriesValuesTemporaryMap.update(
-        record.category!,
-        (value) => value + record.value!.abs(),
-        ifAbsent: () => record.value!.abs(),
+        record!.category!,
+        (value) => value + record.value!,
+        ifAbsent: () => record.value!,
       );
     }
+
+    // Slices are magnitudes: abs of each category's net total.
+    for (final key in aggregatedCategoriesValuesTemporaryMap.keys.toList()) {
+      aggregatedCategoriesValuesTemporaryMap[key] =
+          aggregatedCategoriesValuesTemporaryMap[key]!.abs();
+    }
+    double totalSum = aggregatedCategoriesValuesTemporaryMap.values
+        .fold(0.0, (a, b) => a + b);
 
     bool useCategoriesColor = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
@@ -124,12 +136,11 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
 
     // Step 1: Sort by value descending (ignoring color)
     var aggregatedCategoriesAndValues =
-    aggregatedCategoriesValuesTemporaryMap.entries.toList();
+        aggregatedCategoriesValuesTemporaryMap.entries.toList();
     aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
 
     // Step 2: Apply the limit
-    var limit =
-    aggregatedCategoriesAndValues.length > categoryCount + 1
+    var limit = aggregatedCategoriesAndValues.length > categoryCount + 1
         ? categoryCount
         : aggregatedCategoriesAndValues.length;
 
@@ -141,16 +152,21 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
 
       // Compute sum per color
       for (var entry in topCategoriesAndValue) {
-        int colorKey = getColorSortValue(entry.key.color ?? chartColorForCategoryWithoutBackgroundColor);
-        colorSumMap.update(colorKey, (sum) => sum + entry.value, ifAbsent: () => entry.value);
+        int colorKey = getColorSortValue(
+            entry.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        colorSumMap.update(colorKey, (sum) => sum + entry.value,
+            ifAbsent: () => entry.value);
       }
 
       topCategoriesAndValue.sort((a, b) {
-        int colorA = getColorSortValue(a.key.color ?? chartColorForCategoryWithoutBackgroundColor);
-        int colorB = getColorSortValue(b.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        int colorA = getColorSortValue(
+            a.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+        int colorB = getColorSortValue(
+            b.key.color ?? chartColorForCategoryWithoutBackgroundColor);
 
         // Compare by total sum of the color group (Descending)
-        int totalSumComparison = colorSumMap[colorB]!.compareTo(colorSumMap[colorA]!);
+        int totalSumComparison =
+            colorSumMap[colorB]!.compareTo(colorSumMap[colorA]!);
         if (totalSumComparison != 0) {
           return totalSumComparison;
         }
@@ -174,7 +190,8 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
       var percentage = (100 * categoryAndValue.value) / totalSum;
       var lr = LinearRecord(categoryAndValue.key.name!, percentage);
       data.add(lr);
-      linearRecordsColors.add(categoryAndValue.key.color ?? chartColorForCategoryWithoutBackgroundColor);
+      linearRecordsColors.add(categoryAndValue.key.color ??
+          chartColorForCategoryWithoutBackgroundColor);
     }
 
     // Handle "Others" category
@@ -198,8 +215,9 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
     // Color palette to use
     List<charts.Color> colorsToUse = [];
     if (useCategoriesColor) {
-      colorsToUse =
-          linearRecordsColors.map((f) => charts.ColorUtil.fromDartColor(f)).toList();
+      colorsToUse = linearRecordsColors
+          .map((f) => charts.ColorUtil.fromDartColor(f))
+          .toList();
     } else {
       colorsToUse = defaultColorsPalette;
     }
@@ -223,7 +241,8 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
                   r!.category!.name == categoryName ||
                   (categoryName == "Others".i18n &&
                       !_isTopCategory(r.category!.name!)))
-              .fold(0.0, (double acc, r) => acc + r!.value!.abs());
+              .fold(0.0, (double acc, r) => acc + r!.value!)
+              .abs();
 
           // Get names of top categories (excluding "Others")
           final List<String> topCategoryNames = linearRecords
@@ -252,7 +271,8 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
   bool _isTopCategory(String name) {
     // Helper to determine if a category is among the top displayed ones
     // This is needed for the "Others" calculation logic
-    return linearRecords.any((lr) => lr.category == name && lr.category != "Others".i18n);
+    return linearRecords
+        .any((lr) => lr.category == name && lr.category != "Others".i18n);
   }
 
   Widget _buildPieChart(BuildContext context) {
@@ -288,7 +308,9 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
                 margin: EdgeInsets.fromLTRB(0, 0, 8, 8),
                 padding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.grey.withAlpha(40) : Colors.transparent,
+                  color: isSelected
+                      ? Colors.grey.withAlpha(40)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: new Row(
@@ -315,16 +337,20 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
                               Flexible(
                                 child: Text(linearRecord.category!,
                                     style: TextStyle(
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
-                                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
                               )
                             ],
                           )),
                     ),
                     Text(linearRecord.value.toStringAsFixed(2) + " %",
                         style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         )),
                   ],
                 )),
@@ -336,7 +362,8 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
     // Calculate dynamic height: base 200px + extra height for more than 5 items
     // Each legend item needs roughly 28px (margin + row height)
     double baseHeight = 200;
-    double extraHeightPerItem = linearRecords.length > 5 ? (linearRecords.length - 5) * 28.0 : 0;
+    double extraHeightPerItem =
+        linearRecords.length > 5 ? (linearRecords.length - 5) * 28.0 : 0;
     double cardHeight = baseHeight + extraHeightPerItem;
 
     return Container(

@@ -45,7 +45,8 @@ class ComparisonDataAggregator {
       current = config.advance(current);
     }
 
-    // Aggregate records into periods
+    // Aggregate records into periods using their raw (signed) values, so
+    // refunds/paybacks net out against the category's own totals.
     for (var record in records) {
       if (record == null) continue;
 
@@ -54,11 +55,19 @@ class ComparisonDataAggregator {
 
       if (data.containsKey(key) && !record.isTransfer) {
         if (record.category?.categoryType == CategoryType.expense) {
-          data[key]!.expenses += record.value?.abs() ?? 0;
+          data[key]!.expenses += record.value ?? 0;
         } else {
-          data[key]!.income += record.value?.abs() ?? 0;
+          data[key]!.income += record.value ?? 0;
         }
       }
+    }
+
+    // Convert raw signed sums into positive magnitudes so the chart keeps its
+    // current expense/income look: expenses is always shown as a positive
+    // number, reduced by refunds recorded in expense categories.
+    for (final entry in data.values) {
+      entry.expenses = entry.expenses.abs();
+      entry.income = entry.income.abs();
     }
 
     // Calculate cumulative savings

@@ -431,6 +431,10 @@ Map<int, String?> buildWalletCurrencyMap(List<Wallet> wallets) {
 
 /// Returns a raw per-currency breakdown of record values (unconverted).
 /// Key = ISO currency code (empty string for wallets with no currency).
+///
+/// When [isAbsValue] is true the *total* per currency is made positive
+/// (`abs(sum(raw values))`). Refunds recorded with the opposite sign in a
+/// category naturally reduce its net total before the magnitude is taken.
 Map<String, double> buildCurrencyBreakdown(
   Iterable<Record?> records,
   Map<int, String?> walletCurrencyMap, {
@@ -440,8 +444,12 @@ Map<String, double> buildCurrencyBreakdown(
   for (final r in records.where((r) => r != null).cast<Record>()) {
     final currency =
         (r.walletId != null ? walletCurrencyMap[r.walletId] : null) ?? '';
-    final val = isAbsValue ? r.value!.abs() : r.value!;
-    breakdown[currency] = (breakdown[currency] ?? 0.0) + val;
+    breakdown[currency] = (breakdown[currency] ?? 0.0) + r.value!;
+  }
+  if (isAbsValue) {
+    for (final currency in breakdown.keys.toList()) {
+      breakdown[currency] = breakdown[currency]!.abs();
+    }
   }
   return breakdown;
 }
@@ -466,7 +474,9 @@ class RecordsTotalResult {
 /// when multiple wallet currencies are involved.
 ///
 /// [walletCurrencyMap]: maps wallet ID → currency ISO code.
-/// [isAbsValue]: if true, use the absolute value of each record (for expense/income totals).
+/// [isAbsValue]: if true, the *total* is made positive (`abs(sum(raw values))`)
+/// rather than taking the absolute value of each record. Refunds recorded with
+/// the opposite sign in a category reduce the net total before the magnitude.
 RecordsTotalResult computeConvertedTotal(
   Iterable<Record?> records,
   Map<int, String?> walletCurrencyMap, {
@@ -488,8 +498,8 @@ RecordsTotalResult computeConvertedTotal(
   final defaultCurrency = getDefaultCurrency();
 
   if (uniqueCurrencies.isEmpty) {
-    final total = nonNull.fold<double>(
-        0.0, (sum, r) => sum + (isAbsValue ? r.value!.abs() : r.value!));
+    var total = nonNull.fold<double>(0.0, (sum, r) => sum + r.value!);
+    if (isAbsValue) total = total.abs();
     // If a default currency is set, treat no-currency records as being in that currency
     final currency = (defaultCurrency != null && defaultCurrency.isNotEmpty)
         ? defaultCurrency
@@ -503,35 +513,39 @@ RecordsTotalResult computeConvertedTotal(
     if (defaultCurrency != null && defaultCurrency != walletCurrency) {
       final entries = nonNull.map((r) => _CurrencyAmount(
             r.walletId != null ? walletCurrencyMap[r.walletId] : null,
-            isAbsValue ? r.value!.abs() : r.value!,
+            r.value!,
           ));
-      final total = _convertAmountsToDefaultCurrency(
+      var total = _convertAmountsToDefaultCurrency(
           entries, defaultCurrency, getConversionRates());
+      if (isAbsValue) total = total.abs();
       return RecordsTotalResult(total, defaultCurrency);
     }
-    final total = nonNull.fold<double>(
-        0.0, (sum, r) => sum + (isAbsValue ? r.value!.abs() : r.value!));
+    var total = nonNull.fold<double>(0.0, (sum, r) => sum + r.value!);
+    if (isAbsValue) total = total.abs();
     return RecordsTotalResult(total, walletCurrency);
   }
 
   if (defaultCurrency == null) {
     // Multiple currencies but no default set — return null currency
-    final total = nonNull.fold<double>(
-        0.0, (sum, r) => sum + (isAbsValue ? r.value!.abs() : r.value!));
+    var total = nonNull.fold<double>(0.0, (sum, r) => sum + r.value!);
+    if (isAbsValue) total = total.abs();
     return RecordsTotalResult(total, null);
   }
   final entries = nonNull.map((r) => _CurrencyAmount(
         r.walletId != null ? walletCurrencyMap[r.walletId] : null,
-        isAbsValue ? r.value!.abs() : r.value!,
+        r.value!,
       ));
-  final total = _convertAmountsToDefaultCurrency(
+  var total = _convertAmountsToDefaultCurrency(
       entries, defaultCurrency, getConversionRates());
+  if (isAbsValue) total = total.abs();
   return RecordsTotalResult(total, defaultCurrency);
 }
 
 /// Computes the total of [records] expressed in [targetCurrency],
 /// converting each record's value from its wallet currency as needed.
 /// Falls back to raw sum if no conversion rate is available for a record.
+/// When [isAbsValue] is true, the *total* is made positive
+/// (`abs(sum(raw values))`).
 RecordsTotalResult computeTotalInCurrency(
   Iterable<Record?> records,
   Map<int, String?> walletCurrencyMap,
@@ -543,10 +557,11 @@ RecordsTotalResult computeTotalInCurrency(
 
   final entries = nonNull.map((r) => _CurrencyAmount(
         r.walletId != null ? walletCurrencyMap[r.walletId] : null,
-        isAbsValue ? r.value!.abs() : r.value!,
+        r.value!,
       ));
-  final total = _convertAmountsToDefaultCurrency(
+  var total = _convertAmountsToDefaultCurrency(
       entries, targetCurrency, getConversionRates());
+  if (isAbsValue) total = total.abs();
   return RecordsTotalResult(total, targetCurrency);
 }
 

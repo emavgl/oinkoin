@@ -19,7 +19,8 @@ class StatisticsCalculator {
   /// - [from]: Start date of the range
   /// - [to]: End date of the range
   /// - [isBalance]: If true, preserves sign (income positive, expense negative).
-  ///                If false, uses absolute values.
+  ///                If false, the magnitude of the raw sum is used
+  ///                (`abs(sum(raw values))`), so refunds net out correctly.
   static double calculateDailyAverage(
     List<Record?> records,
     DateTime? from,
@@ -32,11 +33,10 @@ class StatisticsCalculator {
     double total = 0.0;
     for (var record in records) {
       if (record == null) continue;
-      double value = record.value!;
-      if (!isBalance) {
-        value = value.abs();
-      }
-      total += value;
+      total += record.value!;
+    }
+    if (!isBalance) {
+      total = total.abs();
     }
 
     // Divide by number of days
@@ -54,7 +54,7 @@ class StatisticsCalculator {
   /// - [from]: Start date of the range
   /// - [to]: End date of the range
   /// - [isBalance]: If true, preserves sign (income positive, expense negative).
-  ///                If false, uses absolute values.
+  ///                If false, the magnitude of each day's raw sum is used.
   static double calculateDailyMedian(
     List<Record?> records,
     DateTime? from,
@@ -73,7 +73,10 @@ class StatisticsCalculator {
     );
 
     // Filter out zero values
-    final nonZeroValues = dailyValues.where((v) => v != 0.0).toList();
+    final nonZeroValues = dailyValues
+        .where((v) => v != 0.0)
+        .map((v) => isBalance ? v : v.abs())
+        .toList();
 
     if (nonZeroValues.isEmpty) return 0.0;
 
@@ -98,7 +101,7 @@ class StatisticsCalculator {
   /// - [from]: Start date of the range
   /// - [to]: End date of the range
   /// - [isBalance]: If true, preserves sign (income positive, expense negative).
-  ///                If false, uses absolute values.
+  ///                If false, the magnitude of the raw sum is used.
   static double calculateAverage(
     List<Record?> records,
     AggregationMethod? aggregationMethod,
@@ -117,6 +120,7 @@ class StatisticsCalculator {
     if (values.isEmpty) return 0.0;
 
     final sum = values.fold<double>(0.0, (acc, v) => acc + v);
+    if (!isBalance) return sum.abs() / values.length;
     return sum / values.length;
   }
 
@@ -132,7 +136,7 @@ class StatisticsCalculator {
   /// - [from]: Start date of the range
   /// - [to]: End date of the range
   /// - [isBalance]: If true, preserves sign (income positive, expense negative).
-  ///                If false, uses absolute values.
+  ///                If false, the magnitude of each period's raw sum is used.
   static double calculateMedian(
     List<Record?> records,
     AggregationMethod? aggregationMethod,
@@ -149,7 +153,10 @@ class StatisticsCalculator {
     );
 
     // Filter out zero values for more meaningful median
-    final nonZeroValues = values.where((v) => v != 0.0).toList();
+    final nonZeroValues = values
+        .where((v) => v != 0.0)
+        .map((v) => isBalance ? v : v.abs())
+        .toList();
 
     if (nonZeroValues.isEmpty) return 0.0;
 
@@ -164,9 +171,13 @@ class StatisticsCalculator {
     }
   }
 
-  /// Groups records by aggregation period and sums values for each period.
+  /// Groups records by aggregation period and sums their raw (signed) values
+  /// for each period.
   ///
   /// Returns a list of period totals. Empty periods are included with value 0.
+  /// The [isBalance] flag is passed through for the median helpers to decide
+  /// whether to preserve signs (balance) or take magnitudes of each period
+  /// total.
   static List<double> _getPeriodValues(
     List<Record?> records,
     AggregationMethod? aggregationMethod,
@@ -186,14 +197,7 @@ class StatisticsCalculator {
 
       final period = truncateDateTime(record.dateTime, aggregationMethod);
       final key = dateKey(period);
-      double value = record.value!;
-
-      if (!isBalance) {
-        // For non-balance mode, use absolute value
-        value = value.abs();
-      }
-
-      periodSums[key] = (periodSums[key] ?? 0.0) + value;
+      periodSums[key] = (periodSums[key] ?? 0.0) + record.value!;
     }
 
     // Include empty periods (0 value) for complete range

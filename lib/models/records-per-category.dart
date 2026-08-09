@@ -1,3 +1,4 @@
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 
@@ -13,18 +14,26 @@ class RecordsPerCategory {
     }
   }
 
+  /// Net total of records whose category type is expense. Records are stored
+  /// with their sign, so a refund (+10) in an expense category reduces the net.
   double get expenses {
     double total = 0;
     for (var movement in this.records!) {
-      if (movement.value! < 0) total += movement.value!;
+      if (movement.category?.categoryType == CategoryType.expense) {
+        total += movement.value!;
+      }
     }
     return total;
   }
 
+  /// Net total of records whose category type is income. A payback (-100) in
+  /// an income category reduces the net.
   double get income {
     double total = 0;
     for (var movement in this.records!) {
-      if (movement.value! > 0) total += movement.value!;
+      if (movement.category?.categoryType == CategoryType.income) {
+        total += movement.value!;
+      }
     }
     return total;
   }

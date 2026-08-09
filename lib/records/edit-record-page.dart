@@ -150,7 +150,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         _hasTime = true;
         _selectedTime = TimeOfDay(hour: localDT.hour, minute: localDT.minute);
       }
-      final v = record!.value!.abs();
+      final v = record!.value!;
       _textEditingController.text = v % 1 == 0
           ? v.toInt().toString()
           : v.toString().replaceAll('.', getDecimalSeparator());
@@ -199,7 +199,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         _selectedTime = TimeOfDay(hour: localDT.hour, minute: localDT.minute);
       }
 
-      final v = record!.value!.abs();
+      final v = record!.value!;
       _textEditingController.text = v % 1 == 0
           ? v.toInt().toString()
           : v.toString().replaceAll('.', getDecimalSeparator());
@@ -407,8 +407,8 @@ class EditRecordPageState extends State<EditRecordPage> {
         if (selectedCategory != null) {
           setState(() {
             record!.category = selectedCategory;
-            changeRecordValue(_textEditingController.text
-                .toLowerCase()); // Handle sign change
+            // The value sign is user-controlled (refunds/paybacks are allowed),
+            // so switching category type no longer rewrites the amount.
             // Transfers only apply to expenses; clear destination if switching to income
             if (selectedCategory.categoryType == CategoryType.income) {
               _selectedDestinationWallet = null;
@@ -1028,7 +1028,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                     controller: _textEditingController,
                     labelText: "Amount".i18n,
                     enabled: !readOnly,
-                    allowNegative: false,
+                    allowNegative: true,
                     autofocus: shouldAutofocus,
                     onChanged: changeRecordValue,
                     currencyCode: _selectedWallet?.currency,
@@ -1043,12 +1043,8 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   void changeRecordValue(String text) {
-    var numericValue = tryParseCurrencyString(text);
+    var numericValue = tryParseSignedCurrencyString(text);
     if (numericValue != null) {
-      numericValue = numericValue.abs();
-      if (record!.category!.categoryType == CategoryType.expense) {
-        numericValue = numericValue * -1;
-      }
       record!.value = numericValue;
     }
   }

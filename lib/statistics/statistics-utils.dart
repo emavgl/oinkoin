@@ -122,6 +122,11 @@ DateTime truncateDateTime(
   return newDateTime;
 }
 
+/// Aggregates records into period totals of their *raw* (signed) values.
+///
+/// Refunds/paybacks recorded with the opposite sign in a category therefore
+/// reduce the period net. Callers that display magnitudes (charts) apply
+/// `abs()` to the aggregated total, not per record.
 List<DateTimeSeriesRecord> aggregateRecordsByDate(
     List<Record?> records, AggregationMethod? aggregationMethod,
     {bool useTagWeight = false}) {
@@ -131,7 +136,7 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
   Map<DateTime?, DateTimeSeriesRecord> aggregatedByDay = {};
   for (var record in records) {
     DateTime? dateTime = truncateDateTime(record!.dateTime, aggregationMethod);
-    double valueToAdd = record.value!.abs();
+    double valueToAdd = record.value!;
     if (useTagWeight) {
       valueToAdd *= record.tags.length;
     }
