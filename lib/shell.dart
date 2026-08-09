@@ -6,6 +6,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:piggybank/helpers/amount-input-utils.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/records-page.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/settings-page.dart';
@@ -23,6 +24,7 @@ class Shell extends StatefulWidget {
 class ShellState extends State<Shell> {
   /// Singleton-like access for external refresh calls (e.g., quick actions).
   static ShellState? _instance;
+
   /// Returns the current ShellState instance, if mounted.
   static ShellState? get instance => _instance;
 
@@ -83,6 +85,75 @@ class ShellState extends State<Shell> {
   /// Refreshes the home tab's records list (e.g., after a quick action added a record).
   void refreshHomeTab() {
     _tabRecordsKey.currentState?.onTabChange();
+  }
+
+  /// Maps a logical tab index to the visual NavigationBar index, accounting
+  /// for the Wallets tab being hidden when wallets are disabled.
+  int _visualIndex(int logicalIndex, bool walletsEnabled) {
+    if (walletsEnabled) return logicalIndex;
+    if (logicalIndex == 0) return 0;
+    return logicalIndex - 1;
+  }
+
+  /// Maps a visual NavigationBar index to the logical tab index.
+  int _logicalIndex(int visualIndex, bool walletsEnabled) {
+    if (walletsEnabled) return visualIndex;
+    if (visualIndex == 0) return 0;
+    return visualIndex + 1;
+  }
+
+  List<Widget> _buildDestinations(bool walletsEnabled) {
+    final destinations = <Widget>[
+      NavigationDestination(
+        label: "Home".i18n,
+        selectedIcon: Semantics(
+          identifier: 'home-tab-selected',
+          child: Icon(Icons.home),
+        ),
+        icon: Semantics(
+          identifier: 'home-tab',
+          child: Icon(Icons.home_outlined),
+        ),
+      ),
+    ];
+    if (walletsEnabled) {
+      destinations.add(NavigationDestination(
+        label: "Wallets".i18n,
+        selectedIcon: Semantics(
+          identifier: 'wallets-tab-selected',
+          child: Icon(Icons.account_balance_wallet),
+        ),
+        icon: Semantics(
+          identifier: 'wallets-tab',
+          child: Icon(Icons.account_balance_wallet_outlined),
+        ),
+      ));
+    }
+    destinations.addAll([
+      NavigationDestination(
+        label: "Categories".i18n,
+        selectedIcon: Semantics(
+          identifier: 'categories-tab-selected',
+          child: Icon(Icons.category),
+        ),
+        icon: Semantics(
+          identifier: 'categories-tab',
+          child: Icon(Icons.category_outlined),
+        ),
+      ),
+      NavigationDestination(
+        label: "Settings".i18n,
+        selectedIcon: Semantics(
+          identifier: 'settings-tab-selected',
+          child: Icon(Icons.settings),
+        ),
+        icon: Semantics(
+          identifier: 'settings-tab',
+          child: Icon(Icons.settings_outlined),
+        ),
+      ),
+    ]);
+    return destinations;
   }
 
   @override
@@ -240,81 +311,48 @@ class ShellState extends State<Shell> {
           ),
         ]),
         bottomNavigationBar: ValueListenableBuilder<bool>(
-          valueListenable: inAppKeyboardOpen,
-          builder: (context, isOpen, child) => AnimatedSize(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOut,
-            // Collapse the nav bar but keep a spacer equal to the system
-            // navigation bar inset so the Scaffold body never extends behind it.
-            child: isOpen
-                ? SizedBox(height: MediaQuery.paddingOf(context).bottom)
-                : child!,
-          ),
-          child: NavigationBar(
-            selectedIndex: _currentIndex,
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            onDestinationSelected: (int index) async {
-              setState(() {
-                _currentIndex = index;
+          valueListenable: ServiceConfig.walletsEnabledNotifier,
+          builder: (context, walletsEnabled, _) {
+            // Defensively reset to the Home tab if the currently selected
+            // tab (Wallets) no longer exists.
+            if (!walletsEnabled && _currentIndex == 1) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) setState(() => _currentIndex = 0);
               });
-              // refresh data whenever changing the tab
-              if (_currentIndex == 0) {
-                await _tabRecordsKey.currentState?.onTabChange();
-              }
-              if (_currentIndex == 1) {
-                await _tabWalletsKey.currentState?.onTabChange();
-              }
-              if (_currentIndex == 2) {
-                await _tabCategoriesKey.currentState?.onTabChange();
-              }
-            },
-            destinations: [
-              NavigationDestination(
-                label: "Home".i18n,
-                selectedIcon: Semantics(
-                  identifier: 'home-tab-selected',
-                  child: Icon(Icons.home),
-                ),
-                icon: Semantics(
-                  identifier: 'home-tab',
-                  child: Icon(Icons.home_outlined),
-                ),
+            }
+            return ValueListenableBuilder<bool>(
+              valueListenable: inAppKeyboardOpen,
+              builder: (context, isOpen, child) => AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOut,
+                // Collapse the nav bar but keep a spacer equal to the system
+                // navigation bar inset so the Scaffold body never extends behind it.
+                child: isOpen
+                    ? SizedBox(height: MediaQuery.paddingOf(context).bottom)
+                    : child!,
               ),
-              NavigationDestination(
-                label: "Wallets".i18n,
-                selectedIcon: Semantics(
-                  identifier: 'wallets-tab-selected',
-                  child: Icon(Icons.account_balance_wallet),
-                ),
-                icon: Semantics(
-                  identifier: 'wallets-tab',
-                  child: Icon(Icons.account_balance_wallet_outlined),
-                ),
+              child: NavigationBar(
+                selectedIndex: _visualIndex(_currentIndex, walletsEnabled),
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                onDestinationSelected: (int visualIndex) async {
+                  setState(() {
+                    _currentIndex = _logicalIndex(visualIndex, walletsEnabled);
+                  });
+                  // refresh data whenever changing the tab
+                  if (_currentIndex == 0) {
+                    await _tabRecordsKey.currentState?.onTabChange();
+                  }
+                  if (_currentIndex == 1) {
+                    await _tabWalletsKey.currentState?.onTabChange();
+                  }
+                  if (_currentIndex == 2) {
+                    await _tabCategoriesKey.currentState?.onTabChange();
+                  }
+                },
+                destinations: _buildDestinations(walletsEnabled),
               ),
-              NavigationDestination(
-                label: "Categories".i18n,
-                selectedIcon: Semantics(
-                  identifier: 'categories-tab-selected',
-                  child: Icon(Icons.category),
-                ),
-                icon: Semantics(
-                  identifier: 'categories-tab',
-                  child: Icon(Icons.category_outlined),
-                ),
-              ),
-              NavigationDestination(
-                label: "Settings".i18n,
-                selectedIcon: Semantics(
-                  identifier: 'settings-tab-selected',
-                  child: Icon(Icons.settings),
-                ),
-                icon: Semantics(
-                  identifier: 'settings-tab',
-                  child: Icon(Icons.settings_outlined),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

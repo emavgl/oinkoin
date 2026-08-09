@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'database/database-interface.dart';
 import 'database/sqlite-database.dart';
+import '../settings/constants/preferences-keys.dart';
 
 class ServiceConfig {
   /// ServiceConfig is a class that contains all the services
@@ -27,6 +26,23 @@ class ServiceConfig {
   /// count. Populated lazily by [formatCurrencyAmount], cleared whenever the
   /// global format is invalidated.
   static final Map<int, NumberFormat> perCurrencyNumberFormatCache = {};
+
+  /// Notifies consumers (e.g. the shell bottom navigation) when the
+  /// "Use wallets" preference changes, so wallet UI can appear/disappear
+  /// without an app restart.
+  static final ValueNotifier<bool> walletsEnabledNotifier = ValueNotifier(true);
+
+  static bool get walletsEnabled =>
+      sharedPreferences?.getBool(PreferencesKeys.walletsEnabled) ?? true;
+
+  static bool get showWalletBarOnHomepage =>
+      sharedPreferences?.getBool(PreferencesKeys.showWalletBarOnHomepage) ??
+      true;
+
+  static void setWalletsEnabled(bool value) {
+    sharedPreferences?.setBool(PreferencesKeys.walletsEnabled, value);
+    walletsEnabledNotifier.value = value;
+  }
 
   static void togglePremium() {
     isPremium = !isPremium;

@@ -61,6 +61,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     await fetchStatisticsPreferences();
     await fetchHomepagePreferences();
     await fetchCurrencyPreferences();
+    await fetchWalletPreferences();
   }
 
   // All fetch preferences methods
@@ -182,6 +183,14 @@ class CustomizationPageState extends State<CustomizationPage> {
         prefs, PreferencesKeys.showCurrencySymbol)!;
   }
 
+  Future<void> fetchWalletPreferences() async {
+    int walletBalanceModeValue = PreferencesUtils.getOrDefault<int>(
+        prefs, PreferencesKeys.walletBalanceMode)!;
+
+    walletBalanceModeDropdownKey = getKeyFromObject<int>(
+        PreferencesOptions.walletBalanceMode, walletBalanceModeValue);
+  }
+
   Future<void> fetchHomepagePreferences() async {
     // Homepage time interval
     var userDefinedHomepageIntervalEnumIndex =
@@ -282,6 +291,9 @@ class CustomizationPageState extends State<CustomizationPage> {
   late bool statisticsPieChartUseCategoryColors;
   late String statisticsPieChartNumberOfCategoriesToDisplay;
 
+  // Wallets
+  late String walletBalanceModeDropdownKey;
+
   static void invalidateNumberPatternCache() {
     ServiceConfig.currencyNumberFormat = null;
     ServiceConfig.currencyNumberFormatWithoutGrouping = null;
@@ -362,8 +374,7 @@ class CustomizationPageState extends State<CustomizationPage> {
                     ),
                     SwitchCustomizationItem(
                       title: "Colorize income and expenses".i18n,
-                      subtitle:
-                          "Show income in green and expenses in red".i18n,
+                      subtitle: "Show income in green and expenses in red".i18n,
                       switchValue: PreferencesUtils.getOrDefault<bool>(
                           prefs, PreferencesKeys.colorizeAmounts)!,
                       sharedConfigKey: PreferencesKeys.colorizeAmounts,
@@ -544,6 +555,46 @@ class CustomizationPageState extends State<CustomizationPage> {
                       switchValue: PreferencesUtils.getOrDefault<bool>(
                           prefs, PreferencesKeys.showFutureRecords)!,
                       sharedConfigKey: PreferencesKeys.showFutureRecords,
+                    ),
+                    SettingSeparator(title: "Wallets".i18n),
+                    SwitchCustomizationItem(
+                      title: "Use wallets".i18n,
+                      subtitle:
+                          "Show wallets and their balances across the app".i18n,
+                      switchValue: ServiceConfig.walletsEnabled,
+                      onChanged: (value) =>
+                          ServiceConfig.setWalletsEnabled(value),
+                      sharedConfigKey: PreferencesKeys.walletsEnabled,
+                    ),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: ServiceConfig.walletsEnabledNotifier,
+                      builder: (context, walletsEnabled, _) => Column(
+                        children: [
+                          DropdownCustomizationItem<int>(
+                            title: "Wallet balance".i18n,
+                            subtitle:
+                                "Select how wallet balances are calculated"
+                                    .i18n,
+                            dropdownValues:
+                                PreferencesOptions.walletBalanceMode,
+                            selectedDropdownKey: walletBalanceModeDropdownKey,
+                            sharedConfigKey: PreferencesKeys.walletBalanceMode,
+                            enabled: walletsEnabled,
+                          ),
+                          SwitchCustomizationItem(
+                            title: "Show wallet bar on the homepage".i18n,
+                            subtitle:
+                                "Display the wallet summary bar below the homepage banner"
+                                    .i18n,
+                            switchValue: PreferencesUtils.getOrDefault<bool>(
+                                prefs,
+                                PreferencesKeys.showWalletBarOnHomepage)!,
+                            sharedConfigKey:
+                                PreferencesKeys.showWalletBarOnHomepage,
+                            enabled: walletsEnabled,
+                          ),
+                        ],
+                      ),
                     ),
                     SettingSeparator(title: "Statistics".i18n),
                     DropdownCustomizationItem(

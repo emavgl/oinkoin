@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/utils/constants.dart';
@@ -273,7 +272,8 @@ class TabRecordsController {
     if (words.isEmpty || queryTerms.isEmpty) return false;
 
     // All query terms must match at least one word (AND logic)
-    return queryTerms.every((term) => words.any((word) => word.startsWith(term)));
+    return queryTerms
+        .every((term) => words.any((word) => word.startsWith(term)));
   }
 
   // Data fetching
@@ -307,14 +307,23 @@ class TabRecordsController {
       header = getHeaderFromHomepageTimeInterval(hti);
     }
 
-    // If the viewed period has already fully elapsed, wallet balances should
-    // reflect their value as of the end of that period rather than the live
-    // total (see _loadWallets).
-    _balanceAsOfDate =
-        isPastPeriodEnd(intervalTo, DateTime.now()) ? intervalTo : null;
+    // Wallet balance display mode preference:
+    //   - 0 ("Always the latest value", default): never snapshot. Wallet
+    //     balances always show the live total, even for past periods.
+    //   - 1 ("Value at the end of the time interval"): past periods show a
+    //     point-in-time snapshot as of the end of the period (see _loadWallets).
+    final prefs = await SharedPreferences.getInstance();
+    final walletBalanceMode = PreferencesUtils.getOrDefault<int>(
+            prefs, PreferencesKeys.walletBalanceMode) ??
+        0;
+    if (walletBalanceMode == 1) {
+      _balanceAsOfDate =
+          isPastPeriodEnd(intervalTo, DateTime.now()) ? intervalTo : null;
+    } else {
+      _balanceAsOfDate = null;
+    }
 
     // Check if future records should be shown
-    final prefs = await SharedPreferences.getInstance();
     final showFutureRecords = PreferencesUtils.getOrDefault<bool>(
             prefs, PreferencesKeys.showFutureRecords) ??
         true;
@@ -405,11 +414,14 @@ class TabRecordsController {
       // that fall within the overview interval, keeping the wallet balance
       // consistent with the income/expenses displayed in the summary card.
       if (showFutureRecords && futureRecords.isNotEmpty) {
-        final fromDate = DateTime(overviewFrom.year, overviewFrom.month, overviewFrom.day);
-        final toDate = DateTime(overviewTo.year, overviewTo.month, overviewTo.day);
+        final fromDate =
+            DateTime(overviewFrom.year, overviewFrom.month, overviewFrom.day);
+        final toDate =
+            DateTime(overviewTo.year, overviewTo.month, overviewTo.day);
         final matchingFuture = futureRecords.where((record) {
           final recordLocal = record.dateTime;
-          final recordDate = DateTime(recordLocal.year, recordLocal.month, recordLocal.day);
+          final recordDate =
+              DateTime(recordLocal.year, recordLocal.month, recordLocal.day);
           return !recordDate.isBefore(fromDate) && !recordDate.isAfter(toDate);
         }).toList();
         overviewRecords = [...overviewDbRecords, ...matchingFuture];
@@ -450,6 +462,16 @@ class TabRecordsController {
   }
 
   Future<void> _loadWallets() async {
+    if (!ServiceConfig.walletsEnabled) {
+      // Wallets feature is disabled: clear wallet state so the homepage shows
+      // no wallet-related UI and no wallet-based record filtering.
+      allWallets = [];
+      selectedWallets = [];
+      _walletPrefsLoaded = false;
+      onStateChanged();
+      return;
+    }
+
     final wallets = await _database.getAllWallets(
         profileId: ProfileService.instance.activeProfileId);
     allWallets = wallets.where((w) => !w.isArchived).toList();
@@ -482,7 +504,8 @@ class TabRecordsController {
       // Apply future record adjustments to wallet balances
       for (final wallet in allWallets) {
         if (wallet.id != null && futureSumByWallet.containsKey(wallet.id)) {
-          wallet.balance = (wallet.balance ?? 0.0) + futureSumByWallet[wallet.id]!;
+          wallet.balance =
+              (wallet.balance ?? 0.0) + futureSumByWallet[wallet.id]!;
         }
       }
     }

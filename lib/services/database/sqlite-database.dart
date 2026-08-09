@@ -770,6 +770,9 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<List<Wallet>> getWalletsBalanceAsOf(DateTime asOfDate,
       {int? profileId}) async {
+    // Accepted limitation (approach 1 of #391): initial_amount is applied
+    // uniformly to every snapshot, matching the semantics the live balance
+    // already has today. No schema change.
     final db = (await database)!;
     final asOfUnix = asOfDate.toUtc().millisecondsSinceEpoch;
     final maps = await db.rawQuery(

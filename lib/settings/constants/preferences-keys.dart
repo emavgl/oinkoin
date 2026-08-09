@@ -55,6 +55,9 @@ class PreferencesKeys {
 
   // Wallets
   static const walletListSortOption = 'defaultWalletListSortOption';
+  static const walletsEnabled = 'walletsEnabled';
+  static const walletBalanceMode = 'walletBalanceMode';
+  static const showWalletBarOnHomepage = 'showWalletBarOnHomepage';
 
   // Statistics
   static var statisticsPieChartUseCategoryColors =
@@ -80,7 +83,8 @@ class PreferencesKeys {
 
   // InApp keyboard appearance
   static const inAppKeyboardScale = 'inAppKeyboardScale';
-  static const inAppKeyboardBackgroundColorIndex = 'inAppKeyboardBackgroundColorIndex';
+  static const inAppKeyboardBackgroundColorIndex =
+      'inAppKeyboardBackgroundColorIndex';
   static const inAppKeyboardButtonColorIndex = 'inAppKeyboardButtonColorIndex';
   static const inAppKeyboardTextColorIndex = 'inAppKeyboardTextColorIndex';
 }

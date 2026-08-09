@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-07-07",
-    "total_keys": 497
+    "last_updated": "2026-08-09",
+    "total_keys": 505
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -310,6 +310,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Always the latest value": {
+      "key": "Always the latest value",
+      "context": "Wallet balance mode dropdown option",
+      "file": "lib/settings/constants/preferences-options.dart:184",
+      "page": "Settings > Wallets",
+      "component": "walletBalanceMode dropdown option",
+      "meaning": "Show the wallet's current/live balance regardless of the period being viewed",
+      "notes": "Default option. Pairs with 'Value at the end of the time interval'.",
+      "status": "verified"
     },
     "Amount": {
       "key": "Amount",
@@ -1440,6 +1450,16 @@
       "component": "Switch tile subtitle",
       "meaning": "When enabled, currency symbol is shown alongside monetary amounts",
       "notes": "Descriptive text under 'Show currency symbol' toggle",
+      "status": "verified"
+    },
+    "Display the wallet summary bar below the homepage banner": {
+      "key": "Display the wallet summary bar below the homepage banner",
+      "context": "Homepage wallet bar visibility switch subtitle",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Wallets",
+      "component": "switch subtitle",
+      "meaning": "Help text under 'Show wallet bar on the homepage' describing where the bar appears",
+      "notes": "",
       "status": "verified"
     },
     "Displayed records": {
@@ -3685,6 +3705,16 @@
       "notes": "Paired with 'Deselect all' - button shows current opposite action",
       "status": "verified"
     },
+    "Select how wallet balances are calculated": {
+      "key": "Select how wallet balances are calculated",
+      "context": "Wallet settings dropdown subtitle",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Wallets",
+      "component": "dropdown subtitle",
+      "meaning": "Help text under the 'Wallet balance' dropdown explaining what it does",
+      "notes": "",
+      "status": "verified"
+    },
     "Select the app language": {
       "key": "Select the app language",
       "context": null,
@@ -4103,6 +4133,26 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Show wallet bar on the homepage": {
+      "key": "Show wallet bar on the homepage",
+      "context": "Homepage wallet bar visibility switch title",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Wallets",
+      "component": "switch title",
+      "meaning": "Toggle that shows/hides the wallet summary (accounts) bar below the homepage banner",
+      "notes": "Only affects the wallet row; the Income/Expenses/Balance stats are always shown.",
+      "status": "verified"
+    },
+    "Show wallets and their balances across the app": {
+      "key": "Show wallets and their balances across the app",
+      "context": "Master wallets feature switch subtitle",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Wallets",
+      "component": "switch subtitle",
+      "meaning": "Help text under 'Use wallets' describing what enabling wallets does",
+      "notes": "",
+      "status": "verified"
     },
     "Shows records per": {
       "key": "Shows records per",
@@ -4597,6 +4647,16 @@
       "notes": "Keep the %s placeholder intact; it is filled with a number via .fill().",
       "status": "verified"
     },
+    "Use wallets": {
+      "key": "Use wallets",
+      "context": "Master wallets feature switch title",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Wallets",
+      "component": "switch title",
+      "meaning": "Master switch that enables/disables the wallets feature across the app",
+      "notes": "When off, all wallet UI is hidden (bottom nav tab, edit-record wallet row, homepage wallet bar, etc.).",
+      "status": "verified"
+    },
     "Used by": {
       "key": "Used by",
       "context": null,
@@ -4606,6 +4666,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Value at the end of the time interval": {
+      "key": "Value at the end of the time interval",
+      "context": "Wallet balance mode dropdown option",
+      "file": "lib/settings/constants/preferences-options.dart:185",
+      "page": "Settings > Wallets",
+      "component": "walletBalanceMode dropdown option",
+      "meaning": "For a fully elapsed period, show the wallet balance as it was at the end of that period (point-in-time snapshot)",
+      "notes": "Pairs with 'Always the latest value'.",
+      "status": "verified"
     },
     "View or delete recurrent records": {
       "key": "View or delete recurrent records",
@@ -4656,6 +4726,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Wallet balance": {
+      "key": "Wallet balance",
+      "context": "Wallet settings dropdown title",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Wallets",
+      "component": "dropdown title",
+      "meaning": "Label for the setting that picks how wallet balances are calculated",
+      "notes": "Short label heading the balance-mode dropdown.",
+      "status": "verified"
     },
     "Wallet name": {
       "key": "Wallet name",
