@@ -15,7 +15,7 @@ posts = posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.dat
       <ul class="divide-y divide-gray-200">
         {posts.map((post) => (
           <li class="py-6">
-            <a href={`/blog/${post.slug}`} class="block group">
+            <a href={`/blog/${post.id}`} class="block group">
               <h2 class="text-xl font-semibold text-gray-900 group-hover:text-gray-700 mb-1 transition-colors">
                 {post.data.title}
               </h2>
