@@ -73,10 +73,12 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     shutil.copy(changelog_file, changelog_destination)
     print(f'Copied changelog to {changelog_destination}')
 
-    # Copy the changelog file to the specified location (for Github action)
-    changelog_destination = os.path.join('metadata/en-US', 'whatsnew-en-US')
-    shutil.copy(changelog_file, changelog_destination)
-    print(f'Copied changelog to {changelog_destination}')
+    # Copy the changelog file to the specified location (for Google Play whatsnew)
+    whatsnew_destination_dir = 'distribution/whatsnew'
+    os.makedirs(whatsnew_destination_dir, exist_ok=True)
+    whatsnew_destination = os.path.join(whatsnew_destination_dir, 'whatsnew-en-US')
+    shutil.copy(changelog_file, whatsnew_destination)
+    print(f'Copied changelog to {whatsnew_destination}')
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
