@@ -2,7 +2,7 @@ name: Build for Android and Linux
 
 on:
   release:
-    types: [prereleased]
+    types: [released]
 
 jobs:
   validate-build:

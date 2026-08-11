@@ -1,12 +1,12 @@
 ---
 name: new-release
-description: Creates a GitHub pre-release for Oinkoin with a tag, release name, and a one-line changelog summary. Use when the user wants to ship a new version.
+description: Creates a GitHub release for Oinkoin with a tag, release name, and a one-line changelog summary. Use when the user wants to ship a new version.
 argument-hint: "<version>"
 ---
 
 # Skill: new-release
 
-Create a pre-release on GitHub for the given version.
+Create a release on GitHub for the given version.
 
 ## Usage
 ```
@@ -45,7 +45,7 @@ From the commit list, propose a single-line summary of the user-facing changes. 
 - Write in plain English, present tense ("Add X", "Fix Y", "Improve Z")
 - Show the draft to the user and **ask for approval or edits** before creating the release
 
-### Step 5 — Create the tag and pre-release
+### Step 5 — Create the tag and release
 
 Once the user approves the changelog:
 
@@ -54,11 +54,10 @@ Once the user approves the changelog:
 git tag <version>
 git push origin <version>
 
-# Create the pre-release
+# Create the release
 gh release create <version> \
   --title "<version>" \
-  --notes "<approved bullet points>" \
-  --prerelease
+  --notes "<approved bullet points>"
 ```
 
 ### Step 6 — Confirm
