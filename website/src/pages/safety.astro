@@ -22,5 +22,22 @@ const description = "How to spot scams and verify official Oinkoin channels.";
 
     <h2 class="font-semibold mt-6 mb-2">Report Scams</h2>
     <p class="text-sm text-gray-700">If you encounter a scam impersonating Oinkoin, please report it on GitHub or contact the platform where it appeared (e.g., social networks, app stores). Include screenshots and links when possible.</p>
+
+    <h2 class="font-semibold mt-6 mb-2">Verify the APK</h2>
+    <p class="text-sm text-gray-700 mb-3">The APKs published on the <a href="https://github.com/emavgl/oinkoin/releases" target="_blank" class="text-blue-600 hover:underline">GitHub releases page</a> are signed with the Oinkoin signing certificate. You can verify that an APK is genuine by checking its signing certificate SHA-256 fingerprint, which must match the official one below:</p>
+
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-3">
+      <code class="text-xs md:text-sm text-gray-800 break-all select-all font-mono">05:58:A5:0C:35:90:B6:41:85:D0:A0:0E:BA:BF:ED:E6:4B:9A:30:13:C5:B4:2D:3F:1D:AB:A6:A7:AF:94:E9:F1</code>
+    </div>
+
+    <h3 class="font-semibold mt-4 mb-2 text-sm">How to check the fingerprint</h3>
+    <p class="text-sm text-gray-700 mb-2">On a computer with the Android SDK build-tools installed, run:</p>
+    <div class="bg-gray-100 rounded-lg p-3 mb-3">
+      <code class="text-xs text-gray-800 break-all font-mono">apksigner verify --print-certs Oinkoin-&lt;version&gt;.apk</code>
+    </div>
+    <p class="text-sm text-gray-700 mb-3">The value of <code class="text-xs font-mono text-gray-800">Signer #1 certificate SHA-256 digest</code> in the output must match the fingerprint above. You can also compare hashes with <a href="https://github.com/soupslurpr/AppVerifier" target="_blank" class="text-blue-600 hover:underline">AppVerifier</a> or <a href="https://roundsalmon4.github.io/certhashviewer" target="_blank" class="text-blue-600 hover:underline">certhashviewer</a>.</p>
+
+    <h3 class="font-semibold mt-4 mb-2 text-sm">Google Play and F-Droid</h3>
+    <p class="text-sm text-gray-700">APKs installed from the <a href="https://play.google.com/store/apps/details?id=com.github.emavgl.piggybank" target="_blank" class="text-blue-600 hover:underline">Google Play Store</a> are signed with the same Oinkoin signing certificate, so the fingerprint above applies to them as well. The only exception are APKs built and distributed by <a href="https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/" target="_blank" class="text-blue-600 hover:underline">F-Droid</a>: they are re-signed by the F-Droid project with its own keys and will therefore <strong class="text-gray-900">not</strong> match this fingerprint — that is expected and does not mean the F-Droid build is fake.</p>
   </div>
 </Layout>
