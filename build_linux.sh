@@ -93,18 +93,18 @@ if ! pkg-config --exists gtk+-3.0 2>/dev/null; then
 fi
 echo -e "${GREEN}✓ GTK3 development libraries found${NC}"
 
-# Find flutter_distributor
-DISTRIBUTOR_CMD="$HOME/.pub-cache/bin/flutter_distributor"
+# Find fastforge
+DISTRIBUTOR_CMD="$HOME/.pub-cache/bin/fastforge"
 if [ ! -f "$DISTRIBUTOR_CMD" ]; then
-    echo -e "${YELLOW}flutter_distributor not found, installing...${NC}"
-    $FLUTTER_CMD pub global activate flutter_distributor
+    echo -e "${YELLOW}fastforge not found, installing...${NC}"
+    $FLUTTER_CMD pub global activate fastforge
 
     if [ ! -f "$DISTRIBUTOR_CMD" ]; then
-        echo -e "${RED}Error: Failed to install flutter_distributor${NC}"
+        echo -e "${RED}Error: Failed to install fastforge${NC}"
         exit 1
     fi
 fi
-echo -e "${GREEN}✓ flutter_distributor ready${NC}"
+echo -e "${GREEN}✓ fastforge ready${NC}"
 
 echo ""
 echo "==================================="

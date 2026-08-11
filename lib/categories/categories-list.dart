@@ -55,8 +55,7 @@ class CategoriesListState extends State<CategoriesList> {
               iconEmoji: category.iconEmoji,
               iconDataFromDefaultIconSet: category.icon,
               backgroundColor: category.color,
-              overlayIcon: category.isArchived ? Icons.archive : null
-          ),
+              overlayIcon: category.isArchived ? Icons.archive : null),
           title: Text(category.name!, style: _biggerFont),
         ),
       ),

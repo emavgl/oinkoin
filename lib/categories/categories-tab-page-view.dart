@@ -317,9 +317,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
             tabs: [
               Semantics(
                 identifier: 'expenses-tab',
-                child: Tab(
-                    text: "Expenses".i18n.toUpperCase()
-                ),
+                child: Tab(text: "Expenses".i18n.toUpperCase()),
               ),
               Semantics(
                 identifier: 'income-tab',

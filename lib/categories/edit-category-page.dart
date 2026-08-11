@@ -165,8 +165,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
               // Prompt confirmation
               AlertDialogBuilder archiveDialog =
                   AlertDialogBuilder(dialogMessage)
-                      .addTrueButtonName("Yes".i18n)
-                      .addFalseButtonName("No".i18n);
+                      .renameTrueButtonName("Yes".i18n)
+                      .renameFalseButtonName("No".i18n);
 
               if (!isCurrentlyArchived) {
                 archiveDialog.addSubtitle(
@@ -204,8 +204,8 @@ class EditCategoryPageState extends State<EditCategoryPage> {
                   .addSubtitle(
                       "Deleting the category you will remove all the associated records"
                           .i18n)
-                  .addTrueButtonName("Yes".i18n)
-                  .addFalseButtonName("No".i18n);
+                  .renameTrueButtonName("Yes".i18n)
+                  .renameFalseButtonName("No".i18n);
 
               var continueDelete = await showDialog(
                   context: context,

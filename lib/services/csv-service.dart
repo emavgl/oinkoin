@@ -3,7 +3,6 @@ import 'package:piggybank/models/record.dart';
 import 'logger.dart';
 
 class CSVExporter {
-
   static final _logger = Logger.withClass(CSVExporter);
 
   /// Creates a CSV string from a list of records.

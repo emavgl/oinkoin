@@ -131,4 +131,3 @@ class _LogScreenState extends State<LogScreen> {
     );
   }
 }
-

@@ -1,0 +1,20 @@
+{
+	"search.exclude": {
+		"**/submodules": true,
+	},
+	"terminal.integrated.defaultProfile.linux": "bash",
+	"terminal.integrated.profiles.linux": {
+	  "bash": {
+		"path": "/usr/bin/flatpak-spawn",
+		"args": ["--host", "--env=TERM=xterm-256color", "bash"],
+		"icon": "terminal-bash",
+		"overrideName": true
+	  }
+	},
+	"dart.flutterSdkPath": "~/development/flutter",
+	"[dart]": {
+		"editor.defaultFormatter": "Dart-Code.dart-code",
+		"editor.formatOnSave": true,
+		"editor.formatOnType": true,
+	}
+}

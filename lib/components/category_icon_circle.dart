@@ -34,8 +34,7 @@ class CategoryIconCircle extends StatelessWidget {
         color: backgroundColor,
       ),
       child: iconEmoji != null
-            ?
-            Center(
+          ? Center(
               child: Text(
                 iconEmoji!, // Display the emoji
                 style: TextStyle(
@@ -43,11 +42,11 @@ class CategoryIconCircle extends StatelessWidget {
                 ),
               ),
             )
-            : Icon(
-          iconDataFromDefaultIconSet, // Fallback to the icon
-          size: mainIconSize,
-          color: iconColor ?? Theme.of(context).colorScheme.onSurface,
-        ),
+          : Icon(
+              iconDataFromDefaultIconSet, // Fallback to the icon
+              size: mainIconSize,
+              color: iconColor ?? Theme.of(context).colorScheme.onSurface,
+            ),
     );
   }
 
