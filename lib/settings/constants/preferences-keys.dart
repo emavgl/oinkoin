@@ -87,4 +87,8 @@ class PreferencesKeys {
       'inAppKeyboardBackgroundColorIndex';
   static const inAppKeyboardButtonColorIndex = 'inAppKeyboardButtonColorIndex';
   static const inAppKeyboardTextColorIndex = 'inAppKeyboardTextColorIndex';
+
+  // Monthly banner (homepage background)
+  static const monthlyBannerAssignments = 'monthlyBannerAssignments';
+  static const monthlyBannerUploads = 'monthlyBannerUploads';
 }

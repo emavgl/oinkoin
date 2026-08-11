@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-09",
-    "total_keys": 509
+    "last_updated": "2026-08-11",
+    "total_keys": 515
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5054,6 +5054,66 @@
       "component": "pie chart legend / summary row label",
       "meaning": "Wallet could not be resolved (e.g. archived or deleted wallet)",
       "notes": "Used defensively when walletMap lacks an id.",
+      "status": "verified"
+    },
+    "Monthly banner": {
+      "key": "Monthly banner",
+      "context": "Settings entry and page title for customising the monthly homepage banner images",
+      "file": "lib/settings/customization-page.dart / lib/settings/monthly-banner-page.dart",
+      "page": "Settings > Customization > Appearance / Monthly banner page",
+      "component": "ListTile title / AppBar title",
+      "meaning": "Feature to assign a picture to each month's homepage banner",
+      "notes": "Keep concise in target languages",
+      "status": "verified"
+    },
+    "Choose a custom image for each month": {
+      "key": "Choose a custom image for each month",
+      "context": "Settings entry subtitle",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Appearance",
+      "component": "ListTile subtitle",
+      "meaning": "Explains the monthly banner feature",
+      "notes": null,
+      "status": "verified"
+    },
+    "Tap a month to choose its banner image. Long-press to preview.": {
+      "key": "Tap a month to choose its banner image. Long-press to preview.",
+      "context": "Instruction text at the top of the monthly banner page",
+      "file": "lib/settings/monthly-banner-page.dart",
+      "page": "Monthly banner page",
+      "component": "Body instruction label",
+      "meaning": "Explains how to assign an image and preview it",
+      "notes": "Keep the two actions (tap to choose, long-press to preview) clear",
+      "status": "verified"
+    },
+    "Add image": {
+      "key": "Add image",
+      "context": "Button to pick a picture from the device gallery",
+      "file": "lib/settings/monthly-banner-page.dart",
+      "page": "Monthly banner page",
+      "component": "Dashed tile button",
+      "meaning": "Import a new picture from the gallery",
+      "notes": null,
+      "status": "verified"
+    },
+    "Could not add the image": {
+      "key": "Could not add the image",
+      "context": "Snackbar error shown when importing a picture fails",
+      "file": "lib/settings/monthly-banner-page.dart",
+      "page": "Monthly banner page",
+      "component": "Snackbar",
+      "meaning": "Import failed",
+      "notes": null,
+      "status": "verified"
+    },
+    "Select a picture for %s": {
+      "key": "Select a picture for %s",
+      "context": "Bottom sheet title while picking a banner for a month; %s is replaced with the localized month name",
+      "file": "lib/settings/monthly-banner-page.dart",
+      "page": "Monthly banner page > picker bottom sheet",
+      "component": "Sheet title",
+      "meaning": "Pick one picture for the given month",
+      "notes": "Keep the %s placeholder",
       "status": "verified"
     }
   }

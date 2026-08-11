@@ -45,10 +45,16 @@ class MaterialThemeInstance {
       case 2:
         {
           log("Using dynamic colors");
-          AssetImage assetImage = getBackgroundImage(DateTime.now().month);
-          ColorScheme colorScheme = await ColorScheme.fromImageProvider(
-              provider: assetImage, brightness: brightness);
-          return colorScheme;
+          ImageProvider backgroundImage =
+              getBackgroundImage(DateTime.now().month);
+          try {
+            ColorScheme colorScheme = await ColorScheme.fromImageProvider(
+                provider: backgroundImage, brightness: brightness);
+            return colorScheme;
+          } catch (e) {
+            log("Failed to derive colors from the banner image: $e");
+            return getDefaultColorScheme(brightness);
+          }
         }
 
       default:

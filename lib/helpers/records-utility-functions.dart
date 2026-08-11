@@ -17,6 +17,7 @@ import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/currencies-page.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 
+import 'banner-image-service.dart';
 import 'datetime-utility-functions.dart';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
@@ -271,19 +272,8 @@ String stripUnknownPatternCharacters(String toParse) {
 }
 
 // -1 for default
-AssetImage getBackgroundImage(int monthIndex) {
-  if (!ServiceConfig.isPremium) {
-    return AssetImage('assets/images/bkg-default.png');
-  } else {
-    try {
-      String fileName = (monthIndex > 0 && monthIndex <= 12)
-          ? monthIndex.toString()
-          : "default";
-      return AssetImage('assets/images/bkg-' + fileName + '.png');
-    } on Exception catch (_) {
-      return AssetImage('assets/images/bkg-default.png');
-    }
-  }
+ImageProvider getBackgroundImage(int monthIndex) {
+  return BannerImageService.getBannerImage(monthIndex);
 }
 
 Future<List<Record?>> getAllRecords(DatabaseInterface database,
