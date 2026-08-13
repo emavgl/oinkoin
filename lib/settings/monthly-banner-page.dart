@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/banner-image-service.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/style.dart';
 
 /// Shows a temporary dialog with a full-size preview of a banner image.
@@ -56,11 +58,20 @@ class MonthlyBannerPage extends StatefulWidget {
 
 class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
   late Map<int, String> _assignments;
+  late bool _reverseMonthlyImages;
 
   @override
   void initState() {
     super.initState();
     _assignments = BannerImageService.loadAssignmentsSync();
+    _reverseMonthlyImages = BannerImageService.reverseMonthlyImages;
+  }
+
+  Future<void> _setReverseMonthlyImages(bool value) async {
+    await ServiceConfig.sharedPreferences
+        ?.setBool(PreferencesKeys.reverseMonthlyImages, value);
+    if (!mounted) return;
+    setState(() => _reverseMonthlyImages = value);
   }
 
   Future<void> _assignForMonth(int month) async {
@@ -97,6 +108,8 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
             style: subtitleTextStyle,
           ),
           const SizedBox(height: 16),
+          _buildPresetButtons(),
+          const SizedBox(height: 16),
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
@@ -114,9 +127,40 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
     );
   }
 
+  Widget _buildPresetButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: _reverseMonthlyImages
+              ? OutlinedButton(
+                  onPressed: () => _setReverseMonthlyImages(false),
+                  child: Text("Defaults".i18n),
+                )
+              : FilledButton(
+                  onPressed: () => _setReverseMonthlyImages(false),
+                  child: Text("Defaults".i18n),
+                ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _reverseMonthlyImages
+              ? FilledButton(
+                  onPressed: () => _setReverseMonthlyImages(true),
+                  child: Text("Southern Hemisphere".i18n),
+                )
+              : OutlinedButton(
+                  onPressed: () => _setReverseMonthlyImages(true),
+                  child: Text("Southern Hemisphere".i18n),
+                ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildMonthTile(int month) {
     final token = _assignments[month] ??
-        BannerImageService.assetToken(BannerImageService.monthAssetName(month));
+        BannerImageService.assetToken(BannerImageService.monthAssetName(
+            BannerImageService.displayMonth(month)));
     final isCustom = token.startsWith(BannerImageService.userPrefix);
 
     return GestureDetector(

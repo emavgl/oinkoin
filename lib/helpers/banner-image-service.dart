@@ -62,6 +62,24 @@ class BannerImageService {
     return 'assets/images/bkg-$fileName.png';
   }
 
+  /// Whether monthly banner images should be shifted by 6 months to match
+  /// Southern Hemisphere seasons (January shows July's image, and so on).
+  static bool get reverseMonthlyImages {
+    return ServiceConfig.sharedPreferences
+            ?.getBool(PreferencesKeys.reverseMonthlyImages) ??
+        false;
+  }
+
+  /// Maps a calendar month (1-12) to the built-in image month that should be
+  /// displayed for it. When [reverseMonthlyImages] is enabled, images are
+  /// shifted by 6 months so January shows July's image and vice versa,
+  /// matching the opposite seasons of the Southern Hemisphere.
+  static int displayMonth(int monthIndex) {
+    if (monthIndex < 1 || monthIndex > 12) return monthIndex;
+    if (!reverseMonthlyImages) return monthIndex;
+    return ((monthIndex + 5) % 12) + 1;
+  }
+
   static Future<Directory> get _imagesDirectory async {
     final documents = await getApplicationDocumentsDirectory();
     final dir =
@@ -168,6 +186,6 @@ class BannerImageService {
     if (token != null && token.isNotEmpty) {
       return resolveToken(token);
     }
-    return AssetImage(monthAssetName(monthIndex));
+    return AssetImage(monthAssetName(displayMonth(monthIndex)));
   }
 }

@@ -91,4 +91,5 @@ class PreferencesKeys {
   // Monthly banner (homepage background)
   static const monthlyBannerAssignments = 'monthlyBannerAssignments';
   static const monthlyBannerUploads = 'monthlyBannerUploads';
+  static const reverseMonthlyImages = 'reverseMonthlyImages';
 }

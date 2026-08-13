@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-11",
-    "total_keys": 515
+    "last_updated": "2026-08-13",
+    "total_keys": 517
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -1312,6 +1312,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Defaults": {
+      "key": "Defaults",
+      "context": "Preset button on the Monthly banner page that restores the default (non-shifted) image order",
+      "file": "lib/settings/monthly-banner-page.dart",
+      "page": "Settings > Customization > Monthly banner",
+      "component": "preset button",
+      "meaning": "Resets the monthly banner images to their default order, where each month shows its own built-in image (no Southern Hemisphere shift)",
+      "notes": "Pairs with 'Southern Hemisphere'. Translate as the plural noun meaning 'default values/images'. Reuse the term from the existing 'Default' key, pluralized where applicable.",
+      "status": "verified"
     },
     "Define the records to show in the app homepage": {
       "key": "Define the records to show in the app homepage",
@@ -4190,6 +4200,16 @@
       "component": "inAppKeyboardScaleOptions dropdown option",
       "meaning": "Makes the in-app keyboard buttons smaller",
       "notes": "Pairs with 'Medium'/'Large'",
+      "status": "verified"
+    },
+    "Southern Hemisphere": {
+      "key": "Southern Hemisphere",
+      "context": "Preset button on the Monthly banner page that shifts each month's banner image by 6 months to match Southern Hemisphere seasons",
+      "file": "lib/settings/monthly-banner-page.dart",
+      "page": "Settings > Customization > Monthly banner",
+      "component": "preset button",
+      "meaning": "Reorders the monthly banner images so January shows July's image (and vice versa), matching the opposite seasons of the Southern Hemisphere",
+      "notes": "Geographical term - use the standard geographical name for 'Southern Hemisphere' in each language. Pairs with 'Defaults'.",
       "status": "verified"
     },
     "Statistics": {
