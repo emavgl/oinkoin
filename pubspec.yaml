@@ -14,7 +14,7 @@ description: The expenses under your control.
 version: 1.8.5+7134
 
 environment:
-  sdk: '>=2.17.0 <=3.32.5'
+  sdk: '>=3.13.0 <4.0.0'
 
 dependencies:
   flutter:
