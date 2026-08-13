@@ -165,6 +165,7 @@ void main() {
   });
 
   testlib.setUp(() async {
+    clearInteractions(mockDatabase);
     if (await testDir.exists()) {
       await testDir.delete(recursive: true);
     }
