@@ -121,6 +121,7 @@ main() async {
         'Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})');
 
     ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
+    ServiceConfig.initWalletsEnabled();
     await MyI18n.loadTranslations();
     await ProfileService.instance.initialize();
 

@@ -44,6 +44,14 @@ class ServiceConfig {
     walletsEnabledNotifier.value = value;
   }
 
+  /// Syncs [walletsEnabledNotifier] with the persisted "Use wallets"
+  /// preference. Call once during startup, after [sharedPreferences] has been
+  /// loaded, so the Wallets tab respects the saved state instead of the
+  /// hard-coded default (`true`).
+  static void initWalletsEnabled() {
+    walletsEnabledNotifier.value = walletsEnabled;
+  }
+
   static void togglePremium() {
     isPremium = !isPremium;
     premiumNotifier.value = isPremium;
