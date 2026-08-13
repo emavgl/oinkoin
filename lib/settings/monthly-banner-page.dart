@@ -70,8 +70,14 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
   Future<void> _setReverseMonthlyImages(bool value) async {
     await ServiceConfig.sharedPreferences
         ?.setBool(PreferencesKeys.reverseMonthlyImages, value);
+    // Applying a preset resets any custom images so only the original
+    // (built-in) monthly pictures remain.
+    await BannerImageService.discardCustomImages();
     if (!mounted) return;
-    setState(() => _reverseMonthlyImages = value);
+    setState(() {
+      _reverseMonthlyImages = value;
+      _assignments = {};
+    });
   }
 
   Future<void> _assignForMonth(int month) async {

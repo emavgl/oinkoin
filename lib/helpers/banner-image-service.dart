@@ -162,6 +162,25 @@ class BannerImageService {
     }
   }
 
+  /// Removes every custom month assignment and deletes all imported pictures,
+  /// leaving only the built-in monthly images. Used when applying a preset
+  /// ("Defaults" or "Southern Hemisphere") so only the original images remain.
+  static Future<void> discardCustomImages() async {
+    await saveAssignments({});
+    final uploads = loadUploadsSync();
+    for (final upload in uploads) {
+      try {
+        final file = File(upload.path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (_) {
+        // Ignore failures deleting a single file; the list is cleared anyway.
+      }
+    }
+    await saveUploads([]);
+  }
+
   // ---------------- Resolution ----------------
 
   static ImageProvider resolveToken(String token) {

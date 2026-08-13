@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -129,6 +132,38 @@ void main() {
     });
   });
 
+  group('BannerImageService.discardCustomImages', () {
+    test('clears assignments and deletes uploaded pictures', () async {
+      final tempDir =
+          await Directory.systemTemp.createTemp('banner_discard_test');
+      addTearDown(() => tempDir.delete(recursive: true));
+      final file = File('${tempDir.path}${Platform.pathSeparator}custom.png');
+      await file.writeAsBytes([1, 2, 3]);
+
+      await initPrefs({
+        'monthlyBannerAssignments': jsonEncode({'3': 'user:${file.path}'}),
+        'monthlyBannerUploads': jsonEncode([
+          {'id': 'abc', 'path': file.path},
+        ]),
+      });
+
+      await BannerImageService.discardCustomImages();
+
+      expect(BannerImageService.loadAssignmentsSync(), isEmpty);
+      expect(BannerImageService.loadUploadsSync(), isEmpty);
+      expect(file.existsSync(), isFalse);
+    });
+
+    test('is a no-op when there is nothing to discard', () async {
+      await initPrefs({});
+
+      await BannerImageService.discardCustomImages();
+
+      expect(BannerImageService.loadAssignmentsSync(), isEmpty);
+      expect(BannerImageService.loadUploadsSync(), isEmpty);
+    });
+  });
+
   group('MonthlyBannerPage buttons', () {
     /// A fake [AssetBundle] that satisfies the [AssetImage] resolution path
     /// (the `AssetManifest.bin` lookup plus the actual image bytes) so the
@@ -197,6 +232,49 @@ void main() {
               .getBool('reverseMonthlyImages'),
           isFalse);
       expect(januaryTileImage(tester).assetName, 'assets/images/bkg-1.png');
+    });
+
+    testWidgets('Southern Hemisphere discards a custom month image',
+        (WidgetTester tester) async {
+      await initPrefs({
+        'monthlyBannerAssignments': '{"1":"asset:assets/images/bkg-3.png"}',
+      });
+      await pumpPage(tester);
+
+      // January shows the custom (non-original) image before the preset.
+      expect(januaryTileImage(tester).assetName, 'assets/images/bkg-3.png');
+
+      await tester.tap(find.text('Southern Hemisphere'));
+      await tester.pump();
+
+      // The custom image is discarded; January now shows July's built-in image.
+      expect(januaryTileImage(tester).assetName, 'assets/images/bkg-7.png');
+      expect(
+        ServiceConfig.sharedPreferences!
+            .getString('monthlyBannerAssignments'),
+        '{}',
+      );
+    });
+
+    testWidgets('Defaults discards a custom month image',
+        (WidgetTester tester) async {
+      await initPrefs({
+        'reverseMonthlyImages': true,
+        'monthlyBannerAssignments': '{"1":"asset:assets/images/bkg-3.png"}',
+      });
+      await pumpPage(tester);
+
+      expect(januaryTileImage(tester).assetName, 'assets/images/bkg-3.png');
+
+      await tester.tap(find.text('Defaults'));
+      await tester.pump();
+
+      expect(januaryTileImage(tester).assetName, 'assets/images/bkg-1.png');
+      expect(
+        ServiceConfig.sharedPreferences!
+            .getString('monthlyBannerAssignments'),
+        '{}',
+      );
     });
   });
 }
