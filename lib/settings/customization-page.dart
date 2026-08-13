@@ -386,26 +386,28 @@ class CustomizationPageState extends State<CustomizationPage> {
                       switchValue: PreferencesUtils.getOrDefault<bool>(
                           prefs, PreferencesKeys.showHomepageImage)!,
                       sharedConfigKey: PreferencesKeys.showHomepageImage,
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (value) =>
+                          ServiceConfig.setShowHomepageImage(value),
                     ),
-                    ListTile(
-                      enabled: PreferencesUtils.getOrDefault<bool>(
-                              prefs, PreferencesKeys.showHomepageImage) ??
-                          true,
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MonthlyBannerPage(),
-                          ),
-                        );
-                      },
-                      title: Text("Monthly banner".i18n,
-                          style: titleTextStyle),
-                      subtitle: Text(
-                          "Choose a custom image for each month".i18n,
-                          style: subtitleTextStyle),
-                      trailing: const Icon(Icons.chevron_right),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: ServiceConfig.showHomepageImageNotifier,
+                      builder: (context, showHomepageImage, _) => ListTile(
+                        enabled: showHomepageImage,
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MonthlyBannerPage(),
+                            ),
+                          );
+                        },
+                        title: Text("Monthly banner".i18n,
+                            style: titleTextStyle),
+                        subtitle: Text(
+                            "Choose a custom image for each month".i18n,
+                            style: subtitleTextStyle),
+                        trailing: const Icon(Icons.chevron_right),
+                      ),
                     ),
                     SettingSeparator(title: "Number & Formatting".i18n),
                     DropdownCustomizationItem(

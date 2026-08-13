@@ -56,4 +56,25 @@ class ServiceConfig {
     isPremium = !isPremium;
     premiumNotifier.value = isPremium;
   }
+
+  /// Notifies consumers (e.g. the customization page) when the
+  /// "Show homepage image" preference changes, so the monthly banner entry
+  /// can be enabled/disabled without rebuilding the whole page.
+  static final ValueNotifier<bool> showHomepageImageNotifier =
+      ValueNotifier(true);
+
+  static bool get showHomepageImage =>
+      sharedPreferences?.getBool(PreferencesKeys.showHomepageImage) ?? true;
+
+  static void setShowHomepageImage(bool value) {
+    sharedPreferences?.setBool(PreferencesKeys.showHomepageImage, value);
+    showHomepageImageNotifier.value = value;
+  }
+
+  /// Syncs [showHomepageImageNotifier] with the persisted "Show homepage
+  /// image" preference. Call once during startup, after [sharedPreferences]
+  /// has been loaded.
+  static void initShowHomepageImage() {
+    showHomepageImageNotifier.value = showHomepageImage;
+  }
 }

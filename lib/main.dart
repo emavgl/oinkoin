@@ -122,6 +122,7 @@ main() async {
 
     ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
     ServiceConfig.initWalletsEnabled();
+    ServiceConfig.initShowHomepageImage();
     await MyI18n.loadTranslations();
     await ProfileService.instance.initialize();
 
