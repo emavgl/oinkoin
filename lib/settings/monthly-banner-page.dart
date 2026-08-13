@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/banner-image-service.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/style.dart';
@@ -65,6 +66,13 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
     super.initState();
     _assignments = BannerImageService.loadAssignmentsSync();
     _reverseMonthlyImages = BannerImageService.reverseMonthlyImages;
+  }
+
+  void _showPremiumSplash() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
+    );
   }
 
   Future<void> _setReverseMonthlyImages(bool value) async {
@@ -140,11 +148,11 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
           child: _reverseMonthlyImages
               ? OutlinedButton(
                   onPressed: () => _setReverseMonthlyImages(false),
-                  child: Text("Defaults".i18n),
+                  child: Text("Defaults".i18n, textAlign: TextAlign.center),
                 )
               : FilledButton(
                   onPressed: () => _setReverseMonthlyImages(false),
-                  child: Text("Defaults".i18n),
+                  child: Text("Defaults".i18n, textAlign: TextAlign.center),
                 ),
         ),
         const SizedBox(width: 12),
@@ -152,11 +160,13 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
           child: _reverseMonthlyImages
               ? FilledButton(
                   onPressed: () => _setReverseMonthlyImages(true),
-                  child: Text("Southern Hemisphere".i18n),
+                  child: Text("Southern Hemisphere".i18n,
+                      textAlign: TextAlign.center),
                 )
               : OutlinedButton(
                   onPressed: () => _setReverseMonthlyImages(true),
-                  child: Text("Southern Hemisphere".i18n),
+                  child: Text("Southern Hemisphere".i18n,
+                      textAlign: TextAlign.center),
                 ),
         ),
       ],
@@ -170,7 +180,9 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
     final isCustom = token.startsWith(BannerImageService.userPrefix);
 
     return GestureDetector(
-      onTap: () => _assignForMonth(month),
+      onTap: ServiceConfig.isPremium
+          ? () => _assignForMonth(month)
+          : _showPremiumSplash,
       onLongPress: () => showBannerImagePreview(
         context,
         token,

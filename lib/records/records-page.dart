@@ -353,8 +353,9 @@ class TabRecordsState extends State<TabRecords> {
     return TabRecordsAppBar(
       controller: _controller,
       isAppBarExpanded: _isAppBarExpanded,
-      simplifyAppBar: PreferencesUtils.getOrDefault<bool>(
-          ServiceConfig.sharedPreferences!, PreferencesKeys.simplifyHomeAppBar)!,
+      simplifyAppBar: !(PreferencesUtils.getOrDefault<bool>(
+          ServiceConfig.sharedPreferences!, PreferencesKeys.showHomepageImage) ??
+          true),
       profileName: _controller.activeProfileName,
       onProfileTapped: () => _navigateToProfilesPage(),
       onDatePickerPressed: () => _showDatePicker(),

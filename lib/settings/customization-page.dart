@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:piggybank/main.dart';
 import 'package:piggybank/i18n.dart';
-import 'package:piggybank/premium/splash-screen.dart';
-import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/settings/components/setting-separator.dart';
@@ -383,48 +381,31 @@ class CustomizationPageState extends State<CustomizationPage> {
                       sharedConfigKey: PreferencesKeys.colorizeAmounts,
                     ),
                     SwitchCustomizationItem(
-                      title: "Remove the homepage image".i18n,
-                      subtitle:
-                          "Switch to a simplified appbar without the image"
-                              .i18n,
+                      title: "Show homepage image".i18n,
+                      subtitle: "Show the image on the homepage appbar".i18n,
                       switchValue: PreferencesUtils.getOrDefault<bool>(
-                          prefs, PreferencesKeys.simplifyHomeAppBar)!,
-                      sharedConfigKey: PreferencesKeys.simplifyHomeAppBar,
+                          prefs, PreferencesKeys.showHomepageImage)!,
+                      sharedConfigKey: PreferencesKeys.showHomepageImage,
                       onChanged: (_) => setState(() {}),
                     ),
-                    Visibility(
-                      visible: !(PreferencesUtils.getOrDefault<bool>(
-                              prefs, PreferencesKeys.simplifyHomeAppBar) ??
-                          false),
-                      child: Stack(
-                        children: [
-                          ListTile(
-                            onTap: () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ServiceConfig.isPremium
-                                      ? const MonthlyBannerPage()
-                                      : PremiumSplashScreen(),
-                                ),
-                              );
-                            },
-                            title: Text("Monthly banner".i18n,
-                                style: titleTextStyle),
-                            subtitle: Text(
-                                "Choose a custom image for each month".i18n,
-                                style: subtitleTextStyle),
-                            trailing: const Icon(Icons.chevron_right),
+                    ListTile(
+                      enabled: PreferencesUtils.getOrDefault<bool>(
+                              prefs, PreferencesKeys.showHomepageImage) ??
+                          true,
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MonthlyBannerPage(),
                           ),
-                          !ServiceConfig.isPremium
-                              ? Positioned(
-                                  right: 12,
-                                  top: 8,
-                                  child: getProLabel(labelFontSize: 10.0),
-                                )
-                              : const SizedBox.shrink(),
-                        ],
-                      ),
+                        );
+                      },
+                      title: Text("Monthly banner".i18n,
+                          style: titleTextStyle),
+                      subtitle: Text(
+                          "Choose a custom image for each month".i18n,
+                          style: subtitleTextStyle),
+                      trailing: const Icon(Icons.chevron_right),
                     ),
                     SettingSeparator(title: "Number & Formatting".i18n),
                     DropdownCustomizationItem(

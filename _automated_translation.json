@@ -4154,16 +4154,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Remove the homepage image": {
-      "key": "Remove the homepage image",
-      "context": "Switch toggle title in Settings > Customization > Appearance, controlling the appearance of the main record-list screen's top app bar",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Appearance",
-      "component": "Switch tile title",
-      "meaning": "Toggle to replace the expandable/collapsible header (with background image) on the homepage with a plain, non-collapsing two-row app bar (same solid color as the search bar) while keeping the same buttons in the same positions",
-      "notes": "'Home' refers to the app's main record-list screen (homepage), not a house. 'Homepage image' is the seasonal/monthly background picture behind the header.",
-      "status": "verified"
-    },
     "Skipped (duplicates)": {
       "context": "Result summary label for records that were duplicates and not imported",
       "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
@@ -4289,16 +4279,6 @@
       "component": "page heading",
       "meaning": "Main heading encouraging users to support the open-source project",
       "notes": "Warm, inviting tone",
-      "status": "verified"
-    },
-    "Switch to a simplified appbar without the image": {
-      "key": "Switch to a simplified appbar without the image",
-      "context": "Subtitle/description for the 'Remove the homepage image' toggle in Settings > Customization > Appearance",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Appearance",
-      "component": "Switch tile subtitle",
-      "meaning": "Explains what enabling the toggle does: replaces the homepage's expandable/collapsible header (with background image) with a plain, non-collapsing app bar, same buttons stay visible",
-      "notes": "Refers to the app's main record-list screen header (SliverAppBar). 'Appbar' is the top navigation/toolbar area of the screen; keep this meaning even if the target language doesn't have a single-word equivalent.",
       "status": "verified"
     },
     "Switch to bar chart": {
@@ -5134,6 +5114,26 @@
       "component": "Sheet title",
       "meaning": "Pick one picture for the given month",
       "notes": "Keep the %s placeholder",
+      "status": "verified"
+    },
+    "Show homepage image": {
+      "key": "Show homepage image",
+      "context": "Switch toggle title in Settings > Customization > Appearance, controlling whether the homepage app bar shows the seasonal/monthly banner image",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Appearance",
+      "component": "Switch tile title",
+      "meaning": "Toggle to keep the expandable/collapsible header (with background image) on the homepage, or switch to a plain, non-collapsing two-row app bar (same solid color as the search bar) while keeping the same buttons in the same positions. ON = image shown (default).",
+      "notes": "'Home' refers to the app's main record-list screen (homepage), not a house. 'Homepage image' is the seasonal/monthly background picture behind the header.",
+      "status": "verified"
+    },
+    "Show the image on the homepage appbar": {
+      "key": "Show the image on the homepage appbar",
+      "context": "Subtitle/description for the 'Show homepage image' toggle in Settings > Customization > Appearance",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Appearance",
+      "component": "Switch tile subtitle",
+      "meaning": "Explains what the toggle controls: whether the homepage's expandable/collapsible header shows its background image (when on) or uses a plain non-collapsing app bar (when off).",
+      "notes": "Refers to the app's main record-list screen header (SliverAppBar). 'Appbar' is the top navigation/toolbar area of the screen; keep this meaning even if the target language doesn't have a single-word equivalent.",
       "status": "verified"
     }
   }
