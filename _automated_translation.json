@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-13",
-    "total_keys": 517
+    "last_updated": "2026-08-14",
+    "total_keys": 525
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -1144,6 +1144,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Customize Transfer Icon": {
+      "key": "Customize Transfer Icon",
+      "context": "Wallets tab overflow menu option and the title of the transfer icon customization page",
+      "file": "lib/wallets/wallets-tab-page.dart; lib/wallets/customize-transfer-icon-page.dart",
+      "page": "Wallets > Customize Transfer Icon",
+      "component": "Popup menu item and app bar title",
+      "meaning": "Open the editor for the app-wide icon, emoji, and color used to represent transfers",
+      "notes": "Translate as an action label; Transfer is the fixed localized name shown in the editor",
+      "status": "verified"
+    },
     "Customization": {
       "key": "Customization",
       "context": null,
@@ -1452,6 +1462,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Destination wallet": {
+      "key": "Destination wallet",
+      "context": "Selected destination wallet in the transfer creation flow",
+      "file": "lib/records/components/transfer_wallet_selector.dart",
+      "page": "Add record > Transfer",
+      "component": "Selection summary and wallet list role label",
+      "meaning": "The wallet that receives the transferred amount",
+      "notes": "Keep distinct from the origin/source wallet",
+      "status": "verified"
     },
     "Display the currency symbol next to amounts": {
       "context": "Subtitle/description for the show currency symbol toggle",
@@ -2963,6 +2983,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Origin wallet": {
+      "key": "Origin wallet",
+      "context": "Selected origin wallet in the transfer creation flow",
+      "file": "lib/records/components/transfer_wallet_selector.dart",
+      "page": "Add record > Transfer",
+      "component": "Selection summary and wallet list role label",
+      "meaning": "The wallet from which the transferred amount is taken",
+      "notes": "Use wallet/account terminology consistent with the rest of the app",
+      "status": "verified"
+    },
     "None": {
       "key": "None",
       "context": null,
@@ -3616,6 +3646,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Search": {
+      "key": "Search",
+      "context": "Search field hint on the Customization settings page",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization",
+      "component": "TextField hint",
+      "meaning": "Prompt to search customization options by their localized title or subtitle",
+      "notes": "Use the concise label consistently with other search fields",
+      "status": "verified"
+    },
     "Search currency": {
       "key": "Search currency",
       "context": null,
@@ -3754,6 +3794,36 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Select both <b>origin</b> and <b>destination</b> wallets": {
+      "key": "Select both <b>origin</b> and <b>destination</b> wallets",
+      "context": "Validation message shown when saving a transfer without two distinct wallets, with both wallet roles emphasized",
+      "file": "lib/records/edit-record-page.dart",
+      "page": "Add record > Transfer > Edit record",
+      "component": "Rich snackbar message",
+      "meaning": "The transfer requires exactly one origin and one destination wallet",
+      "notes": "Translators should preserve the <b> markers and place them around the translated origin and destination terms",
+      "status": "verified"
+    },
+    "Select the <b>destination</b> wallet": {
+      "key": "Select the <b>destination</b> wallet",
+      "context": "Instruction shown after an origin wallet has been selected, with the destination term emphasized",
+      "file": "lib/records/components/transfer_wallet_selector.dart",
+      "page": "Add record > Transfer",
+      "component": "Rich instruction text",
+      "meaning": "Prompt to select the wallet receiving the transfer",
+      "notes": "Translators should preserve the <b> markers and place them around the translated destination term",
+      "status": "verified"
+    },
+    "Select the <b>origin</b> wallet": {
+      "key": "Select the <b>origin</b> wallet",
+      "context": "Initial instruction shown in the transfer wallet selector, with the origin term emphasized",
+      "file": "lib/records/components/transfer_wallet_selector.dart",
+      "page": "Add record > Transfer",
+      "component": "Rich instruction text",
+      "meaning": "Prompt to select the wallet sending the transfer",
+      "notes": "Translators should preserve the <b> markers and place them around the translated origin term",
+      "status": "verified"
     },
     "Select the date format": {
       "key": "Select the date format",
@@ -4519,6 +4589,16 @@
       "component": "_SectionHeader label",
       "meaning": "Heading introducing the list of translation-only contributors",
       "notes": null,
+      "status": "verified"
+    },
+    "Transfer": {
+      "key": "Transfer",
+      "context": "Tab for creating a transfer between two wallets from the add-record flow",
+      "file": "lib/categories/categories-tab-page-view.dart",
+      "page": "Add record > Transfer",
+      "component": "Tab label",
+      "meaning": "A movement of money from one wallet to another without requiring a category",
+      "notes": "This is a transaction type, not a user-managed category",
       "status": "verified"
     },
     "Transport": {
