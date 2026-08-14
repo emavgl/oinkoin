@@ -14,6 +14,7 @@ class WalletTransferRow extends StatelessWidget {
   final Wallet? selectedWallet;
   final Wallet? selectedDestinationWallet;
   final bool showTransferSide;
+  final bool requireDestination;
   final bool readOnly;
   final AutoSizeGroup walletNameSizeGroup;
   final ValueChanged<Wallet?> onSourceChanged;
@@ -24,6 +25,7 @@ class WalletTransferRow extends StatelessWidget {
     required this.selectedWallet,
     required this.selectedDestinationWallet,
     required this.showTransferSide,
+    this.requireDestination = false,
     required this.readOnly,
     required this.walletNameSizeGroup,
     required this.onSourceChanged,
@@ -96,7 +98,9 @@ class WalletTransferRow extends StatelessWidget {
   Widget _buildDestinationWidget(BuildContext context) {
     return InkWell(
       onTap: () => _pickDestinationWallet(context),
-      onLongPress: readOnly ? null : () => onDestinationChanged(null),
+      onLongPress: readOnly || requireDestination
+          ? null
+          : () => onDestinationChanged(null),
       child: Semantics(
         identifier: 'destination-wallet-field',
         child: Row(

@@ -8,6 +8,7 @@ import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/wallets/customize-transfer-icon-page.dart';
 import 'package:piggybank/wallets/edit-wallet-page.dart';
 import 'package:piggybank/wallets/wallet-picker-page.dart';
 import 'package:piggybank/wallets/wallet-sort-option.dart';
@@ -395,6 +396,13 @@ class WalletsTabPageState extends State<WalletsTabPage> {
     });
   }
 
+  Future<void> _openTransferIconCustomizer() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CustomizeTransferIconPage()),
+    );
+  }
+
   Future<void> _navigateToWalletPicker() async {
     final allNonArchived = _wallets!.where((w) => !w.isArchived).toList();
     final result = await Navigator.push<List<Wallet>>(
@@ -485,12 +493,22 @@ class WalletsTabPageState extends State<WalletsTabPage> {
               icon: const Icon(Icons.more_vert),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10.0))),
-              onSelected: (value) {
+              onSelected: (value) async {
                 if (value == 1) {
                   setState(() => _showArchived = !_showArchived);
+                } else if (value == 2) {
+                  await _openTransferIconCustomizer();
                 }
               },
               itemBuilder: (ctx) => [
+                PopupMenuItem<int>(
+                  padding: const EdgeInsets.all(20),
+                  value: 2,
+                  child: Text(
+                    "Customize Transfer Icon".i18n,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
                 PopupMenuItem<int>(
                   padding: const EdgeInsets.all(20),
                   value: 1,

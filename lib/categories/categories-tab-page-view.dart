@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/wallet.dart';
+import 'package:piggybank/records/edit-record-page.dart';
+import 'package:piggybank/records/components/transfer_wallet_selector.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/i18n.dart';
@@ -299,18 +302,52 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
     }
   }
 
+  void _openTransferEditPage(Wallet origin, Wallet destination) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditRecordPage(
+          initialWallet: origin,
+          initialDestinationWallet: destination,
+          isTransferFlow: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final showTransferTab =
+        widget.goToEditMovementPage == true && ServiceConfig.walletsEnabled;
     return DefaultTabController(
-      length: 2,
+      length: showTransferTab ? 3 : 2,
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Select the category'.i18n),
+          title: Text(
+            (widget.goToEditMovementPage == true
+                    ? "Add a new record"
+                    : "Select the category")
+                .i18n,
+          ),
           actions: [
-            IconButton(
-              icon: Icon(Icons.sort),
-              onPressed: _showSortOptions,
+            Builder(
+              builder: (context) {
+                final tabController = DefaultTabController.of(context);
+                return AnimatedBuilder(
+                  animation: tabController,
+                  builder: (context, child) {
+                    final isTransferTab =
+                        showTransferTab && tabController.index == 2;
+                    return isTransferTab
+                        ? const SizedBox.shrink()
+                        : IconButton(
+                            icon: const Icon(Icons.sort),
+                            onPressed: _showSortOptions,
+                          );
+                  },
+                );
+              },
             ),
           ],
           bottom: TabBar(
@@ -326,7 +363,14 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                 child: Tab(
                   text: "Income".i18n.toUpperCase(),
                 ),
-              )
+              ),
+              if (showTransferTab)
+                Semantics(
+                  identifier: 'transfer-tab',
+                  child: Tab(
+                    text: "Transfer".i18n.toUpperCase(),
+                  ),
+                ),
             ],
           ),
         ),
@@ -355,6 +399,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                         _selectedSortOption == SortOption.original,
                     onChangeOrder: onCategoriesReorder)
                 : Container(),
+            if (showTransferTab)
+              TransferWalletSelector(onContinue: _openTransferEditPage),
           ],
         ),
       ),

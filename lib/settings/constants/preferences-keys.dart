@@ -58,6 +58,9 @@ class PreferencesKeys {
   static const walletsEnabled = 'walletsEnabled';
   static const walletBalanceMode = 'walletBalanceMode';
   static const showWalletBarOnHomepage = 'showWalletBarOnHomepage';
+  static const transferIconCodePoint = 'transferIconCodePoint';
+  static const transferIconEmoji = 'transferIconEmoji';
+  static const transferIconColor = 'transferIconColor';
 
   // Statistics
   static var statisticsPieChartUseCategoryColors =

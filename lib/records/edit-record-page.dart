@@ -17,6 +17,7 @@ import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/components/amount_input_field.dart';
+import 'package:piggybank/components/markup_text.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -36,13 +37,19 @@ class EditRecordPage extends StatefulWidget {
   final Category? passedCategory;
   final RecurrentRecordPattern? passedRecurrentRecordPattern;
   final bool readOnly;
+  final Wallet? initialWallet;
+  final Wallet? initialDestinationWallet;
+  final bool isTransferFlow;
 
   EditRecordPage(
       {Key? key,
       this.passedRecord,
       this.passedCategory,
       this.passedRecurrentRecordPattern,
-      this.readOnly = false})
+      this.readOnly = false,
+      this.initialWallet,
+      this.initialDestinationWallet,
+      this.isTransferFlow = false})
       : super(key: key);
 
   @override
@@ -59,6 +66,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   Record? passedRecord;
   Category? passedCategory;
   bool readOnly = false;
+  bool isTransferFlow = false;
   RecurrentRecordPattern? passedRecurrentRecordPattern;
 
   RecurrentPeriod? recurrentPeriod;
@@ -130,6 +138,9 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   void initState() {
     super.initState();
+    isTransferFlow = widget.isTransferFlow ||
+        passedRecord?.isTransfer == true ||
+        passedRecurrentRecordPattern?.transferWalletId != null;
     enableRecordNameSuggestions = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.enableRecordNameSuggestions)!;
@@ -217,7 +228,14 @@ class EditRecordPageState extends State<EditRecordPage> {
       // I am adding a new record
       // Create a new record with a UTC timestamp and the current local timezone
       final now = DateTime.now();
-      record = Record(null, null, passedCategory, now.toUtc());
+      record = Record(
+        null,
+        null,
+        passedCategory,
+        now.toUtc(),
+        walletId: widget.initialWallet?.id,
+        transferWalletId: widget.initialDestinationWallet?.id,
+      );
       localDisplayDate = record!.localDateTime;
       _hasTime = true;
       _selectedTime = TimeOfDay(hour: now.hour, minute: now.minute);
@@ -257,7 +275,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     });
 
     categorySign =
-        record?.category?.categoryType == CategoryType.expense ? "-" : "+";
+        isTransferFlow || record?.category?.categoryType == CategoryType.expense
+            ? "-"
+            : "+";
 
     String initialValue = record?.title ?? "";
     _typeAheadController.text = initialValue;
@@ -363,12 +383,14 @@ class EditRecordPageState extends State<EditRecordPage> {
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           contentPadding: EdgeInsets.fromLTRB(20, 10, 10, 10),
                           border: InputBorder.none,
-                          hintText: record!.category!.name,
+                          hintText: record!.category?.name ?? "Record name".i18n,
                           labelText: "Record name".i18n)),
                 );
               },
               suggestionsCallback: (search) {
-                if (search.isNotEmpty && enableRecordNameSuggestions) {
+                if (search.isNotEmpty &&
+                    enableRecordNameSuggestions &&
+                    record!.category != null) {
                   return database.suggestedRecordTitles(
                       search, record!.category!.name!);
                 }
@@ -394,25 +416,19 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   Widget _createCategoryCard() {
+    final category = record!.category;
     return InkWell(
       onTap: () async {
-        if (readOnly) {
-          return; // do nothing
-        }
+        if (readOnly) return;
         dismissInAppKeyboard();
-        var selectedCategory = await Navigator.push(
+        final selectedCategory = await Navigator.push<Category?>(
           context,
           MaterialPageRoute(builder: (context) => CategoryTabPageView()),
         );
         if (selectedCategory != null) {
           setState(() {
             record!.category = selectedCategory;
-            changeRecordValue(_textEditingController.text
-                .toLowerCase()); // Handle sign change
-            // Transfers only apply to expenses; clear destination if switching to income
-            if (selectedCategory.categoryType == CategoryType.income) {
-              _selectedDestinationWallet = null;
-            }
+            changeRecordValue(_textEditingController.text.toLowerCase());
           });
         }
       },
@@ -422,17 +438,36 @@ class EditRecordPageState extends State<EditRecordPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              CategoryIconCircle(
-                  iconEmoji: record!.category!.iconEmoji,
-                  iconDataFromDefaultIconSet: record!.category!.icon,
-                  backgroundColor: record!.category!.color),
+              category != null
+                  ? CategoryIconCircle(
+                      iconEmoji: category.iconEmoji,
+                      iconDataFromDefaultIconSet: category.icon,
+                      backgroundColor: category.color)
+                  : SizedBox(
+                      width: 40,
+                      child: Center(
+                        child: Icon(
+                          Icons.category_outlined,
+                          size: 28,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant,
+                        ),
+                      ),
+                    ),
               Container(
                 margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
                 child: Text(
-                  record!.category!.name!,
+                  category?.name ?? "Select the category".i18n,
                   style: TextStyle(
-                      fontSize: 18,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    fontSize: 18,
+                    color: category == null
+                        ? Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant
+                            .withValues(alpha: 0.5)
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               )
             ],
@@ -455,7 +490,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     return WalletTransferRow(
       selectedWallet: _selectedWallet,
       selectedDestinationWallet: _selectedDestinationWallet,
-      showTransferSide: isExpense && _totalWalletCount > 1,
+      showTransferSide:
+          isTransferFlow || (isExpense && _totalWalletCount > 1),
+      requireDestination: isTransferFlow,
       readOnly: readOnly,
       walletNameSizeGroup: _walletNameSizeGroup,
       onSourceChanged: (wallet) {
@@ -1046,7 +1083,8 @@ class EditRecordPageState extends State<EditRecordPage> {
     var numericValue = tryParseCurrencyString(text);
     if (numericValue != null) {
       numericValue = numericValue.abs();
-      if (record!.category!.categoryType == CategoryType.expense) {
+      if (isTransferFlow ||
+          record!.category?.categoryType == CategoryType.expense) {
         numericValue = numericValue * -1;
       }
       record!.value = numericValue;
@@ -1101,6 +1139,19 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   addOrUpdateRecord() async {
+    if (isTransferFlow &&
+        (_selectedWallet?.id == null ||
+            _selectedDestinationWallet?.id == null ||
+            _selectedWallet!.id == _selectedDestinationWallet!.id)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: MarkupText(
+              "Select both <b>origin</b> and <b>destination</b> wallets".i18n),
+        ),
+      );
+      return;
+    }
+
     if (ServiceConfig.walletsEnabled) {
       _recalculateTransferValue();
       record!.walletId = _selectedWallet?.id;

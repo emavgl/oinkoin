@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
+import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/services/transfer-icon-service.dart';
 
 import '../../components/category_icon_circle.dart';
 import '../../services/database/database-interface.dart';
@@ -220,12 +222,30 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   }
 
   Widget _buildLeading(Record movement, bool isSelected) {
+    final transferIcon = TransferIconService.icon;
+    final transferEmoji = TransferIconService.iconEmoji;
+    final isUncategorizedTransfer = movement.isTransfer && movement.category == null;
     final base = CategoryIconCircle(
-      iconEmoji: movement.category?.iconEmoji,
-      iconDataFromDefaultIconSet: movement.category?.icon,
-      backgroundColor: movement.category?.color,
+      iconEmoji: isUncategorizedTransfer
+          ? transferEmoji
+          : movement.category?.iconEmoji,
+      iconDataFromDefaultIconSet: isUncategorizedTransfer
+          ? transferIcon
+          : movement.category?.icon ?? Icons.swap_horiz,
+      backgroundColor: isUncategorizedTransfer
+          ? TransferIconService.color
+          : movement.category?.color,
       overlayIcon: movement.recurrencePatternId != null ? Icons.repeat : null,
-      topOverlayIcon: movement.isTransfer ? Icons.swap_horiz : null,
+      topOverlayIcon: movement.isTransfer && movement.category != null &&
+              transferEmoji == null
+          ? transferIcon
+          : null,
+      topOverlayEmoji: movement.isTransfer && movement.category != null
+          ? transferEmoji
+          : null,
+      topOverlayBackgroundColor: movement.isTransfer && movement.category != null
+          ? TransferIconService.color
+          : null,
     );
     if (!widget.isSelectMode) return base;
     return Stack(
@@ -290,7 +310,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
         children: [
           Text(
             movement.title == null || movement.title!.trim().isEmpty
-                ? movement.category!.name!
+                ? movement.category?.name ?? "Transfer".i18n
                 : movement.title!,
             style: _titleFontStyle,
             maxLines: 2,

@@ -50,15 +50,36 @@ void main() {
       expect(record.tags, ['food', 'lunch']);
 
       // We can also test the localDateTime getter
-      final expectedLocal =
-          tz.TZDateTime.from(nowUtc, tz.getLocation(timeZoneName));
+      final expectedLocal = tz.TZDateTime.from(
+        nowUtc,
+        tz.getLocation(timeZoneName),
+      );
       expect(record.localDateTime, expectedLocal);
       expect(record.dateTime, expectedLocal);
     });
 
-    test(
-        'constructor should default timeZoneName to ServiceConfig.localTimezone if null',
-        () {
+    test('supports an uncategorized transfer through serialization', () {
+      final record = Record(
+        -125.0,
+        null,
+        null,
+        DateTime.utc(2026, 1, 2, 12),
+        walletId: 1,
+        transferWalletId: 2,
+      );
+
+      final map = record.toMap();
+      map['category'] = null;
+      final restored = Record.fromMap(map);
+
+      expect(restored.category, isNull);
+      expect(restored.isTransfer, isTrue);
+      expect(restored.walletId, 1);
+      expect(restored.transferWalletId, 2);
+      expect(restored.value, -125.0);
+    });
+
+    test('constructor should default timeZoneName to ServiceConfig.localTimezone if null', () {
       final nowUtc = DateTime.utc(2025, 8, 2, 12, 0, 0);
       final record = Record(
         50.0,
@@ -74,9 +95,7 @@ void main() {
     });
 
     group('Serialization/Deserialization (toMap/fromMap)', () {
-      test(
-          'should correctly serialize and deserialize a fully populated record',
-          () {
+      test('should correctly serialize and deserialize a fully populated record', () {
         const timeZoneName = 'Asia/Tokyo';
         final fixedUtcTime = DateTime.utc(2023, 10, 26, 3, 0, 0);
 
@@ -109,8 +128,10 @@ void main() {
         expect(decodedRecord.value, 80.50);
         expect(decodedRecord.title, 'Internet Bill');
         expect(decodedRecord.category?.name, testCategoryForMap.name);
-        expect(decodedRecord.category?.categoryType,
-            testCategoryForMap.categoryType);
+        expect(
+          decodedRecord.category?.categoryType,
+          testCategoryForMap.categoryType,
+        );
         expect(decodedRecord.description, 'Monthly internet provider bill');
         expect(decodedRecord.recurrencePatternId, 'internet-pattern-1');
         // Note: tags are stored in a separate join table and are not included
@@ -122,8 +143,10 @@ void main() {
       });
 
       test('should serialize and deserialize transferValue', () {
-        final category =
-            Category('Transfer', categoryType: CategoryType.expense);
+        final category = Category(
+          'Transfer',
+          categoryType: CategoryType.expense,
+        );
         final utcTime = DateTime.utc(2024, 1, 1, 12, 0, 0);
 
         final record = Record(
@@ -151,13 +174,7 @@ void main() {
         final category = Category('Food', categoryType: CategoryType.expense);
         final utcTime = DateTime.utc(2024, 1, 1, 12, 0, 0);
 
-        final record = Record(
-          -50.0,
-          'Lunch',
-          category,
-          utcTime,
-          walletId: 1,
-        );
+        final record = Record(-50.0, 'Lunch', category, utcTime, walletId: 1);
 
         final map = record.toMap();
         expect(map['transfer_value'], isNull);
@@ -171,9 +188,7 @@ void main() {
     });
 
     group('Getters', () {
-      test(
-          'date getter should return the date in YYYYMMDD format in the local timezone',
-          () {
+      test('date getter should return the date in YYYYMMDD format in the local timezone', () {
         // Set up a record with a timezone where the date will be different from UTC
         // UTC: 2025-08-02 23:00:00
         // Asia/Tokyo: 2025-08-03 08:00:00 (+9 hours)

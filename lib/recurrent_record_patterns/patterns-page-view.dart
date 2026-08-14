@@ -7,6 +7,7 @@ import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/services/transfer-icon-service.dart';
 
 import '../components/category_icon_circle.dart';
 import '../models/recurrent-period.dart';
@@ -168,6 +169,9 @@ class PatternsPageViewState extends State<PatternsPageView> {
   Widget _buildRecurrentPatternRow(RecurrentRecordPattern pattern) {
     /// Returns a ListTile rendering the single movement row
     final subtitle = _recurrenceSubtitle(pattern);
+    final isTransfer = pattern.transferWalletId != null;
+    final isUncategorizedTransfer = isTransfer && pattern.category == null;
+    final transferEmoji = TransferIconService.iconEmoji;
     return Container(
       margin: EdgeInsets.only(top: 10, bottom: 10),
       child: ListTile(
@@ -184,7 +188,7 @@ class PatternsPageViewState extends State<PatternsPageView> {
         },
         title: Text(
           pattern.title == null || pattern.title!.trim().isEmpty
-              ? pattern.category!.name!
+              ? pattern.category?.name ?? "Transfer".i18n
               : pattern.title!,
           style: _biggerFont,
           maxLines: 2,
@@ -195,9 +199,25 @@ class PatternsPageViewState extends State<PatternsPageView> {
             : null,
         trailing: _buildPatternAmountWidget(pattern),
         leading: CategoryIconCircle(
-          iconEmoji: pattern.category?.iconEmoji,
-          iconDataFromDefaultIconSet: pattern.category?.icon,
-          backgroundColor: pattern.category?.color,
+          iconEmoji: isUncategorizedTransfer
+              ? transferEmoji
+              : pattern.category?.iconEmoji,
+          iconDataFromDefaultIconSet: isUncategorizedTransfer
+              ? TransferIconService.icon
+              : pattern.category?.icon ?? Icons.swap_horiz,
+          backgroundColor: isUncategorizedTransfer
+              ? TransferIconService.color
+              : pattern.category?.color,
+          topOverlayIcon: isTransfer && pattern.category != null &&
+                  transferEmoji == null
+              ? TransferIconService.icon
+              : null,
+          topOverlayEmoji: isTransfer && pattern.category != null
+              ? transferEmoji
+              : null,
+          topOverlayBackgroundColor: isTransfer && pattern.category != null
+              ? TransferIconService.color
+              : null,
         ),
       ),
     );

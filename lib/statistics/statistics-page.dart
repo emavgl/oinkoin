@@ -83,8 +83,8 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.to,
               widget.records
                   .where((element) =>
-                      element!.category!.categoryType == CategoryType.expense &&
-                      !element.isTransfer)
+                      element?.category?.categoryType == CategoryType.expense &&
+                      !element!.isTransfer)
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
@@ -102,8 +102,8 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.to,
               widget.records
                   .where((element) =>
-                      element!.category!.categoryType == CategoryType.income &&
-                      !element.isTransfer)
+                      element?.category?.categoryType == CategoryType.income &&
+                      !element!.isTransfer)
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,

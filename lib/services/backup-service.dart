@@ -11,6 +11,7 @@ import 'package:piggybank/models/backup.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/services/database/exceptions.dart';
+import 'package:piggybank/services/preferences-backup-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:piggybank/settings/backup-retention-period.dart';
@@ -121,13 +122,17 @@ class BackupService {
       var profiles = await database.getAllProfiles();
       var prefs = await SharedPreferences.getInstance();
       var userCurrencies = prefs.getString(PreferencesKeys.userCurrencies);
+      var preferences = PreferencesBackupService.exportPreferences(prefs);
 
       _logger.info(
           'Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags, ${wallets.length} wallets, ${profiles.length} profiles');
 
       var backup = Backup(appName, version, databaseVersion, categories,
           records, recurrentRecordPatterns, recordTagAssociations,
-          wallets: wallets, profiles: profiles, userCurrencies: userCurrencies);
+          wallets: wallets,
+          profiles: profiles,
+          userCurrencies: userCurrencies,
+          preferences: preferences);
       var backupJsonStr = jsonEncode(backup.toMap());
 
       // Encrypt the backup JSON string if an encryption password is provided
@@ -271,22 +276,38 @@ class BackupService {
       _logger.info(
           'Importing: ${backup.records.length} records, ${backup.categories.length} categories, ${backup.wallets.length} wallets');
 
-      // Restore user currencies before wallets so currencies are available
-      if (backup.userCurrencies != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            PreferencesKeys.userCurrencies, backup.userCurrencies!);
-        // Load custom currencies into CurrencyInfo so they're available when restoring wallets
-        final config = UserCurrencyConfig.fromJson(
-            jsonDecode(backup.userCurrencies!) as Map<String, dynamic>);
-        for (final currency in config.currencies) {
-          if (currency.isCustom) {
-            CurrencyInfo.addCustomCurrency(CurrencyInfo(
-              isoCode: currency.isoCode,
-              name: currency.customName!,
-              customSymbol: currency.customSymbol,
-            ));
-          }
+      // Restore portable preferences independently. A malformed, obsolete, or
+      // failing setting is skipped by the preference service and cannot abort
+      // the database restore. Very old backups stored user currencies in a
+      // top-level field, so expose that field to the same tolerant path when
+      // the newer preferences map does not contain it.
+      if (backup.preferences.isNotEmpty || backup.userCurrencies != null) {
+        SharedPreferences? restorePrefs;
+        try {
+          restorePrefs = await SharedPreferences.getInstance();
+        } catch (error, stackTrace) {
+          // Preferences are optional for legacy/database-only imports. A
+          // missing platform implementation must not prevent the actual data
+          // from being restored.
+          _logger.handle(error, stackTrace,
+              'Skipping preferences because they are unavailable');
+        }
+        if (restorePrefs != null) {
+          final preferencesToRestore = <String, dynamic>{
+            ...backup.preferences,
+            if (!backup.preferences
+                    .containsKey(PreferencesKeys.userCurrencies) &&
+                backup.userCurrencies != null)
+              PreferencesKeys.userCurrencies: backup.userCurrencies,
+          };
+          await PreferencesBackupService.restorePreferences(
+              restorePrefs, preferencesToRestore);
+
+          // Load custom currencies into CurrencyInfo before wallets are
+          // restored. The payload may come from an old backup and can be
+          // malformed; this must never make an otherwise usable backup fail.
+          _loadRestoredCustomCurrencies(restorePrefs.getString(
+              PreferencesKeys.userCurrencies));
         }
       }
 
@@ -476,6 +497,37 @@ class BackupService {
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to import backup');
       return false;
+    }
+  }
+
+  static void _loadRestoredCustomCurrencies(String? rawCurrencies) {
+    if (rawCurrencies == null || rawCurrencies.isEmpty) {
+      _logger.debug('No restored custom currency configuration to load');
+      return;
+    }
+    try {
+      final decoded = jsonDecode(rawCurrencies);
+      if (decoded is! Map<String, dynamic>) {
+        _logger.warning(
+            'Skipping restored custom currencies: expected a JSON object');
+        return;
+      }
+      final config = UserCurrencyConfig.fromJson(decoded);
+      var loaded = 0;
+      for (final currency in config.currencies) {
+        if (currency.isCustom) {
+          CurrencyInfo.addCustomCurrency(CurrencyInfo(
+            isoCode: currency.isoCode,
+            name: currency.customName!,
+            customSymbol: currency.customSymbol,
+          ));
+          loaded++;
+        }
+      }
+      _logger.info('Loaded $loaded custom currencies from backup');
+    } catch (error, stackTrace) {
+      _logger.handle(error, stackTrace,
+          'Skipping malformed user currencies from backup');
     }
   }
 

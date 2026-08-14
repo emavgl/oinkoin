@@ -130,7 +130,8 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
   /// Available grouping: by day, month, year.
   Map<DateTime?, DateTimeSeriesRecord> aggregatedByDay = {};
   for (var record in records) {
-    DateTime? dateTime = truncateDateTime(record!.dateTime, aggregationMethod);
+    if (record == null || record.isTransfer || record.value == null) continue;
+    DateTime? dateTime = truncateDateTime(record.dateTime, aggregationMethod);
     double valueToAdd = record.value!.abs();
     if (useTagWeight) {
       valueToAdd *= record.tags.length;
@@ -152,7 +153,10 @@ List<Record?> aggregateRecordsByDateAndCategory(
   if (aggregationMethod == AggregationMethod.NOT_AGGREGATED)
     return records; // don't aggregate
   List<Record?> newAggregatedRecords = [];
-  Map<DateTime?, List<Record?>> mapDateTimeRecords = groupBy(records,
+  final categorizedRecords = records
+      .where((record) => record?.category != null && !record!.isTransfer)
+      .toList();
+  Map<DateTime?, List<Record?>> mapDateTimeRecords = groupBy(categorizedRecords,
       (Record? obj) => truncateDateTime(obj!.dateTime, aggregationMethod));
   for (var recordsByDatetime in mapDateTimeRecords.entries) {
     Map<String?, List<Record?>> mapRecordsCategory =

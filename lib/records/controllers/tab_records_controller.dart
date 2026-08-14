@@ -594,7 +594,10 @@ class TabRecordsController {
     _isNavigating = true;
     try {
       var categoryIsSet = await _isThereSomeCategory();
-      if (categoryIsSet) {
+      // Transfers do not require a category, but they do require the wallets
+      // feature to be available. Let the add flow open when wallets exist even
+      // if the user has not created any categories yet.
+      if (categoryIsSet || ServiceConfig.walletsEnabled) {
         await Navigator.push(
           context,
           MaterialPageRoute(

@@ -24,11 +24,18 @@ class Backup extends Model {
   /// Raw JSON string of user-defined currencies from SharedPreferences.
   String? userCurrencies;
 
+  /// Portable application preferences captured from SharedPreferences.
+  Map<String, dynamic> preferences;
+
   Backup(this.packageName, this.version, this.databaseVersion, this.categories,
       this.records, this.recurrentRecordsPattern, this.recordTagAssociations,
-      {List<Wallet>? wallets, List<Profile>? profiles, this.userCurrencies})
+      {List<Wallet>? wallets,
+      List<Profile>? profiles,
+      this.userCurrencies,
+      Map<String, dynamic>? preferences})
       : wallets = wallets ?? [],
-        profiles = profiles ?? [] {
+        profiles = profiles ?? [],
+        preferences = preferences ?? {} {
     created_at = new DateTime.now().millisecondsSinceEpoch;
   }
 
@@ -49,6 +56,7 @@ class Backup extends Model {
       'version': version ?? '',
       'database_version': databaseVersion ?? '',
       if (userCurrencies != null) 'user_currencies': userCurrencies,
+      'preferences': preferences,
     };
     return map;
   }
@@ -70,43 +78,56 @@ class Backup extends Model {
       });
     }
 
-    // Step 1: load categories
-    var categories = List.generate(map["categories"].length, (i) {
-      return Category.fromMap(map["categories"][i]);
+    // Step 1: load categories. Older backup formats always used this key,
+    // but treating it as optional makes partially exported legacy files safe
+    // to import as well.
+    final categoryMaps = map["categories"] as List? ?? const [];
+    var categories = List.generate(categoryMaps.length, (i) {
+      return Category.fromMap(categoryMaps[i]);
     });
 
     // Step 2: load records (wallet_id is kept as-is for now; remapping happens in BackupService)
-    var records = List.generate(map["records"].length, (i) {
+    final recordMaps = map["records"] as List? ?? const [];
+    var records = List.generate(recordMaps.length, (i) {
       Map<String, dynamic> currentRowMap =
-          Map<String, dynamic>.from(map["records"][i]);
+          Map<String, dynamic>.from(recordMaps[i]);
       String? categoryName = currentRowMap["category_name"];
-      CategoryType categoryType =
-          CategoryType.values[currentRowMap["category_type"]];
-      Category matchingCategory = categories.firstWhere(
-          (element) =>
-              element.categoryType == categoryType &&
-              element.name == categoryName,
-          orElse: () => throw Exception(
-              "Category not found")); // Provide a fallback or throw an error
-      currentRowMap["category"] = matchingCategory;
+      if (categoryName == null || currentRowMap["category_type"] == null) {
+        currentRowMap["category"] = null;
+      } else {
+        CategoryType categoryType =
+            CategoryType.values[currentRowMap["category_type"]];
+        Category matchingCategory = categories.firstWhere(
+            (element) =>
+                element.categoryType == categoryType &&
+                element.name == categoryName,
+            orElse: () => throw Exception("Category not found"));
+        currentRowMap["category"] = matchingCategory;
+      }
       return Record.fromMap(currentRowMap);
     });
 
-    // Step 3: load recurrent record patterns
+    // Step 3: load recurrent record patterns. This key was introduced after
+    // the original backup format, so it may be absent in old backups.
+    final recurrentPatternMaps =
+        map["recurrent_record_patterns"] as List? ?? const [];
     var recurrentRecordsPattern =
-        List.generate(map["recurrent_record_patterns"].length, (i) {
+        List.generate(recurrentPatternMaps.length, (i) {
       Map<String, dynamic> currentRowMap =
-          Map<String, dynamic>.from(map["recurrent_record_patterns"][i]);
+          Map<String, dynamic>.from(recurrentPatternMaps[i]);
       String? categoryName = currentRowMap["category_name"];
-      CategoryType categoryType =
-          CategoryType.values[currentRowMap["category_type"]];
-      Category matchingCategory = categories.firstWhere(
-          (element) =>
-              element.categoryType == categoryType &&
-              element.name == categoryName,
-          orElse: () => throw Exception(
-              "Category not found")); // Provide a fallback or throw an error
-      currentRowMap["category"] = matchingCategory;
+      if (categoryName == null || currentRowMap["category_type"] == null) {
+        currentRowMap["category"] = null;
+      } else {
+        CategoryType categoryType =
+            CategoryType.values[currentRowMap["category_type"]];
+        Category matchingCategory = categories.firstWhere(
+            (element) =>
+                element.categoryType == categoryType &&
+                element.name == categoryName,
+            orElse: () => throw Exception("Category not found"));
+        currentRowMap["category"] = matchingCategory;
+      }
       return RecurrentRecordPattern.fromMap(currentRowMap);
     });
 
@@ -125,10 +146,25 @@ class Backup extends Model {
     String? version = nonEmptyStringValue(map, 'version');
     String? databaseVersion = nonEmptyStringValue(map, 'database_version');
     String? userCurrencies = nonEmptyStringValue(map, 'user_currencies');
+    final preferences = _preferencesFromMap(map['preferences']);
 
     return Backup(packageName, version, databaseVersion, categories, records,
         recurrentRecordsPattern, recordTagAssociations,
-        wallets: wallets, profiles: profiles, userCurrencies: userCurrencies);
+        wallets: wallets,
+        profiles: profiles,
+        userCurrencies: userCurrencies,
+        preferences: preferences);
+  }
+
+  static Map<String, dynamic> _preferencesFromMap(Object? rawPreferences) {
+    if (rawPreferences is! Map) return {};
+    final preferences = <String, dynamic>{};
+    for (final entry in rawPreferences.entries) {
+      if (entry.key is String) {
+        preferences[entry.key as String] = entry.value;
+      }
+    }
+    return preferences;
   }
 
   static String? nonEmptyStringValue(Map<String, dynamic> map, String key) {

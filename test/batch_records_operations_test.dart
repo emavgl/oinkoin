@@ -30,6 +30,31 @@ void main() {
     await TestDatabaseHelper.setupTestDatabase();
   });
 
+  group('uncategorized transfers', () {
+    test('can be persisted and loaded without a category', () async {
+      DatabaseInterface db = ServiceConfig.database;
+      final originId = await db.addWallet(Wallet('Origin'));
+      final destinationId = await db.addWallet(Wallet('Destination'));
+      final id = await db.addRecord(
+        Record(
+          -50.0,
+          null,
+          null,
+          DateTime.utc(2026, 1, 1, 12),
+          walletId: originId,
+          transferWalletId: destinationId,
+        ),
+      );
+
+      final restored = await db.getRecordById(id);
+      expect(restored, isNotNull);
+      expect(restored!.category, isNull);
+      expect(restored.isTransfer, isTrue);
+      expect(restored.walletId, originId);
+      expect(restored.transferWalletId, destinationId);
+    });
+  });
+
   group('deleteRecordsInBatch', () {
     test('deletes all specified records', () async {
       DatabaseInterface db = ServiceConfig.database;
@@ -37,27 +62,15 @@ void main() {
 
       // Create test records
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id1 = await db.addRecord(Record(
-        -10.0,
-        'Record 1',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
-      final id2 = await db.addRecord(Record(
-        -20.0,
-        'Record 2',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
-      final id3 = await db.addRecord(Record(
-        -30.0,
-        'Record 3',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final id1 = await db.addRecord(
+        Record(-10.0, 'Record 1', testCategory, now, walletId: walletId),
+      );
+      final id2 = await db.addRecord(
+        Record(-20.0, 'Record 2', testCategory, now, walletId: walletId),
+      );
+      final id3 = await db.addRecord(
+        Record(-30.0, 'Record 3', testCategory, now, walletId: walletId),
+      );
 
       // Verify records exist
       expect(await db.getRecordById(id1), isNotNull);
@@ -78,27 +91,15 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final toDelete1 = await db.addRecord(Record(
-        -10.0,
-        'Delete Me 1',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
-      final toKeep = await db.addRecord(Record(
-        -50.0,
-        'Keep Me',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
-      final toDelete2 = await db.addRecord(Record(
-        -20.0,
-        'Delete Me 2',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final toDelete1 = await db.addRecord(
+        Record(-10.0, 'Delete Me 1', testCategory, now, walletId: walletId),
+      );
+      final toKeep = await db.addRecord(
+        Record(-50.0, 'Keep Me', testCategory, now, walletId: walletId),
+      );
+      final toDelete2 = await db.addRecord(
+        Record(-20.0, 'Delete Me 2', testCategory, now, walletId: walletId),
+      );
 
       // Delete only some
       await db.deleteRecordsInBatch([toDelete1, toDelete2]);
@@ -113,13 +114,9 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id = await db.addRecord(Record(
-        -10.0,
-        'Record',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final id = await db.addRecord(
+        Record(-10.0, 'Record', testCategory, now, walletId: walletId),
+      );
 
       // Should not throw
       await db.deleteRecordsInBatch([]);
@@ -160,20 +157,12 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test', initialAmount: 100.0));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id1 = await db.addRecord(Record(
-        -30.0,
-        'Expense',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
-      final id2 = await db.addRecord(Record(
-        -20.0,
-        'Another Expense',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final id1 = await db.addRecord(
+        Record(-30.0, 'Expense', testCategory, now, walletId: walletId),
+      );
+      final id2 = await db.addRecord(
+        Record(-20.0, 'Another Expense', testCategory, now, walletId: walletId),
+      );
 
       // Balance before: 100 - 30 - 20 = 50
       final before = await db.getWalletById(walletId);
@@ -195,27 +184,15 @@ void main() {
       final wallet2 = await db.addWallet(Wallet('Wallet 2'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id1 = await db.addRecord(Record(
-        -10.0,
-        'Record 1',
-        testCategory,
-        now,
-        walletId: wallet1,
-      ));
-      final id2 = await db.addRecord(Record(
-        -20.0,
-        'Record 2',
-        testCategory,
-        now,
-        walletId: wallet1,
-      ));
-      final id3 = await db.addRecord(Record(
-        -30.0,
-        'Record 3',
-        testCategory,
-        now,
-        walletId: wallet1,
-      ));
+      final id1 = await db.addRecord(
+        Record(-10.0, 'Record 1', testCategory, now, walletId: wallet1),
+      );
+      final id2 = await db.addRecord(
+        Record(-20.0, 'Record 2', testCategory, now, walletId: wallet1),
+      );
+      final id3 = await db.addRecord(
+        Record(-30.0, 'Record 3', testCategory, now, walletId: wallet1),
+      );
 
       // Verify initial state
       expect((await db.getRecordById(id1))!.walletId, wallet1);
@@ -237,20 +214,12 @@ void main() {
       final wallet2 = await db.addWallet(Wallet('Wallet 2'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final toUpdate = await db.addRecord(Record(
-        -10.0,
-        'Update Me',
-        testCategory,
-        now,
-        walletId: wallet1,
-      ));
-      final toKeep = await db.addRecord(Record(
-        -20.0,
-        'Keep Me',
-        testCategory,
-        now,
-        walletId: wallet1,
-      ));
+      final toUpdate = await db.addRecord(
+        Record(-10.0, 'Update Me', testCategory, now, walletId: wallet1),
+      );
+      final toKeep = await db.addRecord(
+        Record(-20.0, 'Keep Me', testCategory, now, walletId: wallet1),
+      );
 
       // Update only one
       await db.updateRecordWalletInBatch([toUpdate], wallet2);
@@ -263,13 +232,9 @@ void main() {
       DatabaseInterface db = ServiceConfig.database;
       final walletId = await db.addWallet(Wallet('Test'));
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id = await db.addRecord(Record(
-        -10.0,
-        'Record',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final id = await db.addRecord(
+        Record(-10.0, 'Record', testCategory, now, walletId: walletId),
+      );
 
       // Should not throw
       await db.updateRecordWalletInBatch([], walletId);
@@ -284,20 +249,12 @@ void main() {
       final wallet2 = await db.addWallet(Wallet('W2', initialAmount: 50.0));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id1 = await db.addRecord(Record(
-        -30.0,
-        'Expense',
-        testCategory,
-        now,
-        walletId: wallet1,
-      ));
-      final id2 = await db.addRecord(Record(
-        -20.0,
-        'Another Expense',
-        testCategory,
-        now,
-        walletId: wallet1,
-      ));
+      final id1 = await db.addRecord(
+        Record(-30.0, 'Expense', testCategory, now, walletId: wallet1),
+      );
+      final id2 = await db.addRecord(
+        Record(-20.0, 'Another Expense', testCategory, now, walletId: wallet1),
+      );
 
       // Before: W1 = 50, W2 = 50
       var w1 = await db.getWalletById(wallet1);
@@ -320,13 +277,9 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id = await db.addRecord(Record(
-        -10.0,
-        'Record',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final id = await db.addRecord(
+        Record(-10.0, 'Record', testCategory, now, walletId: walletId),
+      );
 
       await db.updateRecordWalletInBatch([id], null);
 
@@ -340,20 +293,12 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id1 = await db.addRecord(Record(
-        -10.0,
-        'Record 1',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
-      final id2 = await db.addRecord(Record(
-        -20.0,
-        'Record 2',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final id1 = await db.addRecord(
+        Record(-10.0, 'Record 1', testCategory, now, walletId: walletId),
+      );
+      final id2 = await db.addRecord(
+        Record(-20.0, 'Record 2', testCategory, now, walletId: walletId),
+      );
 
       final allBefore = await db.getAllRecords();
       final countBefore = allBefore.length;
@@ -411,13 +356,9 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final pastTime = DateTime.utc(2020, 1, 1, 12, 0, 0);
-      final id = await db.addRecord(Record(
-        -10.0,
-        'Old Record',
-        testCategory,
-        pastTime,
-        walletId: walletId,
-      ));
+      final id = await db.addRecord(
+        Record(-10.0, 'Old Record', testCategory, pastTime, walletId: walletId),
+      );
 
       final beforeDuplicate = DateTime.utc(2025, 1, 1, 12, 0, 0);
       await db.duplicateRecordsInBatch([id]);
@@ -434,13 +375,15 @@ void main() {
 
       // Duplicate should have a recent timestamp, not the old one
       expect(
-          duplicate.utcDateTime.isAfter(beforeDuplicate) ||
-              duplicate.utcDateTime.isAtSameMomentAs(beforeDuplicate),
-          true);
+        duplicate.utcDateTime.isAfter(beforeDuplicate) ||
+            duplicate.utcDateTime.isAtSameMomentAs(beforeDuplicate),
+        true,
+      );
       expect(
-          duplicate.utcDateTime.isBefore(afterDuplicate) ||
-              duplicate.utcDateTime.isAtSameMomentAs(afterDuplicate),
-          true);
+        duplicate.utcDateTime.isBefore(afterDuplicate) ||
+            duplicate.utcDateTime.isAtSameMomentAs(afterDuplicate),
+        true,
+      );
     });
 
     test('only duplicates specified records', () async {
@@ -448,20 +391,12 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final toDuplicate = await db.addRecord(Record(
-        -10.0,
-        'Duplicate Me',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
-      await db.addRecord(Record(
-        -20.0,
-        'Keep Me',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      final toDuplicate = await db.addRecord(
+        Record(-10.0, 'Duplicate Me', testCategory, now, walletId: walletId),
+      );
+      await db.addRecord(
+        Record(-20.0, 'Keep Me', testCategory, now, walletId: walletId),
+      );
 
       final countBefore = (await db.getAllRecords()).length;
 
@@ -490,13 +425,9 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      await db.addRecord(Record(
-        -10.0,
-        'Record',
-        testCategory,
-        now,
-        walletId: walletId,
-      ));
+      await db.addRecord(
+        Record(-10.0, 'Record', testCategory, now, walletId: walletId),
+      );
 
       final countBefore = (await db.getAllRecords()).length;
 
@@ -512,14 +443,16 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id = await db.addRecord(Record(
-        -10.0,
-        'Tagged Record',
-        testCategory,
-        now,
-        walletId: walletId,
-        tags: {'work', 'important', 'urgent'}.toSet(),
-      ));
+      final id = await db.addRecord(
+        Record(
+          -10.0,
+          'Tagged Record',
+          testCategory,
+          now,
+          walletId: walletId,
+          tags: {'work', 'important', 'urgent'}.toSet(),
+        ),
+      );
 
       final tagsBefore = await db.getTagsForRecord(id);
       expect(tagsBefore.length, 3);
@@ -542,75 +475,71 @@ void main() {
   });
 
   group('Batch operations performance', () {
-    test('deleteRecordsInBatch is more efficient than per-record deletion',
-        () async {
-      DatabaseInterface db = ServiceConfig.database;
-      final walletId = await db.addWallet(Wallet('Test Wallet'));
+    test(
+      'deleteRecordsInBatch is more efficient than per-record deletion',
+      () async {
+        DatabaseInterface db = ServiceConfig.database;
+        final walletId = await db.addWallet(Wallet('Test Wallet'));
 
-      // Create 50 records
-      final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final ids = <int>[];
-      for (int i = 0; i < 50; i++) {
-        final id = await db.addRecord(Record(
-          -10.0,
-          'Record $i',
-          testCategory,
-          now,
-          walletId: walletId,
-        ));
-        ids.add(id);
-      }
+        // Create 50 records
+        final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
+        final ids = <int>[];
+        for (int i = 0; i < 50; i++) {
+          final id = await db.addRecord(
+            Record(-10.0, 'Record $i', testCategory, now, walletId: walletId),
+          );
+          ids.add(id);
+        }
 
-      // Time batch deletion
-      final batchStart = DateTime.now();
-      await db.deleteRecordsInBatch(ids);
-      final batchEnd = DateTime.now();
-      final batchDuration = batchEnd.difference(batchStart);
+        // Time batch deletion
+        final batchStart = DateTime.now();
+        await db.deleteRecordsInBatch(ids);
+        final batchEnd = DateTime.now();
+        final batchDuration = batchEnd.difference(batchStart);
 
-      // Verify all deleted
-      for (final id in ids) {
-        expect(await db.getRecordById(id), isNull);
-      }
+        // Verify all deleted
+        for (final id in ids) {
+          expect(await db.getRecordById(id), isNull);
+        }
 
-      // The batch operation should complete reasonably fast
-      // (less than 5 seconds for 50 records)
-      expect(batchDuration.inSeconds, lessThan(5));
-    });
+        // The batch operation should complete reasonably fast
+        // (less than 5 seconds for 50 records)
+        expect(batchDuration.inSeconds, lessThan(5));
+      },
+    );
 
-    test('updateRecordWalletInBatch is more efficient than per-record updates',
-        () async {
-      DatabaseInterface db = ServiceConfig.database;
-      final wallet1 = await db.addWallet(Wallet('Wallet 1'));
-      final wallet2 = await db.addWallet(Wallet('Wallet 2'));
+    test(
+      'updateRecordWalletInBatch is more efficient than per-record updates',
+      () async {
+        DatabaseInterface db = ServiceConfig.database;
+        final wallet1 = await db.addWallet(Wallet('Wallet 1'));
+        final wallet2 = await db.addWallet(Wallet('Wallet 2'));
 
-      // Create 50 records
-      final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final ids = <int>[];
-      for (int i = 0; i < 50; i++) {
-        final id = await db.addRecord(Record(
-          -10.0,
-          'Record $i',
-          testCategory,
-          now,
-          walletId: wallet1,
-        ));
-        ids.add(id);
-      }
+        // Create 50 records
+        final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
+        final ids = <int>[];
+        for (int i = 0; i < 50; i++) {
+          final id = await db.addRecord(
+            Record(-10.0, 'Record $i', testCategory, now, walletId: wallet1),
+          );
+          ids.add(id);
+        }
 
-      // Time batch update
-      final batchStart = DateTime.now();
-      await db.updateRecordWalletInBatch(ids, wallet2);
-      final batchEnd = DateTime.now();
-      final batchDuration = batchEnd.difference(batchStart);
+        // Time batch update
+        final batchStart = DateTime.now();
+        await db.updateRecordWalletInBatch(ids, wallet2);
+        final batchEnd = DateTime.now();
+        final batchDuration = batchEnd.difference(batchStart);
 
-      // Verify all updated
-      for (final id in ids) {
-        expect((await db.getRecordById(id))!.walletId, wallet2);
-      }
+        // Verify all updated
+        for (final id in ids) {
+          expect((await db.getRecordById(id))!.walletId, wallet2);
+        }
 
-      // The batch operation should complete reasonably fast
-      expect(batchDuration.inSeconds, lessThan(5));
-    });
+        // The batch operation should complete reasonably fast
+        expect(batchDuration.inSeconds, lessThan(5));
+      },
+    );
 
     test('duplicateRecordsInBatch completes in reasonable time', () async {
       DatabaseInterface db = ServiceConfig.database;
@@ -620,13 +549,9 @@ void main() {
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
       final ids = <int>[];
       for (int i = 0; i < 20; i++) {
-        final id = await db.addRecord(Record(
-          -10.0,
-          'Record $i',
-          testCategory,
-          now,
-          walletId: walletId,
-        ));
+        final id = await db.addRecord(
+          Record(-10.0, 'Record $i', testCategory, now, walletId: walletId),
+        );
         ids.add(id);
       }
 

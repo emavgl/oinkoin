@@ -12,6 +12,7 @@ import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
+import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
@@ -119,6 +120,7 @@ void main() {
           'buildNumber': '67'
         };
       }
+      return null;
     });
     const MethodChannel channel2 =
         MethodChannel('plugins.flutter.io/path_provider');
@@ -236,6 +238,91 @@ void main() {
     expect(backupMap['record_tag_associations'][0]['tag_name'], "rent");
     expect(backupMap['record_tag_associations'][1]['record_id'], 1);
     expect(backupMap['record_tag_associations'][1]['tag_name'], "house");
+  });
+
+  testlib.test(
+      'uncategorized transfers survive plaintext and encrypted backup round-trips',
+      () async {
+    final originalRecords = records;
+    final transfer = Record(
+      -125,
+      'Wallet transfer',
+      null,
+      DateTime.parse('2020-05-04 10:30:00'),
+      id: 7,
+      walletId: 10,
+      transferWalletId: 11,
+      transferValue: 125,
+    );
+    final originWallet = Wallet('Origin wallet', id: 10);
+    final destinationWallet = Wallet('Destination wallet', id: 11);
+    final restoredRecords = <Record?>[];
+    var nextWalletId = 100;
+
+    records = [...originalRecords, transfer];
+    when(mockDatabase.getAllWallets())
+        .thenAnswer((_) async => [originWallet, destinationWallet]);
+    when(mockDatabase.addWallet(any)).thenAnswer((_) async => nextWalletId++);
+    when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
+    when(mockDatabase.addRecordsInBatch(any))
+        .thenAnswer((Invocation invocation) async {
+      final List<Record?> imported = invocation.positionalArguments[0];
+      restoredRecords.addAll(imported);
+    });
+
+    try {
+      final backupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+      );
+      final backupMap = jsonDecode(await backupFile.readAsString())
+          as Map<String, dynamic>;
+      final transferMap = (backupMap['records'] as List)
+          .firstWhere((entry) => entry['id'] == transfer.id) as Map;
+
+      expect(transferMap['category_name'], isNull);
+      expect(transferMap['category_type'], isNull);
+      expect(transferMap['wallet_id'], 10);
+      expect(transferMap['transfer_wallet_id'], 11);
+
+      final result = await BackupService.importDataFromBackupFile(backupFile);
+
+      expect(result, isTrue);
+      final restoredTransfer =
+          restoredRecords.singleWhere((record) => record?.id == transfer.id)!;
+      expect(restoredTransfer.category, isNull);
+      expect(restoredTransfer.isTransfer, isTrue);
+      expect(restoredTransfer.value, -125);
+      expect(restoredTransfer.transferValue, 125);
+      expect(restoredTransfer.walletId, 100);
+      expect(restoredTransfer.transferWalletId, 101);
+
+      final encryptedBackupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+        backupFileName: 'encrypted_transfer.obackup.json',
+        encryptionPassword: 'testpassword',
+      );
+      final encryptedContent = await encryptedBackupFile.readAsString();
+      expect(() => jsonDecode(encryptedContent), throwsFormatException);
+
+      restoredRecords.clear();
+      final encryptedResult = await BackupService.importDataFromBackupFile(
+        encryptedBackupFile,
+        encryptionPassword: 'testpassword',
+      );
+      expect(encryptedResult, isTrue);
+      final restoredEncryptedTransfer = restoredRecords
+          .singleWhere((record) => record?.id == transfer.id)!;
+      expect(restoredEncryptedTransfer.category, isNull);
+      expect(restoredEncryptedTransfer.isTransfer, isTrue);
+      expect(restoredEncryptedTransfer.transferValue, 125);
+    } finally {
+      records = originalRecords;
+      when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
+      when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
+      when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
+      when(mockDatabase.addRecordsInBatch(any)).thenAnswer((_) async {});
+      clearInteractions(mockDatabase);
+    }
   });
 
   testlib.test('createJsonBackupFile encrypts the backup file', () async {

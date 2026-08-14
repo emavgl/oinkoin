@@ -1,10 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CategoryIcons {
   static List<IconData> free_category_icons = [
     // Other
     FontAwesomeIcons.question.data,
+    Icons.swap_horiz,
 
     // House
     FontAwesomeIcons.house.data,
@@ -70,6 +71,7 @@ class CategoryIcons {
   static List<IconData> pro_category_icons = [
     // Other
     FontAwesomeIcons.question.data,
+    Icons.swap_horiz,
 
     // House
     FontAwesomeIcons.house.data,

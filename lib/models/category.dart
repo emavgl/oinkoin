@@ -88,6 +88,13 @@ class Category extends Model {
     return map;
   }
 
+  /// Creates a nullable Category object from a database row.
+  /// Records and recurrent patterns may intentionally have no category.
+  static Category? fromNullableMap(Map<String, dynamic> map) {
+    if (map['name'] == null || map['category_type'] == null) return null;
+    return fromMap(map);
+  }
+
   /// Creates a Category object from a Map
   static Category fromMap(Map<String, dynamic> map) {
     // Deserialize color

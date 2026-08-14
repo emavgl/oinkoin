@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/wallet.dart';
 
 // Helper function to create a fully-populated Category object
 Category _createFullCategory({
@@ -122,6 +123,19 @@ void main() {
       final category = Category('Test',
           iconCodePoint: CategoryIcons.pro_category_icons[0].codePoint);
       expect(category.icon, equals(CategoryIcons.pro_category_icons[0]));
+    });
+
+    test('should offer the transfer icon for categories and wallets', () {
+      expect(CategoryIcons.free_category_icons, contains(Icons.swap_horiz));
+      expect(CategoryIcons.pro_category_icons, contains(Icons.swap_horiz));
+
+      final category = Category('Transfer category',
+          iconCodePoint: Icons.swap_horiz.codePoint);
+      final wallet = Wallet('Transfer wallet',
+          iconCodePoint: Icons.swap_horiz.codePoint);
+
+      expect(category.icon, equals(Icons.swap_horiz));
+      expect(wallet.icon, equals(Icons.swap_horiz));
     });
 
     test('should set default categoryType to expense if not provided', () {

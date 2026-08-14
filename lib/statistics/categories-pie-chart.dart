@@ -110,6 +110,7 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
     double totalSum = 0;
 
     for (var record in records) {
+      if (record?.category == null || record?.value == null) continue;
       totalSum += record!.value!.abs();
       aggregatedCategoriesValuesTemporaryMap.update(
         record.category!,
@@ -220,10 +221,11 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
           // Find records for this category to calculate sum
           final double categorySum = widget.records
               .where((r) =>
-                  r!.category!.name == categoryName ||
+                  r?.category?.name == categoryName ||
                   (categoryName == "Others".i18n &&
-                      !_isTopCategory(r.category!.name!)))
-              .fold(0.0, (double acc, r) => acc + r!.value!.abs());
+                      r?.category?.name != null &&
+                      !_isTopCategory(r!.category!.name!)))
+              .fold(0.0, (double acc, r) => acc + (r?.value ?? 0).abs());
 
           // Get names of top categories (excluding "Others")
           final List<String> topCategoryNames = linearRecords

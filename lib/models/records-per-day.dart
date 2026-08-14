@@ -21,8 +21,8 @@ class RecordsPerDay {
     List<Record?> expenseRecords = this
         .records!
         .where((e) =>
-            e!.category!.categoryType == CategoryType.expense &&
-            !e.isTransfer)
+            e?.category?.categoryType == CategoryType.expense &&
+            !e!.isTransfer)
         .toList();
     for (var movement in expenseRecords) {
       total += movement!.value!;
@@ -35,8 +35,8 @@ class RecordsPerDay {
     List<Record?> incomeRecords = this
         .records!
         .where((e) =>
-            e!.category!.categoryType == CategoryType.income &&
-            !e.isTransfer)
+            e?.category?.categoryType == CategoryType.income &&
+            !e!.isTransfer)
         .toList();
     for (var movement in incomeRecords) {
       total += movement!.value!;

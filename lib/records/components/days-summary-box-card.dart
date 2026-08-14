@@ -45,12 +45,12 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   final _walletRowFont = const TextStyle(fontSize: 15.0);
 
   Iterable<Record?> get _incomeRecords => widget.records.where((record) =>
-      record!.category!.categoryType == CategoryType.income &&
-      !record.isTransfer);
+      record?.category?.categoryType == CategoryType.income &&
+      !record!.isTransfer);
 
   Iterable<Record?> get _expenseRecords => widget.records.where((record) =>
-      record!.category!.categoryType == CategoryType.expense &&
-      !record.isTransfer);
+      record?.category?.categoryType == CategoryType.expense &&
+      !record!.isTransfer);
 
   Iterable<Record?> get _balanceRecords =>
       widget.records.where((record) => !record!.isTransfer);

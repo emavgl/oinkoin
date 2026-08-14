@@ -34,7 +34,7 @@ void main() {
     ServiceConfig.sharedPreferences = sharedPreferences;
 
     await TestDatabaseHelper.setupTestDatabase();
-    controller = TabRecordsController();
+    controller = TabRecordsController(onStateChanged: () {});
     controller.initialize();
   });
 
@@ -48,7 +48,8 @@ void main() {
     await controller.shiftInterval(-1);
 
     print(
-        'After shift: from=${controller.customIntervalFrom}, to=${controller.customIntervalTo}');
+      'After shift: from=${controller.customIntervalFrom}, to=${controller.customIntervalTo}',
+    );
 
     // Expected: March 23, 2026
     print('Expected: from=2026-03-23, to=2026-03-29 23:59:59');

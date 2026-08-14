@@ -8,6 +8,8 @@ class CategoryIconCircle extends StatelessWidget {
   final Color? backgroundColor;
   final IconData? overlayIcon;
   final IconData? topOverlayIcon;
+  final String? topOverlayEmoji;
+  final Color? topOverlayBackgroundColor;
   final double mainIconSize;
   final double overlayIconSize;
   final double circleSize;
@@ -18,6 +20,8 @@ class CategoryIconCircle extends StatelessWidget {
     this.backgroundColor,
     this.overlayIcon = null,
     this.topOverlayIcon = null,
+    this.topOverlayEmoji,
+    this.topOverlayBackgroundColor,
     this.mainIconSize = 20.0,
     this.overlayIconSize = 15.0,
     this.circleSize = 40.0,
@@ -76,7 +80,9 @@ class CategoryIconCircle extends StatelessWidget {
 
   // Helper function to build the top-right overlay icon container (symmetric to bottom)
   Widget _buildTopOverlayIcon(
-      BuildContext context, IconData overlayIcon, bool iconBackground) {
+      BuildContext context, IconData? overlayIcon, String? overlayEmoji,
+      bool iconBackground) {
+    final hasCustomBackground = topOverlayBackgroundColor != null;
     return Transform.translate(
       offset: Offset(circleSize - 10, -(circleSize / 2 - 16)),
       child: Container(
@@ -84,15 +90,26 @@ class CategoryIconCircle extends StatelessWidget {
         height: circleSize / 2,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: iconBackground
-              ? Theme.of(context).colorScheme.surface
-              : Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: 0.8),
+          color: topOverlayBackgroundColor ??
+              (iconBackground
+                  ? Theme.of(context).colorScheme.surface
+                  : Theme.of(context)
+                      .colorScheme
+                      .surfaceContainer
+                      .withValues(alpha: 0.8)),
         ),
-        child: Icon(
-          overlayIcon,
-          size: overlayIconSize,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+        child: overlayEmoji != null
+            ? Center(
+                child: Text(overlayEmoji,
+                    style: TextStyle(fontSize: overlayIconSize)),
+              )
+            : Icon(
+                overlayIcon,
+                size: overlayIconSize,
+                color: hasCustomBackground
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
       ),
     );
   }
@@ -114,9 +131,9 @@ class CategoryIconCircle extends StatelessWidget {
         ),
         if (overlayIcon != null)
           _buildOverlayIcon(context, overlayIcon, backgroundColor != null),
-        if (topOverlayIcon != null)
-          _buildTopOverlayIcon(
-              context, topOverlayIcon, backgroundColor != null),
+        if (topOverlayIcon != null || topOverlayEmoji != null)
+          _buildTopOverlayIcon(context, topOverlayIcon, topOverlayEmoji,
+              backgroundColor != null),
       ],
     );
   }
