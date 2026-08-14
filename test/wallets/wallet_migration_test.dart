@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:sqflite_common/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
@@ -82,8 +81,7 @@ void main() {
     ServiceConfig.localTimezone = "Europe/Vienna";
   });
 
-  test('migration 17 -> 18 creates Default Wallet and backfills records',
-      () async {
+  test('migration 17 -> 18 creates Default Wallet and backfills records', () async {
     // Open a v17 database with some pre-existing records
     final db = await _openV17Database();
 
@@ -111,8 +109,11 @@ void main() {
     // Verify wallets table exists and has exactly one default wallet
     final wallets = await db.query('wallets');
     expect(wallets.length, 1, reason: 'Should have created one Default Wallet');
-    expect(wallets.first['is_default'], 1,
-        reason: 'The wallet should be marked as default');
+    expect(
+      wallets.first['is_default'],
+      1,
+      reason: 'The wallet should be marked as default',
+    );
     expect(wallets.first['name'], isNotNull);
 
     final defaultWalletId = wallets.first['id'] as int;
@@ -121,9 +122,12 @@ void main() {
     final records = await db.query('records');
     expect(records.length, 2);
     for (final record in records) {
-      expect(record['wallet_id'], defaultWalletId,
-          reason:
-              'Record "${record['title']}" should be assigned to the Default Wallet');
+      expect(
+        record['wallet_id'],
+        defaultWalletId,
+        reason:
+            'Record "${record['title']}" should be assigned to the Default Wallet',
+      );
     }
 
     await db.close();
@@ -146,41 +150,46 @@ void main() {
     await db.close();
   });
 
-  test('fresh install at v18 has Default Wallet and records include wallet_id',
-      () async {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+  test(
+    'fresh install at v18 has Default Wallet and records include wallet_id',
+    () async {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
 
-    final db = await databaseFactory.openDatabase(
-      inMemoryDatabasePath,
-      options: OpenDatabaseOptions(
-        version: SqliteDatabase.version,
-        onCreate: SqliteMigrationService.onCreate,
-        onUpgrade: SqliteMigrationService.onUpgrade,
-      ),
-    );
+      final db = await databaseFactory.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(
+          version: SqliteDatabase.version,
+          onCreate: SqliteMigrationService.onCreate,
+          onUpgrade: SqliteMigrationService.onUpgrade,
+        ),
+      );
 
-    SqliteDatabase.setDatabaseForTesting(db);
+      SqliteDatabase.setDatabaseForTesting(db);
 
-    final wallets = await db.query('wallets');
-    expect(wallets.any((w) => w['is_default'] == 1), true,
-        reason: 'Fresh install should have a Default Wallet');
+      final wallets = await db.query('wallets');
+      expect(
+        wallets.any((w) => w['is_default'] == 1),
+        true,
+        reason: 'Fresh install should have a Default Wallet',
+      );
 
-    // records table should have wallet_id column (verified by inserting with it)
-    await db.insert('records', {
-      'datetime': DateTime.now().millisecondsSinceEpoch,
-      'timezone': 'UTC',
-      'value': -10.0,
-      'title': 'Test',
-      'category_name': 'Food',
-      'category_type': 1,
-      'wallet_id': wallets.first['id'],
-    });
+      // records table should have wallet_id column (verified by inserting with it)
+      await db.insert('records', {
+        'datetime': DateTime.now().millisecondsSinceEpoch,
+        'timezone': 'UTC',
+        'value': -10.0,
+        'title': 'Test',
+        'category_name': 'Food',
+        'category_type': 1,
+        'wallet_id': wallets.first['id'],
+      });
 
-    final records = await db.query('records');
-    expect(records.length, 1);
-    expect(records.first['wallet_id'], wallets.first['id']);
+      final records = await db.query('records');
+      expect(records.length, 1);
+      expect(records.first['wallet_id'], wallets.first['id']);
 
-    await db.close();
-  });
+      await db.close();
+    },
+  );
 }

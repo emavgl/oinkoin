@@ -92,14 +92,22 @@ Future<DateTime?> showYearPicker({
   String? fieldHintText,
   String? fieldLabelText,
 }) async {
-  assert(!lastDate.isBefore(firstDate),
-      'lastDate $lastDate must be on or after firstDate $firstDate.');
-  assert(!initialDate.isBefore(firstDate),
-      'initialDate $initialDate must be on or after firstDate $firstDate.');
-  assert(!initialDate.isAfter(lastDate),
-      'initialDate $initialDate must be on or before lastDate $lastDate.');
-  assert(selectableDayPredicate == null || selectableDayPredicate(initialDate),
-      'Provided initialDate $initialDate must satisfy provided selectableDayPredicate.');
+  assert(
+    !lastDate.isBefore(firstDate),
+    'lastDate $lastDate must be on or after firstDate $firstDate.',
+  );
+  assert(
+    !initialDate.isBefore(firstDate),
+    'initialDate $initialDate must be on or after firstDate $firstDate.',
+  );
+  assert(
+    !initialDate.isAfter(lastDate),
+    'initialDate $initialDate must be on or before lastDate $lastDate.',
+  );
+  assert(
+    selectableDayPredicate == null || selectableDayPredicate(initialDate),
+    'Provided initialDate $initialDate must satisfy provided selectableDayPredicate.',
+  );
   assert(debugCheckHasMaterialLocalizations(context));
 
   Widget dialog = _DatePickerDialog(
@@ -119,10 +127,7 @@ Future<DateTime?> showYearPicker({
   );
 
   if (textDirection != null) {
-    dialog = Directionality(
-      textDirection: textDirection,
-      child: dialog,
-    );
+    dialog = Directionality(textDirection: textDirection, child: dialog);
   }
 
   if (locale != null) {
@@ -164,20 +169,27 @@ class _DatePickerDialog extends StatefulWidget {
     this.errorInvalidText,
     this.fieldHintText,
     this.fieldLabelText,
-  })  : initialDate = dateOnly(initialDate),
-        firstDate = dateOnly(firstDate),
-        lastDate = dateOnly(lastDate),
-        super(key: key) {
-    assert(!this.lastDate.isBefore(this.firstDate),
-        'lastDate ${this.lastDate} must be on or after firstDate ${this.firstDate}.');
-    assert(!this.initialDate.isBefore(this.firstDate),
-        'initialDate ${this.initialDate} must be on or after firstDate ${this.firstDate}.');
-    assert(!this.initialDate.isAfter(this.lastDate),
-        'initialDate ${this.initialDate} must be on or before lastDate ${this.lastDate}.');
+  }) : initialDate = dateOnly(initialDate),
+       firstDate = dateOnly(firstDate),
+       lastDate = dateOnly(lastDate),
+       super(key: key) {
     assert(
-        selectableDayPredicate == null ||
-            selectableDayPredicate!(this.initialDate),
-        'Provided initialDate ${this.initialDate} must satisfy provided selectableDayPredicate');
+      !this.lastDate.isBefore(this.firstDate),
+      'lastDate ${this.lastDate} must be on or after firstDate ${this.firstDate}.',
+    );
+    assert(
+      !this.initialDate.isBefore(this.firstDate),
+      'initialDate ${this.initialDate} must be on or after firstDate ${this.firstDate}.',
+    );
+    assert(
+      !this.initialDate.isAfter(this.lastDate),
+      'initialDate ${this.initialDate} must be on or before lastDate ${this.lastDate}.',
+    );
+    assert(
+      selectableDayPredicate == null ||
+          selectableDayPredicate!(this.initialDate),
+      'Provided initialDate ${this.initialDate} must satisfy provided selectableDayPredicate',
+    );
   }
 
   /// The initially selected [DateTime] that the picker should display.
@@ -289,14 +301,17 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final MaterialLocalizations localizations = MaterialLocalizations.of(
+      context,
+    );
     final Orientation orientation = MediaQuery.of(context).orientation;
     final TextTheme textTheme = theme.textTheme;
-    // Constrain the textScaleFactor to the largest supported value to prevent
+    // Constrain the text scale to the largest supported value to prevent
     // layout issues.
-    final double textScaleFactor =
-        min(MediaQuery.of(context).textScaleFactor, 1.3);
+    final double textScaleFactor = min(
+      MediaQuery.of(context).textScaler.scale(1.0),
+      1.3,
+    );
 
     final String dateText = _selectedDate!.year.toString();
     final Color dateColor = colorScheme.brightness == Brightness.light
@@ -306,9 +321,9 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
         ? textTheme.headlineSmall?.copyWith(color: dateColor)
         : textTheme.headlineMedium?.copyWith(color: dateColor);
 
-    final Widget actions = ButtonBar(
-      buttonTextTheme: ButtonTextTheme.primary,
-      layoutBehavior: ButtonBarLayoutBehavior.constrained,
+    final Widget actions = OverflowBar(
+      alignment: MainAxisAlignment.end,
+      spacing: 8,
       children: <Widget>[
         TextButton(
           child: Text(widget.cancelText ?? localizations.cancelButtonLabel),
@@ -350,50 +365,54 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
         duration: _dialogSizeAnimationDuration,
         curve: Curves.easeIn,
         child: MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(textScaleFactor),
-          ),
-          child: Builder(builder: (BuildContext context) {
-            switch (orientation) {
-              case Orientation.portrait:
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    header,
-                    Expanded(child: picker),
-                    actions,
-                  ],
-                );
-              case Orientation.landscape:
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    header,
-                    Flexible(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Expanded(child: picker),
-                          actions,
-                        ],
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScaleFactor)),
+          child: Builder(
+            builder: (BuildContext context) {
+              switch (orientation) {
+                case Orientation.portrait:
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      header,
+                      Expanded(child: picker),
+                      actions,
+                    ],
+                  );
+                case Orientation.landscape:
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      header,
+                      Flexible(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Expanded(child: picker),
+                            actions,
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                );
-            }
-          }),
+                    ],
+                  );
+              }
+            },
+          ),
         ),
       ),
-      insetPadding:
-          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 24.0,
+      ),
       // The default dialog shape is radius 2 rounded rect, but the spec has
       // been updated to 4, so we will use that here for the Date Picker, but
       // only if there isn't one provided in the theme.
       shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4.0))),
+        borderRadius: BorderRadius.all(Radius.circular(4.0)),
+      ),
       clipBehavior: Clip.antiAlias,
     );
   }
@@ -477,10 +496,12 @@ class DatePickerHeader extends StatelessWidget {
 
     // The header should use the primary color in light themes and surface color in dark
     final bool isDark = colorScheme.brightness == Brightness.dark;
-    final Color primarySurfaceColor =
-        isDark ? colorScheme.surface : colorScheme.primary;
-    final Color onPrimarySurfaceColor =
-        isDark ? colorScheme.onSurface : colorScheme.onPrimary;
+    final Color primarySurfaceColor = isDark
+        ? colorScheme.surface
+        : colorScheme.primary;
+    final Color onPrimarySurfaceColor = isDark
+        ? colorScheme.onSurface
+        : colorScheme.onPrimary;
 
     final TextStyle? helpStyle = textTheme.labelSmall?.copyWith(
       color: onPrimarySurfaceColor,
@@ -514,10 +535,7 @@ class DatePickerHeader extends StatelessWidget {
             Container(
               height: _datePickerHeaderPortraitHeight,
               color: primarySurfaceColor,
-              padding: const EdgeInsetsDirectional.only(
-                start: 24,
-                end: 12,
-              ),
+              padding: const EdgeInsetsDirectional.only(start: 24, end: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -561,9 +579,7 @@ class DatePickerHeader extends StatelessWidget {
                   ),
                   const Spacer(),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: icon,
                   ),
                 ],
@@ -588,8 +604,8 @@ class CustomYearPicker extends StatefulWidget {
     required this.initialDate,
     required this.selectedDate,
     required this.onChanged,
-  })  : assert(!firstDate.isAfter(lastDate)),
-        super(key: key);
+  }) : assert(!firstDate.isAfter(lastDate)),
+       super(key: key);
 
   /// The current date.
   ///
@@ -633,8 +649,9 @@ class YearPickerState extends State<CustomYearPicker> {
     final int initialYearRow = initialYearIndex ~/ _yearPickerColumnCount;
     // Move the offset down by 2 rows to approximately center it.
     final int centeredYearRow = initialYearRow - 2;
-    final double scrollOffset =
-        _itemCount < minYears ? 0 : centeredYearRow * _yearPickerRowHeight;
+    final double scrollOffset = _itemCount < minYears
+        ? 0
+        : centeredYearRow * _yearPickerRowHeight;
     scrollController = ScrollController(initialScrollOffset: scrollOffset);
   }
 
@@ -673,10 +690,7 @@ class YearPickerState extends State<CustomYearPicker> {
       );
     } else if (isCurrentYear && !isDisabled) {
       decoration = BoxDecoration(
-        border: Border.all(
-          color: colorScheme.primary,
-          width: 1,
-        ),
+        border: Border.all(color: colorScheme.primary, width: 1),
         borderRadius: BorderRadius.circular(decorationHeight / 2),
         shape: BoxShape.rectangle,
       );
@@ -697,19 +711,13 @@ class YearPickerState extends State<CustomYearPicker> {
     );
 
     if (isDisabled) {
-      yearItem = ExcludeSemantics(
-        child: yearItem,
-      );
+      yearItem = ExcludeSemantics(child: yearItem);
     } else {
       yearItem = InkWell(
         key: ValueKey<int>(year),
         onTap: () {
           widget.onChanged(
-            DateTime(
-              year,
-              widget.initialDate.month,
-              widget.initialDate.day,
-            ),
+            DateTime(year, widget.initialDate.month, widget.initialDate.day),
           );
         },
         child: yearItem,
@@ -748,7 +756,8 @@ class _YearPickerGridDelegate extends SliverGridDelegate {
 
   @override
   SliverGridLayout getLayout(SliverConstraints constraints) {
-    final double tileWidth = (constraints.crossAxisExtent -
+    final double tileWidth =
+        (constraints.crossAxisExtent -
             (_yearPickerColumnCount - 1) * _yearPickerRowSpacing) /
         _yearPickerColumnCount;
     return SliverGridRegularTileLayout(

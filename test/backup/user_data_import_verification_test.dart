@@ -43,7 +43,7 @@ void main() {
           "category_name": "Food",
           "category_type": 1,
           "datetime": 1738407600000,
-          "timezone": "UTC"
+          "timezone": "UTC",
         },
         {
           "id": 2,
@@ -52,7 +52,7 @@ void main() {
           "category_name": "Transport",
           "category_type": 1,
           "datetime": 1738494000000,
-          "timezone": "UTC"
+          "timezone": "UTC",
         },
         {
           "id": 3,
@@ -61,7 +61,7 @@ void main() {
           "category_name": "Income",
           "category_type": 0,
           "datetime": 1738404000000,
-          "timezone": "UTC"
+          "timezone": "UTC",
         },
         {
           "id": 4,
@@ -70,7 +70,7 @@ void main() {
           "category_name": "Food",
           "category_type": 1,
           "datetime": 1738776000000,
-          "timezone": "UTC"
+          "timezone": "UTC",
         },
         {
           "id": 5,
@@ -79,7 +79,7 @@ void main() {
           "category_name": "Transport",
           "category_type": 1,
           "datetime": 1738862400000,
-          "timezone": "UTC"
+          "timezone": "UTC",
         },
       ],
       "categories": [
@@ -87,19 +87,19 @@ void main() {
           "name": "Food",
           "icon": 58763,
           "color": "255:255:87:51",
-          "category_type": 1
+          "category_type": 1,
         },
         {
           "name": "Transport",
           "icon": 58790,
           "color": "255:51:255:87",
-          "category_type": 1
+          "category_type": 1,
         },
         {
           "name": "Income",
           "icon": 57896,
           "color": "255:51:87:255",
-          "category_type": 0
+          "category_type": 0,
         },
       ],
       "record_tag_associations": [
@@ -128,25 +128,28 @@ void main() {
     BackupService.database = mockDatabase;
 
     testDir = Directory("test/temp_user_data");
-    const MethodChannel channel =
-        MethodChannel('dev.fluttercommunity.plus/package_info');
+    const MethodChannel channel = MethodChannel(
+      'dev.fluttercommunity.plus/package_info',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-      if (methodCall.method == 'getAll') {
-        return <String, dynamic>{
-          'appName': 'ABC',
-          'packageName': 'A.B.C',
-          'version': '1.0.0',
-          'buildNumber': '67'
-        };
-      }
-    });
-    const MethodChannel channel2 =
-        MethodChannel('plugins.flutter.io/path_provider');
+          if (methodCall.method == 'getAll') {
+            return <String, dynamic>{
+              'appName': 'ABC',
+              'packageName': 'A.B.C',
+              'version': '1.0.0',
+              'buildNumber': '67',
+            };
+          }
+          return null;
+        });
+    const MethodChannel channel2 = MethodChannel(
+      'plugins.flutter.io/path_provider',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel2, (MethodCall methodCall) async {
-      return testDir;
-    });
+          return testDir;
+        });
   });
 
   tearDownAll(() async {
@@ -170,8 +173,11 @@ void main() {
     await testFile.writeAsString(jsonEncode(mockData));
 
     // Verify the test backup file exists and has correct structure
-    expect(await testFile.exists(), isTrue,
-        reason: 'Test backup file should exist');
+    expect(
+      await testFile.exists(),
+      isTrue,
+      reason: 'Test backup file should exist',
+    );
 
     final content = await testFile.readAsString();
     final jsonMap = jsonDecode(content);
@@ -196,8 +202,9 @@ void main() {
     for (var i = 0; i < min(5, records.length); i++) {
       final record = records[i];
       print(
-          '  Record ID: ${record['id']}, Title: ${record['title'] ?? "(null)"}, '
-          'Category: ${record['category_name']}');
+        '  Record ID: ${record['id']}, Title: ${record['title'] ?? "(null)"}, '
+        'Category: ${record['category_name']}',
+      );
     }
 
     // Show sample tag associations
@@ -209,28 +216,33 @@ void main() {
 
     // Verify that tag associations reference actual record IDs
     final recordIds = records.map((r) => r['id'] as int).toSet();
-    final associationRecordIds =
-        associations.map((a) => a['record_id'] as int).toSet();
+    final associationRecordIds = associations
+        .map((a) => a['record_id'] as int)
+        .toSet();
 
     print('\nRecord IDs in backup: ${recordIds.length} unique IDs');
     print(
-        'Record IDs referenced by tags: ${associationRecordIds.length} unique IDs');
+      'Record IDs referenced by tags: ${associationRecordIds.length} unique IDs',
+    );
 
     // All association record IDs should exist in the records list
     final invalidAssociations = associationRecordIds.difference(recordIds);
     if (invalidAssociations.isNotEmpty) {
       print(
-          'WARNING: Tag associations reference non-existent record IDs: $invalidAssociations');
+        'WARNING: Tag associations reference non-existent record IDs: $invalidAssociations',
+      );
     }
 
-    expect(invalidAssociations.isEmpty, isTrue,
-        reason: 'All tag associations should reference existing record IDs');
+    expect(
+      invalidAssociations.isEmpty,
+      isTrue,
+      reason: 'All tag associations should reference existing record IDs',
+    );
 
     print('\n✓ Backup file structure is valid');
   });
 
-  testlib.test('verify import fix - tags are correctly populated on records',
-      () async {
+  testlib.test('verify import fix - tags are correctly populated on records', () async {
     // Create test backup file with mock data
     final testBackupFilePath = '${testDir.path}/test_backup.json';
     final mockData = createMockBackupData();
@@ -266,8 +278,10 @@ void main() {
         (c) =>
             c.name == row['category_name'] &&
             c.categoryType?.index == row['category_type'],
-        orElse: () => Category(row['category_name'],
-            categoryType: CategoryType.values[row['category_type']]),
+        orElse: () => Category(
+          row['category_name'],
+          categoryType: CategoryType.values[row['category_type']],
+        ),
       );
       return Record.fromMap(row);
     }).toList();
@@ -284,8 +298,9 @@ void main() {
     when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
 
-    when(mockDatabase.addRecordsInBatch(any))
-        .thenAnswer((Invocation invocation) async {
+    when(mockDatabase.addRecordsInBatch(any)).thenAnswer((
+      Invocation invocation,
+    ) async {
       final List<Record?> incomingRecords = invocation.positionalArguments[0];
       capturedRecords.addAll(incomingRecords.where((r) => r != null));
     });
@@ -299,19 +314,28 @@ void main() {
 
     // Verify that records passed to addRecordsInBatch have their tags populated
     // from the backup's record_tag_associations
-    final recordsWithTags =
-        capturedRecords.where((r) => r!.tags.isNotEmpty).toList();
-    expect(recordsWithTags.length, expectedTagsByRecordId.length,
-        reason: 'Number of records with tags should match number of records '
-            'referenced in tag associations');
+    final recordsWithTags = capturedRecords
+        .where((r) => r!.tags.isNotEmpty)
+        .toList();
+    expect(
+      recordsWithTags.length,
+      expectedTagsByRecordId.length,
+      reason:
+          'Number of records with tags should match number of records '
+          'referenced in tag associations',
+    );
 
     // Verify each record that should have tags has the correct ones
     for (var record in capturedRecords) {
       final expected = expectedTagsByRecordId[record!.id];
       if (expected != null) {
-        expect(record.tags, equals(expected),
-            reason: 'Record "${record.title}" (id=${record.id}) should have '
-                'tags $expected but got ${record.tags}');
+        expect(
+          record.tags,
+          equals(expected),
+          reason:
+              'Record "${record.title}" (id=${record.id}) should have '
+              'tags $expected but got ${record.tags}',
+        );
       }
     }
   });

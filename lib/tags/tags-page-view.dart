@@ -61,11 +61,12 @@ class TagsPageViewState extends State<TagsPageView> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete tags'.i18n),
-          content: Text(selectedTags.length == 1
-              ? 'Are you sure you want to delete this tag?'.i18n
-              : 'Are you sure you want to delete these %s tags?'.i18n.fill(
-              [selectedTags.length.toString()]
-          )
+          content: Text(
+            selectedTags.length == 1
+                ? 'Are you sure you want to delete this tag?'.i18n
+                : 'Are you sure you want to delete these %s tags?'.i18n.fill([
+                    selectedTags.length.toString(),
+                  ]),
           ),
           actions: [
             TextButton(
@@ -147,18 +148,13 @@ class TagsPageViewState extends State<TagsPageView> {
   }
 
   PreferredSizeWidget _buildNormalAppBar() {
-    return AppBar(
-      title: Text('Tags'.i18n),
-    );
+    return AppBar(title: Text('Tags'.i18n));
   }
 
   PreferredSizeWidget _buildSelectionAppBar() {
     return AppBar(
       title: Text('%s selected'.i18n.fill([selectedTags.length.toString()])),
-      leading: IconButton(
-        icon: Icon(Icons.close),
-        onPressed: _clearSelection,
-      ),
+      leading: IconButton(icon: Icon(Icons.close), onPressed: _clearSelection),
       actions: [
         if (selectedTags.length == 1)
           IconButton(
@@ -185,18 +181,11 @@ class TagsPageViewState extends State<TagsPageView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.label_outline,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.label_outline, size: 64, color: Colors.grey[400]),
             SizedBox(height: 16),
             Text(
               'No tags found'.i18n,
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -213,7 +202,7 @@ class TagsPageViewState extends State<TagsPageView> {
 
         return Container(
           color: isSelected
-              ? Theme.of(context).primaryColor.withOpacity(0.1)
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
               : null,
           child: ListTile(
             leading: isSelectionMode
@@ -221,15 +210,13 @@ class TagsPageViewState extends State<TagsPageView> {
                     isSelected
                         ? Icons.check_circle
                         : Icons.radio_button_unchecked,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer)
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  )
                 : Icon(
                     Icons.label,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-            title: Text(
-              tag,
-              style: _biggerFont,
-            ),
+            title: Text(tag, style: _biggerFont),
             selected: isSelected,
             onTap: () {
               if (isSelectionMode) {

@@ -8,8 +8,13 @@ import '../../models/category-type.dart';
 class FilterModalContent extends StatefulWidget {
   final List<Category?> categories;
   final List<String> tags;
-  final Function(List<Category?> selectedCategories, List<String> selectedTags,
-      bool categoryTagORLogic, bool tagORLogic) onApplyFilters;
+  final Function(
+    List<Category?> selectedCategories,
+    List<String> selectedTags,
+    bool categoryTagORLogic,
+    bool tagORLogic,
+  )
+  onApplyFilters;
 
   final List<Category?> currentlySelectedCategories;
   final List<String> currentlySelectedTags;
@@ -69,7 +74,9 @@ class _FilterModalContentState extends State<FilterModalContent>
     );
     _scrollIndicatorAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-          parent: _scrollIndicatorController, curve: Curves.easeInOut),
+        parent: _scrollIndicatorController,
+        curve: Curves.easeInOut,
+      ),
     );
 
     _scrollController.addListener(_onScroll);
@@ -89,7 +96,8 @@ class _FilterModalContentState extends State<FilterModalContent>
   void _onScroll() {
     if (!_scrollController.hasClients) return;
 
-    final isAtBottom = _scrollController.offset >=
+    final isAtBottom =
+        _scrollController.offset >=
         _scrollController.position.maxScrollExtent - 50;
     final hasScrollableContent = _scrollController.position.maxScrollExtent > 0;
 
@@ -110,7 +118,11 @@ class _FilterModalContentState extends State<FilterModalContent>
 
   void _onApplyFilters() {
     widget.onApplyFilters(
-        _selectedCategories, _selectedTags, _categoryTagORLogic, _tagORLogic);
+      _selectedCategories,
+      _selectedTags,
+      _categoryTagORLogic,
+      _tagORLogic,
+    );
     Navigator.pop(context);
   }
 
@@ -125,8 +137,12 @@ class _FilterModalContentState extends State<FilterModalContent>
         .toList();
   }
 
-  Widget _buildCategorySection(String title, List<Category?> categories,
-      IconData icon, Color iconColor) {
+  Widget _buildCategorySection(
+    String title,
+    List<Category?> categories,
+    IconData icon,
+    Color iconColor,
+  ) {
     if (categories.isEmpty) return SizedBox.shrink();
 
     return Column(
@@ -205,7 +221,9 @@ class _FilterModalContentState extends State<FilterModalContent>
                         Text(
                           'Filter by Categories'.i18n,
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -249,14 +267,19 @@ class _FilterModalContentState extends State<FilterModalContent>
                             Text(
                               'Filter by Tags'.i18n,
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Row(
                               children: [
-                                Text('AND',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  'AND',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 Switch(
                                   value: _tagORLogic,
                                   onChanged: (value) {
@@ -264,12 +287,15 @@ class _FilterModalContentState extends State<FilterModalContent>
                                       _tagORLogic = value;
                                     });
                                   },
-                                  activeColor: Colors.orange,
+                                  activeThumbColor: Colors.orange,
                                 ),
-                                Text('OR',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  'OR',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -278,7 +304,7 @@ class _FilterModalContentState extends State<FilterModalContent>
                         Text(
                           _tagORLogic
                               ? 'Show records that have any of the selected tags'
-                                  .i18n
+                                    .i18n
                               : 'Show records that have all selected tags'.i18n,
                           style: TextStyle(
                             fontSize: 14,
@@ -305,12 +331,12 @@ class _FilterModalContentState extends State<FilterModalContent>
                               },
                               color: Theme.of(context)
                                   .colorScheme
-                                  .surfaceVariant
-                                  .withOpacity(0.5),
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.5),
                               selectedColor: Theme.of(context)
                                   .colorScheme
                                   .primaryContainer
-                                  .withOpacity(0.4),
+                                  .withValues(alpha: 0.4),
                             );
                           }).toList(),
                         ),
@@ -324,14 +350,19 @@ class _FilterModalContentState extends State<FilterModalContent>
                             Text(
                               'Categories vs Tags'.i18n,
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Row(
                               children: [
-                                Text('AND',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  'AND',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 Switch(
                                   value: _categoryTagORLogic,
                                   onChanged: (value) {
@@ -339,12 +370,15 @@ class _FilterModalContentState extends State<FilterModalContent>
                                       _categoryTagORLogic = value;
                                     });
                                   },
-                                  activeColor: Colors.green,
+                                  activeThumbColor: Colors.green,
                                 ),
-                                Text('OR',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  'OR',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -367,18 +401,22 @@ class _FilterModalContentState extends State<FilterModalContent>
                           Container(
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                  color: Colors.grey.withOpacity(0.3)),
+                                color: Colors.grey.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.info_outline,
-                                        size: 16, color: Colors.grey[600]),
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 16,
+                                      color: Colors.grey[600],
+                                    ),
                                     SizedBox(width: 4),
                                     Text(
                                       'Filter Logic'.i18n,
@@ -431,7 +469,9 @@ class _FilterModalContentState extends State<FilterModalContent>
                       child: Text(
                         'Apply Filters'.i18n,
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -451,15 +491,17 @@ class _FilterModalContentState extends State<FilterModalContent>
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceVariant.withOpacity(0.9),
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.9,
+                    ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: colorScheme.outline.withOpacity(0.3),
+                      color: colorScheme.outline.withValues(alpha: 0.3),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 4,
                         offset: Offset(0, 2),
                       ),
@@ -471,14 +513,14 @@ class _FilterModalContentState extends State<FilterModalContent>
                       Icon(
                         Icons.keyboard_arrow_down,
                         size: 16,
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       SizedBox(width: 4),
                       Text(
                         "Scroll for more".i18n,
                         style: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -497,8 +539,9 @@ class _FilterModalContentState extends State<FilterModalContent>
     List<String> parts = [];
 
     if (_selectedCategories.isNotEmpty) {
-      String categories =
-          _selectedCategories.map((c) => '**${c?.name ?? ''}**').join(' OR ');
+      String categories = _selectedCategories
+          .map((c) => '**${c?.name ?? ''}**')
+          .join(' OR ');
       parts.add('($categories)');
     }
 
@@ -538,10 +581,12 @@ class _FilterModalContentState extends State<FilterModalContent>
         spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start)));
       }
 
-      spans.add(TextSpan(
-        text: match.group(1),
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ));
+      spans.add(
+        TextSpan(
+          text: match.group(1),
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
 
       lastMatchEnd = match.end;
     }

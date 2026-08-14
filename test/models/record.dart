@@ -23,8 +23,6 @@ void main() {
     test('main constructor should correctly initialize all properties', () {
       // Use a fixed UTC time and a specific timezone name for predictable tests.
       const timeZoneName = 'America/Buenos_Aires';
-      var locations = tz.timeZoneDatabase.locations;
-
       final nowUtc = DateTime.utc(2025, 8, 2, 12, 0, 0);
 
       final record = Record(

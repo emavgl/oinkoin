@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/records/controllers/tab_records_controller.dart';
-import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/homepage-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
@@ -15,7 +13,6 @@ import 'helpers/test_database.dart';
 void main() {
   late TabRecordsController controller;
   late SharedPreferences sharedPreferences;
-  late DatabaseInterface database;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,8 +34,6 @@ void main() {
     ServiceConfig.sharedPreferences = sharedPreferences;
 
     await TestDatabaseHelper.setupTestDatabase();
-    database = ServiceConfig.database;
-
     controller = TabRecordsController();
     controller.initialize();
   });

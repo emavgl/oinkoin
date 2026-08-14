@@ -5,7 +5,6 @@ import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/database/database-interface.dart';
-import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -131,8 +130,6 @@ void main() {
 
     test('cleans up tags for deleted records', () async {
       DatabaseInterface db = ServiceConfig.database;
-      SqliteDatabase sqliteDb = ServiceConfig.database as SqliteDatabase;
-      final rawDb = (await sqliteDb.database)!;
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
@@ -458,7 +455,7 @@ void main() {
         now,
         walletId: walletId,
       ));
-      final toKeep = await db.addRecord(Record(
+      await db.addRecord(Record(
         -20.0,
         'Keep Me',
         testCategory,
@@ -493,7 +490,7 @@ void main() {
       final walletId = await db.addWallet(Wallet('Test Wallet'));
 
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final id = await db.addRecord(Record(
+      await db.addRecord(Record(
         -10.0,
         'Record',
         testCategory,

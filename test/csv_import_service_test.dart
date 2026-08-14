@@ -79,7 +79,6 @@ void main() {
     test('skips completely empty rows', () {
       const content = 'title,amount\nTest,42\n   ,  ,  \nTest2,99';
       final parsed = CsvImportService.parseCsv(content);
-      final headers = parsed.headers;
       final rows = parsed.rows;
       expect(rows.length, 2);
     });
@@ -88,7 +87,6 @@ void main() {
       const content =
           'title,description\n"Lunch, at cafe","Good food, nice place"';
       final parsed = CsvImportService.parseCsv(content);
-      final headers = parsed.headers;
       final rows = parsed.rows;
       expect(rows[0]['title'], 'Lunch, at cafe');
       expect(rows[0]['description'], 'Good food, nice place');
@@ -108,7 +106,8 @@ void main() {
       // CRLF line endings with all-quoted fields — previously the \r was
       // consumed as field content inside the quoted string, causing all
       // subsequent rows to be merged into the header row.
-      final content = '"Date","Description","Amount"\r\n'
+      final content =
+          '"Date","Description","Amount"\r\n'
           '"20/12/2022","Amazon","-0.99"\r\n'
           '"17/12/2022","Costa Coffee","-6.85"\r\n'
           '"08/12/2022","Reiker","50.25"\r\n';
@@ -128,8 +127,14 @@ void main() {
 
   group('CsvImportService.autoMap', () {
     test('matches exact header names', () {
-      final mapping = CsvImportService.autoMap(
-          ['title', 'amount', 'date', 'category', 'description', 'tags']);
+      final mapping = CsvImportService.autoMap([
+        'title',
+        'amount',
+        'date',
+        'category',
+        'description',
+        'tags',
+      ]);
       expect(mapping.titleColumn, 'title');
       expect(mapping.valueColumn, 'amount');
       expect(mapping.datetimeColumn, 'date');
@@ -139,8 +144,12 @@ void main() {
     });
 
     test('matches case-insensitively', () {
-      final mapping =
-          CsvImportService.autoMap(['Title', 'AMOUNT', 'Date', 'CATEGORY']);
+      final mapping = CsvImportService.autoMap([
+        'Title',
+        'AMOUNT',
+        'Date',
+        'CATEGORY',
+      ]);
       expect(mapping.titleColumn, 'Title');
       expect(mapping.valueColumn, 'AMOUNT');
       expect(mapping.datetimeColumn, 'Date');
@@ -166,8 +175,11 @@ void main() {
     });
 
     test('matches "categoria" as category', () {
-      final mapping =
-          CsvImportService.autoMap(['categoria', 'importo', 'data']);
+      final mapping = CsvImportService.autoMap([
+        'categoria',
+        'importo',
+        'data',
+      ]);
       expect(mapping.categoryColumn, 'categoria');
     });
 
@@ -254,10 +266,12 @@ void main() {
       expect(CsvImportService.parseMoney('1.000'), 1000.0);
     });
 
-    test('handles period as decimal when 2 digits after (e.g. "1.50" = 1.5)',
-        () {
-      expect(CsvImportService.parseMoney('1.50'), 1.5);
-    });
+    test(
+      'handles period as decimal when 2 digits after (e.g. "1.50" = 1.5)',
+      () {
+        expect(CsvImportService.parseMoney('1.50'), 1.5);
+      },
+    );
 
     test('handles multiple periods as thousands (e.g. "1.000.000" = 1M)', () {
       expect(CsvImportService.parseMoney('1.000.000'), 1000000.0);
@@ -267,10 +281,12 @@ void main() {
       expect(CsvImportService.parseMoney('1.000,50'), closeTo(1000.50, 0.01));
     });
 
-    test('handles zero with periods as thousands (e.g. "1.000,00" = 1000.00)',
-        () {
-      expect(CsvImportService.parseMoney('1.000,00'), closeTo(1000.00, 0.01));
-    });
+    test(
+      'handles zero with periods as thousands (e.g. "1.000,00" = 1000.00)',
+      () {
+        expect(CsvImportService.parseMoney('1.000,00'), closeTo(1000.00, 0.01));
+      },
+    );
 
     test('handles Monify export: "1.000" (1000€ without cents)', () {
       // Monify exports amounts without cents using period as thousands separator
@@ -279,18 +295,17 @@ void main() {
     });
 
     test(
-        'handles Monify export: "50.32" (amount with cents, period as decimal)',
-        () {
-      expect(CsvImportService.parseMoney('50.32'), 50.32);
-    });
+      'handles Monify export: "50.32" (amount with cents, period as decimal)',
+      () {
+        expect(CsvImportService.parseMoney('50.32'), 50.32);
+      },
+    );
 
     test('handles negative with period as thousands', () {
       expect(CsvImportService.parseMoney('-1.000'), -1000.0);
     });
 
-    test(
-        'handles Monify format: comma decimal + period thousands ("1.052,6" = 1052.6)',
-        () {
+    test('handles Monify format: comma decimal + period thousands ("1.052,6" = 1052.6)', () {
       // Monify: comma is always decimal, period is always thousands
       expect(CsvImportService.parseMoney('1.052,6'), 1052.6);
     });
@@ -401,7 +416,6 @@ void main() {
   });
 
   group('CsvImportService.buildPreview', () {
-    final headers = ['Title', 'Amount', 'Date', 'Category', 'Note', 'Tags'];
     final mapping = CsvImportMapping(
       titleColumn: 'Title',
       valueColumn: 'Amount',
@@ -471,8 +485,9 @@ void main() {
       final preview = CsvImportService.buildPreview(rows, mapping);
 
       expect(
-        preview.warnings
-            .any((w) => w.contains('1 row') && w.contains('skipped')),
+        preview.warnings.any(
+          (w) => w.contains('1 row') && w.contains('skipped'),
+        ),
         isTrue,
       );
     });
@@ -508,26 +523,32 @@ void main() {
         isFalse,
       );
       expect(
-        CsvImportMapping(valueColumn: 'amount', datetimeColumn: 'date')
-            .hasMinimumMapping,
-        isFalse,
-      );
-      expect(
-        CsvImportMapping(valueColumn: 'amount', categoryColumn: 'cat')
-            .hasMinimumMapping,
-        isFalse,
-      );
-      expect(
-        CsvImportMapping(datetimeColumn: 'date', categoryColumn: 'cat')
-            .hasMinimumMapping,
+        CsvImportMapping(
+          valueColumn: 'amount',
+          datetimeColumn: 'date',
+        ).hasMinimumMapping,
         isFalse,
       );
       expect(
         CsvImportMapping(
-                valueColumn: 'amount',
-                datetimeColumn: 'date',
-                categoryColumn: 'cat')
-            .hasMinimumMapping,
+          valueColumn: 'amount',
+          categoryColumn: 'cat',
+        ).hasMinimumMapping,
+        isFalse,
+      );
+      expect(
+        CsvImportMapping(
+          datetimeColumn: 'date',
+          categoryColumn: 'cat',
+        ).hasMinimumMapping,
+        isFalse,
+      );
+      expect(
+        CsvImportMapping(
+          valueColumn: 'amount',
+          datetimeColumn: 'date',
+          categoryColumn: 'cat',
+        ).hasMinimumMapping,
         isTrue,
       );
     });
@@ -575,8 +596,11 @@ void main() {
       final m1 = CsvImportService.autoMap(['wallet', 'amount', 'date']);
       expect(m1.walletColumn, 'wallet');
 
-      final m2 =
-          CsvImportService.autoMap(['Account Name', 'Value', 'Timestamp']);
+      final m2 = CsvImportService.autoMap([
+        'Account Name',
+        'Value',
+        'Timestamp',
+      ]);
       expect(m2.walletColumn, 'Account Name');
     });
 
@@ -640,11 +664,7 @@ void main() {
     });
 
     test('converts row with walletId', () {
-      final row = {
-        'Title': 'Salary',
-        'Amount': '3000',
-        'Date': '2024-01-20',
-      };
+      final row = {'Title': 'Salary', 'Amount': '3000', 'Date': '2024-01-20'};
       final mapping = CsvImportMapping(
         titleColumn: 'Title',
         valueColumn: 'Amount',

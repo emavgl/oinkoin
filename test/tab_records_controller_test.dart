@@ -67,38 +67,51 @@ void main() {
   group('matchesSmartSearch', () {
     test('should match single word query', () {
       expect(
-          controller.matchesSmartSearch('Product Name A', 'product'), isTrue);
+        controller.matchesSmartSearch('Product Name A', 'product'),
+        isTrue,
+      );
     });
 
     test('should match multi-word query (all words match)', () {
-      expect(controller.matchesSmartSearch('Product Name A', 'product name'),
-          isTrue);
+      expect(
+        controller.matchesSmartSearch('Product Name A', 'product name'),
+        isTrue,
+      );
     });
 
     test('should match partial second word query', () {
       expect(
-          controller.matchesSmartSearch('Product Name A', 'product n'), isTrue);
+        controller.matchesSmartSearch('Product Name A', 'product n'),
+        isTrue,
+      );
     });
 
     test('should match when query has only start of each word', () {
       expect(
-          controller.matchesSmartSearch('Product Name A', 'pro nam'), isTrue);
+        controller.matchesSmartSearch('Product Name A', 'pro nam'),
+        isTrue,
+      );
     });
 
     test('should match case-insensitively with multi-word query', () {
-      expect(controller.matchesSmartSearch('PRODUCT NAME A', 'product name'),
-          isTrue);
+      expect(
+        controller.matchesSmartSearch('PRODUCT NAME A', 'product name'),
+        isTrue,
+      );
     });
 
     test('should match description field with multi-word query', () {
       expect(
-          controller.matchesSmartSearch('Gas station purchase', 'gas station'),
-          isTrue);
+        controller.matchesSmartSearch('Gas station purchase', 'gas station'),
+        isTrue,
+      );
     });
 
     test('should not match when one query term does not match any word', () {
-      expect(controller.matchesSmartSearch('Product Name A', 'product xyz'),
-          isFalse);
+      expect(
+        controller.matchesSmartSearch('Product Name A', 'product xyz'),
+        isFalse,
+      );
     });
 
     test('should not match when no words match', () {
@@ -118,8 +131,10 @@ void main() {
     });
 
     test('should match with hyphenated words', () {
-      expect(controller.matchesSmartSearch('well-known brand', 'well brand'),
-          isTrue);
+      expect(
+        controller.matchesSmartSearch('well-known brand', 'well brand'),
+        isTrue,
+      );
     });
 
     test('should match single word against partial word', () {
@@ -128,9 +143,7 @@ void main() {
   });
 
   group('shiftMonthWeekYear', () {
-    test(
-        'should shift month forward by 1 with custom interval set to a full month',
-        () async {
+    test('should shift month forward by 1 with custom interval set to a full month', () async {
       // Setup: Custom interval is January 2025
       controller.customIntervalFrom = DateTime(2025, 1, 1);
       controller.customIntervalTo = getEndOfMonth(2025, 1);
@@ -143,12 +156,12 @@ void main() {
       expect(controller.customIntervalTo!.year, 2025);
       expect(controller.customIntervalTo!.month, 2);
       expect(
-          controller.customIntervalTo!.day, 28); // February has 28 days in 2025
+        controller.customIntervalTo!.day,
+        28,
+      ); // February has 28 days in 2025
     });
 
-    test(
-        'should shift month backward by 1 with custom interval set to a full month',
-        () async {
+    test('should shift month backward by 1 with custom interval set to a full month', () async {
       // Setup: Custom interval is March 2025
       controller.customIntervalFrom = DateTime(2025, 3, 1);
       controller.customIntervalTo = getEndOfMonth(2025, 3);
@@ -164,87 +177,92 @@ void main() {
     });
 
     test(
-        'should shift year forward by 1 with custom interval set to a full year',
-        () async {
-      // Setup: Custom interval is full year 2024
-      controller.customIntervalFrom = DateTime(2024, 1, 1);
-      controller.customIntervalTo = DateTime(2024, 12, 31, 23, 59);
+      'should shift year forward by 1 with custom interval set to a full year',
+      () async {
+        // Setup: Custom interval is full year 2024
+        controller.customIntervalFrom = DateTime(2024, 1, 1);
+        controller.customIntervalTo = DateTime(2024, 12, 31, 23, 59);
 
-      await sharedPreferences.setInt(
-        PreferencesKeys.homepageTimeInterval,
-        HomepageTimeInterval.CurrentYear.index,
-      );
+        await sharedPreferences.setInt(
+          PreferencesKeys.homepageTimeInterval,
+          HomepageTimeInterval.CurrentYear.index,
+        );
 
-      // Act: Shift forward by 1 year
-      await controller.shiftInterval(1);
+        // Act: Shift forward by 1 year
+        await controller.shiftInterval(1);
 
-      // Assert: Should now be 2025
-      expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
-      expect(controller.customIntervalTo,
-          DateTime(2025, 12, 31).add(DateTimeConstants.END_OF_DAY));
-    });
-
-    test(
-        'should shift year backward by 1 with custom interval set to a full year',
-        () async {
-      // Setup: Custom interval is full year 2025
-      controller.customIntervalFrom = DateTime(2025, 1, 1);
-      controller.customIntervalTo = DateTime(2025, 12, 31, 23, 59);
-
-      await sharedPreferences.setInt(
-        PreferencesKeys.homepageTimeInterval,
-        HomepageTimeInterval.CurrentYear.index,
-      );
-
-      // Act: Shift backward by 1 year
-      await controller.shiftInterval(-1);
-
-      // Assert: Should now be 2024
-      expect(controller.customIntervalFrom, DateTime(2024, 1, 1));
-      expect(controller.customIntervalTo,
-          DateTime(2024, 12, 31).add(DateTimeConstants.END_OF_DAY));
-    });
+        // Assert: Should now be 2025
+        expect(controller.customIntervalFrom, DateTime(2025, 1, 1));
+        expect(
+          controller.customIntervalTo,
+          DateTime(2025, 12, 31).add(DateTimeConstants.END_OF_DAY),
+        );
+      },
+    );
 
     test(
-        'should shift week forward by 1 when HomepageTimeInterval is CurrentWeek',
-        () async {
-      // Setup: No custom interval, use CurrentWeek setting
-      controller.customIntervalFrom = null;
-      controller.customIntervalTo = null;
+      'should shift year backward by 1 with custom interval set to a full year',
+      () async {
+        // Setup: Custom interval is full year 2025
+        controller.customIntervalFrom = DateTime(2025, 1, 1);
+        controller.customIntervalTo = DateTime(2025, 12, 31, 23, 59);
 
-      await sharedPreferences.setInt(
-        PreferencesKeys.homepageTimeInterval,
-        HomepageTimeInterval.CurrentWeek.index,
-      );
-      // Pin firstDayOfWeek to Monday so getFirstDayOfWeekIndex() is deterministic
-      // regardless of I18n.locale state (which may be altered by other test files).
-      await sharedPreferences.setInt(
-        PreferencesKeys.firstDayOfWeek,
-        DateTime.monday,
-      );
+        await sharedPreferences.setInt(
+          PreferencesKeys.homepageTimeInterval,
+          HomepageTimeInterval.CurrentYear.index,
+        );
 
-      // Get the current week's start (uses same pinned preference as controller)
-      DateTime now = DateTime.now();
-      DateTime currentWeekStart = getStartOfWeek(now);
+        // Act: Shift backward by 1 year
+        await controller.shiftInterval(-1);
 
-      // Act: Shift forward by 1 week
-      await controller.shiftInterval(1);
-
-      // Assert: Should be next week
-      DateTime expectedStart = currentWeekStart.add(Duration(days: 7));
-      DateTime expectedEnd = expectedStart.add(Duration(days: 6));
-
-      expect(controller.customIntervalFrom!.year, expectedStart.year);
-      expect(controller.customIntervalFrom!.month, expectedStart.month);
-      expect(controller.customIntervalFrom!.day, expectedStart.day);
-      expect(controller.customIntervalTo!.year, expectedEnd.year);
-      expect(controller.customIntervalTo!.month, expectedEnd.month);
-      expect(controller.customIntervalTo!.day, expectedEnd.day);
-    });
+        // Assert: Should now be 2024
+        expect(controller.customIntervalFrom, DateTime(2024, 1, 1));
+        expect(
+          controller.customIntervalTo,
+          DateTime(2024, 12, 31).add(DateTimeConstants.END_OF_DAY),
+        );
+      },
+    );
 
     test(
-        'should shift week backward by 1 when HomepageTimeInterval is CurrentWeek',
-        () async {
+      'should shift week forward by 1 when HomepageTimeInterval is CurrentWeek',
+      () async {
+        // Setup: No custom interval, use CurrentWeek setting
+        controller.customIntervalFrom = null;
+        controller.customIntervalTo = null;
+
+        await sharedPreferences.setInt(
+          PreferencesKeys.homepageTimeInterval,
+          HomepageTimeInterval.CurrentWeek.index,
+        );
+        // Pin firstDayOfWeek to Monday so getFirstDayOfWeekIndex() is deterministic
+        // regardless of I18n.locale state (which may be altered by other test files).
+        await sharedPreferences.setInt(
+          PreferencesKeys.firstDayOfWeek,
+          DateTime.monday,
+        );
+
+        // Get the current week's start (uses same pinned preference as controller)
+        DateTime now = DateTime.now();
+        DateTime currentWeekStart = getStartOfWeek(now);
+
+        // Act: Shift forward by 1 week
+        await controller.shiftInterval(1);
+
+        // Assert: Should be next week
+        DateTime expectedStart = currentWeekStart.add(Duration(days: 7));
+        DateTime expectedEnd = expectedStart.add(Duration(days: 6));
+
+        expect(controller.customIntervalFrom!.year, expectedStart.year);
+        expect(controller.customIntervalFrom!.month, expectedStart.month);
+        expect(controller.customIntervalFrom!.day, expectedStart.day);
+        expect(controller.customIntervalTo!.year, expectedEnd.year);
+        expect(controller.customIntervalTo!.month, expectedEnd.month);
+        expect(controller.customIntervalTo!.day, expectedEnd.day);
+      },
+    );
+
+    test('should shift week backward by 1 when HomepageTimeInterval is CurrentWeek', () async {
       // Setup: No custom interval, use CurrentWeek setting
       controller.customIntervalFrom = null;
       controller.customIntervalTo = null;
@@ -283,51 +301,59 @@ void main() {
       expect(controller.customIntervalTo!.day, expectedEnd.day);
     });
 
-    test('should shift month forward when HomepageTimeInterval is CurrentMonth',
-        () async {
-      // Setup: No custom interval, use CurrentMonth setting
-      controller.customIntervalFrom = null;
-      controller.customIntervalTo = null;
+    test(
+      'should shift month forward when HomepageTimeInterval is CurrentMonth',
+      () async {
+        // Setup: No custom interval, use CurrentMonth setting
+        controller.customIntervalFrom = null;
+        controller.customIntervalTo = null;
 
-      await sharedPreferences.setInt(
-        PreferencesKeys.homepageTimeInterval,
-        HomepageTimeInterval.CurrentMonth.index,
-      );
+        await sharedPreferences.setInt(
+          PreferencesKeys.homepageTimeInterval,
+          HomepageTimeInterval.CurrentMonth.index,
+        );
 
-      DateTime now = DateTime.now();
+        DateTime now = DateTime.now();
 
-      // Act: Shift forward by 1 month
-      await controller.shiftInterval(1);
+        // Act: Shift forward by 1 month
+        await controller.shiftInterval(1);
 
-      // Assert: Should be next month
-      DateTime expectedDateFrom = DateTime(now.year, now.month + 1, 1);
-      DateTime expectedDateTo =
-          getEndOfMonth(expectedDateFrom.year, expectedDateFrom.month);
-      expect(controller.customIntervalFrom, expectedDateFrom);
-      expect(controller.customIntervalTo, expectedDateTo);
-    });
+        // Assert: Should be next month
+        DateTime expectedDateFrom = DateTime(now.year, now.month + 1, 1);
+        DateTime expectedDateTo = getEndOfMonth(
+          expectedDateFrom.year,
+          expectedDateFrom.month,
+        );
+        expect(controller.customIntervalFrom, expectedDateFrom);
+        expect(controller.customIntervalTo, expectedDateTo);
+      },
+    );
 
-    test('should shift year forward when HomepageTimeInterval is CurrentYear',
-        () async {
-      // Setup: No custom interval, use CurrentYear setting
-      controller.customIntervalFrom = null;
-      controller.customIntervalTo = null;
+    test(
+      'should shift year forward when HomepageTimeInterval is CurrentYear',
+      () async {
+        // Setup: No custom interval, use CurrentYear setting
+        controller.customIntervalFrom = null;
+        controller.customIntervalTo = null;
 
-      await sharedPreferences.setInt(
-        PreferencesKeys.homepageTimeInterval,
-        HomepageTimeInterval.CurrentYear.index,
-      );
+        await sharedPreferences.setInt(
+          PreferencesKeys.homepageTimeInterval,
+          HomepageTimeInterval.CurrentYear.index,
+        );
 
-      DateTime now = DateTime.now();
+        DateTime now = DateTime.now();
 
-      // Act: Shift forward by 1 year
-      await controller.shiftInterval(1);
+        // Act: Shift forward by 1 year
+        await controller.shiftInterval(1);
 
-      // Assert: Should be next year
-      expect(controller.customIntervalFrom, DateTime(now.year + 1, 1, 1));
-      expect(controller.customIntervalTo,
-          DateTime(now.year + 1, 12, 31).add(DateTimeConstants.END_OF_DAY));
-    });
+        // Assert: Should be next year
+        expect(controller.customIntervalFrom, DateTime(now.year + 1, 1, 1));
+        expect(
+          controller.customIntervalTo,
+          DateTime(now.year + 1, 12, 31).add(DateTimeConstants.END_OF_DAY),
+        );
+      },
+    );
 
     test('should update backgroundImageIndex to the new month', () async {
       // Setup: Custom interval is January
@@ -385,8 +411,11 @@ void main() {
     test('shiftMonthWeekYear: Forward Shift with custom start day', () async {
       // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
       controller.customIntervalFrom = DateTime(2024, 1, 15);
-      controller.customIntervalTo =
-          DateTime(2024, 2, 14).add(DateTimeConstants.END_OF_DAY);
+      controller.customIntervalTo = DateTime(
+        2024,
+        2,
+        14,
+      ).add(DateTimeConstants.END_OF_DAY);
 
       // Mock settings to return Month view and Start Day 15
       await sharedPreferences.setInt(
@@ -413,8 +442,11 @@ void main() {
     test('shiftMonthWeekYear: Backward Shift with custom start day', () async {
       // Setup Initial State (Jan 15, 2024 to Feb 14, 2024)
       controller.customIntervalFrom = DateTime(2024, 1, 15);
-      controller.customIntervalTo =
-          DateTime(2024, 2, 14).add(DateTimeConstants.END_OF_DAY);
+      controller.customIntervalTo = DateTime(
+        2024,
+        2,
+        14,
+      ).add(DateTimeConstants.END_OF_DAY);
 
       // Mock settings to return Month view and Start Day 15
       await sharedPreferences.setInt(
@@ -439,22 +471,24 @@ void main() {
       expect(controller.header, contains("-"));
     });
 
-    test('shiftMonthWeekYear: Clamping safety when moving to February',
-        () async {
-      // Setup: Start Day 31
-      controller.customIntervalFrom = DateTime(2024, 1, 31);
+    test(
+      'shiftMonthWeekYear: Clamping safety when moving to February',
+      () async {
+        // Setup: Start Day 31
+        controller.customIntervalFrom = DateTime(2024, 1, 31);
 
-      await sharedPreferences.setInt(
-        PreferencesKeys.homepageRecordsMonthStartDay,
-        31,
-      );
+        await sharedPreferences.setInt(
+          PreferencesKeys.homepageRecordsMonthStartDay,
+          31,
+        );
 
-      await controller.shiftInterval(1);
+        await controller.shiftInterval(1);
 
-      // February only has 29 days in 2024. Start should be Feb 29.
-      expect(controller.customIntervalFrom!.month, 2);
-      expect(controller.customIntervalFrom!.day, 29);
-    });
+        // February only has 29 days in 2024. Start should be Feb 29.
+        expect(controller.customIntervalFrom!.month, 2);
+        expect(controller.customIntervalFrom!.day, 29);
+      },
+    );
   });
 
   group('_applyTransferAwareWalletFilter', () {
@@ -472,44 +506,45 @@ void main() {
     );
 
     Record expense({required int walletId, required double value}) => Record(
-          value,
-          'Expense',
-          expenseCategory,
-          DateTime(2026, 6, 1).toUtc(),
-          walletId: walletId,
-        );
+      value,
+      'Expense',
+      expenseCategory,
+      DateTime(2026, 6, 1).toUtc(),
+      walletId: walletId,
+    );
 
     Record income({required int walletId, required double value}) => Record(
-          value,
-          'Income',
-          incomeCategory,
-          DateTime(2026, 6, 1).toUtc(),
-          walletId: walletId,
-        );
+      value,
+      'Income',
+      incomeCategory,
+      DateTime(2026, 6, 1).toUtc(),
+      walletId: walletId,
+    );
 
     Record transfer({
       required int sourceWalletId,
       required int destWalletId,
       required double value,
       double? transferValue,
-    }) =>
-        Record(
-          value,
-          'Transfer',
-          expenseCategory,
-          DateTime(2026, 6, 1).toUtc(),
-          walletId: sourceWalletId,
-          transferWalletId: destWalletId,
-          transferValue: transferValue,
-        );
+    }) => Record(
+      value,
+      'Transfer',
+      expenseCategory,
+      DateTime(2026, 6, 1).toUtc(),
+      walletId: sourceWalletId,
+      transferWalletId: destWalletId,
+      transferValue: transferValue,
+    );
 
     test('empty wallet set returns nothing', () {
       final records = [
         expense(walletId: 1, value: -50),
         transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
       ];
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter(records, {});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        records,
+        {},
+      );
       expect(result, isEmpty);
     });
 
@@ -518,8 +553,10 @@ void main() {
         expense(walletId: 1, value: -50),
         income(walletId: 2, value: 100),
       ];
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter(records, {1});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        records,
+        {1},
+      );
       expect(result, hasLength(1));
       expect(result.first!.walletId, 1);
     });
@@ -530,8 +567,10 @@ void main() {
         income(walletId: 2, value: 100),
         transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
       ];
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter(records, {1});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        records,
+        {1},
+      );
       expect(result, hasLength(2));
       final t = result[1]!;
       expect(t.value, -30);
@@ -540,16 +579,16 @@ void main() {
       expect(t.isDestinationTransferView, false);
     });
 
-    test(
-        'filter by destination wallet: transfer shown as positive, wallet IDs unchanged',
-        () {
+    test('filter by destination wallet: transfer shown as positive, wallet IDs unchanged', () {
       final records = [
         expense(walletId: 1, value: -50),
         income(walletId: 2, value: 100),
         transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
       ];
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter(records, {2});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        records,
+        {2},
+      );
       expect(result, hasLength(2));
       final t = result[1]!;
       // value becomes positive received amount
@@ -559,19 +598,23 @@ void main() {
       expect(t.transferWalletId, 2);
       expect(t.isDestinationTransferView, true);
       // original record was not mutated
-      expect(records[2]!.isDestinationTransferView, false);
+      expect(records[2].isDestinationTransferView, false);
     });
 
-    test(
-        'cross-currency transfer: destination view uses transferValue, wallet IDs unchanged',
-        () {
+    test('cross-currency transfer: destination view uses transferValue, wallet IDs unchanged', () {
       // 100 USD leaving wallet 1, 90 EUR arriving at wallet 2
       final records = [
         transfer(
-            sourceWalletId: 1, destWalletId: 2, value: -100, transferValue: 90),
+          sourceWalletId: 1,
+          destWalletId: 2,
+          value: -100,
+          transferValue: 90,
+        ),
       ];
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter(records, {2});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        records,
+        {2},
+      );
       expect(result, hasLength(1));
       final t = result.first!;
       expect(t.value, 90); // transferValue, not negated source value
@@ -581,34 +624,38 @@ void main() {
       expect(t.isDestinationTransferView, true);
     });
 
-    test(
-        'same-currency transfer: destination view uses value.abs() when transferValue is null',
-        () {
+    test('same-currency transfer: destination view uses value.abs() when transferValue is null', () {
       final records = [
         transfer(sourceWalletId: 1, destWalletId: 2, value: -75),
       ];
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter(records, {2});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        records,
+        {2},
+      );
       expect(result.first!.value, 75);
     });
 
-    test('both wallets selected: transfer appears once with source perspective',
-        () {
-      final records = [
-        expense(walletId: 1, value: -50),
-        income(walletId: 2, value: 100),
-        transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
-      ];
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter(records, {1, 2});
-      expect(result, hasLength(3));
-      final t = result[2]!;
-      // Source perspective: unchanged
-      expect(t.value, -30);
-      expect(t.walletId, 1);
-      expect(t.transferWalletId, 2);
-      expect(t.isDestinationTransferView, false);
-    });
+    test(
+      'both wallets selected: transfer appears once with source perspective',
+      () {
+        final records = [
+          expense(walletId: 1, value: -50),
+          income(walletId: 2, value: 100),
+          transfer(sourceWalletId: 1, destWalletId: 2, value: -30),
+        ];
+        final result = TabRecordsController.applyTransferAwareWalletFilter(
+          records,
+          {1, 2},
+        );
+        expect(result, hasLength(3));
+        final t = result[2]!;
+        // Source perspective: unchanged
+        expect(t.value, -30);
+        expect(t.walletId, 1);
+        expect(t.transferWalletId, 2);
+        expect(t.isDestinationTransferView, false);
+      },
+    );
 
     test('transfer with null value does not crash, value stays null', () {
       final t = Record(
@@ -619,16 +666,20 @@ void main() {
         walletId: 1,
         transferWalletId: 2,
       );
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter([t], {2});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        [t],
+        {2},
+      );
       expect(result, hasLength(1));
       expect(result.first!.value, null);
       expect(result.first!.isDestinationTransferView, true);
     });
 
     test('null record in list is skipped', () {
-      final result =
-          TabRecordsController.applyTransferAwareWalletFilter([null], {1});
+      final result = TabRecordsController.applyTransferAwareWalletFilter(
+        [null],
+        {1},
+      );
       expect(result, isEmpty);
     });
   });
@@ -640,12 +691,14 @@ void main() {
       expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isTrue);
     });
 
-    test('the current month end (today still within the month) is not past',
-        () {
-      final now = DateTime(2026, 7, 7);
-      final intervalTo = DateTime(2026, 7, 31, 23, 59, 59);
-      expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isFalse);
-    });
+    test(
+      'the current month end (today still within the month) is not past',
+      () {
+        final now = DateTime(2026, 7, 7);
+        final intervalTo = DateTime(2026, 7, 31, 23, 59, 59);
+        expect(TabRecordsController.isPastPeriodEnd(intervalTo, now), isFalse);
+      },
+    );
 
     test('a period ending exactly at the start of today is not past', () {
       final now = DateTime(2026, 7, 7, 15, 30);
@@ -675,45 +728,61 @@ void main() {
     );
 
     Future<void> _insertRecord(
-        int walletId, double value, DateTime datetime) async {
+      int walletId,
+      double value,
+      DateTime datetime,
+    ) async {
       final sqliteDb = database as SqliteDatabase;
       final rawDb = (await sqliteDb.database)!;
-      await rawDb.rawInsert("""
+      await rawDb.rawInsert(
+        """
         INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
         VALUES ('Record', ?, ?, 'UTC', ?, ?, ?)
-      """, [
-        value,
-        datetime.toUtc().millisecondsSinceEpoch,
-        testCategory2.name,
-        testCategory2.categoryType!.index,
-        walletId
-      ]);
+      """,
+        [
+          value,
+          datetime.toUtc().millisecondsSinceEpoch,
+          testCategory2.name,
+          testCategory2.categoryType!.index,
+          walletId,
+        ],
+      );
     }
 
-    test(
-        'a past period shows the balance as of its end, excluding records dated after it',
-        () async {
+    test('a past period shows the balance as of its end, excluding records dated after it', () async {
       // Select "Value at the end of the time interval" (mode 1) so past
       // periods use a point-in-time snapshot.
       await sharedPreferences.setInt(PreferencesKeys.walletBalanceMode, 1);
 
-      final walletId =
-          await database.addWallet(Wallet('Test Wallet', initialAmount: 100.0));
+      final walletId = await database.addWallet(
+        Wallet('Test Wallet', initialAmount: 100.0),
+      );
 
       // Always-in-the-past reference period, computed relative to "now" so
       // this test doesn't rot.
       final now = DateTime.now();
       final periodMonthDate = DateTime(now.year, now.month - 3, 1);
-      final periodFrom =
-          DateTime(periodMonthDate.year, periodMonthDate.month, 1);
-      final periodTo =
-          getEndOfMonth(periodMonthDate.year, periodMonthDate.month);
+      final periodFrom = DateTime(
+        periodMonthDate.year,
+        periodMonthDate.month,
+        1,
+      );
+      final periodTo = getEndOfMonth(
+        periodMonthDate.year,
+        periodMonthDate.month,
+      );
 
       await _insertRecord(
-          walletId, -30.0, periodFrom.add(const Duration(days: 5)));
+        walletId,
+        -30.0,
+        periodFrom.add(const Duration(days: 5)),
+      );
       // Dated after the period end (but still in the past relative to "now").
       await _insertRecord(
-          walletId, -1000.0, periodTo.add(const Duration(days: 10)));
+        walletId,
+        -1000.0,
+        periodTo.add(const Duration(days: 10)),
+      );
 
       controller.updateCustomInterval(periodFrom, periodTo, 'Test Period');
       await controller.updateRecurrentRecordsAndFetchRecords();
@@ -724,11 +793,10 @@ void main() {
       expect(wallet.balance, closeTo(70.0, 0.001));
     });
 
-    test(
-        'the current month keeps the live balance, including same-month records dated after today',
-        () async {
-      final walletId =
-          await database.addWallet(Wallet('Test Wallet', initialAmount: 100.0));
+    test('the current month keeps the live balance, including same-month records dated after today', () async {
+      final walletId = await database.addWallet(
+        Wallet('Test Wallet', initialAmount: 100.0),
+      );
       final now = DateTime.now();
       final periodFrom = DateTime(now.year, now.month, 1);
       final periodTo = getEndOfMonth(now.year, now.month);
@@ -752,25 +820,35 @@ void main() {
       expect(wallet.balance, closeTo(60.0, 0.001));
     });
 
-    test(
-        'mode 0 (always the latest value, the default): a past period shows the live balance',
-        () async {
+    test('mode 0 (always the latest value, the default): a past period shows the live balance', () async {
       // Leave walletBalanceMode at its default (0 = "Always the latest value").
-      final walletId =
-          await database.addWallet(Wallet('Test Wallet', initialAmount: 100.0));
+      final walletId = await database.addWallet(
+        Wallet('Test Wallet', initialAmount: 100.0),
+      );
 
       final now = DateTime.now();
       final periodMonthDate = DateTime(now.year, now.month - 3, 1);
-      final periodFrom =
-          DateTime(periodMonthDate.year, periodMonthDate.month, 1);
-      final periodTo =
-          getEndOfMonth(periodMonthDate.year, periodMonthDate.month);
+      final periodFrom = DateTime(
+        periodMonthDate.year,
+        periodMonthDate.month,
+        1,
+      );
+      final periodTo = getEndOfMonth(
+        periodMonthDate.year,
+        periodMonthDate.month,
+      );
 
       await _insertRecord(
-          walletId, -30.0, periodFrom.add(const Duration(days: 5)));
+        walletId,
+        -30.0,
+        periodFrom.add(const Duration(days: 5)),
+      );
       // Dated after the period end; still included in the live balance.
       await _insertRecord(
-          walletId, -1000.0, periodTo.add(const Duration(days: 10)));
+        walletId,
+        -1000.0,
+        periodTo.add(const Duration(days: 10)),
+      );
 
       controller.updateCustomInterval(periodFrom, periodTo, 'Test Period');
       await controller.updateRecurrentRecordsAndFetchRecords();
@@ -781,21 +859,28 @@ void main() {
       expect(wallet.balance, closeTo(-930.0, 0.001));
     });
 
-    test(
-        'when wallets are disabled, no wallets are loaded and the balance stays live',
-        () async {
-      final walletId =
-          await database.addWallet(Wallet('Test Wallet', initialAmount: 100.0));
+    test('when wallets are disabled, no wallets are loaded and the balance stays live', () async {
+      final walletId = await database.addWallet(
+        Wallet('Test Wallet', initialAmount: 100.0),
+      );
 
       final now = DateTime.now();
       final periodMonthDate = DateTime(now.year, now.month - 3, 1);
-      final periodFrom =
-          DateTime(periodMonthDate.year, periodMonthDate.month, 1);
-      final periodTo =
-          getEndOfMonth(periodMonthDate.year, periodMonthDate.month);
+      final periodFrom = DateTime(
+        periodMonthDate.year,
+        periodMonthDate.month,
+        1,
+      );
+      final periodTo = getEndOfMonth(
+        periodMonthDate.year,
+        periodMonthDate.month,
+      );
 
       await _insertRecord(
-          walletId, -30.0, periodFrom.add(const Duration(days: 5)));
+        walletId,
+        -30.0,
+        periodFrom.add(const Duration(days: 5)),
+      );
 
       await sharedPreferences.setBool(PreferencesKeys.walletsEnabled, false);
       controller.updateCustomInterval(periodFrom, periodTo, 'Test Period');

@@ -1,10 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
-import 'package:piggybank/models/recurrent-period.dart';
-import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
@@ -30,16 +27,20 @@ void main() {
   group('Wallet balance with future records', () {
     /// Helper: insert a record directly into the database for a given wallet.
     Future<void> _insertRecord(
-        dynamic rawDb, int walletId, double value) async {
-      await rawDb.rawInsert("""
+      dynamic rawDb,
+      int walletId,
+      double value,
+    ) async {
+      await rawDb.rawInsert(
+        """
         INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
         VALUES ('Test Record', ?, 1000000, 'UTC', 'House', 0, ?)
-      """, [value, walletId]);
+      """,
+        [value, walletId],
+      );
     }
 
-    test(
-        'CLAIM VERIFICATION: wallet.balance does NOT include future record amounts',
-        () async {
+    test('CLAIM VERIFICATION: wallet.balance does NOT include future record amounts', () async {
       // This test verifies the claim from issue #330 comment 4451303605:
       // Future records (planned transactions beyond today from recurrent patterns)
       // are shown in the records list when showFutureRecords is enabled, but they
@@ -50,7 +51,9 @@ void main() {
       DatabaseInterface db = ServiceConfig.database;
 
       // 1. Create a wallet with initial amount
-      final walletId = await db.addWallet(Wallet('Test Wallet', initialAmount: 1000.0));
+      final walletId = await db.addWallet(
+        Wallet('Test Wallet', initialAmount: 1000.0),
+      );
 
       // 2. Add a past record to the database
       final pastRecordValue = -50.0; // expense
@@ -63,8 +66,11 @@ void main() {
       // 3. Load wallet and verify balance includes the past record
       Wallet wallet = (await db.getWalletById(walletId))!;
       // balance = initial_amount(1000) + past_record(-50) = 950
-      expect(wallet.balance, closeTo(950.0, 0.001),
-          reason: 'Initial wallet balance should include past records from DB');
+      expect(
+        wallet.balance,
+        closeTo(950.0, 0.001),
+        reason: 'Initial wallet balance should include past records from DB',
+      );
 
       // 4. Now simulate what happens with future records.
       //    Future records are generated in-memory by RecurrentRecordService
@@ -82,20 +88,25 @@ void main() {
 
       // 5. Verify the future record is NOT in the database
       final allDbRecords = await db.getAllRecords();
-      expect(allDbRecords.length, 1,
-          reason:
-              'Database should only contain 1 record (the past one) because future records are not persisted');
+      expect(
+        allDbRecords.length,
+        1,
+        reason: 'Database should only contain 1 record (the past one) because future records are not persisted',
+      );
 
       // 6. Reload wallet from DB - this is what _loadWallets() does
       wallet = (await db.getWalletById(walletId))!;
 
       // 7. VERIFY THE CLAIM: wallet.balance does NOT include future record value
       //    balance = initial_amount(1000) + past_record(-50) = 950 (no future -200)
-      expect(wallet.balance, closeTo(950.0, 0.001),
-          reason:
-              'BUG: wallet.balance should include future records when showFutureRecords is enabled. '
-              'Expected: 1000 + (-50) + (-200) = 750, Actual: 950. '
-              'This confirms the claim in issue #330 is correct.');
+      expect(
+        wallet.balance,
+        closeTo(950.0, 0.001),
+        reason:
+            'BUG: wallet.balance should include future records when showFutureRecords is enabled. '
+            'Expected: 1000 + (-50) + (-200) = 750, Actual: 950. '
+            'This confirms the claim in issue #330 is correct.',
+      );
 
       // 8. Demonstrate what the correct behavior SHOULD be
       //    We manually compute what the balance should include:
@@ -112,12 +123,16 @@ void main() {
       }
 
       final expectedFutureAdjustment = futureSumByWallet[walletId] ?? 0.0;
-      final adjustedBalance = (wallet.balance ?? 0.0) + expectedFutureAdjustment;
+      final adjustedBalance =
+          (wallet.balance ?? 0.0) + expectedFutureAdjustment;
 
-      expect(adjustedBalance, closeTo(750.0, 0.001),
-          reason:
-              'After adding future record amounts, wallet balance should be 750 (1000 + (-50) + (-200)). '
-              'This is the FIXED behavior - future records included in wallet totals.');
+      expect(
+        adjustedBalance,
+        closeTo(750.0, 0.001),
+        reason:
+            'After adding future record amounts, wallet balance should be 750 (1000 + (-50) + (-200)). '
+            'This is the FIXED behavior - future records included in wallet totals.',
+      );
     });
   });
 }

@@ -71,8 +71,10 @@ class _WalletsListState extends State<WalletsList> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 leading: Icon(
                   wallet.isPredefined
                       ? Icons.check_circle
@@ -117,15 +119,21 @@ class _WalletsListState extends State<WalletsList> {
     final balance = wallet.balance ?? 0.0;
     final walletCurrency = wallet.currency;
     final color = getAmountColor(balance, Theme.of(context).brightness);
-    final style =
-        TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal, color: color);
+    final style = TextStyle(
+      fontSize: 18.0,
+      fontWeight: FontWeight.normal,
+      color: color,
+    );
 
     if (walletCurrency == null || walletCurrency.isEmpty) {
       return Text(getCurrencyValueString(balance), style: style);
     }
 
-    return buildAmountWithCurrencyWidget(balance, walletCurrency,
-        mainStyle: style);
+    return buildAmountWithCurrencyWidget(
+      balance,
+      walletCurrency,
+      mainStyle: style,
+    );
   }
 
   @override
@@ -151,7 +159,7 @@ class _WalletsListState extends State<WalletsList> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _wallets.length,
-      onReorder: _onReorder,
+      onReorderItem: _onReorder,
       itemBuilder: (context, index) {
         final wallet = _wallets[index];
         final isLast = index == _wallets.length - 1;
@@ -167,8 +175,10 @@ class _WalletsListState extends State<WalletsList> {
                       children: [
                         ReorderableDragStartListener(
                           index: index,
-                          child: Icon(Icons.drag_handle,
-                              color: cs.onSurface.withValues(alpha: 0.35)),
+                          child: Icon(
+                            Icons.drag_handle,
+                            color: cs.onSurface.withValues(alpha: 0.35),
+                          ),
                         ),
                         const SizedBox(width: 8),
                         WalletIconSquare(

@@ -9,7 +9,7 @@ class TagSelectionDialog extends StatefulWidget {
   final Set<String> initialSelectedTags;
 
   TagSelectionDialog({Key? key, required this.initialSelectedTags})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _TagSelectionDialogState createState() => _TagSelectionDialogState();
@@ -120,7 +120,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
                       "Search or create tags".i18n,
                       style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface.withOpacity(0.8),
+                        color: colorScheme.onSurface.withValues(alpha: 0.8),
                       ),
                     ),
                     SizedBox(height: 12),
@@ -136,10 +136,12 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
                   margin: EdgeInsets.symmetric(horizontal: 20),
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer.withOpacity(0.3),
+                    color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: colorScheme.primaryContainer.withOpacity(0.5),
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.5,
+                      ),
                       width: 1,
                     ),
                   ),
@@ -171,14 +173,14 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
                         Icon(
                           Icons.label_outline,
                           size: 20,
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         SizedBox(width: 8),
                         Text(
                           "Available Tags".i18n,
                           style: textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w500,
-                            color: colorScheme.onSurface.withOpacity(0.8),
+                            color: colorScheme.onSurface.withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -206,11 +208,10 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
             elevation: 8,
             icon: Icon(Icons.check),
             label: Text(
-              "Add selected tags (%s)".i18n.fill([_selectedTags.length.toString()]),
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
+              "Add selected tags (%s)".i18n.fill([
+                _selectedTags.length.toString(),
+              ]),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
             ),
           ),
         ),
@@ -225,10 +226,10 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant.withOpacity(0.5),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.2),
+                color: colorScheme.outline.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -244,19 +245,21 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
                   decoration: InputDecoration(
                     hintText: "Search or add new tag...".i18n,
                     hintStyle: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.5),
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     prefixIcon: Icon(
                       Icons.search,
-                      color: colorScheme.onSurface.withOpacity(0.5),
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: Icon(Icons.clear, size: 20),
-                            color: colorScheme.onSurface.withOpacity(0.5),
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
                             onPressed: () {
                               _searchController.clear();
                               _filterTags('');
@@ -271,8 +274,10 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
               suggestionsCallback: (pattern) async {
                 if (pattern.isEmpty) return [];
                 return _allTags
-                    .where((tag) =>
-                        tag.toLowerCase().contains(pattern.toLowerCase()))
+                    .where(
+                      (tag) =>
+                          tag.toLowerCase().contains(pattern.toLowerCase()),
+                    )
                     .take(5)
                     .toList();
               },
@@ -336,13 +341,13 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
           Icon(
             Icons.label_off_outlined,
             size: 64,
-            color: colorScheme.onSurface.withOpacity(0.3),
+            color: colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           SizedBox(height: 16),
           Text(
             "No tags found".i18n,
             style: textTheme.titleMedium?.copyWith(
-              color: colorScheme.onSurface.withOpacity(0.6),
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -350,7 +355,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
           Text(
             "Try searching or create a new tag".i18n,
             style: textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withOpacity(0.5),
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
           ),
@@ -368,8 +373,9 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
         SnackBar(
           content: Text("Tags must be a single word without commas.".i18n),
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;

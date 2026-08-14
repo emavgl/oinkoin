@@ -8,7 +8,6 @@ import 'package:piggybank/services/recurrent-record-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 import 'helpers/test_database.dart';
 
@@ -38,7 +37,11 @@ void main() {
     final utcDate = DateTime.utc(2026, 4, 28, 9, 20);
 
     final pattern = RecurrentRecordPattern(
-      10.0, "Test", category, utcDate, RecurrentPeriod.EveryDay,
+      10.0,
+      "Test",
+      category,
+      utcDate,
+      RecurrentPeriod.EveryDay,
       timeZoneName: "Europe/Vienna",
     );
     await db.addRecurrentRecordPattern(pattern);
@@ -48,8 +51,11 @@ void main() {
     final records = await db.getAllRecords();
     expect(records.isNotEmpty, true);
     for (var r in records) {
-      expect(r!.localDateTime.hour, 11,
-          reason: 'Record should show 11:20 local time, not UTC');
+      expect(
+        r!.localDateTime.hour,
+        11,
+        reason: 'Record should show 11:20 local time, not UTC',
+      );
       expect(r.localDateTime.minute, 20);
     }
   });
@@ -66,7 +72,10 @@ void main() {
     // in main.dart ensures ServiceConfig.localTimezone is always an IANA
     // name, so this fallback path is never hit for the app's local timezone.
     final fallbackLocation = getLocation("CEST");
-    expect(fallbackLocation.name, isNot("CEST"),
-        reason: 'CEST should not resolve as a valid timezone');
+    expect(
+      fallbackLocation.name,
+      isNot("CEST"),
+      reason: 'CEST should not resolve as a valid timezone',
+    );
   });
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
@@ -198,10 +197,7 @@ void main() {
             decimalSep: '.',
             groupSep: ',',
           ),
-          GroupSeparatorFormatter(
-            decimalSep: '.',
-            groupSep: ',',
-          ),
+          GroupSeparatorFormatter(decimalSep: '.', groupSep: ','),
         ];
       });
 

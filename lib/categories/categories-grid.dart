@@ -12,17 +12,18 @@ class CategoriesGrid extends StatefulWidget {
   final bool enableManualSorting;
   final Function(List<Category?>) onChangeOrder;
 
-  CategoriesGrid(this.categories,
-      {this.goToEditMovementPage,
-      required this.enableManualSorting,
-      required this.onChangeOrder});
+  CategoriesGrid(
+    this.categories, {
+    this.goToEditMovementPage,
+    required this.enableManualSorting,
+    required this.onChangeOrder,
+  });
 
   @override
   CategoriesGridState createState() => CategoriesGridState();
 }
 
 class CategoriesGridState extends State<CategoriesGrid> {
-
   List<Category?> orderedCategories = [];
   bool enableManualSorting = false;
   late ScrollController _scrollController;
@@ -39,7 +40,8 @@ class CategoriesGridState extends State<CategoriesGrid> {
     _scrollController = ScrollController();
     enableManualSorting = widget.enableManualSorting;
     orderedCategories = List.from(
-        widget.categories); // Initialize with a copy of the categories list
+      widget.categories,
+    ); // Initialize with a copy of the categories list
   }
 
   @override
@@ -65,9 +67,8 @@ class CategoriesGridState extends State<CategoriesGrid> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditRecordPage(
-                    passedCategory: category,
-                  ),
+                  builder: (context) =>
+                      EditRecordPage(passedCategory: category),
                 ),
               );
             } else {
@@ -77,7 +78,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
           child: Container(
             child: Column(
               children: [
-                  CategoryIconCircle(
+                CategoryIconCircle(
                   iconEmoji: category.iconEmoji,
                   iconDataFromDefaultIconSet: category.icon,
                   backgroundColor: category.color,
@@ -138,27 +139,20 @@ class CategoriesGridState extends State<CategoriesGrid> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unnecessary_null_comparison
-    return widget.categories != null
-        ? new Container(
-            margin: EdgeInsets.all(15),
-            child: widget.categories.length == 0
-                ? new Column(
-                    children: <Widget>[
-                      Image.asset(
-                        'assets/images/no_entry_2.png',
-                        width: 200,
-                      ),
-                      Text(
-                        "No categories yet.".i18n,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 22.0,
-                        ),
-                      )
-                    ],
-                  )
-                : _buildCategories())
-        : new Container();
+    return Container(
+      margin: EdgeInsets.all(15),
+      child: widget.categories.isEmpty
+          ? Column(
+              children: <Widget>[
+                Image.asset('assets/images/no_entry_2.png', width: 200),
+                Text(
+                  "No categories yet.".i18n,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 22.0),
+                ),
+              ],
+            )
+          : _buildCategories(),
+    );
   }
 }

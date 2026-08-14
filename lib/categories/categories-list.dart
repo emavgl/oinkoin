@@ -28,14 +28,13 @@ class CategoriesListState extends State<CategoriesList> {
 
   Widget _buildCategories() {
     return ListView.separated(
-        separatorBuilder: (context, index) => Divider(
-              thickness: 0.5,
-            ),
-        itemCount: widget.categories.length,
-        padding: const EdgeInsets.all(6.0),
-        itemBuilder: /*1*/ (context, i) {
-          return _buildCategory(widget.categories[i]!);
-        });
+      separatorBuilder: (context, index) => Divider(thickness: 0.5),
+      itemCount: widget.categories.length,
+      padding: const EdgeInsets.all(6.0),
+      itemBuilder: /*1*/ (context, i) {
+        return _buildCategory(widget.categories[i]!);
+      },
+    );
   }
 
   Widget _buildCategory(Category category) {
@@ -44,7 +43,8 @@ class CategoriesListState extends State<CategoriesList> {
         await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => EditCategoryPage(passedCategory: category)),
+            builder: (context) => EditCategoryPage(passedCategory: category),
+          ),
         );
         if (widget.callback != null) widget.callback!();
       },
@@ -52,10 +52,10 @@ class CategoriesListState extends State<CategoriesList> {
         opacity: category.isArchived ? 0.8 : 1.0, // Dim the tile
         child: ListTile(
           leading: CategoryIconCircle(
-              iconEmoji: category.iconEmoji,
-              iconDataFromDefaultIconSet: category.icon,
-              backgroundColor: category.color,
-              overlayIcon: category.isArchived ? Icons.archive : null
+            iconEmoji: category.iconEmoji,
+            iconDataFromDefaultIconSet: category.icon,
+            backgroundColor: category.color,
+            overlayIcon: category.isArchived ? Icons.archive : null,
           ),
           title: Text(category.name!, style: _biggerFont),
         ),
@@ -65,27 +65,20 @@ class CategoriesListState extends State<CategoriesList> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unnecessary_null_comparison
-    return widget.categories != null
-        ? new Container(
-            margin: EdgeInsets.all(15),
-            child: widget.categories.length == 0
-                ? new Column(
-                    children: <Widget>[
-                      Image.asset(
-                        'assets/images/no_entry_2.png',
-                        width: 200,
-                      ),
-                      Text(
-                        "No categories yet.".i18n,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 22.0,
-                        ),
-                      )
-                    ],
-                  )
-                : _buildCategories())
-        : new Container();
+    return Container(
+      margin: EdgeInsets.all(15),
+      child: widget.categories.isEmpty
+          ? Column(
+              children: <Widget>[
+                Image.asset('assets/images/no_entry_2.png', width: 200),
+                Text(
+                  "No categories yet.".i18n,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 22.0),
+                ),
+              ],
+            )
+          : _buildCategories(),
+    );
   }
 }

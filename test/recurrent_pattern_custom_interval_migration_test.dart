@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:sqflite_common/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
@@ -132,9 +131,7 @@ void main() {
     ServiceConfig.localTimezone = "Europe/Vienna";
   });
 
-  test(
-      'migration 27 -> 28 adds custom_interval_value and custom_interval_unit columns',
-      () async {
+  test('migration 27 -> 28 adds custom_interval_value and custom_interval_unit columns', () async {
     final db = await _openV27Database();
 
     // Insert a pre-migration pattern using the old fixed periods only.
@@ -171,8 +168,11 @@ void main() {
       'custom_interval_unit': 2, // CustomIntervalUnit.month
     });
 
-    final customRows = await db.query('recurrent_record_patterns',
-        where: 'id = ?', whereArgs: ['pattern-2']);
+    final customRows = await db.query(
+      'recurrent_record_patterns',
+      where: 'id = ?',
+      whereArgs: ['pattern-2'],
+    );
     expect(customRows.first['custom_interval_value'], 6);
     expect(customRows.first['custom_interval_unit'], 2);
 
@@ -193,9 +193,7 @@ void main() {
     await db.close();
   });
 
-  test(
-      'multi-step upgrade from v17 through the current version preserves an old pattern and adds the custom interval columns',
-      () async {
+  test('multi-step upgrade from v17 through the current version preserves an old pattern and adds the custom interval columns', () async {
     final db = await _openV17Database();
 
     // Insert a pattern using the v17-era schema only (no wallet_id,
@@ -215,8 +213,11 @@ void main() {
     // same way a long-dormant install would upgrade in a single app launch.
     await SqliteMigrationService.onUpgrade(db, 17, SqliteDatabase.version);
 
-    final rows = await db.query('recurrent_record_patterns',
-        where: 'id = ?', whereArgs: ['legacy-pattern']);
+    final rows = await db.query(
+      'recurrent_record_patterns',
+      where: 'id = ?',
+      whereArgs: ['legacy-pattern'],
+    );
     expect(rows.length, 1, reason: 'The pre-existing pattern must survive');
     expect(rows.first['title'], 'Legacy Rent');
     expect(rows.first['recurrent_period'], 2);
@@ -240,46 +241,54 @@ void main() {
       'custom_interval_unit': 2, // CustomIntervalUnit.month
     });
 
-    final customRows = await db.query('recurrent_record_patterns',
-        where: 'id = ?', whereArgs: ['new-custom-pattern']);
+    final customRows = await db.query(
+      'recurrent_record_patterns',
+      where: 'id = ?',
+      whereArgs: ['new-custom-pattern'],
+    );
     expect(customRows.first['custom_interval_value'], 6);
     expect(customRows.first['custom_interval_unit'], 2);
 
     await db.close();
   });
 
-  test('fresh install at the current version has the custom interval columns',
-      () async {
-    final db = await databaseFactory.openDatabase(
-      inMemoryDatabasePath,
-      options: OpenDatabaseOptions(
-        version: SqliteDatabase.version,
-        onCreate: SqliteMigrationService.onCreate,
-        onUpgrade: SqliteMigrationService.onUpgrade,
-      ),
-    );
+  test(
+    'fresh install at the current version has the custom interval columns',
+    () async {
+      final db = await databaseFactory.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(
+          version: SqliteDatabase.version,
+          onCreate: SqliteMigrationService.onCreate,
+          onUpgrade: SqliteMigrationService.onUpgrade,
+        ),
+      );
 
-    SqliteDatabase.setDatabaseForTesting(db);
+      SqliteDatabase.setDatabaseForTesting(db);
 
-    await db.insert('recurrent_record_patterns', {
-      'id': 'pattern-fresh',
-      'datetime': DateTime.now().millisecondsSinceEpoch,
-      'timezone': 'UTC',
-      'value': -30.0,
-      'title': 'Subscription',
-      'category_name': 'House',
-      'category_type': 1,
-      'recurrent_period': 8,
-      'custom_interval_value': 4,
-      'custom_interval_unit': 3, // CustomIntervalUnit.year
-    });
+      await db.insert('recurrent_record_patterns', {
+        'id': 'pattern-fresh',
+        'datetime': DateTime.now().millisecondsSinceEpoch,
+        'timezone': 'UTC',
+        'value': -30.0,
+        'title': 'Subscription',
+        'category_name': 'House',
+        'category_type': 1,
+        'recurrent_period': 8,
+        'custom_interval_value': 4,
+        'custom_interval_unit': 3, // CustomIntervalUnit.year
+      });
 
-    final rows = await db.query('recurrent_record_patterns',
-        where: 'id = ?', whereArgs: ['pattern-fresh']);
-    expect(rows.length, 1);
-    expect(rows.first['custom_interval_value'], 4);
-    expect(rows.first['custom_interval_unit'], 3);
+      final rows = await db.query(
+        'recurrent_record_patterns',
+        where: 'id = ?',
+        whereArgs: ['pattern-fresh'],
+      );
+      expect(rows.length, 1);
+      expect(rows.first['custom_interval_value'], 4);
+      expect(rows.first['custom_interval_unit'], 3);
 
-    await db.close();
-  });
+      await db.close();
+    },
+  );
 }

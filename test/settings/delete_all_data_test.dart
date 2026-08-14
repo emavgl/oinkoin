@@ -4,7 +4,6 @@ import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:sqflite_common/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
@@ -29,8 +28,10 @@ void main() {
     final rawDb = (await sqliteDb.database)!;
 
     // Verify default profile exists before deletion
-    final profilesBefore =
-        await rawDb.query('profiles', where: 'is_default = 1');
+    final profilesBefore = await rawDb.query(
+      'profiles',
+      where: 'is_default = 1',
+    );
     expect(profilesBefore.length, 1);
 
     // Add an extra non-default profile
@@ -42,8 +43,10 @@ void main() {
     await db.deleteDatabase();
 
     // Default profile should still exist
-    final profilesAfter =
-        await rawDb.query('profiles', where: 'is_default = 1');
+    final profilesAfter = await rawDb.query(
+      'profiles',
+      where: 'is_default = 1',
+    );
     expect(profilesAfter.length, 1);
 
     // Non-default profiles should be gone
@@ -87,10 +90,13 @@ void main() {
     final wallet = await db.getDefaultWallet();
 
     // Insert a record via raw SQL
-    await rawDb.rawInsert("""
+    await rawDb.rawInsert(
+      """
       INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
       VALUES ('Test Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
-    """, [wallet!.id]);
+    """,
+      [wallet!.id],
+    );
 
     final recordsBefore = await rawDb.query('records');
     expect(recordsBefore.length, 1);
@@ -124,10 +130,13 @@ void main() {
     final profile = await db.getDefaultProfile();
 
     // Insert a recurrent pattern via raw SQL
-    await rawDb.rawInsert("""
+    await rawDb.rawInsert(
+      """
       INSERT INTO recurrent_record_patterns (id, title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id, recurrent_period)
       VALUES ('test-pattern-1', 'Recurrent', -5.0, 1000000, 'UTC', 'House', 0, ?, ?, 86400)
-    """, [wallet!.id, profile!.id]);
+    """,
+      [wallet!.id, profile!.id],
+    );
 
     final patternsBefore = await rawDb.query('recurrent_record_patterns');
     expect(patternsBefore.length, 1);
@@ -146,16 +155,22 @@ void main() {
     final wallet = await db.getDefaultWallet();
 
     // Insert a record
-    final recordId = await rawDb.rawInsert("""
+    final recordId = await rawDb.rawInsert(
+      """
       INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
       VALUES ('Tagged Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
-    """, [wallet!.id]);
+    """,
+      [wallet!.id],
+    );
 
     // Insert a tag association
-    await rawDb.rawInsert("""
+    await rawDb.rawInsert(
+      """
       INSERT INTO records_tags (record_id, tag_name)
       VALUES (?, 'TestTag')
-    """, [recordId]);
+    """,
+      [recordId],
+    );
 
     final tagsBefore = await rawDb.query('records_tags');
     expect(tagsBefore.length, 1);
@@ -175,19 +190,25 @@ void main() {
 
     // Insert multiple records to increment the sequence
     for (int i = 0; i < 5; i++) {
-      await rawDb.rawInsert("""
+      await rawDb.rawInsert(
+        """
         INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
         VALUES ('Record $i', -10.0, 1000000, 'UTC', 'House', 0, ?)
-      """, [wallet!.id]);
+      """,
+        [wallet!.id],
+      );
     }
 
     await db.deleteDatabase();
 
     // Insert a new record after deletion
-    final newRecordId = await rawDb.rawInsert("""
+    final newRecordId = await rawDb.rawInsert(
+      """
       INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
       VALUES ('New Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
-    """, [wallet!.id]);
+    """,
+      [wallet!.id],
+    );
 
     // The id should be 1 since the sequence was reset
     expect(newRecordId, 1);
@@ -199,21 +220,28 @@ void main() {
     final rawDb = (await sqliteDb.database)!;
 
     // Get the default wallet's profile_id before deletion
-    final defaultWalletBefore =
-        await rawDb.query('wallets', where: 'is_default = 1');
+    final defaultWalletBefore = await rawDb.query(
+      'wallets',
+      where: 'is_default = 1',
+    );
     final defaultProfileId = defaultWalletBefore.first['profile_id'];
 
     await db.deleteDatabase();
 
     // Default wallet should still reference the default profile
-    final defaultWalletAfter =
-        await rawDb.query('wallets', where: 'is_default = 1');
+    final defaultWalletAfter = await rawDb.query(
+      'wallets',
+      where: 'is_default = 1',
+    );
     expect(defaultWalletAfter.length, 1);
     expect(defaultWalletAfter.first['profile_id'], defaultProfileId);
 
     // The profile should still exist
-    final profile = await rawDb
-        .query('profiles', where: 'id = ?', whereArgs: [defaultProfileId]);
+    final profile = await rawDb.query(
+      'profiles',
+      where: 'id = ?',
+      whereArgs: [defaultProfileId],
+    );
     expect(profile.length, 1);
   });
 }

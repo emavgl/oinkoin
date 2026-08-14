@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/records/formatter/auto_decimal_shift_formatter.dart';
@@ -55,18 +54,23 @@ void main() {
       expect(result.text, '0.12345678');
     });
 
-    test(
-        'getNumberFormatWithCustomizations formats with 8 decimals when the '
+    test('getNumberFormatWithCustomizations formats with 8 decimals when the '
         'global preference is set to 8', () async {
       SharedPreferences.setMockInitialValues({});
       ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
       ServiceConfig.currencyLocale = const Locale('en', 'US');
-      await ServiceConfig.sharedPreferences!
-          .setString(PreferencesKeys.decimalSeparator, '.');
-      await ServiceConfig.sharedPreferences!
-          .setString(PreferencesKeys.groupSeparator, ',');
-      await ServiceConfig.sharedPreferences!
-          .setInt(PreferencesKeys.numberDecimalDigits, 8);
+      await ServiceConfig.sharedPreferences!.setString(
+        PreferencesKeys.decimalSeparator,
+        '.',
+      );
+      await ServiceConfig.sharedPreferences!.setString(
+        PreferencesKeys.groupSeparator,
+        ',',
+      );
+      await ServiceConfig.sharedPreferences!.setInt(
+        PreferencesKeys.numberDecimalDigits,
+        8,
+      );
 
       final format = getNumberFormatWithCustomizations(turnOffGrouping: true);
 

@@ -14,7 +14,6 @@ import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
@@ -82,16 +81,14 @@ class SqliteDatabase implements DatabaseInterface {
       String _path = join(databasePath, 'movements.db');
       _logger.debug('Database path: $_path');
 
-      var factoryWithLogs = SqfliteDatabaseFactoryLogger(databaseFactory,
-          options:
-              SqfliteLoggerOptions(type: SqfliteDatabaseFactoryLoggerType.all));
-      var db = await factoryWithLogs.openDatabase(
+      var db = await databaseFactory.openDatabase(
         _path,
         options: OpenDatabaseOptions(
-            version: version,
-            onCreate: SqliteMigrationService.onCreate,
-            onUpgrade: SqliteMigrationService.onUpgrade,
-            onDowngrade: SqliteMigrationService.onUpgrade),
+          version: version,
+          onCreate: SqliteMigrationService.onCreate,
+          onUpgrade: SqliteMigrationService.onUpgrade,
+          onDowngrade: SqliteMigrationService.onUpgrade,
+        ),
       );
       _logger.info('Database initialized successfully (version: $version)');
       return db;

@@ -96,8 +96,9 @@ class Logger {
 
   /// Format log message with context
   String _formatMessage(String message) {
-    if (_context != null && _context!.isNotEmpty) {
-      return '[$_context] $message';
+    final context = _context;
+    if (context != null && context.isNotEmpty) {
+      return '[$context] $message';
     }
     return message;
   }
@@ -125,10 +126,9 @@ class _LogScreenState extends State<LogScreen> {
           'info': Colors.blueAccent,
           'warning': Colors.orangeAccent,
           'critical': Colors.redAccent,
-          'debug': Colors.blueGrey
+          'debug': Colors.blueGrey,
         },
       ),
     );
   }
 }
-
