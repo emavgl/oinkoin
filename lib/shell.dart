@@ -53,16 +53,18 @@ class ShellState extends State<Shell> {
 
     var pref = await SharedPreferences.getInstance();
     var enableAppLock = PreferencesUtils.getOrDefault<bool>(
-        pref, PreferencesKeys.enableAppLock)!;
+      pref,
+      PreferencesKeys.enableAppLock,
+    )!;
     if (enableAppLock) {
       try {
-        var authResult = await auth.authenticate(
+        final authResult = await auth.authenticate(
           localizedReason: 'Authenticate to access the app'.i18n,
-          options: const AuthenticationOptions(stickyAuth: true),
+          persistAcrossBackgrounding: true,
         );
         return authResult;
-      } on PlatformException catch (e) {
-        print('Authentication error: ${e.message}');
+      } on LocalAuthException catch (e) {
+        print('Authentication error: ${e.code}');
         return false;
       }
     }
@@ -117,17 +119,19 @@ class ShellState extends State<Shell> {
       ),
     ];
     if (walletsEnabled) {
-      destinations.add(NavigationDestination(
-        label: "Wallets".i18n,
-        selectedIcon: Semantics(
-          identifier: 'wallets-tab-selected',
-          child: Icon(Icons.account_balance_wallet),
+      destinations.add(
+        NavigationDestination(
+          label: "Wallets".i18n,
+          selectedIcon: Semantics(
+            identifier: 'wallets-tab-selected',
+            child: Icon(Icons.account_balance_wallet),
+          ),
+          icon: Semantics(
+            identifier: 'wallets-tab',
+            child: Icon(Icons.account_balance_wallet_outlined),
+          ),
         ),
-        icon: Semantics(
-          identifier: 'wallets-tab',
-          child: Icon(Icons.account_balance_wallet_outlined),
-        ),
-      ));
+      );
     }
     destinations.addAll([
       NavigationDestination(
@@ -164,11 +168,7 @@ class ShellState extends State<Shell> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Show a loading spinner while authenticating
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
         } else if (snapshot.hasError || !(snapshot.data ?? false)) {
           // Show lock icon with a retry button if authentication failed
           return Scaffold(
@@ -257,59 +257,64 @@ class ShellState extends State<Shell> {
         }
       },
       child: Scaffold(
-        body: Stack(children: <Widget>[
-          Offstage(
-            offstage: _currentIndex != 0,
-            child: TickerMode(
-              enabled: _currentIndex == 0,
-              child: Navigator(
-                key: _homeNavigatorKey,
-                onGenerateRoute: (settings) {
-                  return MaterialPageRoute(
-                      builder: (_) => TabRecords(key: _tabRecordsKey));
-                },
+        body: Stack(
+          children: <Widget>[
+            Offstage(
+              offstage: _currentIndex != 0,
+              child: TickerMode(
+                enabled: _currentIndex == 0,
+                child: Navigator(
+                  key: _homeNavigatorKey,
+                  onGenerateRoute: (settings) {
+                    return MaterialPageRoute(
+                      builder: (_) => TabRecords(key: _tabRecordsKey),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          Offstage(
-            offstage: _currentIndex != 1,
-            child: TickerMode(
-              enabled: _currentIndex == 1,
-              child: Navigator(
-                key: _walletsNavigatorKey,
-                onGenerateRoute: (settings) {
-                  return MaterialPageRoute(
-                      builder: (_) => WalletsTabPage(key: _tabWalletsKey));
-                },
+            Offstage(
+              offstage: _currentIndex != 1,
+              child: TickerMode(
+                enabled: _currentIndex == 1,
+                child: Navigator(
+                  key: _walletsNavigatorKey,
+                  onGenerateRoute: (settings) {
+                    return MaterialPageRoute(
+                      builder: (_) => WalletsTabPage(key: _tabWalletsKey),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          Offstage(
-            offstage: _currentIndex != 2,
-            child: TickerMode(
-              enabled: _currentIndex == 2,
-              child: Navigator(
-                key: _categoriesNavigatorKey,
-                onGenerateRoute: (settings) {
-                  return MaterialPageRoute(
-                      builder: (_) => TabCategories(key: _tabCategoriesKey));
-                },
+            Offstage(
+              offstage: _currentIndex != 2,
+              child: TickerMode(
+                enabled: _currentIndex == 2,
+                child: Navigator(
+                  key: _categoriesNavigatorKey,
+                  onGenerateRoute: (settings) {
+                    return MaterialPageRoute(
+                      builder: (_) => TabCategories(key: _tabCategoriesKey),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          Offstage(
-            offstage: _currentIndex != 3,
-            child: TickerMode(
-              enabled: _currentIndex == 3,
-              child: Navigator(
-                key: _settingsNavigatorKey,
-                onGenerateRoute: (settings) {
-                  return MaterialPageRoute(builder: (_) => TabSettings());
-                },
+            Offstage(
+              offstage: _currentIndex != 3,
+              child: TickerMode(
+                enabled: _currentIndex == 3,
+                child: Navigator(
+                  key: _settingsNavigatorKey,
+                  onGenerateRoute: (settings) {
+                    return MaterialPageRoute(builder: (_) => TabSettings());
+                  },
+                ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
         bottomNavigationBar: ValueListenableBuilder<bool>(
           valueListenable: ServiceConfig.walletsEnabledNotifier,
           builder: (context, walletsEnabled, _) {

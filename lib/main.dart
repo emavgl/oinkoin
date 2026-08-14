@@ -66,17 +66,17 @@ void _handlePendingQuickAction() {
   final int tabIndex = (action == 'add_expense') ? 0 : 1;
   navigator
       .push(
-    MaterialPageRoute(
-      builder: (_) => CategoryTabPageView(
-        goToEditMovementPage: true,
-        initialTabIndex: tabIndex,
-      ),
-    ),
-  )
+        MaterialPageRoute(
+          builder: (_) => CategoryTabPageView(
+            goToEditMovementPage: true,
+            initialTabIndex: tabIndex,
+          ),
+        ),
+      )
       .then((_) {
-    // After the record is saved and the user returns to Shell, refresh home tab
-    ShellState.instance?.refreshHomeTab();
-  });
+        // After the record is saved and the user returns to Shell, refresh home tab
+        ShellState.instance?.refreshHomeTab();
+      });
 }
 
 main() async {
@@ -94,7 +94,8 @@ main() async {
     // FlutterTimezone.getLocalTimezone() returns the proper IANA name on
     // all supported platforms.
     try {
-      ServiceConfig.localTimezone = await FlutterTimezone.getLocalTimezone();
+      final timezoneInfo = await FlutterTimezone.getLocalTimezone();
+      ServiceConfig.localTimezone = timezoneInfo.identifier;
     } catch (_) {
       // Fallback for platforms where flutter_timezone does not work.
       // On Linux, try to read /etc/timezone which contains the IANA name.
@@ -113,12 +114,14 @@ main() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     ServiceConfig.packageName = packageInfo.packageName;
     ServiceConfig.version = packageInfo.version;
-    ServiceConfig.isPremium = packageInfo.packageName.endsWith("pro") ||
+    ServiceConfig.isPremium =
+        packageInfo.packageName.endsWith("pro") ||
         Platform.isLinux ||
         Platform.isWindows ||
         Platform.isMacOS;
     logger.info(
-        'Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})');
+      'Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})',
+    );
 
     ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
     ServiceConfig.initWalletsEnabled();
@@ -136,7 +139,8 @@ main() async {
     final currencyLocale = LocaleService.resolveCurrencyLocale();
     LocaleService.setCurrencyLocale(currencyLocale);
     logger.info(
-        'Locale configured: language=$languageLocale, currency=$currencyLocale');
+      'Locale configured: language=$languageLocale, currency=$currencyLocale',
+    );
 
     final lightTheme = await MaterialThemeInstance.getLightTheme();
     final darkTheme = await MaterialThemeInstance.getDarkTheme();
@@ -252,12 +256,13 @@ class _MyAppState extends State<MyApp> {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate
+        DefaultCupertinoLocalizations.delegate,
       ],
       child: AppCore(
-          lightTheme: _lightTheme,
-          darkTheme: _darkTheme,
-          themeMode: _themeMode),
+        lightTheme: _lightTheme,
+        darkTheme: _darkTheme,
+        themeMode: _themeMode,
+      ),
     );
   }
 }

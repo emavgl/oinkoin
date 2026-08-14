@@ -9,8 +9,11 @@ import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/style.dart';
 
 /// Shows a temporary dialog with a full-size preview of a banner image.
-void showBannerImagePreview(BuildContext context, String token,
-    {String? title}) {
+void showBannerImagePreview(
+  BuildContext context,
+  String token, {
+  String? title,
+}) {
   showDialog<void>(
     context: context,
     builder: (context) => Dialog(
@@ -76,8 +79,10 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
   }
 
   Future<void> _setReverseMonthlyImages(bool value) async {
-    await ServiceConfig.sharedPreferences
-        ?.setBool(PreferencesKeys.reverseMonthlyImages, value);
+    await ServiceConfig.sharedPreferences?.setBool(
+      PreferencesKeys.reverseMonthlyImages,
+      value,
+    );
     // Applying a preset resets any custom images so only the original
     // (built-in) monthly pictures remain.
     await BannerImageService.discardCustomImages();
@@ -98,7 +103,8 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
     setState(() {
       if (token ==
           BannerImageService.assetToken(
-              BannerImageService.monthAssetName(month))) {
+            BannerImageService.monthAssetName(month),
+          )) {
         // Selecting the month's own built-in image is the default; keep the
         // stored assignments empty for it.
         _assignments.remove(month);
@@ -160,13 +166,17 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
           child: _reverseMonthlyImages
               ? FilledButton(
                   onPressed: () => _setReverseMonthlyImages(true),
-                  child: Text("Southern Hemisphere".i18n,
-                      textAlign: TextAlign.center),
+                  child: Text(
+                    "Southern Hemisphere".i18n,
+                    textAlign: TextAlign.center,
+                  ),
                 )
               : OutlinedButton(
                   onPressed: () => _setReverseMonthlyImages(true),
-                  child: Text("Southern Hemisphere".i18n,
-                      textAlign: TextAlign.center),
+                  child: Text(
+                    "Southern Hemisphere".i18n,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
         ),
       ],
@@ -174,9 +184,13 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
   }
 
   Widget _buildMonthTile(int month) {
-    final token = _assignments[month] ??
-        BannerImageService.assetToken(BannerImageService.monthAssetName(
-            BannerImageService.displayMonth(month)));
+    final token =
+        _assignments[month] ??
+        BannerImageService.assetToken(
+          BannerImageService.monthAssetName(
+            BannerImageService.displayMonth(month),
+          ),
+        );
     final isCustom = token.startsWith(BannerImageService.userPrefix);
 
     return GestureDetector(
@@ -201,8 +215,9 @@ class _MonthlyBannerPageState extends State<MonthlyBannerPage> {
                     image: BannerImageService.resolveToken(token),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Image.asset(
-                        BannerImageService.defaultAsset,
-                        fit: BoxFit.cover),
+                      BannerImageService.defaultAsset,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   if (isCustom)
                     const Positioned(
@@ -249,15 +264,14 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
   }
 
   Future<void> _addImage() async {
-    FilePickerResult? result;
+    List<PlatformFile> result;
     try {
-      result = await FilePicker.platform.pickFiles(type: FileType.image);
+      result = await FilePicker.pickFiles(type: FileType.image);
     } catch (_) {
-      result = null;
+      result = const [];
     }
-    if (result == null || result.files.single.path == null) return;
-    final upload =
-        await BannerImageService.importImage(result.files.single.path!);
+    if (result.isEmpty || result.single.path == null) return;
+    final upload = await BannerImageService.importImage(result.single.path!);
     if (upload == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -285,9 +299,9 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Select a picture for %s"
-                  .i18n
-                  .fill([extractMonthString(DateTime(2000, widget.month))]),
+              "Select a picture for %s".i18n.fill([
+                extractMonthString(DateTime(2000, widget.month)),
+              ]),
               style: titleTextStyle,
             ),
             const SizedBox(height: 12),
@@ -303,7 +317,8 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                   ...List.generate(12, (index) {
                     final month = index + 1;
                     final token = BannerImageService.assetToken(
-                        BannerImageService.monthAssetName(month));
+                      BannerImageService.monthAssetName(month),
+                    );
                     return _buildChoiceTile(
                       token,
                       label: extractMonthString(DateTime(2000, month)),
@@ -318,10 +333,7 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
     );
   }
 
-  Widget _buildChoiceTile(
-    String token, {
-    required String label,
-  }) {
+  Widget _buildChoiceTile(String token, {required String label}) {
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(token),
       onLongPress: () => showBannerImagePreview(context, token, title: label),
@@ -335,8 +347,9 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                 image: BannerImageService.resolveToken(token),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Image.asset(
-                    BannerImageService.defaultAsset,
-                    fit: BoxFit.cover),
+                  BannerImageService.defaultAsset,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
@@ -379,8 +392,10 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                           image: BannerImageService.resolveToken(last.token),
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
-                              Image.asset(BannerImageService.defaultAsset,
-                                  fit: BoxFit.cover),
+                              Image.asset(
+                                BannerImageService.defaultAsset,
+                                fit: BoxFit.cover,
+                              ),
                         ),
                         Positioned(
                           right: 4,
@@ -391,8 +406,11 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                               shape: BoxShape.circle,
                             ),
                             padding: const EdgeInsets.all(3),
-                            child: const Icon(Icons.add,
-                                size: 14, color: Colors.white),
+                            child: const Icon(
+                              Icons.add,
+                              size: 14,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],

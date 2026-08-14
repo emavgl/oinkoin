@@ -110,16 +110,13 @@ class CsvImportService {
     content = content.replaceAll('\r\n', '\n');
 
     // Auto-detect delimiter from first 4096 chars
-    final sniffSample =
-        content.length > 4096 ? content.substring(0, 4096) : content;
+    final sniffSample = content.length > 4096
+        ? content.substring(0, 4096)
+        : content;
     final delimiter = _detectDelimiter(sniffSample);
 
-    final converter = CsvToListConverter(
-      fieldDelimiter: delimiter,
-      eol: '\n',
-      shouldParseNumbers: false,
-    );
-    final List<List<dynamic>> raw = converter.convert(content);
+    final codec = Csv(fieldDelimiter: delimiter, dynamicTyping: false);
+    final List<List<dynamic>> raw = codec.decode(content);
 
     if (raw.isEmpty) {
       _logger.warning('CSV parsing produced 0 rows');
@@ -153,22 +150,20 @@ class CsvImportService {
       rows.add(map);
     }
 
-    _logger
-        .info('Parsed ${rows.length} data rows ($skippedEmpty empty skipped) '
-            'with ${headers.length} columns (delimiter: "${delimiter}")');
+    _logger.info(
+      'Parsed ${rows.length} data rows ($skippedEmpty empty skipped) '
+      'with ${headers.length} columns (delimiter: "${delimiter}")',
+    );
     _logger.debug(
-        'First row sample: ${rows.isNotEmpty ? rows.first.values.where((v) => v.isNotEmpty).join(" | ") : "<none>"}');
+      'First row sample: ${rows.isNotEmpty ? rows.first.values.where((v) => v.isNotEmpty).join(" | ") : "<none>"}',
+    );
     return CsvParseResult(headers, rows);
   }
 
   /// Heuristically detects the CSV delimiter from a sample.
   static String _detectDelimiter(String sample) {
     // Count occurrences of common delimiters
-    final counts = <String, int>{
-      ',': 0,
-      ';': 0,
-      '\t': 0,
-    };
+    final counts = <String, int>{',': 0, ';': 0, '\t': 0};
     for (final char in sample.split('')) {
       if (counts.containsKey(char)) {
         counts[char] = counts[char]! + 1;
@@ -214,14 +209,16 @@ class CsvImportService {
       tagsColumn: findContaining(['tags', 'tag', 'labels']),
       walletColumn: findContaining(['wallet', 'account']),
     );
-    _logger.info('Auto-mapped columns: '
-        'title=${mapping.titleColumn ?? "<none>"} '
-        'value=${mapping.valueColumn ?? "<none>"} '
-        'datetime=${mapping.datetimeColumn ?? "<none>"} '
-        'category=${mapping.categoryColumn ?? "<none>"} '
-        'description=${mapping.descriptionColumn ?? "<none>"} '
-        'tags=${mapping.tagsColumn ?? "<none>"} '
-        'wallet=${mapping.walletColumn ?? "<none>"}');
+    _logger.info(
+      'Auto-mapped columns: '
+      'title=${mapping.titleColumn ?? "<none>"} '
+      'value=${mapping.valueColumn ?? "<none>"} '
+      'datetime=${mapping.datetimeColumn ?? "<none>"} '
+      'category=${mapping.categoryColumn ?? "<none>"} '
+      'description=${mapping.descriptionColumn ?? "<none>"} '
+      'tags=${mapping.tagsColumn ?? "<none>"} '
+      'wallet=${mapping.walletColumn ?? "<none>"}',
+    );
     return mapping;
   }
 
@@ -550,11 +547,13 @@ class CsvImportService {
     final warnings = <String>[];
     if (!mapping.hasMinimumMapping) {
       warnings.add(
-          'Amount and Date/Time columns must be mapped for records to be imported.');
+        'Amount and Date/Time columns must be mapped for records to be imported.',
+      );
     }
     if (unparseable > 0) {
-      warnings
-          .add('$unparseable row(s) could not be parsed and will be skipped.');
+      warnings.add(
+        '$unparseable row(s) could not be parsed and will be skipped.',
+      );
     }
     if (parsable == 0) {
       warnings.add('No records can be imported with the current mapping.');
@@ -576,9 +575,11 @@ class CsvImportService {
           : null,
       warnings: warnings,
     );
-    _logger.info('Preview: $parsable parsable, $unparseable unparseable, '
-        '${categories.length} categories, ${tags.length} tags, '
-        '${wallets.length} wallets, ${warnings.length} warnings');
+    _logger.info(
+      'Preview: $parsable parsable, $unparseable unparseable, '
+      '${categories.length} categories, ${tags.length} tags, '
+      '${wallets.length} wallets, ${warnings.length} warnings',
+    );
     return preview;
   }
 
@@ -603,8 +604,9 @@ class CsvImportService {
     final db = database ?? ServiceConfig.database;
     _logger.info('Starting CSV import: ${rows.length} rows');
     _logger.debug(
-        'Mapping: value=${mapping.valueColumn}, datetime=${mapping.datetimeColumn}, '
-        'category=${mapping.categoryColumn}, wallet=${mapping.walletColumn}');
+      'Mapping: value=${mapping.valueColumn}, datetime=${mapping.datetimeColumn}, '
+      'category=${mapping.categoryColumn}, wallet=${mapping.walletColumn}',
+    );
 
     // 1. Collect unique categories
     final categoryMap = <String, Map<String, dynamic>>{};
@@ -641,8 +643,9 @@ class CsvImportService {
         categoryType: CategoryType.values[entry.value['category_type']],
       );
       cat.lastUsed = DateTime.fromMillisecondsSinceEpoch(
-          entry.value['last_used'],
-          isUtc: true);
+        entry.value['last_used'],
+        isUtc: true,
+      );
       try {
         await db.addCategory(cat);
         categoriesInserted++;
@@ -655,7 +658,8 @@ class CsvImportService {
       }
     }
     _logger.info(
-        'Categories: $categoriesInserted new / ${categoryMap.length - categoriesInserted} existing');
+      'Categories: $categoriesInserted new / ${categoryMap.length - categoriesInserted} existing',
+    );
     _logger.debug('Category map has ${categoryMap.length} unique entries');
     onProgress?.call(0.15);
 
@@ -684,7 +688,8 @@ class CsvImportService {
         if (walletName.isEmpty) {
           walletId = defaultWallet?.id;
           _logger.debug(
-              'Row $i: wallet column mapped but empty → default wallet ID $walletId');
+            'Row $i: wallet column mapped but empty → default wallet ID $walletId',
+          );
         } else {
           if (!walletCache.containsKey(walletName)) {
             _logger.debug('Row $i: resolving wallet "$walletName"');
@@ -696,7 +701,8 @@ class CsvImportService {
       } else {
         walletId = defaultWallet?.id;
         _logger.debug(
-            'Row $i: no wallet column mapped → default wallet ID $walletId');
+          'Row $i: no wallet column mapped → default wallet ID $walletId',
+        );
       }
 
       final record = rowToRecord(row, mapping, walletId: walletId);
@@ -707,8 +713,9 @@ class CsvImportService {
         onProgress?.call(0.15 + 0.65 * (i / rows.length));
       }
     }
-    _logger
-        .info('Built ${records.length} records ($skippedErrors parse errors)');
+    _logger.info(
+      'Built ${records.length} records ($skippedErrors parse errors)',
+    );
     onProgress?.call(0.80);
 
     final totalBeforeBatch = records.length;
@@ -749,10 +756,13 @@ class CsvImportService {
     int? walletId,
   }) {
     final value = parseMoney(row[mapping.valueColumn]) ?? 0.0;
-    final dateMs = parseToMs(row[mapping.datetimeColumn]) ??
+    final dateMs =
+        parseToMs(row[mapping.datetimeColumn]) ??
         DateTime.now().toUtc().millisecondsSinceEpoch;
-    final utcDateTime =
-        DateTime.fromMillisecondsSinceEpoch(dateMs, isUtc: true);
+    final utcDateTime = DateTime.fromMillisecondsSinceEpoch(
+      dateMs,
+      isUtc: true,
+    );
     final catName = row[mapping.categoryColumn] ?? 'Uncategorized';
     final catType = value < 0 ? CategoryType.expense : CategoryType.income;
 
@@ -760,9 +770,10 @@ class CsvImportService {
     final tags = _splitTags(row[mapping.tagsColumn]);
 
     _logger.debug(
-        'rowToRecord: value=$value, date=${utcDateTime.toIso8601String()}, '
-        'category="$catName", tags=$tags, walletId=$walletId, '
-        'title="${row[mapping.titleColumn] ?? ""}"');
+      'rowToRecord: value=$value, date=${utcDateTime.toIso8601String()}, '
+      'category="$catName", tags=$tags, walletId=$walletId, '
+      'title="${row[mapping.titleColumn] ?? ""}"',
+    );
 
     return Record(
       value,
@@ -802,7 +813,8 @@ class CsvImportService {
     if (trimmed.isEmpty) {
       final defaultWallet = await db.getDefaultWallet();
       _logger.debug(
-          '_getOrCreateWallet: empty name → default wallet "${defaultWallet!.name}" (ID ${defaultWallet.id})');
+        '_getOrCreateWallet: empty name → default wallet "${defaultWallet!.name}" (ID ${defaultWallet.id})',
+      );
       return defaultWallet;
     }
 
@@ -810,14 +822,17 @@ class CsvImportService {
     Wallet? existing;
     try {
       existing = await db.getWalletByName(
-          trimmed, ProfileService.instance.activeProfileId);
+        trimmed,
+        ProfileService.instance.activeProfileId,
+      );
     } catch (_) {
       // getWalletByName may throw on some implementations; fall through
     }
 
     if (existing != null) {
       _logger.debug(
-          '_getOrCreateWallet: found existing wallet "${existing.name}" (ID ${existing.id})');
+        '_getOrCreateWallet: found existing wallet "${existing.name}" (ID ${existing.id})',
+      );
       return existing;
     }
 
@@ -827,7 +842,8 @@ class CsvImportService {
     final newId = await db.addWallet(wallet);
     final created = await db.getWalletById(newId);
     _logger.info(
-        '_getOrCreateWallet: created wallet "${created!.name}" (ID ${created.id})');
+      '_getOrCreateWallet: created wallet "${created!.name}" (ID ${created.id})',
+    );
     return created;
   }
 }

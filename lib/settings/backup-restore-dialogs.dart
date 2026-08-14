@@ -20,8 +20,10 @@ class BackupRestoreDialog {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("It appears the file has been encrypted. Enter the password:"
-                  .i18n),
+              Text(
+                "It appears the file has been encrypted. Enter the password:"
+                    .i18n,
+              ),
               SizedBox(height: 10),
               TextField(
                 controller: passwordController,
@@ -42,8 +44,9 @@ class BackupRestoreDialog {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(
-                    passwordController.text); // Return password if provided
+                Navigator.of(
+                  context,
+                ).pop(passwordController.text); // Return password if provided
               },
               child: Text("Load".i18n),
             ),
@@ -55,49 +58,59 @@ class BackupRestoreDialog {
 
   static Future<void> importFromBackupFile(BuildContext context) async {
     try {
-      var hasDeletedCache = await FilePicker.platform.clearTemporaryFiles();
-      log("FilePicker has deleted cache: " + hasDeletedCache.toString());
+      FilePicker.clearTemporaryFiles();
+      log("FilePicker temporary cache cleared");
     } catch (e) {
       log("FilePicker.clearTemporaryFiles() not implemented on this platform");
     }
-    FilePickerResult? result;
+    List<PlatformFile> result;
     try {
-      result = await FilePicker.platform.pickFiles(
+      result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
     } catch (e) {
       // strange issue on android-9 due to filter
-      result = await FilePicker.platform.pickFiles();
+      result = await FilePicker.pickFiles();
     }
-    if (result != null) {
-      File file = File(result.files.single.path!);
+    if (result.isNotEmpty && result.single.path != null) {
+      File file = File(result.single.path!);
       String? password;
       if (await BackupService.isEncrypted(file)) {
         password = await showRestoreBackupDialog(context);
         if (password != null && password.isNotEmpty) {
           password = BackupService.hashPassword(password);
         } else {
-          await showBackupRestoreDialog(context, "Restore unsuccessful".i18n,
-              "Can't decrypt without a password".i18n);
+          await showBackupRestoreDialog(
+            context,
+            "Restore unsuccessful".i18n,
+            "Can't decrypt without a password".i18n,
+          );
           return;
         }
       }
       bool successful = await showDialog(
         context: context,
         builder: (context) => FutureProgressDialog(
-            BackupService.importDataFromBackupFile(file,
-                encryptionPassword: password)),
+          BackupService.importDataFromBackupFile(
+            file,
+            encryptionPassword: password,
+          ),
+        ),
       );
       if (successful) {
-        await showBackupRestoreDialog(context, "Restore successful".i18n,
-            "The data from the backup file are now restored.".i18n);
+        await showBackupRestoreDialog(
+          context,
+          "Restore successful".i18n,
+          "The data from the backup file are now restored.".i18n,
+        );
       } else {
         await showBackupRestoreDialog(
-            context,
-            "Restore unsuccessful".i18n,
-            "Make sure you have the latest version of the app. If so, the backup file may be corrupted."
-                .i18n);
+          context,
+          "Restore unsuccessful".i18n,
+          "Make sure you have the latest version of the app. If so, the backup file may be corrupted."
+              .i18n,
+        );
       }
     } else {
       // User has canceled the picker
@@ -106,14 +119,18 @@ class BackupRestoreDialog {
   }
 
   static Future<void> showBackupRestoreDialog(
-      BuildContext context, String title, String subtitle) async {
+    BuildContext context,
+    String title,
+    String subtitle,
+  ) async {
     AlertDialogBuilder resultDialog = AlertDialogBuilder(title)
         .addSubtitle(subtitle)
         .addTrueButtonName("OK".i18n);
     await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return resultDialog.build(context);
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return resultDialog.build(context);
+      },
+    );
   }
 }

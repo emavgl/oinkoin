@@ -27,21 +27,21 @@ class _CsvImportPageState extends State<CsvImportPage> {
 
     try {
       try {
-        await FilePicker.platform.clearTemporaryFiles();
+        FilePicker.clearTemporaryFiles();
       } catch (_) {}
 
-      FilePickerResult? result;
+      List<PlatformFile> result;
       try {
-        result = await FilePicker.platform.pickFiles(
+        result = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['csv', 'tsv', 'txt'],
         );
       } catch (_) {
-        result = await FilePicker.platform.pickFiles();
+        result = await FilePicker.pickFiles();
       }
 
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
+      if (result.isNotEmpty && result.single.path != null) {
+        final file = File(result.single.path!);
         final content = await file.readAsString();
         _processContent(content);
       } else {
@@ -92,10 +92,7 @@ class _CsvImportPageState extends State<CsvImportPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => CsvPreviewScreen(
-            headers: headers,
-            rows: rows,
-          ),
+          builder: (_) => CsvPreviewScreen(headers: headers, rows: rows),
         ),
       );
     } catch (e) {
@@ -106,10 +103,7 @@ class _CsvImportPageState extends State<CsvImportPage> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -118,9 +112,7 @@ class _CsvImportPageState extends State<CsvImportPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Import from CSV'.i18n),
-      ),
+      appBar: AppBar(title: Text('Import from CSV'.i18n)),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -144,8 +136,9 @@ class _CsvImportPageState extends State<CsvImportPage> {
                         child: Text(
                           'OR',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ),
                       ),
@@ -192,25 +185,30 @@ class _CsvImportPageState extends State<CsvImportPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w500)),
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: TextStyle(
-                            fontSize: 13,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.6))),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.6),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.3)),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurface
+                    .withValues(alpha: 0.3),
+              ),
             ],
           ),
         ),
