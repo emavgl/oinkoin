@@ -1,0 +1,89 @@
+name: Build Windows release manual
+
+on:
+  # Allow for manual triggering of the workflow
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to build the Windows release from'
+        required: true
+        default: 'master'
+
+jobs:
+  build-windows:
+    name: Build Windows package
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Checkout the branch specified by the user
+          ref: ${{ github.event.inputs.branch }}
+
+      # Navigate to the submodule and perform the necessary git operations
+      - name: Update flutter submodule to stable branch
+        shell: bash
+        run: |
+          git submodule update --init --recursive
+          cd submodules/flutter
+          git reset --merge
+          git checkout stable
+          git pull origin stable
+          cd ../..
+
+      - name: Enable Windows desktop
+        run: submodules/flutter/bin/flutter.bat config --enable-windows-desktop
+
+      - run: submodules/flutter/bin/flutter.bat pub get
+
+      - name: Run Flutter tests
+        run: submodules/flutter/bin/flutter.bat test
+
+      - name: Build Windows release
+        run: submodules/flutter/bin/flutter.bat build windows --release
+
+      - name: Include Visual C++ runtime
+        shell: pwsh
+        run: |
+          $releaseDir = "build/windows/x64/runner/Release"
+          foreach ($dll in @("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll")) {
+            $source = Join-Path (Join-Path $env:WINDIR "System32") $dll
+            if (-not (Test-Path $source)) {
+              throw "Required Visual C++ runtime was not found: $source"
+            }
+            Copy-Item -Path $source -Destination $releaseDir -Force
+          }
+
+      - name: Package Windows release
+        shell: pwsh
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath piggybank-windows-x64.zip
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress --yes
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build/windows/installer | Out-Null
+          $compiler = Join-Path (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6") "ISCC.exe"
+          if (-not (Test-Path $compiler)) {
+            $compiler = (Get-Command iscc.exe -ErrorAction Stop).Source
+          }
+          & $compiler windows/installer.iss
+
+      - name: Upload Windows zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: piggybank-windows-x64
+          path: piggybank-windows-x64.zip
+
+      - name: Upload Windows installer as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oinkoin-windows-x64-setup
+          path: build/windows/installer/oinkoin-windows-x64-setup.exe
