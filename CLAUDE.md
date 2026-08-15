@@ -8,6 +8,18 @@ This project uses an **_automated_translation.json** file to track context for e
 - Prevention of errors like translating "Left" as directional when it means currency symbol position
 - A permanent record of why each string is translated a certain way
 
+## Testing Guidance
+
+Match testing effort to the risk and scope of the change. Not every small UI fix or visual improvement requires a new test.
+
+- Add or update tests when changing business logic, data handling, user-visible behavior with meaningful regressions, critical flows, or platform-specific behavior.
+- For minor visual-only changes such as spacing, positioning, styling, or simple animation adjustments, use judgment rather than creating brittle pixel-position widget tests by default.
+- Prefer running an existing relevant test when practical; if a new test would be disproportionate or unreliable, document the reasoning briefly and verify the change through focused inspection or an appropriate lightweight check.
+
+## Commit Messages
+
+Commit messages must contain only the project's normal commit message content. Never add assistant, tool, or automation footprints, including `Co-authored-by`, `Co-Authored-By`, `Generated with ...`, `Signed-off-by`, or similar attribution/trailer lines.
+
 ## The System
 
 ### Files Involved

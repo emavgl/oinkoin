@@ -82,6 +82,8 @@ class _BudgetEmptyState extends StatefulWidget {
 }
 
 class _BudgetEmptyStateState extends State<_BudgetEmptyState> {
+  static const _messageSlotHeight = 80.0;
+
   Timer? _timer;
   int _messageIndex = 0;
 
@@ -117,32 +119,37 @@ class _BudgetEmptyStateState extends State<_BudgetEmptyState> {
           children: [
             Image.asset('assets/images/no_entry.png', width: 200),
             const SizedBox(height: 12),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 340),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 600),
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeIn,
-                transitionBuilder: (child, animation) {
-                  final offsetAnimation = animation.drive(
-                    Tween<Offset>(
-                      begin: const Offset(0, 0.2),
-                      end: Offset.zero,
-                    ).chain(CurveTween(curve: Curves.easeOut)),
-                  );
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: offsetAnimation,
-                      child: child,
+            SizedBox(
+              height: _messageSlotHeight,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 340),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 600),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) {
+                      final offsetAnimation = animation.drive(
+                        Tween<Offset>(
+                          begin: const Offset(0, 0.2),
+                          end: Offset.zero,
+                        ).chain(CurveTween(curve: Curves.easeOut)),
+                      );
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Text(
+                      widget.messages[_messageIndex],
+                      key: ValueKey(_messageIndex),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18),
                     ),
-                  );
-                },
-                child: Text(
-                  widget.messages[_messageIndex],
-                  key: ValueKey(_messageIndex),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 18),
+                  ),
                 ),
               ),
             ),
@@ -333,7 +340,7 @@ class BudgetsPageState extends State<BudgetsPage> {
         messages: [
           'Saving for your next vacation? Set a savings budget and track your progress.'
               .i18n,
-          'Spending too much on drinks? Set a monthly budget and keep an eye on your progress.'
+          'Spending too much at the bar? Set a monthly budget and keep an eye on your progress.'
               .i18n,
         ],
       );

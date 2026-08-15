@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Complete context tracking for all translatable strings",
-    "format": "Each key has: context (where/how it's used), file (where in code), page (UI location), component (UI element), meaning (what it means to users), notes (translation notes), status",
+    "format": "Each key has: context (where/how it's used), file (where in code), page (UI location), component (UI element), meaning (what it means to users), notes (translation notes), optional same_as_english_locales, status",
     "status_values": {
       "pending": "Context not yet verified - needs research",
       "verified": "Context researched and documented",
@@ -926,6 +926,7 @@
       "component": "Expansion tile title",
       "meaning": "Select color for category/wallet/tag",
       "notes": "Label for color selection UI",
+      "same_as_english_locales": ["ca", "es"],
       "status": "verified"
     },
     "Colorize income and expenses": {
@@ -946,6 +947,7 @@
       "component": "Menu item title",
       "meaning": "Manage custom colors for categories/wallets",
       "notes": "Customization settings section",
+      "same_as_english_locales": ["ca"],
       "status": "verified"
     },
     "Continue": {
@@ -2733,6 +2735,7 @@
       "component": "TextFormField label",
       "meaning": "Name/label for custom currency",
       "notes": "Input field for currency display name",
+      "same_as_english_locales": ["de"],
       "status": "verified"
     },
     "Name (Alphabetically)": {
@@ -2802,6 +2805,7 @@
       "component": "Confirmation dialog button",
       "meaning": "User rejection/negative response to confirmation prompt",
       "notes": "Paired with 'Yes' button. Often kept as-is in target languages.",
+      "same_as_english_locales": ["ca", "es", "it"],
       "status": "verified"
     },
     "No Category is set yet.": {
@@ -4300,6 +4304,7 @@
       "component": "settings list item title, app bar title",
       "meaning": "Navigation entry to access help, email, and app rating options",
       "notes": "Short menu item - keep concise",
+      "same_as_english_locales": ["da"],
       "status": "verified"
     },
     "Support & Contribute": {
@@ -4579,6 +4584,7 @@
       "component": "Tab label",
       "meaning": "A movement of money from one wallet to another without requiring a category",
       "notes": "This is a transaction type, not a user-managed category",
+      "same_as_english_locales": ["tr"],
       "status": "verified"
     },
     "Transport": {
@@ -4589,6 +4595,7 @@
       "component": "Category name",
       "meaning": "Transportation category for tracking travel expenses",
       "notes": "Default category name - should stay as transport-related",
+      "same_as_english_locales": ["ca", "da", "fr", "pl"],
       "status": "verified"
     },
     "Try searching or create a new tag": {
@@ -5244,6 +5251,7 @@
       "component": "Navigation label and app bar title",
       "meaning": "A collection of spending and saving targets",
       "notes": "Use the financial-planning plural noun, not a verb.",
+      "same_as_english_locales": ["de", "fr"],
       "status": "verified"
     },
     "Categories and tags": {
@@ -5306,13 +5314,13 @@
       "notes": "Keep the question-and-suggestion tone natural in the target language.",
       "status": "verified"
     },
-    "Spending too much on drinks? Set a monthly budget and keep an eye on your progress.": {
-      "key": "Spending too much on drinks? Set a monthly budget and keep an eye on your progress.",
+    "Spending too much at the bar? Set a monthly budget and keep an eye on your progress.": {
+      "key": "Spending too much at the bar? Set a monthly budget and keep an eye on your progress.",
       "context": "Second rotating example in the empty state on the Budgets navigation page",
       "file": "lib/budgets/budgets-page.dart",
       "page": "Budgets",
       "component": "Centered animated empty-state text",
-      "meaning": "Shows how a monthly expense budget can help monitor spending on drinks",
+      "meaning": "Shows how a monthly expense budget can help monitor spending at the bar",
       "notes": "Keep the question-and-suggestion tone natural in the target language.",
       "status": "verified"
     },
