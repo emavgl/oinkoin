@@ -294,13 +294,41 @@ jobs:
       - name: Build Windows release
         run: submodules/flutter/bin/flutter.bat build windows --release
 
+      - name: Include Visual C++ runtime
+        shell: pwsh
+        run: |
+          $releaseDir = "build/windows/x64/runner/Release"
+          foreach ($dll in @("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll")) {
+            $source = Join-Path (Join-Path $env:WINDIR "System32") $dll
+            if (-not (Test-Path $source)) {
+              throw "Required Visual C++ runtime was not found: $source"
+            }
+            Copy-Item -Path $source -Destination $releaseDir -Force
+          }
+
       - name: Package Windows release
         shell: pwsh
         run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath piggybank-windows-x64.zip
 
-      - name: Upload Windows package as Release asset
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress --yes
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build/windows/installer | Out-Null
+          $compiler = Join-Path (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6") "ISCC.exe"
+          if (-not (Test-Path $compiler)) {
+            $compiler = (Get-Command iscc.exe -ErrorAction Stop).Source
+          }
+          & $compiler "/DAppVersion=${{ needs.bump-version.outputs.new_version }}" windows/installer.iss
+
+      - name: Upload Windows packages as Release assets
         uses: softprops/action-gh-release@v1
         with:
-          files: piggybank-windows-x64.zip
+          files: |
+            piggybank-windows-x64.zip
+            build/windows/installer/oinkoin-windows-x64-setup.exe
           body: ${{ github.event.release.body }}
           tag_name: ${{ github.event.release.tag_name }}
