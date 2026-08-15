@@ -23,6 +23,7 @@ class PreferencesBackupService {
     PreferencesKeys.firstDayOfWeek,
     PreferencesKeys.dateFormat,
     PreferencesKeys.colorizeAmounts,
+    PreferencesKeys.enableNavigationBarAnimations,
 
     // Number and currency formatting
     PreferencesKeys.decimalSeparator,
@@ -85,6 +86,7 @@ class PreferencesBackupService {
       PreferencesKeys.overwriteCommaValueWithDot,
       PreferencesKeys.amountInputAutoDecimalShift,
       PreferencesKeys.colorizeAmounts,
+      PreferencesKeys.enableNavigationBarAnimations,
       PreferencesKeys.showCurrencySymbol,
       PreferencesKeys.enableRecordNameSuggestions,
       PreferencesKeys.visualiseTagsInMainPage,

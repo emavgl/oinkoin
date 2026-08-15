@@ -127,6 +127,7 @@ main() async {
     ServiceConfig.initWalletsEnabled();
     ServiceConfig.initBudgetsEnabled();
     ServiceConfig.initShowHomepageImage();
+    ServiceConfig.initNavigationBarAnimationsEnabled();
     await MyI18n.loadTranslations();
     await ProfileService.instance.initialize();
 

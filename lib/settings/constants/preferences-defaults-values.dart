@@ -56,6 +56,7 @@ class PreferencesDefaultValues {
         true, // Default to show currency symbols
     PreferencesKeys.colorizeAmounts: false, // Default to disabled
     PreferencesKeys.showHomepageImage: true, // Default to enabled
+    PreferencesKeys.enableNavigationBarAnimations: true,
     PreferencesKeys.reverseMonthlyImages: false, // Default to no reversal
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4,

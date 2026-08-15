@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -136,17 +137,43 @@ class ShellState extends State<Shell> {
     return indexes[safeVisualIndex];
   }
 
-  List<Widget> _buildDestinations(bool walletsEnabled, bool budgetsEnabled) {
+  List<Widget> _buildDestinations(
+    bool walletsEnabled,
+    bool budgetsEnabled,
+    bool animationsEnabled,
+  ) {
+    Widget navigationIcon({
+      required int logicalIndex,
+      required String semanticsIdentifier,
+      required IconData iconData,
+      required IconData selectedIconData,
+      required _NavigationIconMotion motion,
+    }) {
+      final isSelected = _currentIndex == logicalIndex;
+      return Semantics(
+        identifier: isSelected
+            ? '$semanticsIdentifier-selected'
+            : semanticsIdentifier,
+        child: _AnimatedNavigationIcon(
+          key: ValueKey<String>(semanticsIdentifier),
+          isSelected: isSelected,
+          icon: iconData,
+          selectedIcon: selectedIconData,
+          motion: motion,
+          animationsEnabled: animationsEnabled,
+        ),
+      );
+    }
+
     final destinations = <Widget>[
       NavigationDestination(
         label: "Home".i18n,
-        selectedIcon: Semantics(
-          identifier: 'home-tab-selected',
-          child: Icon(Icons.home),
-        ),
-        icon: Semantics(
-          identifier: 'home-tab',
-          child: Icon(Icons.home_outlined),
+        icon: navigationIcon(
+          logicalIndex: 0,
+          semanticsIdentifier: 'home-tab',
+          iconData: Icons.home_outlined,
+          selectedIconData: Icons.home,
+          motion: _NavigationIconMotion.bounce,
         ),
       ),
     ];
@@ -154,13 +181,12 @@ class ShellState extends State<Shell> {
       destinations.add(
         NavigationDestination(
           label: "Wallets".i18n,
-          selectedIcon: Semantics(
-            identifier: 'wallets-tab-selected',
-            child: Icon(Icons.account_balance_wallet),
-          ),
-          icon: Semantics(
-            identifier: 'wallets-tab',
-            child: Icon(Icons.account_balance_wallet_outlined),
+          icon: navigationIcon(
+            logicalIndex: 1,
+            semanticsIdentifier: 'wallets-tab',
+            iconData: Icons.account_balance_wallet_outlined,
+            selectedIconData: Icons.account_balance_wallet,
+            motion: _NavigationIconMotion.mirror,
           ),
         ),
       );
@@ -168,36 +194,33 @@ class ShellState extends State<Shell> {
     destinations.addAll([
       NavigationDestination(
         label: "Categories".i18n,
-        selectedIcon: Semantics(
-          identifier: 'categories-tab-selected',
-          child: Icon(Icons.category),
-        ),
-        icon: Semantics(
-          identifier: 'categories-tab',
-          child: Icon(Icons.category_outlined),
+        icon: navigationIcon(
+          logicalIndex: 2,
+          semanticsIdentifier: 'categories-tab',
+          iconData: Icons.category_outlined,
+          selectedIconData: Icons.category,
+          motion: _NavigationIconMotion.rotateAndStay,
         ),
       ),
       if (budgetsEnabled)
         NavigationDestination(
           label: "Budgets".i18n,
-          selectedIcon: Semantics(
-            identifier: 'budgets-tab-selected',
-            child: Icon(Icons.savings),
-          ),
-          icon: Semantics(
-            identifier: 'budgets-tab',
-            child: Icon(Icons.savings_outlined),
+          icon: navigationIcon(
+            logicalIndex: 3,
+            semanticsIdentifier: 'budgets-tab',
+            iconData: Icons.savings_outlined,
+            selectedIconData: Icons.savings,
+            motion: _NavigationIconMotion.mirror,
           ),
         ),
       NavigationDestination(
         label: "Settings".i18n,
-        selectedIcon: Semantics(
-          identifier: 'settings-tab-selected',
-          child: Icon(Icons.settings),
-        ),
-        icon: Semantics(
-          identifier: 'settings-tab',
-          child: Icon(Icons.settings_outlined),
+        icon: navigationIcon(
+          logicalIndex: 4,
+          semanticsIdentifier: 'settings-tab',
+          iconData: Icons.settings_outlined,
+          selectedIconData: Icons.settings,
+          motion: _NavigationIconMotion.rotate,
         ),
       ),
     ]);
@@ -391,7 +414,11 @@ class ShellState extends State<Shell> {
                   });
                 }
                 return ValueListenableBuilder<bool>(
-                  valueListenable: inAppKeyboardOpen,
+                  valueListenable:
+                      ServiceConfig.navigationBarAnimationsEnabledNotifier,
+                  builder: (context, animationsEnabled, _) {
+                    return ValueListenableBuilder<bool>(
+                      valueListenable: inAppKeyboardOpen,
                   builder: (context, isOpen, child) => AnimatedSize(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeOut,
@@ -402,7 +429,10 @@ class ShellState extends State<Shell> {
                             height: MediaQuery.paddingOf(context).bottom)
                         : child!,
                   ),
-                  child: NavigationBar(
+                      child: NavigationBar(
+                    animationDuration: animationsEnabled
+                        ? const Duration(milliseconds: 220)
+                        : null,
                     selectedIndex: _visualIndex(
                         _currentIndex, walletsEnabled, budgetsEnabled),
                     labelBehavior:
@@ -426,15 +456,152 @@ class ShellState extends State<Shell> {
                         await _tabBudgetsKey.currentState?.onTabChange();
                       }
                     },
-                    destinations:
-                        _buildDestinations(walletsEnabled, budgetsEnabled),
-                  ),
+                    destinations: _buildDestinations(
+                      walletsEnabled,
+                      budgetsEnabled,
+                      animationsEnabled,
+                    ),
+                      ),
+                    );
+                  },
                 );
               },
             );
           },
         ),
       ),
+    );
+  }
+}
+
+/// Defines the selection motion for a navigation icon.
+enum _NavigationIconMotion { bounce, rotate, mirror, rotateAndStay }
+
+/// Animates an outlined-to-filled icon with a per-destination transition.
+class _AnimatedNavigationIcon extends StatefulWidget {
+  const _AnimatedNavigationIcon({
+    super.key,
+    required this.isSelected,
+    required this.icon,
+    required this.selectedIcon,
+    required this.motion,
+    required this.animationsEnabled,
+  });
+
+  final bool isSelected;
+  final IconData icon;
+  final IconData selectedIcon;
+  final _NavigationIconMotion motion;
+  final bool animationsEnabled;
+
+  @override
+  State<_AnimatedNavigationIcon> createState() =>
+      _AnimatedNavigationIconState();
+}
+
+class _AnimatedNavigationIconState extends State<_AnimatedNavigationIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 240),
+      reverseDuration: const Duration(milliseconds: 170),
+      value: widget.isSelected ? 1.0 : 0.0,
+      vsync: this,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _AnimatedNavigationIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isSelected == widget.isSelected) return;
+
+    if (widget.isSelected) {
+      _controller.forward(from: 0.0);
+    } else {
+      _controller.reverse(from: 1.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  double _rotationTurns(double progress) {
+    switch (widget.motion) {
+      case _NavigationIconMotion.bounce:
+        return 0.0;
+      case _NavigationIconMotion.rotate:
+        // Settings/Home rotate briefly and settle back to their original angle.
+        return 0.09 * math.sin(progress * math.pi);
+      case _NavigationIconMotion.mirror:
+        return 0.0;
+      case _NavigationIconMotion.rotateAndStay:
+        // Categories remain at a quarter turn while selected.
+        return 0.25 * progress;
+    }
+  }
+
+  double _horizontalScale(double progress) {
+    if (widget.motion == _NavigationIconMotion.mirror) {
+      // A scaleX transition through zero creates a left-to-right mirror flip.
+      return 1.0 - (2.0 * progress);
+    }
+    return 1.0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.animationsEnabled) {
+      return Icon(widget.isSelected ? widget.selectedIcon : widget.icon);
+    }
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final progress = _controller.value;
+        final selectionOpacity = Curves.easeIn.transform(progress);
+        final selectedScale =
+            0.88 + 0.12 * Curves.easeOutBack.transform(progress);
+        final rotation = _rotationTurns(progress) * 2 * math.pi;
+        final horizontalScale = _horizontalScale(progress);
+        final keepsRotation =
+            widget.motion == _NavigationIconMotion.rotateAndStay;
+        final unselectedRotation = keepsRotation ? rotation : -rotation;
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Opacity(
+              opacity: 1.0 - selectionOpacity,
+              child: Transform.rotate(
+                angle: unselectedRotation,
+                child: Transform.scale(
+                  scaleX: horizontalScale,
+                  scaleY: 1.0 - 0.06 * progress,
+                  child: Icon(widget.icon),
+                ),
+              ),
+            ),
+            Opacity(
+              opacity: selectionOpacity,
+              child: Transform.rotate(
+                angle: rotation,
+                child: Transform.scale(
+                  scaleX: horizontalScale,
+                  scaleY: selectedScale,
+                  child: Icon(widget.selectedIcon),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

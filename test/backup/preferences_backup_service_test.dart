@@ -16,6 +16,8 @@ void main() {
     await prefs.setInt(PreferencesKeys.themeColor, 2);
     await prefs.setBool(PreferencesKeys.showWalletBarOnHomepage, false);
     await prefs.setBool(PreferencesKeys.budgetsEnabled, false);
+    await prefs.setBool(
+        PreferencesKeys.enableNavigationBarAnimations, false);
     await prefs.setInt(
         PreferencesKeys.transferIconCodePoint,
         CategoryIcons.pro_category_icons.first.codePoint);
@@ -31,6 +33,7 @@ void main() {
     expect(exported[PreferencesKeys.themeColor], 2);
     expect(exported[PreferencesKeys.showWalletBarOnHomepage], isFalse);
     expect(exported[PreferencesKeys.budgetsEnabled], isFalse);
+    expect(exported[PreferencesKeys.enableNavigationBarAnimations], isFalse);
     expect(exported[PreferencesKeys.transferIconCodePoint],
         CategoryIcons.pro_category_icons.first.codePoint);
     expect(exported.containsKey(PreferencesKeys.backupPassword), isFalse);
@@ -47,6 +50,7 @@ void main() {
       PreferencesKeys.themeColor: 1,
       PreferencesKeys.showWalletBarOnHomepage: false,
       PreferencesKeys.budgetsEnabled: true,
+      PreferencesKeys.enableNavigationBarAnimations: true,
       PreferencesKeys.transferIconEmoji: '🔄',
       'removed_setting_from_an_old_version': true,
       PreferencesKeys.themeMode: 'dark',
@@ -61,6 +65,7 @@ void main() {
     expect(prefs.getInt(PreferencesKeys.themeColor), 1);
     expect(prefs.getBool(PreferencesKeys.showWalletBarOnHomepage), isFalse);
     expect(prefs.getBool(PreferencesKeys.budgetsEnabled), isTrue);
+    expect(prefs.getBool(PreferencesKeys.enableNavigationBarAnimations), isTrue);
     expect(prefs.getString(PreferencesKeys.transferIconEmoji), '🔄');
     expect(prefs.containsKey('removed_setting_from_an_old_version'), isFalse);
     expect(prefs.containsKey(PreferencesKeys.themeMode), isFalse);
@@ -70,6 +75,10 @@ void main() {
     expect(prefs.containsKey(PreferencesKeys.currencyConversionRates), isFalse);
     expect(prefs.containsKey(PreferencesKeys.transferIconColor), isFalse);
     expect(prefs.containsKey(PreferencesKeys.defaultCurrency), isFalse);
+    expect(
+      prefs.containsKey(PreferencesKeys.enableNavigationBarAnimations),
+      isTrue,
+    );
   });
 
   test('skips malformed JSON and continues restoring later settings', () async {
@@ -78,6 +87,7 @@ void main() {
       PreferencesKeys.currencyConversionRates: '{"USD_EUR": 0.9}',
       PreferencesKeys.showFutureRecords: 'not-a-bool',
       PreferencesKeys.restoreAmountOnDelete: false,
+      PreferencesKeys.enableNavigationBarAnimations: 'not-a-bool',
     });
 
     expect(prefs.containsKey(PreferencesKeys.userCurrencies), isFalse);
@@ -85,6 +95,10 @@ void main() {
         '{"USD_EUR": 0.9}');
     expect(prefs.containsKey(PreferencesKeys.showFutureRecords), isFalse);
     expect(prefs.getBool(PreferencesKeys.restoreAmountOnDelete), isFalse);
+    expect(
+      prefs.containsKey(PreferencesKeys.enableNavigationBarAnimations),
+      isFalse,
+    );
   });
 
   test('rejects unknown transfer icons and malformed serialized colors',

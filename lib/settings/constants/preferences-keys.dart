@@ -41,6 +41,8 @@ class PreferencesKeys {
   // Appearance
   static const colorizeAmounts = 'colorizeAmounts';
   static const showHomepageImage = 'showHomepageImage';
+  static const enableNavigationBarAnimations =
+      'enableNavigationBarAnimations';
 
   // Mics
   static const restoreAmountOnDelete = 'restoreAmountOnDelete';

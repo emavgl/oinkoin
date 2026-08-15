@@ -95,6 +95,27 @@ class ServiceConfig {
   static bool get showHomepageImage =>
       sharedPreferences?.getBool(PreferencesKeys.showHomepageImage) ?? true;
 
+  static final ValueNotifier<bool> navigationBarAnimationsEnabledNotifier =
+      ValueNotifier(true);
+
+  static bool get navigationBarAnimationsEnabled =>
+      sharedPreferences
+          ?.getBool(PreferencesKeys.enableNavigationBarAnimations) ??
+      true;
+
+  static void setNavigationBarAnimationsEnabled(bool value) {
+    sharedPreferences?.setBool(
+      PreferencesKeys.enableNavigationBarAnimations,
+      value,
+    );
+    navigationBarAnimationsEnabledNotifier.value = value;
+  }
+
+  static void initNavigationBarAnimationsEnabled() {
+    navigationBarAnimationsEnabledNotifier.value =
+        navigationBarAnimationsEnabled;
+  }
+
   static void setShowHomepageImage(bool value) {
     sharedPreferences?.setBool(PreferencesKeys.showHomepageImage, value);
     showHomepageImageNotifier.value = value;

@@ -24,6 +24,7 @@ void main() {
     // Reset the notifier to its cold-start default so each test simulates a
     // fresh app launch.
     ServiceConfig.walletsEnabledNotifier.value = true;
+    ServiceConfig.navigationBarAnimationsEnabledNotifier.value = true;
   });
 
   test('initWalletsEnabled syncs the notifier to false when the persisted '
@@ -58,6 +59,31 @@ void main() {
       expect(ServiceConfig.walletsEnabledNotifier.value, isTrue);
     },
   );
+
+  test('navigation bar animations default to enabled', () {
+    ServiceConfig.initNavigationBarAnimationsEnabled();
+
+    expect(ServiceConfig.navigationBarAnimationsEnabled, isTrue);
+    expect(
+      ServiceConfig.navigationBarAnimationsEnabledNotifier.value,
+      isTrue,
+    );
+  });
+
+  test('navigation bar animation setting updates the persisted preference', () {
+    ServiceConfig.setNavigationBarAnimationsEnabled(false);
+
+    expect(ServiceConfig.navigationBarAnimationsEnabled, isFalse);
+    expect(
+      ServiceConfig.navigationBarAnimationsEnabledNotifier.value,
+      isFalse,
+    );
+    expect(
+      ServiceConfig.sharedPreferences!
+          .getBool(PreferencesKeys.enableNavigationBarAnimations),
+      isFalse,
+    );
+  });
 
   test('disabling wallets clears budget wallet filters', () async {
     await TestDatabaseHelper.setupTestDatabase();

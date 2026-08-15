@@ -440,6 +440,19 @@ class CustomizationPageState extends State<CustomizationPage> {
       ),
       _CustomizationOption(
         section: "Appearance",
+        title: "Animate navigation bar",
+        subtitle: "Play animations when selecting navigation tabs",
+        builder: () => SwitchCustomizationItem(
+          title: "Animate navigation bar".i18n,
+          subtitle: "Play animations when selecting navigation tabs".i18n,
+          switchValue: ServiceConfig.navigationBarAnimationsEnabled,
+          sharedConfigKey: PreferencesKeys.enableNavigationBarAnimations,
+          onChanged: (value) =>
+              ServiceConfig.setNavigationBarAnimationsEnabled(value),
+        ),
+      ),
+      _CustomizationOption(
+        section: "Appearance",
         title: "Monthly banner",
         subtitle: "Choose a custom image for each month",
         builder: () => ValueListenableBuilder<bool>(

@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-08-15",
-    "total_keys": 549
+    "total_keys": 551
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -350,6 +350,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Animate navigation bar": {
+      "key": "Animate navigation bar",
+      "context": "Toggle for enabling the custom animated icons when selecting bottom navigation destinations",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Appearance",
+      "component": "SwitchCustomizationItem",
+      "meaning": "Controls whether Home, Wallets, Categories, Budgets, and Settings navigation icons use their custom selection animations",
+      "notes": "Enabled by default. When disabled, icons switch between outlined and filled states without the custom motion.",
+      "status": "verified"
     },
     "Amount, Category, and Date/Time columns are required. No records will be imported without them.": {
       "context": "Warning banner on CSV mapping screen when required columns are not mapped",
@@ -3179,6 +3189,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Play animations when selecting navigation tabs": {
+      "key": "Play animations when selecting navigation tabs",
+      "context": "Explanatory subtitle for the navigation bar animation toggle",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Appearance",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Explains that the switch controls motion played when the user selects a bottom navigation tab",
+      "notes": "Keep concise and action-oriented.",
+      "status": "verified"
     },
     "Please enter a currency code": {
       "key": "Please enter a currency code",
