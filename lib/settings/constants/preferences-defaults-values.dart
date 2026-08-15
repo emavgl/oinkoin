@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:intl/intl.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
@@ -36,7 +38,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.restoreAmountOnDelete:
         true, // Default to restoring the amount
     PreferencesKeys.enableRecordNameSuggestions: true, // Default to enabled
-    PreferencesKeys.amountInputKeyboardType: 2, // Default to in-app keyboard
+    PreferencesKeys.amountInputKeyboardType: getAmountInputKeyboardTypeDefault,
     PreferencesKeys.homepageTimeInterval: HomepageTimeInterval
         .CurrentMonth.index, // Default interval (e.g., current month)
     PreferencesKeys.homepageRecordsMonthStartDay:
@@ -65,6 +67,11 @@ class PreferencesDefaultValues {
     PreferencesKeys.inAppKeyboardButtonColorIndex: 0,
     PreferencesKeys.inAppKeyboardTextColorIndex: 0,
   };
+
+  static int getAmountInputKeyboardTypeDefault() {
+    // The in-app keyboard is buggy on Windows: use the system keyboard there.
+    return Platform.isWindows ? 1 : 2;
+  }
 
   static String getLocaleGroupingSeparator() {
     if (ServiceConfig.currencyLocale == null) {
