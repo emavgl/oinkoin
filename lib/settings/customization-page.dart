@@ -130,6 +130,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     await fetchHomepagePreferences();
     await fetchCurrencyPreferences();
     await fetchWalletPreferences();
+    ServiceConfig.initBudgetsEnabled();
   }
 
   Future<void> fetchAppLockPreferences() async {
@@ -681,6 +682,18 @@ class CustomizationPageState extends State<CustomizationPage> {
           switchValue: PreferencesUtils.getOrDefault<bool>(
               prefs, PreferencesKeys.showFutureRecords)!,
           sharedConfigKey: PreferencesKeys.showFutureRecords,
+        ),
+      ),
+      _CustomizationOption(
+        section: "Budgets",
+        title: "Enable Budgets",
+        subtitle: "Show budgets in the navigation bar",
+        builder: () => SwitchCustomizationItem(
+          title: "Enable Budgets".i18n,
+          subtitle: "Show budgets in the navigation bar".i18n,
+          switchValue: ServiceConfig.budgetsEnabled,
+          onChanged: (value) => ServiceConfig.setBudgetsEnabled(value),
+          sharedConfigKey: PreferencesKeys.budgetsEnabled,
         ),
       ),
       _CustomizationOption(

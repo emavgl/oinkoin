@@ -15,6 +15,7 @@ void main() {
   test('exports portable settings and excludes sensitive/device-local keys', () async {
     await prefs.setInt(PreferencesKeys.themeColor, 2);
     await prefs.setBool(PreferencesKeys.showWalletBarOnHomepage, false);
+    await prefs.setBool(PreferencesKeys.budgetsEnabled, false);
     await prefs.setInt(
         PreferencesKeys.transferIconCodePoint,
         CategoryIcons.pro_category_icons.first.codePoint);
@@ -29,6 +30,7 @@ void main() {
 
     expect(exported[PreferencesKeys.themeColor], 2);
     expect(exported[PreferencesKeys.showWalletBarOnHomepage], isFalse);
+    expect(exported[PreferencesKeys.budgetsEnabled], isFalse);
     expect(exported[PreferencesKeys.transferIconCodePoint],
         CategoryIcons.pro_category_icons.first.codePoint);
     expect(exported.containsKey(PreferencesKeys.backupPassword), isFalse);
@@ -44,6 +46,7 @@ void main() {
     await PreferencesBackupService.restorePreferences(prefs, {
       PreferencesKeys.themeColor: 1,
       PreferencesKeys.showWalletBarOnHomepage: false,
+      PreferencesKeys.budgetsEnabled: true,
       PreferencesKeys.transferIconEmoji: '🔄',
       'removed_setting_from_an_old_version': true,
       PreferencesKeys.themeMode: 'dark',
@@ -57,6 +60,7 @@ void main() {
 
     expect(prefs.getInt(PreferencesKeys.themeColor), 1);
     expect(prefs.getBool(PreferencesKeys.showWalletBarOnHomepage), isFalse);
+    expect(prefs.getBool(PreferencesKeys.budgetsEnabled), isTrue);
     expect(prefs.getString(PreferencesKeys.transferIconEmoji), '🔄');
     expect(prefs.containsKey('removed_setting_from_an_old_version'), isFalse);
     expect(prefs.containsKey(PreferencesKeys.themeMode), isFalse);

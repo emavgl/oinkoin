@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/profile.dart';
@@ -12,7 +13,15 @@ abstract class DatabaseInterface {
   /// DatabaseInterface is an interface that the database classes
   /// must implement. It contains basic CRUD methods for categories and records
 
-  /// Category CRUD
+  // Budget CRUD
+  Future<List<Budget>> getBudgets({int? profileId});
+  Future<int> addBudget(Budget budget);
+  Future<void> updateBudget(Budget budget);
+  Future<void> deleteBudget(int id);
+  Future<void> archiveBudget(int id, bool isArchived);
+
+  // Category CRUD
+
   Future<List<Category?>> getAllCategories();
   Future<List<Category?>> getCategoriesByType(CategoryType categoryType);
   Future<Category?> getCategory(String categoryName, CategoryType categoryType);

@@ -1,3 +1,4 @@
+import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/profile.dart';
 import 'package:piggybank/models/record-tag-association.dart';
@@ -15,6 +16,7 @@ class Backup extends Model {
   List<RecordTagAssociation> recordTagAssociations;
   List<Wallet> wallets;
   List<Profile> profiles;
+  List<Budget> budgets;
   var created_at;
 
   String? packageName;
@@ -31,10 +33,12 @@ class Backup extends Model {
       this.records, this.recurrentRecordsPattern, this.recordTagAssociations,
       {List<Wallet>? wallets,
       List<Profile>? profiles,
+      List<Budget>? budgets,
       this.userCurrencies,
       Map<String, dynamic>? preferences})
-      : wallets = wallets ?? [],
+      :        wallets = wallets ?? [],
         profiles = profiles ?? [],
+        budgets = budgets ?? [],
         preferences = preferences ?? {} {
     created_at = new DateTime.now().millisecondsSinceEpoch;
   }
@@ -51,6 +55,7 @@ class Backup extends Model {
           (index) => recordTagAssociations[index].toMap()),
       'wallets': wallets.map((w) => w.toMap()).toList(),
       'profiles': profiles.map((p) => p.toMap()).toList(),
+      'budgets': budgets.map((budget) => budget.toMap()).toList(),
       'created_at': created_at,
       'package_name': packageName ?? '',
       'version': version ?? '',
@@ -141,6 +146,12 @@ class Backup extends Model {
       });
     }
 
+    // Step 5: load budgets. This key is optional for older backups.
+    final budgetMaps = map['budgets'] as List? ?? const [];
+    final budgets = budgetMaps
+        .map((raw) => Budget.fromMap(Map<String, dynamic>.from(raw)))
+        .toList();
+
     // Extract optional packageName and version
     String? packageName = nonEmptyStringValue(map, 'package_name');
     String? version = nonEmptyStringValue(map, 'version');
@@ -152,6 +163,7 @@ class Backup extends Model {
         recurrentRecordsPattern, recordTagAssociations,
         wallets: wallets,
         profiles: profiles,
+        budgets: budgets,
         userCurrencies: userCurrencies,
         preferences: preferences);
   }

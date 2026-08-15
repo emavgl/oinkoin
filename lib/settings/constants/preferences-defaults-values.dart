@@ -48,6 +48,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.showWalletInRecordList: false, // Default to disabled
     PreferencesKeys.showFutureRecords: true, // Default to enabled
     PreferencesKeys.walletsEnabled: true, // Default to enabled
+    PreferencesKeys.budgetsEnabled: true, // Default to enabled
     PreferencesKeys.walletBalanceMode:
         0, // 0 = always latest, 1 = end of interval
     PreferencesKeys.showWalletBarOnHomepage: true, // Default to enabled

@@ -80,6 +80,31 @@ class SqliteMigrationService {
     batch.execute(query);
   }
 
+  static void _createBudgetsTable(Batch batch) {
+    String query = """
+      CREATE TABLE IF NOT EXISTS budgets (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              target_amount REAL NOT NULL,
+              budget_type INTEGER NOT NULL,
+              start_date INTEGER NOT NULL,
+              end_date INTEGER,
+              recurrent_period INTEGER,
+              custom_interval_value INTEGER,
+              custom_interval_unit INTEGER,
+              category_names TEXT NOT NULL DEFAULT '[]',
+              tags TEXT NOT NULL DEFAULT '[]',
+              wallet_ids TEXT NOT NULL DEFAULT '[]',
+              category_tag_or_logic INTEGER NOT NULL DEFAULT 1,
+              tag_or_logic INTEGER NOT NULL DEFAULT 0,
+              is_archived INTEGER NOT NULL DEFAULT 0,
+              profile_id INTEGER,
+              timezone TEXT
+          );
+      """;
+    batch.execute(query);
+  }
+
   static void _createProfilesTable(Batch batch) {
     String query = """
         CREATE TABLE IF NOT EXISTS profiles (
@@ -540,6 +565,22 @@ class SqliteMigrationService {
         "ALTER TABLE recurrent_record_patterns ADD COLUMN custom_interval_unit INTEGER;");
   }
 
+  static Future<void> _migrateTo29(Database db) async {
+    final batch = db.batch();
+    _createBudgetsTable(batch);
+    await batch.commit();
+  }
+
+  static Future<void> _migrateTo30(Database db) async {
+    await safeAlterTable(
+        db, "ALTER TABLE budgets ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0;");
+  }
+
+  static Future<void> _migrateTo31(Database db) async {
+    await safeAlterTable(
+        db, "ALTER TABLE budgets ADD COLUMN wallet_ids TEXT NOT NULL DEFAULT '[]';");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -563,6 +604,9 @@ class SqliteMigrationService {
     26: SqliteMigrationService._migrateTo26,
     27: SqliteMigrationService._migrateTo27,
     28: SqliteMigrationService._migrateTo28,
+    29: SqliteMigrationService._migrateTo29,
+    30: SqliteMigrationService._migrateTo30,
+    31: SqliteMigrationService._migrateTo31,
   };
 
   // Public Methods
@@ -592,6 +636,7 @@ class SqliteMigrationService {
     _createRecurrentRecordPatternsTable(batch);
     _createWalletsTable(batch);
     _createProfilesTable(batch);
+    _createBudgetsTable(batch);
 
     // Create Triggers
     _createAddRecordTrigger(batch);

@@ -55,6 +55,9 @@ class PreferencesKeys {
 
   // Wallets
   static const walletListSortOption = 'defaultWalletListSortOption';
+
+  // Budgets
+  static const budgetsEnabled = 'budgetsEnabled';
   static const walletsEnabled = 'walletsEnabled';
   static const walletBalanceMode = 'walletBalanceMode';
   static const showWalletBarOnHomepage = 'showWalletBarOnHomepage';

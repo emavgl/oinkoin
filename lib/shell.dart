@@ -11,6 +11,7 @@ import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/settings-page.dart';
 import 'package:piggybank/style.dart';
+import 'package:piggybank/budgets/budgets-page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'categories/categories-tab-page-edit.dart';
@@ -35,12 +36,15 @@ class ShellState extends State<Shell> {
   final GlobalKey<TabRecordsState> _tabRecordsKey = GlobalKey();
   final GlobalKey<TabCategoriesState> _tabCategoriesKey = GlobalKey();
   final GlobalKey<WalletsTabPageState> _tabWalletsKey = GlobalKey();
+  final GlobalKey<BudgetsPageState> _tabBudgetsKey = GlobalKey();
 
   final GlobalKey<NavigatorState> _homeNavigatorKey =
       GlobalKey<NavigatorState>();
   final GlobalKey<NavigatorState> _categoriesNavigatorKey =
       GlobalKey<NavigatorState>();
   final GlobalKey<NavigatorState> _walletsNavigatorKey =
+      GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _budgetsNavigatorKey =
       GlobalKey<NavigatorState>();
   final GlobalKey<NavigatorState> _settingsNavigatorKey =
       GlobalKey<NavigatorState>();
@@ -89,22 +93,50 @@ class ShellState extends State<Shell> {
     _tabRecordsKey.currentState?.onTabChange();
   }
 
-  /// Maps a logical tab index to the visual NavigationBar index, accounting
-  /// for the Wallets tab being hidden when wallets are disabled.
-  int _visualIndex(int logicalIndex, bool walletsEnabled) {
-    if (walletsEnabled) return logicalIndex;
-    if (logicalIndex == 0) return 0;
-    return logicalIndex - 1;
+  /// Returns the fixed logical indexes currently represented in the
+  /// NavigationBar, preserving the indexes used by the tab navigators.
+  List<int> _visibleLogicalIndexes({
+    required bool walletsEnabled,
+    required bool budgetsEnabled,
+  }) {
+    return [
+      0,
+      if (walletsEnabled) 1,
+      2,
+      if (budgetsEnabled) 3,
+      4,
+    ];
+  }
+
+  /// Maps a logical tab index to the visual NavigationBar index.
+  int _visualIndex(
+    int logicalIndex,
+    bool walletsEnabled,
+    bool budgetsEnabled,
+  ) {
+    final index = _visibleLogicalIndexes(
+      walletsEnabled: walletsEnabled,
+      budgetsEnabled: budgetsEnabled,
+    ).indexOf(logicalIndex);
+    return index < 0 ? 0 : index;
   }
 
   /// Maps a visual NavigationBar index to the logical tab index.
-  int _logicalIndex(int visualIndex, bool walletsEnabled) {
-    if (walletsEnabled) return visualIndex;
-    if (visualIndex == 0) return 0;
-    return visualIndex + 1;
+  int _logicalIndex(
+    int visualIndex,
+    bool walletsEnabled,
+    bool budgetsEnabled,
+  ) {
+    final indexes = _visibleLogicalIndexes(
+      walletsEnabled: walletsEnabled,
+      budgetsEnabled: budgetsEnabled,
+    );
+    final safeVisualIndex =
+        visualIndex.clamp(0, indexes.length - 1).toInt();
+    return indexes[safeVisualIndex];
   }
 
-  List<Widget> _buildDestinations(bool walletsEnabled) {
+  List<Widget> _buildDestinations(bool walletsEnabled, bool budgetsEnabled) {
     final destinations = <Widget>[
       NavigationDestination(
         label: "Home".i18n,
@@ -145,6 +177,18 @@ class ShellState extends State<Shell> {
           child: Icon(Icons.category_outlined),
         ),
       ),
+      if (budgetsEnabled)
+        NavigationDestination(
+          label: "Budgets".i18n,
+          selectedIcon: Semantics(
+            identifier: 'budgets-tab-selected',
+            child: Icon(Icons.savings),
+          ),
+          icon: Semantics(
+            identifier: 'budgets-tab',
+            child: Icon(Icons.savings_outlined),
+          ),
+        ),
       NavigationDestination(
         label: "Settings".i18n,
         selectedIcon: Semantics(
@@ -228,6 +272,9 @@ class ShellState extends State<Shell> {
             currentNavigator = _categoriesNavigatorKey.currentState;
             break;
           case 3:
+            currentNavigator = _budgetsNavigatorKey.currentState;
+            break;
+          case 4:
             currentNavigator = _settingsNavigatorKey.currentState;
             break;
         }
@@ -306,6 +353,20 @@ class ShellState extends State<Shell> {
               child: TickerMode(
                 enabled: _currentIndex == 3,
                 child: Navigator(
+                  key: _budgetsNavigatorKey,
+                  onGenerateRoute: (settings) {
+                    return MaterialPageRoute(
+                      builder: (_) => BudgetsPage(key: _tabBudgetsKey),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Offstage(
+              offstage: _currentIndex != 4,
+              child: TickerMode(
+                enabled: _currentIndex == 4,
+                child: Navigator(
                   key: _settingsNavigatorKey,
                   onGenerateRoute: (settings) {
                     return MaterialPageRoute(builder: (_) => TabSettings());
@@ -318,44 +379,58 @@ class ShellState extends State<Shell> {
         bottomNavigationBar: ValueListenableBuilder<bool>(
           valueListenable: ServiceConfig.walletsEnabledNotifier,
           builder: (context, walletsEnabled, _) {
-            // Defensively reset to the Home tab if the currently selected
-            // tab (Wallets) no longer exists.
-            if (!walletsEnabled && _currentIndex == 1) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) setState(() => _currentIndex = 0);
-              });
-            }
             return ValueListenableBuilder<bool>(
-              valueListenable: inAppKeyboardOpen,
-              builder: (context, isOpen, child) => AnimatedSize(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOut,
-                // Collapse the nav bar but keep a spacer equal to the system
-                // navigation bar inset so the Scaffold body never extends behind it.
-                child: isOpen
-                    ? SizedBox(height: MediaQuery.paddingOf(context).bottom)
-                    : child!,
-              ),
-              child: NavigationBar(
-                selectedIndex: _visualIndex(_currentIndex, walletsEnabled),
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                onDestinationSelected: (int visualIndex) async {
-                  setState(() {
-                    _currentIndex = _logicalIndex(visualIndex, walletsEnabled);
+              valueListenable: ServiceConfig.budgetsEnabledNotifier,
+              builder: (context, budgetsEnabled, _) {
+                // Defensively reset to the Home tab if the currently selected
+                // tab no longer exists after a feature is disabled.
+                if ((!walletsEnabled && _currentIndex == 1) ||
+                    (!budgetsEnabled && _currentIndex == 3)) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() => _currentIndex = 0);
                   });
-                  // refresh data whenever changing the tab
-                  if (_currentIndex == 0) {
-                    await _tabRecordsKey.currentState?.onTabChange();
-                  }
-                  if (_currentIndex == 1) {
-                    await _tabWalletsKey.currentState?.onTabChange();
-                  }
-                  if (_currentIndex == 2) {
-                    await _tabCategoriesKey.currentState?.onTabChange();
-                  }
-                },
-                destinations: _buildDestinations(walletsEnabled),
-              ),
+                }
+                return ValueListenableBuilder<bool>(
+                  valueListenable: inAppKeyboardOpen,
+                  builder: (context, isOpen, child) => AnimatedSize(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOut,
+                    // Collapse the nav bar but keep a spacer equal to the system
+                    // navigation bar inset so the Scaffold body never extends behind it.
+                    child: isOpen
+                        ? SizedBox(
+                            height: MediaQuery.paddingOf(context).bottom)
+                        : child!,
+                  ),
+                  child: NavigationBar(
+                    selectedIndex: _visualIndex(
+                        _currentIndex, walletsEnabled, budgetsEnabled),
+                    labelBehavior:
+                        NavigationDestinationLabelBehavior.alwaysShow,
+                    onDestinationSelected: (int visualIndex) async {
+                      setState(() {
+                        _currentIndex = _logicalIndex(
+                            visualIndex, walletsEnabled, budgetsEnabled);
+                      });
+                      // refresh data whenever changing the tab
+                      if (_currentIndex == 0) {
+                        await _tabRecordsKey.currentState?.onTabChange();
+                      }
+                      if (_currentIndex == 1) {
+                        await _tabWalletsKey.currentState?.onTabChange();
+                      }
+                      if (_currentIndex == 2) {
+                        await _tabCategoriesKey.currentState?.onTabChange();
+                      }
+                      if (_currentIndex == 3) {
+                        await _tabBudgetsKey.currentState?.onTabChange();
+                      }
+                    },
+                    destinations:
+                        _buildDestinations(walletsEnabled, budgetsEnabled),
+                  ),
+                );
+              },
             );
           },
         ),

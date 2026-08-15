@@ -5,9 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:piggybank/models/budget-type.dart';
+import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/currency.dart';
+import 'package:piggybank/models/profile.dart';
 import 'package:piggybank/models/record-tag-association.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
@@ -31,6 +34,7 @@ void main() {
   late List<Record?> records;
   late List<RecurrentRecordPattern> recurrentPatterns;
   late List<RecordTagAssociation> recordTagAssociations;
+  late List<Budget> budgets;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -40,31 +44,67 @@ void main() {
     categories = [
       Category("Rent", iconCodePoint: 1, categoryType: CategoryType.expense),
       Category("Food", iconCodePoint: 2, categoryType: CategoryType.expense),
-      Category("Salary", iconCodePoint: 3, categoryType: CategoryType.income)
+      Category("Salary", iconCodePoint: 3, categoryType: CategoryType.income),
     ];
     records = [
-      Record(-300, "April Rent", categories[0],
-          DateTime.parse("2020-04-02 10:30:00"),
-          id: 1, tags: ["rent", "house"].toSet()),
-      Record(-300, "May Rent", categories[0],
-          DateTime.parse("2020-05-01 10:30:00"),
-          id: 2, tags: ["rent", "monthly"].toSet()),
-      Record(-30, "Pizza", categories[1], DateTime.parse("2020-05-01 09:30:00"),
-          id: 3, tags: ["food", "dinner"].toSet()),
       Record(
-          1700, "Salary", categories[2], DateTime.parse("2020-05-02 09:30:00"),
-          id: 4, tags: ["income", "job"].toSet()),
-      Record(-30, "Restaurant", categories[1],
-          DateTime.parse("2020-05-02 10:30:00"),
-          id: 5, tags: ["food", "lunch"].toSet()),
-      Record(-60.5, "Groceries", categories[1],
-          DateTime.parse("2020-05-03 10:30:00"),
-          id: 6, tags: ["food", "supermarket"].toSet()),
+        -300,
+        "April Rent",
+        categories[0],
+        DateTime.parse("2020-04-02 10:30:00"),
+        id: 1,
+        tags: ["rent", "house"].toSet(),
+      ),
+      Record(
+        -300,
+        "May Rent",
+        categories[0],
+        DateTime.parse("2020-05-01 10:30:00"),
+        id: 2,
+        tags: ["rent", "monthly"].toSet(),
+      ),
+      Record(
+        -30,
+        "Pizza",
+        categories[1],
+        DateTime.parse("2020-05-01 09:30:00"),
+        id: 3,
+        tags: ["food", "dinner"].toSet(),
+      ),
+      Record(
+        1700,
+        "Salary",
+        categories[2],
+        DateTime.parse("2020-05-02 09:30:00"),
+        id: 4,
+        tags: ["income", "job"].toSet(),
+      ),
+      Record(
+        -30,
+        "Restaurant",
+        categories[1],
+        DateTime.parse("2020-05-02 10:30:00"),
+        id: 5,
+        tags: ["food", "lunch"].toSet(),
+      ),
+      Record(
+        -60.5,
+        "Groceries",
+        categories[1],
+        DateTime.parse("2020-05-03 10:30:00"),
+        id: 6,
+        tags: ["food", "supermarket"].toSet(),
+      ),
     ];
     recurrentPatterns = [
-      RecurrentRecordPattern(1, "Rent", categories[0],
-          DateTime.parse("2020-05-03 10:30:00"), RecurrentPeriod.EveryMonth,
-          tags: ["rent", "monthly"].toSet())
+      RecurrentRecordPattern(
+        1,
+        "Rent",
+        categories[0],
+        DateTime.parse("2020-05-03 10:30:00"),
+        RecurrentPeriod.EveryMonth,
+        tags: ["rent", "monthly"].toSet(),
+      ),
     ];
 
     recordTagAssociations = [
@@ -81,6 +121,23 @@ void main() {
       RecordTagAssociation(recordId: 6, tagName: "food"),
       RecordTagAssociation(recordId: 6, tagName: "supermarket"),
     ];
+    budgets = [
+      Budget(
+        id: 21,
+        name: 'Monthly food',
+        targetAmount: 450,
+        budgetType: BudgetType.expense,
+        startDate: DateTime(2020, 4, 1),
+        recurrentPeriod: RecurrentPeriod.EveryMonth,
+        categoryNames: ['Food'],
+        tags: ['planned', 'home'],
+        walletIds: [10],
+        categoryTagOrLogic: false,
+        tagOrLogic: true,
+        isArchived: true,
+        profileId: 7,
+      ),
+    ];
 
     when(mockDatabase.getAllRecords()).thenAnswer((_) async => records);
     when(mockDatabase.getAllCategories()).thenAnswer((_) async => categories);
@@ -88,6 +145,7 @@ void main() {
         .thenAnswer((_) async => recurrentPatterns);
     when(mockDatabase.getAllRecordTagAssociations())
         .thenAnswer((_) async => recordTagAssociations);
+    when(mockDatabase.getBudgets()).thenAnswer((_) async => budgets);
     when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
     when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
     when(mockDatabase.getDefaultWallet()).thenAnswer((_) async => null);
@@ -100,6 +158,8 @@ void main() {
     when(mockDatabase.addRecordsInBatch(any)).thenAnswer((_) async => null);
     when(mockDatabase.addRecurrentRecordPattern(any))
         .thenAnswer((_) async => null);
+    when(mockDatabase.addBudget(argThat(isA<Budget>())))
+        .thenAnswer((_) async => 0);
     when(mockDatabase.getRecurrentRecordPattern(any))
         .thenAnswer((_) async => null);
     when(mockDatabase.getMatchingRecord(any)).thenAnswer((_) async => null);
@@ -108,56 +168,59 @@ void main() {
     BackupService.database = mockDatabase;
 
     testDir = Directory("test/temp");
-    const MethodChannel channel =
-        MethodChannel('dev.fluttercommunity.plus/package_info');
+    const MethodChannel channel = MethodChannel(
+      'dev.fluttercommunity.plus/package_info',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-      if (methodCall.method == 'getAll') {
-        return <String, dynamic>{
-          'appName': 'ABC',
-          'packageName': 'A.B.C',
-          'version': '1.0.0',
-          'buildNumber': '67'
-        };
-      }
-      return null;
-    });
-    const MethodChannel channel2 =
-        MethodChannel('plugins.flutter.io/path_provider');
+          if (methodCall.method == 'getAll') {
+            return <String, dynamic>{
+              'appName': 'ABC',
+              'packageName': 'A.B.C',
+              'version': '1.0.0',
+              'buildNumber': '67',
+            };
+          }
+          return null;
+        });
+    const MethodChannel channel2 = MethodChannel(
+      'plugins.flutter.io/path_provider',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel2, (MethodCall methodCall) async {
-      return testDir;
-    });
+          return testDir;
+        });
 
     // Mock SharedPreferences
     final Map<String, Object> prefStore = {};
-    const MethodChannel prefsChannel =
-        MethodChannel('plugins.flutter.io/shared_preferences');
+    const MethodChannel prefsChannel = MethodChannel(
+      'plugins.flutter.io/shared_preferences',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(prefsChannel, (MethodCall methodCall) async {
-      if (methodCall.method == 'getAll') {
-        return <String, dynamic>{};
-      }
-      if (methodCall.method == 'setString') {
-        final args = methodCall.arguments as Map;
-        prefStore[args['key'] as String] = args['value'] as String;
-        return true;
-      }
-      if (methodCall.method == 'remove') {
-        final args = methodCall.arguments as Map;
-        prefStore.remove(args['key'] as String);
-        return true;
-      }
-      if (methodCall.method == 'getString') {
-        final args = methodCall.arguments as Map;
-        return prefStore[args['key'] as String];
-      }
-      if (methodCall.method == 'clear') {
-        prefStore.clear();
-        return true;
-      }
-      return null;
-    });
+          if (methodCall.method == 'getAll') {
+            return <String, dynamic>{};
+          }
+          if (methodCall.method == 'setString') {
+            final args = methodCall.arguments as Map;
+            prefStore[args['key'] as String] = args['value'] as String;
+            return true;
+          }
+          if (methodCall.method == 'remove') {
+            final args = methodCall.arguments as Map;
+            prefStore.remove(args['key'] as String);
+            return true;
+          }
+          if (methodCall.method == 'getString') {
+            final args = methodCall.arguments as Map;
+            return prefStore[args['key'] as String];
+          }
+          if (methodCall.method == 'clear') {
+            prefStore.clear();
+            return true;
+          }
+          return null;
+        });
   });
 
   tearDownAll(() async {
@@ -205,44 +268,50 @@ void main() {
     final encryptedData = BackupService.encryptData(data, password);
 
     // Ensure decryption fails with the wrong password
-    expect(() => BackupService.decryptData(encryptedData, wrongPassword),
-        throwsA(isA<ArgumentError>()));
-  });
-
-  testlib.test('createJsonBackupFile creates a backup file with tags',
-      () async {
-    final backupFile = await BackupService.createJsonBackupFile(
-      directoryPath: testDir.path,
+    expect(
+      () => BackupService.decryptData(encryptedData, wrongPassword),
+      throwsA(isA<ArgumentError>()),
     );
-
-    expect(await backupFile.exists(), isTrue);
-    final backupContent = await backupFile.readAsString();
-    final backupMap = jsonDecode(backupContent);
-
-    expect(backupMap['categories'].length, categories.length);
-    expect(backupMap['records'].length, records.length);
-    expect(backupMap['recurrent_record_patterns'].length,
-        recurrentPatterns.length);
-    expect(backupMap['record_tag_associations'].length,
-        recordTagAssociations.length);
-
-    // Verify tags are NOT in records (as they are now separate)
-    expect(backupMap['records'][0], isNot(contains('tags')));
-    expect(backupMap['records'][1], isNot(contains('tags')));
-
-    // recurrent_patterns still have tags
-    expect(backupMap['recurrent_record_patterns'][0], contains('tags'));
-
-    // Verify record tag associations
-    expect(backupMap['record_tag_associations'][0]['record_id'], 1);
-    expect(backupMap['record_tag_associations'][0]['tag_name'], "rent");
-    expect(backupMap['record_tag_associations'][1]['record_id'], 1);
-    expect(backupMap['record_tag_associations'][1]['tag_name'], "house");
   });
 
   testlib.test(
-      'uncategorized transfers survive plaintext and encrypted backup round-trips',
-      () async {
+    'createJsonBackupFile creates a backup file with tags',
+    () async {
+      final backupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+      );
+
+      expect(await backupFile.exists(), isTrue);
+      final backupContent = await backupFile.readAsString();
+      final backupMap = jsonDecode(backupContent);
+
+      expect(backupMap['categories'].length, categories.length);
+      expect(backupMap['records'].length, records.length);
+      expect(
+        backupMap['recurrent_record_patterns'].length,
+        recurrentPatterns.length,
+      );
+      expect(
+        backupMap['record_tag_associations'].length,
+        recordTagAssociations.length,
+      );
+
+      // Verify tags are NOT in records (as they are now separate)
+      expect(backupMap['records'][0], isNot(contains('tags')));
+      expect(backupMap['records'][1], isNot(contains('tags')));
+
+      // recurrent_patterns still have tags
+      expect(backupMap['recurrent_record_patterns'][0], contains('tags'));
+
+      // Verify record tag associations
+      expect(backupMap['record_tag_associations'][0]['record_id'], 1);
+      expect(backupMap['record_tag_associations'][0]['tag_name'], "rent");
+      expect(backupMap['record_tag_associations'][1]['record_id'], 1);
+      expect(backupMap['record_tag_associations'][1]['tag_name'], "house");
+    },
+  );
+
+  testlib.test('uncategorized transfers survive plaintext and encrypted backup round-trips', () async {
     final originalRecords = records;
     final transfer = Record(
       -125,
@@ -266,18 +335,19 @@ void main() {
     when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
     when(mockDatabase.addRecordsInBatch(any))
         .thenAnswer((Invocation invocation) async {
-      final List<Record?> imported = invocation.positionalArguments[0];
-      restoredRecords.addAll(imported);
-    });
+          final List<Record?> imported = invocation.positionalArguments[0];
+          restoredRecords.addAll(imported);
+        });
 
     try {
       final backupFile = await BackupService.createJsonBackupFile(
         directoryPath: testDir.path,
       );
-      final backupMap = jsonDecode(await backupFile.readAsString())
-          as Map<String, dynamic>;
-      final transferMap = (backupMap['records'] as List)
-          .firstWhere((entry) => entry['id'] == transfer.id) as Map;
+      final backupMap =
+          jsonDecode(await backupFile.readAsString()) as Map<String, dynamic>;
+      final transferMap = (backupMap['records'] as List).firstWhere(
+        (entry) => entry['id'] == transfer.id,
+      ) as Map;
 
       expect(transferMap['category_name'], isNull);
       expect(transferMap['category_type'], isNull);
@@ -287,8 +357,9 @@ void main() {
       final result = await BackupService.importDataFromBackupFile(backupFile);
 
       expect(result, isTrue);
-      final restoredTransfer =
-          restoredRecords.singleWhere((record) => record?.id == transfer.id)!;
+      final restoredTransfer = restoredRecords.singleWhere(
+        (record) => record?.id == transfer.id,
+      )!;
       expect(restoredTransfer.category, isNull);
       expect(restoredTransfer.isTransfer, isTrue);
       expect(restoredTransfer.value, -125);
@@ -310,8 +381,9 @@ void main() {
         encryptionPassword: 'testpassword',
       );
       expect(encryptedResult, isTrue);
-      final restoredEncryptedTransfer = restoredRecords
-          .singleWhere((record) => record?.id == transfer.id)!;
+      final restoredEncryptedTransfer = restoredRecords.singleWhere(
+        (record) => record?.id == transfer.id,
+      )!;
       expect(restoredEncryptedTransfer.category, isNull);
       expect(restoredEncryptedTransfer.isTransfer, isTrue);
       expect(restoredEncryptedTransfer.transferValue, 125);
@@ -321,6 +393,100 @@ void main() {
       when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
       when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
       when(mockDatabase.addRecordsInBatch(any)).thenAnswer((_) async {});
+      clearInteractions(mockDatabase);
+    }
+  });
+
+  testlib.test('budget backup round-trip preserves filters, archive state, and remaps wallet and profile IDs', () async {
+    final sourceProfile = Profile('Source profile', id: 7);
+    final sourceWallet = Wallet('Food wallet', id: 10, profileId: 7);
+    final importedBudgets = <Budget>[];
+
+    when(mockDatabase.getAllProfiles())
+        .thenAnswer((_) async => [sourceProfile]);
+    when(mockDatabase.getAllWallets()).thenAnswer((_) async => [sourceWallet]);
+    when(mockDatabase.getDefaultProfile()).thenAnswer((_) async => null);
+    when(mockDatabase.getDefaultWallet()).thenAnswer((_) async => null);
+    when(mockDatabase.addProfile(any)).thenAnswer((_) async => 200);
+    when(mockDatabase.addWallet(any)).thenAnswer((_) async => 300);
+    when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
+    when(mockDatabase.addBudget(argThat(isA<Budget>())))
+        .thenAnswer((Invocation invocation) async {
+          importedBudgets.add(invocation.positionalArguments[0] as Budget);
+          return 0;
+        });
+
+    try {
+      final backupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+      );
+      final backupMap =
+          jsonDecode(await backupFile.readAsString()) as Map<String, dynamic>;
+      final backupBudget = (backupMap['budgets'] as List).single as Map;
+
+      expect(backupMap['budgets'], hasLength(1));
+      expect(jsonDecode(backupBudget['wallet_ids'] as String), [10]);
+      expect(backupBudget['is_archived'], 1);
+      expect(jsonDecode(backupBudget['category_names'] as String), ['Food']);
+      expect(jsonDecode(backupBudget['tags'] as String), ['planned', 'home']);
+      expect(
+        backupBudget['recurrent_period'],
+        RecurrentPeriod.EveryMonth.index,
+      );
+
+      // The unqualified call is used while creating the backup; the
+      // profile-qualified call is used while restoring wallets.
+      when(mockDatabase.getAllWallets(profileId: anyNamed('profileId')))
+          .thenAnswer((_) async => []);
+
+      final result = await BackupService.importDataFromBackupFile(backupFile);
+
+      expect(result, isTrue);
+      expect(importedBudgets, hasLength(1));
+      final imported = importedBudgets.single;
+      expect(imported.id, isNull);
+      expect(imported.name, 'Monthly food');
+      expect(imported.targetAmount, 450);
+      expect(imported.budgetType, BudgetType.expense);
+      expect(imported.startDate, DateTime(2020, 4, 1));
+      expect(imported.recurrentPeriod, RecurrentPeriod.EveryMonth);
+      expect(imported.categoryNames, ['Food']);
+      expect(imported.tags, ['planned', 'home']);
+      expect(imported.walletIds, [300]);
+      expect(imported.categoryTagOrLogic, isFalse);
+      expect(imported.tagOrLogic, isTrue);
+      expect(imported.isArchived, isTrue);
+      expect(imported.profileId, 200);
+
+      importedBudgets.clear();
+      when(mockDatabase.getAllWallets())
+          .thenAnswer((_) async => [sourceWallet]);
+      final encryptedBackupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+        backupFileName: 'encrypted_budget.obackup.json',
+        encryptionPassword: 'testpassword',
+      );
+      final encryptedResult = await BackupService.importDataFromBackupFile(
+        encryptedBackupFile,
+        encryptionPassword: 'testpassword',
+      );
+
+      expect(encryptedResult, isTrue);
+      expect(importedBudgets, hasLength(1));
+      expect(importedBudgets.single.walletIds, [300]);
+      expect(importedBudgets.single.isArchived, isTrue);
+      expect(importedBudgets.single.profileId, 200);
+    } finally {
+      budgets = [];
+      when(mockDatabase.getAllProfiles()).thenAnswer((_) async => []);
+      when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
+      when(mockDatabase.getAllWallets(profileId: anyNamed('profileId')))
+          .thenAnswer((_) async => []);
+      when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
+      when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
+      when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
+      when(mockDatabase.addBudget(argThat(isA<Budget>())))
+          .thenAnswer((_) async => 0);
       clearInteractions(mockDatabase);
     }
   });
@@ -340,63 +506,64 @@ void main() {
   });
 
   testlib.test(
-      'importDataFromBackupFile imports data from a backup file including tags',
-      () async {
-    // Mock addRecord and addRecurrentRecordPattern to capture arguments
-    final capturedRecords = <Record?>[];
-    final capturedRecurrentPatterns = <RecurrentRecordPattern>[];
+    'importDataFromBackupFile imports data from a backup file including tags',
+    () async {
+      // Mock addRecord and addRecurrentRecordPattern to capture arguments
+      final capturedRecords = <Record?>[];
+      final capturedRecurrentPatterns = <RecurrentRecordPattern>[];
 
-    when(mockDatabase.addRecordsInBatch(any))
-        .thenAnswer((Invocation invocation) async {
-      final List<Record?> records = invocation.positionalArguments[0];
-      capturedRecords.addAll(records);
-    });
+      when(mockDatabase.addRecordsInBatch(any))
+          .thenAnswer((Invocation invocation) async {
+            final List<Record?> records = invocation.positionalArguments[0];
+            capturedRecords.addAll(records);
+          });
 
-    when(mockDatabase.addRecurrentRecordPattern(any))
-        .thenAnswer((Invocation invocation) async {
-      final RecurrentRecordPattern pattern = invocation.positionalArguments[0];
-      capturedRecurrentPatterns.add(pattern);
-      return null;
-    });
+      when(mockDatabase.addRecurrentRecordPattern(any))
+          .thenAnswer((Invocation invocation) async {
+            final RecurrentRecordPattern pattern =
+                invocation.positionalArguments[0];
+            capturedRecurrentPatterns.add(pattern);
+            return null;
+          });
 
-    final backupFile = await BackupService.createJsonBackupFile(
-      directoryPath: testDir.path,
-    );
+      final backupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+      );
 
-    final result = await BackupService.importDataFromBackupFile(backupFile);
+      final result = await BackupService.importDataFromBackupFile(backupFile);
 
-    expect(result, isTrue);
-    verify(mockDatabase.addCategory(any)).called(categories.length);
-    verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>())))
-        .called(1);
-    verify(mockDatabase.addRecurrentRecordPattern(any))
-        .called(recurrentPatterns.length);
+      expect(result, isTrue);
+      verify(mockDatabase.addCategory(any)).called(categories.length);
+      verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>())))
+          .called(1);
+      verify(mockDatabase.addRecurrentRecordPattern(any))
+          .called(recurrentPatterns.length);
 
-    // Verify tags ARE populated on records from the backup's tag associations
-    // (the fix populates record.tags before calling addRecordsInBatch)
-    expect(capturedRecords[0]!.tags, isNotEmpty);
-    expect(capturedRecords[0]!.tags, containsAll(['rent', 'house']));
-    expect(capturedRecords[1]!.tags, containsAll(['rent', 'monthly']));
+      // Verify tags ARE populated on records from the backup's tag associations
+      // (the fix populates record.tags before calling addRecordsInBatch)
+      expect(capturedRecords[0]!.tags, isNotEmpty);
+      expect(capturedRecords[0]!.tags, containsAll(['rent', 'house']));
+      expect(capturedRecords[1]!.tags, containsAll(['rent', 'monthly']));
 
-    // recurrent_pattern still have tags
-    expect(capturedRecurrentPatterns[0].tags, isNotEmpty);
-  });
+      // recurrent_pattern still have tags
+      expect(capturedRecurrentPatterns[0].tags, isNotEmpty);
+    },
+  );
 
-  testlib.test(
-      'importDataFromBackupFile decrypts and imports data from an encrypted backup file including tags',
-      () async {
+  testlib.test('importDataFromBackupFile decrypts and imports data from an encrypted backup file including tags', () async {
     const encryptionPassword = 'testpassword';
     final capturedRecords = <Record?>[];
     final capturedRecurrentPatterns = <RecurrentRecordPattern>[];
 
     when(mockDatabase.addRecordsInBatch(any))
         .thenAnswer((Invocation invocation) async {
-      final List<Record?> records = invocation.positionalArguments[0];
-      capturedRecords.addAll(records);
-    });
+          final List<Record?> records = invocation.positionalArguments[0];
+          capturedRecords.addAll(records);
+        });
 
-    when(mockDatabase.addRecurrentRecordPattern(any))
-        .thenAnswer((Invocation invocation) async {
+    when(mockDatabase.addRecurrentRecordPattern(any)).thenAnswer((
+      Invocation invocation,
+    ) async {
       final RecurrentRecordPattern pattern = invocation.positionalArguments[0];
       capturedRecurrentPatterns.add(pattern);
       return null;
@@ -425,22 +592,23 @@ void main() {
     expect(capturedRecurrentPatterns[0].tags, isNotEmpty);
   });
 
-  testlib
-      .test('importDataFromBackupFile fails with incorrect decryption password',
-          () async {
-    const encryptionPassword = 'testpassword';
-    final backupFile = await BackupService.createJsonBackupFile(
-      directoryPath: testDir.path,
-      encryptionPassword: encryptionPassword,
-    );
+  testlib.test(
+    'importDataFromBackupFile fails with incorrect decryption password',
+    () async {
+      const encryptionPassword = 'testpassword';
+      final backupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+        encryptionPassword: encryptionPassword,
+      );
 
-    final result = await BackupService.importDataFromBackupFile(
-      backupFile,
-      encryptionPassword: 'wrongpassword',
-    );
+      final result = await BackupService.importDataFromBackupFile(
+        backupFile,
+        encryptionPassword: 'wrongpassword',
+      );
 
-    expect(result, isFalse);
-  });
+      expect(result, isFalse);
+    },
+  );
 
   testlib.test('removeOldBackups removes files older than one week', () async {
     // Create test files
@@ -492,56 +660,59 @@ void main() {
     expect(await newFile.exists(), isTrue);
   });
 
-  testlib
-      .test('importDataFromBackupFile handles missing record_tag_associations',
-          () async {
-    // Create a backup file without record_tag_associations
-    final backupMap = {
-      'categories': categories.map((c) => c!.toMap()).toList(),
-      'records': records.map((r) => r!.toMap()).toList(),
-      'recurrent_record_patterns':
-          recurrentPatterns.map((rp) => rp.toMap()).toList(),
-      // Intentionally omitting record_tag_associations
-      'created_at': DateTime.now().millisecondsSinceEpoch,
-      'package_name': 'com.example.test',
-      'version': '1.0.0',
-      'database_version': '1',
-    };
+  testlib.test(
+    'importDataFromBackupFile handles missing record_tag_associations',
+    () async {
+      // Create a backup file without record_tag_associations
+      final backupMap = {
+        'categories': categories.map((c) => c!.toMap()).toList(),
+        'records': records.map((r) => r!.toMap()).toList(),
+        'recurrent_record_patterns': recurrentPatterns
+            .map((rp) => rp.toMap())
+            .toList(),
+        // Intentionally omitting record_tag_associations
+        'created_at': DateTime.now().millisecondsSinceEpoch,
+        'package_name': 'com.example.test',
+        'version': '1.0.0',
+        'database_version': '1',
+      };
 
-    final backupFile = File('${testDir.path}/backup_no_tags.json');
-    await backupFile.writeAsString(jsonEncode(backupMap));
+      final backupFile = File('${testDir.path}/backup_no_tags.json');
+      await backupFile.writeAsString(jsonEncode(backupMap));
 
-    final result = await BackupService.importDataFromBackupFile(backupFile);
+      final result = await BackupService.importDataFromBackupFile(backupFile);
 
-    expect(result, isTrue);
-  });
+      expect(result, isTrue);
+    },
+  );
 
   testlib.test(
-      'importDataFromBackupFile handles empty record_tag_associations array',
-      () async {
-    // Create a backup file with empty record_tag_associations array
-    final backupMap = {
-      'categories': categories.map((c) => c!.toMap()).toList(),
-      'records': records.map((r) => r!.toMap()).toList(),
-      'recurrent_record_patterns':
-          recurrentPatterns.map((rp) => rp.toMap()).toList(),
-      'record_tag_associations': [], // Empty array
-      'created_at': DateTime.now().millisecondsSinceEpoch,
-      'package_name': 'com.example.test',
-      'version': '1.0.0',
-      'database_version': '1',
-    };
+    'importDataFromBackupFile handles empty record_tag_associations array',
+    () async {
+      // Create a backup file with empty record_tag_associations array
+      final backupMap = {
+        'categories': categories.map((c) => c!.toMap()).toList(),
+        'records': records.map((r) => r!.toMap()).toList(),
+        'recurrent_record_patterns': recurrentPatterns
+            .map((rp) => rp.toMap())
+            .toList(),
+        'record_tag_associations': [], // Empty array
+        'created_at': DateTime.now().millisecondsSinceEpoch,
+        'package_name': 'com.example.test',
+        'version': '1.0.0',
+        'database_version': '1',
+      };
 
-    final backupFile = File('${testDir.path}/backup_empty_tags.json');
-    await backupFile.writeAsString(jsonEncode(backupMap));
+      final backupFile = File('${testDir.path}/backup_empty_tags.json');
+      await backupFile.writeAsString(jsonEncode(backupMap));
 
-    final result = await BackupService.importDataFromBackupFile(backupFile);
+      final result = await BackupService.importDataFromBackupFile(backupFile);
 
-    expect(result, isTrue);
-  });
+      expect(result, isTrue);
+    },
+  );
 
-  testlib.test('createJsonBackupFile includes user_currencies when set',
-      () async {
+  testlib.test('createJsonBackupFile includes user_currencies when set', () async {
     final prefs = await SharedPreferences.getInstance();
     const userCurrenciesJson =
         '{"mainCurrency":"EUR","currencies":[{"isoCode":"EUR","ratioToMain":1.0},{"isoCode":"USD","ratioToMain":0.92}]}';
@@ -561,35 +732,37 @@ void main() {
     await prefs.remove(PreferencesKeys.userCurrencies);
   });
 
-  testlib.test('createJsonBackupFile omits user_currencies when not set',
-      () async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(PreferencesKeys.userCurrencies);
-
-    final backupFile = await BackupService.createJsonBackupFile(
-      directoryPath: testDir.path,
-    );
-
-    expect(await backupFile.exists(), isTrue);
-    final backupContent = await backupFile.readAsString();
-    final backupMap = jsonDecode(backupContent);
-
-    expect(backupMap.containsKey('user_currencies'), isFalse);
-  });
-
   testlib.test(
-      'importDataFromBackupFile restores user_currencies to SharedPreferences',
-      () async {
+    'createJsonBackupFile omits user_currencies when not set',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(PreferencesKeys.userCurrencies);
+
+      final backupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+      );
+
+      expect(await backupFile.exists(), isTrue);
+      final backupContent = await backupFile.readAsString();
+      final backupMap = jsonDecode(backupContent);
+
+      expect(backupMap.containsKey('user_currencies'), isFalse);
+    },
+  );
+
+  testlib.test('importDataFromBackupFile restores user_currencies to SharedPreferences', () async {
     const userCurrenciesJson =
         '{"mainCurrency":"USD","currencies":[{"isoCode":"USD","ratioToMain":1.0},{"isoCode":"EUR","ratioToMain":1.08}]}';
 
     final backupMap = {
       'categories': categories.map((c) => c!.toMap()).toList(),
       'records': records.map((r) => r!.toMap()).toList(),
-      'recurrent_record_patterns':
-          recurrentPatterns.map((rp) => rp.toMap()).toList(),
-      'record_tag_associations':
-          recordTagAssociations.map((a) => a.toMap()).toList(),
+      'recurrent_record_patterns': recurrentPatterns
+          .map((rp) => rp.toMap())
+          .toList(),
+      'record_tag_associations': recordTagAssociations
+          .map((a) => a.toMap())
+          .toList(),
       'wallets': [],
       'user_currencies': userCurrenciesJson,
       'created_at': DateTime.now().millisecondsSinceEpoch,
@@ -613,33 +786,35 @@ void main() {
   });
 
   testlib.test(
-      'importDataFromBackupFile handles missing user_currencies gracefully',
-      () async {
-    final backupMap = {
-      'categories': categories.map((c) => c!.toMap()).toList(),
-      'records': records.map((r) => r!.toMap()).toList(),
-      'recurrent_record_patterns':
-          recurrentPatterns.map((rp) => rp.toMap()).toList(),
-      'record_tag_associations':
-          recordTagAssociations.map((a) => a.toMap()).toList(),
-      'wallets': [],
-      // No user_currencies key — simulating an old backup
-      'created_at': DateTime.now().millisecondsSinceEpoch,
-      'package_name': 'com.example.test',
-      'version': '1.0.0',
-      'database_version': '1',
-    };
+    'importDataFromBackupFile handles missing user_currencies gracefully',
+    () async {
+      final backupMap = {
+        'categories': categories.map((c) => c!.toMap()).toList(),
+        'records': records.map((r) => r!.toMap()).toList(),
+        'recurrent_record_patterns': recurrentPatterns
+            .map((rp) => rp.toMap())
+            .toList(),
+        'record_tag_associations': recordTagAssociations
+            .map((a) => a.toMap())
+            .toList(),
+        'wallets': [],
+        // No user_currencies key — simulating an old backup
+        'created_at': DateTime.now().millisecondsSinceEpoch,
+        'package_name': 'com.example.test',
+        'version': '1.0.0',
+        'database_version': '1',
+      };
 
-    final backupFile = File('${testDir.path}/backup_no_currencies.json');
-    await backupFile.writeAsString(jsonEncode(backupMap));
+      final backupFile = File('${testDir.path}/backup_no_currencies.json');
+      await backupFile.writeAsString(jsonEncode(backupMap));
 
-    final result = await BackupService.importDataFromBackupFile(backupFile);
+      final result = await BackupService.importDataFromBackupFile(backupFile);
 
-    expect(result, isTrue);
-  });
+      expect(result, isTrue);
+    },
+  );
 
-  testlib.test('user_currencies round-trip: backup and restore preserves data',
-      () async {
+  testlib.test('user_currencies round-trip: backup and restore preserves data', () async {
     const userCurrenciesJson =
         '{"mainCurrency":"GBP","currencies":[{"isoCode":"GBP","ratioToMain":1.0},{"isoCode":"JPY","ratioToMain":190.5}]}';
     final prefs = await SharedPreferences.getInstance();
@@ -662,19 +837,19 @@ void main() {
     await prefs.remove(PreferencesKeys.userCurrencies);
   });
 
-  testlib.test(
-      'importDataFromBackupFile loads custom currencies into CurrencyInfo before restoring wallets',
-      () async {
+  testlib.test('importDataFromBackupFile loads custom currencies into CurrencyInfo before restoring wallets', () async {
     const userCurrenciesJson =
         '{"mainCurrency":"USD","currencies":[{"isoCode":"USD","ratioToMain":1.0},{"isoCode":"MYC","ratioToMain":2.5,"customSymbol":"M","customName":"My Currency"}]}';
 
     final backupMap = {
       'categories': categories.map((c) => c!.toMap()).toList(),
       'records': records.map((r) => r!.toMap()).toList(),
-      'recurrent_record_patterns':
-          recurrentPatterns.map((rp) => rp.toMap()).toList(),
-      'record_tag_associations':
-          recordTagAssociations.map((a) => a.toMap()).toList(),
+      'recurrent_record_patterns': recurrentPatterns
+          .map((rp) => rp.toMap())
+          .toList(),
+      'record_tag_associations': recordTagAssociations
+          .map((a) => a.toMap())
+          .toList(),
       'wallets': [],
       'user_currencies': userCurrenciesJson,
       'created_at': DateTime.now().millisecondsSinceEpoch,

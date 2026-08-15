@@ -49,12 +49,13 @@ class PreferencesBackupService {
     PreferencesKeys.showFutureRecords,
     PreferencesKeys.restoreAmountOnDelete,
 
-    // Categories and wallets
+    // Categories, wallets, and budgets
     PreferencesKeys.categoryListSortOption,
     // Kept because this legacy key is still written by the category tab.
     'defaultCategorySortOption',
     PreferencesKeys.walletListSortOption,
     PreferencesKeys.walletsEnabled,
+    PreferencesKeys.budgetsEnabled,
     PreferencesKeys.walletBalanceMode,
     PreferencesKeys.showWalletBarOnHomepage,
     PreferencesKeys.transferIconCodePoint,
@@ -91,6 +92,7 @@ class PreferencesBackupService {
       PreferencesKeys.showFutureRecords,
       PreferencesKeys.restoreAmountOnDelete,
       PreferencesKeys.walletsEnabled,
+      PreferencesKeys.budgetsEnabled,
       PreferencesKeys.showWalletBarOnHomepage,
       PreferencesKeys.statisticsPieChartUseCategoryColors,
       PreferencesKeys.reverseMonthlyImages,

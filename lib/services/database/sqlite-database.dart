@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
@@ -33,7 +34,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 28;
+  static int get version => 31;
   static Database? _db;
 
   /// For testing only: allows setting a custom database instance
@@ -96,6 +97,57 @@ class SqliteDatabase implements DatabaseInterface {
       _logger.handle(e, st, 'Failed to initialize database');
       rethrow;
     }
+  }
+
+  // Budget implementation
+  @override
+  Future<List<Budget>> getBudgets({int? profileId}) async {
+    final db = (await database)!;
+    final rows = await db.query(
+      'budgets',
+      where: profileId == null ? null : 'profile_id = ?',
+      whereArgs: profileId == null ? null : [profileId],
+      orderBy: 'budget_type, name COLLATE NOCASE',
+    );
+    return rows
+        .map((row) => Budget.fromMap(Map<String, dynamic>.from(row)))
+        .toList();
+  }
+
+  @override
+  Future<int> addBudget(Budget budget) async {
+    final db = (await database)!;
+    budget.profileId ??= ProfileService.instance.activeProfileId;
+    final map = budget.toMap()..remove('id');
+    final id = await db.insert('budgets', map);
+    _logger.info('Budget added: ID $id (${budget.name})');
+    return id;
+  }
+
+  @override
+  Future<void> updateBudget(Budget budget) async {
+    if (budget.id == null) return;
+    final db = (await database)!;
+    budget.profileId ??= ProfileService.instance.activeProfileId;
+    final map = budget.toMap()..remove('id');
+    await db.update('budgets', map, where: 'id = ?', whereArgs: [budget.id]);
+  }
+
+  @override
+  Future<void> deleteBudget(int id) async {
+    final db = (await database)!;
+    await db.delete('budgets', where: 'id = ?', whereArgs: [id]);
+  }
+
+  @override
+  Future<void> archiveBudget(int id, bool isArchived) async {
+    final db = (await database)!;
+    await db.update(
+      'budgets',
+      {'is_archived': isArchived ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // Category implementation
@@ -721,6 +773,7 @@ class SqliteDatabase implements DatabaseInterface {
     await db.execute("DELETE FROM records");
     await db.execute("DELETE FROM records_tags");
     await db.execute("DELETE FROM recurrent_record_patterns");
+    await db.execute("DELETE FROM budgets");
     await db.execute("DELETE FROM categories");
     await db.execute("DELETE FROM wallets");
     await db.execute("DELETE FROM profiles");
@@ -730,6 +783,7 @@ class SqliteDatabase implements DatabaseInterface {
       'records',
       'records_tags',
       'recurrent_record_patterns',
+      'budgets',
       'categories',
       'wallets',
       'profiles',
@@ -805,7 +859,7 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<void> deleteProfileAndRecords(int id) async {
     final db = (await database)!;
-    for (final table in ['records', 'recurrent_record_patterns', 'wallets']) {
+    for (final table in ['records', 'recurrent_record_patterns', 'budgets', 'wallets']) {
       await db.delete(table, where: 'profile_id = ?', whereArgs: [id]);
     }
     await db.delete('profiles', where: 'id = ?', whereArgs: [id]);

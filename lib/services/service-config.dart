@@ -31,17 +31,41 @@ class ServiceConfig {
   /// "Use wallets" preference changes, so wallet UI can appear/disappear
   /// without an app restart.
   static final ValueNotifier<bool> walletsEnabledNotifier = ValueNotifier(true);
+  static final ValueNotifier<bool> budgetsEnabledNotifier = ValueNotifier(true);
 
   static bool get walletsEnabled =>
       sharedPreferences?.getBool(PreferencesKeys.walletsEnabled) ?? true;
+
+  static bool get budgetsEnabled =>
+      sharedPreferences?.getBool(PreferencesKeys.budgetsEnabled) ?? true;
 
   static bool get showWalletBarOnHomepage =>
       sharedPreferences?.getBool(PreferencesKeys.showWalletBarOnHomepage) ??
       true;
 
-  static void setWalletsEnabled(bool value) {
-    sharedPreferences?.setBool(PreferencesKeys.walletsEnabled, value);
+  static Future<void> setWalletsEnabled(bool value) async {
+    final prefs = sharedPreferences;
+    if (prefs != null) {
+      await prefs.setBool(PreferencesKeys.walletsEnabled, value);
+    }
     walletsEnabledNotifier.value = value;
+    if (!value) {
+      await _clearBudgetWalletFilters();
+    }
+  }
+
+  static Future<void> _clearBudgetWalletFilters() async {
+    final budgets = await database.getBudgets();
+    for (final budget in budgets) {
+      if (budget.id == null || budget.walletIds.isEmpty) continue;
+      budget.walletIds = [];
+      await database.updateBudget(budget);
+    }
+  }
+
+  static void setBudgetsEnabled(bool value) {
+    sharedPreferences?.setBool(PreferencesKeys.budgetsEnabled, value);
+    budgetsEnabledNotifier.value = value;
   }
 
   /// Syncs [walletsEnabledNotifier] with the persisted "Use wallets"
@@ -52,6 +76,10 @@ class ServiceConfig {
     walletsEnabledNotifier.value = walletsEnabled;
   }
 
+  static void initBudgetsEnabled() {
+    budgetsEnabledNotifier.value = budgetsEnabled;
+  }
+
   static void togglePremium() {
     isPremium = !isPremium;
     premiumNotifier.value = isPremium;
@@ -60,8 +88,9 @@ class ServiceConfig {
   /// Notifies consumers (e.g. the customization page) when the
   /// "Show homepage image" preference changes, so the monthly banner entry
   /// can be enabled/disabled without rebuilding the whole page.
-  static final ValueNotifier<bool> showHomepageImageNotifier =
-      ValueNotifier(true);
+  static final ValueNotifier<bool> showHomepageImageNotifier = ValueNotifier(
+    true,
+  );
 
   static bool get showHomepageImage =>
       sharedPreferences?.getBool(PreferencesKeys.showHomepageImage) ?? true;

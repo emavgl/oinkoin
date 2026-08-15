@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
+import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/services/database/exceptions.dart';
@@ -21,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../settings/constants/preferences-keys.dart';
 import '../settings/preferences-utils.dart';
 import 'database/database-interface.dart';
+
 import 'package:crypto/crypto.dart';
 
 import 'database/sqlite-database.dart';
@@ -68,7 +70,9 @@ class BackupService {
     final now = DateTime.now();
     final dateStr = now.toIso8601String().split(".")[0]; // Strip milliseconds
     final formattedDate = dateStr.replaceAll(
-        ":", "-"); // Replace colon to avoid issues in file naming
+      ":",
+      "-",
+    ); // Replace colon to avoid issues in file naming
 
     // Construct the file name
     return "${appName}_${version}_${formattedDate}_${MANDATORY_BACKUP_SUFFIX}";
@@ -120,19 +124,39 @@ class BackupService {
       var recordTagAssociations = await database.getAllRecordTagAssociations();
       var wallets = await database.getAllWallets();
       var profiles = await database.getAllProfiles();
+      // Older test doubles and database implementations may not expose the
+      // optional budget collection yet; keep those backups readable while
+      // production databases include budgets normally.
+      var budgets = <Budget>[];
+      try {
+        budgets = await database.getBudgets();
+      } catch (e) {
+        // Keep backups compatible with older implementations and test doubles
+        // that do not yet provide budget storage.
+        _logger.warning('Skipping budgets during backup: $e');
+      }
       var prefs = await SharedPreferences.getInstance();
       var userCurrencies = prefs.getString(PreferencesKeys.userCurrencies);
       var preferences = PreferencesBackupService.exportPreferences(prefs);
 
       _logger.info(
-          'Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags, ${wallets.length} wallets, ${profiles.length} profiles');
+        'Backup data: ${records.length} records, ${categories.length} categories, ${recurrentRecordPatterns.length} recurrent patterns, ${recordTagAssociations.length} tags, ${wallets.length} wallets, ${profiles.length} profiles, ${budgets.length} budgets',
+      );
 
-      var backup = Backup(appName, version, databaseVersion, categories,
-          records, recurrentRecordPatterns, recordTagAssociations,
-          wallets: wallets,
-          profiles: profiles,
-          userCurrencies: userCurrencies,
-          preferences: preferences);
+      var backup = Backup(
+        appName,
+        version,
+        databaseVersion,
+        categories,
+        records,
+        recurrentRecordPatterns,
+        recordTagAssociations,
+        wallets: wallets,
+        profiles: profiles,
+        budgets: budgets,
+        userCurrencies: userCurrencies,
+        preferences: preferences,
+      );
       var backupJsonStr = jsonEncode(backup.toMap());
 
       // Encrypt the backup JSON string if an encryption password is provided
@@ -146,7 +170,8 @@ class BackupService {
       var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
 
       _logger.info(
-          'Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)');
+        'Backup created successfully: ${backupJsonOnDisk.path} (${backupJsonStr.length} bytes)',
+      );
       return result;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to create backup');
@@ -162,7 +187,9 @@ class BackupService {
 
       // Use PreferencesUtils for enableAutomaticBackup
       bool enableAutomaticBackup = PreferencesUtils.getOrDefault<bool>(
-          prefs, PreferencesKeys.enableAutomaticBackup)!;
+        prefs,
+        PreferencesKeys.enableAutomaticBackup,
+      )!;
 
       if (!enableAutomaticBackup) {
         _logger.debug("Automatic backup disabled in settings");
@@ -184,10 +211,12 @@ class BackupService {
 
       if (shouldBackup) {
         _logger.info(
-            "Last backup was ${now.difference(latestBackupDate).inHours}h ago, automatic backup needed");
+          "Last backup was ${now.difference(latestBackupDate).inHours}h ago, automatic backup needed",
+        );
       } else {
         _logger.debug(
-            "Last backup was ${now.difference(latestBackupDate).inMinutes}m ago, no backup needed yet");
+          "Last backup was ${now.difference(latestBackupDate).inMinutes}m ago, no backup needed yet",
+        );
       }
 
       return shouldBackup;
@@ -203,29 +232,39 @@ class BackupService {
 
     // Retrieve preferences using PreferencesUtils
     bool enableAutomaticBackup = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.enableAutomaticBackup)!;
+      prefs,
+      PreferencesKeys.enableAutomaticBackup,
+    )!;
     if (!enableAutomaticBackup) {
       log("No automatic backup set");
       return false;
     }
 
     bool enableEncryptedBackup = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.enableEncryptedBackup)!;
+      prefs,
+      PreferencesKeys.enableEncryptedBackup,
+    )!;
     String? backupPassword = PreferencesUtils.getOrDefault<String?>(
-        prefs, PreferencesKeys.backupPassword);
+      prefs,
+      PreferencesKeys.backupPassword,
+    );
     bool enableVersionAndDateInBackupName = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.enableVersionAndDateInBackupName)!;
+      prefs,
+      PreferencesKeys.enableVersionAndDateInBackupName,
+    )!;
 
-    String? filename =
-        !enableVersionAndDateInBackupName ? await getDefaultFileName() : null;
+    String? filename = !enableVersionAndDateInBackupName
+        ? await getDefaultFileName()
+        : null;
 
     try {
       _logger.info('Creating automatic backup...');
       final backupDir = await getDefaultBackupDirectory();
       File backupFile = await BackupService.createJsonBackupFile(
-          backupFileName: filename,
-          directoryPath: backupDir,
-          encryptionPassword: enableEncryptedBackup ? backupPassword : null);
+        backupFileName: filename,
+        directoryPath: backupDir,
+        encryptionPassword: enableEncryptedBackup ? backupPassword : null,
+      );
       _logger.info("Automatic backup created: ${backupFile.path}");
       return true;
     } catch (e, st) {
@@ -240,9 +279,13 @@ class BackupService {
 
     // Retrieve preferences using PreferencesUtils
     bool enableEncryptedBackup = PreferencesUtils.getOrDefault<bool>(
-        prefs, PreferencesKeys.enableEncryptedBackup)!;
+      prefs,
+      PreferencesKeys.enableEncryptedBackup,
+    )!;
     int? backupRetentionIntervalIndex = PreferencesUtils.getOrDefault<int?>(
-        prefs, PreferencesKeys.backupRetentionIntervalIndex);
+      prefs,
+      PreferencesKeys.backupRetentionIntervalIndex,
+    );
 
     if (enableEncryptedBackup && backupRetentionIntervalIndex != null) {
       var period = BackupRetentionPeriod.values[backupRetentionIntervalIndex];
@@ -259,8 +302,10 @@ class BackupService {
   ///
   /// [inputFile] - the backup file to import.
   /// [encryptionPassword] - optional, if provided, attempts to decrypt the backup file content.
-  static Future<bool> importDataFromBackupFile(File inputFile,
-      {String? encryptionPassword}) async {
+  static Future<bool> importDataFromBackupFile(
+    File inputFile, {
+    String? encryptionPassword,
+  }) async {
     try {
       _logger.info('Starting backup import from: ${inputFile.path}');
       String fileContent = await inputFile.readAsString();
@@ -274,7 +319,8 @@ class BackupService {
       var jsonMap = jsonDecode(fileContent);
       Backup backup = Backup.fromMap(jsonMap);
       _logger.info(
-          'Importing: ${backup.records.length} records, ${backup.categories.length} categories, ${backup.wallets.length} wallets');
+        'Importing: ${backup.records.length} records, ${backup.categories.length} categories, ${backup.wallets.length} wallets, ${backup.budgets.length} budgets',
+      );
 
       // Restore portable preferences independently. A malformed, obsolete, or
       // failing setting is skipped by the preference service and cannot abort
@@ -289,25 +335,33 @@ class BackupService {
           // Preferences are optional for legacy/database-only imports. A
           // missing platform implementation must not prevent the actual data
           // from being restored.
-          _logger.handle(error, stackTrace,
-              'Skipping preferences because they are unavailable');
+          _logger.handle(
+            error,
+            stackTrace,
+            'Skipping preferences because they are unavailable',
+          );
         }
         if (restorePrefs != null) {
           final preferencesToRestore = <String, dynamic>{
             ...backup.preferences,
-            if (!backup.preferences
-                    .containsKey(PreferencesKeys.userCurrencies) &&
+            if (!backup.preferences.containsKey(
+                  PreferencesKeys.userCurrencies,
+                ) &&
                 backup.userCurrencies != null)
               PreferencesKeys.userCurrencies: backup.userCurrencies,
           };
           await PreferencesBackupService.restorePreferences(
-              restorePrefs, preferencesToRestore);
+            restorePrefs,
+            preferencesToRestore,
+          );
+          ServiceConfig.initBudgetsEnabled();
 
           // Load custom currencies into CurrencyInfo before wallets are
           // restored. The payload may come from an old backup and can be
           // malformed; this must never make an otherwise usable backup fail.
-          _loadRestoredCustomCurrencies(restorePrefs.getString(
-              PreferencesKeys.userCurrencies));
+          _loadRestoredCustomCurrencies(
+            restorePrefs.getString(PreferencesKeys.userCurrencies),
+          );
         }
       }
 
@@ -379,7 +433,8 @@ class BackupService {
           final existingInProfile =
               existingWalletsByProfile[backupWallet.profileId] ?? [];
           final match = existingInProfile.where(
-              (w) => w.name.toLowerCase() == backupWallet.name.toLowerCase());
+            (w) => w.name.toLowerCase() == backupWallet.name.toLowerCase(),
+          );
           if (match.isNotEmpty) {
             mappedWalletId = match.first.id;
           }
@@ -488,8 +543,35 @@ class BackupService {
           await database.addRecurrentRecordPattern(backupRecurrentPatterns);
         } else {
           print(
-              "Recurrent pattern with id $recurrentPatternId already exists.");
+            "Recurrent pattern with id $recurrentPatternId already exists.",
+          );
         }
+      }
+
+      // Add budgets after profiles have been remapped. Budget filters use
+      // category names, so no category ID remapping is necessary.
+      for (final backupBudget in backup.budgets) {
+        if (backupBudget.profileId != null &&
+            profileIdMap.containsKey(backupBudget.profileId)) {
+          backupBudget.profileId = profileIdMap[backupBudget.profileId];
+        } else {
+          backupBudget.profileId = fallbackProfileId;
+        }
+        // Wallet filters are not valid while the Wallets feature is disabled.
+        // Clear them on import so they cannot become active unexpectedly if
+        // the feature is later enabled.
+        if (!ServiceConfig.walletsEnabled) {
+          backupBudget.walletIds = [];
+        } else {
+          // Budget wallet filters reference wallet IDs from the backup. Remap
+          // them to the IDs assigned during wallet restore, just like records.
+          backupBudget.walletIds = backupBudget.walletIds
+              .map((walletId) => walletIdMap[walletId])
+              .whereType<int>()
+              .toList();
+        }
+        backupBudget.id = null;
+        await database.addBudget(backupBudget);
       }
 
       _logger.info('Backup imported successfully');
@@ -509,33 +591,39 @@ class BackupService {
       final decoded = jsonDecode(rawCurrencies);
       if (decoded is! Map<String, dynamic>) {
         _logger.warning(
-            'Skipping restored custom currencies: expected a JSON object');
+          'Skipping restored custom currencies: expected a JSON object',
+        );
         return;
       }
       final config = UserCurrencyConfig.fromJson(decoded);
       var loaded = 0;
       for (final currency in config.currencies) {
         if (currency.isCustom) {
-          CurrencyInfo.addCustomCurrency(CurrencyInfo(
-            isoCode: currency.isoCode,
-            name: currency.customName!,
-            customSymbol: currency.customSymbol,
-          ));
+          CurrencyInfo.addCustomCurrency(
+            CurrencyInfo(
+              isoCode: currency.isoCode,
+              name: currency.customName!,
+              customSymbol: currency.customSymbol,
+            ),
+          );
           loaded++;
         }
       }
       _logger.info('Loaded $loaded custom currencies from backup');
     } catch (error, stackTrace) {
-      _logger.handle(error, stackTrace,
-          'Skipping malformed user currencies from backup');
+      _logger.handle(
+        error,
+        stackTrace,
+        'Skipping malformed user currencies from backup',
+      );
     }
   }
 
   /// Encrypts the given data using the provided password.
   static String encryptData(String data, String password) {
-    final key = encrypt.Key.fromUtf8(password
-        .padRight(32, '*')
-        .substring(0, 32)); // Ensure the key length is 32 bytes
+    final key = encrypt.Key.fromUtf8(
+      password.padRight(32, '*').substring(0, 32),
+    ); // Ensure the key length is 32 bytes
     final iv = encrypt.IV.fromLength(16); // AES uses a 16 bytes IV
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     final encrypted = encrypter.encrypt(data, iv: iv);
@@ -573,16 +661,18 @@ class BackupService {
 
   /// Decrypts the given data using the provided password.
   static String decryptData(String data, String password) {
-    final key = encrypt.Key.fromUtf8(password
-        .padRight(32, '*')
-        .substring(0, 32)); // Ensure the key length is 32 bytes
+    final key = encrypt.Key.fromUtf8(
+      password.padRight(32, '*').substring(0, 32),
+    ); // Ensure the key length is 32 bytes
     final encrypted = encrypt.Encrypted.fromBase64(data);
 
     // Extract IV and encrypted data
-    final iv = encrypt.IV(Uint8List.fromList(
-        encrypted.bytes.sublist(0, 16))); // First 16 bytes are the IV
-    final encryptedData = encrypt.Encrypted(Uint8List.fromList(
-        encrypted.bytes.sublist(16))); // Remaining bytes are the encrypted data
+    final iv = encrypt.IV(
+      Uint8List.fromList(encrypted.bytes.sublist(0, 16)),
+    ); // First 16 bytes are the IV
+    final encryptedData = encrypt.Encrypted(
+      Uint8List.fromList(encrypted.bytes.sublist(16)),
+    ); // Remaining bytes are the encrypted data
 
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     return encrypter.decrypt(encryptedData, iv: iv);
@@ -592,7 +682,9 @@ class BackupService {
   /// [retentionPeriod] - the retention period to determine which files to delete.
   /// [directory] - the directory where the backup files are stored.
   static Future<bool> removeOldBackups(
-      BackupRetentionPeriod retentionPeriod, Directory directory) async {
+    BackupRetentionPeriod retentionPeriod,
+    Directory directory,
+  ) async {
     if (retentionPeriod == BackupRetentionPeriod.ALWAYS) {
       return true;
     }
