@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -99,7 +100,8 @@ void main() {
         final file = File('${tempDir.path}${Platform.pathSeparator}custom.png');
         await file.writeAsBytes([1, 2, 3]);
         SharedPreferences.setMockInitialValues({
-          'monthlyBannerAssignments': '{"3":"user:${file.path}"}',
+          'monthlyBannerAssignments':
+              jsonEncode({'3': 'user:${file.path}'}),
         });
         ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
 
