@@ -1,4 +1,4 @@
-name: Build for Android and Linux
+name: Build for Android, Linux, and Windows
 
 on:
   release:
@@ -259,3 +259,48 @@ jobs:
           body: ${{ github.event.release.body }}
           tag_name: ${{ github.event.release.tag_name }}
 
+  build-windows:
+    name: Build Windows package
+    runs-on: windows-latest
+    needs: bump-version
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Pull latest changes including version bump
+        run: git pull origin master
+
+      # Navigate to the submodule and perform the necessary git operations
+      - name: Update flutter submodule to stable branch
+        shell: bash
+        run: |
+          git submodule update --init --recursive
+          cd submodules/flutter
+          git reset --merge
+          git checkout stable
+          git pull origin stable
+          cd ../..
+
+      - name: Enable Windows desktop
+        run: submodules/flutter/bin/flutter.bat config --enable-windows-desktop
+
+      - run: submodules/flutter/bin/flutter.bat pub get
+
+      - name: Build Windows release
+        run: submodules/flutter/bin/flutter.bat build windows --release
+
+      - name: Package Windows release
+        shell: pwsh
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath piggybank-windows-x64.zip
+
+      - name: Upload Windows package as Release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: piggybank-windows-x64.zip
+          body: ${{ github.event.release.body }}
+          tag_name: ${{ github.event.release.tag_name }}
