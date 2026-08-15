@@ -10,6 +10,10 @@ import 'package:piggybank/settings/constants/preferences-keys.dart';
 /// same shared icon set used by categories and wallets, so icon code points
 /// remain stable across app launches.
 class TransferIconService {
+  /// Default transfer icon background: the grey entry from the shared
+  /// Category/Wallet color palette (Category.colors).
+  static final Color? defaultColor = Colors.grey[400];
+
   static IconData get icon {
     final codePoint = ServiceConfig.sharedPreferences
         ?.getInt(PreferencesKeys.transferIconCodePoint);
@@ -27,7 +31,7 @@ class TransferIconService {
   static Color? get color {
     final serialized = ServiceConfig.sharedPreferences
         ?.getString(PreferencesKeys.transferIconColor);
-    if (serialized == null) return null;
+    if (serialized == null) return defaultColor;
 
     final components = serialized.split(':').map(int.tryParse).toList();
     if (components.length != 4 || components.any((component) => component == null)) {
@@ -64,5 +68,15 @@ class TransferIconService {
     } else {
       await prefs.remove(PreferencesKeys.transferIconColor);
     }
+  }
+
+  /// Restores the original transfer icon aspect: the default grey background
+  /// and the [Icons.swap_horiz] icon with no emoji.
+  static Future<void> reset() async {
+    final prefs = ServiceConfig.sharedPreferences;
+    if (prefs == null) return;
+    await prefs.remove(PreferencesKeys.transferIconCodePoint);
+    await prefs.remove(PreferencesKeys.transferIconEmoji);
+    await prefs.remove(PreferencesKeys.transferIconColor);
   }
 }

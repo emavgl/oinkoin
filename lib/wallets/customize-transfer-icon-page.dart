@@ -17,6 +17,7 @@ class _CustomizeTransferIconPageState
   late String? _iconEmoji;
   late IconData? _icon;
   late Color? _color;
+  int _pickerResetCounter = 0;
 
   @override
   void initState() {
@@ -78,7 +79,40 @@ class _CustomizeTransferIconPageState
     return AppBar(
       title: Text("Customize Transfer Icon".i18n),
       leading: BackButton(onPressed: () => Navigator.pop(context)),
+      actions: [
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          onSelected: (value) async {
+            if (value == 'restore') {
+              await _restoreOriginal();
+            }
+          },
+          itemBuilder: (ctx) => [
+            PopupMenuItem<String>(
+              padding: const EdgeInsets.all(20),
+              value: 'restore',
+              child: Text(
+                "Restore original transfer icon".i18n,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
+  }
+
+  Future<void> _restoreOriginal() async {
+    await TransferIconService.reset();
+    if (!mounted) return;
+    setState(() {
+      _iconEmoji = TransferIconService.iconEmoji;
+      _icon = TransferIconService.icon;
+      _color = TransferIconService.color;
+      _pickerResetCounter++;
+    });
   }
 
   Future<void> _save() async {
@@ -118,6 +152,7 @@ class _CustomizeTransferIconPageState
               ],
             ),
             IconColorPickerSection(
+              key: ValueKey(_pickerResetCounter),
               initialIconEmoji: _iconEmoji,
               initialIcon: _icon,
               initialColor: _color,

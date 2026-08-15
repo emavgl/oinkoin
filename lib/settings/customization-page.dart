@@ -6,6 +6,7 @@ import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/services/locale-service.dart';
+import 'package:piggybank/wallets/customize-transfer-icon-page.dart';
 import 'package:piggybank/settings/components/setting-separator.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/constants/preferences-options.dart';
@@ -669,18 +670,6 @@ class CustomizationPageState extends State<CustomizationPage> {
       ),
       _CustomizationOption(
         section: "Homepage settings",
-        title: "Visualise wallet name in the main page",
-        subtitle: "Show or hide wallet name in the record list",
-        builder: () => SwitchCustomizationItem(
-          title: "Visualise wallet name in the main page".i18n,
-          subtitle: "Show or hide wallet name in the record list".i18n,
-          switchValue: PreferencesUtils.getOrDefault<bool>(
-              prefs, PreferencesKeys.showWalletInRecordList)!,
-          sharedConfigKey: PreferencesKeys.showWalletInRecordList,
-        ),
-      ),
-      _CustomizationOption(
-        section: "Homepage settings",
         title: "Show future recurrent records",
         subtitle:
             "Generate and display upcoming recurrent records (they will be included in statistics)",
@@ -742,6 +731,22 @@ class CustomizationPageState extends State<CustomizationPage> {
       ),
       _CustomizationOption(
         section: "Wallets",
+        title: "Visualise wallet name in the main page",
+        subtitle: "Show or hide wallet name in the record list",
+        builder: () => ValueListenableBuilder<bool>(
+          valueListenable: ServiceConfig.walletsEnabledNotifier,
+          builder: (context, walletsEnabled, _) => SwitchCustomizationItem(
+            title: "Visualise wallet name in the main page".i18n,
+            subtitle: "Show or hide wallet name in the record list".i18n,
+            switchValue: PreferencesUtils.getOrDefault<bool>(
+                prefs, PreferencesKeys.showWalletInRecordList)!,
+            sharedConfigKey: PreferencesKeys.showWalletInRecordList,
+            enabled: walletsEnabled,
+          ),
+        ),
+      ),
+      _CustomizationOption(
+        section: "Wallets",
         title: "Restore wallet amount on record deletion",
         subtitle:
             "When deleting a record, add back its amount to the wallet balance",
@@ -756,6 +761,30 @@ class CustomizationPageState extends State<CustomizationPage> {
                 prefs, PreferencesKeys.restoreAmountOnDelete)!,
             sharedConfigKey: PreferencesKeys.restoreAmountOnDelete,
             enabled: walletsEnabled,
+          ),
+        ),
+      ),
+      _CustomizationOption(
+        section: "Wallets",
+        title: "Customize Transfer Icon",
+        subtitle: "Change the icon, emoji and color used for transfers",
+        builder: () => ValueListenableBuilder<bool>(
+          valueListenable: ServiceConfig.walletsEnabledNotifier,
+          builder: (context, walletsEnabled, _) => ListTile(
+            enabled: walletsEnabled,
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CustomizeTransferIconPage(),
+                ),
+              );
+            },
+            title: Text("Customize Transfer Icon".i18n, style: titleTextStyle),
+            subtitle: Text(
+                "Change the icon, emoji and color used for transfers".i18n,
+                style: subtitleTextStyle),
+            trailing: const Icon(Icons.chevron_right),
           ),
         ),
       ),

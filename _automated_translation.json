@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-14",
-    "total_keys": 525
+    "last_updated": "2026-08-15",
+    "total_keys": 527
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -799,6 +799,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Change the icon, emoji and color used for transfers": {
+      "key": "Change the icon, emoji and color used for transfers",
+      "context": "Subtitle of the Customize Transfer Icon option in the Settings > Customization page, under the Wallets section",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Wallets",
+      "component": "ListTile subtitle",
+      "meaning": "Opens the editor to change the app-wide icon, emoji and color used to represent transfers",
+      "notes": "Companion to 'Customize Transfer Icon'; keep the wording consistent with that label",
+      "status": "verified"
+    },
     "Changing the currency does not convert existing record amounts. Are you sure?": {
       "key": "Changing the currency does not convert existing record amounts. Are you sure?",
       "context": null,
@@ -1146,10 +1156,10 @@
     },
     "Customize Transfer Icon": {
       "key": "Customize Transfer Icon",
-      "context": "Wallets tab overflow menu option and the title of the transfer icon customization page",
-      "file": "lib/wallets/wallets-tab-page.dart; lib/wallets/customize-transfer-icon-page.dart",
-      "page": "Wallets > Customize Transfer Icon",
-      "component": "Popup menu item and app bar title",
+      "context": "Settings > Customization page option (Wallets section) and the title of the transfer icon customization page",
+      "file": "lib/settings/customization-page.dart; lib/wallets/customize-transfer-icon-page.dart",
+      "page": "Settings > Customization > Wallets > Customize Transfer Icon",
+      "component": "ListTile title and app bar title",
       "meaning": "Open the editor for the app-wide icon, emoji, and color used to represent transfers",
       "notes": "Translate as an action label; Transfer is the fixed localized name shown in the editor",
       "status": "verified"
@@ -3546,6 +3556,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Restore original transfer icon": {
+      "key": "Restore original transfer icon",
+      "context": "Overflow menu option in the app bar of the Customize Transfer Icon page",
+      "file": "lib/wallets/customize-transfer-icon-page.dart",
+      "page": "Settings > Customization > Wallets > Customize Transfer Icon",
+      "component": "Popup menu item",
+      "meaning": "Reset the transfer icon to its default appearance: grey circle with the swap arrows icon and no emoji",
+      "notes": "Action verb 'Restore'; refers to the original/default transfer icon aspect (color and icon)",
+      "status": "verified"
     },
     "Restore successful": {
       "key": "Restore successful",
