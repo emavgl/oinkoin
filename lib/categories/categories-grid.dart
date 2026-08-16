@@ -11,12 +11,14 @@ class CategoriesGrid extends StatefulWidget {
   final bool? goToEditMovementPage;
   final bool enableManualSorting;
   final Function(List<Category?>) onChangeOrder;
+  final bool alignToBottom;
 
   CategoriesGrid(
     this.categories, {
     this.goToEditMovementPage,
     required this.enableManualSorting,
     required this.onChangeOrder,
+    this.alignToBottom = false,
   });
 
   @override
@@ -103,7 +105,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
   }
 
   /// Builds the grid of categories with reordering capability
-  Widget _buildCategories() {
+  Widget _buildCategories(BuildContext context) {
     var size = MediaQuery.of(context).size;
     final double itemHeight = 250;
     final double itemWidth = size.width / 2;
@@ -116,7 +118,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
       );
     });
 
-    return ReorderableGridView.extent(
+    final grid = ReorderableGridView.extent(
       controller: _scrollController,
       onReorder: (int oldIndex, int newIndex) async {
         setState(() {
@@ -133,7 +135,32 @@ class CategoriesGridState extends State<CategoriesGrid> {
       crossAxisSpacing: 5.0,
       mainAxisSpacing: 5.0,
       maxCrossAxisExtent: size.width / 4,
+      shrinkWrap: widget.alignToBottom,
       children: generatedChildren,
+    );
+
+    if (!widget.alignToBottom) {
+      return grid;
+    }
+
+    // When bottom-aligned, anchor the grid to the bottom so thumb-reachable.
+    // shrinkWrap lets the grid take only the space it needs, and the Column
+    // pushes it to the bottom of the available area. The outer scroll view
+    // still allows scrolling when there are many categories.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight - 20,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [grid],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -152,7 +179,7 @@ class CategoriesGridState extends State<CategoriesGrid> {
                 ),
               ],
             )
-          : _buildCategories(),
+          : _buildCategories(context),
     );
   }
 }

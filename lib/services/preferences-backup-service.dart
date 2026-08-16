@@ -48,6 +48,7 @@ class PreferencesBackupService {
     PreferencesKeys.visualiseTagsInMainPage,
     PreferencesKeys.showWalletInRecordList,
     PreferencesKeys.showFutureRecords,
+    PreferencesKeys.showCategoriesAtBottom,
     PreferencesKeys.restoreAmountOnDelete,
 
     // Categories, wallets, and budgets
@@ -92,6 +93,7 @@ class PreferencesBackupService {
       PreferencesKeys.visualiseTagsInMainPage,
       PreferencesKeys.showWalletInRecordList,
       PreferencesKeys.showFutureRecords,
+      PreferencesKeys.showCategoriesAtBottom,
       PreferencesKeys.restoreAmountOnDelete,
       PreferencesKeys.walletsEnabled,
       PreferencesKeys.budgetsEnabled,

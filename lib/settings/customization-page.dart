@@ -698,6 +698,18 @@ class CustomizationPageState extends State<CustomizationPage> {
         ),
       ),
       _CustomizationOption(
+        section: "Homepage settings",
+        title: "Categories at the bottom",
+        subtitle: "Show expense and income categories at the bottom of the screen",
+        builder: () => SwitchCustomizationItem(
+          title: "Categories at the bottom".i18n,
+          subtitle: "Show expense and income categories at the bottom of the screen".i18n,
+          switchValue: PreferencesUtils.getOrDefault<bool>(
+              prefs, PreferencesKeys.showCategoriesAtBottom)!,
+          sharedConfigKey: PreferencesKeys.showCategoriesAtBottom,
+        ),
+      ),
+      _CustomizationOption(
         section: "Budgets",
         title: "Enable Budgets",
         subtitle: "Show budgets in the navigation bar",
