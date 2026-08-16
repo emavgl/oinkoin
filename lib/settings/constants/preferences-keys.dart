@@ -54,6 +54,7 @@ class PreferencesKeys {
 
   // Categories
   static const categoryListSortOption = 'defaultCategoryListSortOption';
+  static const showCategoriesAtBottom = 'showCategoriesAtBottom';
 
   // Wallets
   static const walletListSortOption = 'defaultWalletListSortOption';

@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-08-15",
-    "total_keys": 551
+    "total_keys": 553
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -757,6 +757,15 @@
       "component": "Tab label, page title",
       "meaning": "Expense/income categories list",
       "notes": "Main navigation tab and page title",
+      "status": "verified"
+    },
+    "Categories at the bottom": {
+      "context": "Settings toggle label in Homepage customization section",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Homepage",
+      "component": "SwitchCustomizationItem label",
+      "meaning": "Option to anchor the category icon grid to the bottom of the screen for thumb reach",
+      "notes": "Paired with the longer description below it",
       "status": "verified"
     },
     "Categories vs Tags": {
@@ -4088,6 +4097,15 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Show expense and income categories at the bottom of the screen": {
+      "context": "Settings toggle description in Homepage customization section",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Homepage",
+      "component": "SwitchCustomizationItem description",
+      "meaning": "Explains what the 'Categories at the bottom' toggle does",
+      "notes": "Longer description shown under toggle label",
+      "status": "verified"
     },
     "Show cumulative balance line": {
       "key": "Show cumulative balance line",
