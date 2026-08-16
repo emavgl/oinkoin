@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,20 @@ import 'package:system_theme/system_theme.dart';
 import 'helpers/records-utility-functions.dart';
 
 const String FontNameDefault = 'Montserrat';
+
+/// Returns the CJK font fallback matching the given locale, so that localized
+/// glyph variants (Japanese vs Simplified Chinese) are rendered with the
+/// appropriate font. Returns null when the locale needs no special CJK font.
+List<String>? getFontFamilyFallbackForLocale(Locale locale) {
+  switch (locale.languageCode) {
+    case 'ja':
+      return ['Noto Sans JP'];
+    case 'zh':
+      return ['Noto Sans SC'];
+    default:
+      return null;
+  }
+}
 
 class MaterialThemeInstance {
   static ThemeData? lightTheme;
@@ -66,10 +81,12 @@ class MaterialThemeInstance {
 
   static getMaterialThemeData(Brightness brightness) async {
     var colorScheme = await getColorScheme(brightness);
+    final locale = LocaleService.resolveLanguageLocale();
     return ThemeData(
       colorScheme: colorScheme,
       useMaterial3: true,
       brightness: brightness,
+      fontFamilyFallback: getFontFamilyFallbackForLocale(locale),
     );
   }
 

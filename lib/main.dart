@@ -239,13 +239,18 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _applyNewLocale(Locale locale) {
+  Future<void> _applyNewLocale(Locale locale) async {
     // I18n.define is the only context-free API for setting the locale at runtime.
     // I18n.of(context) cannot be used here because _MyAppState's context is the
     // parent of the I18n widget, not a descendant.
     // ignore: invalid_use_of_visible_for_testing_member
     I18n.define(locale);
-    setState(() {}); // triggers rebuild so all .i18n strings re-evaluate
+    // Rebuild the themes so the CJK font fallback matches the new locale.
+    MaterialThemeInstance.lightTheme = null;
+    MaterialThemeInstance.darkTheme = null;
+    final light = await MaterialThemeInstance.getLightTheme();
+    final dark = await MaterialThemeInstance.getDarkTheme();
+    _applyNewTheme(light, dark, _themeMode);
   }
 
   @override
