@@ -309,10 +309,11 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
         categories.isNotEmpty ? categories[0].value.abs().toDouble() : 0.0;
     final isExpanded = title == "Income".i18n ? _showIncome : _showExpenses;
 
-    final categoryNames = categories.map((c) => c.key.name).toSet();
-    final sectionRecords = filteredRecords
-        .where((r) => categoryNames.contains(r?.category?.name))
-        .toList();
+    final categoriesOfThisType = categories.map((c) => c.key).toSet();
+    final sectionRecords = filteredRecords.where((r) {
+      if (r?.category == null) return false;
+      return categoriesOfThisType.contains(r!.category);
+    }).toList();
     final defaultCurrency = getDefaultCurrency();
     final convertedResult = defaultCurrency != null
         ? computeTotalInCurrency(
