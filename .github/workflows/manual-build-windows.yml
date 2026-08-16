@@ -60,7 +60,7 @@ jobs:
 
       - name: Package Windows release
         shell: pwsh
-        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath piggybank-windows-x64.zip
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath oinkoin-windows-x64-portable.zip
 
       - name: Install Inno Setup
         shell: pwsh
@@ -79,8 +79,8 @@ jobs:
       - name: Upload Windows zip as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: piggybank-windows-x64
-          path: piggybank-windows-x64.zip
+          name: oinkoin-windows-x64-portable
+          path: oinkoin-windows-x64-portable.zip
 
       - name: Upload Windows installer as artifact
         uses: actions/upload-artifact@v4

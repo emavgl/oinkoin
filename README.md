@@ -29,7 +29,7 @@ Understandable and clean statistics and charts!
 
 ## Download
 
-At the moment, Oinkoin is only available for Android.
+Oinkoin is available for Android, Linux, and Windows.
 
 ### Oinkoin
 
@@ -51,6 +51,15 @@ Oinkoin PRO comes with some additional features at a small costs:
 <a href='https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png' width='150'/></a>
 
 Oinkoin PRO is also available *for free* via [F-droid](https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/). However, F-droid can be very slow in updating the release to the latest available versions. If want the very last version, you can manually download the APK from [Github directly](https://github.com/emavgl/oinkoin/releases). You can add Oinkoin to [Obtainium](https://github.com/ImranR98/Obtainium) which will check and install the latest version from Github release directly.
+
+### Desktop
+
+Oinkoin is also available for desktop as Linux packages and a Windows installer/portable version, all downloadable from the [GitHub releases page](https://github.com/emavgl/oinkoin/releases/latest).
+
+<div align="center">
+  <a href='https://github.com/emavgl/oinkoin/releases/latest'><img alt='Get it for Linux' src='https://img.shields.io/badge/Linux-DEB%20%7C%20RPM%20%7C%20AppImage-blue'></a>
+  <a href='https://github.com/emavgl/oinkoin/releases/latest'><img alt='Get it for Windows' src='https://img.shields.io/badge/Windows-Installer%20%7C%20Portable-blue'></a>
+</div>
 
 ## Contribution
 

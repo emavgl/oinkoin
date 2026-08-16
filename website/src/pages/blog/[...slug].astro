@@ -12,11 +12,41 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const blogPostSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": new URL(Astro.url.pathname, Astro.site),
+  },
+  "headline": post.data.title,
+  "description": post.data.description,
+  "image": post.data.heroImage ?? "/og-image.png",
+  "datePublished": post.data.pubDate.toISOString(),
+  "dateModified": (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+  "author": {
+    "@type": "Person",
+    "name": "emavgl",
+    "url": "https://github.com/emavgl",
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Oinkoin",
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL("/oinkoin-icon.png", Astro.site),
+    },
+  },
+};
 ---
 
 <Layout
   title={`${post.data.title} | Oinkoin Blog`}
-  description={post.data.description}>
+  description={post.data.description}
+  ogType="article"
+  publishedTime={post.data.pubDate.toISOString()}
+  modifiedTime={(post.data.updatedDate ?? post.data.pubDate).toISOString()}
+  jsonLd={[blogPostSchema]}>
   <section class="py-20 bg-white">
     <div class="container mx-auto px-6">
       <div class="max-w-3xl mx-auto">

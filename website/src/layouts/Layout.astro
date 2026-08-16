@@ -3,10 +3,53 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  ogType?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  jsonLd?: object[];
 }
 
-const { title, description = "Free, offline, and privacy-focused expense tracker. Track your expenses without ads, data collection, or complexity. Open source and available for Android and Linux.", ogImage = "/oinkoin-icon.png" } = Astro.props;
+const {
+  title,
+  description = "Free, offline, and privacy-focused expense tracker. Track your expenses without ads, data collection, or complexity. Open source and available for Android, Linux, and Windows.",
+  ogImage = "/og-image.png",
+  ogType = 'website',
+  publishedTime,
+  modifiedTime,
+  jsonLd = [],
+} = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
+
+// Static structured data that applies to every page.
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Oinkoin",
+  "url": "https://oinkoin.com",
+  "logo": new URL("/oinkoin-icon.png", Astro.site),
+  "sameAs": [
+    "https://github.com/emavgl/oinkoin",
+    "https://play.google.com/store/apps/details?id=com.github.emavgl.piggybank",
+  ],
+};
+
+const softwareSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Oinkoin",
+  "description": "Free, offline, and privacy-focused expense tracker. No ads, no data collection, no account required.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": ["Android", "Linux", "Windows"],
+  "url": "https://oinkoin.com",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+  },
+};
+
+const schemas = [softwareSchema, organizationSchema, ...jsonLd];
 
 import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
@@ -17,56 +60,54 @@ import '../styles/global.css';
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="keywords" content="expense tracker, budget app, money manager, finance app, offline expense tracker, privacy focused, no ads, open source, Android, Linux, F-Droid, free expense tracker, personal finance, spending tracker" />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="expense tracker, budget app, money manager, finance app, offline expense tracker, privacy focused, no ads, open source, Android, Linux, Windows, F-Droid, free expense tracker, personal finance, spending tracker" />
     <meta name="author" content="Oinkoin" />
     <meta name="robots" content="index, follow" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
-    <meta property="og:site_name" content="Oinkoin" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
-
     <meta name="theme-color" content="#000000" />
-    <link rel="canonical" href={canonicalURL} />
 
+    <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/oinkoin-icon.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
     <title>{title}</title>
 
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" is:inline>
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Oinkoin",
-        "description": "Free, offline, and privacy-focused expense tracker",
-        "applicationCategory": "FinanceApplication",
-        "operatingSystem": ["Android", "Linux"],
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.5",
-          "ratingCount": "100"
-        }
-      }
-    </script>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Oinkoin - Free open-source expense tracker" />
+    <meta property="og:site_name" content="Oinkoin" />
+    <meta property="og:locale" content="en_US" />
+    {ogType === 'article' && publishedTime && (
+      <meta property="article:published_time" content={publishedTime} />
+    )}
+    {ogType === 'article' && modifiedTime && (
+      <meta property="article:modified_time" content={modifiedTime} />
+    )}
+    {ogType === 'article' && (
+      <meta property="article:author" content="https://github.com/emavgl" />
+    )}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <!-- Structured Data -->
+    {schemas.map((schema) => (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+    ))}
   </head>
   <body class="bg-white text-gray-900 antialiased flex flex-col min-h-screen">
     <div role="note" aria-live="polite" class="bg-red-50 border-b border-red-200 text-red-900 text-sm">
@@ -99,4 +140,3 @@ import '../styles/global.css';
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 </style>
-
