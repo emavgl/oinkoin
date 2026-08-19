@@ -61,6 +61,7 @@ dependencies:
   auto_size_text: ^3.0.0
   quick_actions: ^1.1.0
   app_review_dialog: ^2.0.1
+  pdf: ^3.12.0
 
 
 dev_dependencies:

@@ -16,10 +16,12 @@ import '../../i18n.dart';
 import '../../models/category.dart';
 import '../../models/record.dart';
 import '../../models/wallet.dart';
+import '../../premium/splash-screen.dart';
 import '../../wallets/wallet-picker-page.dart';
 import '../../services/backup-service.dart';
 import '../../services/csv-service.dart';
 import '../../services/database/database-interface.dart';
+import '../../services/pdf-service.dart';
 import '../../services/platform-file-service.dart';
 import '../../services/profile-service.dart';
 import '../../services/recurrent-record-service.dart';
@@ -29,6 +31,7 @@ import '../../settings/constants/overview-time-interval.dart';
 import '../../settings/constants/preferences-keys.dart';
 import '../../settings/preferences-utils.dart';
 import '../components/filter_modal_content.dart';
+import '../components/pdf_export_sections_dialog.dart';
 
 class TabRecordsController {
   final VoidCallback onStateChanged;
@@ -647,6 +650,8 @@ class TabRecordsController {
   Future<void> handleMenuAction(BuildContext context, int index) async {
     if (index == 1) {
       await _exportToCSV();
+    } else if (index == 2) {
+      await _exportToPDF(context);
     }
   }
 
@@ -723,6 +728,65 @@ class TabRecordsController {
     await PlatformFileService.shareOrSaveFile(
       filePath: csvFile.path,
       suggestedName: 'oinkoin_records.csv',
+    );
+  }
+
+  Future<void> _exportToPDF(BuildContext context) async {
+    // PDF export is a Pro feature.
+    if (!ServiceConfig.isPremium) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PremiumSplashScreen()),
+      );
+      return;
+    }
+
+    // Let the user pick which sections to include before generating.
+    final sections = await showDialog<Set<PdfSection>>(
+      context: context,
+      builder: (context) => const PdfExportSectionsDialog(),
+    );
+    if (sections == null || sections.isEmpty) {
+      return;
+    }
+
+    // Build wallet lookups: ID → name and ID → currency
+    final allWallets = await _database.getAllWallets(
+        profileId: ProfileService.instance.activeProfileId);
+    final walletNames = <int, String>{};
+    for (final w in allWallets) {
+      walletNames[w.id!] = w.name;
+    }
+
+    // Determine the currently viewed date range, mirroring the statistics page
+    DateTime from;
+    DateTime to;
+    if (customIntervalTo == null) {
+      final interval = await getTimeIntervalFromHomepageTimeInterval(
+          _database, getHomepageTimeIntervalEnumSetting());
+      from = interval[0];
+      to = interval[1];
+    } else {
+      from = customIntervalFrom!;
+      to = customIntervalTo!;
+    }
+
+    final bytes = await PDFExporter.createPdfFromRecordList(
+      filteredRecords,
+      from: from,
+      to: to,
+      walletNames: walletNames,
+      walletCurrencyMap: walletCurrencyMap,
+      sections: sections,
+    );
+    final path = await getApplicationDocumentsDirectory();
+    var pdfFile = File(path.path + "/records.pdf");
+    await pdfFile.writeAsBytes(bytes);
+
+    // Use platform-aware service (share on mobile, save-as on desktop)
+    await PlatformFileService.shareOrSaveFile(
+      filePath: pdfFile.path,
+      suggestedName: 'oinkoin_records.pdf',
     );
   }
 

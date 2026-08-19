@@ -99,6 +99,12 @@ class PlatformFileService {
           extensions: ['csv'],
           mimeTypes: ['text/csv'],
         );
+      case 'pdf':
+        return const XTypeGroup(
+          label: 'PDF files',
+          extensions: ['pdf'],
+          mimeTypes: ['application/pdf'],
+        );
       case 'db':
         return const XTypeGroup(
           label: 'Database files',

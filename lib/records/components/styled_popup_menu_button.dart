@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/services/service-config.dart';
 
 class StyledPopupMenuButton extends StatelessWidget {
   final Function(int) onSelected;
@@ -44,15 +46,32 @@ class StyledPopupMenuButton extends StatelessWidget {
   }
 
   List<PopupMenuItem<int>> _buildPopupMenuItems(BuildContext context) {
-    return {"Export CSV".i18n: 1}.entries.map((entry) {
-      return PopupMenuItem<int>(
-        padding: EdgeInsets.all(20),
-        value: entry.value,
+    return [
+      PopupMenuItem<int>(
+        padding: const EdgeInsets.all(20),
+        value: 1,
         child: Text(
-          entry.key,
-          style: TextStyle(fontSize: 16),
+          "Export CSV".i18n,
+          style: const TextStyle(fontSize: 16),
         ),
-      );
-    }).toList();
+      ),
+      PopupMenuItem<int>(
+        padding: const EdgeInsets.all(20),
+        value: 2,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Export PDF".i18n,
+              style: const TextStyle(fontSize: 16),
+            ),
+            if (!ServiceConfig.isPremium) ...[
+              const SizedBox(width: 8),
+              getProLabel(labelFontSize: 9.0),
+            ],
+          ],
+        ),
+      ),
+    ];
   }
 }
