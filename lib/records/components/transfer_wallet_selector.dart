@@ -194,7 +194,8 @@ class _TransferWalletSelectorState extends State<TransferWalletSelector> {
     }
 
     return buildAmountWithCurrencyWidget(wallet.balance ?? 0.0, walletCurrency,
-        mainStyle: style);
+        mainStyle: style,
+        brightness: Theme.of(context).brightness);
   }
 
   @override

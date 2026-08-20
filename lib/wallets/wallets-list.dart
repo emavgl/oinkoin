@@ -133,6 +133,7 @@ class _WalletsListState extends State<WalletsList> {
       balance,
       walletCurrency,
       mainStyle: style,
+      brightness: Theme.of(context).brightness,
     );
   }
 

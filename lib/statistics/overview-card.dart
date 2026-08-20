@@ -76,13 +76,6 @@ class OverviewCard extends StatelessWidget {
     }
   }
 
-  String _formatAmount(double value, String? currency) {
-    if (currency == null || currency.isEmpty) {
-      return getCurrencyValueString(value);
-    }
-    return formatAmountWithCurrency(value, currency);
-  }
-
   /// Returns the records that belong to the selected bar (filtered by [selectedDate]).
   List<Record?> _getSelectedRecords() {
     if (selectedDate == null) return [];
@@ -107,6 +100,7 @@ class OverviewCard extends StatelessWidget {
 
     String? convertedAmountText;
     String? originalAmountText;
+    double? originalAmountValue;
 
     if (selectedAmount != null) {
       // Selected bar
@@ -130,6 +124,7 @@ class OverviewCard extends StatelessWidget {
               formatCurrencyAmount(converted, defaultCurrency);
           originalAmountText =
               formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
+          originalAmountValue = selectedAmount;
         } else {
           convertedAmountText =
               formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
@@ -159,6 +154,7 @@ class OverviewCard extends StatelessWidget {
             formatCurrencyAmount(_convertedResult.total, defaultCurrency);
         originalAmountText =
             formatCurrencyAmount(nonEmpty.first.value, nonEmpty.first.key);
+        originalAmountValue = nonEmpty.first.value;
       } else if (_convertedResult.currency != null &&
           _convertedResult.currency!.isNotEmpty) {
         convertedAmountText = formatCurrencyAmount(
@@ -168,6 +164,10 @@ class OverviewCard extends StatelessWidget {
       }
     }
 
+    final originalColor = originalAmountValue != null
+        ? getAmountColor(originalAmountValue, Theme.of(context).brightness)
+        : null;
+
     Widget amountWidget;
     if (originalAmountText != null) {
       amountWidget = Column(
@@ -175,7 +175,10 @@ class OverviewCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(convertedAmountText, style: mainStyle),
-          Text(originalAmountText, style: secondaryStyle),
+          Text(originalAmountText,
+              style: originalColor != null
+                  ? secondaryStyle.copyWith(color: originalColor)
+                  : secondaryStyle),
         ],
       );
     } else {
@@ -190,6 +193,54 @@ class OverviewCard extends StatelessWidget {
           context, records, walletCurrencyMap,
           isAbsValue: !isBalance),
       child: amountWidget,
+    );
+  }
+
+  /// Builds a labeled stat line (e.g. "Average of %s a day") where a converted
+  /// amount in parentheses is colored by sign via [getAmountColor], matching
+  /// the coloring of non-converted amounts.
+  Widget _buildStatAmountLine(
+      BuildContext context, String labelKey, double value, String? currency) {
+    final brightness = Theme.of(context).brightness;
+    final baseStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.color
+              ?.withAlpha(179),
+        );
+    final idx = labelKey.indexOf('%s');
+    final prefix = idx >= 0 ? labelKey.substring(0, idx) : labelKey;
+    final suffix = idx >= 0 ? labelKey.substring(idx + 2) : '';
+
+    final parts = currency != null && currency.isNotEmpty
+        ? splitAmountConversion(value, currency)
+        : null;
+    final amountSpans = <InlineSpan>[];
+    if (parts != null) {
+      final originalColor = getAmountColor(value, brightness);
+      final convertedColor = getAmountColor(parts.convertedValue, brightness);
+      amountSpans.add(TextSpan(
+        text: parts.original,
+        style: originalColor == null ? null : TextStyle(color: originalColor),
+      ));
+      amountSpans.add(TextSpan(
+        text: ' (${parts.converted})',
+        style: convertedColor == null ? null : TextStyle(color: convertedColor),
+      ));
+    } else {
+      amountSpans.add(TextSpan(
+        text: currency != null && currency.isNotEmpty
+            ? formatCurrencyAmount(value, currency)
+            : getCurrencyValueString(value),
+      ));
+    }
+
+    return Text.rich(
+      TextSpan(
+        style: baseStyle,
+        children: [TextSpan(text: prefix), ...amountSpans, TextSpan(text: suffix)],
+      ),
     );
   }
 
@@ -246,29 +297,11 @@ class OverviewCard extends StatelessWidget {
               children: [
                 _buildMainAmountWidget(context, amountColor: amountColor),
                 const SizedBox(height: 2),
-                Text(
-                  averageLabelKey
-                      .fill([_formatAmount(average, originalCurrency)]),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.color
-                            ?.withAlpha(179),
-                      ),
-                ),
+                _buildStatAmountLine(
+                    context, averageLabelKey, average, originalCurrency),
                 const SizedBox(height: 2),
-                Text(
-                  medianLabelKey
-                      .fill([_formatAmount(median, originalCurrency)]),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.color
-                            ?.withAlpha(179),
-                      ),
-                ),
+                _buildStatAmountLine(
+                    context, medianLabelKey, median, originalCurrency),
               ],
             ),
           ),

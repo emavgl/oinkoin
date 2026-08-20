@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' show Brightness;
+import 'dart:ui' show Brightness, Color;
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:i18n_extension/i18n_extension.dart' show I18n;
@@ -10,7 +10,11 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/statistics/statistics-calculator.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
@@ -269,43 +273,41 @@ class PDFExporter {
         ? _amountColor
         : (value) => colorize ? chartColor : null;
 
-    final statStyle =
-        pw.TextStyle(fontSize: 11, color: PdfColors.blueGrey900);
-    pw.TextStyle styled(pw.TextStyle style, PdfColor? color) => color == null
-        ? style
-        : style.copyWith(color: color);
-
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(
-          title,
-          style: pw.TextStyle(
-            fontSize: 17,
-            fontWeight: pw.FontWeight.bold,
-            color: PdfColors.blueGrey800,
-          ),
+        _buildSectionHeaderRow(
+          title: title,
+          totalText: formatRecordsTotalResult(totalResult),
+          medianText: _formatStatValue(median, currency),
+          averageText: _formatStatValue(average, currency),
+          totalColor: colorFor(totalResult.total),
+          medianColor: colorFor(median),
+          averageColor: colorFor(average),
         ),
-        pw.SizedBox(height: 4),
-        pw.Text('${'Total'.i18n}: ${formatRecordsTotalResult(totalResult)}',
-            style: styled(statStyle, colorFor(totalResult.total))),
-        pw.SizedBox(height: 2),
-        pw.Text(
-            '${'Average'.i18n}: ${_formatStatValue(average, currency)}',
-            style: styled(statStyle, colorFor(average))),
-        pw.SizedBox(height: 2),
-        pw.Text('${'Median'.i18n}: ${_formatStatValue(median, currency)}',
-            style: styled(statStyle, colorFor(median))),
-        pw.SizedBox(height: 10),
-        _buildChart(
-          records: records,
-          from: from,
-          to: to,
-          aggregationMethod: aggregationMethod,
-          signed: isBalance,
-          color: chartColor,
+        pw.SizedBox(height: 24),
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Expanded(
+              flex: 2,
+              child: _buildChart(
+                records: records,
+                from: from,
+                to: to,
+                aggregationMethod: aggregationMethod,
+                signed: isBalance,
+                color: chartColor,
+              ),
+            ),
+            pw.SizedBox(width: 16),
+            pw.Expanded(
+              flex: 3,
+              child: _buildCategoryPieChart(records),
+            ),
+          ],
         ),
-        pw.SizedBox(height: 10),
+        pw.SizedBox(height: 16),
         _buildCategoryBreakdown(records, walletCurrencyMap,
             isAbsValue: !isBalance, colorFor: colorFor),
         pw.SizedBox(height: 10),
@@ -318,6 +320,161 @@ class PDFExporter {
       ],
     );
   }
+
+  /// Builds the section header line: title followed by Total, Median and
+  /// Average separated by vertical dividers.
+  static pw.Widget _buildSectionHeaderRow({
+    required String title,
+    required String totalText,
+    required String medianText,
+    required String averageText,
+    required PdfColor? totalColor,
+    required PdfColor? medianColor,
+    required PdfColor? averageColor,
+  }) {
+    pw.TextStyle statStyle(PdfColor? color) => pw.TextStyle(
+          fontSize: 10,
+          color: color ?? PdfColors.blueGrey900,
+        );
+    return pw.Row(
+      children: [
+        pw.Text(
+          title,
+          style: pw.TextStyle(
+            fontSize: 17,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.blueGrey800,
+          ),
+        ),
+        pw.SizedBox(width: 10),
+        pw.Container(width: 0.8, height: 14, color: PdfColors.grey400),
+        pw.SizedBox(width: 10),
+        pw.Text('${'Total'.i18n}: $totalText', style: statStyle(totalColor)),
+        pw.SizedBox(width: 8),
+        pw.Container(width: 0.8, height: 14, color: PdfColors.grey400),
+        pw.SizedBox(width: 8),
+        pw.Text('${'Median'.i18n}: $medianText', style: statStyle(medianColor)),
+        pw.SizedBox(width: 8),
+        pw.Container(width: 0.8, height: 14, color: PdfColors.grey400),
+        pw.SizedBox(width: 8),
+        pw.Text(
+            '${'Average'.i18n}: $averageText', style: statStyle(averageColor)),
+      ],
+    );
+  }
+
+  /// Builds a category pie chart with a legend, mirroring the in-app
+  /// statistics page: top categories by absolute value plus an "Others"
+  /// bucket, each with a colored slice and its percentage.
+  ///
+  /// Slices below [_minSlicePercentage] are merged into "Others" so that the
+  /// built-in leader-line labels of tiny adjacent slices never overlap.
+  static pw.Widget _buildCategoryPieChart(List<Record> records) {
+    final slices = _computePieSlices(records);
+    if (slices.isEmpty) return pw.SizedBox.shrink();
+
+    final legendStyle = pw.TextStyle(fontSize: 7, color: PdfColors.blueGrey800);
+    return pw.Center(
+      child: pw.SizedBox(
+        width: 280,
+        height: 180,
+        child: pw.Chart(
+          grid: _FixedRadiusPieGrid(fixedRadius: 44),
+          datasets: [
+            for (final s in slices)
+              pw.PieDataSet(
+                value: s.percentage,
+                color: s.color,
+                legend: '${s.label} ${s.percentage.toStringAsFixed(2)} %',
+                legendPosition: pw.PieLegendPosition.outside,
+                legendStyle: legendStyle,
+                legendLineColor: s.color,
+                legendLineWidth: 0.6,
+                legendOffset: 12,
+                borderColor: PdfColors.white,
+                borderWidth: 1,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Minimum slice size (in percentage points) for a category to keep its own
+  /// slice. Smaller categories are merged into the "Others" bucket so the
+  /// pie legend labels don't overlap for very small adjacent slices.
+  static const _minSlicePercentage = 10.0;
+
+  /// Aggregates [records] by category (absolute value), keeping the top
+  /// categories configured by the user plus an "Others" bucket.
+  static List<_PieSlice> _computePieSlices(List<Record> records) {
+    final aggregates = <Category, double>{};
+    for (final r in records) {
+      if (r.category == null) continue;
+      final value = (r.value ?? 0).abs();
+      aggregates.update(r.category!, (v) => v + value, ifAbsent: () => value);
+    }
+    if (aggregates.isEmpty) return const [];
+
+    final total = aggregates.values.fold(0.0, (a, b) => a + b);
+    final sorted = aggregates.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final prefs = ServiceConfig.sharedPreferences;
+    final maxCategories = prefs == null
+        ? 4
+        : (PreferencesUtils.getOrDefault<int>(prefs,
+                PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay) ??
+            4);
+    final useCategoryColors = prefs == null
+        ? false
+        : (PreferencesUtils.getOrDefault<bool>(prefs,
+                PreferencesKeys.statisticsPieChartUseCategoryColors) ??
+            false);
+
+    final slices = <_PieSlice>[];
+    var othersSum = 0.0;
+    var kept = 0;
+    for (final entry in sorted) {
+      final percentage = entry.value / total * 100;
+      if (kept >= maxCategories || percentage < _minSlicePercentage) {
+        othersSum += entry.value;
+        continue;
+      }
+      final color = useCategoryColors
+          ? _pdfColor(entry.key.color)
+          : _defaultPiePalette[kept % _defaultPiePalette.length];
+      slices.add(_PieSlice(
+        entry.key.name ?? '',
+        percentage,
+        color,
+      ));
+      kept++;
+    }
+    if (othersSum > 0) {
+      slices.add(_PieSlice(
+        'Others'.i18n,
+        othersSum / total * 100,
+        PdfColors.blueGrey,
+      ));
+    }
+    return slices;
+  }
+
+  /// Converts a Flutter [Color] to a [PdfColor], ignoring the alpha channel.
+  static PdfColor _pdfColor(Color? color) =>
+      PdfColor.fromInt((color ?? const Color(0xFF9E9E9E)).toARGB32() &
+          0xFFFFFF);
+
+  static const _defaultPiePalette = <PdfColor>[
+    PdfColor.fromInt(0xFF1E88E5),
+    PdfColor.fromInt(0xFF43A047),
+    PdfColor.fromInt(0xFFFB8C00),
+    PdfColor.fromInt(0xFFE53935),
+    PdfColor.fromInt(0xFF8E24AA),
+    PdfColor.fromInt(0xFF00ACC1),
+    PdfColor.fromInt(0xFF6D4C41),
+  ];
 
   static String _formatStatValue(double value, String? currency) {
     if (currency != null && currency.isNotEmpty) {
@@ -394,7 +551,7 @@ class PDFExporter {
     final axisLabelStyle =
         pw.TextStyle(fontSize: 8, color: PdfColors.grey700);
 
-    final barValueLabel = n <= 12
+    final barValueLabel = n <= 8
         ? (pw.Context context, pw.PointChartValue v) => pw.Text(
               _formatAxisValue(points[v.x.toInt()].value),
               style: pw.TextStyle(
@@ -413,6 +570,8 @@ class PDFExporter {
           xAxis: pw.FixedAxis<int>(
             xTicks,
             ticks: false,
+            marginStart: barWidth,
+            marginEnd: barWidth,
             buildLabel: (v) =>
                 pw.Text(labels[v.toInt()], style: axisLabelStyle),
           ),
@@ -496,7 +655,7 @@ class PDFExporter {
     }
     final start = (min / step).floor() * step;
     final ticks = <double>[];
-    for (var v = start; v <= max + step * 0.5; v += step) {
+    for (var v = start; v <= max + step * 1.5; v += step) {
       ticks.add(v);
     }
     return ticks;
@@ -547,17 +706,126 @@ class PDFExporter {
       groups.putIfAbsent(r.walletId!, () => []).add(r);
     }
 
+    final defaultCurrency = getDefaultCurrency();
     final rows = groups.entries.map((e) {
-      final total =
-          computeConvertedTotal(e.value, walletCurrencyMap,
-              isAbsValue: isAbsValue);
-      final name = walletNames[e.key] ?? '—';
-      return _SplitRow(name, formatRecordsTotalResult(total), total.total);
+      final currency = walletCurrencyMap[e.key];
+      final original = e.value.fold<double>(
+          0.0, (sum, r) => sum + (isAbsValue ? r.value!.abs() : r.value!));
+      final converted = computeConvertedTotal(e.value, walletCurrencyMap,
+              isAbsValue: isAbsValue)
+          .total;
+      final needsConversion = currency != null &&
+          currency.isNotEmpty &&
+          defaultCurrency != null &&
+          defaultCurrency.isNotEmpty &&
+          currency != defaultCurrency;
+      return _WalletRow(
+        walletNames[e.key] ?? '—',
+        currency,
+        original,
+        converted,
+        needsConversion,
+      );
     }).toList()
-      ..sort((a, b) => b.total.abs().compareTo(a.total.abs()));
+      ..sort((a, b) => b.converted.abs().compareTo(a.converted.abs()));
 
     if (rows.isEmpty) return pw.SizedBox.shrink();
-    return _buildSplitTable('Wallet'.i18n, rows, colorFor: colorFor);
+    return _buildWalletTable('Wallet'.i18n, rows, colorFor: colorFor);
+  }
+
+  /// Builds the wallet split table: wallet name, currency and amount. When a
+  /// wallet currency differs from the user's default currency, the converted
+  /// amount (in the default currency) is shown above the original amount (in
+  /// the wallet currency), mirroring the in-app statistics breakdown.
+  static pw.Widget _buildWalletTable(
+    String title,
+    List<_WalletRow> rows, {
+    required PdfColor? Function(double) colorFor,
+  }) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          '$title:',
+          style: pw.TextStyle(
+            fontSize: 12,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.blueGrey800,
+          ),
+        ),
+        pw.SizedBox(height: 6),
+        pw.TableHelper.fromTextArray(
+          headers: [
+            title,
+            'Currency'.i18n,
+            'Amount'.i18n,
+          ],
+          data: rows
+              .map((r) => [
+                    r.name,
+                    r.currency ?? '—',
+                    _walletAmountCell(r, colorFor(r.converted)),
+                  ])
+              .toList(),
+          headerStyle: pw.TextStyle(
+            fontSize: 10,
+            fontWeight: pw.FontWeight.bold,
+          ),
+          cellStyle: pw.TextStyle(fontSize: 10),
+          cellAlignments: {2: pw.Alignment.centerRight},
+          columnWidths: {
+            0: pw.FractionColumnWidth(0.42),
+            1: pw.FractionColumnWidth(0.13),
+            2: pw.FractionColumnWidth(0.45),
+          },
+          border: pw.TableBorder.all(
+            color: PdfColors.grey300,
+            width: 0.4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the amount cell for a wallet row. When a conversion is needed the
+  /// converted amount (default currency) is shown on top of the original
+  /// amount (wallet currency), matching the in-app statistics page.
+  static pw.Widget _walletAmountCell(_WalletRow row, PdfColor? color) {
+    final String primary;
+    final String? secondary;
+    if (row.needsConversion) {
+      primary = formatCurrencyAmount(row.converted, getDefaultCurrency()!);
+      secondary = formatCurrencyAmount(row.original, row.currency!);
+    } else if (row.currency != null && row.currency!.isNotEmpty) {
+      primary = formatCurrencyAmount(row.original, row.currency!);
+      secondary = null;
+    } else {
+      primary = getCurrencyValueString(row.original);
+      secondary = null;
+    }
+    return pw.Container(
+      alignment: pw.Alignment.centerRight,
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.end,
+        mainAxisSize: pw.MainAxisSize.min,
+        children: [
+          pw.Text(
+            primary,
+            style: color == null
+                ? pw.TextStyle(fontSize: 10)
+                : pw.TextStyle(fontSize: 10, color: color),
+          ),
+          if (secondary != null)
+            pw.Text(
+              secondary,
+              style: pw.TextStyle(
+                fontSize: 8,
+                color: _amountColor(row.original) ?? PdfColors.blueGrey,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   static pw.Widget _buildTagBreakdown(
@@ -670,11 +938,7 @@ class PDFExporter {
         r.category?.categoryType == CategoryType.income
             ? 'Income'.i18n
             : 'Expense'.i18n,
-        _coloredAmountText(
-          _formatRecordAmount(r, walletCurrencyMap),
-          _amountColor(r.value ?? 0),
-          fontSize: 9,
-        ),
+        _buildRecordAmountCell(r, walletCurrencyMap),
         r.walletId != null ? (walletNames[r.walletId] ?? '') : '',
         r.tags.join(', '),
       ];
@@ -730,14 +994,46 @@ class PDFExporter {
     ];
   }
 
-  static String _formatRecordAmount(
+  /// Builds the amount cell for a record row. When the record's wallet currency
+  /// differs from the default, the original and the converted (parenthesized)
+  /// amounts are colored independently by sign via [_amountColor], mirroring
+  /// the in-app records list.
+  static pw.Widget _buildRecordAmountCell(
     Record record,
     Map<int, String?> walletCurrencyMap,
   ) {
-    final currency =
-        (record.walletId != null ? walletCurrencyMap[record.walletId] : null) ??
-            '';
-    return formatAmountWithCurrency(record.value ?? 0, currency);
+    final currency = (record.walletId != null ? walletCurrencyMap[record.walletId] : null) ??
+        '';
+    final value = record.value ?? 0;
+    final parts = splitAmountConversion(value, currency);
+    if (parts == null) {
+      final text = currency.isNotEmpty
+          ? formatCurrencyAmount(value, currency)
+          : getCurrencyValueString(value);
+      return _coloredAmountText(text, _amountColor(value), fontSize: 9);
+    }
+    return pw.Container(
+      alignment: pw.Alignment.centerRight,
+      child: pw.RichText(
+        text: pw.TextSpan(
+          style: pw.TextStyle(fontSize: 9),
+          children: [
+            _coloredAmountSpan(parts.original, value),
+            _coloredAmountSpan(' (${parts.converted})', parts.convertedValue),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Returns a text span colored by the sign of [value] (green for
+  /// positive/zero, red for negative) when colorization is enabled.
+  static pw.TextSpan _coloredAmountSpan(String text, double value) {
+    final color = _amountColor(value);
+    return pw.TextSpan(
+      text: text,
+      style: color == null ? null : pw.TextStyle(color: color),
+    );
   }
 }
 
@@ -758,4 +1054,64 @@ class _SplitRow {
   final String amount;
   final double total;
   _SplitRow(this.name, this.amount, this.total);
+}
+
+class _WalletRow {
+  final String name;
+  final String? currency;
+  final double original;
+  final double converted;
+  final bool needsConversion;
+  _WalletRow(this.name, this.currency, this.original, this.converted,
+      this.needsConversion);
+}
+
+class _PieSlice {
+  final String label;
+  final double percentage;
+  final PdfColor color;
+  _PieSlice(this.label, this.percentage, this.color);
+}
+
+/// A [pw.PieGrid] that always draws slices with the same fixed radius,
+/// regardless of how many slices/labels a chart has, so all pie charts in the
+/// report render at the same size. The base [pw.PieGrid] shrinks its radius to
+/// fit every outside legend label, which makes multi-category pies smaller.
+class _FixedRadiusPieGrid extends pw.PieGrid {
+  _FixedRadiusPieGrid({required this.fixedRadius});
+
+  final double fixedRadius;
+
+  @override
+  double get radius => fixedRadius;
+
+  @override
+  void layout(
+    pw.Context context,
+    pw.BoxConstraints constraints, {
+    bool parentUsesSize = false,
+  }) {
+    box = PdfRect.fromPoints(PdfPoint.zero, constraints.biggest);
+    final size = box!.size;
+
+    final datasets = pw.Chart.of(context).datasets;
+    var total = 0.0;
+    for (final dataset in datasets) {
+      if (dataset is pw.PieDataSet) {
+        total += dataset.value;
+      }
+    }
+    if (total <= 0) return;
+
+    final unit = math.pi * 2 / total;
+    var angle = startAngle;
+    for (final dataset in datasets) {
+      if (dataset is pw.PieDataSet) {
+        dataset.angleStart = angle;
+        angle += dataset.value * unit;
+        dataset.angleEnd = angle;
+        dataset.layout(context, pw.BoxConstraints.tight(size));
+      }
+    }
+  }
 }

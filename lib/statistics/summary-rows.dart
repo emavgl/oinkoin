@@ -70,12 +70,23 @@ abstract class SummaryRow extends StatelessWidget {
       final convertedStr = formatCurrencyAmount(value.abs(), currency!);
       final primaryText =
           showPercentage ? '$convertedStr ($percentageStr%)' : convertedStr;
+      final primaryColor = getAmountColor(value, Theme.of(context).brightness);
+      final secondaryColor =
+          getAmountColor(originalValue, Theme.of(context).brightness);
       amountWidget = Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(primaryText, style: biggerFont, textAlign: TextAlign.right),
-          Text(originalStr, style: secondaryFont, textAlign: TextAlign.right),
+          Text(primaryText,
+              style: primaryColor != null
+                  ? biggerFont.copyWith(color: primaryColor)
+                  : biggerFont,
+              textAlign: TextAlign.right),
+          Text(originalStr,
+              style: secondaryColor != null
+                  ? secondaryFont.copyWith(color: secondaryColor)
+                  : secondaryFont,
+              textAlign: TextAlign.right),
         ],
       );
     } else {

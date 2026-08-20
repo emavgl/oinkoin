@@ -145,7 +145,8 @@ class PatternsPageViewState extends State<PatternsPageView> {
     }
 
     return buildAmountWithCurrencyWidget(pattern.value!, patternCurrency,
-        mainStyle: style);
+        mainStyle: style,
+        brightness: Theme.of(context).brightness);
   }
 
   final _biggerFont = const TextStyle(fontSize: 18.0);

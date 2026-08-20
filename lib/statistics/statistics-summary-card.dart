@@ -340,6 +340,7 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
         nonEmptyCurrencies.first.value,
         nonEmptyCurrencies.first.key,
         mainStyle: headerStyle,
+        brightness: Theme.of(context).brightness,
       );
     } else {
       formattedTotalWidget = Text(

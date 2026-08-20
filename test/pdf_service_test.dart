@@ -195,5 +195,36 @@ void main() {
       expect(bytes.isNotEmpty, isTrue);
       expect(String.fromCharCodes(bytes.sublist(0, 4)), '%PDF');
     });
+
+    test('createPdfFromRecordList handles wallets with mixed currencies',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'defaultCurrency': 'EUR',
+        'currencyConversionRates': '{"USD_EUR": 0.9}',
+        'showCurrencySymbol': true,
+      });
+      ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
+      setNumberFormatCache();
+
+      final food = Category('Food', categoryType: CategoryType.expense);
+      final records = [
+        Record(-10.0, 'Lunch', food, DateTime(2023, 1, 1, 12),
+            id: 1, walletId: 1),
+        Record(-20.0, 'Groceries', food, DateTime(2023, 1, 2, 18),
+            id: 2, walletId: 1),
+        Record(-50.0, 'Electronics', food, DateTime(2023, 1, 3, 10),
+            id: 3, walletId: 2),
+      ];
+      final bytes = await PDFExporter.createPdfFromRecordList(
+        records,
+        from: DateTime(2023, 1, 1),
+        to: DateTime(2023, 1, 31),
+        walletNames: const {1: 'Cash', 2: 'Card'},
+        walletCurrencyMap: const {1: 'EUR', 2: 'USD'},
+      );
+
+      expect(bytes.isNotEmpty, isTrue);
+      expect(String.fromCharCodes(bytes.sublist(0, 4)), '%PDF');
+    });
   });
 }

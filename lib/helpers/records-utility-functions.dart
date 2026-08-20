@@ -650,6 +650,28 @@ String formatWalletBalance(Wallet wallet) {
   return formatCurrencyAmount(balance, wallet.currency!);
 }
 
+/// Splits [amount] (denominated in [currency]) into its original and converted
+/// (default currency) display strings so callers can color each part
+/// independently with [getAmountColor], matching the sign-based coloring used
+/// for non-converted amounts.
+///
+/// Returns null when [currency] is empty, matches the default currency, or no
+/// conversion rate is available — i.e. when the `<original> (<converted>)`
+/// display does not apply.
+({String original, String converted, double convertedValue})?
+    splitAmountConversion(double amount, String currency) {
+  if (currency.isEmpty) return null;
+  final defaultCurrency = getDefaultCurrency();
+  if (defaultCurrency == null || currency == defaultCurrency) return null;
+  final converted = convertAmount(amount, currency, defaultCurrency);
+  if (converted == null) return null;
+  return (
+    original: formatCurrencyAmount(amount, currency),
+    converted: formatCurrencyAmount(converted, defaultCurrency),
+    convertedValue: converted,
+  );
+}
+
 /// Formats an amount with currency-aware display.
 ///
 /// When [currency] differs from the user's default currency,
@@ -663,14 +685,9 @@ String formatAmountWithCurrency(double amount, String currency) {
     return getCurrencyValueString(amount);
   }
 
-  final defaultCurrency = getDefaultCurrency();
-  if (defaultCurrency != null && currency != defaultCurrency) {
-    final converted = convertAmount(amount, currency, defaultCurrency);
-    if (converted != null) {
-      final originalStr = formatCurrencyAmount(amount, currency);
-      final convertedStr = formatCurrencyAmount(converted, defaultCurrency);
-      return '$originalStr ($convertedStr)';
-    }
+  final parts = splitAmountConversion(amount, currency);
+  if (parts != null) {
+    return '${parts.original} (${parts.converted})';
   }
 
   return formatCurrencyAmount(amount, currency);
@@ -702,12 +719,15 @@ Color? getAmountColor(double amount, Brightness brightness) {
 ///
 /// When [currency] differs from the user's default currency and a conversion
 /// exists, shows the converted amount (in the default currency) on the first
-/// line and the original amount on a second line in a slightly smaller grey
-/// font. Otherwise returns a single-line [Text].
+/// line and the original amount on a second line in a slightly smaller font.
+/// The original line is colored by sign via [getAmountColor] (using
+/// [brightness]) when colorization is enabled, otherwise grey.
+/// Otherwise returns a single-line [Text].
 Widget buildAmountWithCurrencyWidget(
   double amount,
   String currency, {
   TextStyle? mainStyle,
+  Brightness? brightness,
 }) {
   if (currency.isEmpty) {
     return Text(getCurrencyValueString(amount),
@@ -723,9 +743,11 @@ Widget buildAmountWithCurrencyWidget(
       final baseFontSize = mainStyle?.fontSize ?? 14.0;
       final primaryStyle =
           (mainStyle ?? const TextStyle()).copyWith(height: 1.1);
+      final secondaryColor =
+          brightness != null ? getAmountColor(amount, brightness) : null;
       final secondaryStyle = primaryStyle.copyWith(
         fontSize: (baseFontSize - 2).clamp(10.0, double.infinity),
-        color: Colors.grey,
+        color: secondaryColor ?? Colors.grey,
       );
       return Column(
         crossAxisAlignment: CrossAxisAlignment.end,
