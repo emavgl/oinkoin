@@ -204,8 +204,8 @@
   "Every year": "毎年",
   "Expense": "支出",
   "Expense Categories": "支出カテゴリ",
-  "Expense budgets": "支出予算",
   "Expenses": "支出",
+  "Export": "エクスポート",
   "Export Backup": "バックアップをエクスポート",
   "Export CSV": "CSVをエクスポート",
   "Export Database": "データベースをエクスポート",
@@ -395,7 +395,7 @@
   "Save": "保存",
   "Save Mapping": "マッピングを保存",
   "Save as default selection": "デフォルト選択として保存",
-  "Saving budgets": "貯蓄予算",
+  "Saving": "貯蓄",
   "Saving for your next vacation? Set a savings budget and track your progress.": "次の休暇のために貯蓄していますか？貯蓄予算を設定して進捗を確認しましょう。",
   "Scroll for more": "スクロールして続きを見る",
   "Search": "検索",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "金額入力のキーボードレイアウトを選択",
   "Select the number of decimal digits": "小数点以下の桁数を選択",
   "Select the position of the currency symbol": "通貨シンボルの位置を選択",
+  "Select the sections to include in the PDF": "PDFに含めるセクションを選択してください",
   "Select wallet": "ウォレットを選択",
   "Send an Email": "メールを送信",
   "Set as predefined for app start": "アプリ起動時のプリセットとして設定",
@@ -560,7 +561,5 @@
   "none": "なし",
   "selected": "選択済み",
   "space": "スペース",
-  "underscore": "アンダースコア",
-  "Select the sections to include in the PDF": "PDFに含めるセクションを選択してください",
-  "Export": "エクスポート"
+  "underscore": "アンダースコア"
 }

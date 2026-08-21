@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-08-19",
-    "total_keys": 564
+    "total_keys": 563
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -2064,16 +2064,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Expense budgets": {
-      "key": "Expense budgets",
-      "context": "First tab of the new budget page",
-      "file": "lib/budgets/budgets-page.dart",
-      "page": "Budgets > New budget",
-      "component": "Tab label",
-      "meaning": "Budgets that track expense records against a spending target",
-      "notes": null,
-      "status": "verified"
-    },
     "Expenses": {
       "key": "Expenses",
       "context": null,
@@ -3972,16 +3962,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Saving budgets": {
-      "key": "Saving budgets",
-      "context": "Second tab of the new budget page",
-      "file": "lib/budgets/budgets-page.dart",
-      "page": "Budgets > New budget",
-      "component": "Tab label",
-      "meaning": "Budgets that track income records toward a saving target",
-      "notes": "Use the noun savings/budgeting meaning, not the act of saving a file.",
-      "status": "verified"
-    },
     "Saving for your next vacation? Set a savings budget and track your progress.": {
       "key": "Saving for your next vacation? Set a savings budget and track your progress.",
       "context": "First rotating example in the empty state on the Budgets navigation page",
@@ -5653,6 +5633,16 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
+      "status": "verified"
+    },
+    "Saving": {
+      "key": "Saving",
+      "context": "Budget type tab on the budgets page",
+      "file": "lib/budgets/budgets-page.dart (TabBar)",
+      "page": "Budgets > tabs (Expense | Saving)",
+      "component": "Tab label",
+      "meaning": "Saving-money budget type (noun, e.g. saving goals)",
+      "notes": "Short noun form; pairs with 'Expense' as the two budget-type tabs. Short enough not to wrap in the TabBar.",
       "status": "verified"
     }
   }

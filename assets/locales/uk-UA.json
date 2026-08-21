@@ -204,8 +204,8 @@
   "Every year": "Щороку",
   "Expense": "Витрата",
   "Expense Categories": "Категорії витрат",
-  "Expense budgets": "Бюджети витрат",
   "Expenses": "Витрати",
+  "Export": "Експортувати",
   "Export Backup": "Експорт резервної копії",
   "Export CSV": "Експортувати в CSV",
   "Export Database": "Експортувати базу даних",
@@ -395,7 +395,7 @@
   "Save": "Зберегти",
   "Save Mapping": "Зберегти зіставлення",
   "Save as default selection": "Зберегти як вибір за замовчуванням",
-  "Saving budgets": "Бюджети заощаджень",
+  "Saving": "Заощадження",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Накопичуєте на наступну відпустку? Створіть бюджет заощаджень і відстежуйте свій прогрес.",
   "Scroll for more": "Прокрутіть, щоб дізнатися більше",
   "Search": "Пошук",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Оберіть розкладку клавіатури для введення суми",
   "Select the number of decimal digits": "Виберіть кількість десяткових цифр",
   "Select the position of the currency symbol": "Виберіть положення символу валюти",
+  "Select the sections to include in the PDF": "Виберіть розділи, які потрібно включити у PDF",
   "Select wallet": "Виберіть гаманець",
   "Send an Email": "Надіслати email",
   "Set as predefined for app start": "Встановити як попередньо визначений при запуску програми",
@@ -560,7 +561,5 @@
   "none": "порожньо",
   "selected": "вибрано",
   "space": "пробіл",
-  "underscore": "підкреслити",
-  "Select the sections to include in the PDF": "Виберіть розділи, які потрібно включити у PDF",
-  "Export": "Експортувати"
+  "underscore": "підкреслити"
 }

@@ -204,8 +204,8 @@
   "Every year": "Svake godine",
   "Expense": "Trošak",
   "Expense Categories": "Kategorije troškova",
-  "Expense budgets": "Proračuni troškova",
   "Expenses": "Troškovi",
+  "Export": "Izvezi",
   "Export Backup": "Izvoz sigurnosne kopije",
   "Export CSV": "Izvezi CSV",
   "Export Database": "Izvoz baze podataka",
@@ -395,7 +395,7 @@
   "Save": "Spremi",
   "Save Mapping": "Spremi mapiranje",
   "Save as default selection": "Spremi kao zadanu izboru",
-  "Saving budgets": "Proračuni štednje",
+  "Saving": "Štednja",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Štedite za sljedeći odmor? Postavite proračun štednje i pratite napredak.",
   "Scroll for more": "Pomaknite se da vidite više",
   "Search": "Pretraži",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Odaberite raspored tipkovnice za unos iznosa",
   "Select the number of decimal digits": "Odaberite broj decimalnih mjesta",
   "Select the position of the currency symbol": "Odaberi položaj simbola valute",
+  "Select the sections to include in the PDF": "Odaberite odjeljke koje želite uključiti u PDF",
   "Select wallet": "Odaberi novčanik",
   "Send an Email": "Pošalji e-mail",
   "Set as predefined for app start": "Postavi kao unaprijed definirano za početak aplikacije",
@@ -560,7 +561,5 @@
   "none": "bez",
   "selected": "odabrano",
   "space": "razmak",
-  "underscore": "podvlaka",
-  "Select the sections to include in the PDF": "Odaberite odjeljke koje želite uključiti u PDF",
-  "Export": "Izvezi"
+  "underscore": "podvlaka"
 }

@@ -392,8 +392,8 @@ class BudgetsPageState extends State<BudgetsPage> {
           ],
           bottom: TabBar(
             tabs: [
-              Tab(text: 'Expense budgets'.i18n),
-              Tab(text: 'Saving budgets'.i18n),
+              Tab(text: 'Expense'.i18n.toUpperCase()),
+              Tab(text: 'Saving'.i18n.toUpperCase()),
             ],
           ),
         ),
@@ -1410,8 +1410,8 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
               bottom: TabBar(
                 onTap: _changeBudgetType,
                 tabs: [
-                  Tab(text: 'Expense budgets'.i18n),
-                  Tab(text: 'Saving budgets'.i18n),
+                  Tab(text: 'Expense'.i18n.toUpperCase()),
+                  Tab(text: 'Saving'.i18n.toUpperCase()),
                 ],
               ),
             ),

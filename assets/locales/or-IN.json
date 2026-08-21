@@ -204,8 +204,8 @@
   "Every year": "ପ୍ରତି ବର୍ଷ",
   "Expense": "ଖର୍ଚ୍ଚ",
   "Expense Categories": "ଖର୍ଚ୍ଚ ବର୍ଗ",
-  "Expense budgets": "ଖର୍ଚ୍ଚ ବଜେଟ୍",
   "Expenses": "ଖର୍ଚ୍ଚ",
+  "Export": "ରପ୍ତାନି",
   "Export Backup": "ବ୍ୟାକଅପ ରପ୍ତାନି",
   "Export CSV": "CSV ରପ୍ତାନି",
   "Export Database": "ଡାଟାବେସ ରପ୍ତାନି",
@@ -395,7 +395,7 @@
   "Save": "ସଞ୍ଚୟ କରନ୍ତୁ",
   "Save Mapping": "ମ୍ୟାପିଂ ସଞ୍ଚୟ କରନ୍ତୁ",
   "Save as default selection": "ଡିଫଲ୍ଟ ଅଧିକୃତି ଭାବେ ସଂରକ୍ଷଣ କର",
-  "Saving budgets": "ସଞ୍ଚୟ ବଜେଟ୍",
+  "Saving": "ସଞ୍ଚୟ",
   "Saving for your next vacation? Set a savings budget and track your progress.": "ଆପଣଙ୍କ ପରବର୍ତ୍ତୀ ଛୁଟି ପାଇଁ ସଞ୍ଚୟ କରୁଛନ୍ତି କି? ଏକ ସଞ୍ଚୟ ବଜେଟ୍ ସେଟ୍ କରି ଆପଣଙ୍କ ଅଗ୍ରଗତି ଟ୍ରାକ୍ କରନ୍ତୁ।",
   "Scroll for more": "ଅଧିକ ପାଇଁ ସ୍କ୍ରଲ",
   "Search": "ସନ୍ଧାନ",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "ପରିମାଣ ଇନ୍ପୁଟ ପାଇଁ କୀବୋର୍ଡ ଲେଆଉଟ ଚୟନ",
   "Select the number of decimal digits": "ଦଶମିକ ଅଙ୍କ ସଂଖ୍ୟା ଚୟନ କରନ୍ତୁ",
   "Select the position of the currency symbol": "ମୁଦ୍ରା ପ୍ରତୀକର ଅବସ୍ଥାନ ଚୟନ କର",
+  "Select the sections to include in the PDF": "PDF ରେ ଅନ୍ତର୍ଭୁକ୍ତ କରିବାକୁ ବିଭାଗଗୁଡ଼ିକ ଚୟନ କରନ୍ତୁ",
   "Select wallet": "ୱାଲେଟ ଅଲଂଡ୍ଛ",
   "Send an Email": "ଇମେଲ ପଠାନ୍ତୁ",
   "Set as predefined for app start": "ଆପ ସ୍ଟାର୍ଟ ପାଇଁ ପୂର୍ବନିର୍ଧାରିତ ଭାବେ ସେଟ କର",
@@ -560,7 +561,5 @@
   "none": "କିଛି ନାହିଁ",
   "selected": "ନିର୍ବାଚିତ",
   "space": "ଫାଙ୍କ",
-  "underscore": "ଅଣ୍ଡରସ୍କୋର",
-  "Select the sections to include in the PDF": "PDF ରେ ଅନ୍ତର୍ଭୁକ୍ତ କରିବାକୁ ବିଭାଗଗୁଡ଼ିକ ଚୟନ କରନ୍ତୁ",
-  "Export": "ରପ୍ତାନି"
+  "underscore": "ଅଣ୍ଡରସ୍କୋର"
 }

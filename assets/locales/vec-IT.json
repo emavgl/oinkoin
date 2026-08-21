@@ -204,8 +204,8 @@
   "Every year": "Tuti i ani",
   "Expense": "Spesa",
   "Expense Categories": "Categorìe de speze",
-  "Expense budgets": "Budgeti dee spese",
   "Expenses": "Speze",
+  "Export": "Esporta",
   "Export Backup": "Esporta backup",
   "Export CSV": "Esporta CSV",
   "Export Database": "Esporta database",
@@ -395,7 +395,7 @@
   "Save": "Salva",
   "Save Mapping": "Salvar mapeamento",
   "Save as default selection": "Salva come selezione predefinida",
-  "Saving budgets": "Budget de sparagno",
+  "Saving": "Sparagno",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Te si sparagnando par la to prossima vacansa? Crea un budget de sparagno e tegnì d’ocio i to progressi.",
   "Scroll for more": "Scroła par vèdar de più",
   "Search": "Serca",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Sełesiona el tipo de tastiera par insetar l'inporto",
   "Select the number of decimal digits": "Sełesiona el nùmaro de sifre desimałe",
   "Select the position of the currency symbol": "Seleziona la posizione del simbolo della moneda",
+  "Select the sections to include in the PDF": "Selezione łe sezion da metar drento el PDF",
   "Select wallet": "Seleziona portafoggio",
   "Send an Email": "Manda na email",
   "Set as predefined for app start": "Imposta come predefinido per l'avvio dell'app",
@@ -560,7 +561,5 @@
   "none": "nisun",
   "selected": "sełezionà",
   "space": "spasio",
-  "underscore": "sotołinea",
-  "Select the sections to include in the PDF": "Selezione łe sezion da metar drento el PDF",
-  "Export": "Esporta"
+  "underscore": "sotołinea"
 }

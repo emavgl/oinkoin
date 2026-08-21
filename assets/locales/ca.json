@@ -204,8 +204,8 @@
   "Every year": "Cada any",
   "Expense": "Despesa",
   "Expense Categories": "Categories de despesa",
-  "Expense budgets": "Pressupostos de despeses",
   "Expenses": "Despeses",
+  "Export": "Exporta",
   "Export Backup": "Exporta còpia de seguretat",
   "Export CSV": "Exporta CSV",
   "Export Database": "Exporta base de dades",
@@ -395,7 +395,7 @@
   "Save": "Desa",
   "Save Mapping": "Desar el mapatge",
   "Save as default selection": "Guarda com a selecció predeterminada",
-  "Saving budgets": "Pressupostos d’estalvi",
+  "Saving": "Estalvi",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Estàs estalviant per a les properes vacances? Crea un pressupost d’estalvi i segueix el teu progrés.",
   "Scroll for more": "Desplaça't per veure'n més",
   "Search": "Cerca",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Selecciona la disposició del teclat per a l'import",
   "Select the number of decimal digits": "Selecciona el nombre de dígits decimals",
   "Select the position of the currency symbol": "Selecciona la posició del símbol de la divisa",
+  "Select the sections to include in the PDF": "Selecciona les seccions que vols incloure al PDF",
   "Select wallet": "Selecciona la cartera",
   "Send an Email": "Enviar un correu",
   "Set as predefined for app start": "Estableix com a predefinit per a l'inici de l'aplicació",
@@ -560,7 +561,5 @@
   "none": "cap",
   "selected": "seleccionat",
   "space": "espai",
-  "underscore": "guió baix",
-  "Select the sections to include in the PDF": "Selecciona les seccions que vols incloure al PDF",
-  "Export": "Exporta"
+  "underscore": "guió baix"
 }

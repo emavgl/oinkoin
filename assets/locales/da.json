@@ -204,8 +204,8 @@
   "Every year": "Hvert år",
   "Expense": "Udgift",
   "Expense Categories": "Udgiftskategorier",
-  "Expense budgets": "Udgiftsbudgetter",
   "Expenses": "Udgifter",
+  "Export": "Eksportér",
   "Export Backup": "Eksporter sikkerhedskopi",
   "Export CSV": "Eksportér CSV",
   "Export Database": "Eksporter database",
@@ -395,7 +395,7 @@
   "Save": "Gem",
   "Save Mapping": "Gem tilknytning",
   "Save as default selection": "Gem som standardvalg",
-  "Saving budgets": "Opsparingsbudgetter",
+  "Saving": "Opsparing",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Sparer du op til din næste ferie? Opret et opsparingsbudget, og følg dine fremskridt.",
   "Scroll for more": "Rul for mere",
   "Search": "Søg",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Vælg tastaturlayout til beløbsinput",
   "Select the number of decimal digits": "Vælg antal decimalcifre",
   "Select the position of the currency symbol": "Vælg positionen af valutasymblet",
+  "Select the sections to include in the PDF": "Vælg de sektioner, der skal inkluderes i PDF'en",
   "Select wallet": "Vælg tegnebog",
   "Send an Email": "Send en e-mail",
   "Set as predefined for app start": "Indstil som foruddefineret for appstart",
@@ -560,7 +561,5 @@
   "none": "ingen",
   "selected": "valgt",
   "space": "mellemrum",
-  "underscore": "understregning",
-  "Select the sections to include in the PDF": "Vælg de sektioner, der skal inkluderes i PDF'en",
-  "Export": "Eksportér"
+  "underscore": "understregning"
 }

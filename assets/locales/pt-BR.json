@@ -204,8 +204,8 @@
   "Every year": "Anualmente",
   "Expense": "Despesa",
   "Expense Categories": "Categorias de despesas",
-  "Expense budgets": "Orçamentos de despesas",
   "Expenses": "Despesas",
+  "Export": "Exportar",
   "Export Backup": "Exportar Backup",
   "Export CSV": "Exportar para CSV",
   "Export Database": "Exportar dados",
@@ -395,7 +395,7 @@
   "Save": "Salvar",
   "Save Mapping": "Salvar mapeamento",
   "Save as default selection": "Salvar como seleção padrão",
-  "Saving budgets": "Orçamentos de economia",
+  "Saving": "Economia",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Está economizando para as próximas férias? Defina um orçamento de economia e acompanhe seu progresso.",
   "Scroll for more": "Deslize para ver mais",
   "Search": "Pesquisar",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Selecione o tipo de teclado para digitar números",
   "Select the number of decimal digits": "Selecione o número de dígitos decimais",
   "Select the position of the currency symbol": "Selecione a posição do símbolo da moeda",
+  "Select the sections to include in the PDF": "Selecione as seções que deseja incluir no PDF",
   "Select wallet": "Selecionar carteira",
   "Send an Email": "Enviar um e-mail",
   "Set as predefined for app start": "Definir como predefinido para iniciar o aplicativo",
@@ -560,7 +561,5 @@
   "none": "nenhum",
   "selected": "selecionado",
   "space": "espaço",
-  "underscore": "underline",
-  "Select the sections to include in the PDF": "Selecione as seções que deseja incluir no PDF",
-  "Export": "Exportar"
+  "underscore": "underline"
 }

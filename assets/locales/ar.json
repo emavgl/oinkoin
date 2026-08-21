@@ -204,8 +204,8 @@
   "Every year": "كل سنة",
   "Expense": "مصروف",
   "Expense Categories": "تصنيفات المصاريف",
-  "Expense budgets": "ميزانيات المصروفات",
   "Expenses": "المصاريف",
+  "Export": "تصدير",
   "Export Backup": "تصدير النسخة الاحتياطية",
   "Export CSV": "تصدير CSV",
   "Export Database": "تصدير قاعدة البيانات",
@@ -395,7 +395,7 @@
   "Save": "حفظ",
   "Save Mapping": "حفظ التعيين",
   "Save as default selection": "حفظ كاختيار افتراضي",
-  "Saving budgets": "ميزانيات الادخار",
+  "Saving": "ادخار",
   "Saving for your next vacation? Set a savings budget and track your progress.": "تدخر لعطلتك القادمة؟ أنشئ ميزانية ادخار وتابع تقدمك.",
   "Scroll for more": "مرر للمزيد",
   "Search": "بحث",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "اختر تخطيط لوحة المفاتيح لإدخال المبلغ",
   "Select the number of decimal digits": "حدد عدد الأرقام العشرية",
   "Select the position of the currency symbol": "اختر موضع رمز العملة",
+  "Select the sections to include in the PDF": "اختر الأقسام التي تريد تضمينها في ملف PDF",
   "Select wallet": "اختر محفظة",
   "Send an Email": "إرسال بريد إلكتروني",
   "Set as predefined for app start": "تعيينها كمحددة مسبقاً لبدء التطبيق",
@@ -560,7 +561,5 @@
   "none": "لا شيء",
   "selected": "محدد",
   "space": "فضاء",
-  "underscore": "واصلة سفلية",
-  "Select the sections to include in the PDF": "اختر الأقسام التي تريد تضمينها في ملف PDF",
-  "Export": "تصدير"
+  "underscore": "واصلة سفلية"
 }

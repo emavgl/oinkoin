@@ -204,8 +204,8 @@
   "Every year": "Κάθε χρόνο",
   "Expense": "Έξοδο",
   "Expense Categories": "Κατηγορίες εξόδων",
-  "Expense budgets": "Προϋπολογισμοί εξόδων",
   "Expenses": "Έξοδα",
+  "Export": "Εξαγωγή",
   "Export Backup": "Εξαγωγή αντιγράφου ασφαλείας",
   "Export CSV": "Εξαγωγή CSV",
   "Export Database": "Εξαγωγή βάσης δεδομένων",
@@ -395,7 +395,7 @@
   "Save": "Αποθήκευση",
   "Save Mapping": "Αποθήκευση αντιστοίχισης",
   "Save as default selection": "Αποθήκευση ως προεπιλογή",
-  "Saving budgets": "Προϋπολογισμοί αποταμίευσης",
+  "Saving": "Αποταμίευση",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Αποταμιεύετε για τις επόμενες διακοπές σας; Ορίστε έναν προϋπολογισμό αποταμίευσης και παρακολουθήστε την πρόοδό σας.",
   "Scroll for more": "Κάνε κύλιση για περισσότερα",
   "Search": "Αναζήτηση",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Επίλεξε διάταξη πληκτρολογίου για εισαγωγή ποσού",
   "Select the number of decimal digits": "Επίλεξε τον αριθμό δεκαδικών ψηφίων",
   "Select the position of the currency symbol": "Επιλέξτε τη θέση του συμβόλου νομίσματος",
+  "Select the sections to include in the PDF": "Επιλέξτε τις ενότητες που θέλετε να συμπεριλάβετε στο PDF",
   "Select wallet": "Επιλέξτε πορτοφόλι",
   "Send an Email": "Αποστολή email",
   "Set as predefined for app start": "Ορίστε ως προκαθορισμένο για εκκίνηση εφαρμογής",
@@ -560,7 +561,5 @@
   "none": "κανένα",
   "selected": "επιλεγμένο",
   "space": "διάστημα",
-  "underscore": "κάτω παύλα",
-  "Select the sections to include in the PDF": "Επιλέξτε τις ενότητες που θέλετε να συμπεριλάβετε στο PDF",
-  "Export": "Εξαγωγή"
+  "underscore": "κάτω παύλα"
 }

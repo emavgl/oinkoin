@@ -204,8 +204,8 @@
   "Every year": "Ամեն տարի",
   "Expense": "Ծախս",
   "Expense Categories": "Ծախսերի կատեգորիաներ",
-  "Expense budgets": "Ծախսերի բյուջեներ",
   "Expenses": "Ծախսեր",
+  "Export": "Արտահանել",
   "Export Backup": "Արտահանել պահուստային պատճենը",
   "Export CSV": "Արտահանել CSV",
   "Export Database": "Արտահանել տվյալների բազան",
@@ -395,7 +395,7 @@
   "Save": "Պահպանել",
   "Save Mapping": "Պահպանել համապատասխանեցումը",
   "Save as default selection": "Պահպանել որպես Ստանդարտ ընտրություն",
-  "Saving budgets": "Խնայողության բյուջեներ",
+  "Saving": "Խնայողություն",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Խնայո՞ւմ եք ձեր հաջորդ արձակուրդի համար։ Սահմանեք խնայողության բյուջե և հետևեք ձեր առաջընթացին։",
   "Scroll for more": "Շարունակելու համար ոլորեք",
   "Search": "Որոնել",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Ընտրեք գումարի մուտքագրման ստեղնաշարի դասավորությունը",
   "Select the number of decimal digits": "Ընտրեք տասնորդական նիշերի քանակը",
   "Select the position of the currency symbol": "Ընտրեք արժույթի նշանի դիրքը",
+  "Select the sections to include in the PDF": "Ընտրեք այն բաժինները, որոնք ցանկանում եք ներառել PDF-ում",
   "Select wallet": "Ընտրեք դրամապանակ",
   "Send an Email": "Ուղարկել էլ. նամակ",
   "Set as predefined for app start": "Սահմանել որպես նախնական հավելվածի մեկնարկի համար",
@@ -560,7 +561,5 @@
   "none": "չկա",
   "selected": "ընտրված",
   "space": "բացատ",
-  "underscore": "ստորագիծ",
-  "Select the sections to include in the PDF": "Ընտրեք այն բաժինները, որոնք ցանկանում եք ներառել PDF-ում",
-  "Export": "Արտահանել"
+  "underscore": "ստորագիծ"
 }

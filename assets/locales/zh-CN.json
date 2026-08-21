@@ -204,8 +204,8 @@
   "Every year": "每年",
   "Expense": "支出",
   "Expense Categories": "支出分类",
-  "Expense budgets": "支出预算",
   "Expenses": "支出",
+  "Export": "导出",
   "Export Backup": "导出备份",
   "Export CSV": "导出为CSV文件",
   "Export Database": "导出数据库",
@@ -395,7 +395,7 @@
   "Save": "保存",
   "Save Mapping": "保存映射",
   "Save as default selection": "保存为默认选择",
-  "Saving budgets": "储蓄预算",
+  "Saving": "储蓄",
   "Saving for your next vacation? Set a savings budget and track your progress.": "正在为下一次假期存钱吗？设置储蓄预算并跟踪进度。",
   "Scroll for more": "滚动查看更多",
   "Search": "搜索",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "选择金额输入的键盘布局",
   "Select the number of decimal digits": "选择小数位数",
   "Select the position of the currency symbol": "选择货币符号的位置",
+  "Select the sections to include in the PDF": "选择要包含在PDF中的部分",
   "Select wallet": "选择钱包",
   "Send an Email": "发送邮件",
   "Set as predefined for app start": "设为应用启动的预定义",
@@ -560,7 +561,5 @@
   "none": "无",
   "selected": "已选择",
   "space": "空格",
-  "underscore": "下划线",
-  "Select the sections to include in the PDF": "选择要包含在PDF中的部分",
-  "Export": "导出"
+  "underscore": "下划线"
 }

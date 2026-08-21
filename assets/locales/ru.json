@@ -204,8 +204,8 @@
   "Every year": "Ежегодно",
   "Expense": "Расход",
   "Expense Categories": "Категории расходов",
-  "Expense budgets": "Бюджеты расходов",
   "Expenses": "Расходы",
+  "Export": "Экспорт",
   "Export Backup": "Экспорт резервной копии",
   "Export CSV": "Экспорт в CSV",
   "Export Database": "Экспортировать базу данных",
@@ -395,7 +395,7 @@
   "Save": "Сохранить",
   "Save Mapping": "Сохранить сопоставление",
   "Save as default selection": "Сохранить как выбор по умолчанию",
-  "Saving budgets": "Бюджеты накоплений",
+  "Saving": "Накопления",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Копите на следующий отпуск? Создайте бюджет накоплений и отслеживайте свой прогресс.",
   "Scroll for more": "Прокрутите для продолжения",
   "Search": "Поиск",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Выберите формат клавиатуры для ввода суммы",
   "Select the number of decimal digits": "Укажите количество знаков",
   "Select the position of the currency symbol": "Выберите положение символа валюты",
+  "Select the sections to include in the PDF": "Выберите разделы, которые нужно включить в PDF",
   "Select wallet": "Выберите кошелёк",
   "Send an Email": "Отправить письмо",
   "Set as predefined for app start": "Установить как предопределённый при запуске приложения",
@@ -560,7 +561,5 @@
   "none": "ничего",
   "selected": "выбранный",
   "space": "пробел",
-  "underscore": "подчеркивание",
-  "Select the sections to include in the PDF": "Выберите разделы, которые нужно включить в PDF",
-  "Export": "Экспорт"
+  "underscore": "подчеркивание"
 }

@@ -204,8 +204,8 @@
   "Every year": "ஆண்டுதோறும்",
   "Expense": "செலவு",
   "Expense Categories": "செலவு வகைகள்",
-  "Expense budgets": "செலவு வரவுசெலவுத் திட்டங்கள்",
   "Expenses": "செலவு",
+  "Export": "ஏற்றுமதி",
   "Export Backup": "மீட்பிரதியை ஏற்றுமதி செய்",
   "Export CSV": "CSV ஏற்றுமதி",
   "Export Database": "தரவுத்தளத்தை ஏற்றுமதி செய்",
@@ -395,7 +395,7 @@
   "Save": "சேமி",
   "Save Mapping": "மேப்பிங்கைச் சேமிக்கவும்",
   "Save as default selection": "இயல்புநிலை தேர்வாக சேமிக்கவும்",
-  "Saving budgets": "சேமிப்பு வரவுசெலவுத் திட்டங்கள்",
+  "Saving": "சேமிப்பு",
   "Saving for your next vacation? Set a savings budget and track your progress.": "உங்கள் அடுத்த விடுமுறைக்காகச் சேமிக்கிறீர்களா? சேமிப்பு வரவுசெலவுத் திட்டத்தை அமைத்து உங்கள் முன்னேற்றத்தைக் கண்காணிக்கவும்.",
   "Scroll for more": "மேலும் காண நகர்த்து",
   "Search": "தேடு",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "தொகை உள்ளீட்டிற்கு விசைப்பலகை அமைப்பை தேர்ந்தெடுக்கவும்",
   "Select the number of decimal digits": "பதின்ம இலக்கதின் எண்ணிக்கையை தேர்வு செய்க",
   "Select the position of the currency symbol": "நாணய குறியீட்டின் நிலையைத் தேர்ந்தெடுக்கவும்",
+  "Select the sections to include in the PDF": "PDF-இல் சேர்க்க வேண்டிய பிரிவுகளைத் தேர்ந்தெடுக்கவும்",
   "Select wallet": "பணையைத் தேர்ந்தெடுக்கவும்",
   "Send an Email": "மின்னஞ்சல் அனுப்புக",
   "Set as predefined for app start": "பயன்பாட்டு தொடக்கத்திற்கு முன்னரே வரையறுக்கப்பட்டதாக அமைக்கவும்",
@@ -560,7 +561,5 @@
   "none": "ஒன்றுமில்லை",
   "selected": "தேர்ந்தெடுக்கப்பட்ட",
   "space": "இடைவெளி",
-  "underscore": "அடிக்கீறு",
-  "Select the sections to include in the PDF": "PDF-இல் சேர்க்க வேண்டிய பிரிவுகளைத் தேர்ந்தெடுக்கவும்",
-  "Export": "ஏற்றுமதி"
+  "underscore": "அடிக்கீறு"
 }

@@ -204,8 +204,8 @@
   "Every year": "Her yıl",
   "Expense": "Gider",
   "Expense Categories": "Gider Kategorileri",
-  "Expense budgets": "Gider bütçeleri",
   "Expenses": "Giderler",
+  "Export": "Dışa aktar",
   "Export Backup": "Yedeği Dışa Aktar",
   "Export CSV": "CSV olarak dışa aktar",
   "Export Database": "Veritabanını Dışa Aktar",
@@ -395,7 +395,7 @@
   "Save": "Kaydet",
   "Save Mapping": "Eşlemeyi Kaydet",
   "Save as default selection": "Varsayılan seçim olarak kaydet",
-  "Saving budgets": "Birikim bütçeleri",
+  "Saving": "Birikim",
   "Saving for your next vacation? Set a savings budget and track your progress.": "Bir sonraki tatiliniz için para mı biriktiriyorsunuz? Birikim bütçesi belirleyip ilerlemenizi takip edin.",
   "Scroll for more": "Daha fazlası için kaydır",
   "Search": "Ara",
@@ -427,6 +427,7 @@
   "Select the keyboard layout for amount input": "Tutar girişi için klavye düzenini seçin",
   "Select the number of decimal digits": "Ondalık basamak sayısı seçin",
   "Select the position of the currency symbol": "Para birimi sembolünün konumunu seç",
+  "Select the sections to include in the PDF": "PDF'ye dahil edilecek bölümleri seçin",
   "Select wallet": "Cüzdanı seç",
   "Send an Email": "E-posta Gönder",
   "Set as predefined for app start": "Uygulama başlatması için önceden tanımlanmış olarak ayarla",
@@ -560,7 +561,5 @@
   "none": "hiçbiri",
   "selected": "seçili",
   "space": "boşluk",
-  "underscore": "alt çizgi",
-  "Select the sections to include in the PDF": "PDF'ye dahil edilecek bölümleri seçin",
-  "Export": "Dışa aktar"
+  "underscore": "alt çizgi"
 }
