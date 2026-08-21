@@ -437,6 +437,13 @@ class ShellState extends State<Shell> {
                         _currentIndex, walletsEnabled, budgetsEnabled),
                     labelBehavior:
                         NavigationDestinationLabelBehavior.alwaysShow,
+                    // One point smaller than labelSmall (11sp) for extra
+                    // margin so longer localized labels don't wrap.
+                    labelTextStyle: WidgetStatePropertyAll<TextStyle?>(
+                      Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontSize: 10,
+                      ),
+                    ),
                     onDestinationSelected: (int visualIndex) async {
                       setState(() {
                         _currentIndex = _logicalIndex(
