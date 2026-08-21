@@ -20,6 +20,7 @@ class PreferencesOptions {
   static Map<String, String> get languageDropdown => {
         "System".i18n: "system",
         "Arabic (Saudi Arabia)": "ar-SA",
+        "བོད་སྐད།": "bo",
         "Catalan": "ca",
         "Dansk": "da",
         "Deutsch": "de",
@@ -31,6 +32,7 @@ class PreferencesOptions {
         "Italiano": "it",
         "日本語": "ja",
         "Ελληνικά": "el",
+        "नेपाली": "ne",
         "ଓଡ଼ିଆ (ଭାରତ)": "or-IN",
         "polski (Polska)": "pl",
         "Português (Brazil)": "pt-BR",
