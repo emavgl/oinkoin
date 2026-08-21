@@ -32,6 +32,7 @@ class PreferencesOptions {
         "Italiano": "it",
         "日本語": "ja",
         "Ελληνικά": "el",
+        "हिन्दी": "hi",
         "नेपाली": "ne",
         "ଓଡ଼ିଆ (ଭାରତ)": "or-IN",
         "polski (Polska)": "pl",

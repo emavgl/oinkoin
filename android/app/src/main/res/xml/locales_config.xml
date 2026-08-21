@@ -12,6 +12,7 @@
     <locale android:name="ar"/>
     <locale android:name="de"/>
     <locale android:name="ne"/>
+    <locale android:name="hi"/>
     <locale android:name="ru"/>
     <locale android:name="ta-IN"/>
     <locale android:name="or-IN"/>
