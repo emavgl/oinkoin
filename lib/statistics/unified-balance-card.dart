@@ -85,7 +85,8 @@ class _UnifiedBalanceCardState extends State<UnifiedBalanceCard> {
       widget.to,
     );
 
-    final aggregator = ComparisonDataAggregator(widget.aggregationMethod!);
+    final aggregator = ComparisonDataAggregator(widget.aggregationMethod!,
+        walletCurrencyMap: widget.walletCurrencyMap);
     comparisonData = aggregator.aggregate(widget.records, dateConfig);
     tickGenerator = BalanceChartTickGenerator(widget.aggregationMethod!);
 

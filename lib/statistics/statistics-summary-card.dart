@@ -326,12 +326,14 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
         isAbsValue: true);
     final nonEmptyCurrencies =
         breakdown.entries.where((e) => e.key.isNotEmpty).toList();
+    // Signed total drives the header color so expense sections render red
+    // (the displayed amounts are absolute).
+    final signedSectionTotal =
+        computeConvertedTotal(sectionRecords, widget.walletCurrencyMap).total;
     final headerStyle = TextStyle(
       fontSize: 18,
       fontWeight: FontWeight.bold,
-      color: getAmountColor(
-          computeConvertedTotal(sectionRecords, widget.walletCurrencyMap).total,
-          Theme.of(context).brightness),
+      color: getAmountColor(signedSectionTotal, Theme.of(context).brightness),
     );
     Widget formattedTotalWidget;
     if (nonEmptyCurrencies.length == 1 &&
@@ -341,6 +343,7 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
         nonEmptyCurrencies.first.key,
         mainStyle: headerStyle,
         brightness: Theme.of(context).brightness,
+        colorValue: signedSectionTotal,
       );
     } else {
       formattedTotalWidget = Text(
@@ -508,6 +511,8 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
             currency: tagSum.currency,
             originalValue: tagSum.originalValue,
             originalCurrency: tagSum.originalCurrency,
+            signedValue: tagSum.signedValue,
+            signedOriginalValue: tagSum.signedOriginalValue,
           ),
         ),
       );
@@ -590,10 +595,23 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
       final originalResult = computeConvertedTotal(
           entry.value, widget.walletCurrencyMap,
           isAbsValue: true);
+      // Signed totals (kept separately from the absolute display values) so
+      // the row amounts can be colored by sign.
+      final signedResult = commonCurrency != null
+          ? computeTotalInCurrency(
+              entry.value, widget.walletCurrencyMap, commonCurrency,
+              isAbsValue: false)
+          : computeConvertedTotal(entry.value, widget.walletCurrencyMap,
+              isAbsValue: false);
+      final signedOriginalResult = computeConvertedTotal(
+          entry.value, widget.walletCurrencyMap,
+          isAbsValue: false);
       return TagSumTuple(entry.key, result.total,
           currency: result.currency,
           originalValue: originalResult.total,
-          originalCurrency: originalResult.currency);
+          originalCurrency: originalResult.currency,
+          signedValue: signedResult.total,
+          signedOriginalValue: signedOriginalResult.total);
     }).toList();
   }
 
@@ -684,6 +702,8 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
               currency: walletSum.currency,
               originalValue: walletSum.originalValue,
               originalCurrency: walletSum.originalCurrency,
+              signedValue: walletSum.signedValue,
+              signedOriginalValue: walletSum.signedOriginalValue,
             );
           },
         ),
@@ -765,10 +785,23 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
       final originalResult = computeConvertedTotal(
           entry.value, widget.walletCurrencyMap,
           isAbsValue: true);
+      // Signed totals (kept separately from the absolute display values) so
+      // the row amounts can be colored by sign.
+      final signedResult = commonCurrency != null
+          ? computeTotalInCurrency(
+              entry.value, widget.walletCurrencyMap, commonCurrency,
+              isAbsValue: false)
+          : computeConvertedTotal(entry.value, widget.walletCurrencyMap,
+              isAbsValue: false);
+      final signedOriginalResult = computeConvertedTotal(
+          entry.value, widget.walletCurrencyMap,
+          isAbsValue: false);
       return WalletSumTuple(entry.key, result.total,
           currency: result.currency,
           originalValue: originalResult.total,
-          originalCurrency: originalResult.currency);
+          originalCurrency: originalResult.currency,
+          signedValue: signedResult.total,
+          signedOriginalValue: signedOriginalResult.total);
     }).toList();
   }
 }

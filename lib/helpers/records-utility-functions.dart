@@ -723,11 +723,16 @@ Color? getAmountColor(double amount, Brightness brightness) {
 /// The original line is colored by sign via [getAmountColor] (using
 /// [brightness]) when colorization is enabled, otherwise grey.
 /// Otherwise returns a single-line [Text].
+///
+/// When [amount] is an absolute (sign-less) value but the color should reflect
+/// the sign of the underlying data, pass that signed value as [colorValue]; it
+/// is used only for coloring, never for the displayed text.
 Widget buildAmountWithCurrencyWidget(
   double amount,
   String currency, {
   TextStyle? mainStyle,
   Brightness? brightness,
+  double? colorValue,
 }) {
   if (currency.isEmpty) {
     return Text(getCurrencyValueString(amount),
@@ -743,8 +748,9 @@ Widget buildAmountWithCurrencyWidget(
       final baseFontSize = mainStyle?.fontSize ?? 14.0;
       final primaryStyle =
           (mainStyle ?? const TextStyle()).copyWith(height: 1.1);
-      final secondaryColor =
-          brightness != null ? getAmountColor(amount, brightness) : null;
+      final secondaryColor = brightness != null
+          ? getAmountColor(colorValue ?? amount, brightness)
+          : null;
       final secondaryStyle = primaryStyle.copyWith(
         fontSize: (baseFontSize - 2).clamp(10.0, double.infinity),
         color: secondaryColor ?? Colors.grey,

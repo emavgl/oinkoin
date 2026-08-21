@@ -4,6 +4,7 @@ import 'package:piggybank/models/wallet.dart';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/statistics/statistics-utils.dart';
 
 import '../services/service-config.dart';
 import '../settings/constants/preferences-keys.dart';
@@ -22,11 +23,13 @@ class WalletsPieChart extends StatefulWidget {
   final Map<int, Wallet> walletMap;
   final Function(double?, String?, List<String>?)? onSelectionChanged;
   final String? selectedWalletId;
+  final Map<int, String?> walletCurrencyMap;
 
   WalletsPieChart(this.records,
       {this.walletMap = const {},
       this.onSelectionChanged,
-      this.selectedWalletId});
+      this.selectedWalletId,
+      this.walletCurrencyMap = const {}});
 
   @override
   _WalletsPieChartState createState() => _WalletsPieChartState();
@@ -107,22 +110,27 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
 
   WalletChartData _prepareData(List<Record?> records) {
     Map<int, double> aggregatedWalletsValuesTemporaryMap = {};
-    double totalSum = 0;
 
+    // Keep real (signed) values while aggregating; magnitudes are only used
+    // for the sorting and percentage representation below.
     for (var record in records) {
       if (record != null && record.walletId != null) {
-        totalSum += record.value!.abs();
+        final value =
+            getRecordValueInDefaultCurrency(record, widget.walletCurrencyMap);
         aggregatedWalletsValuesTemporaryMap.update(
           record.walletId!,
-          (value) => value + record.value!.abs(),
-          ifAbsent: () => record.value!.abs(),
+          (current) => current + value,
+          ifAbsent: () => value,
         );
       }
     }
+    final totalSum = aggregatedWalletsValuesTemporaryMap.values
+        .fold<double>(0.0, (sum, value) => sum + value.abs());
 
     var aggregatedWalletsAndValues =
         aggregatedWalletsValuesTemporaryMap.entries.toList();
-    aggregatedWalletsAndValues.sort((b, a) => a.value.compareTo(b.value));
+    aggregatedWalletsAndValues.sort(
+        (b, a) => a.value.abs().compareTo(b.value.abs()));
 
     var limit = aggregatedWalletsAndValues.length > walletCount + 1
         ? walletCount
@@ -135,7 +143,7 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
 
     for (int i = 0; i < topWalletsAndValue.length; i++) {
       var walletAndValue = topWalletsAndValue[i];
-      var percentage = (100 * walletAndValue.value) / totalSum;
+      var percentage = (100 * walletAndValue.value.abs()) / totalSum;
       final wallet = widget.walletMap[walletAndValue.key];
       final name = wallet?.name ?? "Unknown wallet".i18n;
       var lr = LinearWalletRecord(walletAndValue.key, name, percentage);
@@ -154,7 +162,7 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
         (dynamic value, element) => value + element.value,
       );
       var remainingWalletKey = "Others".i18n;
-      var percentage = (100 * sumOfRemainingWallets) / totalSum;
+      var percentage = (100 * sumOfRemainingWallets.abs()) / totalSum;
       var lr = LinearWalletRecord(null, remainingWalletKey, percentage);
       data.add(lr);
       colorsToUse.add(charts.ColorUtil.fromDartColor(otherWalletColor));
@@ -176,14 +184,17 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
           double walletSum = 0;
           for (var r in widget.records) {
             if (r == null) continue;
+            final value =
+                getRecordValueInDefaultCurrency(r, widget.walletCurrencyMap);
             if (walletId == "Others".i18n) {
               if (r.walletId != null && !_isTopWallet(r.walletId!)) {
-                walletSum += r.value!.abs();
+                walletSum += value;
               }
             } else if (r.walletId?.toString() == walletId) {
-              walletSum += r.value!.abs();
+              walletSum += value;
             }
           }
+          walletSum = walletSum.abs();
 
           final List<String> topWalletIds = linearRecords
               .where((lr) => lr.walletId != null)

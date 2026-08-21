@@ -17,9 +17,12 @@ class BarChartCard extends StatefulWidget {
   final DateTime? from, to;
   final Function(double?, DateTime?)? onSelectionChanged;
   final DateTime? selectedDate;
+  final Map<int, String?> walletCurrencyMap;
 
   BarChartCard(this.from, this.to, this.records, this.aggregationMethod,
-      {this.onSelectionChanged, this.selectedDate});
+      {this.onSelectionChanged,
+      this.selectedDate,
+      this.walletCurrencyMap = const {}});
 
   @override
   _BarChartCardState createState() => _BarChartCardState();
@@ -61,8 +64,9 @@ class _BarChartCardState extends State<BarChartCard> {
   }
 
   void _initializeData() {
-    this.aggregatedRecords =
-        aggregateRecordsByDate(widget.records, widget.aggregationMethod);
+    this.aggregatedRecords = aggregateRecordsByDate(widget.records,
+        widget.aggregationMethod,
+        walletCurrencyMap: widget.walletCurrencyMap);
 
     // Use shared ChartDateRangeConfig for consistent date range handling
     final config = ChartDateRangeConfig.create(
@@ -138,8 +142,9 @@ class _BarChartCardState extends State<BarChartCard> {
 
   List<StringSeriesRecord> _prepareData(List<Record?> records, DateTime start,
       DateTime end, DateFormat formatter) {
-    List<DateTimeSeriesRecord> dateTimeSeriesRecords =
-        aggregateRecordsByDate(records, widget.aggregationMethod);
+    List<DateTimeSeriesRecord> dateTimeSeriesRecords = aggregateRecordsByDate(
+        records, widget.aggregationMethod,
+        walletCurrencyMap: widget.walletCurrencyMap);
     Map<DateTime?, StringSeriesRecord> aggregatedByDay = new Map();
     for (var d in dateTimeSeriesRecords) {
       DateTime truncated = truncateDateTime(d.time!, widget.aggregationMethod);

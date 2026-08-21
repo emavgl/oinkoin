@@ -4,6 +4,7 @@ import 'dart:ui';
 import "package:collection/collection.dart";
 import 'package:intl/intl.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
@@ -122,9 +123,35 @@ DateTime truncateDateTime(
   return newDateTime;
 }
 
+/// Returns [record]'s real value expressed in the user's default (main)
+/// currency, converting from the record's wallet currency when they differ
+/// and a conversion rate is available. The sign is preserved (expenses stay
+/// negative, income positive). Falls back to the raw value when the record
+/// has no currency, the default currency is not set, or no conversion rate
+/// exists.
+///
+/// All aggregation logic works with these real values; callers apply `abs()`
+/// only where a magnitude is needed for representation (chart bars,
+/// percentages, formatted amounts) so multi-currency amounts are aggregated
+/// in a single currency instead of summing raw numeric values (issue #411).
+double getRecordValueInDefaultCurrency(
+    Record record, Map<int, String?> walletCurrencyMap) {
+  final raw = record.value ?? 0.0;
+  final defaultCurrency = getDefaultCurrency();
+  if (defaultCurrency == null || defaultCurrency.isEmpty) return raw;
+  final currency =
+      record.walletId != null ? walletCurrencyMap[record.walletId] : null;
+  if (currency == null || currency.isEmpty || currency == defaultCurrency) {
+    return raw;
+  }
+  final converted = convertAmount(raw, currency, defaultCurrency);
+  return converted ?? raw;
+}
+
 List<DateTimeSeriesRecord> aggregateRecordsByDate(
     List<Record?> records, AggregationMethod? aggregationMethod,
-    {bool useTagWeight = false}) {
+    {bool useTagWeight = false,
+    Map<int, String?> walletCurrencyMap = const {}}) {
   /// Record Day 1: 100 euro Food, 20 euro Food, 30 euro Transport
   /// Record Day 1: 150 euro,
   /// Available grouping: by day, month, year.
@@ -132,7 +159,9 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
   for (var record in records) {
     if (record == null || record.isTransfer || record.value == null) continue;
     DateTime? dateTime = truncateDateTime(record.dateTime, aggregationMethod);
-    double valueToAdd = record.value!.abs();
+    // Keep real (signed) values in the aggregation; consumers apply abs()
+    // where the magnitude is needed for rendering.
+    double valueToAdd = getRecordValueInDefaultCurrency(record, walletCurrencyMap);
     if (useTagWeight) {
       valueToAdd *= record.tags.length;
     }
@@ -141,7 +170,7 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
         ifAbsent: () => DateTimeSeriesRecord(dateTime, valueToAdd));
   }
   List<DateTimeSeriesRecord> data = aggregatedByDay.values.toList();
-  data.sort((a, b) => a.value.compareTo(b.value));
+  data.sort((a, b) => a.value.abs().compareTo(b.value.abs()));
   return data;
 }
 

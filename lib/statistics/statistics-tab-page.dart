@@ -120,6 +120,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
         chartWidget = TagsPieChart(
           recordsToVisualize,
           selectedTag: selectedCategory,
+          walletCurrencyMap: widget.walletCurrencyMap,
           onSelectionChanged: (amount, tag, topTags) {
             setState(() {
               selectedAmount = amount;
@@ -134,6 +135,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           recordsToVisualize,
           walletMap: widget.walletMap,
           selectedWalletId: selectedCategory,
+          walletCurrencyMap: widget.walletCurrencyMap,
           onSelectionChanged: (amount, walletId, topWallets) {
             setState(() {
               selectedAmount = amount;
@@ -147,6 +149,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
         chartWidget = CategoriesPieChart(
           recordsToVisualize,
           selectedCategory: selectedCategory,
+          walletCurrencyMap: widget.walletCurrencyMap,
           onSelectionChanged: (amount, category, topCats) {
             setState(() {
               selectedAmount = amount;
@@ -164,6 +167,7 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
         recordsToVisualize,
         aggregationMethod,
         selectedDate: selectedDate,
+        walletCurrencyMap: widget.walletCurrencyMap,
         onSelectionChanged: (double? amount, DateTime? date) {
           setState(() {
             selectedAmount = amount;
@@ -205,6 +209,9 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
       aggregationMethod,
       selectedAmount: selectedAmount,
       selectedDate: selectedDate,
+      selectedRecords: (selectedDate != null || selectedCategory != null)
+          ? _getSelectionRecords()
+          : const [],
       walletCurrencyMap: widget.walletCurrencyMap,
       actions: <OverviewCardAction>[
         OverviewCardAction(
@@ -277,45 +284,9 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
       if (widget.footer != null) {
         slivers.add(SliverToBoxAdapter(child: widget.footer!));
       } else {
-        List<Record?> recordsForList = widget.records;
-
-        // Filter by selected date if any
-        if (selectedDate != null) {
-          recordsForList = recordsForList.where((r) {
-            return truncateDateTime(r!.dateTime, aggregationMethod) ==
-                selectedDate;
-          }).toList();
-        }
-
-        // Filter by selected category/tag if any
-        if (selectedCategory != null && topCategories != null) {
-          if (selectedCategory == "Others".i18n) {
-            // Show records for items not in topCategories
-            recordsForList = recordsForList.where((r) {
-              if (filterGroupByType == GroupByType.tag) {
-                return r?.tags.any((tag) => !topCategories!.contains(tag)) ??
-                    false;
-              } else if (filterGroupByType == GroupByType.wallet) {
-                if (r?.walletId == null) return false;
-                return !topCategories!.contains(r!.walletId.toString());
-              }
-              return !topCategories!.contains(r?.category?.name);
-            }).toList();
-          } else {
-            // Show records for the selected category, tag or wallet
-            recordsForList = recordsForList.where((r) {
-              if (filterGroupByType == GroupByType.tag) {
-                return r?.tags.contains(selectedCategory) ?? false;
-              } else if (filterGroupByType == GroupByType.wallet) {
-                return r?.walletId?.toString() == selectedCategory;
-              }
-              return r?.category?.name == selectedCategory;
-            }).toList();
-          }
-        }
-
-        recordsForList = List.from(recordsForList)
-          ..sort((a, b) => b!.dateTime.compareTo(a!.dateTime));
+        List<Record?> recordsForList =
+            List.from(_getSelectionRecords())
+              ..sort((a, b) => b!.dateTime.compareTo(a!.dateTime));
 
         if (recordsForList.isEmpty) {
           slivers.add(SliverToBoxAdapter(
@@ -348,6 +319,55 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
     }
 
     return slivers;
+  }
+
+  /// Returns the records matching the current selection: the records of the
+  /// selected date/bar period and/or the records of the selected category, tag
+  /// or wallet slice (including the "Others" bucket). Shared by the records
+  /// list and the overview card so the selected amount reflects exactly the
+  /// records that were selected.
+  List<Record?> _getSelectionRecords() {
+    final bool hasSelection = selectedDate != null ||
+        (selectedCategory != null && topCategories != null);
+    if (!hasSelection) return widget.records;
+
+    List<Record?> recordsForList = widget.records;
+
+    // Filter by selected date (bar selection)
+    if (selectedDate != null) {
+      recordsForList = recordsForList.where((r) {
+        return truncateDateTime(r!.dateTime, aggregationMethod) ==
+            selectedDate;
+      }).toList();
+    }
+
+    // Filter by selected category/tag/wallet (pie selection)
+    if (selectedCategory != null && topCategories != null) {
+      if (selectedCategory == "Others".i18n) {
+        // Show records for items not in topCategories
+        recordsForList = recordsForList.where((r) {
+          if (filterGroupByType == GroupByType.tag) {
+            return r?.tags.any((tag) => !topCategories!.contains(tag)) ?? false;
+          } else if (filterGroupByType == GroupByType.wallet) {
+            if (r?.walletId == null) return false;
+            return !topCategories!.contains(r!.walletId.toString());
+          }
+          return !topCategories!.contains(r?.category?.name);
+        }).toList();
+      } else {
+        // Show records for the selected category, tag or wallet
+        recordsForList = recordsForList.where((r) {
+          if (filterGroupByType == GroupByType.tag) {
+            return r?.tags.contains(selectedCategory) ?? false;
+          } else if (filterGroupByType == GroupByType.wallet) {
+            return r?.walletId?.toString() == selectedCategory;
+          }
+          return r?.category?.name == selectedCategory;
+        }).toList();
+      }
+    }
+
+    return recordsForList;
   }
 
   @override

@@ -25,23 +25,25 @@ class StatisticsCalculator {
     DateTime? from,
     DateTime? to, {
     bool isBalance = false,
+    Map<int, String?> walletCurrencyMap = const {},
   }) {
     if (records.isEmpty || from == null || to == null) return 0.0;
 
-    // Sum all record values
+    // Sum all record values (real signed values; abs is only applied to the
+    // final magnitude for non-balance display)
     double total = 0.0;
     for (var record in records) {
       if (record == null) continue;
-      double value = record.value!;
-      if (!isBalance) {
-        value = value.abs();
-      }
+      double value = isBalance
+          ? record.value!
+          : getRecordValueInDefaultCurrency(record, walletCurrencyMap);
       total += value;
     }
 
     // Divide by number of days
     int days = computeNumberOfDays(from, to);
-    return days > 0 ? total / days : 0.0;
+    double result = days > 0 ? total / days : 0.0;
+    return isBalance ? result : result.abs();
   }
 
   /// Calculates daily median: median of daily spending values (excluding zeros).
@@ -60,6 +62,7 @@ class StatisticsCalculator {
     DateTime? from,
     DateTime? to, {
     bool isBalance = false,
+    Map<int, String?> walletCurrencyMap = const {},
   }) {
     if (records.isEmpty || from == null || to == null) return 0.0;
 
@@ -70,6 +73,7 @@ class StatisticsCalculator {
       from,
       to,
       isBalance: isBalance,
+      walletCurrencyMap: walletCurrencyMap,
     );
 
     // Filter out zero values
@@ -77,15 +81,18 @@ class StatisticsCalculator {
 
     if (nonZeroValues.isEmpty) return 0.0;
 
-    // Calculate median of non-zero values
+    // Calculate median of non-zero values (real signed values; abs is only
+    // applied to the final magnitude for non-balance display)
     nonZeroValues.sort();
     final middle = nonZeroValues.length ~/ 2;
 
+    final double result;
     if (nonZeroValues.length % 2 == 0) {
-      return (nonZeroValues[middle - 1] + nonZeroValues[middle]) / 2;
+      result = (nonZeroValues[middle - 1] + nonZeroValues[middle]) / 2;
     } else {
-      return nonZeroValues[middle];
+      result = nonZeroValues[middle];
     }
+    return isBalance ? result : result.abs();
   }
 
   /// Calculates the average value from records grouped by aggregation period.
@@ -105,6 +112,7 @@ class StatisticsCalculator {
     DateTime? from,
     DateTime? to, {
     bool isBalance = false,
+    Map<int, String?> walletCurrencyMap = const {},
   }) {
     final values = _getPeriodValues(
       records,
@@ -112,12 +120,16 @@ class StatisticsCalculator {
       from,
       to,
       isBalance: isBalance,
+      walletCurrencyMap: walletCurrencyMap,
     );
 
     if (values.isEmpty) return 0.0;
 
     final sum = values.fold<double>(0.0, (acc, v) => acc + v);
-    return sum / values.length;
+    final result = sum / values.length;
+    // Real signed values are averaged; only the returned magnitude is
+    // abs()ed for non-balance display.
+    return isBalance ? result : result.abs();
   }
 
   /// Calculates the median value from records grouped by aggregation period.
@@ -139,6 +151,7 @@ class StatisticsCalculator {
     DateTime? from,
     DateTime? to, {
     bool isBalance = false,
+    Map<int, String?> walletCurrencyMap = const {},
   }) {
     final values = _getPeriodValues(
       records,
@@ -146,6 +159,7 @@ class StatisticsCalculator {
       from,
       to,
       isBalance: isBalance,
+      walletCurrencyMap: walletCurrencyMap,
     );
 
     // Filter out zero values for more meaningful median
@@ -153,15 +167,18 @@ class StatisticsCalculator {
 
     if (nonZeroValues.isEmpty) return 0.0;
 
-    // Calculate median of non-zero values
+    // Calculate median of non-zero values (real signed values; abs is only
+    // applied to the final magnitude for non-balance display)
     nonZeroValues.sort();
     final middle = nonZeroValues.length ~/ 2;
 
+    final double result;
     if (nonZeroValues.length % 2 == 0) {
-      return (nonZeroValues[middle - 1] + nonZeroValues[middle]) / 2;
+      result = (nonZeroValues[middle - 1] + nonZeroValues[middle]) / 2;
     } else {
-      return nonZeroValues[middle];
+      result = nonZeroValues[middle];
     }
+    return isBalance ? result : result.abs();
   }
 
   /// Groups records by aggregation period and sums values for each period.
@@ -173,6 +190,7 @@ class StatisticsCalculator {
     DateTime? from,
     DateTime? to, {
     required bool isBalance,
+    Map<int, String?> walletCurrencyMap = const {},
   }) {
     // Group records by aggregation period and sum values
     // Use string keys (YYYY-MM-DD) to avoid timezone issues with DateTime objects
@@ -186,12 +204,9 @@ class StatisticsCalculator {
 
       final period = truncateDateTime(record.dateTime, aggregationMethod);
       final key = dateKey(period);
-      double value = record.value!;
-
-      if (!isBalance) {
-        // For non-balance mode, use absolute value
-        value = value.abs();
-      }
+      double value = isBalance
+          ? record.value!
+          : getRecordValueInDefaultCurrency(record, walletCurrencyMap);
 
       periodSums[key] = (periodSums[key] ?? 0.0) + value;
     }

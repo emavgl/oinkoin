@@ -29,6 +29,14 @@ class OverviewCard extends StatelessWidget {
   final List<DateTimeSeriesRecord> aggregatedRecords;
   final double? selectedAmount;
   final DateTime? selectedDate;
+
+  /// The records underlying the current selection (e.g. the pie slice or bar
+  /// period). Used to detect the currencies involved so the selected amount is
+  /// shown converted to the primary currency (with the original secondary
+  /// currency as a second line when the selection is a single non-default
+  /// currency). When empty, the selection is derived from [selectedDate].
+  final List<Record?> selectedRecords;
+
   final bool isBalance;
   final List<OverviewCardAction> actions;
   final Map<int, String?> walletCurrencyMap;
@@ -38,6 +46,7 @@ class OverviewCard extends StatelessWidget {
   OverviewCard(this.from, this.to, this.records, this.aggregationMethod,
       {this.selectedAmount,
       this.selectedDate,
+      this.selectedRecords = const [],
       this.isBalance = false,
       this.actions = const [],
       this.walletCurrencyMap = const {}})
@@ -51,13 +60,13 @@ class OverviewCard extends StatelessWidget {
       case AggregationMethod.WEEK:
         // For WEEK: show daily average instead of weekly bin average
         return StatisticsCalculator.calculateDailyAverage(records, from, to,
-            isBalance: isBalance);
+            isBalance: isBalance, walletCurrencyMap: walletCurrencyMap);
 
       default:
         // DAY, MONTH, and YEAR: keep existing period-based calculation
         return StatisticsCalculator.calculateAverage(
             records, aggregationMethod, from, to,
-            isBalance: isBalance);
+            isBalance: isBalance, walletCurrencyMap: walletCurrencyMap);
     }
   }
 
@@ -66,13 +75,13 @@ class OverviewCard extends StatelessWidget {
       case AggregationMethod.WEEK:
         // For WEEK: show daily median for consistency with daily average
         return StatisticsCalculator.calculateDailyMedian(records, from, to,
-            isBalance: isBalance);
+            isBalance: isBalance, walletCurrencyMap: walletCurrencyMap);
 
       default:
         // DAY, MONTH, and YEAR: keep existing period-based calculation
         return StatisticsCalculator.calculateMedian(
             records, aggregationMethod, from, to,
-            isBalance: isBalance);
+            isBalance: isBalance, walletCurrencyMap: walletCurrencyMap);
     }
   }
 
@@ -103,36 +112,48 @@ class OverviewCard extends StatelessWidget {
     double? originalAmountValue;
 
     if (selectedAmount != null) {
-      // Selected bar
-      final breakdown = selectedDate != null
-          ? buildCurrencyBreakdown(_getSelectedRecords(), walletCurrencyMap,
+      // Selected bar or pie slice: derive the display from the actual records
+      // of the selection so mixed currencies are converted correctly and a
+      // single secondary currency is shown alongside the primary one.
+      final List<Record?> selectionRecords = selectedRecords.isNotEmpty
+          ? selectedRecords
+          : (selectedDate != null ? _getSelectedRecords() : const []);
+      final breakdown = selectionRecords.isNotEmpty
+          ? buildCurrencyBreakdown(selectionRecords, walletCurrencyMap,
               isAbsValue: !isBalance)
           : <String, double>{};
       final nonEmpty =
           breakdown.entries.where((e) => e.key.isNotEmpty).toList();
-      final selOriginalCurrency =
-          nonEmpty.length == 1 ? nonEmpty.first.key : null;
 
-      if (defaultCurrency != null &&
+      if (nonEmpty.length == 1 &&
+          defaultCurrency != null &&
           defaultCurrency.isNotEmpty &&
-          selOriginalCurrency != null &&
-          selOriginalCurrency != defaultCurrency) {
-        final converted = convertAmount(
-            selectedAmount!, selOriginalCurrency, defaultCurrency);
+          nonEmpty.first.key != defaultCurrency) {
+        // Single secondary currency: show the converted (primary) amount on
+        // the main line and the original (secondary) amount below it.
+        final selOriginalAmount = nonEmpty.first.value.abs();
+        final converted =
+            convertAmount(selOriginalAmount, nonEmpty.first.key, defaultCurrency);
         if (converted != null) {
           convertedAmountText =
               formatCurrencyAmount(converted, defaultCurrency);
           originalAmountText =
-              formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
-          originalAmountValue = selectedAmount;
+              formatCurrencyAmount(selOriginalAmount, nonEmpty.first.key);
+          originalAmountValue = selOriginalAmount;
         } else {
           convertedAmountText =
-              formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
+              formatCurrencyAmount(selOriginalAmount, nonEmpty.first.key);
         }
-      } else if (selOriginalCurrency != null &&
-          selOriginalCurrency.isNotEmpty) {
-        convertedAmountText =
-            formatCurrencyAmount(selectedAmount!, selOriginalCurrency);
+      } else if (selectionRecords.isNotEmpty) {
+        // Multiple currencies (or a single currency matching the default):
+        // show just the total expressed in the primary currency.
+        final total = computeConvertedTotal(selectionRecords, walletCurrencyMap,
+            isAbsValue: !isBalance);
+        if (total.currency != null && total.currency!.isNotEmpty) {
+          convertedAmountText = formatCurrencyAmount(total.total, total.currency!);
+        } else {
+          convertedAmountText = getCurrencyValueString(total.total);
+        }
       } else if (_convertedResult.currency != null &&
           _convertedResult.currency!.isNotEmpty) {
         convertedAmountText =
@@ -164,8 +185,13 @@ class OverviewCard extends StatelessWidget {
       }
     }
 
+    // The amount may be shown as absolute (expenses/income tabs), so color it
+    // by the sign of the underlying data (the signed total) instead: expenses
+    // must render red even though the value is displayed without a minus sign.
     final originalColor = originalAmountValue != null
-        ? getAmountColor(originalAmountValue, Theme.of(context).brightness)
+        ? getAmountColor(
+            isBalance ? originalAmountValue : _signedTotal,
+            Theme.of(context).brightness)
         : null;
 
     Widget amountWidget;
@@ -196,9 +222,13 @@ class OverviewCard extends StatelessWidget {
     );
   }
 
-  /// Builds a labeled stat line (e.g. "Average of %s a day") where a converted
-  /// amount in parentheses is colored by sign via [getAmountColor], matching
-  /// the coloring of non-converted amounts.
+  /// Builds a labeled stat line (e.g. "Average of %s a day") where the amount
+  /// is colored by sign via [getAmountColor], matching the coloring of the
+  /// main total above it.
+  ///
+  /// On the expenses/income tabs [value] is an absolute (positive) amount, so
+  /// the color is driven by the sign of the underlying data (the signed total)
+  /// to keep expenses red and income green.
   Widget _buildStatAmountLine(
       BuildContext context, String labelKey, double value, String? currency) {
     final brightness = Theme.of(context).brightness;
@@ -213,26 +243,24 @@ class OverviewCard extends StatelessWidget {
     final prefix = idx >= 0 ? labelKey.substring(0, idx) : labelKey;
     final suffix = idx >= 0 ? labelKey.substring(idx + 2) : '';
 
+    final colorValue = isBalance ? value : _signedTotal;
+    final amountColor = getAmountColor(colorValue, brightness);
+    final amountStyle =
+        amountColor == null ? null : TextStyle(color: amountColor);
+
     final parts = currency != null && currency.isNotEmpty
         ? splitAmountConversion(value, currency)
         : null;
     final amountSpans = <InlineSpan>[];
     if (parts != null) {
-      final originalColor = getAmountColor(value, brightness);
-      final convertedColor = getAmountColor(parts.convertedValue, brightness);
-      amountSpans.add(TextSpan(
-        text: parts.original,
-        style: originalColor == null ? null : TextStyle(color: originalColor),
-      ));
-      amountSpans.add(TextSpan(
-        text: ' (${parts.converted})',
-        style: convertedColor == null ? null : TextStyle(color: convertedColor),
-      ));
+      amountSpans.add(TextSpan(text: parts.original, style: amountStyle));
+      amountSpans.add(TextSpan(text: ' (${parts.converted})', style: amountStyle));
     } else {
       amountSpans.add(TextSpan(
         text: currency != null && currency.isNotEmpty
             ? formatCurrencyAmount(value, currency)
             : getCurrencyValueString(value),
+        style: amountStyle,
       ));
     }
 

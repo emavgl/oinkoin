@@ -27,8 +27,10 @@ class ComparisonData {
 /// Aggregates records by time period for comparison chart display.
 class ComparisonDataAggregator {
   final AggregationMethod aggregationMethod;
+  final Map<int, String?> walletCurrencyMap;
 
-  ComparisonDataAggregator(this.aggregationMethod);
+  ComparisonDataAggregator(this.aggregationMethod,
+      {this.walletCurrencyMap = const {}});
 
   /// Aggregates records into comparison data points.
   Map<String, ComparisonData> aggregate(
@@ -53,10 +55,15 @@ class ComparisonDataAggregator {
       final key = config.getKey(truncated);
 
       if (data.containsKey(key) && !record.isTransfer) {
+        // Income/expenses are stored as positive magnitudes in this model
+        // (netSavings = income - expenses), so abs() is applied at the model
+        // boundary while the conversion works on the real signed value.
+        final value =
+            getRecordValueInDefaultCurrency(record, walletCurrencyMap);
         if (record.category?.categoryType == CategoryType.expense) {
-          data[key]!.expenses += record.value?.abs() ?? 0;
+          data[key]!.expenses += value.abs();
         } else {
-          data[key]!.income += record.value?.abs() ?? 0;
+          data[key]!.income += value.abs();
         }
       }
     }

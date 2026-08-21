@@ -59,8 +59,12 @@ class PDFExporter {
           .where((r) => r != null && !r.isTransfer)
           .cast<Record>()
           .toList();
-      final baseFont = await _loadBaseFont();
-      final theme = pw.ThemeData.withFont(base: baseFont, bold: baseFont);
+      final fonts = await _loadFonts();
+      final theme = pw.ThemeData.withFont(
+        base: fonts.base,
+        bold: fonts.base,
+        fontFallback: [fonts.fallback],
+      );
 
       final document = pw.Document(
         theme: theme,
@@ -98,20 +102,25 @@ class PDFExporter {
     }
   }
 
-  /// Selects a base font that can render the active locale. The bundled Noto
-  /// fonts (covering Latin, symbols and CJK) are embedded so currency symbols
-  /// and non-Latin scripts render correctly. Chinese uses the SC variant, all
-  /// other locales use the JP variant.
-  static Future<pw.Font> _loadBaseFont() async {
+  /// Loads the base and fallback fonts for the PDF.
+  ///
+  /// The base font is the locale-matched bundled Noto CJK font (Chinese uses
+  /// the SC variant, all other locales the JP variant) so Latin, symbols and
+  /// CJK of the active locale render correctly. Noto Sans Regular is embedded
+  /// as a per-glyph fallback because the CJK variants do not include the
+  /// Currency Symbols block (€, ₹, ₺, ₩, ₽, ₿, ...), which would otherwise
+  /// render as blank placeholders in the report.
+  static Future<({pw.Font base, pw.Font fallback})> _loadFonts() async {
     final code = I18n.locale.languageCode;
-    if (code == 'zh') {
-      return pw.Font.ttf(
-        await rootBundle.load('assets/fonts/NotoSansSC-Regular.ttf'),
-      );
-    }
-    return pw.Font.ttf(
-      await rootBundle.load('assets/fonts/NotoSansJP-Regular.ttf'),
+    final base = pw.Font.ttf(
+      await rootBundle.load(code == 'zh'
+          ? 'assets/fonts/NotoSansSC-Regular.ttf'
+          : 'assets/fonts/NotoSansJP-Regular.ttf'),
     );
+    final fallback = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
+    );
+    return (base: base, fallback: fallback);
   }
 
   static pw.Widget _buildHeader(DateTime from, DateTime to) {
@@ -250,9 +259,11 @@ class PDFExporter {
                 records, aggregationMethod, from, to,
                 isBalance: true))
         : (aggregationMethod == AggregationMethod.WEEK
-            ? StatisticsCalculator.calculateDailyAverage(records, from, to)
+            ? StatisticsCalculator.calculateDailyAverage(records, from, to,
+                walletCurrencyMap: walletCurrencyMap)
             : StatisticsCalculator.calculateAverage(
-                records, aggregationMethod, from, to));
+                records, aggregationMethod, from, to,
+                walletCurrencyMap: walletCurrencyMap));
 
     final median = isBalance
         ? (aggregationMethod == AggregationMethod.WEEK
@@ -262,9 +273,11 @@ class PDFExporter {
                 records, aggregationMethod, from, to,
                 isBalance: true))
         : (aggregationMethod == AggregationMethod.WEEK
-            ? StatisticsCalculator.calculateDailyMedian(records, from, to)
+            ? StatisticsCalculator.calculateDailyMedian(records, from, to,
+                walletCurrencyMap: walletCurrencyMap)
             : StatisticsCalculator.calculateMedian(
-                records, aggregationMethod, from, to));
+                records, aggregationMethod, from, to,
+                walletCurrencyMap: walletCurrencyMap));
 
     // When colorize is enabled, expenses render in red, income in green and
     // balance values are colored by sign, matching the in-app statistics page.
@@ -298,12 +311,13 @@ class PDFExporter {
                 aggregationMethod: aggregationMethod,
                 signed: isBalance,
                 color: chartColor,
+                walletCurrencyMap: walletCurrencyMap,
               ),
             ),
             pw.SizedBox(width: 16),
             pw.Expanded(
               flex: 3,
-              child: _buildCategoryPieChart(records),
+              child: _buildCategoryPieChart(records, walletCurrencyMap),
             ),
           ],
         ),
@@ -369,8 +383,9 @@ class PDFExporter {
   ///
   /// Slices below [_minSlicePercentage] are merged into "Others" so that the
   /// built-in leader-line labels of tiny adjacent slices never overlap.
-  static pw.Widget _buildCategoryPieChart(List<Record> records) {
-    final slices = _computePieSlices(records);
+  static pw.Widget _buildCategoryPieChart(
+      List<Record> records, Map<int, String?> walletCurrencyMap) {
+    final slices = _computePieSlices(records, walletCurrencyMap);
     if (slices.isEmpty) return pw.SizedBox.shrink();
 
     final legendStyle = pw.TextStyle(fontSize: 7, color: PdfColors.blueGrey800);
@@ -405,13 +420,17 @@ class PDFExporter {
   /// pie legend labels don't overlap for very small adjacent slices.
   static const _minSlicePercentage = 10.0;
 
-  /// Aggregates [records] by category (absolute value), keeping the top
+  /// Aggregates [records] by category (magnitudes converted to the main
+  /// currency for multi-currency records), keeping the top
   /// categories configured by the user plus an "Others" bucket.
-  static List<_PieSlice> _computePieSlices(List<Record> records) {
+  static List<_PieSlice> _computePieSlices(
+      List<Record> records, Map<int, String?> walletCurrencyMap) {
     final aggregates = <Category, double>{};
     for (final r in records) {
       if (r.category == null) continue;
-      final value = (r.value ?? 0).abs();
+      // Pie slices are magnitudes, so abs() is applied here at the
+      // representation boundary while the conversion works on real values.
+      final value = getRecordValueInDefaultCurrency(r, walletCurrencyMap).abs();
       aggregates.update(r.category!, (v) => v + value, ifAbsent: () => value);
     }
     if (aggregates.isEmpty) return const [];
@@ -502,9 +521,10 @@ class PDFExporter {
     required AggregationMethod aggregationMethod,
     required bool signed,
     required PdfColor color,
+    required Map<int, String?> walletCurrencyMap,
   }) {
-    final points =
-        _buildChartPoints(records, from, to, aggregationMethod, signed: signed);
+    final points = _buildChartPoints(records, from, to, aggregationMethod,
+        signed: signed, walletCurrencyMap: walletCurrencyMap);
     final maxAbs =
         points.fold<double>(0.0, (m, p) => math.max(m, p.value.abs()));
     if (points.isEmpty || maxAbs <= 0) {
@@ -606,12 +626,17 @@ class PDFExporter {
     DateTime to,
     AggregationMethod method, {
     required bool signed,
+    required Map<int, String?> walletCurrencyMap,
   }) {
     final config = ChartDateRangeConfig.create(method, from, to);
     final byKey = <String, double>{};
     for (final r in records) {
       final key = config.getKey(truncateDateTime(r.dateTime, method));
-      final value = signed ? (r.value ?? 0) : (r.value ?? 0).abs();
+      // Convert multi-currency records to the main currency so the chart sums
+      // real values instead of raw numeric values (issue #411). abs() is only
+      // applied to the magnitude for the non-signed (expense/income) view.
+      final converted = getRecordValueInDefaultCurrency(r, walletCurrencyMap);
+      final value = signed ? converted : converted.abs();
       byKey[key] = (byKey[key] ?? 0) + value;
     }
 
@@ -995,9 +1020,9 @@ class PDFExporter {
   }
 
   /// Builds the amount cell for a record row. When the record's wallet currency
-  /// differs from the default, the original and the converted (parenthesized)
-  /// amounts are colored independently by sign via [_amountColor], mirroring
-  /// the in-app records list.
+  /// differs from the default, the converted amount (default currency) is shown
+  /// on top of the original amount (wallet currency), mirroring the wallet
+  /// split table so long amounts don't overflow the column.
   static pw.Widget _buildRecordAmountCell(
     Record record,
     Map<int, String?> walletCurrencyMap,
@@ -1012,27 +1037,29 @@ class PDFExporter {
           : getCurrencyValueString(value);
       return _coloredAmountText(text, _amountColor(value), fontSize: 9);
     }
+    final primaryColor = _amountColor(parts.convertedValue);
+    final secondaryColor = _amountColor(value);
     return pw.Container(
       alignment: pw.Alignment.centerRight,
-      child: pw.RichText(
-        text: pw.TextSpan(
-          style: pw.TextStyle(fontSize: 9),
-          children: [
-            _coloredAmountSpan(parts.original, value),
-            _coloredAmountSpan(' (${parts.converted})', parts.convertedValue),
-          ],
-        ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.end,
+        mainAxisSize: pw.MainAxisSize.min,
+        children: [
+          pw.Text(
+            parts.converted,
+            style: primaryColor == null
+                ? const pw.TextStyle(fontSize: 9)
+                : pw.TextStyle(fontSize: 9, color: primaryColor),
+          ),
+          pw.Text(
+            parts.original,
+            style: pw.TextStyle(
+              fontSize: 8,
+              color: secondaryColor ?? PdfColors.blueGrey,
+            ),
+          ),
+        ],
       ),
-    );
-  }
-
-  /// Returns a text span colored by the sign of [value] (green for
-  /// positive/zero, red for negative) when colorization is enabled.
-  static pw.TextSpan _coloredAmountSpan(String text, double value) {
-    final color = _amountColor(value);
-    return pw.TextSpan(
-      text: text,
-      style: color == null ? null : pw.TextStyle(color: color),
     );
   }
 }

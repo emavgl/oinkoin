@@ -28,8 +28,12 @@ class CategoriesPieChart extends StatefulWidget {
   final List<Record?> records;
   final Function(double?, String?, List<String>?)? onSelectionChanged;
   final String? selectedCategory;
+  final Map<int, String?> walletCurrencyMap;
 
-  CategoriesPieChart(this.records, {this.onSelectionChanged, this.selectedCategory});
+  CategoriesPieChart(this.records,
+      {this.onSelectionChanged,
+      this.selectedCategory,
+      this.walletCurrencyMap = const {}});
 
   @override
   _CategoriesPieChartState createState() => _CategoriesPieChartState();
@@ -107,26 +111,31 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
 
   ChartData _prepareData(List<Record?> records) {
     Map<Category, double> aggregatedCategoriesValuesTemporaryMap = {};
-    double totalSum = 0;
 
+    // Keep real (signed) values while aggregating; magnitudes are only used
+    // for the sorting and percentage representation below.
     for (var record in records) {
       if (record?.category == null || record?.value == null) continue;
-      totalSum += record!.value!.abs();
+      final value =
+          getRecordValueInDefaultCurrency(record!, widget.walletCurrencyMap);
       aggregatedCategoriesValuesTemporaryMap.update(
         record.category!,
-        (value) => value + record.value!.abs(),
-        ifAbsent: () => record.value!.abs(),
+        (current) => current + value,
+        ifAbsent: () => value,
       );
     }
+    final totalSum = aggregatedCategoriesValuesTemporaryMap.values
+        .fold<double>(0.0, (sum, value) => sum + value.abs());
 
     bool useCategoriesColor = PreferencesUtils.getOrDefault<bool>(
         ServiceConfig.sharedPreferences!,
         PreferencesKeys.statisticsPieChartUseCategoryColors)!;
 
-    // Step 1: Sort by value descending (ignoring color)
+    // Step 1: Sort by magnitude descending (ignoring color)
     var aggregatedCategoriesAndValues =
     aggregatedCategoriesValuesTemporaryMap.entries.toList();
-    aggregatedCategoriesAndValues.sort((b, a) => a.value.compareTo(b.value));
+    aggregatedCategoriesAndValues.sort(
+        (b, a) => a.value.abs().compareTo(b.value.abs()));
 
     // Step 2: Apply the limit
     var limit =
@@ -172,7 +181,7 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
     List<Color> linearRecordsColors = [];
 
     for (var categoryAndValue in topCategoriesAndValue) {
-      var percentage = (100 * categoryAndValue.value) / totalSum;
+      var percentage = (100 * categoryAndValue.value.abs()) / totalSum;
       var lr = LinearRecord(categoryAndValue.key.name!, percentage);
       data.add(lr);
       linearRecordsColors.add(categoryAndValue.key.color ?? chartColorForCategoryWithoutBackgroundColor);
@@ -188,7 +197,7 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
         (dynamic value, element) => value + element.value,
       );
       var remainingCategoryKey = "Others".i18n;
-      var percentage = (100 * sumOfRemainingCategories) / totalSum;
+      var percentage = (100 * sumOfRemainingCategories.abs()) / totalSum;
       var lr = LinearRecord(remainingCategoryKey, percentage);
       data.add(lr);
       linearRecordsColors.add(otherCategoryColor);
@@ -225,7 +234,12 @@ class _CategoriesPieChartState extends State<CategoriesPieChart> {
                   (categoryName == "Others".i18n &&
                       r?.category?.name != null &&
                       !_isTopCategory(r!.category!.name!)))
-              .fold(0.0, (double acc, r) => acc + (r?.value ?? 0).abs());
+              .fold(
+                  0.0,
+                  (double acc, r) => acc +
+                      getRecordValueInDefaultCurrency(
+                          r!, widget.walletCurrencyMap))
+              .abs();
 
           // Get names of top categories (excluding "Others")
           final List<String> topCategoryNames = linearRecords

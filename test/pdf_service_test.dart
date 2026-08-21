@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart' show initializeDateFormatting;
+import 'package:pdf/pdf.dart' show TtfParser;
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
@@ -194,6 +196,37 @@ void main() {
 
       expect(bytes.isNotEmpty, isTrue);
       expect(String.fromCharCodes(bytes.sublist(0, 4)), '%PDF');
+    });
+
+    test('fallback font covers currency symbols missing from the CJK base font',
+        () async {
+      // The report uses a locale-matched Noto CJK font as base. Those CJK
+      // variants lack the Currency Symbols block (U+20A0-U+20BF), so without
+      // the Noto Sans fallback the euro and other symbols would render as
+      // blank placeholders. Load the actual bundled fonts and assert the
+      // fallback resolves every symbol the report may format. TtfParser's
+      // charToGlyphIndexMap is the same map the PDF engine checks when it
+      // decides whether a rune can be drawn.
+      final base = TtfParser(
+        await rootBundle.load('assets/fonts/NotoSansJP-Regular.ttf'),
+      );
+      final fallback = TtfParser(
+        await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
+      );
+
+      // € U+20AC, ₩ U+20A9, ₹ U+20B9, ₺ U+20BA, ₽ U+20BD, ₿ U+20BF
+      const currencySymbols = [0x20AC, 0x20A9, 0x20B9, 0x20BA, 0x20BD, 0x20BF];
+      for (final rune in currencySymbols) {
+        expect(
+          fallback.charToGlyphIndexMap.containsKey(rune),
+          isTrue,
+          reason: 'Noto Sans fallback must cover U+${rune.toRadixString(16)}'
+              ' so PDF reports render the symbol',
+        );
+      }
+      // Common Latin symbols should already be covered by the base CJK font.
+      expect(base.charToGlyphIndexMap.containsKey(0x24), isTrue); // $
+      expect(base.charToGlyphIndexMap.containsKey(0x20AC), isFalse); // € is the gap we patch
     });
 
     test('createPdfFromRecordList handles wallets with mixed currencies',

@@ -31,6 +31,14 @@ abstract class SummaryRow extends StatelessWidget {
   final double originalValue;
   final String? originalCurrency;
 
+  /// Signed (non-absolute) values used to color the amounts by sign.
+  ///
+  /// [value]/[originalValue] may be absolute magnitudes for display; when the
+  /// totals carry their sign already (e.g. category sums) these stay null and
+  /// the signed values fall back to [value]/[originalValue].
+  final double? signedValue;
+  final double? signedOriginalValue;
+
   const SummaryRow({
     Key? key,
     required this.label,
@@ -47,6 +55,8 @@ abstract class SummaryRow extends StatelessWidget {
     this.currency,
     this.originalValue = 0.0,
     this.originalCurrency,
+    this.signedValue,
+    this.signedOriginalValue,
   }) : super(key: key);
 
   @override
@@ -70,9 +80,10 @@ abstract class SummaryRow extends StatelessWidget {
       final convertedStr = formatCurrencyAmount(value.abs(), currency!);
       final primaryText =
           showPercentage ? '$convertedStr ($percentageStr%)' : convertedStr;
-      final primaryColor = getAmountColor(value, Theme.of(context).brightness);
-      final secondaryColor =
-          getAmountColor(originalValue, Theme.of(context).brightness);
+      final primaryColor = getAmountColor(
+          signedValue ?? value, Theme.of(context).brightness);
+      final secondaryColor = getAmountColor(
+          signedOriginalValue ?? originalValue, Theme.of(context).brightness);
       amountWidget = Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
@@ -96,9 +107,15 @@ abstract class SummaryRow extends StatelessWidget {
       } else {
         valueStr = getCurrencyValueString(value.abs());
       }
+      // Colorize by sign (red for expenses, green for income) using the real
+      // signed value, matching the rest of the colorized amounts in the app.
+      final amountColor = getAmountColor(
+          signedValue ?? value, Theme.of(context).brightness);
       amountWidget = Text(
         showPercentage ? '$valueStr ($percentageStr%)' : valueStr,
-        style: biggerFont,
+        style: amountColor != null
+            ? biggerFont.copyWith(color: amountColor)
+            : biggerFont,
       );
     }
 
@@ -264,6 +281,8 @@ class TagSummaryRow extends SummaryRow {
     String? currency,
     double originalValue = 0.0,
     String? originalCurrency,
+    double? signedValue,
+    double? signedOriginalValue,
   }) : super(
           key: key,
           label: tag,
@@ -278,6 +297,8 @@ class TagSummaryRow extends SummaryRow {
           currency: currency,
           originalValue: originalValue,
           originalCurrency: originalCurrency,
+          signedValue: signedValue,
+          signedOriginalValue: signedOriginalValue,
         );
 
   @override
@@ -408,6 +429,8 @@ class WalletSummaryRow extends SummaryRow {
     String? currency,
     double originalValue = 0.0,
     String? originalCurrency,
+    double? signedValue,
+    double? signedOriginalValue,
   }) : super(
           key: key,
           label: wallet.name,
@@ -422,6 +445,8 @@ class WalletSummaryRow extends SummaryRow {
           currency: currency,
           originalValue: originalValue,
           originalCurrency: originalCurrency,
+          signedValue: signedValue,
+          signedOriginalValue: signedOriginalValue,
         );
 
   @override

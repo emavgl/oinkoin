@@ -3,6 +3,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/statistics/statistics-utils.dart';
 
 import '../services/service-config.dart';
 import '../settings/constants/preferences-keys.dart';
@@ -19,8 +20,12 @@ class TagsPieChart extends StatefulWidget {
   final List<Record?> records;
   final Function(double?, String?, List<String>?)? onSelectionChanged;
   final String? selectedTag;
+  final Map<int, String?> walletCurrencyMap;
 
-  TagsPieChart(this.records, {this.onSelectionChanged, this.selectedTag});
+  TagsPieChart(this.records,
+      {this.onSelectionChanged,
+      this.selectedTag,
+      this.walletCurrencyMap = const {}});
 
   @override
   _TagsPieChartState createState() => _TagsPieChartState();
@@ -95,24 +100,29 @@ class _TagsPieChartState extends State<TagsPieChart> {
 
   TagChartData _prepareData(List<Record?> records) {
     Map<String, double> aggregatedTagsValuesTemporaryMap = {};
-    double totalSum = 0;
 
+    // Keep real (signed) values while aggregating; magnitudes are only used
+    // for the sorting and percentage representation below.
     for (var record in records) {
       if (record != null) {
+        final value =
+            getRecordValueInDefaultCurrency(record, widget.walletCurrencyMap);
         for (var tag in record.tags) {
-          totalSum += record.value!.abs();
           aggregatedTagsValuesTemporaryMap.update(
             tag,
-            (value) => value + record.value!.abs(),
-            ifAbsent: () => record.value!.abs(),
+            (current) => current + value,
+            ifAbsent: () => value,
           );
         }
       }
     }
+    final totalSum = aggregatedTagsValuesTemporaryMap.values
+        .fold<double>(0.0, (sum, value) => sum + value.abs());
 
     var aggregatedTagsAndValues =
         aggregatedTagsValuesTemporaryMap.entries.toList();
-    aggregatedTagsAndValues.sort((b, a) => a.value.compareTo(b.value));
+    aggregatedTagsAndValues.sort(
+        (b, a) => a.value.abs().compareTo(b.value.abs()));
 
     var limit = aggregatedTagsAndValues.length > tagCount + 1
         ? tagCount
@@ -121,12 +131,12 @@ class _TagsPieChartState extends State<TagsPieChart> {
     var topTagsAndValue = aggregatedTagsAndValues.sublist(0, limit);
 
     List<LinearTagRecord> data = [];
-    List<charts.Color> colorsToUse = [];
-
-    for (int i = 0; i < topTagsAndValue.length; i++) {
+    List<charts.Color> colorsToUse = [];    for (int i = 0; i < topTagsAndValue.length; i++) {
       var tagAndValue = topTagsAndValue[i];
-      var percentage = (100 * tagAndValue.value) / totalSum;
+      var percentage = (100 * tagAndValue.value.abs()) / totalSum;
       var lr = LinearTagRecord(tagAndValue.key, percentage);
+
+
       data.add(lr);
       colorsToUse.add(defaultColorsPalette[i]);
     }
@@ -138,7 +148,7 @@ class _TagsPieChartState extends State<TagsPieChart> {
         (dynamic value, element) => value + element.value,
       );
       var remainingTagKey = "Others".i18n;
-      var percentage = (100 * sumOfRemainingTags) / totalSum;
+      var percentage = (100 * sumOfRemainingTags.abs()) / totalSum;
       var lr = LinearTagRecord(remainingTagKey, percentage);
       data.add(lr);
       colorsToUse.add(charts.ColorUtil.fromDartColor(otherTagColor));
@@ -160,14 +170,17 @@ class _TagsPieChartState extends State<TagsPieChart> {
           double tagSum = 0;
           for (var r in widget.records) {
             if (r == null) continue;
+            final value =
+                getRecordValueInDefaultCurrency(r, widget.walletCurrencyMap);
             if (tagName == "Others".i18n) {
               // Add value for each tag that is NOT a top tag
               int otherTagsInRecord = r.tags.where((t) => !_isTopTag(t)).length;
-              tagSum += r.value!.abs() * otherTagsInRecord;
+              tagSum += value * otherTagsInRecord;
             } else if (r.tags.contains(tagName)) {
-              tagSum += r.value!.abs();
+              tagSum += value;
             }
           }
+          tagSum = tagSum.abs();
 
           final List<String> topTagNames = linearRecords
               .where((lr) => lr.tag != "Others".i18n)
