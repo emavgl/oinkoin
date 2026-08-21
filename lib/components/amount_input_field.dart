@@ -336,6 +336,13 @@ class _InAppKeyboardFieldState extends State<_InAppKeyboardField> {
         ),
         validator: widget.validator,
         onTap: _openKeyboard,
+        // The framework's default tap-outside behavior unfocuses the field on
+        // desktop platforms (Linux/Windows/macOS), which closes the in-app
+        // keyboard on any click — including on the keyboard's own keys. The
+        // keyboard is dismissed explicitly instead: other text fields steal
+        // focus (closing it via _onFocusChanged) and interactive elements call
+        // dismissInAppKeyboard().
+        onTapOutside: (_) {},
         textAlign: TextAlign.end,
         style: TextStyle(
           fontSize: 32.0,

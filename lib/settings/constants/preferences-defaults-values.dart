@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:intl/intl.dart';
 import 'package:piggybank/settings/constants/overview-time-interval.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
@@ -69,8 +67,8 @@ class PreferencesDefaultValues {
   };
 
   static int getAmountInputKeyboardTypeDefault() {
-    // The in-app keyboard is buggy on Windows: use the system keyboard there.
-    return Platform.isWindows ? 1 : 2;
+    // The in-app keyboard is the default on every platform, including Windows.
+    return 2;
   }
 
   static String getLocaleGroupingSeparator() {
