@@ -80,7 +80,7 @@
   "Cancel": "İptal",
   "Cannot remove %s: there are wallets using this currency.": "%s kaldırılamıyor: bu para birimini kullanan cüzdanlar var.",
   "Cannot remove the main currency. Change it first.": "Ana para birimini kaldırılamıyor. Önce değiştirin.",
-  "Categories": "Kategoriler",
+  "Categories": "Kategori",
   "Categories and tags": "Kategoriler ve etiketler",
   "Categories vs Tags": "Kategoriler ve Etiketler",
   "Category": "Kategori",

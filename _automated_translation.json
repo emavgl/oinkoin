@@ -742,12 +742,12 @@
     },
     "Budgets": {
       "key": "Budgets",
-      "context": "Navigation destination and page title for planned expense and saving limits",
-      "file": "lib/shell.dart; lib/budgets/budgets-page.dart",
-      "page": "Main navigation > Budgets",
-      "component": "Navigation label and app bar title",
-      "meaning": "A collection of spending and saving targets",
-      "notes": "Use the financial-planning plural noun, not a verb.",
+      "context": "Bottom navigation bar tab",
+      "file": "lib/shell.dart (bottom navigation bar)",
+      "page": "Main navigation bar",
+      "component": "Navigation tab label",
+      "meaning": "Short one-word bottom-navigation tab label",
+      "notes": "Must be a SHORT one-word label (<=10 chars preferred, 11-12 only if no shorter natural word exists): long labels wrap in the 5-tab NavigationBar (Material renders labels without ellipsis). Approved short forms avoid literal plural translations (e.g. Settings -> Options).",
       "same_as_english_locales": [
         "de",
         "fr"
@@ -825,12 +825,12 @@
     },
     "Categories": {
       "key": "Categories",
-      "context": "Navigation tab and page label",
-      "file": "lib/shell.dart:256, lib/categories/categories-tab-page-edit.dart:31",
-      "page": "Multiple (Navigation, Categories page)",
-      "component": "Tab label, page title",
-      "meaning": "Expense/income categories list",
-      "notes": "Main navigation tab and page title",
+      "context": "Bottom navigation bar tab and statistics group-by option",
+      "file": "lib/shell.dart (bottom navigation bar)",
+      "page": "Main navigation bar, Statistics summary",
+      "component": "Navigation tab label, dropdown option",
+      "meaning": "Short one-word bottom-navigation tab label",
+      "notes": "Must be a SHORT one-word label (<=10 chars preferred, 11-12 only if no shorter natural word exists): long labels wrap in the 5-tab NavigationBar (Material renders labels without ellipsis). Approved short forms avoid literal plural translations (e.g. Settings -> Options). Also used as the statistics group-by dropdown option (shorter word applies there too).",
       "status": "verified"
     },
     "Categories and tags": {
@@ -2316,13 +2316,13 @@
     },
     "Home": {
       "key": "Home",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
+      "context": "Bottom navigation bar tab",
+      "file": "lib/shell.dart (bottom navigation bar)",
+      "page": "Main navigation bar",
+      "component": "Navigation tab label",
+      "meaning": "Short one-word bottom-navigation tab label",
+      "notes": "Must be a SHORT one-word label (<=10 chars preferred, 11-12 only if no shorter natural word exists): long labels wrap in the 5-tab NavigationBar (Material renders labels without ellipsis). Approved short forms avoid literal plural translations (e.g. Settings -> Options).",
+      "status": "verified"
     },
     "Homepage time interval": {
       "key": "Homepage time interval",
@@ -4353,13 +4353,13 @@
     },
     "Settings": {
       "key": "Settings",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
+      "context": "Bottom navigation bar tab",
+      "file": "lib/shell.dart (bottom navigation bar)",
+      "page": "Main navigation bar",
+      "component": "Navigation tab label",
+      "meaning": "Short one-word bottom-navigation tab label",
+      "notes": "Must be a SHORT one-word label (<=10 chars preferred, 11-12 only if no shorter natural word exists): long labels wrap in the 5-tab NavigationBar (Material renders labels without ellipsis). Approved short forms avoid literal plural translations (e.g. Settings -> Options).",
+      "status": "verified"
     },
     "Share the backup file": {
       "key": "Share the backup file",
@@ -5378,13 +5378,13 @@
     },
     "Wallets": {
       "key": "Wallets",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
+      "context": "Bottom navigation bar tab and wallets page title",
+      "file": "lib/shell.dart (bottom navigation bar)",
+      "page": "Main navigation bar, Wallets page",
+      "component": "Navigation tab label, page title",
+      "meaning": "Short one-word bottom-navigation tab label",
+      "notes": "Must be a SHORT one-word label (<=10 chars preferred, 11-12 only if no shorter natural word exists): long labels wrap in the 5-tab NavigationBar (Material renders labels without ellipsis). Approved short forms avoid literal plural translations (e.g. Settings -> Options). Also used as the Wallets page AppBar title (shorter word applies there too).",
+      "status": "verified"
     },
     "Wallets (%d)": {
       "key": "Wallets (%d)",
