@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-19",
-    "total_keys": 563
+    "last_updated": "2026-08-23",
+    "total_keys": 577
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -400,6 +400,16 @@
       "notes": "Keep technical terms Amount, Category, Date/Time consistent with field labels",
       "status": "verified"
     },
+    "And many more...": {
+      "key": "And many more...",
+      "context": "Final item in the Pro feature list on the paywall",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Premium splash screen",
+      "component": "Feature list bullet point",
+      "meaning": "Indicates that the listed Pro features are only examples and that the app includes additional Pro functionality",
+      "notes": "Keep concise and preserve the ellipsis",
+      "status": "verified"
+    },
     "Animate navigation bar": {
       "key": "Animate navigation bar",
       "context": "Toggle for enabling the custom animated icons when selecting bottom navigation destinations",
@@ -408,6 +418,16 @@
       "component": "SwitchCustomizationItem",
       "meaning": "Controls whether Home, Wallets, Categories, Budgets, and Settings navigation icons use their custom selection animations",
       "notes": "Enabled by default. When disabled, icons switch between outlined and filled states without the custom motion.",
+      "status": "verified"
+    },
+    "Announcements": {
+      "key": "Announcements",
+      "context": "Settings page list item title that opens the announcements/communications page",
+      "file": "lib/settings/settings-page.dart",
+      "page": "Settings (main list)",
+      "component": "SettingsItem title (navigates to AnnouncementsPage)",
+      "meaning": "Section name for recent news and communications from the developer",
+      "notes": "Noun, plural. Keep short so it fits the list item.",
       "status": "verified"
     },
     "App protected by PIN or biometric check": {
@@ -982,6 +1002,16 @@
       "notes": "Keep CSV as-is in translations",
       "status": "verified"
     },
+    "Close": {
+      "key": "Close",
+      "context": "Dismiss/close button for the in-app purchase paywall page",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "AppBar close IconButton tooltip",
+      "meaning": "Dismiss/close button for the in-app purchase paywall page",
+      "notes": "Closes the paywall without purchasing",
+      "status": "verified"
+    },
     "Code & translation": {
       "key": "Code & translation",
       "context": "Contributor role shown when a code contributor also provided a translation",
@@ -1114,6 +1144,16 @@
       "page": "Monthly banner page",
       "component": "Snackbar",
       "meaning": "Import failed",
+      "notes": null,
+      "status": "verified"
+    },
+    "Could not load this announcement": {
+      "key": "Could not load this announcement",
+      "context": "Error placeholder shown when the localized markdown body of a communication fails to load",
+      "file": "lib/comms/announcement-dialog.dart, lib/comms/communication-detail-page.dart",
+      "page": "Startup announcement dialog + Settings > Announcements > detail page",
+      "component": "Error message text replacing the body content",
+      "meaning": "The announcement content could not be loaded/displayed",
       "notes": null,
       "status": "verified"
     },
@@ -1294,16 +1334,6 @@
       "meaning": "Open the editor for the app-wide icon, emoji, and color used to represent transfers",
       "notes": "Translate as an action label; Transfer is the fixed localized name shown in the editor",
       "status": "verified"
-    },
-    "DOWNLOAD IT NOW!": {
-      "key": "DOWNLOAD IT NOW!",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
     },
     "Dark": {
       "key": "Dark",
@@ -1606,6 +1636,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Demo mode: purchases are not available in this build.": {
+      "key": "Demo mode: purchases are not available in this build.",
+      "context": "Notice shown on the Pro upsell screen in debug/demo builds when no products are configured in the store",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Premium splash screen",
+      "component": "inline notice",
+      "meaning": "Explains that the offers shown are placeholders and cannot be purchased in this build",
+      "notes": "Debug/demo-only notice; keep it short",
+      "status": "verified"
     },
     "Destination folder": {
       "key": "Destination folder",
@@ -2174,16 +2214,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Filter records by year or custom date range": {
-      "key": "Filter records by year or custom date range",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Filters": {
       "key": "Filters",
       "context": null,
@@ -2234,16 +2264,6 @@
       "notes": "Translate the connecting words naturally for the target language while preserving both placeholders.",
       "status": "verified"
     },
-    "Full category icon pack and color picker": {
-      "key": "Full category icon pack and color picker",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Generate and display upcoming recurrent records (they will be included in statistics)": {
       "key": "Generate and display upcoming recurrent records (they will be included in statistics)",
       "context": null,
@@ -2254,6 +2274,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Get Lifetime Pro for %s": {
+      "key": "Get Lifetime Pro for %s",
+      "context": "CTA button label on the Pro upsell screen",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Premium splash screen",
+      "component": "button label",
+      "meaning": "Button text: buy Lifetime Pro for the displayed one-time price (%s)",
+      "notes": "Keep the %s placeholder for the store price",
+      "status": "verified"
+    },
     "Get help, give feedback, or contribute": {
       "key": "Get help, give feedback, or contribute",
       "context": "Subtitle for the Support entry in the Settings list",
@@ -2262,6 +2292,16 @@
       "component": "settings list item subtitle",
       "meaning": "Brief description of what the Support page offers",
       "notes": "Short and descriptive for a settings subtitle",
+      "status": "verified"
+    },
+    "Got it": {
+      "key": "Got it",
+      "context": "Confirmation button that closes the startup announcement dialog; dismissing permanently silences it",
+      "file": "lib/comms/announcement-dialog.dart",
+      "page": "Startup announcement dialog",
+      "component": "TextButton label in AlertDialog actions",
+      "meaning": "Acknowledgement: user has read the announcement and wants to close the dialog",
+      "notes": "Casual but polite acknowledgement; common app convention.",
       "status": "verified"
     },
     "Got problems? Check out the logs": {
@@ -2724,6 +2764,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Manage budgets": {
+      "key": "Manage budgets",
+      "context": "Premium feature bullet on the paywall",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Premium splash screen",
+      "component": "Feature list bullet point",
+      "meaning": "Manage the app's budgeting features and plans",
+      "notes": "Keep concise as a short feature label",
+      "status": "verified"
+    },
     "Manage multiple currencies": {
       "context": "Premium feature - manage different currencies in wallets",
       "file": "lib/premium/splash-screen.dart:237",
@@ -3050,6 +3100,16 @@
       "notes": null,
       "status": "pending"
     },
+    "No announcements": {
+      "key": "No announcements",
+      "context": "Empty-state message shown on the announcements page when there is nothing to display",
+      "file": "lib/comms/announcements-page.dart",
+      "page": "Settings > Announcements",
+      "component": "Centered placeholder text",
+      "meaning": "There are currently no communications to show",
+      "notes": null,
+      "status": "verified"
+    },
     "No categories yet.": {
       "key": "No categories yet.",
       "context": null,
@@ -3129,6 +3189,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "No purchases to restore": {
+      "key": "No purchases to restore",
+      "context": "Result toast after pressing Restore purchases",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Snackbar message",
+      "meaning": "Result toast after pressing Restore purchases",
+      "notes": "Shown when the store has no purchases to restore",
+      "status": "verified"
     },
     "No records to export": {
       "key": "No records to export",
@@ -3675,6 +3745,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Purchases restored": {
+      "key": "Purchases restored",
+      "context": "Result toast after pressing Restore purchases",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Snackbar message",
+      "meaning": "Result toast after pressing Restore purchases",
+      "notes": "Shown when previous purchases were successfully restored",
+      "status": "verified"
+    },
     "Rate the app": {
       "key": "Rate the app",
       "context": "Card title on the support page for the Play Store rating option",
@@ -3683,6 +3763,16 @@
       "component": "action card title",
       "meaning": "Button that opens the Play Store to leave a review",
       "notes": "Short action label, only shown for Play Store installs or alpha builds",
+      "status": "verified"
+    },
+    "Recent news and communications": {
+      "key": "Recent news and communications",
+      "context": "Subtitle of the 'Announcements' settings item describing what the page contains",
+      "file": "lib/settings/settings-page.dart",
+      "page": "Settings (main list)",
+      "component": "SettingsItem subtitle under 'Announcements'",
+      "meaning": "The page lists recent news and messages from the developer",
+      "notes": null,
       "status": "verified"
     },
     "Record name": {
@@ -3863,6 +3953,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Restore failed. Please try again.": {
+      "key": "Restore failed. Please try again.",
+      "context": "Result toast when restoring purchases fails",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Snackbar message",
+      "meaning": "Result toast when restoring purchases fails",
+      "notes": "Shown when the store could not be reached during restore",
+      "status": "verified"
+    },
     "Restore original transfer icon": {
       "key": "Restore original transfer icon",
       "context": "Overflow menu option in the app bar of the Customize Transfer Icon page",
@@ -3871,6 +3971,16 @@
       "component": "Popup menu item",
       "meaning": "Reset the transfer icon to its default appearance: grey circle with the swap arrows icon and no emoji",
       "notes": "Action verb 'Restore'; refers to the original/default transfer icon aspect (color and icon)",
+      "status": "verified"
+    },
+    "Restore purchases": {
+      "key": "Restore purchases",
+      "context": "Button that restores previously bought subscriptions",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "TextButton label",
+      "meaning": "Button that restores previously bought subscriptions",
+      "notes": "Re-syncs purchases from the store after reinstall or device change",
       "status": "verified"
     },
     "Restore successful": {
@@ -3902,6 +4012,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Retry": {
+      "key": "Retry",
+      "context": "Button to retry loading the paywall products",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Offline state button",
+      "meaning": "Button to retry loading the paywall products",
+      "notes": "Re-queries the store when the previous attempt failed",
+      "status": "verified"
     },
     "Right": {
       "key": "Right",
@@ -3961,6 +4081,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Saving": {
+      "key": "Saving",
+      "context": "Budget type tab on the budgets page",
+      "file": "lib/budgets/budgets-page.dart (TabBar)",
+      "page": "Budgets > tabs (Expense | Saving)",
+      "component": "Tab label",
+      "meaning": "Saving-money budget type (noun, e.g. saving goals)",
+      "notes": "Short noun form; pairs with 'Expense' as the two budget-type tabs. Short enough not to wrap in the TabBar.",
+      "status": "verified"
     },
     "Saving for your next vacation? Set a savings budget and track your progress.": {
       "key": "Saving for your next vacation? Set a savings budget and track your progress.",
@@ -4761,15 +4891,6 @@
       "notes": "Conveys both getting help and contributing to the project",
       "status": "verified"
     },
-    "Support more profiles": {
-      "context": "Premium feature - create multiple financial profiles",
-      "file": "lib/premium/splash-screen.dart:183",
-      "page": "Premium/Upgrade Screen",
-      "component": "Feature list bullet point",
-      "meaning": "Users can create separate financial profiles for different purposes",
-      "notes": "Part of premium feature promotion",
-      "status": "verified"
-    },
     "Support the project": {
       "key": "Support the project",
       "context": "Heading on the support page, above the action cards",
@@ -5130,6 +5251,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Unable to connect to the store. Check your connection and try again.": {
+      "key": "Unable to connect to the store. Check your connection and try again.",
+      "context": "Offline error on the paywall",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Error message",
+      "meaning": "Offline error on the paywall",
+      "notes": "Shown when the app cannot reach Google Play / App Store to load plans",
+      "status": "verified"
+    },
     "Unable to create a backup: please, delete manually the old backup": {
       "key": "Unable to create a backup: please, delete manually the old backup",
       "context": null,
@@ -5139,6 +5270,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Unable to start the purchase. Please try again.": {
+      "key": "Unable to start the purchase. Please try again.",
+      "context": "Error toast when launching the billing flow fails",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Snackbar message",
+      "meaning": "Error toast when launching the billing flow fails",
+      "notes": "Shown when the store could not start the purchase",
+      "status": "verified"
     },
     "Unarchive": {
       "key": "Unarchive",
@@ -5187,6 +5328,16 @@
       "notes": "Used defensively when walletMap lacks an id.",
       "status": "verified"
     },
+    "Unlock every feature of Oinkoin": {
+      "key": "Unlock every feature of Oinkoin",
+      "context": "Paywall subtitle",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Subheading text",
+      "meaning": "Paywall subtitle",
+      "notes": "Value proposition under the paywall title",
+      "status": "verified"
+    },
     "Unparseable rows": {
       "context": "Summary row showing how many CSV rows could not be parsed",
       "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
@@ -5198,16 +5349,6 @@
     },
     "Upgrade to": {
       "key": "Upgrade to",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
-    "Upgrade to Pro": {
-      "key": "Upgrade to Pro",
       "context": null,
       "file": null,
       "page": null,
@@ -5403,6 +5544,16 @@
       "component": "DropdownMenuItem label",
       "meaning": "The custom recurrence interval is measured in weeks.",
       "notes": "Always plural, used together with a numeric field, e.g. '3' + 'Weeks'.",
+      "status": "verified"
+    },
+    "Welcome to Oinkoin Pro!": {
+      "key": "Welcome to Oinkoin Pro!",
+      "context": "Success toast after a purchase completes",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Paywall",
+      "component": "Snackbar message",
+      "meaning": "Success toast after a purchase completes",
+      "notes": "Shown when the user becomes Pro and the paywall closes",
       "status": "verified"
     },
     "What should happen to the records in this wallet? Transfer records involving this wallet will always be deleted.": {
@@ -5633,16 +5784,6 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
-      "status": "verified"
-    },
-    "Saving": {
-      "key": "Saving",
-      "context": "Budget type tab on the budgets page",
-      "file": "lib/budgets/budgets-page.dart (TabBar)",
-      "page": "Budgets > tabs (Expense | Saving)",
-      "component": "Tab label",
-      "meaning": "Saving-money budget type (noun, e.g. saving goals)",
-      "notes": "Short noun form; pairs with 'Expense' as the two budget-type tabs. Short enough not to wrap in the TabBar.",
       "status": "verified"
     }
   }
