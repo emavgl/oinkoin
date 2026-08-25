@@ -6,6 +6,8 @@ import 'package:piggybank/records/edit-record-page.dart';
 import 'package:piggybank/records/components/transfer_wallet_selector.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/i18n.dart';
 
 import 'categories-grid.dart';
@@ -319,6 +321,10 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
   Widget build(BuildContext context) {
     final showTransferTab =
         widget.goToEditMovementPage == true && ServiceConfig.walletsEnabled;
+    final bool _showCategoriesAtBottom = PreferencesUtils.getOrDefault<bool>(
+          ServiceConfig.sharedPreferences!,
+          PreferencesKeys.showCategoriesAtBottom) ??
+        false;
     return DefaultTabController(
       length: showTransferTab ? 3 : 2,
       initialIndex: widget.initialTabIndex,
@@ -386,6 +392,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                     enableManualSorting:
                         _selectedSortOption == SortOption.original,
                     onChangeOrder: onCategoriesReorder,
+                    alignToBottom: _showCategoriesAtBottom,
                     )
                 : Container(),
             _categories != null
@@ -397,7 +404,8 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                     goToEditMovementPage: widget.goToEditMovementPage,
                     enableManualSorting:
                         _selectedSortOption == SortOption.original,
-                    onChangeOrder: onCategoriesReorder)
+                    onChangeOrder: onCategoriesReorder,
+                    alignToBottom: _showCategoriesAtBottom)
                 : Container(),
             if (showTransferTab)
               TransferWalletSelector(onContinue: _openTransferEditPage),
