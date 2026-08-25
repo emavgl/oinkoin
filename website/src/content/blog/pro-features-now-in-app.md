@@ -46,17 +46,17 @@ This change does not affect the F-Droid version of Oinkoin. The F-Droid build re
 
 ## FAQ
 
+**Does the app depend on Google Play services or Google API?**
+The free version of Oinkoin includes the BILLING permission in its manifest to support in-app purchases. While the app can function completely without Google Play Services, you will need them if you wish to upgrade to Pro. The standalone Pro and F-Droid versions do not contain any billing code. Rest assured, your privacy and experience remain unchanged!
+
 **Is my data affected?**
 No. Buying Pro inside the free app doesn't move, export, or modify any of your records.
 
 **Will the Oinkoin Pro app be removed?**
 No. It stays on Google Play and continues to receive regular updates.
 
-**Does the price change?**
-No. Lifetime Pro costs the same one-time price whether purchased historically in the Pro app or via the new in-app purchase.
-
 **I already own Oinkoin Pro. Do I need to buy again?**
-Only if *you* want to consolidate into the free app. Otherwise, enjoy Pro in the app you already have — it keeps getting updates.
+If you want to have Pro features on the free Oinkoin app, please reach out to us via email.
 
 ---
 
