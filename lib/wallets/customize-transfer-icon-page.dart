@@ -169,6 +169,7 @@ class _CustomizeTransferIconPageState
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: _save,
         tooltip: "Save".i18n,
         child: const Icon(Icons.save),

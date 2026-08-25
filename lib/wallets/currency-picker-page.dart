@@ -275,6 +275,7 @@ class _CurrencyPickerPageState extends State<CurrencyPickerPage> {
       floatingActionButton: widget.showAllCurrencies
           ? null
           : FloatingActionButton(
+              heroTag: null,
               onPressed: _addCurrency,
               tooltip: "Add currency".i18n,
               child: const Icon(Icons.add),

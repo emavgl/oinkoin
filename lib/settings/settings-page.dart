@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/alert-dialog-builder.dart';
+import 'package:piggybank/comms/announcements-page.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
@@ -106,6 +107,13 @@ class TabSettings extends StatelessWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => FeedbackPage()),
+    );
+  }
+
+  goToAnnouncementsPage(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AnnouncementsPage()),
     );
   }
 
@@ -352,6 +360,16 @@ class TabSettings extends StatelessWidget {
           //     );
           //   },
           // ),
+          SettingsItem(
+            icon: Icon(
+              Icons.campaign,
+              color: Colors.white,
+            ),
+            iconBackgroundColor: Colors.orange.shade700,
+            title: 'Announcements'.i18n,
+            subtitle: "Recent news and communications".i18n,
+            onPressed: () async => await goToAnnouncementsPage(context),
+          ),
           SettingsItem(
             icon: Icon(
               Icons.support_agent,

@@ -417,6 +417,7 @@ class TabCategoriesState extends State<TabCategories>
               return Transform.rotate(
                 angle: rotation,
                 child: FloatingActionButton(
+                  heroTag: null,
                   backgroundColor: _tabController?.index == 0
                       ? Colors.red[300]
                       : Colors.green[300],

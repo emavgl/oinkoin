@@ -36,6 +36,6 @@ void main() {
     await tester.tap(find.text('PRO'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Upgrade to Pro'), findsOneWidget);
+    expect(find.text('Upgrade to Oinkoin Pro'), findsOneWidget);
   });
 }

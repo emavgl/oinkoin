@@ -309,6 +309,7 @@ class EditCategoryPageState extends State<EditCategoryPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: saveCategory,
         tooltip: 'Add a new category'.i18n,
         child: const Icon(Icons.save),

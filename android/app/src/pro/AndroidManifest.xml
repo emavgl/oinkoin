@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The Pro app is distributed outside Google Play (sideload/other
+         stores) and targets devices without Play Services. The Play Billing
+         AAR injects com.android.vending.BILLING during manifest merge; strip
+         it here so the permission never appears in the Pro APK. -->
+    <uses-permission
+        android:name="com.android.vending.BILLING"
+        tools:node="remove" />
+</manifest>

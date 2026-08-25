@@ -358,6 +358,7 @@ class _CurrenciesPageState extends State<CurrenciesPage> {
           ? const Center(child: CircularProgressIndicator())
           : _buildBody(),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: _addCurrency,
         tooltip: "Add currency".i18n,
         child: const Icon(Icons.add),

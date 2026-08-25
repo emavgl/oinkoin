@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- F-Droid builds must not depend on or declare Google Play bits. The
+         Play Billing AAR injects com.android.vending.BILLING during manifest
+         merge; strip it here so the permission never appears in the F-Droid
+         APK. -->
+    <uses-permission
+        android:name="com.android.vending.BILLING"
+        tools:node="remove" />
+</manifest>

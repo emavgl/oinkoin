@@ -98,6 +98,7 @@ class ProfilesPageState extends State<ProfilesPage> {
       floatingActionButton: Stack(
         children: [
           FloatingActionButton(
+            heroTag: null,
             onPressed: ServiceConfig.isPremium
                 ? () => _openEdit(null)
                 : () async {

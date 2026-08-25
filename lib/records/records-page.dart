@@ -456,7 +456,10 @@ class TabRecordsState extends State<TabRecords> {
   }
 
   Widget _buildFloatingActionButton() {
+    // No hero animation: all shell tabs stay mounted, so default FAB hero
+    // tags would collide on any root-navigator push (duplicate-hero crash).
     return FloatingActionButton(
+      heroTag: null,
       onPressed: () => _controller.navigateToAddNewRecord(context),
       tooltip: 'Add a new record'.i18n,
       child: Semantics(

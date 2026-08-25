@@ -81,8 +81,15 @@ class ServiceConfig {
   }
 
   static void togglePremium() {
-    isPremium = !isPremium;
-    premiumNotifier.value = isPremium;
+    setPremium(!isPremium);
+  }
+
+  /// Updates the premium state and notifies [premiumNotifier] listeners.
+  /// Used by the purchase service (license sync) and the debug toggle.
+  static void setPremium(bool value) {
+    if (isPremium == value && premiumNotifier.value == value) return;
+    isPremium = value;
+    premiumNotifier.value = value;
   }
 
   /// Notifies consumers (e.g. the customization page) when the

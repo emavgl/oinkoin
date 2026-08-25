@@ -518,6 +518,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
           child: child,
         ),
         child: FloatingActionButton(
+          heroTag: null,
           onPressed: _saveWallet,
           tooltip: "Save".i18n,
           child: const Icon(Icons.save),

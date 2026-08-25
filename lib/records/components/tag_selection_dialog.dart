@@ -202,6 +202,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
           width: double.infinity,
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: FloatingActionButton.extended(
+            heroTag: null,
             onPressed: () => Navigator.pop(context, _selectedTags),
             backgroundColor: colorScheme.primary,
             foregroundColor: colorScheme.onPrimary,
