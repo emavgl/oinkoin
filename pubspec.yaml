@@ -29,7 +29,7 @@ dependencies:
   shared_preferences: ^2.5.5 # plugin for persistent store for simple data (key-value pairs) like settings
   community_charts_common: ^1.0.4
   community_charts_flutter: ^1.0.4
-  animations: ^2.2.0
+  animations: ^3.0.0
   month_picker_dialog: ^6.7.2
   share_plus: ^13.3.0
   flutter_speed_dial: ^7.0.0
