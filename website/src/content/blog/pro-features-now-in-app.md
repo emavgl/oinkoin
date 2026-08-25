@@ -46,7 +46,7 @@ This change does not affect the F-Droid version of Oinkoin. The F-Droid build re
 
 ## FAQ
 
-**Does the app depend on Google Play services or Google API?**
+**Does the app depend on Google Play Services or include extra permissions?**
 The free version of Oinkoin includes the BILLING permission in its manifest to support in-app purchases. While the app can function completely without Google Play Services, you will need them if you wish to upgrade to Pro. The standalone Pro and F-Droid versions do not contain any billing code. Rest assured, your privacy and experience remain unchanged!
 
 **Is my data affected?**
