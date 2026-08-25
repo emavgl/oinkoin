@@ -327,77 +327,85 @@ class ShellState extends State<Shell> {
         }
       },
       child: Scaffold(
-        body: Stack(
-          children: <Widget>[
-            Offstage(
-              offstage: _currentIndex != 0,
-              child: TickerMode(
-                enabled: _currentIndex == 0,
-                child: Navigator(
-                  key: _homeNavigatorKey,
-                  onGenerateRoute: (settings) {
-                    return MaterialPageRoute(
-                      builder: (_) => TabRecords(key: _tabRecordsKey),
-                    );
-                  },
+        body: SafeArea(
+          // In landscape the system navigation bar (3-button mode) sits on the
+          // side of the screen. Pad horizontally so body content never extends
+          // behind it. The top inset is handled by each page's app bar and the
+          // bottom inset by the NavigationBar below.
+          top: false,
+          bottom: false,
+          child: Stack(
+            children: <Widget>[
+              Offstage(
+                offstage: _currentIndex != 0,
+                child: TickerMode(
+                  enabled: _currentIndex == 0,
+                  child: Navigator(
+                    key: _homeNavigatorKey,
+                    onGenerateRoute: (settings) {
+                      return MaterialPageRoute(
+                        builder: (_) => TabRecords(key: _tabRecordsKey),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-            Offstage(
-              offstage: _currentIndex != 1,
-              child: TickerMode(
-                enabled: _currentIndex == 1,
-                child: Navigator(
-                  key: _walletsNavigatorKey,
-                  onGenerateRoute: (settings) {
-                    return MaterialPageRoute(
-                      builder: (_) => WalletsTabPage(key: _tabWalletsKey),
-                    );
-                  },
+              Offstage(
+                offstage: _currentIndex != 1,
+                child: TickerMode(
+                  enabled: _currentIndex == 1,
+                  child: Navigator(
+                    key: _walletsNavigatorKey,
+                    onGenerateRoute: (settings) {
+                      return MaterialPageRoute(
+                        builder: (_) => WalletsTabPage(key: _tabWalletsKey),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-            Offstage(
-              offstage: _currentIndex != 2,
-              child: TickerMode(
-                enabled: _currentIndex == 2,
-                child: Navigator(
-                  key: _categoriesNavigatorKey,
-                  onGenerateRoute: (settings) {
-                    return MaterialPageRoute(
-                      builder: (_) => TabCategories(key: _tabCategoriesKey),
-                    );
-                  },
+              Offstage(
+                offstage: _currentIndex != 2,
+                child: TickerMode(
+                  enabled: _currentIndex == 2,
+                  child: Navigator(
+                    key: _categoriesNavigatorKey,
+                    onGenerateRoute: (settings) {
+                      return MaterialPageRoute(
+                        builder: (_) => TabCategories(key: _tabCategoriesKey),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-            Offstage(
-              offstage: _currentIndex != 3,
-              child: TickerMode(
-                enabled: _currentIndex == 3,
-                child: Navigator(
-                  key: _budgetsNavigatorKey,
-                  onGenerateRoute: (settings) {
-                    return MaterialPageRoute(
-                      builder: (_) => BudgetsPage(key: _tabBudgetsKey),
-                    );
-                  },
+              Offstage(
+                offstage: _currentIndex != 3,
+                child: TickerMode(
+                  enabled: _currentIndex == 3,
+                  child: Navigator(
+                    key: _budgetsNavigatorKey,
+                    onGenerateRoute: (settings) {
+                      return MaterialPageRoute(
+                        builder: (_) => BudgetsPage(key: _tabBudgetsKey),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-            Offstage(
-              offstage: _currentIndex != 4,
-              child: TickerMode(
-                enabled: _currentIndex == 4,
-                child: Navigator(
-                  key: _settingsNavigatorKey,
-                  onGenerateRoute: (settings) {
-                    return MaterialPageRoute(builder: (_) => TabSettings());
-                  },
+              Offstage(
+                offstage: _currentIndex != 4,
+                child: TickerMode(
+                  enabled: _currentIndex == 4,
+                  child: Navigator(
+                    key: _settingsNavigatorKey,
+                    onGenerateRoute: (settings) {
+                      return MaterialPageRoute(builder: (_) => TabSettings());
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         bottomNavigationBar: ValueListenableBuilder<bool>(
           valueListenable: ServiceConfig.walletsEnabledNotifier,
