@@ -36,21 +36,20 @@ class FilterModalContent extends StatefulWidget {
   State<FilterModalContent> createState() => _FilterModalContentState();
 }
 
-class _FilterModalContentState extends State<FilterModalContent>
-    with TickerProviderStateMixin {
+class _FilterModalContentState extends State<FilterModalContent> {
   Set<Category?> _categoriesToShow = {};
   Set<String> _tagsToShow = {};
 
   List<Category?> _selectedCategories = [];
   List<String> _selectedTags = [];
 
-  bool _categoryTagORLogic = true; // true = OR, false = AND
+  bool _categoryTagORLogic = true;
   bool _tagORLogic = false;
 
-  late AnimationController _scrollIndicatorController;
-  late Animation<double> _scrollIndicatorAnimation;
   final ScrollController _scrollController = ScrollController();
-  bool _showScrollIndicator = false;
+  bool _categoriesExpanded = true;
+  bool _tagsExpanded = false;
+  bool _logicExpanded = false;
 
   @override
   void initState() {
@@ -67,54 +66,18 @@ class _FilterModalContentState extends State<FilterModalContent>
 
     _categoryTagORLogic = widget.currentCategoryTagOrLogic;
     _tagORLogic = widget.currentTagsOrLogic;
-
-    _scrollIndicatorController = AnimationController(
-      duration: Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _scrollIndicatorAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _scrollIndicatorController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
-    _scrollController.addListener(_onScroll);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _onScroll();
-    });
+    _tagsExpanded = _selectedTags.isNotEmpty;
+    _logicExpanded = _selectedCategories.isNotEmpty && _selectedTags.isNotEmpty;
   }
 
   @override
   void dispose() {
-    _scrollIndicatorController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (!_scrollController.hasClients) return;
-
-    final isAtBottom =
-        _scrollController.offset >=
-        _scrollController.position.maxScrollExtent - 50;
-    final hasScrollableContent = _scrollController.position.maxScrollExtent > 0;
-
-    final shouldShow = !isAtBottom && hasScrollableContent;
-
-    if (shouldShow != _showScrollIndicator) {
-      setState(() {
-        _showScrollIndicator = shouldShow;
-      });
-
-      if (shouldShow) {
-        _scrollIndicatorController.forward();
-      } else {
-        _scrollIndicatorController.reverse();
-      }
-    }
-  }
+  bool get _hasSelections =>
+      _selectedCategories.isNotEmpty || _selectedTags.isNotEmpty;
 
   void _onApplyFilters() {
     widget.onApplyFilters(
@@ -126,9 +89,16 @@ class _FilterModalContentState extends State<FilterModalContent>
     Navigator.pop(context);
   }
 
-  void _onClearAllFilters() {
-    widget.onApplyFilters([], [], true, false);
-    Navigator.pop(context);
+  void _clearAllFilters() {
+    setState(() {
+      _selectedCategories = [];
+      _selectedTags = [];
+      _categoryTagORLogic = true;
+      _tagORLogic = false;
+      _categoriesExpanded = true;
+      _tagsExpanded = false;
+      _logicExpanded = false;
+    });
   }
 
   List<Category?> _getCategoriesByType(CategoryType? type) {
@@ -137,438 +107,241 @@ class _FilterModalContentState extends State<FilterModalContent>
         .toList();
   }
 
-  Widget _buildCategorySection(
-    String title,
-    List<Category?> categories,
-    IconData icon,
-    Color iconColor,
-  ) {
-    if (categories.isEmpty) return SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 18, color: iconColor),
-            SizedBox(width: 6),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: iconColor,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 8),
-        Wrap(
-          spacing: 8.0,
-          children: categories.map((category) {
-            bool isSelected = _selectedCategories.contains(category);
-            return TagChip(
-              labelText: category?.name ?? '',
-              isSelected: isSelected,
-              selectedColor: iconColor.withValues(alpha: 0.2),
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedCategories.add(category);
-                  } else {
-                    _selectedCategories.remove(category);
-                  }
-                });
-              },
-            );
-          }).toList(),
-        ),
-      ],
-    );
+  void _toggleCategory(Category? category, bool selected) {
+    setState(() {
+      if (selected) {
+        _selectedCategories.add(category);
+      } else {
+        _selectedCategories.remove(category);
+      }
+      if (_selectedCategories.isNotEmpty && _selectedTags.isNotEmpty) {
+        _logicExpanded = true;
+      }
+    });
   }
 
-  Widget _buildLogicHeader({
+  void _toggleTag(String tag, bool selected) {
+    setState(() {
+      if (selected) {
+        _selectedTags.add(tag);
+      } else {
+        _selectedTags.remove(tag);
+      }
+      if (_selectedCategories.isNotEmpty && _selectedTags.isNotEmpty) {
+        _logicExpanded = true;
+      }
+    });
+  }
+
+  Widget _buildSectionHeader({
     required String title,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    required Color activeThumbColor,
+    required IconData icon,
+    required bool expanded,
+    required VoidCallback onTap,
+    int count = 0,
   }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'AND',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-            Switch(
-              value: value,
-              onChanged: onChanged,
-              activeThumbColor: activeThumbColor,
-            ),
-            Text(
-              'OR',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final expenseCategories = _getCategoriesByType(CategoryType.expense);
-    final incomeCategories = _getCategoriesByType(CategoryType.income);
-
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.67,
-      ),
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
             children: [
-              Text(
-                'Filters'.i18n,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
+              Icon(icon, size: 20, color: colorScheme.primary),
+              const SizedBox(width: 10),
               Expanded(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Categories Section
-                        Text(
-                          'Filter by Categories'.i18n,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Limit records by categories'.i18n,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-
-                        // Expense Categories
-                        _buildCategorySection(
-                          'Expense Categories'.i18n,
-                          expenseCategories,
-                          Icons.remove_circle_outline,
-                          Colors.red[600]!,
-                        ),
-
-                        // Divider between expense and income categories
-                        if (expenseCategories.isNotEmpty &&
-                            incomeCategories.isNotEmpty) ...[
-                          Divider(color: Colors.grey[400]),
-                        ],
-
-                        // Income Categories
-                        _buildCategorySection(
-                          'Income Categories'.i18n,
-                          incomeCategories,
-                          Icons.add_circle_outline,
-                          Colors.green[600]!,
-                        ),
-
-                        SizedBox(height: 20.0),
-
-                        // Tags Section
-                        _buildLogicHeader(
-                          title: 'Filter by Tags'.i18n,
-                          value: _tagORLogic,
-                          onChanged: (value) {
-                            setState(() {
-                              _tagORLogic = value;
-                            });
-                          },
-                          activeThumbColor: Colors.orange,
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          _tagORLogic
-                              ? 'Show records that have any of the selected tags'
-                                    .i18n
-                              : 'Show records that have all selected tags'.i18n,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8.0,
-                          children: _tagsToShow.map((tag) {
-                            bool isSelected = _selectedTags.contains(tag);
-                            return TagChip(
-                              labelText: tag,
-                              isSelected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedTags.add(tag);
-                                  } else {
-                                    _selectedTags.remove(tag);
-                                  }
-                                });
-                              },
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                                  .withValues(alpha: 0.5),
-                              selectedColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer
-                                  .withValues(alpha: 0.4),
-                            );
-                          }).toList(),
-                        ),
-
-                        SizedBox(height: 20.0),
-
-                        // Categories vs Tags Logic Section
-                        _buildLogicHeader(
-                          title: 'Categories vs Tags'.i18n,
-                          value: _categoryTagORLogic,
-                          onChanged: (value) {
-                            setState(() {
-                              _categoryTagORLogic = value;
-                            });
-                          },
-                          activeThumbColor: Colors.green,
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          _categoryTagORLogic
-                              ? 'Records matching categories OR tags'.i18n
-                              : 'Records must match categories AND tags'.i18n,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-
-                        if (_selectedCategories.isNotEmpty ||
-                            _selectedTags.isNotEmpty) ...[
-                          SizedBox(height: 16.0),
-                          Container(
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.grey.withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline,
-                                      size: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Filter Logic'.i18n,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 8),
-                                _buildLogicExplanation(),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  if (_selectedCategories.isNotEmpty ||
-                      _selectedTags.isNotEmpty) ...[
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _onClearAllFilters,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: BorderSide(color: Colors.red),
-                          minimumSize: const Size(0, 48),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: Text(
-                          'Clear All Filters'.i18n,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                  ],
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _onApplyFilters,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(0, 48),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: Text(
-                        'Apply Filters'.i18n,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
+              if (count > 0)
+                Container(
+                  constraints: const BoxConstraints(minWidth: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    count.toString(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colorScheme.onPrimaryContainer,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
+                ),
+              const SizedBox(width: 4),
+              Icon(
+                expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                color: colorScheme.onSurfaceVariant,
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
 
-          // Scroll indicator
-          Positioned(
-            bottom: 70,
-            left: 0,
-            right: 0,
-            child: FadeTransition(
-              opacity: _scrollIndicatorAnimation,
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.9,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: colorScheme.outline.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 16,
-                        color: colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        "Scroll for more".i18n,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+  Widget _buildCategoryOptions(
+    List<Category?> expenseCategories,
+    List<Category?> incomeCategories,
+  ) {
+    final categories = [...expenseCategories, ...incomeCategories];
+    if (categories.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: categories.map((category) {
+          final isExpense = category?.categoryType == CategoryType.expense;
+          final color = isExpense ? Colors.red[600]! : Colors.green[600]!;
+          return TagChip(
+            labelText: category?.name ?? '',
+            isSelected: _selectedCategories.contains(category),
+            selectedColor: color.withValues(alpha: 0.2),
+            onSelected: (selected) => _toggleCategory(category, selected),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildTagOptions() {
+    if (_tagsToShow.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+        child: Text(
+          'No tags found'.i18n,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: _tagsToShow.map((tag) {
+          return TagChip(
+            labelText: tag,
+            isSelected: _selectedTags.contains(tag),
+            onSelected: (selected) => _toggleTag(tag, selected),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.5),
+            selectedColor: Theme.of(context).colorScheme.primaryContainer
+                .withValues(alpha: 0.4),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildLogicToggle({
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
+          ),
+          ToggleButtons(
+            isSelected: [!value, value],
+            onPressed: (index) => onChanged(index == 1),
+            borderRadius: BorderRadius.circular(8),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 36),
+            children: const [Text('AND'), Text('OR')],
           ),
         ],
       ),
     );
   }
 
+  Widget _buildLogicOptions() {
+    if (_selectedTags.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2, bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildLogicToggle(
+            title: 'Filter by Tags'.i18n,
+            value: _tagORLogic,
+            onChanged: (value) => setState(() => _tagORLogic = value),
+          ),
+          if (_selectedCategories.isNotEmpty)
+            _buildLogicToggle(
+              title: 'Categories vs Tags'.i18n,
+              value: _categoryTagORLogic,
+              onChanged: (value) => setState(() => _categoryTagORLogic = value),
+            ),
+          _buildLogicExplanation(),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLogicExplanation() {
-    List<String> parts = [];
+    final parts = <String>[];
 
     if (_selectedCategories.isNotEmpty) {
-      String categories = _selectedCategories
-          .map((c) => '**${c?.name ?? ''}**')
+      final categories = _selectedCategories
+          .map((category) => '**${category?.name ?? ''}**')
           .join(' OR ');
       parts.add('($categories)');
     }
 
     if (_selectedTags.isNotEmpty) {
-      String connector = _tagORLogic ? ' OR ' : ' AND ';
-      String tags = _selectedTags.map((tag) => '**$tag**').join(connector);
+      final connector = _tagORLogic ? ' OR ' : ' AND ';
+      final tags = _selectedTags.map((tag) => '**$tag**').join(connector);
       parts.add('($tags)');
     }
 
-    String explanation = '';
-    if (parts.length == 2) {
-      String connector = _categoryTagORLogic ? ' OR ' : ' AND ';
-      explanation = parts.join(connector);
-    } else if (parts.length == 1) {
-      explanation = parts.first;
-    }
+    final explanation = switch (parts.length) {
+      2 => parts.join(_categoryTagORLogic ? ' OR ' : ' AND '),
+      1 => parts.first,
+      _ => '',
+    };
 
     return RichText(
       text: TextSpan(
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey[600],
-          fontStyle: FontStyle.italic,
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         children: _parseMarkdownText('Showing records matching: $explanation'),
       ),
     );
   }
 
   List<TextSpan> _parseMarkdownText(String text) {
-    List<TextSpan> spans = [];
-    RegExp exp = RegExp(r'\*\*(.*?)\*\*');
-    int lastMatchEnd = 0;
+    final spans = <TextSpan>[];
+    final expression = RegExp(r'\*\*(.*?)\*\*');
+    var lastMatchEnd = 0;
 
-    for (RegExpMatch match in exp.allMatches(text)) {
+    for (final match in expression.allMatches(text)) {
       if (match.start > lastMatchEnd) {
         spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start)));
       }
@@ -576,10 +349,9 @@ class _FilterModalContentState extends State<FilterModalContent>
       spans.add(
         TextSpan(
           text: match.group(1),
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       );
-
       lastMatchEnd = match.end;
     }
 
@@ -588,5 +360,106 @@ class _FilterModalContentState extends State<FilterModalContent>
     }
 
     return spans;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final expenseCategories = _getCategoriesByType(CategoryType.expense);
+    final incomeCategories = _getCategoriesByType(CategoryType.income);
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.78,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Filters'.i18n,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (_hasSelections)
+                  IconButton(
+                    onPressed: _clearAllFilters,
+                    tooltip: 'Clear All Filters'.i18n,
+                    icon: const Icon(Icons.restart_alt),
+                  ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  tooltip: 'Close'.i18n,
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            Divider(color: colorScheme.outlineVariant),
+            const SizedBox(height: 4),
+            Expanded(
+              child: ListView(
+                controller: _scrollController,
+                padding: const EdgeInsets.only(bottom: 8),
+                children: [
+                  _buildSectionHeader(
+                    title: 'Filter by Categories'.i18n,
+                    icon: Icons.category_outlined,
+                    expanded: _categoriesExpanded,
+                    count: _selectedCategories.length,
+                    onTap: () => setState(
+                      () => _categoriesExpanded = !_categoriesExpanded,
+                    ),
+                  ),
+                  if (_categoriesExpanded)
+                    _buildCategoryOptions(expenseCategories, incomeCategories),
+                  Divider(color: colorScheme.outlineVariant),
+                  _buildSectionHeader(
+                    title: 'Filter by Tags'.i18n,
+                    icon: Icons.local_offer_outlined,
+                    expanded: _tagsExpanded,
+                    count: _selectedTags.length,
+                    onTap: () => setState(() => _tagsExpanded = !_tagsExpanded),
+                  ),
+                  if (_tagsExpanded) _buildTagOptions(),
+                  if (_selectedTags.isNotEmpty) ...[
+                    Divider(color: colorScheme.outlineVariant),
+                    _buildSectionHeader(
+                      title: 'Filter Logic'.i18n,
+                      icon: Icons.tune,
+                      expanded: _logicExpanded,
+                      onTap: () =>
+                          setState(() => _logicExpanded = !_logicExpanded),
+                    ),
+                    if (_logicExpanded) _buildLogicOptions(),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _onApplyFilters,
+                icon: const Icon(Icons.check),
+                label: Text('Apply Filters'.i18n, textAlign: TextAlign.center),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  minimumSize: const Size.fromHeight(48),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
