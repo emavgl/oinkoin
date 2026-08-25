@@ -133,11 +133,46 @@ class _FilterModalContentState extends State<FilterModalContent> {
     });
   }
 
+  bool _allCategoriesSelected(List<Category?> categories) {
+    return categories.isNotEmpty &&
+        categories.every(_selectedCategories.contains);
+  }
+
+  bool get _allTagsSelected =>
+      _tagsToShow.isNotEmpty && _tagsToShow.every(_selectedTags.contains);
+
+  void _toggleAllCategories(List<Category?> categories) {
+    setState(() {
+      if (_allCategoriesSelected(categories)) {
+        _selectedCategories.removeWhere(categories.contains);
+      } else {
+        _selectedCategories = {..._selectedCategories, ...categories}.toList();
+      }
+      if (_selectedTags.isNotEmpty) {
+        _logicExpanded = true;
+      }
+    });
+  }
+
+  void _toggleAllTags() {
+    setState(() {
+      if (_allTagsSelected) {
+        _selectedTags = [];
+        _logicExpanded = false;
+      } else {
+        _selectedTags = _tagsToShow.toList();
+        _logicExpanded = true;
+      }
+    });
+  }
+
   Widget _buildSectionHeader({
     required String title,
     required IconData icon,
     required bool expanded,
     required VoidCallback onTap,
+    VoidCallback? onToggleAll,
+    bool allSelected = false,
     int count = 0,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -161,6 +196,13 @@ class _FilterModalContentState extends State<FilterModalContent> {
                   ),
                 ),
               ),
+              if (onToggleAll != null)
+                IconButton(
+                  onPressed: onToggleAll,
+                  tooltip: 'Select all'.i18n,
+                  icon: Icon(allSelected ? Icons.deselect : Icons.select_all),
+                  visualDensity: VisualDensity.compact,
+                ),
               if (count > 0)
                 Container(
                   constraints: const BoxConstraints(minWidth: 24),
@@ -194,21 +236,13 @@ class _FilterModalContentState extends State<FilterModalContent> {
     );
   }
 
-  Widget _buildCategoryOptions(
-    List<Category?> expenseCategories,
-    List<Category?> incomeCategories,
-  ) {
-    final categories = [...expenseCategories, ...incomeCategories];
-    if (categories.isEmpty) return const SizedBox.shrink();
-
+  Widget _buildCategoryChips(List<Category?> categories, Color color) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
       child: Wrap(
         spacing: 8,
         runSpacing: 4,
         children: categories.map((category) {
-          final isExpense = category?.categoryType == CategoryType.expense;
-          final color = isExpense ? Colors.red[600]! : Colors.green[600]!;
           return TagChip(
             labelText: category?.name ?? '',
             isSelected: _selectedCategories.contains(category),
@@ -217,6 +251,91 @@ class _FilterModalContentState extends State<FilterModalContent> {
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget _buildCategoryGroup({
+    required String title,
+    required List<Category?> categories,
+    required Color color,
+    required IconData icon,
+  }) {
+    if (categories.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () => _toggleAllCategories(categories),
+              tooltip: 'Select all'.i18n,
+              icon: Icon(
+                _allCategoriesSelected(categories)
+                    ? Icons.deselect
+                    : Icons.select_all,
+              ),
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _buildCategoryChips(categories, color),
+      ],
+    );
+  }
+
+  Widget _buildCategoryOptions(
+    List<Category?> expenseCategories,
+    List<Category?> incomeCategories,
+  ) {
+    if (expenseCategories.isEmpty && incomeCategories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final hasBothTypes =
+        expenseCategories.isNotEmpty && incomeCategories.isNotEmpty;
+    if (!hasBothTypes) {
+      final isExpense = expenseCategories.isNotEmpty;
+      return _buildCategoryGroup(
+        title: (isExpense ? 'Expense Categories' : 'Income Categories').i18n,
+        categories: isExpense ? expenseCategories : incomeCategories,
+        color: isExpense ? Colors.red[600]! : Colors.green[600]!,
+        icon: isExpense
+            ? Icons.remove_circle_outline
+            : Icons.add_circle_outline,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildCategoryGroup(
+          title: 'Expense Categories'.i18n,
+          categories: expenseCategories,
+          color: Colors.red[600]!,
+          icon: Icons.remove_circle_outline,
+        ),
+        Divider(color: Theme.of(context).colorScheme.outlineVariant),
+        _buildCategoryGroup(
+          title: 'Income Categories'.i18n,
+          categories: incomeCategories,
+          color: Colors.green[600]!,
+          icon: Icons.add_circle_outline,
+        ),
+      ],
     );
   }
 
@@ -420,25 +539,30 @@ class _FilterModalContentState extends State<FilterModalContent> {
                   ),
                   if (_categoriesExpanded)
                     _buildCategoryOptions(expenseCategories, incomeCategories),
-                  Divider(color: colorScheme.outlineVariant),
-                  _buildSectionHeader(
-                    title: 'Filter by Tags'.i18n,
-                    icon: Icons.local_offer_outlined,
-                    expanded: _tagsExpanded,
-                    count: _selectedTags.length,
-                    onTap: () => setState(() => _tagsExpanded = !_tagsExpanded),
-                  ),
-                  if (_tagsExpanded) _buildTagOptions(),
-                  if (_selectedTags.isNotEmpty) ...[
+                  if (_tagsToShow.isNotEmpty) ...[
                     Divider(color: colorScheme.outlineVariant),
                     _buildSectionHeader(
-                      title: 'Filter Logic'.i18n,
-                      icon: Icons.tune,
-                      expanded: _logicExpanded,
+                      title: 'Filter by Tags'.i18n,
+                      icon: Icons.local_offer_outlined,
+                      expanded: _tagsExpanded,
+                      count: _selectedTags.length,
+                      onToggleAll: _toggleAllTags,
+                      allSelected: _allTagsSelected,
                       onTap: () =>
-                          setState(() => _logicExpanded = !_logicExpanded),
+                          setState(() => _tagsExpanded = !_tagsExpanded),
                     ),
-                    if (_logicExpanded) _buildLogicOptions(),
+                    if (_tagsExpanded) _buildTagOptions(),
+                    if (_selectedTags.isNotEmpty) ...[
+                      Divider(color: colorScheme.outlineVariant),
+                      _buildSectionHeader(
+                        title: 'Filter Logic'.i18n,
+                        icon: Icons.tune,
+                        expanded: _logicExpanded,
+                        onTap: () =>
+                            setState(() => _logicExpanded = !_logicExpanded),
+                      ),
+                      if (_logicExpanded) _buildLogicOptions(),
+                    ],
                   ],
                 ],
               ),
