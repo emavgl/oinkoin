@@ -12,6 +12,7 @@ import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/services/database/exceptions.dart';
+import 'package:piggybank/services/backup-directory-service.dart';
 import 'package:piggybank/services/preferences-backup-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -57,6 +58,61 @@ class BackupService {
       // Android/iOS: use the original path
       return DEFAULT_STORAGE_DIR;
     }
+  }
+
+  /// Gets the directory backups are currently stored in: the custom folder
+  /// chosen by the user in the backup settings, or the platform default when
+  /// none has been set.
+  static Future<String> getBackupDirectory() async {
+    var prefs = await SharedPreferences.getInstance();
+    String customBackupFolderPath = PreferencesUtils.getOrDefault<String>(
+      prefs,
+      PreferencesKeys.backupFolderPath,
+    )!;
+    if (customBackupFolderPath.isNotEmpty) {
+      return customBackupFolderPath;
+    }
+    return await getDefaultBackupDirectory();
+  }
+
+  /// Returns the SAF URI of the user-picked Android backup folder when
+  /// [directoryPath] refers to it. Scoped storage blocks direct file writes
+  /// into such a folder, so every operation targeting it must go through the
+  /// Storage Access Framework instead. Returns null for every other
+  /// destination.
+  static Future<String?> _getSafFolderUri(String? directoryPath) async {
+    if (!Platform.isAndroid || directoryPath == null) {
+      return null;
+    }
+    var prefs = await SharedPreferences.getInstance();
+    String customBackupFolderPath = PreferencesUtils.getOrDefault<String>(
+      prefs,
+      PreferencesKeys.backupFolderPath,
+    )!;
+    String backupFolderUri = PreferencesUtils.getOrDefault<String>(
+      prefs,
+      PreferencesKeys.backupFolderUri,
+    )!;
+    if (customBackupFolderPath.isEmpty ||
+        backupFolderUri.isEmpty ||
+        directoryPath != customBackupFolderPath) {
+      return null;
+    }
+    return backupFolderUri;
+  }
+
+  /// Returns the SAF URI of the active custom Android backup folder, or null
+  /// when backups are stored in a plain filesystem directory.
+  static Future<String?> _getActiveSafFolderUri() async {
+    if (!Platform.isAndroid) {
+      return null;
+    }
+    var prefs = await SharedPreferences.getInstance();
+    String customBackupFolderPath = PreferencesUtils.getOrDefault<String>(
+      prefs,
+      PreferencesKeys.backupFolderPath,
+    )!;
+    return await _getSafFolderUri(customBackupFolderPath);
   }
 
   /// Generates a backup file name containing the app package name, version, and current time.
@@ -108,8 +164,15 @@ class BackupService {
 
       _logger.debug('Backup directory: ${path.path}');
 
-      // Ensure the directory exists
-      await path.create(recursive: true);
+      // Android custom folders are only writable through the Storage Access
+      // Framework: scoped storage blocks direct file writes outside the
+      // app-specific directories even when a persistable URI grant exists.
+      final safFolderUri = await _getSafFolderUri(directoryPath);
+
+      // Ensure the directory exists (raw file writes only)
+      if (safFolderUri == null) {
+        await path.create(recursive: true);
+      }
 
       final packageInfo = await PackageInfo.fromPlatform();
       final appName = packageInfo.packageName; // The package name
@@ -165,7 +228,25 @@ class BackupService {
         backupJsonStr = encryptData(backupJsonStr, encryptionPassword);
       }
 
-      // Write on disk
+      // Write on disk. SAF destinations receive the backup through the
+      // platform channel, which copies a staged file into the picked folder.
+      if (safFolderUri != null) {
+        final tempDir = await getTemporaryDirectory();
+        final stagedFile = File("${tempDir.path}/$backupFileName");
+        await stagedFile.writeAsString(backupJsonStr, flush: true);
+        try {
+          await BackupDirectoryService.writeBackupFile(
+              safFolderUri, backupFileName, stagedFile.path);
+        } finally {
+          await stagedFile.delete();
+        }
+        var safBackupFile = File("${path.path}/$backupFileName");
+        _logger.info(
+          'Backup created successfully: ${safBackupFile.path} (${backupJsonStr.length} bytes)',
+        );
+        return safBackupFile;
+      }
+
       var backupJsonOnDisk = File("${path.path}/$backupFileName");
       var result = await backupJsonOnDisk.writeAsString(backupJsonStr);
 
@@ -259,7 +340,7 @@ class BackupService {
 
     try {
       _logger.info('Creating automatic backup...');
-      final backupDir = await getDefaultBackupDirectory();
+      final backupDir = await getBackupDirectory();
       File backupFile = await BackupService.createJsonBackupFile(
         backupFileName: filename,
         directoryPath: backupDir,
@@ -290,7 +371,11 @@ class BackupService {
     if (enableEncryptedBackup && backupRetentionIntervalIndex != null) {
       var period = BackupRetentionPeriod.values[backupRetentionIntervalIndex];
       if (period != BackupRetentionPeriod.ALWAYS) {
-        final backupDir = await getDefaultBackupDirectory();
+        final safFolderUri = await _getActiveSafFolderUri();
+        if (safFolderUri != null) {
+          return await _removeOldSafBackups(safFolderUri, period);
+        }
+        final backupDir = await getBackupDirectory();
         return await removeOldBackups(period, Directory(backupDir));
       }
     }
@@ -659,6 +744,45 @@ class BackupService {
     }
   }
 
+  /// Removes old backups stored in a SAF-managed custom folder. Documents
+  /// whose modified date is unknown are kept: deleting them based on a
+  /// missing timestamp would risk removing fresh backups.
+  static Future<bool> _removeOldSafBackups(
+    String safFolderUri,
+    BackupRetentionPeriod retentionPeriod,
+  ) async {
+    if (retentionPeriod == BackupRetentionPeriod.ALWAYS) {
+      return true;
+    }
+
+    final now = DateTime.now();
+    final duration = retentionPeriod == BackupRetentionPeriod.WEEK
+        ? Duration(days: 7)
+        : Duration(days: 30);
+
+    final files = await BackupDirectoryService.listBackupFiles(safFolderUri);
+    for (final file in files) {
+      if (!file.name.endsWith(MANDATORY_BACKUP_SUFFIX)) {
+        continue;
+      }
+      final modifiedMs = file.lastModifiedMs;
+      if (modifiedMs == null || modifiedMs <= 0) {
+        continue;
+      }
+      final modified = DateTime.fromMillisecondsSinceEpoch(modifiedMs);
+      if (now.difference(modified) > duration) {
+        try {
+          _logger.debug("Deleting old backup: ${file.name}");
+          await BackupDirectoryService.deleteBackupFile(
+              safFolderUri, file.name);
+        } catch (e, st) {
+          _logger.handle(e, st, 'Failed to delete old backup: ${file.name}');
+        }
+      }
+    }
+    return true;
+  }
+
   /// Decrypts the given data using the provided password.
   static String decryptData(String data, String password) {
     final key = encrypt.Key.fromUtf8(
@@ -728,12 +852,33 @@ class BackupService {
     return formatter.format(dateLatestBackup);
   }
 
-  /// Returns the date of the latest backup file in the default backup directory.
+  /// Returns the date of the latest backup file in the backup directory.
   /// Looks for files that end with MANDATORY_BACKUP_SUFFIX
   /// and returns the modified date of the latest backup as DateTime.
   /// Returns null if no backup file is found.
   static Future<DateTime?> getDateLatestBackup() async {
-    final backupDirPath = await getDefaultBackupDirectory();
+    final safFolderUri = await _getActiveSafFolderUri();
+    if (safFolderUri != null) {
+      DateTime? latestModifiedDate;
+      final files =
+          await BackupDirectoryService.listBackupFiles(safFolderUri);
+      for (final file in files) {
+        if (!file.name.endsWith(MANDATORY_BACKUP_SUFFIX)) {
+          continue;
+        }
+        final modifiedMs = file.lastModifiedMs;
+        if (modifiedMs == null || modifiedMs <= 0) {
+          continue;
+        }
+        final modified = DateTime.fromMillisecondsSinceEpoch(modifiedMs);
+        if (latestModifiedDate == null || modified.isAfter(latestModifiedDate)) {
+          latestModifiedDate = modified;
+        }
+      }
+      return latestModifiedDate;
+    }
+
+    final backupDirPath = await getBackupDirectory();
     final backupDir = Directory(backupDirPath);
 
     // Check if the directory exists, return null if it doesn't exist

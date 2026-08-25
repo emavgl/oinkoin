@@ -188,7 +188,9 @@ void main() {
     );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel2, (MethodCall methodCall) async {
-          return testDir;
+          // The real platform side answers with a path string; returning the
+          // Directory object itself cannot be encoded by StandardMethodCodec.
+          return testDir.path;
         });
 
     // Mock SharedPreferences
@@ -659,6 +661,49 @@ void main() {
     expect(await oldFile.exists(), isFalse);
     expect(await newFile.exists(), isTrue);
   });
+
+  testlib.test(
+    'getBackupDirectory falls back to the default directory when no custom folder is set',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(PreferencesKeys.backupFolderPath);
+
+      expect(await BackupService.getBackupDirectory(),
+          await BackupService.getDefaultBackupDirectory());
+    },
+  );
+
+  testlib.test(
+    'getBackupDirectory returns the custom folder when set',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          PreferencesKeys.backupFolderPath, '${testDir.path}/custom');
+
+      expect(await BackupService.getBackupDirectory(),
+          '${testDir.path}/custom');
+
+      await prefs.remove(PreferencesKeys.backupFolderPath);
+    },
+  );
+
+  testlib.test(
+    'getDateLatestBackup looks for backups in the custom folder',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final customDir = Directory('${testDir.path}/custom');
+      await customDir.create(recursive: true);
+      await File('${customDir.path}/oinkoin_obackup.json').writeAsString('{}');
+      await prefs.setString(
+          PreferencesKeys.backupFolderPath, customDir.path);
+
+      final latestBackup = await BackupService.getDateLatestBackup();
+
+      expect(latestBackup, isNotNull);
+
+      await prefs.remove(PreferencesKeys.backupFolderPath);
+    },
+  );
 
   testlib.test(
     'importDataFromBackupFile handles missing record_tag_associations',

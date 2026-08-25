@@ -32,6 +32,8 @@ class PreferencesDefaultValues {
     PreferencesKeys.backupRetentionIntervalIndex:
         BackupRetentionPeriod.ALWAYS.index, // Default retention period index
     PreferencesKeys.backupPassword: '', // Default to empty password
+    PreferencesKeys.backupFolderPath: '', // Empty means the default folder
+    PreferencesKeys.backupFolderUri: '', // No custom folder picked yet
     PreferencesKeys.enableAppLock: false, // Default to disabled
     PreferencesKeys.restoreAmountOnDelete:
         true, // Default to restoring the amount

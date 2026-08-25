@@ -26,6 +26,10 @@ void main() {
     await prefs.setInt(PreferencesKeys.activeProfileId, 42);
     await prefs.setStringList(
         PreferencesKeys.homePageWalletFilter(42), ['1', '2']);
+    await prefs.setString(
+        PreferencesKeys.backupFolderPath, '/storage/emulated/0/Backups');
+    await prefs.setString(PreferencesKeys.backupFolderUri,
+        'content://com.android.externalstorage.documents/tree/primary:Backups');
     await prefs.setString('future_unknown_setting', 'must not be exported');
 
     final exported = PreferencesBackupService.exportPreferences(prefs);
@@ -41,6 +45,9 @@ void main() {
     expect(exported.containsKey(PreferencesKeys.activeProfileId), isFalse);
     expect(exported.containsKey(PreferencesKeys.homePageWalletFilter(42)),
         isFalse);
+    // Device-local backup folder settings must never move to another device.
+    expect(exported.containsKey(PreferencesKeys.backupFolderPath), isFalse);
+    expect(exported.containsKey(PreferencesKeys.backupFolderUri), isFalse);
     expect(exported.containsKey('future_unknown_setting'), isFalse);
   });
 
