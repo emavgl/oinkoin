@@ -240,7 +240,7 @@ class BudgetsPageState extends State<BudgetsPage> {
 
   String _budgetAmount(Budget budget, double ratio) {
     final amount = budget.targetAmount * ratio;
-    return '${getCurrencyValueString(amount.clamp(0, budget.targetAmount))} / ${getCurrencyValueString(budget.targetAmount)}';
+    return '${getCurrencyValueString(amount)} / ${getCurrencyValueString(budget.targetAmount)}';
   }
 
   String _cycleLabel(Budget budget, BudgetCycle cycle) {

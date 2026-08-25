@@ -187,6 +187,44 @@ class _FilterModalContentState extends State<FilterModalContent>
     );
   }
 
+  Widget _buildLogicHeader({
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required Color activeThumbColor,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'AND',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeThumbColor: activeThumbColor,
+            ),
+            Text(
+              'OR',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -261,44 +299,15 @@ class _FilterModalContentState extends State<FilterModalContent>
                         SizedBox(height: 20.0),
 
                         // Tags Section
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Filter by Tags'.i18n,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  'AND',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Switch(
-                                  value: _tagORLogic,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _tagORLogic = value;
-                                    });
-                                  },
-                                  activeThumbColor: Colors.orange,
-                                ),
-                                Text(
-                                  'OR',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        _buildLogicHeader(
+                          title: 'Filter by Tags'.i18n,
+                          value: _tagORLogic,
+                          onChanged: (value) {
+                            setState(() {
+                              _tagORLogic = value;
+                            });
+                          },
+                          activeThumbColor: Colors.orange,
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -344,44 +353,15 @@ class _FilterModalContentState extends State<FilterModalContent>
                         SizedBox(height: 20.0),
 
                         // Categories vs Tags Logic Section
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Categories vs Tags'.i18n,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  'AND',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Switch(
-                                  value: _categoryTagORLogic,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _categoryTagORLogic = value;
-                                    });
-                                  },
-                                  activeThumbColor: Colors.green,
-                                ),
-                                Text(
-                                  'OR',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        _buildLogicHeader(
+                          title: 'Categories vs Tags'.i18n,
+                          value: _categoryTagORLogic,
+                          onChanged: (value) {
+                            setState(() {
+                              _categoryTagORLogic = value;
+                            });
+                          },
+                          activeThumbColor: Colors.green,
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -450,9 +430,15 @@ class _FilterModalContentState extends State<FilterModalContent>
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.red,
                           side: BorderSide(color: Colors.red),
+                          minimumSize: const Size(0, 48),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 12,
+                          ),
                         ),
                         child: Text(
                           'Clear All Filters'.i18n,
+                          textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -465,9 +451,15 @@ class _FilterModalContentState extends State<FilterModalContent>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor,
                         foregroundColor: Colors.white,
+                        minimumSize: const Size(0, 48),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 12,
+                        ),
                       ),
                       child: Text(
                         'Apply Filters'.i18n,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
