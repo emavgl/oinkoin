@@ -8,18 +8,12 @@ import 'logger.dart';
 import 'premium-license-store.dart';
 
 /// The Pro product sold in the free app.
-///
-/// This ID must exist in Google Play Console (free flavor
-/// `com.github.emavgl.piggybank`) before real purchases work; until then the
-/// splash screen shows its demo state in debug builds and an offline message
-/// in release builds.
 class ProProductIds {
   ProProductIds._();
 
   /// One-time (non-consumable) purchase: unlocks Pro forever.
-  /// Must exactly match the one-time product ID in Google Play Console.
-  /// Google Play IDs allow lowercase letters, numbers, underscores, and
-  /// periods; the previous hyphenated value could never resolve.
+  /// Must exactly match the one-time product ID configured in
+  /// Google Play Console (free flavor `com.github.emavgl.piggybank`).
   static const String oneTime = 'lifetime_pro';
 
   static const Set<String> all = {oneTime};
