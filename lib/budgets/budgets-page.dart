@@ -410,6 +410,7 @@ class BudgetsPageState extends State<BudgetsPage> {
             : Stack(
                 children: [
                   FloatingActionButton(
+                    heroTag: null,
                     onPressed: ServiceConfig.isPremium
                         ? _createBudget
                         : () async {

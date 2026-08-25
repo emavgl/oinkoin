@@ -269,6 +269,7 @@ class _AddCurrencyPageState extends State<AddCurrencyPage> {
           child: child,
         ),
         child: FloatingActionButton(
+          heroTag: null,
           onPressed: _save,
           tooltip: "Save".i18n,
           child: const Icon(Icons.save),

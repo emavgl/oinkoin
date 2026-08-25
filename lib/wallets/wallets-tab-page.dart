@@ -600,6 +600,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
           : Stack(
               children: [
                 FloatingActionButton(
+                  heroTag: null,
                   onPressed: ServiceConfig.isPremium
                       ? () async {
                           await Navigator.push(

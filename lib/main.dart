@@ -13,7 +13,9 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/services/logger.dart';
+import 'package:piggybank/services/premium-license-store.dart';
 import 'package:piggybank/services/profile-service.dart';
+import 'package:piggybank/services/purchase-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/shell.dart';
 import 'package:piggybank/style.dart';
@@ -25,6 +27,29 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'i18n.dart';
 
 final logger = Logger.withContext("main");
+
+/// Resolves the premium state at startup:
+/// - The separate Pro app (package ends with "pro") and desktop builds are
+///   always premium (they are distributed as Pro).
+/// - The free mobile build is premium when a Lifetime Pro license is stored
+///   (cached entitlement) and/or the store reports an active purchase.
+Future<void> _resolvePremium(String packageName) async {
+  final desktop = Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+  final proBuild = packageName.endsWith("pro");
+  if (desktop || proBuild) {
+    ServiceConfig.setPremium(true);
+    return;
+  }
+
+  // Free mobile build: start from the cached license, then sync with the
+  // store so the entitlement is restored or revoked appropriately.
+  ServiceConfig.setPremium(PremiumLicenseStore.isPro());
+  if (Platform.isAndroid || Platform.isIOS) {
+    final purchaseService = PurchaseService.instance
+      ..onPremiumChanged = ServiceConfig.setPremium;
+    await purchaseService.initialize();
+  }
+}
 
 /// Pending quick action that arrived before the navigator was ready.
 String? _pendingQuickAction;
@@ -114,16 +139,13 @@ main() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     ServiceConfig.packageName = packageInfo.packageName;
     ServiceConfig.version = packageInfo.version;
-    ServiceConfig.isPremium =
-        packageInfo.packageName.endsWith("pro") ||
-        Platform.isLinux ||
-        Platform.isWindows ||
-        Platform.isMacOS;
+
+    ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
+    await _resolvePremium(packageInfo.packageName);
+
     logger.info(
       'Package: ${ServiceConfig.packageName} v${ServiceConfig.version} (Premium: ${ServiceConfig.isPremium})',
     );
-
-    ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
     ServiceConfig.initWalletsEnabled();
     ServiceConfig.initBudgetsEnabled();
     ServiceConfig.initShowHomepageImage();

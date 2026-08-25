@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-23",
-    "total_keys": 577
+    "last_updated": "2026-08-25",
+    "total_keys": 576
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -1185,15 +1185,6 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
-    },
-    "Create wallets": {
-      "context": "Premium feature - ability to create and manage multiple wallets",
-      "file": "lib/premium/splash-screen.dart:210",
-      "page": "Premium/Upgrade Screen",
-      "component": "Feature list bullet point",
-      "meaning": "Users can create new wallet accounts to organize finances",
-      "notes": "Part of premium feature promotion",
-      "status": "verified"
     },
     "Creator & maintainer": {
       "key": "Creator & maintainer",
@@ -2763,16 +2754,6 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
-    },
-    "Manage budgets": {
-      "key": "Manage budgets",
-      "context": "Premium feature bullet on the paywall",
-      "file": "lib/premium/splash-screen.dart",
-      "page": "Premium splash screen",
-      "component": "Feature list bullet point",
-      "meaning": "Manage the app's budgeting features and plans",
-      "notes": "Keep concise as a short feature label",
-      "status": "verified"
     },
     "Manage multiple currencies": {
       "context": "Premium feature - manage different currencies in wallets",
@@ -5784,6 +5765,16 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
+      "status": "verified"
+    },
+    "Create wallets and budgets": {
+      "key": "Create wallets and budgets",
+      "context": "Premium feature bullet on the paywall, combining the wallet creation and budget management features into one line",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Premium splash screen (paywall)",
+      "component": "Feature list bullet point",
+      "meaning": "Users can create multiple wallets and set up budgets in the Pro version",
+      "notes": "Keep concise as a short feature label; translate both verbs naturally",
       "status": "verified"
     }
   }
