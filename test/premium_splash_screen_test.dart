@@ -85,8 +85,7 @@ void main() {
       find.text('Filter records by year or custom date range'),
       findsNothing,
     );
-    expect(find.text('Create wallets'), findsOneWidget);
-    expect(find.text('Manage budgets'), findsOneWidget);
+    expect(find.text('Create wallets and budgets'), findsOneWidget);
     expect(find.text('Full category icon pack and color picker'), findsNothing);
     expect(find.text('Support more profiles'), findsNothing);
     expect(
