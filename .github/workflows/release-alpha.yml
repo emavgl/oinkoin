@@ -68,9 +68,10 @@ jobs:
           commit_message: "[auto] version bump"
           file_pattern: 'pubspec.* *.txt'
 
-      - name: Build app bundle
+      - name: Build Pro app bundle with stubs
         run: |
-          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
+          chmod +x scripts/build_pro.sh
+          BUILD_COMMAND=appbundle scripts/build_pro.sh --obfuscate --split-debug-info=./build-debug-file
 
       - name: Publish on Google Play Pro
         uses: r0adkll/upload-google-play@v1

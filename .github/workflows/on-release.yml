@@ -148,8 +148,10 @@ jobs:
           echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
           cp key.properties android/key.properties
 
-      - name: Build APK
-        run: submodules/flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi
+      - name: Build Pro APK with stubs
+        run: |
+          chmod +x scripts/build_pro.sh
+          scripts/build_pro.sh --split-debug-info=./build-debug-files --release --split-per-abi
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
@@ -163,10 +165,11 @@ jobs:
           body: ${{ github.event.release.body }}
           tag_name: ${{ github.event.release.tag_name }}
 
-      - name: Build app bundle
+      - name: Build app bundles
         run: |
           submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
-          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
+          chmod +x scripts/build_pro.sh
+          BUILD_COMMAND=appbundle scripts/build_pro.sh --obfuscate --split-debug-info=./build-debug-file
 
       - name: Publish on Google Play Free
         uses: r0adkll/upload-google-play@v1

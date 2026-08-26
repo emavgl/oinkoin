@@ -1,0 +1,12 @@
+name: in_app_purchase
+description: No-op stub for F-Droid builds. Provides the same API surface as the real in_app_purchase package with empty implementations.
+publish_to: none
+version: 0.0.1
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  in_app_purchase_android:
+    path: ../in_app_purchase_android

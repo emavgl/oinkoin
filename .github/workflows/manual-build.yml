@@ -52,15 +52,18 @@ jobs:
           echo "${{ github.event.release.body }}" > changelog.temp
           python bump_new_version.py ${{ github.event.release.tag_name }} changelog.temp
 
-      - name: Build APK
-        run: submodules/flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor pro --release --split-per-abi
+      - name: Build Pro APK with stubs
+        run: |
+          chmod +x scripts/build_pro.sh
+          scripts/build_pro.sh --split-debug-info=./build-debug-files --release --split-per-abi
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
-      - name: Build app bundle
+      - name: Build app bundles
         run: |
           submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
-          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor pro
+          chmod +x scripts/build_pro.sh
+          BUILD_COMMAND=appbundle scripts/build_pro.sh --obfuscate --split-debug-info=./build-debug-file
 
       - name: Upload APK app-x86_64-pro-release.apk
         uses: actions/upload-artifact@v4
