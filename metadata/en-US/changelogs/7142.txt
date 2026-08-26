@@ -1,0 +1,2 @@
+- F-Droid and sideloaded (Pro) builds no longer bundle Google Play Billing
+- Alpha flavor hardened like Pro (no billing library or network permissions)
