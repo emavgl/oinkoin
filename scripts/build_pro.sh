@@ -37,9 +37,14 @@ cp "$PUBSPEC" "$PUBSPEC_BACKUP"
 cp "$LOCKFILE" "$LOCKFILE_BACKUP"
 python3 "$SCRIPT_DIR/stub_in_app_purchase.py"
 
-echo "Swapped in_app_purchase for stubs"
 cd "$PROJECT_DIR"
-flutter pub get
+if [ -x "$PROJECT_DIR/submodules/flutter/bin/flutter" ]; then
+  FLUTTER="$PROJECT_DIR/submodules/flutter/bin/flutter"
+else
+  FLUTTER="$(command -v flutter)"
+fi
+
 BUILD_COMMAND="${BUILD_COMMAND:-apk}"
 FLAVOR="${FLAVOR:-pro}"
-flutter build "$BUILD_COMMAND" --flavor "$FLAVOR" "$@"
+"$FLUTTER" pub get
+"$FLUTTER" build "$BUILD_COMMAND" --flavor "$FLAVOR" "$@"

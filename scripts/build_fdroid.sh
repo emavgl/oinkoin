@@ -44,11 +44,14 @@ cp "$LOCKFILE" "$LOCKFILE_BACKUP"
 # Swap real packages for stubs (version-agnostic, YAML-validated)
 python3 "$SCRIPT_DIR/stub_in_app_purchase.py"
 
-echo "Swapped in_app_purchase for F-Droid stubs"
-
-# Regenerate plugin list without the real plugins
 cd "$PROJECT_DIR"
-flutter pub get
+if [ -x "$PROJECT_DIR/submodules/flutter/bin/flutter" ]; then
+  FLUTTER="$PROJECT_DIR/submodules/flutter/bin/flutter"
+else
+  FLUTTER="$(command -v flutter)"
+fi
+
+"$FLUTTER" pub get
 
 # Build
-flutter build apk --flavor fdroid "${BUILD_ARGS[@]}"
+"$FLUTTER" build apk --flavor fdroid "${BUILD_ARGS[@]}"
