@@ -92,6 +92,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin master
+          git checkout origin/master
           git add pubspec.* *.txt submodules/* distribution/whatsnew/whatsnew-en-US metadata/en-US/changelogs/*.txt
           git commit -m "[auto] version bump"
           git push origin HEAD:master
