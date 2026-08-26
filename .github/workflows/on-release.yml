@@ -88,21 +88,20 @@ jobs:
           echo "New version: $NEW_VERSION"
           echo "Version code: $VERSION_CODE"
 
-      - name: Commit and push version bump
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin master
-          git checkout origin/master
-          git add pubspec.* *.txt submodules/* distribution/whatsnew/whatsnew-en-US metadata/en-US/changelogs/*.txt
-          git commit -m "[auto] version bump"
-          git push origin HEAD:master
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: master
+          commit_message: "[auto] version bump"
+          file_pattern: 'pubspec.* *.txt submodules/* distribution/whatsnew/whatsnew-en-US'
 
       # Move the tag to the bumped commit so F-Droid picks up the changelog.
       # F-Droid reads store metadata (incl. changelogs/<versionCode>.txt) from the
       # very same commit the tag points to, so the tag must include the new changelog.
       - name: Update the tag
         run: |
+          git fetch origin master
+          git checkout master
+          git reset --hard origin/master
           git tag -f ${{ github.event.release.tag_name }}
           git push -f origin ${{ github.event.release.tag_name }}
 
