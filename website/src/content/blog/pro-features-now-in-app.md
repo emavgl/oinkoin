@@ -47,7 +47,13 @@ This change does not affect the F-Droid version of Oinkoin. The F-Droid build re
 ## FAQ
 
 **Does the app depend on Google Play Services or include extra permissions?**
-The free version of Oinkoin includes the BILLING permission in its manifest to support in-app purchases. While the app can function completely without Google Play Services, you will need them if you wish to upgrade to Pro. The standalone Pro and F-Droid versions do not contain any billing code. Rest assured, your privacy and experience remain unchanged!
+The free version of Oinkoin includes the `INTERNET`, `ACCESS_NETWORK_STATE`, and `BILLING` permissions in its manifest — Google Play's in-app billing library requires them to process the one-time Pro purchase. These permissions are used only for that purchase step. Opening the app, adding expenses, viewing statistics, and creating backups all continue to work fully offline, and your financial data is never sent anywhere. The standalone Pro and F-Droid versions don't include Play Billing at all, so they don't include the internet permissions either, and have no billing code.
+
+**Is Oinkoin still an offline app?**
+Yes. All your expenses, categories, budgets, and backups are stored locally and are never uploaded to any server. The only exception is the optional one-time Pro purchase in the free Android app, which briefly talks to Google Play to process the payment — nothing else about the app requires network access.
+
+**Can I still trust Oinkoin?**
+Sure! The entire code is available on GitHub for anyone to read it, and the distribution on the store happens also on GitHub via GitHub Actions.
 
 **Is my data affected?**
 No. Buying Pro inside the free app doesn't move, export, or modify any of your records.
