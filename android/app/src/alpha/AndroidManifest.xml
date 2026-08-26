@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The Alpha app is distributed outside Google Play (sideload) and is
+         built with the no-op in_app_purchase stubs (see scripts/build_pro.sh
+         with FLAVOR=alpha). Strip all permissions injected by transitive
+         dependencies as a safety net; Billing communicates with the Play
+         Store app via local Binder IPC — no network permission is needed. -->
+    <uses-permission
+        android:name="com.android.vending.BILLING"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
+</manifest>

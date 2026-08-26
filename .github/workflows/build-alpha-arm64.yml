@@ -50,7 +50,7 @@ jobs:
       - name: Build Alpha APK for arm64 with stubs
         run: |
           chmod +x scripts/build_pro.sh
-          scripts/build_pro.sh --split-debug-info=./build-debug-files --release --target-platform android-arm64
+          FLAVOR=alpha scripts/build_pro.sh --split-debug-info=./build-debug-files --release --target-platform android-arm64
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 

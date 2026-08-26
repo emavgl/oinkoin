@@ -14,6 +14,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 PUBSPEC="$PROJECT_DIR/pubspec.yaml"
 PUBSPEC_BACKUP="$PROJECT_DIR/pubspec.yaml.bak"
+LOCKFILE="$PROJECT_DIR/pubspec.lock"
+LOCKFILE_BACKUP="$PROJECT_DIR/pubspec.lock.bak"
 
 BUILD_ARGS=("$@")
 if [ ${#BUILD_ARGS[@]} -eq 0 ]; then
@@ -25,14 +27,22 @@ cleanup() {
     mv "$PUBSPEC_BACKUP" "$PUBSPEC"
     echo "Restored pubspec.yaml"
   fi
+  if [ -f "$LOCKFILE_BACKUP" ]; then
+    mv "$LOCKFILE_BACKUP" "$LOCKFILE"
+    echo "Restored pubspec.lock"
+  fi
+  # pub get with the stubs regenerates this file without the StoreKit plugin;
+  # restore it so the working tree stays clean.
+  git -C "$PROJECT_DIR" checkout -- macos/Flutter/GeneratedPluginRegistrant.swift 2>/dev/null || true
 }
 trap cleanup EXIT
 
-# Backup original pubspec
+# Backup original pubspec and lockfile
 cp "$PUBSPEC" "$PUBSPEC_BACKUP"
+cp "$LOCKFILE" "$LOCKFILE_BACKUP"
 
-# Swap real packages for stubs
-sed -i 's|  in_app_purchase: \^3\.3\.0|  in_app_purchase: { path: stubs/in_app_purchase }|' "$PUBSPEC"
+# Swap real packages for stubs (version-agnostic, YAML-validated)
+python3 "$SCRIPT_DIR/stub_in_app_purchase.py"
 
 echo "Swapped in_app_purchase for F-Droid stubs"
 

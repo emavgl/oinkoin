@@ -48,7 +48,9 @@ jobs:
           cp key.properties android/key.properties
 
       - name: Build Alpha APK for arm64
-        run: submodules/flutter/bin/flutter build apk --split-debug-info=./build-debug-files --flavor alpha --release --target-platform android-arm64
+        run: |
+          chmod +x scripts/build_pro.sh
+          FLAVOR=alpha scripts/build_pro.sh --split-debug-info=./build-debug-files --release --target-platform android-arm64
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
