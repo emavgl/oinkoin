@@ -1,0 +1,17 @@
+name: Swap in F-Droid stub dependencies
+description: >
+  Replace pubspec.yaml/pubspec.lock with the committed, pre-resolved F-Droid
+  stub variants (no proprietary Google Play Billing) and resolve once. Used
+  by every CI build that needs the same no-op in_app_purchase as the F-Droid
+  build: Pro and Alpha. Runs on a throwaway CI runner, so unlike the local
+  dev scripts there is nothing to restore afterward.
+
+runs:
+  using: composite
+  steps:
+    - name: Swap in F-Droid stub dependencies
+      run: |
+        cp pubspec.yaml.fdroid pubspec.yaml
+        cp pubspec.lock.fdroid pubspec.lock
+        submodules/flutter/bin/flutter pub get
+      shell: bash
