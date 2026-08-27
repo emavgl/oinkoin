@@ -15,6 +15,13 @@ const String sampleManifest = '''
       "id": "2025-12-old-news",
       "date": "2025-12-30",
       "titleKey": "Old news"
+    },
+    {
+      "id": "2026-09-targeted",
+      "date": "2026-09-01",
+      "titleKey": "Targeted",
+      "dialog": true,
+      "dialogAudience": ["free", "alpha", "debug"]
     }
   ]
 }
@@ -28,15 +35,25 @@ void main() {
   group('CommunicationService.parseManifest', () {
     test('parses communications from manifest JSON', () {
       final comms = CommunicationService.parseManifest(sampleManifest);
-      expect(comms, hasLength(2));
-      expect(comms.first.id, '2026-08-pro-in-app-purchase');
-      expect(comms.first.showsDialog, isTrue);
+      expect(comms, hasLength(3));
+      final proComm = comms.firstWhere(
+        (c) => c.id == '2026-08-pro-in-app-purchase',
+      );
+      expect(proComm.showsDialog, isTrue);
+      expect(proComm.dialogAudience, isEmpty);
     });
 
     test('sorts communications newest first', () {
       final comms = CommunicationService.parseManifest(sampleManifest);
       expect(comms.first.date.isAfter(comms.last.date), isTrue);
+      expect(comms.first.id, '2026-09-targeted');
       expect(comms.last.id, '2025-12-old-news');
+    });
+
+    test('parses dialogAudience when present', () {
+      final comms = CommunicationService.parseManifest(sampleManifest);
+      final targeted = comms.firstWhere((c) => c.id == '2026-09-targeted');
+      expect(targeted.dialogAudience, ['free', 'alpha', 'debug']);
     });
 
     test('dialog flag defaults to false when missing', () {
@@ -91,6 +108,51 @@ void main() {
         showsDialog: false,
       );
       expect(service.shouldShowDialog(silent), isFalse);
+    });
+
+    group('dialogAudience targeting', () {
+      final targeted = Communication(
+        id: 'targeted-comm',
+        date: DateTime.parse('2026-09-01'),
+        titleKey: 'Title',
+        showsDialog: true,
+        dialogAudience: const ['free', 'alpha', 'debug'],
+      );
+
+      test('shown when the build matches one of the audience tags', () {
+        expect(
+          service.shouldShowDialog(
+            targeted,
+            buildAudience: {'release', 'free'},
+          ),
+          isTrue,
+        );
+        expect(
+          service.shouldShowDialog(targeted, buildAudience: {'debug', 'dev'}),
+          isTrue,
+        );
+      });
+
+      test('hidden when the build matches none of the audience tags', () {
+        expect(
+          service.shouldShowDialog(
+            targeted,
+            buildAudience: {'release', 'pro'},
+          ),
+          isFalse,
+        );
+      });
+
+      test('hidden when no build audience is provided', () {
+        expect(service.shouldShowDialog(targeted), isFalse);
+      });
+
+      test('an empty audience targets every build', () {
+        expect(
+          service.shouldShowDialog(comm, buildAudience: {'release', 'pro'}),
+          isTrue,
+        );
+      });
     });
   });
 }

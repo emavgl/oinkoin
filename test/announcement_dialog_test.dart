@@ -11,19 +11,34 @@ Communication _comm() => Communication(
     );
 
 class _FakeService implements CommunicationService {
+  _FakeService({
+    this.communications = const [],
+    this.showDialog = true,
+  });
+
+  final List<Communication> communications;
+  final bool showDialog;
+  final List<String> markedShown = [];
+
   @override
   Future<String> loadBody(String communicationId) async {
     return 'This is the body text.';
   }
 
   @override
-  Future<List<Communication>> getCommunications() async => [];
+  Future<List<Communication>> getCommunications() async => communications;
 
   @override
-  bool shouldShowDialog(Communication communication) => true;
+  bool shouldShowDialog(
+    Communication communication, {
+    Set<String> buildAudience = const {},
+  }) =>
+      showDialog;
 
   @override
-  Future<void> markDialogShown(Communication communication) async {}
+  Future<void> markDialogShown(Communication communication) async {
+    markedShown.add(communication.id);
+  }
 }
 
 void main() {
@@ -65,6 +80,60 @@ void main() {
 
       expect(find.byKey(const ValueKey('announcement-dialog-ok')),
           findsNothing);
+    });
+  });
+
+  group('maybeShowAnnouncementDialog', () {
+    testWidgets('shows the pending announcement and marks it shown',
+        (tester) async {
+      final service = _FakeService(communications: [_comm()]);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                maybeShowAnnouncementDialog(context, service: service);
+              });
+              return const Scaffold();
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('This is the body text.'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('announcement-dialog-ok')));
+      await tester.pumpAndSettle();
+
+      expect(service.markedShown, ['test-comm']);
+    });
+
+    testWidgets('does nothing when no announcement is pending',
+        (tester) async {
+      final service = _FakeService(
+        communications: [_comm()],
+        showDialog: false,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                maybeShowAnnouncementDialog(context, service: service);
+              });
+              return const Scaffold();
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('announcement-dialog-ok')),
+          findsNothing);
+      expect(service.markedShown, isEmpty);
     });
   });
 }

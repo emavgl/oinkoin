@@ -28,7 +28,7 @@ The framework has three layers:
 | **Body** | `assets/docs/announcements/<id>.md` | Markdown content shown in the dialog and announcements page |
 | **Settings** | Settings → Announcements | Lists all entries; tapping one opens the markdown viewer |
 
-A manifest entry with `"dialog": true` also triggers a **one-time startup dialog** (dismissed permanently via SharedPreferences).
+A manifest entry with `"dialog": true` also triggers a **one-time startup dialog** (dismissed permanently via SharedPreferences), shown by `maybeShowAnnouncementDialog()` from the `Shell` once authentication passes and the first frame is laid out. Add `"dialogAudience"` to restrict that dialog to specific builds (see Step 2).
 
 ---
 
@@ -55,7 +55,8 @@ Add an entry to `assets/docs/announcements/manifest.json`:
       "id": "2026-10-new-feature",
       "date": "2026-10-15",
       "titleKey": "New Feature X is here",
-      "dialog": true
+      "dialog": true,
+      "dialogAudience": ["free", "alpha", "debug"]
     }
   ]
 }
@@ -66,6 +67,14 @@ Fields:
 - **date**: ISO-8601 date (YYYY-MM-DD)
 - **titleKey**: exact English string used as the i18n key (must match `en-US.json`)
 - **dialog**: `true` to show a one-time startup dialog; `false` for page-only entries
+- **dialogAudience** (optional): array restricting the **startup dialog** to
+  specific builds. Tags are `debug`/`release` plus the product flavor
+  (`free` / `alpha` / `dev` / `pro`; F-Droid reports as `pro`). The dialog
+  shows when any listed tag matches the running build — e.g.
+  `["free", "alpha", "debug"]` targets free-flavor users plus alpha/debug
+  test builds. Omit or leave empty to target every build. The announcements
+  page always lists the entry regardless of this field.
+  Resolved by `resolveBuildAudience()` in `lib/comms/announcement-dialog.dart`.
 
 ### Step 3 — Add the i18n key
 
@@ -129,9 +138,10 @@ flutter test test/communication_service_test.dart
 Then test on-device:
 1. Clear app data (`adb shell pm clear <package>`)
 2. Launch the app
-3. Verify the dialog appears on first launch
+3. Verify the dialog appears on first launch (use a build whose flavor is in
+   `dialogAudience`, if set — a `flutter run` debug build always matches `debug`)
 4. Dismiss and relaunch — dialog should NOT appear again
-5. Check Settings → Announcements shows the entry
+5. Check Settings → Announcements shows the entry (regardless of `dialogAudience`)
 
 ---
 
@@ -154,7 +164,8 @@ To remove entirely:
 | `assets/docs/announcements/manifest.json` | Announcement registry |
 | `assets/docs/announcements/<id>.md` | Body content (English) |
 | `lib/services/communication-service.dart` | Service: loads manifest, resolves bodies, show-once logic |
-| `lib/comms/announcement-dialog.dart` | Startup dialog UI + `maybeShowAnnouncementDialog()` |
+| `lib/comms/announcement-dialog.dart` | Startup dialog UI + `maybeShowAnnouncementDialog()` + `resolveBuildAudience()` |
+| `lib/shell.dart` | Calls `maybeShowAnnouncementDialog()` after auth + first frame |
 | `lib/comms/announcements-page.dart` | Settings list page |
 | `lib/comms/communication-detail-page.dart` | Markdown viewer page |
 | `lib/settings/settings-page.dart:355-369` | Settings item that navigates to Announcements |

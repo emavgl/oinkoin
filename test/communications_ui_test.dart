@@ -21,7 +21,11 @@ class _FakeCommunicationService implements CommunicationService {
   }
 
   @override
-  bool shouldShowDialog(Communication communication) => false;
+  bool shouldShowDialog(
+    Communication communication, {
+    Set<String> buildAudience = const {},
+  }) =>
+      false;
 
   @override
   Future<void> markDialogShown(Communication communication) async {}

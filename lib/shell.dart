@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:piggybank/comms/announcement-dialog.dart';
 import 'package:piggybank/helpers/amount-input-utils.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/records/records-page.dart';
@@ -33,6 +34,10 @@ class ShellState extends State<Shell> {
   int _currentIndex = 0;
   final LocalAuthentication auth = LocalAuthentication();
   Future<bool>? authFuture = null;
+
+  /// Ensures the startup announcement dialog is checked only once per app run,
+  /// after authentication has succeeded and the main UI is on screen.
+  bool _announcementDialogChecked = false;
 
   final GlobalKey<TabRecordsState> _tabRecordsKey = GlobalKey();
   final GlobalKey<TabCategoriesState> _tabCategoriesKey = GlobalKey();
@@ -87,6 +92,17 @@ class ShellState extends State<Shell> {
   void dispose() {
     if (_instance == this) _instance = null;
     super.dispose();
+  }
+
+  /// Shows the pending startup announcement dialog (if any) once the main UI
+  /// has been laid out. Runs a single time per app launch and only after the
+  /// user has passed authentication.
+  void _scheduleAnnouncementDialog() {
+    if (_announcementDialogChecked) return;
+    _announcementDialogChecked = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) maybeShowAnnouncementDialog(context);
+    });
   }
 
   /// Refreshes the home tab's records list (e.g., after a quick action added a record).
@@ -265,6 +281,7 @@ class ShellState extends State<Shell> {
           );
         } else {
           // Authentication successful, build the main UI
+          _scheduleAnnouncementDialog();
           return _buildMainUI(context);
         }
       },

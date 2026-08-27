@@ -21,11 +21,18 @@ class Communication {
   /// dialog (it is always visible on the announcements page).
   final bool showsDialog;
 
+  /// Build audiences the startup dialog is restricted to (e.g. `['free',
+  /// 'alpha', 'debug']`). Empty means "every build". Matching is an
+  /// intersection against the tags returned by [resolveBuildAudience]; the
+  /// entry on the announcements page is never affected.
+  final List<String> dialogAudience;
+
   const Communication({
     required this.id,
     required this.date,
     required this.titleKey,
     required this.showsDialog,
+    this.dialogAudience = const [],
   });
 }
 
@@ -62,6 +69,9 @@ class CommunicationService {
         date: DateTime.parse(map['date'] as String),
         titleKey: map['titleKey'] as String,
         showsDialog: (map['dialog'] as bool?) ?? false,
+        dialogAudience:
+            (map['dialogAudience'] as List<dynamic>?)?.cast<String>() ??
+                const [],
       );
     }).toList();
     comms.sort((a, b) => b.date.compareTo(a.date));
@@ -87,8 +97,19 @@ class CommunicationService {
   }
 
   /// Whether the startup dialog for [communication] still needs to be shown.
-  bool shouldShowDialog(Communication communication) {
+  ///
+  /// [buildAudience] is the set of tags describing the running build (see
+  /// [resolveBuildAudience]); when the communication restricts its audience,
+  /// the dialog is shown only if the two sets intersect.
+  bool shouldShowDialog(
+    Communication communication, {
+    Set<String> buildAudience = const {},
+  }) {
     if (!communication.showsDialog || _prefs == null) return false;
+    if (communication.dialogAudience.isNotEmpty &&
+        !communication.dialogAudience.any(buildAudience.contains)) {
+      return false;
+    }
     return !(_prefs.getBool('$shownDialogKeyPrefix${communication.id}') ??
         false);
   }
