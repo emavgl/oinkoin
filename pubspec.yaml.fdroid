@@ -1,0 +1,74 @@
+name: piggybank
+description: The expenses under your control.
+version: 1.12.2+7144
+environment:
+  sdk: '>=3.13.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  i18n_extension: ^15.1.1
+  sqflite: ^2.4.3
+  sqflite_common_ffi: ^2.4.2
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  shared_preferences: ^2.5.5
+  community_charts_common: ^1.0.4
+  community_charts_flutter: ^1.0.4
+  animations: ^3.0.0
+  month_picker_dialog: ^6.7.2
+  share_plus: ^13.3.0
+  flutter_speed_dial: ^7.0.0
+  url_launcher: ^6.3.2
+  flutter_colorpicker: ^1.1.0
+  file_picker: ^12.0.0
+  uuid: ^4.6.0
+  package_info_plus: ^10.2.1
+  flutter_displaymode: ^0.7.0
+  future_progress_dialog: ^0.2.1
+  csv: ^8.0.0
+  encrypt: ^5.0.3
+  talker_flutter: ^5.1.20
+  cupertino_icons: ^1.0.9
+  font_awesome_flutter: ^11.0.0
+  intl: ^0.20.3
+  function_tree: ^0.9.1
+  system_theme: ^3.3.0
+  flutter_typeahead: ^6.0.0
+  file_selector: ^1.1.0
+  emoji_picker_flutter: ^4.5.3
+  reorderable_grid: ^1.0.13
+  local_auth: ^3.0.2
+  timezone: ^0.11.1
+  flutter_timezone: ^5.1.0
+  auto_size_text: ^3.0.0
+  quick_actions: ^1.1.0
+  app_review_dialog: ^2.0.1
+  pdf: ^3.12.0
+  in_app_purchase:
+    path: stubs/in_app_purchase
+  flutter_markdown_plus: ^1.0.3
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.16.0
+  test: ^1.31.1
+  mockito: ^5.8.1
+flutter:
+  uses-material-design: true
+  assets:
+  - assets/
+  - assets/images/
+  - assets/locales/
+  - assets/docs/announcements/
+  fonts:
+  - family: Noto Sans JP
+    fonts:
+    - asset: assets/fonts/NotoSansJP-Regular.ttf
+  - family: Noto Sans SC
+    fonts:
+    - asset: assets/fonts/NotoSansSC-Regular.ttf
+  - family: Noto Sans
+    fonts:
+    - asset: assets/fonts/NotoSans-Regular.ttf

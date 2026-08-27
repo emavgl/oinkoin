@@ -103,10 +103,11 @@ jobs:
           git pull origin stable
           cd ../..
 
-      # F-Droid's build keeps --enforce-lockfile, so pubspec.lock.fdroid must
-      # already match the stubbed pubspec.yaml with no live re-resolution;
-      # regenerate it here (with network access) on every release.
-      - name: Regenerate pubspec.lock.fdroid
+      # F-Droid's build just copies pubspec.yaml.fdroid/pubspec.lock.fdroid
+      # into place and runs pub get --enforce-lockfile, so those two files
+      # must already be fully self-consistent; regenerate them here (with
+      # network access) on every release.
+      - name: Regenerate pubspec.yaml.fdroid and pubspec.lock.fdroid
         run: |
           chmod +x scripts/generate_fdroid_lock.sh
           scripts/generate_fdroid_lock.sh
@@ -115,7 +116,7 @@ jobs:
         with:
           branch: master
           commit_message: "[auto] version bump"
-          file_pattern: 'pubspec.* pubspec.lock.fdroid *.txt submodules/* distribution/whatsnew/whatsnew-en-US'
+          file_pattern: 'pubspec.* pubspec.yaml.fdroid pubspec.lock.fdroid *.txt submodules/* distribution/whatsnew/whatsnew-en-US'
 
       # Move the tag to the bumped commit so F-Droid picks up the changelog.
       # F-Droid reads store metadata (incl. changelogs/<versionCode>.txt) from the

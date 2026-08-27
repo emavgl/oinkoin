@@ -16,6 +16,8 @@ PUBSPEC="$PROJECT_DIR/pubspec.yaml"
 PUBSPEC_BACKUP="$PROJECT_DIR/pubspec.yaml.bak"
 LOCKFILE="$PROJECT_DIR/pubspec.lock"
 LOCKFILE_BACKUP="$PROJECT_DIR/pubspec.lock.bak"
+FDROID_PUBSPEC="$PROJECT_DIR/pubspec.yaml.fdroid"
+FDROID_LOCKFILE="$PROJECT_DIR/pubspec.lock.fdroid"
 
 BUILD_ARGS=("$@")
 if [ ${#BUILD_ARGS[@]} -eq 0 ]; then
@@ -41,8 +43,9 @@ trap cleanup EXIT
 cp "$PUBSPEC" "$PUBSPEC_BACKUP"
 cp "$LOCKFILE" "$LOCKFILE_BACKUP"
 
-# Swap real packages for stubs (version-agnostic, YAML-validated)
-python3 "$SCRIPT_DIR/stub_in_app_purchase.py"
+# Swap real packages for stubs (mirrors F-Droid's own prebuild step exactly)
+cp "$FDROID_PUBSPEC" "$PUBSPEC"
+cp "$FDROID_LOCKFILE" "$LOCKFILE"
 
 cd "$PROJECT_DIR"
 if [ -x "$PROJECT_DIR/submodules/flutter/bin/flutter" ]; then

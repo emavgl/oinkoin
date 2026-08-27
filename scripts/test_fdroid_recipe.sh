@@ -1,11 +1,12 @@
 #!/bin/bash
 # Simulate F-Droid's build recipe locally, without fdroidserver:
-#   prebuild: python3 scripts/stub_in_app_purchase.py
+#   prebuild: cp pubspec.yaml.fdroid pubspec.yaml
+#             cp pubspec.lock.fdroid pubspec.lock
 #   build:    flutter pub get --enforce-lockfile
 #
-# Run this after touching pubspec.yaml, pubspec.lock, pubspec.lock.fdroid, or
-# the stubs/ packages, to catch a lockfile mismatch before it shows up as a
-# failed F-Droid build.
+# Run this after touching pubspec.yaml, pubspec.lock, pubspec.yaml.fdroid,
+# pubspec.lock.fdroid, or the stubs/ packages, to catch a lockfile mismatch
+# before it shows up as a failed F-Droid build.
 #
 # Usage:
 #   ./scripts/test_fdroid_recipe.sh
@@ -18,6 +19,8 @@ PUBSPEC="$PROJECT_DIR/pubspec.yaml"
 PUBSPEC_BACKUP="$PROJECT_DIR/pubspec.yaml.bak"
 LOCKFILE="$PROJECT_DIR/pubspec.lock"
 LOCKFILE_BACKUP="$PROJECT_DIR/pubspec.lock.bak"
+FDROID_PUBSPEC="$PROJECT_DIR/pubspec.yaml.fdroid"
+FDROID_LOCKFILE="$PROJECT_DIR/pubspec.lock.fdroid"
 
 cleanup() {
   if [ -f "$PUBSPEC_BACKUP" ]; then
@@ -42,10 +45,11 @@ else
   FLUTTER="$(command -v flutter)"
 fi
 
-echo "== prebuild: python3 scripts/stub_in_app_purchase.py =="
-python3 "$SCRIPT_DIR/stub_in_app_purchase.py"
+echo "== prebuild: cp pubspec.yaml.fdroid pubspec.yaml; cp pubspec.lock.fdroid pubspec.lock =="
+cp "$FDROID_PUBSPEC" "$PUBSPEC"
+cp "$FDROID_LOCKFILE" "$LOCKFILE"
 
 echo "== build: flutter pub get --enforce-lockfile =="
 "$FLUTTER" pub get --enforce-lockfile
 
-echo "OK: pubspec.lock.fdroid satisfies the stubbed pubspec.yaml under --enforce-lockfile"
+echo "OK: pubspec.lock.fdroid satisfies pubspec.yaml.fdroid under --enforce-lockfile"
