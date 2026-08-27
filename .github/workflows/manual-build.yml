@@ -59,9 +59,8 @@ jobs:
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
-      - name: Build app bundles
+      - name: Build Pro app bundle
         run: |
-          submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
           chmod +x scripts/build_pro.sh
           BUILD_COMMAND=appbundle scripts/build_pro.sh --obfuscate --split-debug-info=./build-debug-file
 
