@@ -17,6 +17,8 @@ PUBSPEC="$PROJECT_DIR/pubspec.yaml"
 PUBSPEC_BACKUP="$PROJECT_DIR/pubspec.yaml.bak"
 LOCKFILE="$PROJECT_DIR/pubspec.lock"
 LOCKFILE_BACKUP="$PROJECT_DIR/pubspec.lock.bak"
+FDROID_PUBSPEC="$PROJECT_DIR/pubspec.yaml.fdroid"
+FDROID_LOCKFILE="$PROJECT_DIR/pubspec.lock.fdroid"
 
 cleanup() {
   if [ -f "$PUBSPEC_BACKUP" ]; then
@@ -35,7 +37,8 @@ trap cleanup EXIT
 
 cp "$PUBSPEC" "$PUBSPEC_BACKUP"
 cp "$LOCKFILE" "$LOCKFILE_BACKUP"
-python3 "$SCRIPT_DIR/stub_in_app_purchase.py"
+cp "$FDROID_PUBSPEC" "$PUBSPEC"
+cp "$FDROID_LOCKFILE" "$LOCKFILE"
 
 cd "$PROJECT_DIR"
 if [ -x "$PROJECT_DIR/submodules/flutter/bin/flutter" ]; then
