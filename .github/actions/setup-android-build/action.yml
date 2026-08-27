@@ -1,0 +1,49 @@
+name: Set up Android build
+description: >
+  Pull the version-bump commit, set up Java, update the Flutter submodule to
+  stable, run pub get, and set up the release signing config. Shared by the
+  Free and Pro Android build jobs. Requires the caller to have already run
+  actions/checkout (a local composite action can't be resolved before that).
+
+inputs:
+  android-key-base64:
+    description: Base64-encoded upload keystore (secrets.ANDROID_KEY_BASE64)
+    required: true
+  android-properties-base64:
+    description: Base64-encoded key.properties (secrets.ANDROID_PROPERTIES_BASE64)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Pull latest changes including version bump
+      run: git pull origin master
+      shell: bash
+
+    - uses: actions/setup-java@v2
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    # Navigate to the submodule and perform the necessary git operations
+    - name: Update flutter submodule to stable branch
+      run: |
+        git submodule update --init --recursive
+        cd submodules/flutter
+        git reset --merge
+        git checkout stable
+        git pull origin stable
+        cd ../..
+      shell: bash
+
+    - run: submodules/flutter/bin/flutter pub get
+      shell: bash
+
+    - name: Set up signing config
+      run: |
+        echo "${{ inputs.android-key-base64 }}" | base64 -d - > upload-keystore.jks
+        echo "${{ inputs.android-properties-base64 }}" | base64 -d - > key.properties
+        export X_KEYSTORE_PATH="$(pwd)/upload-keystore.jks"
+        echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
+        cp key.properties android/key.properties
+      shell: bash

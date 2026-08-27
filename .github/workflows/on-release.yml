@@ -140,33 +140,10 @@ jobs:
         with:
           ref: master
 
-      - name: Pull latest changes including version bump
-        run: git pull origin master
-
-      - uses: actions/setup-java@v2
+      - uses: ./.github/actions/setup-android-build
         with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      # Navigate to the submodule and perform the necessary git operations
-      - name: Update flutter submodule to stable branch
-        run: |
-          git submodule update --init --recursive
-          cd submodules/flutter
-          git reset --merge
-          git checkout stable
-          git pull origin stable
-          cd ../..
-
-      - run: submodules/flutter/bin/flutter pub get
-
-      - name: Set up signing config
-        run: |
-          echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
-          echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" | base64 -d - > key.properties
-          export X_KEYSTORE_PATH="$(pwd)/upload-keystore.jks"
-          echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
-          cp key.properties android/key.properties
+          android-key-base64: ${{ secrets.ANDROID_KEY_BASE64 }}
+          android-properties-base64: ${{ secrets.ANDROID_PROPERTIES_BASE64 }}
 
       - name: Build Free app bundle
         run: submodules/flutter/bin/flutter build appbundle --obfuscate --split-debug-info=./build-debug-file --flavor free
@@ -192,33 +169,10 @@ jobs:
         with:
           ref: master
 
-      - name: Pull latest changes including version bump
-        run: git pull origin master
-
-      - uses: actions/setup-java@v2
+      - uses: ./.github/actions/setup-android-build
         with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      # Navigate to the submodule and perform the necessary git operations
-      - name: Update flutter submodule to stable branch
-        run: |
-          git submodule update --init --recursive
-          cd submodules/flutter
-          git reset --merge
-          git checkout stable
-          git pull origin stable
-          cd ../..
-
-      - run: submodules/flutter/bin/flutter pub get
-
-      - name: Set up signing config
-        run: |
-          echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d - > upload-keystore.jks
-          echo "${{ secrets.ANDROID_PROPERTIES_BASE64 }}" | base64 -d - > key.properties
-          export X_KEYSTORE_PATH="$(pwd)/upload-keystore.jks"
-          echo "X_KEYSTORE_PATH=$X_KEYSTORE_PATH" >> $GITHUB_ENV
-          cp key.properties android/key.properties
+          android-key-base64: ${{ secrets.ANDROID_KEY_BASE64 }}
+          android-properties-base64: ${{ secrets.ANDROID_PROPERTIES_BASE64 }}
 
       - name: Build Pro APK with stubs
         run: |
