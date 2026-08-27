@@ -54,6 +54,8 @@ jobs:
         env:
           X_KEYSTORE_PATH: ${{ env.X_KEYSTORE_PATH }}
 
+      - uses: ./.github/actions/restore-real-pubspec
+
   bump-version:
     name: Bump Version
     runs-on: ubuntu-latest
@@ -201,6 +203,8 @@ jobs:
           packageName: com.github.emavgl.piggybankpro
           releaseFiles: build/app/outputs/bundle/proRelease/app-pro-release.aab
           whatsNewDirectory: distribution/whatsnew
+
+      - uses: ./.github/actions/restore-real-pubspec
 
   build-linux:
     name: Build Linux packages

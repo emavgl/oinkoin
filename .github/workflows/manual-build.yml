@@ -74,6 +74,8 @@ jobs:
           name: app-armeabi-v7a-pro-release.apk
           path: build/app/outputs/flutter-apk/app-armeabi-v7a-pro-release.apk
 
+      - uses: ./.github/actions/restore-real-pubspec
+
   build-linux:
     name: Build Linux .deb
     runs-on: ubuntu-latest

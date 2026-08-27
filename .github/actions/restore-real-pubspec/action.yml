@@ -1,0 +1,18 @@
+name: Restore real pubspec dependencies
+description: >
+  Restore the real pubspec.yaml/pubspec.lock backed up by swap-fdroid-stubs
+  and re-resolve, so the job's working tree and .dart_tool package
+  resolution end up back on the real dependency graph rather than left on
+  the stub - even though nothing later in these jobs currently reads them
+  again, leaving it stubbed is exactly the kind of leftover state that
+  caused the Free-flavor build to silently ship the stub in the past.
+
+runs:
+  using: composite
+  steps:
+    - name: Restore real pubspec.yaml/pubspec.lock
+      run: |
+        mv pubspec.yaml.bak pubspec.yaml
+        mv pubspec.lock.bak pubspec.lock
+        submodules/flutter/bin/flutter pub get
+      shell: bash
