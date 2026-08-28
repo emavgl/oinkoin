@@ -48,6 +48,22 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     print(f'Updated version to {new_version_name} in pubspec.yaml')
     print(f'Incremented version code to {new_version_code}')
 
+    # Keep the F-Droid stub manifest in sync because some Android workflows
+    # swap it into place before building.
+    fdroid_pubspec = 'pubspec.yaml.fdroid'
+    if os.path.exists(fdroid_pubspec):
+        with open(fdroid_pubspec, 'r') as fdroid_file:
+            fdroid_content = fdroid_file.read()
+        fdroid_content = re.sub(
+            r'version:\s*[\d.]+\+\d+',
+            f'version: {new_version_name}+{new_version_code}',
+            fdroid_content,
+            count=1,
+        )
+        with open(fdroid_pubspec, 'w') as fdroid_file:
+            fdroid_file.write(fdroid_content)
+        print(f'Updated version to {new_version_name} in {fdroid_pubspec}')
+
     # Update Linux package versions
     linux_deb_config = 'linux/packaging/deb/make_config.yaml'
     linux_rpm_config = 'linux/packaging/rpm/make_config.yaml'
