@@ -24,8 +24,10 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     # Define the regex pattern to match the version line in the pubspec.yaml file
     version_pattern = r'version:\s*([\d.]+)\+(\d+)'
 
-    # Open and read the pubspec.yaml file
-    with open('pubspec.yaml', 'r') as pubspec_file:
+    pubspec_paths = ['pubspec.yaml', 'pubspec.yaml.fdroid']
+
+    # Read the main manifest to determine the current version.
+    with open(pubspec_paths[0], 'r') as pubspec_file:
         pubspec_content = pubspec_file.read()
 
     matches = re.search(version_pattern, pubspec_content)
@@ -37,15 +39,18 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     else:
         print('No version information found in pubspec.yaml')
 
-    # Update the version in pubspec.yaml with the provided version argument
+    # Keep the committed F-Droid manifest on the same app version.
     new_version_code = version_code + 1
-    new_pubspec_content = pubspec_content.replace(f"version: {version_name}+{version_code}", f"version: {new_version_name}+{new_version_code}")
+    old_version = f"version: {version_name}+{version_code}"
+    new_version = f"version: {new_version_name}+{new_version_code}"
+    for pubspec_path in pubspec_paths:
+        with open(pubspec_path, 'r') as pubspec_file:
+            manifest_content = pubspec_file.read()
+        manifest_content = manifest_content.replace(old_version, new_version)
+        with open(pubspec_path, 'w') as pubspec_file:
+            pubspec_file.write(manifest_content)
 
-    # Write the updated content back to pubspec.yaml
-    with open('pubspec.yaml', 'w') as pubspec_file:
-        pubspec_file.write(new_pubspec_content)
-
-    print(f'Updated version to {new_version_name} in pubspec.yaml')
+    print(f'Updated version to {new_version_name} in pubspec.yaml and pubspec.yaml.fdroid')
     print(f'Incremented version code to {new_version_code}')
 
     # Update Linux package versions

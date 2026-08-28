@@ -94,16 +94,6 @@ jobs:
           git pull origin stable
           cd ../..
 
-      # F-Droid's build just copies pubspec.yaml.fdroid/pubspec.lock.fdroid
-      # into place and runs pub get --enforce-lockfile, so those two files
-      # must already be fully self-consistent; regenerate them here (with
-      # network access) on every release.
-      - name: Regenerate pubspec.yaml.fdroid and pubspec.lock.fdroid
-        run: |
-          pip install pyyaml
-          chmod +x scripts/generate_fdroid_lock.sh
-          scripts/generate_fdroid_lock.sh
-
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: master
