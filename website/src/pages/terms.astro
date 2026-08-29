@@ -1,0 +1,131 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = 'Terms & Conditions | Oinkoin';
+const description = 'Terms of use and purchase information for Oinkoin and Oinkoin Pro.';
+---
+
+<Layout title={title} description={description}>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-6">
+      <article class="max-w-3xl mx-auto text-gray-700 leading-relaxed">
+        <header class="mb-10">
+          <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">Terms &amp; Conditions</h1>
+          <p class="text-lg text-gray-600">Terms of use and consumer information for Oinkoin software and this website.</p>
+        </header>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">1. Provider and scope</h2>
+          <p>These terms describe the use of the Oinkoin website and the Oinkoin expense-tracking applications provided by Emanuele Viglianisi, Altenbauerstraße 12, 4060 Leonding, Austria.</p>
+          <p>The website is an informational and promotional website. It does not operate a checkout or accept payment. Paid app purchases are made through Google Play and are subject to the purchase information and terms shown by Google Play at the time of purchase.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">2. Oinkoin products</h2>
+          <p><strong class="text-gray-900">Oinkoin Free</strong> is the free expense-tracking application. It provides core expense and income records, categories, tags, statistics, monthly views, CSV import and export, manual backup export, and other features described in the app and on this website.</p>
+          <p><strong class="text-gray-900">Oinkoin Pro</strong> is available in two ways: as a one-time, non-consumable Lifetime Pro purchase inside the Free Android app, and as a separate Oinkoin Pro app distributed through Google Play. The separate Pro app is a separate Google Play product.</p>
+          <p>Oinkoin Pro and the F-Droid and desktop builds are distributed as already-unlocked Pro builds where the relevant build is marked as Pro. F-Droid and desktop distribution does not use Google Play billing.</p>
+          <p>Oinkoin does not require an Oinkoin account, does not provide cloud synchronization, and does not operate a hosted backup service. The supported distribution channels are subject to the availability and requirements of Android, Google Play, F-Droid, Linux, Windows, and the relevant device or operating system.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">3. Lifetime Pro purchase</h2>
+          <p>The Free Android app uses the Google Play product <code class="text-sm bg-gray-100 rounded px-1.5 py-0.5">lifetime_pro</code>. It is a single purchase that unlocks the Pro entitlement permanently for the supported Free app installation and can be restored through Google Play with the purchasing Google account. It is not a subscription and does not create recurring charges.</p>
+          <p>The final price, currency, applicable taxes, payment methods, seller information, and any regional conditions are shown by Google Play before the purchase is completed. Prices may differ by country or store configuration. The website itself does not charge a payment fee.</p>
+          <p>For purchases made through Google Play, the current Google Play terms identify Google Commerce Limited, 70 Sir John Rogerson's Quay, Dublin 2, D02 R296, Ireland, as the provider of Google Play content and the contracting party for the store transaction, subject to those terms. Oinkoin remains the developer and provider of the app functionality and Pro entitlement. See the <a href="https://play.google.com/intl/en-US_at/about/play-terms.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Google Play Terms of Service</a> for the current store conditions.</p>
+          <p>A purchase in the Free app and the separate Pro app are separate store products. Oinkoin does not promise that purchasing one product automatically transfers to the other product. Existing separate Pro users who want to use the Free app's in-app entitlement can contact support for assistance.</p>
+          <p>If Google Play reverses, refunds, cancels, or otherwise reports that a purchase is no longer active, the corresponding Pro entitlement may be removed. This does not limit any statutory refund, withdrawal, warranty, or other consumer right.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">4. Pro features</h2>
+          <p>Depending on the current app version and platform, Pro includes:</p>
+          <ul class="list-disc list-inside space-y-2">
+            <li>Year and custom date-range filters.</li>
+            <li>Extended category icons and a full color picker.</li>
+            <li>Backup restoration and automatic backup scheduling. Manual export and optional backup encryption are available in the Free app.</li>
+            <li>Recurring records.</li>
+            <li>Multiple profiles.</li>
+            <li>Multiple wallets and expense or saving budgets.</li>
+            <li>Multiple currencies and custom conversion rates.</li>
+            <li>Batch movement of records between wallets.</li>
+            <li>PDF export.</li>
+            <li>PIN or biometric app lock where supported by the platform.</li>
+            <li>Custom monthly banner images.</li>
+          </ul>
+          <p>Features may be improved, renamed, or extended through updates. This does not limit mandatory statutory rights, including rights concerning conformity of paid digital content or digital services.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">5. Local storage and backups</h2>
+          <p>Oinkoin is designed to work offline. Financial records and settings are stored locally on the device. Oinkoin does not provide cloud synchronization or a hosted backup service. You are responsible for making backups, choosing a safe storage location, protecting any backup password, and checking that a backup can be restored.</p>
+          <p>Exported files may contain sensitive financial information. Use care when sharing them with other apps, devices, cloud services, or people.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">6. License</h2>
+          <p>The Oinkoin source code is published under the GNU General Public License version 3. The rights to use, copy, modify, and distribute the applicable source code are governed by that license. The <a href="https://github.com/emavgl/oinkoin/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">GPLv3 license text</a> applies to the code it covers.</p>
+          <p>The GPLv3 warranty disclaimer does not exclude or reduce mandatory consumer rights that apply to a paid digital product or service.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">7. Updates and availability</h2>
+          <p>Updates may be released through Google Play, F-Droid, GitHub, or other stated distribution channels. Platform stores and operating systems can affect availability, compatibility, payment, installation, and update timing. Users should install security and compatibility updates when offered.</p>
+          <p>A one-time purchase does not guarantee that every future feature, distribution channel, or operating-system version will remain available forever. Updates will not retroactively remove the purchased Lifetime Pro entitlement except where this is required by a reversed transaction, fraud prevention, a legal obligation, or another lawful reason. Mandatory statutory rights remain unaffected.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">8. Withdrawal from a consumer purchase</h2>
+          <p>For a consumer purchase of digital content or a digital service, Austrian law generally provides a 14-day withdrawal period beginning with the contract. The withdrawal right can end when digital content is supplied immediately only if the consumer expressly agrees to the immediate supply, confirms knowledge that the right will be lost, and receives the required contract confirmation on a durable medium.</p>
+          <p>For a Google Play transaction, a withdrawal should be addressed to Google Commerce Limited through the <a href="https://support.google.com/googleplay/contact/withdrawal_form" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Google Play withdrawal form</a> or the contact method stated in the Google Play terms. If a transaction identifies Emanuele Viglianisi as the seller, a clear withdrawal statement may instead be sent to <a href="mailto:emavgl.app@gmail.com" class="text-blue-600 hover:underline">emavgl.app@gmail.com</a> or to the postal address in Section 1. The statement does not need to use a particular form, but the following model may be used:</p>
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-3">
+            <p><strong class="text-gray-900">To:</strong> The seller identified in the Google Play checkout, or Emanuele Viglianisi, Altenbauerstraße 12, 4060 Leonding, Austria, emavgl.app@gmail.com</p>
+            <p>I hereby give notice that I withdraw from my contract for the purchase of the following digital product:</p>
+            <p>Product: Oinkoin Pro / Lifetime Pro<br />
+              Ordered on: __________<br />
+              Consumer name: __________<br />
+              Consumer address: __________<br />
+              Date: __________<br />
+              Signature, if sent on paper: __________</p>
+          </div>
+          <p>If the statutory requirements for loss of the withdrawal right were not met, mandatory withdrawal rights remain unaffected.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">9. Statutory warranty and complaints</h2>
+          <p>Mandatory statutory warranty and conformity rights for paid digital content or digital services apply. If Pro does not conform to the contract, contact support with the purchase details and a description of the problem so that the legally required remedy can be assessed.</p>
+          <p>Complaints can be sent to <a href="mailto:support@oinkoin.com" class="text-blue-600 hover:underline">support@oinkoin.com</a> or <a href="mailto:emavgl.app@gmail.com" class="text-blue-600 hover:underline">emavgl.app@gmail.com</a>. There is no voluntary agreement to participate in a particular alternative dispute-resolution body. The former EU online dispute-resolution platform is no longer in operation.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">10. Liability</h2>
+          <p>The Provider is liable in accordance with applicable law. Nothing in these terms excludes or limits liability for personal injury, intent, gross negligence, mandatory product liability, data protection obligations, statutory warranty, or any other liability that cannot legally be excluded or limited.</p>
+          <p>To the extent permitted by law and subject to the preceding paragraph, the Provider is not liable for loss caused solely by the user's failure to maintain backups, use of unsupported hardware or operating systems, incorrect configuration, failure to install available updates, or third-party services outside the Provider's control.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">11. Donations</h2>
+          <p>Donations made through Buy Me a Coffee or cryptocurrency addresses are voluntary contributions and do not purchase Pro features. The relevant payment or wallet provider's terms apply to those transactions.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">12. No financial advice</h2>
+          <p>Oinkoin is a record-keeping and budgeting tool. It does not provide financial, tax, accounting, investment, or legal advice. You are responsible for checking entries, calculations, exports, budgets, and any decisions based on them.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">13. Governing law</h2>
+          <p>Austrian law applies to the extent permitted by law. If you are a consumer, this choice does not deprive you of mandatory protections of the country where you have your habitual residence. No exclusive jurisdiction clause is imposed on consumers; statutory consumer jurisdiction rules apply.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">14. Changes to these terms</h2>
+          <p>Changes to these terms apply to future website use and future purchases from the date stated in the updated version. A change does not retroactively alter a completed one-time purchase or remove mandatory consumer rights.</p>
+          <p>We may update these terms when the website, applications, distribution channels, providers, or legal requirements change. If a change materially affects an ongoing consumer relationship, we will provide clear information and any notice or termination rights required by law. The current version is always published on this page.</p>
+        </section>
+
+        <p class="text-sm text-gray-500 border-t border-gray-200 pt-6">Last updated: 29 August 2026</p>
+      </article>
+    </div>
+  </section>
+</Layout>

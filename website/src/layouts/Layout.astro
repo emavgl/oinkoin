@@ -27,6 +27,14 @@ const organizationSchema = {
   "@type": "Organization",
   "name": "Oinkoin",
   "url": "https://oinkoin.com",
+  "email": "emavgl.app@gmail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Altenbauerstraße 12",
+    "postalCode": "4060",
+    "addressLocality": "Leonding",
+    "addressCountry": "AT",
+  },
   "logo": new URL("/oinkoin-icon.png", Astro.site),
   "sameAs": [
     "https://github.com/emavgl/oinkoin",
@@ -70,10 +78,6 @@ import '../styles/global.css';
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/oinkoin-icon.png" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <title>{title}</title>
 

@@ -12,7 +12,7 @@ pubDate: 2026-08-23
 
 We have some exciting news: **all Oinkoin Pro features are now available as a one-time in-app purchase directly inside the free Android Oinkoin app.**
 
-That means you can unlock everything Pro has to offer — backups and restore, recurring records, multiple wallets, budgets, extra icons and colors, custom date ranges, tags, PDF export and more — without downloading a second app.
+That means you can unlock everything Pro has to offer — backups and restore, recurring records, multiple wallets, budgets, extra icons and colors, custom date ranges, PDF export and more — without downloading a second app.
 
 ## Why We Did This
 

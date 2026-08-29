@@ -1,0 +1,88 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = 'Privacy Policy | Oinkoin';
+const description = 'How Oinkoin handles website, app, support, and Google Play purchase data.';
+---
+
+<Layout title={title} description={description}>
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-6">
+      <article class="max-w-3xl mx-auto text-gray-700 leading-relaxed">
+        <header class="mb-10">
+          <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">Privacy Policy</h1>
+          <p class="text-lg text-gray-600">This policy covers the Oinkoin website, the Oinkoin applications, support messages, and purchases made through Google Play.</p>
+        </header>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">1. Controller and contact</h2>
+          <address class="not-italic bg-gray-50 border border-gray-200 rounded-xl p-6">
+            <strong class="text-gray-900">Emanuele Viglianisi</strong><br />
+            Altenbauerstraße 12<br />
+            4060 Leonding, Austria<br />
+            <a href="mailto:emavgl.app@gmail.com" class="text-blue-600 hover:underline">emavgl.app@gmail.com</a>
+          </address>
+          <p>No data protection officer has been appointed. Privacy questions and requests can also be sent to <a href="mailto:support@oinkoin.com" class="text-blue-600 hover:underline">support@oinkoin.com</a>.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">2. The website</h2>
+          <p>Oinkoin does not operate advertising, analytics, profiling, account registration, or a contact form on this website. The website does not intentionally set non-essential cookies.</p>
+          <p>When you visit the website, the hosting and content-delivery infrastructure may process technical request data such as your IP address, date and time, requested URL, referrer, browser and device information, response status, and security events. The purpose is to deliver the website, protect it against abuse, and maintain its security and availability. The legal basis is our legitimate interest in operating a secure public website (Article 6(1)(f) GDPR).</p>
+          <p>The live website is served through Cloudflare Pages/CDN. Cloudflare may process technical request data for delivery and security, under its own privacy documentation and, depending on the operation, as a processor or separate controller. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Cloudflare's Privacy Policy</a>.</p>
+          <p>Cloudflare may use strictly necessary security mechanisms or cookies when required to protect the service. Oinkoin does not use advertising or analytics cookies.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">3. Embedded content and external links</h2>
+          <p>Some pages load screenshots and contributor avatars from GitHub-hosted domains. Your browser therefore sends a request to GitHub when that content is displayed. GitHub may process technical request data according to its <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Privacy Statement</a>.</p>
+          <p>Links to Google Play, F-Droid, GitHub, Buy Me a Coffee, and other services are external links. Those services process data under their own privacy policies once you follow a link or use their service. Oinkoin does not receive payment card details from Google Play.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">4. The Oinkoin applications</h2>
+          <p>Oinkoin is designed to work offline and without an Oinkoin account. Expense records, categories, tags, profiles, wallets, budgets, currencies, preferences, backups, and local diagnostic logs are stored on the device or in files that you choose to create or share. They are not uploaded to an Oinkoin server or used for Oinkoin analytics.</p>
+          <p>Backups and exports can contain financial information. When you share, store, email, or upload one, the recipient or service you choose becomes responsible for its subsequent processing. Encryption is available for supported backups, but you are responsible for the password and for keeping copies secure.</p>
+          <p>The app may create local diagnostic logs to help explain errors and app operations. These logs are not automatically sent to Oinkoin. If you voluntarily send logs or screenshots to support, the contents of your message and any included personal or financial information are processed to investigate and answer your request.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">5. Google Play billing</h2>
+          <p>The Free Android app can offer the one-time, non-consumable <strong class="text-gray-900">Lifetime Pro</strong> purchase through Google Play. The app uses Google Play billing to query the product, start the purchase, restore purchases, and receive the purchase status. The app does not receive or store your payment card details.</p>
+          <p>Google Play processes your Google account, payment, device, and transaction information as described in <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Google's Privacy Policy</a>. The separate Oinkoin Pro app is also distributed through Google Play. Pro, F-Droid, and desktop builds do not use the Free app's in-app purchase flow.</p>
+          <p>Google Play is responsible for its own payment and store processing. Oinkoin receives the information made available through the billing service that is needed to determine whether the Pro entitlement is active, such as the product and purchase state. Oinkoin does not receive or store payment card details.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">6. Support messages</h2>
+          <p>If you email Oinkoin, we process your email address, message, attachments, technical headers, and any information you choose to include. The purpose is to provide support, respond to requests, handle bug reports, and protect our legal interests. The legal basis is taking steps at your request, performing a contract where relevant, and our legitimate interest in support and service security (Article 6(1)(b) and (f) GDPR).</p>
+          <p>Support correspondence is kept only for as long as needed to resolve the request and, where applicable, to meet legal record-keeping or limitation periods. Public GitHub issues are processed by GitHub and remain subject to GitHub's policies; do not include private financial information in them.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">7. Recipients and international transfers</h2>
+          <p>Depending on how you use Oinkoin, recipients may include the website host/CDN (Cloudflare), GitHub for embedded assets or issues, Google Play for app distribution and billing, and the email providers used to exchange support messages. These services may process data outside the European Economic Area. Transfers are made under the safeguards or other legal mechanisms described by the relevant provider, such as an adequacy decision or standard contractual clauses where applicable.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">8. Your rights</h2>
+          <p>Subject to the applicable legal conditions, you may request access, rectification, erasure, restriction of processing, data portability, or object to processing based on legitimate interests. Where processing is based on consent, you may withdraw consent at any time; this does not affect processing carried out before withdrawal.</p>
+          <p>You may exercise these rights by contacting the controller at the address or email above. You also have the right to complain to the Austrian Data Protection Authority (<a href="https://www.dsb.gv.at/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Datenschutzbehörde</a>, Barichgasse 40-42, 1030 Vienna, <a href="mailto:dsb@dsb.gv.at" class="text-blue-600 hover:underline">dsb@dsb.gv.at</a>).</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">9. Retention and required data</h2>
+          <p>We retain personal data only for the period needed for the purpose for which it was collected, to provide the requested service, to resolve disputes, and to comply with legal obligations. Technical hosting records are retained according to the hosting provider's security and operational settings. Data stored only on your device remains under your control until you delete it, uninstall the app, or delete the relevant files.</p>
+          <p>Providing personal data is generally voluntary. Without technical request data, the website cannot be delivered; without an email address and message details, support cannot be provided; and without Google Play account and transaction processing, an in-app purchase cannot be completed or restored.</p>
+        </section>
+
+        <section class="space-y-4 mb-10">
+          <h2 class="text-2xl font-bold text-gray-900">10. Changes</h2>
+          <p>We may update this policy when the website, applications, providers, or legal requirements change. The current version is always published on this page.</p>
+        </section>
+
+        <p class="text-sm text-gray-500 border-t border-gray-200 pt-6">Last updated: 29 August 2026</p>
+      </article>
+    </div>
+  </section>
+</Layout>
