@@ -4709,16 +4709,6 @@
       "notes": "",
       "status": "verified"
     },
-    "Shows records per": {
-      "key": "Shows records per",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Skipped (duplicates)": {
       "context": "Result summary label for records that were duplicates and not imported",
       "file": "lib/settings/csv_import/csv_import_summary_screen.dart",
@@ -5089,6 +5079,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Time period": {
+      "key": "Time period",
+      "context": "Header/title of the date-filter dialog on the Records tab, above the Month/Year/Date Range/All Time options",
+      "file": "lib/records/components/tab_records_date_picker.dart:32",
+      "page": "Records tab > date filter dialog",
+      "component": "SimpleDialog title",
+      "meaning": "Standalone header label (not a sentence stub) - the options listed below it (Month, Year, Date Range, All Time) are read as a list under this heading, not as a grammatical continuation of it. Previously was 'Shows records per' which forced every option to read as 'Shows records per <X>'; changed because that broke down for 'All Time'.",
+      "notes": "When translating, do NOT phrase this as 'Show records per/by ___' - it must work as a standalone label so any option below it (translated independently) reads naturally underneath it, not as a sentence completion.",
+      "status": "verified"
     },
     "Title": {
       "key": "Title",

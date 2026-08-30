@@ -29,7 +29,7 @@ class TabRecordsDatePicker extends StatelessWidget {
         : Theme.of(context).colorScheme.secondary;
 
     return SimpleDialog(
-      title: Text('Shows records per'.i18n),
+      title: Text('Time period'.i18n),
       children: <Widget>[
         _buildDialogOption(
           context,
