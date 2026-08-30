@@ -1,11 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:piggybank/profiles/profiles-page.dart';
+import 'package:piggybank/helpers/list-utility-functions.dart';
 
 void main() {
   group('moveListItem', () {
     test(
         'moving the first of two items below the second '
-        '(reported regression: this used to be a no-op)', () {
+        '(regression reported on the Profiles page; the same code shape '
+        'used to be a silent no-op on the Wallets page too)', () {
       // ReorderableListView.onReorderItem already adjusts newIndex for the
       // removal of the item at oldIndex, so moving index 0 to "after index 1"
       // in a 2-item list is reported as newIndex: 1, not 2.

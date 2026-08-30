@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piggybank/helpers/list-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/profile.dart';
 import 'package:piggybank/premium/splash-screen.dart';
@@ -8,19 +9,6 @@ import 'package:piggybank/profiles/profile-sort-option.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
-
-/// Returns a new list with the item at [oldIndex] moved to [newIndex].
-///
-/// [newIndex] must already be adjusted for the removal of the item at
-/// [oldIndex] - exactly what ReorderableListView's onReorderItem callback
-/// provides (unlike the deprecated onReorder callback, which required the
-/// caller to subtract 1 when moving an item downward).
-List<T> moveListItem<T>(List<T> list, int oldIndex, int newIndex) {
-  final result = List<T>.from(list);
-  final moved = result.removeAt(oldIndex);
-  result.insert(newIndex, moved);
-  return result;
-}
 
 class ProfilesPage extends StatefulWidget {
   const ProfilesPage({Key? key}) : super(key: key);

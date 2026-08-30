@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/components/wallet_icon_square.dart';
+import 'package:piggybank/helpers/list-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/wallet.dart';
@@ -47,9 +48,7 @@ class _WalletsListState extends State<WalletsList> {
   }
 
   void _onReorder(int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) newIndex -= 1;
-    final moved = _wallets.removeAt(oldIndex);
-    _wallets.insert(newIndex, moved);
+    _wallets = moveListItem(_wallets, oldIndex, newIndex);
     setState(() {});
     if (widget.onReorderPending != null) {
       widget.onReorderPending!(List.from(_wallets));
