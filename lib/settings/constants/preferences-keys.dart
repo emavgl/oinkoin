@@ -59,6 +59,9 @@ class PreferencesKeys {
   // Wallets
   static const walletListSortOption = 'defaultWalletListSortOption';
 
+  // Profiles
+  static const profileListSortOption = 'defaultProfileListSortOption';
+
   // Budgets
   static const budgetsEnabled = 'budgetsEnabled';
   static const walletsEnabled = 'walletsEnabled';

@@ -111,7 +111,8 @@ class SqliteMigrationService {
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
             name      TEXT NOT NULL,
             is_default INTEGER DEFAULT 0,
-            color     TEXT
+            color     TEXT,
+            sort_order INTEGER DEFAULT 0
         );
         """;
     batch.execute(query);
@@ -581,6 +582,11 @@ class SqliteMigrationService {
         db, "ALTER TABLE budgets ADD COLUMN wallet_ids TEXT NOT NULL DEFAULT '[]';");
   }
 
+  static Future<void> _migrateTo32(Database db) async {
+    await safeAlterTable(
+        db, "ALTER TABLE profiles ADD COLUMN sort_order INTEGER DEFAULT 0;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -607,6 +613,7 @@ class SqliteMigrationService {
     29: SqliteMigrationService._migrateTo29,
     30: SqliteMigrationService._migrateTo30,
     31: SqliteMigrationService._migrateTo31,
+    32: SqliteMigrationService._migrateTo32,
   };
 
   // Public Methods

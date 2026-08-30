@@ -94,6 +94,7 @@ abstract class DatabaseInterface {
       {int? profileId});
 
   // Profile CRUD
+  /// Returns all profiles ordered by [Profile.sortOrder].
   Future<List<Profile>> getAllProfiles();
   Future<Profile?> getDefaultProfile();
   Future<void> setDefaultProfile(int id);
@@ -101,6 +102,8 @@ abstract class DatabaseInterface {
   Future<int> addProfile(Profile profile);
   Future<void> updateProfile(Profile profile);
   Future<void> deleteProfileAndRecords(int id);
+  /// Persists the [sortOrder] of each profile according to [ordered]'s position.
+  Future<void> resetProfileOrderIndexes(List<Profile> ordered);
 
   /// Returns the wallet with [id], or null if not found.
   Future<Wallet?> getWalletById(int id);

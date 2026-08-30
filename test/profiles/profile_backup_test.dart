@@ -618,6 +618,80 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
+  // sort_order preservation (custom profile ordering)
+  // ---------------------------------------------------------------------------
+  testlib.group('Backup preserves custom profile order', () {
+    testlib.test('backup JSON carries each profile\'s sort_order', () async {
+      final db = ServiceConfig.database;
+      await db.addProfile(Profile('Work'));
+      await db.addProfile(Profile('Travel'));
+
+      // Reorder: Travel, Default Profile, Work (drag-to-reorder result)
+      final all = await db.getAllProfiles();
+      final travel = all.firstWhere((p) => p.name == 'Travel');
+      final work = all.firstWhere((p) => p.name == 'Work');
+      final defaultProfile = all.firstWhere((p) => p.isDefault);
+      await db.resetProfileOrderIndexes([travel, defaultProfile, work]);
+
+      final backupFile = await BackupService.createJsonBackupFile(
+        directoryPath: testDir.path,
+      );
+      final backupJson =
+          jsonDecode(await backupFile.readAsString()) as Map<String, dynamic>;
+      final backedUpProfiles = backupJson['profiles'] as List;
+
+      final byName = {
+        for (final p in backedUpProfiles) p['name'] as String: p['sort_order'],
+      };
+      expect(byName['Travel'], 0);
+      expect(byName[defaultProfile.name], 1);
+      expect(byName['Work'], 2);
+    });
+
+    testlib.test(
+      'restoring a backup preserves the custom profile order, not creation order',
+      () async {
+        final db = ServiceConfig.database;
+        await db.addProfile(Profile('Work'));
+        await db.addProfile(Profile('Travel'));
+
+        // Reorder so Travel comes first, Work last.
+        final all = await db.getAllProfiles();
+        final travel = all.firstWhere((p) => p.name == 'Travel');
+        final work = all.firstWhere((p) => p.name == 'Work');
+        final defaultProfile = all.firstWhere((p) => p.isDefault);
+        await db.resetProfileOrderIndexes([travel, defaultProfile, work]);
+
+        final backupFile = await BackupService.createJsonBackupFile(
+          directoryPath: testDir.path,
+        );
+
+        // Restore into a fresh, empty DB (no existing Default Profile to reuse,
+        // so every backed-up profile — including the order-defining ones — is
+        // freshly inserted and getAllProfiles reflects the restored order).
+        await TestDatabaseHelper.setupTestDatabase();
+        BackupService.database = ServiceConfig.database;
+        final rawRestore =
+            (await (ServiceConfig.database as SqliteDatabase).database)!;
+        await rawRestore.rawDelete('DELETE FROM profiles');
+        await rawRestore.rawDelete('DELETE FROM wallets');
+
+        await BackupService.importDataFromBackupFile(backupFile);
+
+        final restoredNames = (await ServiceConfig.database.getAllProfiles())
+            .map((p) => p.name)
+            .toList();
+        expect(
+          restoredNames,
+          ['Travel', defaultProfile.name, 'Work'],
+          reason: 'getAllProfiles orders by sort_order, which must reflect '
+              'the order the user had before backing up, not insertion order',
+        );
+      },
+    );
+  });
+
+  // ---------------------------------------------------------------------------
   // Restoring backup into existing database — no duplicate Default Profile
   // ---------------------------------------------------------------------------
   testlib.group('Restore backup with existing Default Profile', () {

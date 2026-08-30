@@ -38,12 +38,18 @@ def scan_directory_for_i18n(directory):
     return i18n_strings
 
 # Define a function to write the strings to a JSON file
-def write_to_json(file_path, i18n_strings):
+def write_to_json(file_path, i18n_strings, existing_data=None):
     # Sort the strings alphabetically
     sorted_strings = sorted(i18n_strings)
 
-    # Create a dictionary with the sorted strings as keys and empty strings as values
-    data = {string: string for string in sorted_strings}
+    # Keep the existing en-US value for keys that already have one (it may
+    # have been deliberately customized to read differently from the literal
+    # key used in code, e.g. a key "All Time" displaying just "All" for
+    # brevity). Only genuinely new keys default their value to the key text.
+    existing_data = existing_data or {}
+    data = {
+        string: existing_data.get(string, string) for string in sorted_strings
+    }
 
     # Write the dictionary to a JSON file
     with open(file_path, 'w', encoding='utf-8') as json_file:
@@ -103,8 +109,9 @@ def main():
             existing_data = json.load(json_file)
     existing_keys = set(existing_data.keys())
 
-    # Write the strings to a new JSON file, sorted alphabetically
-    write_to_json(json_file_path, i18n_strings)
+    # Write the strings to a new JSON file, sorted alphabetically,
+    # preserving any existing customized values.
+    write_to_json(json_file_path, i18n_strings, existing_data=existing_data)
 
     # Load the newly written JSON file
     new_data = {}

@@ -369,6 +369,14 @@ class BackupService {
       final profileIdMap =
           <int, int>{}; // backup profile id → new db profile id
       int? fallbackProfileId;
+      // Profiles freshly created by addProfile() during this import (as
+      // opposed to an existing Default Profile that was reused). addProfile
+      // auto-creates a placeholder "Default Wallet" for each of these as a
+      // side effect - real backup wallet data for these profiles must
+      // overwrite that placeholder rather than be discarded by the wallet
+      // dedup logic below, which otherwise can't tell it apart from a
+      // genuine pre-existing wallet worth preserving as-is.
+      final newlyCreatedProfileIds = <int>{};
 
       if (backup.profiles.isNotEmpty) {
         // Check if a default profile already exists in the database
@@ -391,6 +399,7 @@ class BackupService {
               profileIdMap[backupId] = newId;
             }
             if (backupProfile.isDefault) fallbackProfileId = newId;
+            newlyCreatedProfileIds.add(newId);
           }
         }
       } else {
@@ -424,11 +433,29 @@ class BackupService {
         }
 
         int? mappedWalletId;
+        bool overwritePlaceholder = false;
+
+        if (backupWallet.isDefault &&
+            backupWallet.profileId != null &&
+            newlyCreatedProfileIds.contains(backupWallet.profileId)) {
+          // This wallet's profile was freshly created above, so any default
+          // wallet already on file for it is the addProfile() placeholder,
+          // not genuine pre-existing device data - overwrite it with the
+          // backup's real values instead of discarding them.
+          final placeholder = (existingWalletsByProfile[backupWallet.profileId] ?? [])
+              .where((w) => w.isDefault);
+          if (placeholder.isNotEmpty) {
+            mappedWalletId = placeholder.first.id;
+            overwritePlaceholder = true;
+          }
+        }
 
         // Check if this is a default wallet and reuse existing default
-        if (backupWallet.isDefault && existingDefaultWalletId != null) {
+        if (mappedWalletId == null &&
+            backupWallet.isDefault &&
+            existingDefaultWalletId != null) {
           mappedWalletId = existingDefaultWalletId;
-        } else {
+        } else if (mappedWalletId == null) {
           // Check if a wallet with the same name exists in the same profile
           final existingInProfile =
               existingWalletsByProfile[backupWallet.profileId] ?? [];
@@ -440,7 +467,12 @@ class BackupService {
           }
         }
 
-        if (mappedWalletId != null) {
+        if (overwritePlaceholder && mappedWalletId != null) {
+          await database.updateWallet(mappedWalletId, backupWallet);
+          if (backupId != null) {
+            walletIdMap[backupId] = mappedWalletId;
+          }
+        } else if (mappedWalletId != null) {
           // Reuse existing wallet
           if (backupId != null) {
             walletIdMap[backupId] = mappedWalletId;
