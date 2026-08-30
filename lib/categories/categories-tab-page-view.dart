@@ -357,6 +357,12 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
             ),
           ],
           bottom: TabBar(
+            // Tab labels vary a lot in length across languages (e.g. Italian
+            // "TRASFERIMENTO" doesn't fit a fixed third of the app bar width
+            // and gets truncated). Scrollable tabs size themselves to their
+            // content instead, so nothing gets cut off in any language.
+            isScrollable: true,
+            tabAlignment: TabAlignment.center,
             tabs: [
               Semantics(
                 identifier: 'expenses-tab',
