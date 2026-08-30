@@ -88,5 +88,43 @@ void main() {
         expect(colors[1], isNot(equals(Colors.green.shade700)));
       },
     );
+
+    testWidgets(
+      'a single-side transfer view (neutralColor: false) colors both the '
+      'converted and original-currency lines consistently, matching sign',
+      (tester) async {
+        // Simulates records-per-day-card.dart's call: the caller already
+        // resolved the color (e.g. red, only the source wallet is in view)
+        // and baked it into mainStyle; the secondary line must match it,
+        // not compute an independent (possibly different) color.
+        final widget = buildAmountWithCurrencyWidget(
+          -100.0,
+          'USD',
+          mainStyle: TextStyle(fontSize: 18, color: Colors.red.shade400),
+          brightness: Brightness.dark,
+          neutralColor: false,
+        );
+
+        final colors = await _pumpAndGetTextColors(tester, widget);
+        expect(colors, [Colors.red.shade400, Colors.red.shade400]);
+      },
+    );
+
+    testWidgets(
+      'a single-side transfer view for the destination wallet colors both '
+      'lines green',
+      (tester) async {
+        final widget = buildAmountWithCurrencyWidget(
+          100.0,
+          'USD',
+          mainStyle: TextStyle(fontSize: 18, color: Colors.green.shade400),
+          brightness: Brightness.dark,
+          neutralColor: false,
+        );
+
+        final colors = await _pumpAndGetTextColors(tester, widget);
+        expect(colors, [Colors.green.shade400, Colors.green.shade400]);
+      },
+    );
   });
 }
