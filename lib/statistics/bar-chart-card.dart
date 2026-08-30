@@ -64,16 +64,26 @@ class _BarChartCardState extends State<BarChartCard> {
   }
 
   void _initializeData() {
-    this.aggregatedRecords = aggregateRecordsByDate(widget.records,
-        widget.aggregationMethod,
-        walletCurrencyMap: widget.walletCurrencyMap);
-
     // Use shared ChartDateRangeConfig for consistent date range handling
     final config = ChartDateRangeConfig.create(
       widget.aggregationMethod!,
       widget.from,
       widget.to,
     );
+
+    // Restrict to records that fall within the (possibly clamped, e.g. for
+    // YEAR aggregation over a very wide range) chart window, so the average
+    // line, Y-axis scale, and bars all agree with what the x-axis ticks show.
+    final visibleRecords = widget.records
+        .where((r) =>
+            r != null &&
+            !r.dateTime.isBefore(config.start) &&
+            !r.dateTime.isAfter(config.end))
+        .toList();
+
+    this.aggregatedRecords = aggregateRecordsByDate(visibleRecords,
+        widget.aggregationMethod,
+        walletCurrencyMap: widget.walletCurrencyMap);
 
     chartScope = config.scopeLabel;
     ticksListY = _createYTicks(this.aggregatedRecords);
@@ -84,7 +94,7 @@ class _BarChartCardState extends State<BarChartCard> {
         tickLabels.map((label) => charts.TickSpec<String>(label)).toList();
 
     _chartData = _prepareData(
-        widget.records, config.start, config.end, config.formatter);
+        visibleRecords, config.start, config.end, config.formatter);
     seriesList = _createSeriesList();
 
     double sumValues = (this

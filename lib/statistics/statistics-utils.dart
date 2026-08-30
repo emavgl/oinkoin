@@ -307,6 +307,9 @@ AggregationMethod getAggregationMethodGivenTheTimeRange(
 /// Configuration for chart date ranges and formatting.
 /// Shared between bar-chart and balance-chart to ensure consistent behavior.
 class ChartDateRangeConfig {
+  /// Maximum number of yearly bars/ticks shown on YEAR-aggregated charts.
+  static const int maxYearsShown = 5;
+
   final DateTime start;
   final DateTime end;
   final DateFormat formatter;
@@ -366,9 +369,15 @@ class ChartDateRangeConfig {
       case AggregationMethod.YEAR:
         final endDate =
             DateTime(to!.year, 12, 31, 23, 59, 59); // Last day of last year
+        // Cap the chart to the most recent [maxYearsShown] years. Without
+        // this, a very wide range (e.g. the "All Time" filter, spanning
+        // back to 1970) generates one bar/tick per year and the x-axis
+        // becomes unreadably cramped.
+        final effectiveFromYear =
+            max(from!.year, to.year - ChartDateRangeConfig.maxYearsShown + 1);
         return ChartDateRangeConfig._(
           formatter: DateFormat("yyyy"),
-          start: DateTime(from!.year),
+          start: DateTime(effectiveFromYear),
           end: endDate,
           scopeLabel:
               "${DateFormat("yyyy").format(from)} - ${DateFormat("yyyy").format(to)}",
