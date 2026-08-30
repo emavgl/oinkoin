@@ -815,13 +815,13 @@
     },
     "Cancel": {
       "key": "Cancel",
-      "context": null,
+      "context": "Generic dismiss/cancel button, used in confirmation dialogs alongside a destructive action button (e.g. next to \"Delete\")",
       "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
+      "page": "Multiple: profile/wallet/currency/record deletion confirmation dialogs",
+      "component": "Dialog action button",
+      "meaning": "Dismiss the dialog without taking action - NOT the same concept as Delete",
+      "notes": "Bug fixed: Italian previously translated both \"Cancel\" and \"Delete\" as \"Cancella\", making delete-confirmation dialogs show two identically-labeled buttons. Cancel must use the dismiss-action term (it: Annulla), distinct from Delete's term (it: Elimina, matching the existing \"Delete Profile\"/\"Delete Wallet\" convention). Check this distinction stays intact when translating to any new language. Also found and fixed the identical collision in vec-IT (Venetian): both were \"Scanseła\"; Cancel is now \"Anuła\" (lower confidence - community dialect, worth a native-speaker check).",
+      "status": "verified"
     },
     "Cannot remove %s: there are wallets using this currency.": {
       "key": "Cannot remove %s: there are wallets using this currency.",
@@ -1549,13 +1549,13 @@
     },
     "Delete": {
       "key": "Delete",
-      "context": null,
+      "context": "Generic destructive confirmation button, used in confirmation dialogs alongside a \"Cancel\" dismiss button",
       "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
+      "page": "Multiple: profile/wallet/currency/record deletion confirmation dialogs",
+      "component": "Dialog action button",
+      "meaning": "Confirm permanent deletion - NOT the same concept as Cancel",
+      "notes": "Bug fixed: see notes on \"Cancel\". Delete must use the same delete-action term already established for \"Delete Profile\"/\"Delete Wallet\"/\"Delete currency\" (it: Elimina), distinct from Cancel (it: Annulla).",
+      "status": "verified"
     },
     "Delete Profile": {
       "key": "Delete Profile",
