@@ -139,7 +139,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
 
     return buildAmountWithCurrencyWidget(record.value!, recordCurrency,
         mainStyle: style,
-        brightness: Theme.of(context).brightness);
+        brightness: Theme.of(context).brightness,
+        neutralColor: record.isTransfer);
   }
 
   bool _dayHasMixedCurrencies(List<Record?> records) {

@@ -727,12 +727,19 @@ Color? getAmountColor(double amount, Brightness brightness) {
 /// When [amount] is an absolute (sign-less) value but the color should reflect
 /// the sign of the underlying data, pass that signed value as [colorValue]; it
 /// is used only for coloring, never for the displayed text.
+///
+/// Pass [neutralColor] when the caller has already decided the amount should
+/// not be colored by sign at all (e.g. a transfer between the user's own
+/// wallets, which [mainStyle] already renders neutrally) - otherwise the
+/// second line would still color itself by sign independently, producing a
+/// red/green secondary amount underneath a neutral primary one.
 Widget buildAmountWithCurrencyWidget(
   double amount,
   String currency, {
   TextStyle? mainStyle,
   Brightness? brightness,
   double? colorValue,
+  bool neutralColor = false,
 }) {
   if (currency.isEmpty) {
     return Text(getCurrencyValueString(amount),
@@ -748,7 +755,7 @@ Widget buildAmountWithCurrencyWidget(
       final baseFontSize = mainStyle?.fontSize ?? 14.0;
       final primaryStyle =
           (mainStyle ?? const TextStyle()).copyWith(height: 1.1);
-      final secondaryColor = brightness != null
+      final secondaryColor = !neutralColor && brightness != null
           ? getAmountColor(colorValue ?? amount, brightness)
           : null;
       final secondaryStyle = primaryStyle.copyWith(
