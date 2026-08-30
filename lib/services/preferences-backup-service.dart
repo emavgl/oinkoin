@@ -56,6 +56,7 @@ class PreferencesBackupService {
     // Kept because this legacy key is still written by the category tab.
     'defaultCategorySortOption',
     PreferencesKeys.walletListSortOption,
+    PreferencesKeys.profileListSortOption,
     PreferencesKeys.walletsEnabled,
     PreferencesKeys.budgetsEnabled,
     PreferencesKeys.walletBalanceMode,
@@ -118,6 +119,7 @@ class PreferencesBackupService {
     PreferencesKeys.categoryListSortOption: _intIn({0, 1, 2, 3}),
     'defaultCategorySortOption': _intIn({0, 1, 2, 3}),
     PreferencesKeys.walletListSortOption: _intIn({0, 1, 2, 3}),
+    PreferencesKeys.profileListSortOption: _intIn({0, 1}),
     PreferencesKeys.walletBalanceMode: _intIn({0, 1}),
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: _intIn({
       4,

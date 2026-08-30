@@ -40,6 +40,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _name.trim(),
         id: widget.profile!.id,
         isDefault: widget.profile!.isDefault,
+        sortOrder: widget.profile!.sortOrder,
       );
       await _db.updateProfile(updated);
     }
