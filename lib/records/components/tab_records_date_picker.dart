@@ -7,6 +7,7 @@ import 'package:piggybank/i18n.dart';
 import '../../components/year-picker.dart' as yp;
 import '../../helpers/datetime-utility-functions.dart';
 import '../../helpers/date_picker_utils.dart';
+import '../../helpers/records-utility-functions.dart';
 import '../../premium/splash-screen.dart';
 import '../../services/service-config.dart';
 import '../controllers/tab_records_controller.dart';
@@ -202,12 +203,17 @@ class TabRecordsDatePicker extends StatelessWidget {
     }
   }
 
-  void _pickAllTime(BuildContext context) {
+  Future<void> _pickAllTime(BuildContext context) async {
     DateTime currentDate = DateTime.now();
-    DateTime from = DateTime(1970);
+    DateTime? firstRecordDate =
+        await getDateTimeFirstRecord(ServiceConfig.database);
+    // Fall back to today if there are no records yet, so the range collapses
+    // to "nothing to show" instead of a meaningless placeholder like 1970.
+    DateTime from = firstRecordDate ?? currentDate;
     DateTime to = getEndOfMonth(currentDate.year, currentDate.month);
     String header = "All Time".i18n;
 
+    if (!context.mounted) return;
     updateAndClose(context, from, to, header, null);
   }
 
