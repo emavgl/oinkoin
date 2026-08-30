@@ -34,7 +34,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 31;
+  static int get version => 32;
   static Database? _db;
 
   /// For testing only: allows setting a custom database instance
@@ -808,10 +808,25 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<List<Profile>> getAllProfiles() async {
     final db = (await database)!;
-    final maps = await db.query('profiles', orderBy: 'id');
+    final maps = await db.query('profiles', orderBy: 'sort_order');
     return maps
         .map((m) => Profile.fromMap(Map<String, dynamic>.from(m)))
         .toList();
+  }
+
+  @override
+  Future<void> resetProfileOrderIndexes(List<Profile> ordered) async {
+    final db = (await database)!;
+    final batch = db.batch();
+    for (int i = 0; i < ordered.length; i++) {
+      batch.update(
+        'profiles',
+        {'sort_order': i},
+        where: 'id = ?',
+        whereArgs: [ordered[i].id],
+      );
+    }
+    await batch.commit(noResult: true);
   }
 
   @override
