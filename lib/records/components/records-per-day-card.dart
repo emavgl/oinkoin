@@ -156,8 +156,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   }
 
   double _dayBalanceNumeric() {
-    final records = widget._movementDay.records ?? [];
-    if (records.isEmpty) return widget._movementDay.balance;
+    final records = balanceRelevantRecords(widget._movementDay.records ?? []);
+    if (records.isEmpty) return 0.0;
     final effectiveMap = _effectiveCurrencyMap;
     if (!_dayHasMixedCurrencies(records)) {
       return computeConvertedTotal(records, effectiveMap).total;
@@ -171,10 +171,10 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   }
 
   String _formatDayBalance() {
-    final records = widget._movementDay.records ?? [];
-    if (records.isEmpty) {
-      return getCurrencyValueString(widget._movementDay.balance);
-    }
+    final records = balanceRelevantRecords(widget._movementDay.records ?? []);
+    // A day made up entirely of transfers has nothing to sum into a
+    // meaningful balance — leave the header blank rather than show 0.
+    if (records.isEmpty) return '';
 
     final effectiveMap = _effectiveCurrencyMap;
     final allSameCurrency = !_dayHasMixedCurrencies(records);

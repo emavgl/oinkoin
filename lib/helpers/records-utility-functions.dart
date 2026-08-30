@@ -436,6 +436,12 @@ Map<String, double> buildCurrencyBreakdown(
   return breakdown;
 }
 
+/// Returns [records] excluding transfers between the user's own wallets:
+/// they net to zero and shouldn't count toward a balance total, matching
+/// [RecordsPerDay.balance]'s own exclusion of transfers from income/expenses.
+List<Record?> balanceRelevantRecords(List<Record?> records) =>
+    records.where((r) => r != null && !r.isTransfer).toList();
+
 /// Returns true when [records] span more than one currency group,
 /// meaning a per-currency breakdown is meaningful.
 bool hasMixedCurrencies(
