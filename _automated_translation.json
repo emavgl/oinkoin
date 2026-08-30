@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-08-30",
-    "total_keys": 573
+    "total_keys": 572
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -250,16 +250,6 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
-    },
-    "All Time": {
-      "key": "All Time",
-      "context": "Date-range picker dialog option, alongside Month/Year/Date Range, for filtering records shown on the homepage",
-      "file": "lib/records/components/tab_records_date_picker.dart",
-      "page": "Records tab > date filter dialog ('Shows records per')",
-      "component": "SimpleDialogOption label + resulting header text shown once selected",
-      "meaning": "Shows all records regardless of date, instead of manually setting an early custom start date. Pro-only feature, same gating as 'Year' and 'Date Range' options.",
-      "notes": "Final decision: displayed as just 'All' (en-US), reusing the app's existing generic 'All' vocabulary (see key 'All') rather than inventing new phrasing. IMPORTANT for translators: do not blindly copy the 'All' key's translation value - that key is often the PLURAL agreeing form (e.g. it 'Tutti', fr 'Tous', es 'Todas', matching plural nouns like 'categories'), whereas this option sits under a SINGULAR 'Time period' header and needs the singular/neuter 'everything' form instead (it 'Tutto', fr 'Tout', es 'Todo', pl 'Wszystko', ru 'Всё', uk-UA 'Все', vec-IT 'Tuto'). Kept as a distinct key ('All Time', not literal key 'All') specifically so it can carry this different grammatical form without affecting the other 'All' usages (e.g. 'All categories') elsewhere in the app.",
-      "status": "verified"
     },
     "All accounts": {
       "key": "All accounts",

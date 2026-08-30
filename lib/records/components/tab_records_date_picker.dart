@@ -65,7 +65,7 @@ class TabRecordsDatePicker extends StatelessWidget {
         ),
         _buildDialogOption(
           context,
-          title: "All Time".i18n,
+          title: "All".i18n,
           subtitle:
               !ServiceConfig.isPremium ? "Available on Oinkoin Pro".i18n : null,
           icon: FontAwesomeIcons.calendar.data,
@@ -211,7 +211,7 @@ class TabRecordsDatePicker extends StatelessWidget {
     // to "nothing to show" instead of a meaningless placeholder like 1970.
     DateTime from = firstRecordDate ?? currentDate;
     DateTime to = getEndOfMonth(currentDate.year, currentDate.month);
-    String header = "All Time".i18n;
+    String header = "All".i18n;
 
     if (!context.mounted) return;
     updateAndClose(context, from, to, header, null);
