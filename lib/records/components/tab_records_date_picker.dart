@@ -62,6 +62,18 @@ class TabRecordsDatePicker extends StatelessWidget {
               ? () => _pickDateRange(context)
               : () => _goToPremiumSplashScreen(context),
         ),
+        _buildDialogOption(
+          context,
+          title: "All Time".i18n,
+          subtitle:
+              !ServiceConfig.isPremium ? "Available on Oinkoin Pro".i18n : null,
+          icon: FontAwesomeIcons.calendarCheck.data,
+          color: boxBackgroundColor,
+          enabled: ServiceConfig.isPremium,
+          onPressed: ServiceConfig.isPremium
+              ? () => _pickAllTime(context)
+              : () => _goToPremiumSplashScreen(context),
+        ),
         if (controller.customIntervalFrom != null)
           _buildDialogOption(
             context,
@@ -188,6 +200,15 @@ class TabRecordsDatePicker extends StatelessWidget {
 
       updateAndClose(context, from, to, header, to.month);
     }
+  }
+
+  void _pickAllTime(BuildContext context) {
+    DateTime currentDate = DateTime.now();
+    DateTime from = DateTime(1970);
+    DateTime to = DateTime(currentDate.year + 1, currentDate.month + 1);
+    String header = "All Time".i18n;
+
+    updateAndClose(context, from, to, header, null);
   }
 
   void updateAndClose(BuildContext context, DateTime from, DateTime to,
