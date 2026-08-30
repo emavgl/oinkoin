@@ -715,6 +715,21 @@ Color? getAmountColor(double amount, Brightness brightness) {
   return amount >= 0 ? _greenShade(brightness) : _redShade(brightness);
 }
 
+/// Returns the color to use for [record]'s amount.
+///
+/// A transfer between the user's own wallets nets to zero overall, so it's
+/// colored neutrally (returns null) when both its wallets - or no wallet
+/// filter at all - are currently visible. When exactly one side is visible
+/// ([Record.isSingleSideTransferView], set by a wallet-filtered records
+/// list), it's colored by sign like a normal record instead: red when
+/// leaving the visible wallet, green when arriving into it - [record.value]
+/// is already signed for that perspective by the filter that produced it.
+/// Non-transfer records are always colored by sign.
+Color? getRecordAmountColor(Record record, Brightness brightness) {
+  if (record.isTransfer && !record.isSingleSideTransferView) return null;
+  return getAmountColor(record.value ?? 0.0, brightness);
+}
+
 /// Returns a Widget displaying [amount] in [currency].
 ///
 /// When [currency] differs from the user's default currency and a conversion

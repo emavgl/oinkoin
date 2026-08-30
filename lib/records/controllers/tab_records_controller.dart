@@ -216,6 +216,12 @@ class TabRecordsController {
   ///   [isDestinationTransferView] is set to true so the UI resolves the
   ///   display currency from [transferWalletId] instead of [walletId].
   /// - Both wallets selected: include once via the source match (no duplicate).
+  ///
+  /// For a transfer, [isSingleSideTransferView] is set to true exactly when
+  /// only one of its two wallets is in [selectedWalletIds] - i.e. the source
+  /// match above did NOT also match the destination, or vice versa. The UI
+  /// uses this to color the amount by sign (this side's perspective) instead
+  /// of the neutral color a fully-visible (or unfiltered) transfer gets.
   @visibleForTesting
   static List<Record?> applyTransferAwareWalletFilter(
     List<Record?> records,
@@ -228,7 +234,9 @@ class TabRecordsController {
           selectedWalletIds.contains(r?.transferWalletId);
 
       if (matchesSource) {
-        result.add(r);
+        result.add(r?.isTransfer == true
+            ? r!.copyWith(isSingleSideTransferView: !matchesDest)
+            : r);
       } else if (matchesDest) {
         // Show from destination perspective: use the received amount as value.
         // transferValue holds the destination-currency amount for cross-currency
@@ -238,6 +246,9 @@ class TabRecordsController {
         result.add(r.copyWith(
           value: receivedAmount,
           isDestinationTransferView: true,
+          // matchesDest-only (this branch) means the source wallet was not
+          // selected, so by construction only one side is visible here.
+          isSingleSideTransferView: true,
         ));
       }
     }

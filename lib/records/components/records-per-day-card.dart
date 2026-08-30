@@ -108,10 +108,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     });
   }
 
-  Color? _amountColor(Record record) {
-    if (record.isTransfer) return null;
-    return getAmountColor(record.value ?? 0.0, Theme.of(context).brightness);
-  }
+  Color? _amountColor(Record record) =>
+      getRecordAmountColor(record, Theme.of(context).brightness);
 
   Widget _buildRecordAmountWidget(Record record) {
     final wallet =
@@ -140,7 +138,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     return buildAmountWithCurrencyWidget(record.value!, recordCurrency,
         mainStyle: style,
         brightness: Theme.of(context).brightness,
-        neutralColor: record.isTransfer);
+        neutralColor: color == null);
   }
 
   bool _dayHasMixedCurrencies(List<Record?> records) {
