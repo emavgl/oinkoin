@@ -67,7 +67,7 @@ class TabRecordsDatePicker extends StatelessWidget {
           title: "All Time".i18n,
           subtitle:
               !ServiceConfig.isPremium ? "Available on Oinkoin Pro".i18n : null,
-          icon: FontAwesomeIcons.calendarCheck.data,
+          icon: FontAwesomeIcons.calendar.data,
           color: boxBackgroundColor,
           enabled: ServiceConfig.isPremium,
           onPressed: ServiceConfig.isPremium

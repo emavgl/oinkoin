@@ -507,6 +507,7 @@
   "This is the reference currency for conversion rates.": "これは換算レートの基準通貨です。",
   "This profile will be loaded on every app start": "このプロフィールはアプリ起動時に毎回ロードされます",
   "This wallet will be pre-selected when adding new entries": "このウォレットは新規エントリ追加時にプリセレクトされます",
+  "Time period": "期間",
   "Title": "タイトル",
   "Total": "合計",
   "Total in $defaultCurrency": "$defaultCurrencyの合計",

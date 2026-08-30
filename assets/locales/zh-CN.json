@@ -507,6 +507,7 @@
   "This is the reference currency for conversion rates.": "这是转换率的参考货币。",
   "This profile will be loaded on every app start": "此档案将在每次应用启动时加载",
   "This wallet will be pre-selected when adding new entries": "添加新条目时，此钱包将被预先选择",
+  "Time period": "时间段",
   "Title": "标题",
   "Total": "总计",
   "Total in $defaultCurrency": "总计(在 $defaultCurrency 中)",
