@@ -27,6 +27,16 @@ void main() {
       final profile = Profile('Travel');
       expect(profile.toMap()['id'], isNull);
     });
+
+    test('toMap writes sort_order correctly', () {
+      final profile = Profile('Work', sortOrder: 3);
+      expect(profile.toMap()['sort_order'], 3);
+    });
+
+    test('toMap defaults sort_order to 0 when not set', () {
+      final profile = Profile('Work');
+      expect(profile.toMap()['sort_order'], 0);
+    });
   });
 
   group('Profile model — deserialization', () {
@@ -54,15 +64,30 @@ void main() {
       final profile = Profile.fromMap({'id': 3, 'name': 'Test'});
       expect(profile.isDefault, isFalse);
     });
+
+    test('fromMap reads sort_order correctly', () {
+      final profile = Profile.fromMap(
+          {'id': 1, 'name': 'Work', 'is_default': 0, 'sort_order': 5});
+      expect(profile.sortOrder, 5);
+    });
+
+    test(
+        'fromMap defaults sort_order to 0 when key is absent '
+        '(pre-migration backups)', () {
+      final profile = Profile.fromMap({'id': 1, 'name': 'Work', 'is_default': 0});
+      expect(profile.sortOrder, 0);
+    });
   });
 
   group('Profile model — round-trip', () {
     test('toMap then fromMap preserves all fields', () {
-      final original = Profile('Vacation', id: 5, isDefault: true);
+      final original =
+          Profile('Vacation', id: 5, isDefault: true, sortOrder: 2);
       final roundTripped = Profile.fromMap(original.toMap());
       expect(roundTripped.id, original.id);
       expect(roundTripped.name, original.name);
       expect(roundTripped.isDefault, original.isDefault);
+      expect(roundTripped.sortOrder, original.sortOrder);
     });
 
     test('non-default profile survives round-trip intact', () {
