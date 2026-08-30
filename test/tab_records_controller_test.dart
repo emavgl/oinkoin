@@ -577,6 +577,8 @@ void main() {
       expect(t.walletId, 1);
       expect(t.transferWalletId, 2);
       expect(t.isDestinationTransferView, false);
+      // Only the source wallet is in view: color by sign (red), not neutral.
+      expect(t.isSingleSideTransferView, true);
     });
 
     test('filter by destination wallet: transfer shown as positive, wallet IDs unchanged', () {
@@ -597,8 +599,11 @@ void main() {
       expect(t.walletId, 1);
       expect(t.transferWalletId, 2);
       expect(t.isDestinationTransferView, true);
+      // Only the destination wallet is in view: color by sign (green).
+      expect(t.isSingleSideTransferView, true);
       // original record was not mutated
       expect(records[2].isDestinationTransferView, false);
+      expect(records[2].isSingleSideTransferView, false);
     });
 
     test('cross-currency transfer: destination view uses transferValue, wallet IDs unchanged', () {
@@ -654,6 +659,8 @@ void main() {
         expect(t.walletId, 1);
         expect(t.transferWalletId, 2);
         expect(t.isDestinationTransferView, false);
+        // Both wallets are in view: neutral color, not red or green.
+        expect(t.isSingleSideTransferView, false);
       },
     );
 

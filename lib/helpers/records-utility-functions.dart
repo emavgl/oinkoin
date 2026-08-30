@@ -436,6 +436,12 @@ Map<String, double> buildCurrencyBreakdown(
   return breakdown;
 }
 
+/// Returns [records] excluding transfers between the user's own wallets:
+/// they net to zero and shouldn't count toward a balance total, matching
+/// [RecordsPerDay.balance]'s own exclusion of transfers from income/expenses.
+List<Record?> balanceRelevantRecords(List<Record?> records) =>
+    records.where((r) => r != null && !r.isTransfer).toList();
+
 /// Returns true when [records] span more than one currency group,
 /// meaning a per-currency breakdown is meaningful.
 bool hasMixedCurrencies(
@@ -715,6 +721,21 @@ Color? getAmountColor(double amount, Brightness brightness) {
   return amount >= 0 ? _greenShade(brightness) : _redShade(brightness);
 }
 
+/// Returns the color to use for [record]'s amount.
+///
+/// A transfer between the user's own wallets nets to zero overall, so it's
+/// colored neutrally (returns null) when both its wallets - or no wallet
+/// filter at all - are currently visible. When exactly one side is visible
+/// ([Record.isSingleSideTransferView], set by a wallet-filtered records
+/// list), it's colored by sign like a normal record instead: red when
+/// leaving the visible wallet, green when arriving into it - [record.value]
+/// is already signed for that perspective by the filter that produced it.
+/// Non-transfer records are always colored by sign.
+Color? getRecordAmountColor(Record record, Brightness brightness) {
+  if (record.isTransfer && !record.isSingleSideTransferView) return null;
+  return getAmountColor(record.value ?? 0.0, brightness);
+}
+
 /// Returns a Widget displaying [amount] in [currency].
 ///
 /// When [currency] differs from the user's default currency and a conversion
@@ -727,12 +748,19 @@ Color? getAmountColor(double amount, Brightness brightness) {
 /// When [amount] is an absolute (sign-less) value but the color should reflect
 /// the sign of the underlying data, pass that signed value as [colorValue]; it
 /// is used only for coloring, never for the displayed text.
+///
+/// Pass [neutralColor] when the caller has already decided the amount should
+/// not be colored by sign at all (e.g. a transfer between the user's own
+/// wallets, which [mainStyle] already renders neutrally) - otherwise the
+/// second line would still color itself by sign independently, producing a
+/// red/green secondary amount underneath a neutral primary one.
 Widget buildAmountWithCurrencyWidget(
   double amount,
   String currency, {
   TextStyle? mainStyle,
   Brightness? brightness,
   double? colorValue,
+  bool neutralColor = false,
 }) {
   if (currency.isEmpty) {
     return Text(getCurrencyValueString(amount),
@@ -748,7 +776,7 @@ Widget buildAmountWithCurrencyWidget(
       final baseFontSize = mainStyle?.fontSize ?? 14.0;
       final primaryStyle =
           (mainStyle ?? const TextStyle()).copyWith(height: 1.1);
-      final secondaryColor = brightness != null
+      final secondaryColor = !neutralColor && brightness != null
           ? getAmountColor(colorValue ?? amount, brightness)
           : null;
       final secondaryStyle = primaryStyle.copyWith(

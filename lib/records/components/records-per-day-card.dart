@@ -108,10 +108,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     });
   }
 
-  Color? _amountColor(Record record) {
-    if (record.isTransfer) return null;
-    return getAmountColor(record.value ?? 0.0, Theme.of(context).brightness);
-  }
+  Color? _amountColor(Record record) =>
+      getRecordAmountColor(record, Theme.of(context).brightness);
 
   Widget _buildRecordAmountWidget(Record record) {
     final wallet =
@@ -139,7 +137,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
 
     return buildAmountWithCurrencyWidget(record.value!, recordCurrency,
         mainStyle: style,
-        brightness: Theme.of(context).brightness);
+        brightness: Theme.of(context).brightness,
+        neutralColor: color == null);
   }
 
   bool _dayHasMixedCurrencies(List<Record?> records) {
@@ -157,8 +156,8 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   }
 
   double _dayBalanceNumeric() {
-    final records = widget._movementDay.records ?? [];
-    if (records.isEmpty) return widget._movementDay.balance;
+    final records = balanceRelevantRecords(widget._movementDay.records ?? []);
+    if (records.isEmpty) return 0.0;
     final effectiveMap = _effectiveCurrencyMap;
     if (!_dayHasMixedCurrencies(records)) {
       return computeConvertedTotal(records, effectiveMap).total;
@@ -172,10 +171,10 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
   }
 
   String _formatDayBalance() {
-    final records = widget._movementDay.records ?? [];
-    if (records.isEmpty) {
-      return getCurrencyValueString(widget._movementDay.balance);
-    }
+    final records = balanceRelevantRecords(widget._movementDay.records ?? []);
+    // A day made up entirely of transfers has nothing to sum into a
+    // meaningful balance — leave the header blank rather than show 0.
+    if (records.isEmpty) return '';
 
     final effectiveMap = _effectiveCurrencyMap;
     final allSameCurrency = !_dayHasMixedCurrencies(records);

@@ -31,6 +31,14 @@ class Record extends Model {
   // a transfer (value = received amount, walletId = destination). Not persisted.
   bool isDestinationTransferView = false;
 
+  // Transient: true when a transfer record is shown in a wallet-filtered
+  // view that includes only one of its two wallets (source or destination),
+  // not both. In that case the amount should be colored by sign like a
+  // normal record (value is already signed for that side's perspective)
+  // instead of the neutral color transfers get when both sides - or no
+  // wallet filter at all - are visible. Not persisted.
+  bool isSingleSideTransferView = false;
+
   Record(
     this.value,
     this.title,
@@ -122,6 +130,7 @@ class Record extends Model {
     int? profileId,
     bool? isFutureRecord,
     bool? isDestinationTransferView,
+    bool? isSingleSideTransferView,
   }) {
     final copy = Record(
       value ?? this.value,
@@ -141,6 +150,8 @@ class Record extends Model {
     );
     copy.isDestinationTransferView =
         isDestinationTransferView ?? this.isDestinationTransferView;
+    copy.isSingleSideTransferView =
+        isSingleSideTransferView ?? this.isSingleSideTransferView;
     return copy;
   }
 
