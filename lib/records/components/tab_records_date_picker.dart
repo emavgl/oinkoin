@@ -205,7 +205,7 @@ class TabRecordsDatePicker extends StatelessWidget {
   void _pickAllTime(BuildContext context) {
     DateTime currentDate = DateTime.now();
     DateTime from = DateTime(1970);
-    DateTime to = DateTime(currentDate.year + 1, currentDate.month + 1);
+    DateTime to = getEndOfMonth(currentDate.year, currentDate.month);
     String header = "All Time".i18n;
 
     updateAndClose(context, from, to, header, null);
