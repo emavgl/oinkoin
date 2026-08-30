@@ -390,4 +390,49 @@ void main() {
           isTrue);
     });
   });
+
+  group('ChartDateRangeConfig.create YEAR range clamping', () {
+    test('should not clamp a range within maxYearsShown', () {
+      final config = ChartDateRangeConfig.create(
+        AggregationMethod.YEAR,
+        DateTime(2023),
+        DateTime(2026),
+      );
+
+      expect(config.start, equals(DateTime(2023)));
+      expect(
+          ChartTickGenerator.generateTicks(config),
+          equals(['2023', '2024', '2025', '2026']));
+    });
+
+    test('should clamp a very wide range (e.g. All Time) to the most '
+        'recent maxYearsShown years', () {
+      // "All Time" spans from 1970 to the current year.
+      final config = ChartDateRangeConfig.create(
+        AggregationMethod.YEAR,
+        DateTime(1970),
+        DateTime(2026),
+      );
+
+      expect(config.start, equals(DateTime(2022)));
+      expect(
+          ChartTickGenerator.generateTicks(config),
+          equals(['2022', '2023', '2024', '2025', '2026']));
+      // The scope label still reflects the full, unclamped selection.
+      expect(config.scopeLabel, equals('1970 - 2026'));
+    });
+
+    test('should clamp to exactly maxYearsShown when range is one year over',
+        () {
+      final config = ChartDateRangeConfig.create(
+        AggregationMethod.YEAR,
+        DateTime(2020),
+        DateTime(2026),
+      );
+
+      expect(config.start, equals(DateTime(2022)));
+      expect(ChartTickGenerator.generateTicks(config).length,
+          equals(ChartDateRangeConfig.maxYearsShown));
+    });
+  });
 }

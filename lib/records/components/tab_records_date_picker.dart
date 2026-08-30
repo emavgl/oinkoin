@@ -7,6 +7,7 @@ import 'package:piggybank/i18n.dart';
 import '../../components/year-picker.dart' as yp;
 import '../../helpers/datetime-utility-functions.dart';
 import '../../helpers/date_picker_utils.dart';
+import '../../helpers/records-utility-functions.dart';
 import '../../premium/splash-screen.dart';
 import '../../services/service-config.dart';
 import '../controllers/tab_records_controller.dart';
@@ -29,7 +30,7 @@ class TabRecordsDatePicker extends StatelessWidget {
         : Theme.of(context).colorScheme.secondary;
 
     return SimpleDialog(
-      title: Text('Shows records per'.i18n),
+      title: Text('Time period'.i18n),
       children: <Widget>[
         _buildDialogOption(
           context,
@@ -60,6 +61,18 @@ class TabRecordsDatePicker extends StatelessWidget {
           enabled: ServiceConfig.isPremium,
           onPressed: ServiceConfig.isPremium
               ? () => _pickDateRange(context)
+              : () => _goToPremiumSplashScreen(context),
+        ),
+        _buildDialogOption(
+          context,
+          title: "All Time".i18n,
+          subtitle:
+              !ServiceConfig.isPremium ? "Available on Oinkoin Pro".i18n : null,
+          icon: FontAwesomeIcons.calendar.data,
+          color: boxBackgroundColor,
+          enabled: ServiceConfig.isPremium,
+          onPressed: ServiceConfig.isPremium
+              ? () => _pickAllTime(context)
               : () => _goToPremiumSplashScreen(context),
         ),
         if (controller.customIntervalFrom != null)
@@ -188,6 +201,20 @@ class TabRecordsDatePicker extends StatelessWidget {
 
       updateAndClose(context, from, to, header, to.month);
     }
+  }
+
+  Future<void> _pickAllTime(BuildContext context) async {
+    DateTime currentDate = DateTime.now();
+    DateTime? firstRecordDate =
+        await getDateTimeFirstRecord(ServiceConfig.database);
+    // Fall back to today if there are no records yet, so the range collapses
+    // to "nothing to show" instead of a meaningless placeholder like 1970.
+    DateTime from = firstRecordDate ?? currentDate;
+    DateTime to = getEndOfMonth(currentDate.year, currentDate.month);
+    String header = "All Time".i18n;
+
+    if (!context.mounted) return;
+    updateAndClose(context, from, to, header, null);
   }
 
   void updateAndClose(BuildContext context, DateTime from, DateTime to,

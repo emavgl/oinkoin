@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-25",
-    "total_keys": 576
+    "last_updated": "2026-08-30",
+    "total_keys": 573
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -250,6 +250,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "All Time": {
+      "key": "All Time",
+      "context": "Date-range picker dialog option, alongside Month/Year/Date Range, for filtering records shown on the homepage",
+      "file": "lib/records/components/tab_records_date_picker.dart",
+      "page": "Records tab > date filter dialog ('Shows records per')",
+      "component": "SimpleDialogOption label + resulting header text shown once selected",
+      "meaning": "Shows all records regardless of date, instead of manually setting an early custom start date. Pro-only feature, same gating as 'Year' and 'Date Range' options.",
+      "notes": "Final decision: displayed as just 'All' (en-US), reusing the app's existing generic 'All' vocabulary (see key 'All') rather than inventing new phrasing. IMPORTANT for translators: do not blindly copy the 'All' key's translation value - that key is often the PLURAL agreeing form (e.g. it 'Tutti', fr 'Tous', es 'Todas', matching plural nouns like 'categories'), whereas this option sits under a SINGULAR 'Time period' header and needs the singular/neuter 'everything' form instead (it 'Tutto', fr 'Tout', es 'Todo', pl 'Wszystko', ru 'Всё', uk-UA 'Все', vec-IT 'Tuto'). Kept as a distinct key ('All Time', not literal key 'All') specifically so it can carry this different grammatical form without affecting the other 'All' usages (e.g. 'All categories') elsewhere in the app.",
+      "status": "verified"
     },
     "All accounts": {
       "key": "All accounts",
@@ -1194,6 +1204,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Create wallets and budgets": {
+      "key": "Create wallets and budgets",
+      "context": "Premium feature bullet on the paywall, combining the wallet creation and budget management features into one line",
+      "file": "lib/premium/splash-screen.dart",
+      "page": "Premium splash screen (paywall)",
+      "component": "Feature list bullet point",
+      "meaning": "Users can create multiple wallets and set up budgets in the Pro version",
+      "notes": "Keep concise as a short feature label; translate both verbs naturally",
+      "status": "verified"
     },
     "Creator & maintainer": {
       "key": "Creator & maintainer",
@@ -2647,16 +2667,6 @@
       "notes": "Pairs with 'Dark grey' in the button color dropdown, and with 'Grey' in the background dropdown",
       "status": "verified"
     },
-    "Limit records by categories": {
-      "key": "Limit records by categories",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Live Preview": {
       "context": "Section header showing real-time preview of how current mapping affects a sample row",
       "file": "lib/settings/csv_import/csv_mapping_screen.dart",
@@ -3794,26 +3804,6 @@
       "notes": "Simple count label",
       "status": "verified"
     },
-    "Records matching categories OR tags": {
-      "key": "Records matching categories OR tags",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
-    "Records must match categories AND tags": {
-      "key": "Records must match categories AND tags",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Records of the current month": {
       "key": "Records of the current month",
       "context": null,
@@ -4091,16 +4081,6 @@
       "meaning": "Encourages using a savings budget to track money being set aside for a future vacation",
       "notes": "Keep the question-and-suggestion tone natural in the target language.",
       "status": "verified"
-    },
-    "Scroll for more": {
-      "key": "Scroll for more",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
     },
     "Search": {
       "key": "Search",
@@ -4611,15 +4591,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Show expense and income categories at the bottom of the screen": {
-      "context": "Settings toggle description in Homepage customization section",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Homepage",
-      "component": "SwitchCustomizationItem description",
-      "meaning": "Explains what the 'Categories at the bottom' toggle does",
-      "notes": "Longer description shown under toggle label",
-      "status": "verified"
-    },
     "Show cumulative balance line": {
       "key": "Show cumulative balance line",
       "context": null,
@@ -4637,6 +4608,15 @@
       "component": "Switch tile title",
       "meaning": "Toggle to show or hide currency symbol next to amounts",
       "notes": "Toggle switch title in customization settings",
+      "status": "verified"
+    },
+    "Show expense and income categories at the bottom of the screen": {
+      "context": "Settings toggle description in Homepage customization section",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Homepage",
+      "component": "SwitchCustomizationItem description",
+      "meaning": "Explains what the 'Categories at the bottom' toggle does",
+      "notes": "Longer description shown under toggle label",
       "status": "verified"
     },
     "Show future recurrent records": {
@@ -4689,26 +4669,6 @@
       "notes": null,
       "status": "pending"
     },
-    "Show records that have all selected tags": {
-      "key": "Show records that have all selected tags",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
-    "Show records that have any of the selected tags": {
-      "key": "Show records that have any of the selected tags",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
-    },
     "Show records' notes on the homepage": {
       "key": "Show records' notes on the homepage",
       "context": null,
@@ -4748,16 +4708,6 @@
       "meaning": "Help text under 'Use wallets' describing what enabling wallets does",
       "notes": "",
       "status": "verified"
-    },
-    "Shows records per": {
-      "key": "Shows records per",
-      "context": null,
-      "file": null,
-      "page": null,
-      "component": null,
-      "meaning": null,
-      "notes": null,
-      "status": "pending"
     },
     "Skipped (duplicates)": {
       "context": "Result summary label for records that were duplicates and not imported",
@@ -5129,6 +5079,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Time period": {
+      "key": "Time period",
+      "context": "Header/title of the date-filter dialog on the Records tab, above the Month/Year/Date Range/All Time options",
+      "file": "lib/records/components/tab_records_date_picker.dart:32",
+      "page": "Records tab > date filter dialog",
+      "component": "SimpleDialog title",
+      "meaning": "Standalone header label (not a sentence stub) - the options listed below it (Month, Year, Date Range, All Time) are read as a list under this heading, not as a grammatical continuation of it. Previously was 'Shows records per' which forced every option to read as 'Shows records per <X>'; changed because that broke down for 'All Time'.",
+      "notes": "When translating, do NOT phrase this as 'Show records per/by ___' - it must work as a standalone label so any option below it (translated independently) reads naturally underneath it, not as a sentence completion.",
+      "status": "verified"
     },
     "Title": {
       "key": "Title",
@@ -5783,16 +5743,6 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
-      "status": "verified"
-    },
-    "Create wallets and budgets": {
-      "key": "Create wallets and budgets",
-      "context": "Premium feature bullet on the paywall, combining the wallet creation and budget management features into one line",
-      "file": "lib/premium/splash-screen.dart",
-      "page": "Premium splash screen (paywall)",
-      "component": "Feature list bullet point",
-      "meaning": "Users can create multiple wallets and set up budgets in the Pro version",
-      "notes": "Keep concise as a short feature label; translate both verbs naturally",
       "status": "verified"
     }
   }
