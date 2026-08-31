@@ -1,0 +1,48 @@
+{
+  "device_frame_version": "latest",
+  "default": {
+    "background": "./background.png",
+    "frame": "BLACK",
+    "padding": "80x40",
+    "stack_title": true,
+    "use_platform": "ANDROID",
+    "force_device_type": "Samsung Galaxy S21 5G",
+    "keyword": {
+      "font": "../../assets/fonts/NotoSans-Regular.ttf",
+      "font_size": 140,
+      "color": "#000000"
+    },
+    "title": {
+      "font": "../../assets/fonts/NotoSans-Regular.ttf",
+      "font_size": 88,
+      "color": "#000000"
+    }
+  },
+  "data": [
+    {
+      "filter": "image1",
+      "keyword": { "text": "Oinkoin" },
+      "title": { "text": "Keep it private - Track your\\nexpenses offline and\\nsecurely" }
+    },
+    {
+      "filter": "image2",
+      "keyword": { "text": "Simplicity is key" },
+      "title": { "text": "Minimal design, add your\\nexpense in seconds" }
+    },
+    {
+      "filter": "image3",
+      "keyword": { "text": "Clean Charts" },
+      "title": { "text": "Not just raw data, but\\nunderstandable statistics" }
+    },
+    {
+      "filter": "image4",
+      "keyword": { "text": "Customizable" },
+      "title": { "text": "Make it yours. Change\\ncolors, icons, and more" }
+    },
+    {
+      "filter": "image5",
+      "keyword": { "text": "Full of features" },
+      "title": { "text": "Recurrent expenses, tags,\\nsearch, and filters" }
+    }
+  ]
+}
