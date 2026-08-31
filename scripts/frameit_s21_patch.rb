@@ -12,5 +12,5 @@ module Frameit
   end
 
   FrameDownloader.send(:remove_const, :HOST_URL)
-  FrameDownloader::HOST_URL = "https://raw.githubusercontent.com/emavgl/frameit-frames/gh-pages/"
+  FrameDownloader::HOST_URL = "https://fastlane.github.io/frameit-frames/"
 end

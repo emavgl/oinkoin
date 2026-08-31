@@ -1,6 +1,6 @@
 ---
 name: frameit
-description: Installs and runs the Oinkoin screenshot framing workflow with Fastlane Frameit and the project's Samsung Galaxy S21 frame fork.
+description: Installs and runs the Oinkoin screenshot framing workflow with Fastlane Frameit and Samsung Galaxy S21 support.
 argument-hint: "[rebuild]"
 ---
 
@@ -12,14 +12,14 @@ Use this skill when preparing or rebuilding Oinkoin's Google Play Store screensh
 
 The project uses Fastlane Frameit to add a Samsung Galaxy S21 5G frame, yellow background, and marketing text to Android screenshots.
 
-The standard Frameit gem does not register the S21 device even though its frame assets exist. The project therefore provides:
+The standard Frameit gem does not register the S21 device even though its frame assets exist in the official Frameit repository. The project therefore provides:
 
-- `scripts/frameit_s21_patch.rb` - registers the S21 device and points Frameit at the project's frame fork.
+- `scripts/frameit_s21_patch.rb` - registers the S21 device while using the official Frameit asset host.
 - `scripts/frameit_android_runner.rb` - loads Fastlane before the patch and starts Frameit's Android command.
 - `scripts/frameit_android.sh` - runs the workflow from the repository root.
 - `fastlane/screenshots/Framefile.json` - defines the layout, typography, and per-image text.
 
-The frame assets are hosted in the GitHub fork at https://github.com/emavgl/frameit-frames.
+The frame assets are hosted by the official Frameit project at https://fastlane.github.io/frameit-frames/.
 
 ## Installation
 
@@ -46,7 +46,7 @@ Place the raw Android screenshots in `fastlane/screenshots/` using the names mat
 ./scripts/frameit_android.sh
 ```
 
-Frameit downloads the forked device assets on the first run. It writes framed files beside the inputs with the `_framed.png` suffix, such as `image1_framed.png`.
+Frameit downloads the official device assets on the first run. It writes framed files beside the inputs with the `_framed.png` suffix, such as `image1_framed.png`.
 
 The script can pass additional Frameit arguments:
 
