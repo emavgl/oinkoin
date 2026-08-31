@@ -239,5 +239,6 @@
   "dot": "dot",
   "none": "none",
   "space": "space",
+  "transfer_tab": "Transfer",
   "underscore": "underscore"
 }

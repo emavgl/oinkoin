@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-08-30",
-    "total_keys": 572
+    "last_updated": "2026-08-31",
+    "total_keys": 573
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5724,6 +5724,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "transfer_tab": {
+      "key": "transfer_tab",
+      "context": "Short label for the Transfer tab in the category selector when adding a record",
+      "file": "lib/categories/categories-tab-page-view.dart:377",
+      "page": "Add record > Category selection",
+      "component": "Tab label",
+      "meaning": "A movement of money from one wallet to another without requiring a category",
+      "notes": "Must fit within a fixed-width three-tab layout; keep translations to 9 characters or fewer where possible. This key is intentionally separate from 'Transfer' because the full term is used elsewhere in the app.",
+      "status": "verified"
     },
     "underscore": {
       "key": "underscore",
