@@ -172,6 +172,11 @@ void main() {
       expect(symbol, '£');
     });
 
+    test('returns the Azerbaijani manat symbol', () {
+      final symbol = getCurrencySymbol('AZN');
+      expect(symbol, '₼');
+    });
+
     test('returns code for unknown currency', () {
       final symbol = getCurrencySymbol('XYZ');
       expect(symbol, 'XYZ');

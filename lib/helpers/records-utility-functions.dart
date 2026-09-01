@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
 import 'package:piggybank/models/wallet.dart';
@@ -580,6 +581,9 @@ NumberFormat _numberFormatForDecimalDigits(int decDigits) {
 
 /// Gets the currency symbol for a given currency code.
 String getCurrencySymbol(String currencyCode) {
+  final currencyInfo = CurrencyInfo.byCode(currencyCode);
+  if (currencyInfo != null) return currencyInfo.symbol;
+
   try {
     return NumberFormat.simpleCurrency(name: currencyCode).currencySymbol;
   } catch (_) {

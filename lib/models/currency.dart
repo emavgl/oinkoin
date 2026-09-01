@@ -1,6 +1,10 @@
 import 'package:intl/intl.dart';
 
 class CurrencyInfo {
+  static const _symbolOverrides = <String, String>{
+    'AZN': '₼',
+  };
+
   final String isoCode;
   final String name;
   final String? customSymbol;
@@ -10,6 +14,8 @@ class CurrencyInfo {
 
   String get symbol {
     if (customSymbol != null) return customSymbol!;
+    final override = _symbolOverrides[isoCode];
+    if (override != null) return override;
     try {
       return NumberFormat.simpleCurrency(name: isoCode).currencySymbol;
     } catch (_) {
