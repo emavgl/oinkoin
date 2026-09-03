@@ -490,15 +490,15 @@ class CustomizationPageState extends State<CustomizationPage> {
       _CustomizationOption(
         section: "Privacy".i18n,
         title: "Privacy mode",
-        subtitle: "Hide balances and amounts behind placeholders",
+        subtitle: "Hide balances and amounts",
         builder: () => ValueListenableBuilder<bool>(
           valueListenable: ServiceConfig.privacyModeNotifier,
           builder: (context, hidden, _) => SwitchCustomizationItem(
-            // Recreate with the fresh value so toggling from the homepage
-            // or wallet screen is reflected here as well.
+            // Recreate with the fresh value so toggling from the homepage,
+            // wallet screen, or toolbar is reflected here as well.
             key: ValueKey('privacyMode-$hidden'),
             title: "Privacy mode".i18n,
-            subtitle: "Hide balances and amounts behind placeholders".i18n,
+            subtitle: "Hide balances and amounts".i18n,
             switchValue: hidden,
             sharedConfigKey: PreferencesKeys.privacyMode,
             onChanged: (value) => ServiceConfig.setPrivacyMode(value),
@@ -508,13 +508,16 @@ class CustomizationPageState extends State<CustomizationPage> {
       _CustomizationOption(
         section: "Privacy".i18n,
         title: "Start with privacy mode on",
-        subtitle: "Start hidden. Tap any amount to show or hide it anytime",
+        subtitle:
+            "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime",
         builder: () => SwitchCustomizationItem(
           title: "Start with privacy mode on".i18n,
           subtitle:
-              "Start hidden. Tap any amount to show or hide it anytime".i18n,
+              "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime"
+                  .i18n,
           switchValue: ServiceConfig.privacyModeOnStart,
           sharedConfigKey: PreferencesKeys.privacyModeOnStart,
+          // Only affects future launches; the current session is untouched.
           onChanged: (value) => ServiceConfig.setPrivacyModeOnStart(value),
         ),
       ),

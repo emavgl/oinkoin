@@ -5755,16 +5755,6 @@
       "notes": "'Mode' = app display state, not a phone OS mode.",
       "status": "verified"
     },
-    "Hide balances and amounts behind placeholders": {
-      "key": "Hide balances and amounts behind placeholders",
-      "context": "Subtitle of the privacy mode switch",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Amounts are replaced with symbols such as triple dots",
-      "notes": "'Placeholders' = masking symbols, not input field hints.",
-      "status": "verified"
-    },
     "Start with privacy mode on": {
       "key": "Start with privacy mode on",
       "context": "Switch enabling privacy mode automatically on every app start",
@@ -5785,16 +5775,6 @@
       "notes": "Noun. Section name is localized at the option site, header render is idempotent.",
       "status": "verified"
     },
-    "Start hidden. Tap any amount to show or hide it anytime": {
-      "key": "Start hidden. Tap any amount to show or hide it anytime",
-      "context": "Subtitle of the start-with-privacy-mode switch",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Enabling only affects the next launch; the current session is untouched, and amounts toggle by tap anytime",
-      "notes": "Two sentences: scope (next launches) + gesture (tap to toggle).",
-      "status": "verified"
-    },
     "Show amounts": {
       "key": "Show amounts",
       "context": "Tooltip of the eye toggle next to amounts",
@@ -5813,6 +5793,26 @@
       "component": "IconButton tooltip",
       "meaning": "Conceal amounts behind placeholders",
       "notes": "Imperative verb + object; pairs with the visibility eye icon.",
+      "status": "verified"
+    },
+    "Hide balances and amounts": {
+      "key": "Hide balances and amounts",
+      "context": "Subtitle of the live privacy mode switch",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "The switch reflects and controls whether amounts are hidden right now",
+      "notes": "Present-tense state description.",
+      "status": "verified"
+    },
+    "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime": {
+      "key": "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime",
+      "context": "Subtitle of the start-with-privacy-mode switch",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Only future launches start hidden; the current session is untouched, and the toolbar eye or tapping amounts toggles anytime",
+      "notes": "Explains this switch never changes the current session, so it can't fight the Privacy mode switch.",
       "status": "verified"
     }
   }
