@@ -235,10 +235,16 @@ class BackupService {
         final stagedFile = File("${tempDir.path}/$backupFileName");
         await stagedFile.writeAsString(backupJsonStr, flush: true);
         try {
-          await BackupDirectoryService.writeBackupFile(
+          final written = await BackupDirectoryService.writeBackupFile(
               safFolderUri, backupFileName, stagedFile.path);
+          if (!written) {
+            throw StateError(
+                'Could not write $backupFileName into the custom backup folder');
+          }
         } finally {
-          await stagedFile.delete();
+          if (await stagedFile.exists()) {
+            await stagedFile.delete();
+          }
         }
         var safBackupFile = File("${path.path}/$backupFileName");
         _logger.info(

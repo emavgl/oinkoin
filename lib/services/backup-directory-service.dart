@@ -136,45 +136,63 @@ class BackupDirectoryService {
 
   /// Copies the staged backup file at [stagedFilePath] into the folder
   /// identified by [uri], overwriting an existing document with the same
-  /// name.
+  /// name. Returns false when the grant was lost or the folder is gone,
+  /// so callers can surface an error instead of crashing.
   static Future<bool> writeBackupFile(
     String uri,
     String fileName,
     String stagedFilePath,
   ) async {
-    return await _channel.invokeMethod<bool>('writeFile', {
-          'uri': uri,
-          'fileName': fileName,
-          'sourcePath': stagedFilePath,
-        }) ??
-        false;
+    try {
+      return await _channel.invokeMethod<bool>('writeFile', {
+            'uri': uri,
+            'fileName': fileName,
+            'sourcePath': stagedFilePath,
+          }) ??
+          false;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to write backup file into custom folder');
+      return false;
+    }
   }
 
   /// Deletes the document named [fileName] from the folder identified by
-  /// [uri]. Returns false when no such document exists.
+  /// [uri]. Returns false when no such document exists or the folder is
+  /// no longer accessible.
   static Future<bool> deleteBackupFile(String uri, String fileName) async {
-    return await _channel.invokeMethod<bool>('deleteFile', {
-          'uri': uri,
-          'fileName': fileName,
-        }) ??
-        false;
+    try {
+      return await _channel.invokeMethod<bool>('deleteFile', {
+            'uri': uri,
+            'fileName': fileName,
+          }) ??
+          false;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to delete backup file in custom folder');
+      return false;
+    }
   }
 
-  /// Lists the documents in the folder identified by [uri].
+  /// Lists the documents in the folder identified by [uri]. Returns an
+  /// empty list when the grant was revoked or the folder is gone.
   static Future<List<BackupFolderEntry>> listBackupFiles(String uri) async {
-    final result = await _channel
-        .invokeMethod<List<dynamic>>('listFiles', {'uri': uri});
-    if (result == null) {
+    try {
+      final result = await _channel
+          .invokeMethod<List<dynamic>>('listFiles', {'uri': uri});
+      if (result == null) {
+        return const [];
+      }
+      return result
+          .whereType<Map>()
+          .map((entry) => BackupFolderEntry(
+                entry['name'] as String? ?? '',
+                entry['lastModifiedMs'] as int?,
+              ))
+          .where((entry) => entry.name.isNotEmpty)
+          .toList();
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to list backup files in custom folder');
       return const [];
     }
-    return result
-        .whereType<Map>()
-        .map((entry) => BackupFolderEntry(
-              entry['name'] as String? ?? '',
-              entry['lastModifiedMs'] as int?,
-            ))
-        .where((entry) => entry.name.isNotEmpty)
-        .toList();
   }
 
   /// Verifies that a backup file can be created in [path] by writing and
