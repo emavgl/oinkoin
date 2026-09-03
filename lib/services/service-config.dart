@@ -135,17 +135,37 @@ class ServiceConfig {
     showHomepageImageNotifier.value = showHomepageImage;
   }
 
-  /// Notifies consumers (e.g. the homepage summary card) when privacy mode
-  /// changes, so amounts are hidden or revealed instantly without an app
-  /// restart.
-  static final ValueNotifier<bool> privacyModeNotifier = ValueNotifier(false);
+  /// Whether the privacy feature is armed: the eye button is shown and
+  /// tapping amounts hides them. The switch in settings controls this;
+  /// it never hides anything by itself.
+  static final ValueNotifier<bool> privacyModeEnabledNotifier =
+      ValueNotifier(false);
 
-  static bool get privacyMode =>
+  static bool get privacyModeEnabled =>
       sharedPreferences?.getBool(PreferencesKeys.privacyMode) ?? false;
 
-  static void setPrivacyMode(bool value) {
+  static void setPrivacyModeEnabled(bool value) {
     sharedPreferences?.setBool(PreferencesKeys.privacyMode, value);
-    privacyModeNotifier.value = value;
+    privacyModeEnabledNotifier.value = value;
+    if (!value) {
+      // Disarming reveals everything and clears the hidden state.
+      setPrivacyModeHidden(false);
+    }
+  }
+
+  /// Whether amounts are currently hidden. Only meaningful while the
+  /// feature is armed; hide requests made while disarmed are ignored so
+  /// re-arming always starts from visible amounts.
+  static final ValueNotifier<bool> privacyModeHiddenNotifier =
+      ValueNotifier(false);
+
+  static bool get privacyModeHidden =>
+      sharedPreferences?.getBool(PreferencesKeys.privacyModeHidden) ?? false;
+
+  static void setPrivacyModeHidden(bool value) {
+    if (value && !privacyModeEnabled) return;
+    sharedPreferences?.setBool(PreferencesKeys.privacyModeHidden, value);
+    privacyModeHiddenNotifier.value = value;
   }
 
   static bool get privacyModeOnStart =>
@@ -155,15 +175,16 @@ class ServiceConfig {
     sharedPreferences?.setBool(PreferencesKeys.privacyModeOnStart, value);
   }
 
-  /// Syncs [privacyModeNotifier] with the persisted preferences. When
-  /// "start with privacy mode on" is enabled, amounts always start hidden,
-  /// regardless of the persisted privacy mode. Call once during startup,
-  /// after [sharedPreferences] has been loaded.
+  /// Syncs both privacy notifiers with the persisted preferences. When
+  /// "start with privacy mode on" is enabled, amounts start hidden (the
+  /// persisted hidden state is aligned). A disarmed feature always starts
+  /// visible. Call once during startup, after [sharedPreferences] has been
+  /// loaded.
   static void initPrivacyMode() {
-    final hidden = privacyModeOnStart || privacyMode;
-    if (hidden) {
-      sharedPreferences?.setBool(PreferencesKeys.privacyMode, true);
-    }
-    privacyModeNotifier.value = hidden;
+    final enabled = privacyModeEnabled;
+    privacyModeEnabledNotifier.value = enabled;
+    final hidden = enabled && (privacyModeOnStart || privacyModeHidden);
+    sharedPreferences?.setBool(PreferencesKeys.privacyModeHidden, hidden);
+    privacyModeHiddenNotifier.value = hidden;
   }
 }

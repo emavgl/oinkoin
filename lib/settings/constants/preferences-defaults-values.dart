@@ -58,7 +58,8 @@ class PreferencesDefaultValues {
     PreferencesKeys.colorizeAmounts: false, // Default to disabled
     PreferencesKeys.showHomepageImage: true, // Default to enabled
     PreferencesKeys.enableNavigationBarAnimations: true,
-    PreferencesKeys.privacyMode: false, // Default to visible amounts
+    PreferencesKeys.privacyMode: false, // Default to feature disarmed
+    PreferencesKeys.privacyModeHidden: false, // Default to visible amounts
     PreferencesKeys.privacyModeOnStart:
         false, // Default to respecting the last state
     PreferencesKeys.reverseMonthlyImages: false, // Default to no reversal

@@ -44,9 +44,12 @@ class PreferencesKeys {
   static const enableNavigationBarAnimations =
       'enableNavigationBarAnimations';
 
-  // Privacy mode hides monetary amounts behind placeholders. Display-only,
-  // safe to carry over to another device via portable backup.
+  // Privacy mode arms hiding of monetary amounts (eye button and
+  // tap-to-hide). Display-only, safe to carry over via portable backup.
   static const privacyMode = 'privacyMode';
+
+  // Persisted hidden state. Only takes effect while privacyMode is armed.
+  static const privacyModeHidden = 'privacyModeHidden';
 
   // When true, privacy mode is enabled on every app start, regardless of
   // the persisted privacyMode value.

@@ -490,18 +490,17 @@ class CustomizationPageState extends State<CustomizationPage> {
       _CustomizationOption(
         section: "Privacy".i18n,
         title: "Privacy mode",
-        subtitle: "When on, hides every amount in the app behind ••••",
+        subtitle: "Show the eye button and enable tap-to-hide amounts",
         builder: () => ValueListenableBuilder<bool>(
-          valueListenable: ServiceConfig.privacyModeNotifier,
-          builder: (context, hidden, _) => SwitchCustomizationItem(
-            // Recreate with the fresh value so toggling from the homepage,
-            // wallet screen, or toolbar is reflected here as well.
-            key: ValueKey('privacyMode-$hidden'),
+          valueListenable: ServiceConfig.privacyModeEnabledNotifier,
+          builder: (context, armed, _) => SwitchCustomizationItem(
+            // Recreate with the fresh value so it never disagrees.
+            key: ValueKey('privacyModeEnabled-$armed'),
             title: "Privacy mode".i18n,
-            subtitle: "When on, hides every amount in the app behind ••••".i18n,
-            switchValue: hidden,
+            subtitle: "Show the eye button and enable tap-to-hide amounts".i18n,
+            switchValue: armed,
             sharedConfigKey: PreferencesKeys.privacyMode,
-            onChanged: (value) => ServiceConfig.setPrivacyMode(value),
+            onChanged: (value) => ServiceConfig.setPrivacyModeEnabled(value),
           ),
         ),
       ),

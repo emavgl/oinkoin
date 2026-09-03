@@ -156,14 +156,22 @@ class TabRecordsAppBar extends StatelessWidget {
     return <Widget>[
       if (showPrivacyToggle)
         ValueListenableBuilder<bool>(
-          valueListenable: ServiceConfig.privacyModeNotifier,
-          builder: (context, hidden, _) => StyledActionButton(
-            icon: hidden ? Icons.visibility_off : Icons.visibility,
-            onPressed: () => ServiceConfig.setPrivacyMode(!hidden),
-            tooltip: hidden ? "Show amounts".i18n : "Hide amounts".i18n,
-            semanticsId: 'privacy-toggle',
-            scaleFactor: actionButtonScale,
-          ),
+          valueListenable: ServiceConfig.privacyModeEnabledNotifier,
+          builder: (context, armed, _) {
+            // Disarmed: no eye button, taps do nothing, amounts stay visible.
+            if (!armed) return const SizedBox.shrink();
+            return ValueListenableBuilder<bool>(
+              valueListenable: ServiceConfig.privacyModeHiddenNotifier,
+              builder: (context, hidden, _) => StyledActionButton(
+                icon: hidden ? Icons.visibility_off : Icons.visibility,
+                onPressed: () =>
+                    ServiceConfig.setPrivacyModeHidden(!hidden),
+                tooltip: hidden ? "Show amounts".i18n : "Hide amounts".i18n,
+                semanticsId: 'privacy-toggle',
+                scaleFactor: actionButtonScale,
+              ),
+            );
+          },
         ),
       StyledActionButton(
         icon: Icons.calendar_today,

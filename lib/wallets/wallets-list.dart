@@ -125,7 +125,7 @@ class _WalletsListState extends State<WalletsList> {
     );
 
     return ValueListenableBuilder<bool>(
-      valueListenable: ServiceConfig.privacyModeNotifier,
+      valueListenable: ServiceConfig.privacyModeHiddenNotifier,
       builder: (context, hidden, _) {
         if (hidden) {
           return obscuredAmountTextWidget(style);

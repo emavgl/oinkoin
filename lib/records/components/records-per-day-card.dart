@@ -142,7 +142,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     }
 
     return ValueListenableBuilder<bool>(
-      valueListenable: ServiceConfig.privacyModeNotifier,
+      valueListenable: ServiceConfig.privacyModeHiddenNotifier,
       builder: (context, hidden, _) =>
           hidden ? obscuredAmountTextWidget(style) : content,
     );
@@ -465,7 +465,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 22, 0),
                       child: ValueListenableBuilder<bool>(
-                        valueListenable: ServiceConfig.privacyModeNotifier,
+                        valueListenable: ServiceConfig.privacyModeHiddenNotifier,
                         builder: (context, hidden, _) {
                           final dayBalance = _formatDayBalance();
                           final style = TextStyle(

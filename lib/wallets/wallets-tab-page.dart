@@ -556,11 +556,11 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                           // breakdown, but only while amounts are visible.
                           ValueListenableBuilder<bool>(
                             valueListenable:
-                                ServiceConfig.privacyModeNotifier,
+                                ServiceConfig.privacyModeHiddenNotifier,
                             builder: (context, hidden, _) => GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () =>
-                                  ServiceConfig.setPrivacyMode(!hidden),
+                                  ServiceConfig.setPrivacyModeHidden(!hidden),
                               onLongPress: (!hidden && _canShowBreakdown)
                                   ? () => setState(() =>
                                       _showBreakdown = !_showBreakdown)

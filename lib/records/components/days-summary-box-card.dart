@@ -110,7 +110,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
-      valueListenable: ServiceConfig.privacyModeNotifier,
+      valueListenable: ServiceConfig.privacyModeHiddenNotifier,
       builder: (context, privacyMode, _) =>
           _buildCard(context, hidden: privacyMode),
     );
@@ -119,7 +119,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   Widget _buildCard(BuildContext context, {required bool hidden}) {
     // Tapping any amount quickly shows or hides all amounts (privacy mode).
     final VoidCallback togglePrivacy =
-        () => ServiceConfig.setPrivacyMode(!hidden);
+        () => ServiceConfig.setPrivacyModeHidden(!hidden);
     final brightness = Theme.of(context).brightness;
     final dimColor =
         Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
