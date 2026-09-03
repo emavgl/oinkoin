@@ -14,7 +14,8 @@ class SwitchCustomizationItem<T> extends StatefulWidget {
   final bool proLabel;
 
   SwitchCustomizationItem(
-      {required this.title,
+      {super.key,
+      required this.title,
       required this.subtitle,
       required this.switchValue,
       required this.sharedConfigKey,

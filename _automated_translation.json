@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-03",
-    "total_keys": 580
+    "total_keys": 578
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5748,9 +5748,9 @@
     "Privacy": {
       "key": "Privacy",
       "context": "Settings section title linking to the privacy settings page",
-      "file": "lib/settings/settings-page.dart",
-      "page": "Settings",
-      "component": "SettingsItem title",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "Privacy section",
       "meaning": "User privacy controls (hiding balances and amounts)",
       "notes": "Noun, section header. Pairs with the 'Privacy mode' switch inside.",
       "status": "verified"
@@ -5758,28 +5758,18 @@
     "Privacy mode": {
       "key": "Privacy mode",
       "context": "Switch enabling concealment of monetary amounts on the homepage",
-      "file": "lib/settings/privacy-page.dart",
-      "page": "Settings > Privacy",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
       "component": "SwitchCustomizationItem title",
       "meaning": "When on, balances and amounts are replaced with placeholders",
       "notes": "'Mode' = app display state, not a phone OS mode.",
       "status": "verified"
     },
-    "Hide balances and amounts": {
-      "key": "Hide balances and amounts",
-      "context": "Subtitle of the Privacy entry in the main settings list",
-      "file": "lib/settings/settings-page.dart",
-      "page": "Settings",
-      "component": "SettingsItem subtitle",
-      "meaning": "Short summary of what the Privacy section does",
-      "notes": "Keep short; describes hiding money values across the homepage summary.",
-      "status": "verified"
-    },
     "Hide balances and amounts behind placeholders": {
       "key": "Hide balances and amounts behind placeholders",
       "context": "Subtitle of the privacy mode switch",
-      "file": "lib/settings/privacy-page.dart",
-      "page": "Settings > Privacy",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
       "component": "SwitchCustomizationItem subtitle",
       "meaning": "Amounts are replaced with symbols such as triple dots",
       "notes": "'Placeholders' = masking symbols, not input field hints.",
@@ -5788,8 +5778,8 @@
     "Start with privacy mode on": {
       "key": "Start with privacy mode on",
       "context": "Switch enabling privacy mode automatically on every app start",
-      "file": "lib/settings/privacy-page.dart",
-      "page": "Settings > Privacy",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
       "component": "SwitchCustomizationItem title",
       "meaning": "Amounts start hidden each time the app opens",
       "notes": "Pairs with the 'Privacy mode' switch above it.",
@@ -5798,21 +5788,11 @@
     "Hide amounts every time the app opens": {
       "key": "Hide amounts every time the app opens",
       "context": "Subtitle of the start-with-privacy-mode switch",
-      "file": "lib/settings/privacy-page.dart",
-      "page": "Settings > Privacy",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
       "component": "SwitchCustomizationItem subtitle",
       "meaning": "Concealment applies at launch regardless of last session state",
       "notes": "'Opens' = app launch.",
-      "status": "verified"
-    },
-    "Tap the amounts in the homepage summary or the wallet total to quickly show or hide them.": {
-      "key": "Tap the amounts in the homepage summary or the wallet total to quickly show or hide them.",
-      "context": "Helper text below the privacy switches explaining the quick toggle",
-      "file": "lib/settings/privacy-page.dart",
-      "page": "Settings > Privacy",
-      "component": "Explanatory body text",
-      "meaning": "Tapping Income/Expenses/Balance on the homepage or the total on the wallets tab toggles concealment",
-      "notes": "'Homepage summary' = the Income/Expenses/Balance card; 'wallet total' = the total balance header on the Wallets tab.",
       "status": "verified"
     }
   }

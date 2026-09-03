@@ -488,6 +488,43 @@ class CustomizationPageState extends State<CustomizationPage> {
         ),
       ),
       _CustomizationOption(
+        // Keep "Privacy".i18n as a string literal so the locale sync script
+        // retains the section header key in en-US.json.
+        section: "Privacy",
+        title: "Privacy mode",
+        subtitle: "Hide balances and amounts behind placeholders",
+        builder: () => ValueListenableBuilder<bool>(
+          valueListenable: ServiceConfig.privacyModeNotifier,
+          builder: (context, hidden, _) => SwitchCustomizationItem(
+            // Recreate with the fresh value so toggling from the homepage
+            // or wallet screen is reflected here as well.
+            key: ValueKey('privacyMode-$hidden'),
+            title: "Privacy mode".i18n,
+            subtitle: "Hide balances and amounts behind placeholders".i18n,
+            switchValue: hidden,
+            sharedConfigKey: PreferencesKeys.privacyMode,
+            onChanged: (value) => ServiceConfig.setPrivacyMode(value),
+          ),
+        ),
+      ),
+      _CustomizationOption(
+        section: "Privacy",
+        title: "Start with privacy mode on",
+        subtitle: "Hide amounts every time the app opens",
+        builder: () => SwitchCustomizationItem(
+          title: "Start with privacy mode on".i18n,
+          subtitle: "Hide amounts every time the app opens".i18n,
+          switchValue: ServiceConfig.privacyModeOnStart,
+          sharedConfigKey: PreferencesKeys.privacyModeOnStart,
+          onChanged: (value) {
+            ServiceConfig.setPrivacyModeOnStart(value);
+            if (value) {
+              ServiceConfig.setPrivacyMode(true);
+            }
+          },
+        ),
+      ),
+      _CustomizationOption(
         section: "Number & Formatting",
         title: "Decimal digits",
         subtitle: "Select the number of decimal digits",

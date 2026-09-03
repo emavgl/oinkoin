@@ -15,7 +15,6 @@ import 'package:piggybank/settings/backup-page.dart';
 import 'package:piggybank/settings/backup-restore-dialogs.dart';
 // import 'package:piggybank/settings/csv_import/csv_import_page.dart';
 import 'package:piggybank/settings/customization-page.dart';
-import 'package:piggybank/settings/privacy-page.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/tags/tags-page-view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -101,13 +100,6 @@ class TabSettings extends StatelessWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => BackupPage()),
-    );
-  }
-
-  goToPrivacyPage(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const PrivacyPage()),
     );
   }
 
@@ -268,15 +260,6 @@ class TabSettings extends StatelessWidget {
               title: 'Recurrent Records'.i18n,
               subtitle: "View or delete recurrent records".i18n,
               onPressed: () async => await goToRecurrentRecordPage(context)),
-          SettingsItem(
-              icon: Icon(
-                Icons.visibility_off,
-                color: Colors.white,
-              ),
-              iconBackgroundColor: Colors.purple.shade600,
-              title: 'Privacy'.i18n,
-              subtitle: "Hide balances and amounts".i18n,
-              onPressed: () async => await goToPrivacyPage(context)),
           SettingsItem(
               icon: Icon(
                 Icons.tag,
