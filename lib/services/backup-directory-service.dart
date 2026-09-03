@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/logger.dart';
@@ -61,12 +62,20 @@ class BackupDirectoryService {
       MethodChannel('oinkoin/backup_directory');
 
   /// Custom backup folders need direct filesystem access that iOS does not
-  /// grant to third-party apps, so the option is not offered there.
-  static bool get isSupported => !Platform.isIOS;
+  /// grant to third-party apps (file_picker returns a security-scoped URL
+  /// without a persisted bookmark, so writes fail after restart), so the
+  /// option is not offered there. Linux, Windows, and macOS use the native
+  /// directory dialog with regular file access.
+  static bool get isSupported => !kIsWeb && !Platform.isIOS;
 
   /// Opens the platform directory picker and verifies that the app can
-  /// actually write into the chosen folder.
+  /// actually write into the chosen folder. Returns cancelled on platforms
+  /// without custom-folder support, so callers keep the default folder.
   static Future<BackupDirectoryPick> pickDirectory() async {
+    if (kIsWeb || Platform.isIOS) {
+      return const BackupDirectoryPick(
+          BackupDirectoryPickOutcome.cancelled, null, null);
+    }
     String? path;
     String? uri;
     try {
