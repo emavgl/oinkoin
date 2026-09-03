@@ -23,7 +23,7 @@ import 'datetime-utility-functions.dart';
 
 /// Placeholder shown instead of monetary amounts when privacy mode is on.
 /// Bullets sit vertically centered in most fonts, unlike asterisks.
-const String obscuredAmountText = '•••';
+const String obscuredAmountText = '••••';
 
 /// Masked amount widget for privacy mode, centered where the amount was.
 Widget obscuredAmountTextWidget(TextStyle? style) {

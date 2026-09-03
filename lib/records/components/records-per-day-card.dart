@@ -131,14 +131,21 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
         : _currencyFontStyle;
 
     // No currency info at all — fall back to plain number
+    final Widget content;
     if (recordCurrency == null || recordCurrency.isEmpty) {
-      return Text(getCurrencyValueString(record.value), style: style);
+      content = Text(getCurrencyValueString(record.value), style: style);
+    } else {
+      content = buildAmountWithCurrencyWidget(record.value!, recordCurrency,
+          mainStyle: style,
+          brightness: Theme.of(context).brightness,
+          neutralColor: color == null);
     }
 
-    return buildAmountWithCurrencyWidget(record.value!, recordCurrency,
-        mainStyle: style,
-        brightness: Theme.of(context).brightness,
-        neutralColor: color == null);
+    return ValueListenableBuilder<bool>(
+      valueListenable: ServiceConfig.privacyModeNotifier,
+      builder: (context, hidden, _) =>
+          hidden ? obscuredAmountTextWidget(style) : content,
+    );
   }
 
   bool _dayHasMixedCurrencies(List<Record?> records) {
@@ -457,14 +464,25 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 22, 0),
-                      child: Text(
-                        _formatDayBalance(),
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.normal,
-                            color: getAmountColor(_dayBalanceNumeric(),
-                                Theme.of(context).brightness)),
-                        overflow: TextOverflow.ellipsis,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: ServiceConfig.privacyModeNotifier,
+                        builder: (context, hidden, _) {
+                          final dayBalance = _formatDayBalance();
+                          final style = TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.normal,
+                              color: getAmountColor(_dayBalanceNumeric(),
+                                  Theme.of(context).brightness));
+                          // Transfer-only days have no balance; keep them blank.
+                          if (hidden && dayBalance.isNotEmpty) {
+                            return obscuredAmountTextWidget(style);
+                          }
+                          return Text(
+                            dayBalance,
+                            style: style,
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        },
                       ),
                     )
                   ])),
