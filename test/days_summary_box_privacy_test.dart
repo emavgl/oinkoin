@@ -54,18 +54,18 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.text(DaysSummaryBox.obscuredAmountText), findsNothing);
+    expect(find.text(obscuredAmountText), findsNothing);
 
     ServiceConfig.setPrivacyMode(true);
     await tester.pump();
     // Income, Expenses, Balance, and the wallet balance.
-    expect(find.text(DaysSummaryBox.obscuredAmountText), findsNWidgets(4));
+    expect(find.text(obscuredAmountText), findsNWidgets(4));
 
     // The first placeholder is the wallet header (opens the wallet picker);
     // tap a stat amount to toggle privacy back off.
-    await tester.tap(find.text(DaysSummaryBox.obscuredAmountText).at(1));
+    await tester.tap(find.text(obscuredAmountText).at(1));
     await tester.pump();
     expect(ServiceConfig.privacyModeNotifier.value, isFalse);
-    expect(find.text(DaysSummaryBox.obscuredAmountText), findsNothing);
+    expect(find.text(obscuredAmountText), findsNothing);
   });
 }

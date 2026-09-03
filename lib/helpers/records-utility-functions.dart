@@ -21,6 +21,9 @@ import 'package:piggybank/settings/preferences-utils.dart';
 import 'banner-image-service.dart';
 import 'datetime-utility-functions.dart';
 
+/// Placeholder shown instead of monetary amounts when privacy mode is on.
+const String obscuredAmountText = '•••';
+
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   /// Groups the records by days using a Map<DateTime, List<Record>>.
   /// It returns a list of RecordsPerDay objects, each containing at least 1 record.

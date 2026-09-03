@@ -26,9 +26,6 @@ class DaysSummaryBox extends StatefulWidget {
   /// is disabled or the "Show wallet bar on the homepage" toggle is off.
   final bool showWalletRow;
 
-  /// Placeholder shown instead of monetary amounts when privacy mode is on.
-  static const String obscuredAmountText = '•••';
-
   DaysSummaryBox(
     this.records, {
     required this.walletLabel,
@@ -68,7 +65,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
         color != null ? _biggerFont.copyWith(color: color) : _biggerFont;
     if (hidden) {
       // Concealed: no value, no currency breakdown gesture.
-      return Text(DaysSummaryBox.obscuredAmountText,
+      return Text(obscuredAmountText,
           style: style, overflow: TextOverflow.ellipsis);
     }
     final result = precomputed ??
@@ -93,27 +90,20 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
       {bool isAbsValue = true,
       Color? color,
       RecordsTotalResult? precomputed,
-      bool hidden = false,
-      VoidCallback? onTap}) {
-    final content = Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(label, style: _subtitleFont, overflow: TextOverflow.ellipsis),
-        const SizedBox(height: 5),
-        _buildAmountWidget(records,
-            isAbsValue: isAbsValue,
-            color: color,
-            precomputed: precomputed,
-            hidden: hidden),
-      ],
-    );
-    if (onTap == null) return Expanded(child: content);
-    // Tapping an amount quickly shows or hides it (privacy mode).
+      bool hidden = false}) {
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: content,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(label, style: _subtitleFont, overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 5),
+          _buildAmountWidget(records,
+              isAbsValue: isAbsValue,
+              color: color,
+              precomputed: precomputed,
+              hidden: hidden),
+        ],
       ),
     );
   }
@@ -168,7 +158,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                       const Spacer(),
                       Text(
                         hidden
-                            ? DaysSummaryBox.obscuredAmountText
+                            ? obscuredAmountText
                             : widget.walletBalanceString,
                         style: widget.walletBalance != null
                             ? _walletRowFont.copyWith(
@@ -184,29 +174,29 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
               ),
               const Divider(height: 1),
             ],
-            // Income / Expenses / Balance row
+            // Income / Expenses / Balance row. Tapping any amount quickly
+            // shows or hides all amounts (privacy mode).
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Row(
-                  children: <Widget>[
-                    _buildStatColumn("Income".i18n, _incomeRecords,
-                        color: incomeColor,
-                        hidden: hidden,
-                        onTap: togglePrivacy),
-                    VerticalDivider(endIndent: 10, indent: 10),
-                    _buildStatColumn("Expenses".i18n, _expenseRecords,
-                        color: expenseColor,
-                        hidden: hidden,
-                        onTap: togglePrivacy),
-                    VerticalDivider(endIndent: 10, indent: 10),
-                    _buildStatColumn("Balance".i18n, _balanceRecords,
-                        isAbsValue: false,
-                        color: balanceColor,
-                        precomputed: balanceResult,
-                        hidden: hidden,
-                        onTap: togglePrivacy),
-                  ],
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: togglePrivacy,
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Row(
+                    children: <Widget>[
+                      _buildStatColumn("Income".i18n, _incomeRecords,
+                          color: incomeColor, hidden: hidden),
+                      VerticalDivider(endIndent: 10, indent: 10),
+                      _buildStatColumn("Expenses".i18n, _expenseRecords,
+                          color: expenseColor, hidden: hidden),
+                      VerticalDivider(endIndent: 10, indent: 10),
+                      _buildStatColumn("Balance".i18n, _balanceRecords,
+                          isAbsValue: false,
+                          color: balanceColor,
+                          precomputed: balanceResult,
+                          hidden: hidden),
+                    ],
+                  ),
                 ),
               ),
             ),

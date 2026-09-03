@@ -4,7 +4,6 @@ import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
-import 'package:piggybank/records/components/days-summary-box-card.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -566,7 +565,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                                   : null,
                               child: hidden
                                   ? Text(
-                                      DaysSummaryBox.obscuredAmountText,
+                                      obscuredAmountText,
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineLarge

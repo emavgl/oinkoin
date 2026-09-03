@@ -488,9 +488,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         ),
       ),
       _CustomizationOption(
-        // Keep "Privacy".i18n as a string literal so the locale sync script
-        // retains the section header key in en-US.json.
-        section: "Privacy",
+        section: "Appearance",
         title: "Privacy mode",
         subtitle: "Hide balances and amounts behind placeholders",
         builder: () => ValueListenableBuilder<bool>(
@@ -508,7 +506,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         ),
       ),
       _CustomizationOption(
-        section: "Privacy",
+        section: "Appearance",
         title: "Start with privacy mode on",
         subtitle: "Hide amounts every time the app opens",
         builder: () => SwitchCustomizationItem(
