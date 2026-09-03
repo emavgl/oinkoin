@@ -16,6 +16,7 @@ import 'package:piggybank/services/backup-directory-service.dart';
 import 'package:piggybank/services/preferences-backup-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/currencies-page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +46,14 @@ class BackupService {
 
   // not final because it is swapped in the tests
   static DatabaseInterface database = ServiceConfig.database;
+
+  /// Test-only Android override. `Platform.isAndroid` is false on desktop
+  /// test hosts, so SAF-gated behavior is exercised by setting this to true
+  /// and resetting it afterwards. Null (the default) uses the real platform.
+  @visibleForTesting
+  static bool? debugOverrideIsAndroid;
+
+  static bool get _isAndroid => debugOverrideIsAndroid ?? Platform.isAndroid;
 
   /// Gets the platform-appropriate default backup directory
   /// Android: /storage/emulated/0/Documents/oinkoin
@@ -81,7 +90,7 @@ class BackupService {
   /// Storage Access Framework instead. Returns null for every other
   /// destination.
   static Future<String?> _getSafFolderUri(String? directoryPath) async {
-    if (!Platform.isAndroid || directoryPath == null) {
+    if (!_isAndroid || directoryPath == null) {
       return null;
     }
     var prefs = await SharedPreferences.getInstance();
@@ -104,7 +113,7 @@ class BackupService {
   /// Returns the SAF URI of the active custom Android backup folder, or null
   /// when backups are stored in a plain filesystem directory.
   static Future<String?> _getActiveSafFolderUri() async {
-    if (!Platform.isAndroid) {
+    if (!_isAndroid) {
       return null;
     }
     var prefs = await SharedPreferences.getInstance();

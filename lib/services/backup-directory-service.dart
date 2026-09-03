@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/services.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/logger.dart';
@@ -61,25 +61,37 @@ class BackupDirectoryService {
   static const MethodChannel _channel =
       MethodChannel('oinkoin/backup_directory');
 
+  /// Test-only platform overrides. `Platform` cannot be faked on a desktop
+  /// test host, so Android-specific behavior (SAF picker, probe, grants) is
+  /// exercised in unit tests by setting these and resetting them afterwards.
+  /// Null (the default) means "use the real platform".
+  @visibleForTesting
+  static bool? debugOverrideIsAndroid;
+  @visibleForTesting
+  static bool? debugOverrideIsIOS;
+
+  static bool get _isAndroid => debugOverrideIsAndroid ?? Platform.isAndroid;
+  static bool get _isIOS => debugOverrideIsIOS ?? Platform.isIOS;
+
   /// Custom backup folders need direct filesystem access that iOS does not
   /// grant to third-party apps (file_picker returns a security-scoped URL
   /// without a persisted bookmark, so writes fail after restart), so the
   /// option is not offered there. Linux, Windows, and macOS use the native
   /// directory dialog with regular file access.
-  static bool get isSupported => !kIsWeb && !Platform.isIOS;
+  static bool get isSupported => !kIsWeb && !_isIOS;
 
   /// Opens the platform directory picker and verifies that the app can
   /// actually write into the chosen folder. Returns cancelled on platforms
   /// without custom-folder support, so callers keep the default folder.
   static Future<BackupDirectoryPick> pickDirectory() async {
-    if (kIsWeb || Platform.isIOS) {
+    if (kIsWeb || _isIOS) {
       return const BackupDirectoryPick(
           BackupDirectoryPickOutcome.cancelled, null, null);
     }
     String? path;
     String? uri;
     try {
-      if (Platform.isAndroid) {
+      if (_isAndroid) {
         final result =
             await _channel.invokeMethod<dynamic>('pickBackupDirectory');
         if (result is Map) {
@@ -98,7 +110,7 @@ class BackupDirectoryService {
           BackupDirectoryPickOutcome.cancelled, null, null);
     }
 
-    if (Platform.isAndroid) {
+    if (_isAndroid) {
       if (uri == null) {
         return const BackupDirectoryPick(
             BackupDirectoryPickOutcome.cancelled, null, null);
