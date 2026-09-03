@@ -551,41 +551,69 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                           ),
                           const SizedBox(height: 6),
                           // Tapping the total shows or hides amounts (privacy
-                          // mode). Long-press still toggles the per-currency
+                          // mode); the eye icon advertises the gesture.
+                          // Long-press still toggles the per-currency
                           // breakdown, but only while amounts are visible.
                           ValueListenableBuilder<bool>(
                             valueListenable:
                                 ServiceConfig.privacyModeNotifier,
-                            builder: (context, hidden, _) => GestureDetector(
-                              onTap: () =>
-                                  ServiceConfig.setPrivacyMode(!hidden),
-                              onLongPress: (!hidden && _canShowBreakdown)
-                                  ? () => setState(() =>
-                                      _showBreakdown = !_showBreakdown)
-                                  : null,
-                              child: hidden
-                                  ? obscuredAmountTextWidget(
-                                      Theme.of(context)
-                                          .textTheme
-                                          .headlineLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    )
-                                  : (_showBreakdown && _canShowBreakdown
-                                      ? _buildBreakdown()
-                                      : Text(
-                                          _displayBalanceString(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineLarge
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: getAmountColor(
-                                                    _displayBalanceTotal(),
-                                                    brightness),
-                                              ),
-                                        )),
+                            builder: (context, hidden, _) => Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => ServiceConfig.setPrivacyMode(
+                                        !hidden),
+                                    onLongPress: (!hidden && _canShowBreakdown)
+                                        ? () => setState(() =>
+                                            _showBreakdown = !_showBreakdown)
+                                        : null,
+                                    child: hidden
+                                        ? obscuredAmountTextWidget(
+                                            Theme.of(context)
+                                                .textTheme
+                                                .headlineLarge
+                                                ?.copyWith(
+                                                  fontWeight:
+                                                      FontWeight.bold,
+                                                ),
+                                          )
+                                        : (_showBreakdown && _canShowBreakdown
+                                            ? _buildBreakdown()
+                                            : Text(
+                                                _displayBalanceString(),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineLarge
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: getAmountColor(
+                                                          _displayBalanceTotal(),
+                                                          brightness),
+                                                    ),
+                                              )),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () =>
+                                      ServiceConfig.setPrivacyMode(!hidden),
+                                  tooltip: hidden
+                                      ? "Show amounts".i18n
+                                      : "Hide amounts".i18n,
+                                  constraints: const BoxConstraints(),
+                                  padding: EdgeInsets.zero,
+                                  iconSize: 22,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6),
+                                  icon: Icon(hidden
+                                      ? Icons.visibility_off
+                                      : Icons.visibility),
+                                ),
+                              ],
                             ),
                           ),
                         ],

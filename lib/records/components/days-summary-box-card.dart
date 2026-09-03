@@ -155,16 +155,21 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const Spacer(),
-                      Text(
-                        hidden
-                            ? obscuredAmountText
-                            : widget.walletBalanceString,
-                        style: widget.walletBalance != null
-                            ? _walletRowFont.copyWith(
-                                color: getAmountColor(
-                                    widget.walletBalance!, brightness))
-                            : _walletRowFont,
-                      ),
+                      hidden
+                          ? obscuredAmountTextWidget(
+                              widget.walletBalance != null
+                                  ? _walletRowFont.copyWith(
+                                      color: getAmountColor(
+                                          widget.walletBalance!, brightness))
+                                  : _walletRowFont)
+                          : Text(
+                              widget.walletBalanceString,
+                              style: widget.walletBalance != null
+                                  ? _walletRowFont.copyWith(
+                                      color: getAmountColor(
+                                          widget.walletBalance!, brightness))
+                                  : _walletRowFont,
+                            ),
                       const SizedBox(width: 2),
                       Icon(Icons.chevron_right, size: 18, color: dimColor),
                     ],
@@ -174,7 +179,8 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
               const Divider(height: 1),
             ],
             // Income / Expenses / Balance row. Tapping any amount quickly
-            // shows or hides all amounts (privacy mode).
+            // shows or hides all amounts (privacy mode); the eye icon
+            // advertises the gesture.
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -194,6 +200,19 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                           color: balanceColor,
                           precomputed: balanceResult,
                           hidden: hidden),
+                      IconButton(
+                        onPressed: togglePrivacy,
+                        tooltip: hidden
+                            ? "Show amounts".i18n
+                            : "Hide amounts".i18n,
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        iconSize: 20,
+                        color: dimColor,
+                        icon: Icon(hidden
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                      ),
                     ],
                   ),
                 ),

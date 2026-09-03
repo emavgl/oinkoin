@@ -55,15 +55,17 @@ void main() {
     );
     await tester.pump();
     expect(find.text(obscuredAmountText), findsNothing);
+    // The eye icon advertises the gesture in both states.
+    expect(find.byIcon(Icons.visibility), findsOneWidget);
 
     ServiceConfig.setPrivacyMode(true);
     await tester.pump();
     // Income, Expenses, Balance, and the wallet balance.
     expect(find.text(obscuredAmountText), findsNWidgets(4));
+    expect(find.byIcon(Icons.visibility_off), findsOneWidget);
 
-    // The first placeholder is the wallet header (opens the wallet picker);
-    // tap a stat amount to toggle privacy back off.
-    await tester.tap(find.text(obscuredAmountText).at(1));
+    // The eye toggles with a single fire (no double-toggle with the row).
+    await tester.tap(find.byIcon(Icons.visibility_off));
     await tester.pump();
     expect(ServiceConfig.privacyModeNotifier.value, isFalse);
     expect(find.text(obscuredAmountText), findsNothing);
