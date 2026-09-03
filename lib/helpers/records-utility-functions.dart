@@ -24,6 +24,23 @@ import 'datetime-utility-functions.dart';
 /// Placeholder shown instead of monetary amounts when privacy mode is on.
 const String obscuredAmountText = '****';
 
+/// Masked amount widget for privacy mode. Asterisks render high in most
+/// fonts, so the glyphs are nudged down to sit optically centered where
+/// the amount was. The transform doesn't affect layout, so toggling
+/// doesn't shift surrounding widgets.
+Widget obscuredAmountTextWidget(TextStyle? style) {
+  final fontSize = style?.fontSize ?? 14.0;
+  return Transform.translate(
+    offset: Offset(0, fontSize * 0.12),
+    child: Text(
+      obscuredAmountText,
+      style: style,
+      textAlign: TextAlign.center,
+      overflow: TextOverflow.ellipsis,
+    ),
+  );
+}
+
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   /// Groups the records by days using a Map<DateTime, List<Record>>.
   /// It returns a list of RecordsPerDay objects, each containing at least 1 record.

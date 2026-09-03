@@ -65,10 +65,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
         color != null ? _biggerFont.copyWith(color: color) : _biggerFont;
     if (hidden) {
       // Concealed: no value, no currency breakdown gesture.
-      return Text(obscuredAmountText,
-          style: style,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis);
+      return obscuredAmountTextWidget(style);
     }
     final result = precomputed ??
         computeConvertedTotal(records, widget.walletCurrencyMap,

@@ -564,10 +564,8 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                                       _showBreakdown = !_showBreakdown)
                                   : null,
                               child: hidden
-                                  ? Text(
-                                      obscuredAmountText,
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
+                                  ? obscuredAmountTextWidget(
+                                      Theme.of(context)
                                           .textTheme
                                           .headlineLarge
                                           ?.copyWith(

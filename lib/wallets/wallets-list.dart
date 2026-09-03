@@ -128,8 +128,7 @@ class _WalletsListState extends State<WalletsList> {
       valueListenable: ServiceConfig.privacyModeNotifier,
       builder: (context, hidden, _) {
         if (hidden) {
-          return Text(obscuredAmountText,
-              style: style, textAlign: TextAlign.center);
+          return obscuredAmountTextWidget(style);
         }
         if (walletCurrency == null || walletCurrency.isEmpty) {
           return Text(getCurrencyValueString(balance), style: style);
