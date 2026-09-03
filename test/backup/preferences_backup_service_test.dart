@@ -17,6 +17,7 @@ void main() {
     await prefs.setBool(PreferencesKeys.showWalletBarOnHomepage, false);
     await prefs.setBool(PreferencesKeys.budgetsEnabled, false);
     await prefs.setBool(PreferencesKeys.privacyMode, true);
+    await prefs.setBool(PreferencesKeys.privacyModeOnStart, true);
     await prefs.setBool(
         PreferencesKeys.enableNavigationBarAnimations, false);
     await prefs.setInt(
@@ -35,6 +36,7 @@ void main() {
     expect(exported[PreferencesKeys.showWalletBarOnHomepage], isFalse);
     expect(exported[PreferencesKeys.budgetsEnabled], isFalse);
     expect(exported[PreferencesKeys.privacyMode], isTrue);
+    expect(exported[PreferencesKeys.privacyModeOnStart], isTrue);
     expect(exported[PreferencesKeys.enableNavigationBarAnimations], isFalse);
     expect(exported[PreferencesKeys.transferIconCodePoint],
         CategoryIcons.pro_category_icons.first.codePoint);
@@ -55,6 +57,7 @@ void main() {
       PreferencesKeys.enableNavigationBarAnimations: true,
       PreferencesKeys.transferIconEmoji: '🔄',
       PreferencesKeys.privacyMode: true,
+      PreferencesKeys.privacyModeOnStart: 'not-a-bool',
       'removed_setting_from_an_old_version': true,
       PreferencesKeys.themeMode: 'dark',
       PreferencesKeys.walletBalanceMode: 99,
@@ -71,6 +74,7 @@ void main() {
     expect(prefs.getBool(PreferencesKeys.enableNavigationBarAnimations), isTrue);
     expect(prefs.getString(PreferencesKeys.transferIconEmoji), '🔄');
     expect(prefs.getBool(PreferencesKeys.privacyMode), isTrue);
+    expect(prefs.containsKey(PreferencesKeys.privacyModeOnStart), isFalse);
     expect(prefs.containsKey('removed_setting_from_an_old_version'), isFalse);
     expect(prefs.containsKey(PreferencesKeys.themeMode), isFalse);
     expect(prefs.containsKey(PreferencesKeys.walletBalanceMode), isFalse);

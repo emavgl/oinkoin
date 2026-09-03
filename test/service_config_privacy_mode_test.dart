@@ -34,6 +34,47 @@ void main() {
   });
 
   test(
+      'initPrivacyMode starts hidden when start-with-privacy is on, '
+      'even if privacy mode was off', () async {
+    await ServiceConfig.sharedPreferences!
+        .setBool(PreferencesKeys.privacyMode, false);
+    await ServiceConfig.sharedPreferences!
+        .setBool(PreferencesKeys.privacyModeOnStart, true);
+
+    ServiceConfig.initPrivacyMode();
+
+    expect(ServiceConfig.privacyModeNotifier.value, isTrue);
+    // The persisted toggle is aligned so the settings switch agrees.
+    expect(
+      ServiceConfig.sharedPreferences!.getBool(PreferencesKeys.privacyMode),
+      isTrue,
+    );
+  });
+
+  test(
+      'initPrivacyMode respects the persisted toggle when start-with-privacy '
+      'is off', () async {
+    await ServiceConfig.sharedPreferences!
+        .setBool(PreferencesKeys.privacyMode, true);
+    await ServiceConfig.sharedPreferences!
+        .setBool(PreferencesKeys.privacyModeOnStart, false);
+
+    ServiceConfig.initPrivacyMode();
+
+    expect(ServiceConfig.privacyModeNotifier.value, isTrue);
+  });
+
+  test('setPrivacyModeOnStart persists the preference', () async {
+    ServiceConfig.setPrivacyModeOnStart(true);
+
+    expect(
+      ServiceConfig.sharedPreferences!
+          .getBool(PreferencesKeys.privacyModeOnStart),
+      isTrue,
+    );
+  });
+
+  test(
       'setPrivacyMode persists the preference and updates the notifier',
       () async {
     ServiceConfig.setPrivacyMode(true);

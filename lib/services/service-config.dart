@@ -148,9 +148,22 @@ class ServiceConfig {
     privacyModeNotifier.value = value;
   }
 
-  /// Syncs [privacyModeNotifier] with the persisted preference. Call once
-  /// during startup, after [sharedPreferences] has been loaded.
+  static bool get privacyModeOnStart =>
+      sharedPreferences?.getBool(PreferencesKeys.privacyModeOnStart) ?? false;
+
+  static void setPrivacyModeOnStart(bool value) {
+    sharedPreferences?.setBool(PreferencesKeys.privacyModeOnStart, value);
+  }
+
+  /// Syncs [privacyModeNotifier] with the persisted preferences. When
+  /// "start with privacy mode on" is enabled, amounts always start hidden,
+  /// regardless of the persisted privacy mode. Call once during startup,
+  /// after [sharedPreferences] has been loaded.
   static void initPrivacyMode() {
-    privacyModeNotifier.value = privacyMode;
+    final hidden = privacyModeOnStart || privacyMode;
+    if (hidden) {
+      sharedPreferences?.setBool(PreferencesKeys.privacyMode, true);
+    }
+    privacyModeNotifier.value = hidden;
   }
 }

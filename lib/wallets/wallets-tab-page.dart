@@ -4,6 +4,7 @@ import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/records/components/days-summary-box-card.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
@@ -550,25 +551,44 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          GestureDetector(
-                            onTap: _canShowBreakdown
-                                ? () => setState(
-                                    () => _showBreakdown = !_showBreakdown)
-                                : null,
-                            child: _showBreakdown && _canShowBreakdown
-                                ? _buildBreakdown()
-                                : Text(
-                                    _displayBalanceString(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: getAmountColor(
-                                              _displayBalanceTotal(),
-                                              brightness),
-                                        ),
-                                  ),
+                          // Tapping the total shows or hides amounts (privacy
+                          // mode). Long-press still toggles the per-currency
+                          // breakdown, but only while amounts are visible.
+                          ValueListenableBuilder<bool>(
+                            valueListenable:
+                                ServiceConfig.privacyModeNotifier,
+                            builder: (context, hidden, _) => GestureDetector(
+                              onTap: () =>
+                                  ServiceConfig.setPrivacyMode(!hidden),
+                              onLongPress: (!hidden && _canShowBreakdown)
+                                  ? () => setState(() =>
+                                      _showBreakdown = !_showBreakdown)
+                                  : null,
+                              child: hidden
+                                  ? Text(
+                                      DaysSummaryBox.obscuredAmountText,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    )
+                                  : (_showBreakdown && _canShowBreakdown
+                                      ? _buildBreakdown()
+                                      : Text(
+                                          _displayBalanceString(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: getAmountColor(
+                                                    _displayBalanceTotal(),
+                                                    brightness),
+                                              ),
+                                        )),
+                            ),
                           ),
                         ],
                       ),

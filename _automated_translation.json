@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-03",
-    "total_keys": 578
+    "total_keys": 580
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5785,14 +5785,34 @@
       "notes": "'Placeholders' = masking symbols, not input field hints.",
       "status": "verified"
     },
-    "Tap the amounts in the homepage summary to quickly show or hide them.": {
-      "key": "Tap the amounts in the homepage summary to quickly show or hide them.",
-      "context": "Helper text below the privacy mode switch explaining the quick toggle",
+    "Start with privacy mode on": {
+      "key": "Start with privacy mode on",
+      "context": "Switch enabling privacy mode automatically on every app start",
+      "file": "lib/settings/privacy-page.dart",
+      "page": "Settings > Privacy",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Amounts start hidden each time the app opens",
+      "notes": "Pairs with the 'Privacy mode' switch above it.",
+      "status": "verified"
+    },
+    "Hide amounts every time the app opens": {
+      "key": "Hide amounts every time the app opens",
+      "context": "Subtitle of the start-with-privacy-mode switch",
+      "file": "lib/settings/privacy-page.dart",
+      "page": "Settings > Privacy",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Concealment applies at launch regardless of last session state",
+      "notes": "'Opens' = app launch.",
+      "status": "verified"
+    },
+    "Tap the amounts in the homepage summary or the wallet total to quickly show or hide them.": {
+      "key": "Tap the amounts in the homepage summary or the wallet total to quickly show or hide them.",
+      "context": "Helper text below the privacy switches explaining the quick toggle",
       "file": "lib/settings/privacy-page.dart",
       "page": "Settings > Privacy",
       "component": "Explanatory body text",
-      "meaning": "Tapping Income/Expenses/Balance on the homepage toggles concealment",
-      "notes": "'Homepage summary' = the Income/Expenses/Balance card on the main screen.",
+      "meaning": "Tapping Income/Expenses/Balance on the homepage or the total on the wallets tab toggles concealment",
+      "notes": "'Homepage summary' = the Income/Expenses/Balance card; 'wallet total' = the total balance header on the Wallets tab.",
       "status": "verified"
     }
   }

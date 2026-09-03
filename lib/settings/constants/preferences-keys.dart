@@ -48,6 +48,10 @@ class PreferencesKeys {
   // safe to carry over to another device via portable backup.
   static const privacyMode = 'privacyMode';
 
+  // When true, privacy mode is enabled on every app start, regardless of
+  // the persisted privacyMode value.
+  static const privacyModeOnStart = 'privacyModeOnStart';
+
   // Mics
   static const restoreAmountOnDelete = 'restoreAmountOnDelete';
   static const enableRecordNameSuggestions = 'enableRecordNameSuggestions';

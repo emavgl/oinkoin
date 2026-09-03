@@ -17,11 +17,14 @@ class PrivacyPage extends StatefulWidget {
 class PrivacyPageState extends State<PrivacyPage> {
   late SharedPreferences prefs;
   late bool privacyMode;
+  late bool privacyModeOnStart;
 
   Future<void> initializePreferences() async {
     prefs = await SharedPreferences.getInstance();
     privacyMode =
         PreferencesUtils.getOrDefault<bool>(prefs, PreferencesKeys.privacyMode)!;
+    privacyModeOnStart = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.privacyModeOnStart)!;
   }
 
   @override
@@ -50,10 +53,29 @@ class PrivacyPageState extends State<PrivacyPage> {
                       });
                     },
                   ),
+                  SwitchCustomizationItem(
+                    title: "Start with privacy mode on".i18n,
+                    subtitle:
+                        "Hide amounts every time the app opens".i18n,
+                    switchValue: privacyModeOnStart,
+                    sharedConfigKey: PreferencesKeys.privacyModeOnStart,
+                    onChanged: (value) {
+                      ServiceConfig.setPrivacyModeOnStart(value);
+                      if (value) {
+                        ServiceConfig.setPrivacyMode(true);
+                      }
+                      setState(() {
+                        privacyModeOnStart = value;
+                        if (value) {
+                          privacyMode = true;
+                        }
+                      });
+                    },
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: Text(
-                      "Tap the amounts in the homepage summary to quickly show or hide them."
+                      "Tap the amounts in the homepage summary or the wallet total to quickly show or hide them."
                           .i18n,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),

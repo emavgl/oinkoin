@@ -59,6 +59,8 @@ class PreferencesDefaultValues {
     PreferencesKeys.showHomepageImage: true, // Default to enabled
     PreferencesKeys.enableNavigationBarAnimations: true,
     PreferencesKeys.privacyMode: false, // Default to visible amounts
+    PreferencesKeys.privacyModeOnStart:
+        false, // Default to respecting the last state
     PreferencesKeys.reverseMonthlyImages: false, // Default to no reversal
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4,

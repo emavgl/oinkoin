@@ -4,6 +4,7 @@ import 'package:piggybank/helpers/list-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/wallet.dart';
+import 'package:piggybank/records/components/days-summary-box-card.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/wallets/edit-wallet-page.dart';
@@ -124,15 +125,22 @@ class _WalletsListState extends State<WalletsList> {
       color: color,
     );
 
-    if (walletCurrency == null || walletCurrency.isEmpty) {
-      return Text(getCurrencyValueString(balance), style: style);
-    }
-
-    return buildAmountWithCurrencyWidget(
-      balance,
-      walletCurrency,
-      mainStyle: style,
-      brightness: Theme.of(context).brightness,
+    return ValueListenableBuilder<bool>(
+      valueListenable: ServiceConfig.privacyModeNotifier,
+      builder: (context, hidden, _) {
+        if (hidden) {
+          return Text(DaysSummaryBox.obscuredAmountText, style: style);
+        }
+        if (walletCurrency == null || walletCurrency.isEmpty) {
+          return Text(getCurrencyValueString(balance), style: style);
+        }
+        return buildAmountWithCurrencyWidget(
+          balance,
+          walletCurrency,
+          mainStyle: style,
+          brightness: Theme.of(context).brightness,
+        );
+      },
     );
   }
 
