@@ -488,7 +488,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         ),
       ),
       _CustomizationOption(
-        section: "Privacy",
+        section: "Privacy".i18n,
         title: "Privacy mode",
         subtitle: "Hide balances and amounts behind placeholders",
         builder: () => ValueListenableBuilder<bool>(
@@ -506,7 +506,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         ),
       ),
       _CustomizationOption(
-        section: "Privacy",
+        section: "Privacy".i18n,
         title: "Start with privacy mode on",
         subtitle: "Hide amounts every time the app opens",
         builder: () => SwitchCustomizationItem(
