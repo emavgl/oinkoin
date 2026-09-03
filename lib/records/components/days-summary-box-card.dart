@@ -179,8 +179,7 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
               const Divider(height: 1),
             ],
             // Income / Expenses / Balance row. Tapping any amount quickly
-            // shows or hides all amounts (privacy mode); the eye icon
-            // advertises the gesture.
+            // shows or hides all amounts (privacy mode, see the toolbar eye).
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -200,19 +199,6 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                           color: balanceColor,
                           precomputed: balanceResult,
                           hidden: hidden),
-                      IconButton(
-                        onPressed: togglePrivacy,
-                        tooltip: hidden
-                            ? "Show amounts".i18n
-                            : "Hide amounts".i18n,
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        color: dimColor,
-                        icon: Icon(hidden
-                            ? Icons.visibility_off
-                            : Icons.visibility),
-                      ),
                     ],
                   ),
                 ),

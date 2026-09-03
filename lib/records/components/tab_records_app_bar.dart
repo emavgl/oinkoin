@@ -149,8 +149,22 @@ class TabRecordsAppBar extends StatelessWidget {
 
   List<Widget> _buildActions() {
     const double actionButtonScale = 1.0;
+    // Eye toggle mirrors the profile button: visible while the bar is
+    // expanded (or simplified), hidden once it collapses on scroll.
+    final showPrivacyToggle = simplifyAppBar || isAppBarExpanded;
 
     return <Widget>[
+      if (showPrivacyToggle)
+        ValueListenableBuilder<bool>(
+          valueListenable: ServiceConfig.privacyModeNotifier,
+          builder: (context, hidden, _) => StyledActionButton(
+            icon: hidden ? Icons.visibility_off : Icons.visibility,
+            onPressed: () => ServiceConfig.setPrivacyMode(!hidden),
+            tooltip: hidden ? "Show amounts".i18n : "Hide amounts".i18n,
+            semanticsId: 'privacy-toggle',
+            scaleFactor: actionButtonScale,
+          ),
+        ),
       StyledActionButton(
         icon: Icons.calendar_today,
         onPressed: onDatePickerPressed,
