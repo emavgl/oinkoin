@@ -508,18 +508,14 @@ class CustomizationPageState extends State<CustomizationPage> {
       _CustomizationOption(
         section: "Privacy".i18n,
         title: "Start with privacy mode on",
-        subtitle: "Hide amounts every time the app opens",
+        subtitle: "Start hidden. Tap any amount to show or hide it anytime",
         builder: () => SwitchCustomizationItem(
           title: "Start with privacy mode on".i18n,
-          subtitle: "Hide amounts every time the app opens".i18n,
+          subtitle:
+              "Start hidden. Tap any amount to show or hide it anytime".i18n,
           switchValue: ServiceConfig.privacyModeOnStart,
           sharedConfigKey: PreferencesKeys.privacyModeOnStart,
-          onChanged: (value) {
-            ServiceConfig.setPrivacyModeOnStart(value);
-            if (value) {
-              ServiceConfig.setPrivacyMode(true);
-            }
-          },
+          onChanged: (value) => ServiceConfig.setPrivacyModeOnStart(value),
         ),
       ),
       _CustomizationOption(

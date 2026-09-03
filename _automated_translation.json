@@ -5775,16 +5775,6 @@
       "notes": "Pairs with the 'Privacy mode' switch above it.",
       "status": "verified"
     },
-    "Hide amounts every time the app opens": {
-      "key": "Hide amounts every time the app opens",
-      "context": "Subtitle of the start-with-privacy-mode switch",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Concealment applies at launch regardless of last session state",
-      "notes": "'Opens' = app launch.",
-      "status": "verified"
-    },
     "Privacy": {
       "key": "Privacy",
       "context": "Privacy subsection header in the Customization settings page",
@@ -5793,6 +5783,16 @@
       "component": "Privacy section header",
       "meaning": "Groups the privacy mode switches",
       "notes": "Noun. Section name is localized at the option site, header render is idempotent.",
+      "status": "verified"
+    },
+    "Start hidden. Tap any amount to show or hide it anytime": {
+      "key": "Start hidden. Tap any amount to show or hide it anytime",
+      "context": "Subtitle of the start-with-privacy-mode switch",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Enabling only affects the next launch; the current session is untouched, and amounts toggle by tap anytime",
+      "notes": "Two sentences: scope (next launches) + gesture (tap to toggle).",
       "status": "verified"
     }
   }
