@@ -134,4 +134,23 @@ class ServiceConfig {
   static void initShowHomepageImage() {
     showHomepageImageNotifier.value = showHomepageImage;
   }
+
+  /// Notifies consumers (e.g. the homepage summary card) when privacy mode
+  /// changes, so amounts are hidden or revealed instantly without an app
+  /// restart.
+  static final ValueNotifier<bool> privacyModeNotifier = ValueNotifier(false);
+
+  static bool get privacyMode =>
+      sharedPreferences?.getBool(PreferencesKeys.privacyMode) ?? false;
+
+  static void setPrivacyMode(bool value) {
+    sharedPreferences?.setBool(PreferencesKeys.privacyMode, value);
+    privacyModeNotifier.value = value;
+  }
+
+  /// Syncs [privacyModeNotifier] with the persisted preference. Call once
+  /// during startup, after [sharedPreferences] has been loaded.
+  static void initPrivacyMode() {
+    privacyModeNotifier.value = privacyMode;
+  }
 }

@@ -44,6 +44,10 @@ class PreferencesKeys {
   static const enableNavigationBarAnimations =
       'enableNavigationBarAnimations';
 
+  // Privacy mode hides monetary amounts behind placeholders. Display-only,
+  // safe to carry over to another device via portable backup.
+  static const privacyMode = 'privacyMode';
+
   // Mics
   static const restoreAmountOnDelete = 'restoreAmountOnDelete';
   static const enableRecordNameSuggestions = 'enableRecordNameSuggestions';

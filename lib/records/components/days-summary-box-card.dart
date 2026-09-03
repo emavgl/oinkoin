@@ -3,6 +3,7 @@ import 'package:piggybank/helpers/currency_breakdown_sheet.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/i18n.dart';
 
 class DaysSummaryBox extends StatefulWidget {
@@ -24,6 +25,9 @@ class DaysSummaryBox extends StatefulWidget {
   /// only the Income / Expenses / Balance stats. Used when the wallets feature
   /// is disabled or the "Show wallet bar on the homepage" toggle is off.
   final bool showWalletRow;
+
+  /// Placeholder shown instead of monetary amounts when privacy mode is on.
+  static const String obscuredAmountText = '•••';
 
   DaysSummaryBox(
     this.records, {
@@ -56,13 +60,21 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
       widget.records.where((record) => !record!.isTransfer);
 
   Widget _buildAmountWidget(Iterable<Record?> records,
-      {bool isAbsValue = true, Color? color, RecordsTotalResult? precomputed}) {
+      {bool isAbsValue = true,
+      Color? color,
+      RecordsTotalResult? precomputed,
+      bool hidden = false}) {
+    final style =
+        color != null ? _biggerFont.copyWith(color: color) : _biggerFont;
+    if (hidden) {
+      // Concealed: no value, no currency breakdown gesture.
+      return Text(DaysSummaryBox.obscuredAmountText,
+          style: style, overflow: TextOverflow.ellipsis);
+    }
     final result = precomputed ??
         computeConvertedTotal(records, widget.walletCurrencyMap,
             isAbsValue: isAbsValue);
     final text = formatRecordsTotalResult(result);
-    final style =
-        color != null ? _biggerFont.copyWith(color: color) : _biggerFont;
     final textWidget =
         Text(text, style: style, overflow: TextOverflow.ellipsis);
 
@@ -78,23 +90,47 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   }
 
   Widget _buildStatColumn(String label, Iterable<Record?> records,
-      {bool isAbsValue = true, Color? color, RecordsTotalResult? precomputed}) {
+      {bool isAbsValue = true,
+      Color? color,
+      RecordsTotalResult? precomputed,
+      bool hidden = false,
+      VoidCallback? onTap}) {
+    final content = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(label, style: _subtitleFont, overflow: TextOverflow.ellipsis),
+        const SizedBox(height: 5),
+        _buildAmountWidget(records,
+            isAbsValue: isAbsValue,
+            color: color,
+            precomputed: precomputed,
+            hidden: hidden),
+      ],
+    );
+    if (onTap == null) return Expanded(child: content);
+    // Tapping an amount quickly shows or hides it (privacy mode).
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(label, style: _subtitleFont, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 5),
-          _buildAmountWidget(records,
-              isAbsValue: isAbsValue, color: color, precomputed: precomputed),
-        ],
+      child: InkWell(
+        onTap: onTap,
+        child: content,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: ServiceConfig.privacyModeNotifier,
+      builder: (context, privacyMode, _) =>
+          _buildCard(context, hidden: privacyMode),
+    );
+  }
+
+  Widget _buildCard(BuildContext context, {required bool hidden}) {
+    // Tapping any amount quickly shows or hides all amounts (privacy mode).
+    final VoidCallback togglePrivacy =
+        () => ServiceConfig.setPrivacyMode(!hidden);
     final brightness = Theme.of(context).brightness;
     final dimColor =
         Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
@@ -131,7 +167,9 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                       ),
                       const Spacer(),
                       Text(
-                        widget.walletBalanceString,
+                        hidden
+                            ? DaysSummaryBox.obscuredAmountText
+                            : widget.walletBalanceString,
                         style: widget.walletBalance != null
                             ? _walletRowFont.copyWith(
                                 color: getAmountColor(
@@ -153,15 +191,21 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
                 child: Row(
                   children: <Widget>[
                     _buildStatColumn("Income".i18n, _incomeRecords,
-                        color: incomeColor),
+                        color: incomeColor,
+                        hidden: hidden,
+                        onTap: togglePrivacy),
                     VerticalDivider(endIndent: 10, indent: 10),
                     _buildStatColumn("Expenses".i18n, _expenseRecords,
-                        color: expenseColor),
+                        color: expenseColor,
+                        hidden: hidden,
+                        onTap: togglePrivacy),
                     VerticalDivider(endIndent: 10, indent: 10),
                     _buildStatColumn("Balance".i18n, _balanceRecords,
                         isAbsValue: false,
                         color: balanceColor,
-                        precomputed: balanceResult),
+                        precomputed: balanceResult,
+                        hidden: hidden,
+                        onTap: togglePrivacy),
                   ],
                 ),
               ),

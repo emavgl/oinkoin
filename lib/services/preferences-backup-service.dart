@@ -24,6 +24,7 @@ class PreferencesBackupService {
     PreferencesKeys.dateFormat,
     PreferencesKeys.colorizeAmounts,
     PreferencesKeys.enableNavigationBarAnimations,
+    PreferencesKeys.privacyMode,
 
     // Number and currency formatting
     PreferencesKeys.decimalSeparator,
@@ -89,6 +90,7 @@ class PreferencesBackupService {
       PreferencesKeys.amountInputAutoDecimalShift,
       PreferencesKeys.colorizeAmounts,
       PreferencesKeys.enableNavigationBarAnimations,
+      PreferencesKeys.privacyMode,
       PreferencesKeys.showCurrencySymbol,
       PreferencesKeys.enableRecordNameSuggestions,
       PreferencesKeys.visualiseTagsInMainPage,

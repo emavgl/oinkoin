@@ -150,6 +150,7 @@ main() async {
     ServiceConfig.initBudgetsEnabled();
     ServiceConfig.initShowHomepageImage();
     ServiceConfig.initNavigationBarAnimationsEnabled();
+    ServiceConfig.initPrivacyMode();
     await MyI18n.loadTranslations();
     await ProfileService.instance.initialize();
 
