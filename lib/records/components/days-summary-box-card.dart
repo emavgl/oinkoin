@@ -66,7 +66,9 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
     if (hidden) {
       // Concealed: no value, no currency breakdown gesture.
       return Text(obscuredAmountText,
-          style: style, overflow: TextOverflow.ellipsis);
+          style: style,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis);
     }
     final result = precomputed ??
         computeConvertedTotal(records, widget.walletCurrencyMap,

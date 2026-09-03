@@ -566,6 +566,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                               child: hidden
                                   ? Text(
                                       obscuredAmountText,
+                                      textAlign: TextAlign.center,
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineLarge

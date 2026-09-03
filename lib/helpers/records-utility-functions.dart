@@ -22,7 +22,7 @@ import 'banner-image-service.dart';
 import 'datetime-utility-functions.dart';
 
 /// Placeholder shown instead of monetary amounts when privacy mode is on.
-const String obscuredAmountText = '•••';
+const String obscuredAmountText = '****';
 
 List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
   /// Groups the records by days using a Map<DateTime, List<Record>>.
