@@ -490,7 +490,7 @@ class CustomizationPageState extends State<CustomizationPage> {
       _CustomizationOption(
         section: "Privacy".i18n,
         title: "Privacy mode",
-        subtitle: "Hide balances and amounts",
+        subtitle: "When on, hides every amount in the app behind ••••",
         builder: () => ValueListenableBuilder<bool>(
           valueListenable: ServiceConfig.privacyModeNotifier,
           builder: (context, hidden, _) => SwitchCustomizationItem(
@@ -498,7 +498,7 @@ class CustomizationPageState extends State<CustomizationPage> {
             // wallet screen, or toolbar is reflected here as well.
             key: ValueKey('privacyMode-$hidden'),
             title: "Privacy mode".i18n,
-            subtitle: "Hide balances and amounts".i18n,
+            subtitle: "When on, hides every amount in the app behind ••••".i18n,
             switchValue: hidden,
             sharedConfigKey: PreferencesKeys.privacyMode,
             onChanged: (value) => ServiceConfig.setPrivacyMode(value),
@@ -508,13 +508,10 @@ class CustomizationPageState extends State<CustomizationPage> {
       _CustomizationOption(
         section: "Privacy".i18n,
         title: "Start with privacy mode on",
-        subtitle:
-            "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime",
+        subtitle: "When on, the app always starts hidden",
         builder: () => SwitchCustomizationItem(
           title: "Start with privacy mode on".i18n,
-          subtitle:
-              "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime"
-                  .i18n,
+          subtitle: "When on, the app always starts hidden".i18n,
           switchValue: ServiceConfig.privacyModeOnStart,
           sharedConfigKey: PreferencesKeys.privacyModeOnStart,
           // Only affects future launches; the current session is untouched.

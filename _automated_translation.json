@@ -5795,24 +5795,24 @@
       "notes": "Imperative verb + object; pairs with the visibility eye icon.",
       "status": "verified"
     },
-    "Hide balances and amounts": {
-      "key": "Hide balances and amounts",
+    "When on, hides every amount in the app behind ••••": {
+      "key": "When on, hides every amount in the app behind ••••",
       "context": "Subtitle of the live privacy mode switch",
       "file": "lib/settings/customization-page.dart",
       "page": "Settings > Customization > Privacy",
       "component": "SwitchCustomizationItem subtitle",
-      "meaning": "The switch reflects and controls whether amounts are hidden right now",
-      "notes": "Present-tense state description.",
+      "meaning": "The switch mirrors live state: on means all amounts app-wide are currently masked",
+      "notes": "States app-wide scope explicitly.",
       "status": "verified"
     },
-    "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime": {
-      "key": "Start hidden on every launch. Tap an amount or the eye icon to toggle anytime",
+    "When on, the app always starts hidden": {
+      "key": "When on, the app always starts hidden",
       "context": "Subtitle of the start-with-privacy-mode switch",
       "file": "lib/settings/customization-page.dart",
       "page": "Settings > Customization > Privacy",
       "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Only future launches start hidden; the current session is untouched, and the toolbar eye or tapping amounts toggles anytime",
-      "notes": "Explains this switch never changes the current session, so it can't fight the Privacy mode switch.",
+      "meaning": "Launch-only behavior; never changes the current session",
+      "notes": "Contrasts with the live Privacy mode switch above it.",
       "status": "verified"
     }
   }
