@@ -31,9 +31,10 @@
         android:layout_height="wrap_content"
         android:autoSizeTextType="uniform"
         android:autoSizeMinTextSize="16sp"
-        android:autoSizeMaxTextSize="38sp"
+        android:autoSizeMaxTextSize="40sp"
         android:ellipsize="end"
         android:maxLines="1"
+        android:textSize="34sp"
         android:textStyle="bold" />
 
     <ImageView
