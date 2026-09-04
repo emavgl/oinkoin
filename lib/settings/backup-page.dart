@@ -504,8 +504,10 @@ class BackupPageState extends State<BackupPage> {
                       ),
                     ),
                     Center(
-                        child:
-                            Text("Last backup: ".i18n + lastBackupDataStr)),
+                        child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Text(
+                                "Last backup: ".i18n + lastBackupDataStr))),
                     ExpansionTile(
                       initiallyExpanded: false,
                       maintainState: true,
@@ -575,8 +577,10 @@ class BackupPageState extends State<BackupPage> {
                       ],
                     ),
                     Center(
-                        child: Text("Last database copy: ".i18n +
-                            lastDatabaseCopyDataStr))
+                        child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Text("Last database copy: ".i18n +
+                                lastDatabaseCopyDataStr)))
                   ],
                 ),
               );
