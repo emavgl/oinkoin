@@ -14,6 +14,8 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -37,6 +39,11 @@ class SqliteDatabase implements DatabaseInterface {
   static int get version => 32;
   static Database? _db;
 
+  static const String databaseFileName = 'movements.db';
+
+  /// SQLite journal sidecars that may sit next to the database file.
+  static const List<String> _journalSuffixes = ['-wal', '-shm', '-journal'];
+
   /// For testing only: allows setting a custom database instance
   @visibleForTesting
   static void setDatabaseForTesting(Database? db) {
@@ -51,6 +58,71 @@ class SqliteDatabase implements DatabaseInterface {
     return _db;
   }
 
+  /// Directory holding the database file: the user-picked custom folder
+  /// when one is set (desktop only), otherwise the platform default.
+  /// A custom folder that no longer exists falls back to the default so a
+  /// stale preference can never prevent the app from starting.
+  static Future<String> getDatabaseDirectory() async {
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      final prefs = await SharedPreferences.getInstance();
+      final custom = prefs.getString(PreferencesKeys.databaseFolderPath);
+      if (custom != null && custom.isNotEmpty) {
+        if (await Directory(custom).exists()) {
+          return custom;
+        }
+        _logger.warning(
+          'Custom database folder is gone, using the default location: $custom',
+        );
+      }
+      // For desktop platforms, use application documents directory
+      // This ensures we write to a writable location, not inside AppImage mount
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final databasePath = join(appDocDir.path, 'oinkoin');
+      // Create directory if it doesn't exist
+      final dir = Directory(databasePath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      return databasePath;
+    } else {
+      // For mobile platforms, use the default sqflite path
+      return await getDatabasesPath();
+    }
+  }
+
+  /// Copies the active database file (plus any journal sidecars) into
+  /// [targetDir], creating it if needed. Returns false when there is
+  /// nothing to copy or the copy fails. Never touches preferences and
+  /// never deletes the source: callers switch over on success.
+  static Future<bool> relocateDatabase(String targetDir) async {
+    try {
+      final currentDir = await getDatabaseDirectory();
+      final currentFile = File(join(currentDir, databaseFileName));
+      if (!await currentFile.exists()) {
+        _logger.warning('No database file to relocate at ${currentFile.path}');
+        return false;
+      }
+      final target = Directory(targetDir);
+      if (join(target.path, databaseFileName) == currentFile.path) {
+        return true;
+      }
+      if (!await target.exists()) {
+        await target.create(recursive: true);
+      }
+      for (final suffix in ['', ..._journalSuffixes]) {
+        final source = File('${currentFile.path}$suffix');
+        if (await source.exists()) {
+          await source.copy(join(target.path, '$databaseFileName$suffix'));
+        }
+      }
+      _logger.info('Database relocated to ${target.path}');
+      return true;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to relocate database to $targetDir');
+      return false;
+    }
+  }
+
   Future<Database> init() async {
     try {
       _logger.info('Initializing database...');
@@ -62,24 +134,8 @@ class SqliteDatabase implements DatabaseInterface {
         databaseFactory = databaseFactoryFfi;
       }
 
-      // Get proper database path
-      String databasePath;
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-        // For desktop platforms, use application documents directory
-        // This ensures we write to a writable location, not inside AppImage mount
-        final appDocDir = await getApplicationDocumentsDirectory();
-        databasePath = join(appDocDir.path, 'oinkoin');
-        // Create directory if it doesn't exist
-        final dir = Directory(databasePath);
-        if (!await dir.exists()) {
-          await dir.create(recursive: true);
-        }
-      } else {
-        // For mobile platforms, use the default sqflite path
-        databasePath = await getDatabasesPath();
-      }
-
-      String _path = join(databasePath, 'movements.db');
+      final databasePath = await getDatabaseDirectory();
+      String _path = join(databasePath, databaseFileName);
       _logger.debug('Database path: $_path');
 
       var db = await databaseFactory.openDatabase(

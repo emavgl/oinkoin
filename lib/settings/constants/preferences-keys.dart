@@ -38,6 +38,12 @@ class PreferencesKeys {
   // the user to pick the folder again. Device-local, never exported.
   static const backupFolderUri = 'backupFolderUri';
 
+  // Custom folder holding movements.db. Empty string means the platform
+  // default location is used. Device-local, so it is excluded from portable
+  // backup/restore. Only honored on desktop, where SQLite can open real
+  // filesystem paths.
+  static const databaseFolderPath = 'databaseFolderPath';
+
   // Homepage
   static const homepageTimeInterval = 'homepageTimeInterval';
   static const homepageRecordsMonthStartDay = 'homepageRecordsMonthStartDay';

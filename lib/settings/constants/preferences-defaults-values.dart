@@ -34,6 +34,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.backupPassword: '', // Default to empty password
     PreferencesKeys.backupFolderPath: '', // Empty means the default folder
     PreferencesKeys.backupFolderUri: '', // No custom folder picked yet
+    PreferencesKeys.databaseFolderPath: '', // Empty means the default location
     PreferencesKeys.enableAppLock: false, // Default to disabled
     PreferencesKeys.restoreAmountOnDelete:
         true, // Default to restoring the amount

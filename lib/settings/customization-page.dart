@@ -1,11 +1,18 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:path/path.dart' show join;
+import 'package:piggybank/helpers/alert-dialog-builder.dart';
 import 'package:piggybank/main.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/premium/splash-screen.dart';
 import 'package:piggybank/premium/util-widgets.dart';
+import 'package:piggybank/services/database-directory-service.dart';
+import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/services/locale-service.dart';
+import 'package:piggybank/settings/clickable-customization-item.dart';
 import 'package:piggybank/wallets/customize-transfer-icon-page.dart';
 import 'package:piggybank/settings/components/setting-separator.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
@@ -130,6 +137,7 @@ class CustomizationPageState extends State<CustomizationPage> {
     await fetchHomepagePreferences();
     await fetchCurrencyPreferences();
     await fetchWalletPreferences();
+    await fetchDatabasePreferences();
     ServiceConfig.initBudgetsEnabled();
   }
 
@@ -271,8 +279,7 @@ class CustomizationPageState extends State<CustomizationPage> {
         amountInputKeyboardTypeIndex);
   }
 
-  Future<void> fetchStatisticsPreferences() async {
-    statisticsPieChartUseCategoryColors = PreferencesUtils.getOrDefault<bool>(
+  Future<void> fetchStatisticsPreferences() async {    statisticsPieChartUseCategoryColors = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.statisticsPieChartUseCategoryColors)!;
     var numberOfCategoriesToDisplayIndex = PreferencesUtils.getOrDefault<int>(
         prefs, PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay)!;
@@ -281,7 +288,81 @@ class CustomizationPageState extends State<CustomizationPage> {
         numberOfCategoriesToDisplayIndex);
   }
 
+  Future<void> fetchDatabasePreferences() async {
+    hasCustomDatabaseFolder =
+        (prefs.getString(PreferencesKeys.databaseFolderPath) ?? '').isNotEmpty;
+    databaseFolderDisplay = await SqliteDatabase.getDatabaseDirectory();
+  }
+
+  /// Lets the user pick a new folder for the database file (desktop only).
+  /// The current database is copied over unless the target already holds
+  /// one, which is then kept and used. Applies on next app restart.
+  Future<void> changeDatabaseFolder(BuildContext context) async {
+    final picked = await DatabaseDirectoryService.pickDirectory();
+    if (picked == null || !context.mounted) return;
+
+    final targetHasDb =
+        await File(join(picked, SqliteDatabase.databaseFileName)).exists();
+    AlertDialogBuilder confirmDialog =
+        AlertDialogBuilder("Change database folder".i18n)
+            .addSubtitle(targetHasDb
+                ? "The folder already contains a database, which will be used from now on. Restart the app to apply the change. Never open the same database in two apps at once.".i18n
+                : "The current database will be copied to the new folder. Restart the app to apply the change. Never open the same database in two apps at once.".i18n)
+            .addTrueButtonName("Change folder".i18n)
+            .addFalseButtonName("Cancel".i18n);
+    final proceed = await showDialog(
+      context: context,
+      builder: (BuildContext context) => confirmDialog.build(context),
+    );
+    if (proceed != true || !context.mounted) return;
+
+    if (!targetHasDb) {
+      final copied = await SqliteDatabase.relocateDatabase(picked);
+      if (!copied || !context.mounted) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text("Could not move the database to the selected folder".i18n),
+          ));
+        }
+        return;
+      }
+    }
+    await prefs.setString(PreferencesKeys.databaseFolderPath, picked);
+    await fetchDatabasePreferences();
+    if (!context.mounted) return;
+    setState(() {});
+    AlertDialogBuilder restartDialog =
+        AlertDialogBuilder("Restart required".i18n)
+            .addSubtitle(
+                "Close and reopen the app to use the new database location".i18n)
+            .addTrueButtonName("OK".i18n);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => restartDialog.build(context),
+    );
+  }
+
+  Future<void> resetDatabaseFolder(BuildContext context) async {
+    await prefs.remove(PreferencesKeys.databaseFolderPath);
+    await fetchDatabasePreferences();
+    if (!context.mounted) return;
+    setState(() {});
+    if (!context.mounted) return;
+    AlertDialogBuilder restartDialog =
+        AlertDialogBuilder("Restart required".i18n)
+            .addSubtitle(
+                "Close and reopen the app to use the new database location".i18n)
+            .addTrueButtonName("OK".i18n);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => restartDialog.build(context),
+    );
+  }
+
   late String themeStyleDropdownKey;
+  late String databaseFolderDisplay;
+  bool hasCustomDatabaseFolder = false;
   late String themeColorDropdownKey;
   late String languageDropdownKey;
   late String firstDayOfWeekDropdownKey;
@@ -925,6 +1006,34 @@ class CustomizationPageState extends State<CustomizationPage> {
           ),
         ),
       ),
+      if (DatabaseDirectoryService.isSupported)
+        _CustomizationOption(
+          section: "Danger zone",
+          title: "Database folder",
+          subtitle: databaseFolderDisplay,
+          builder: () => Builder(
+            builder: (context) => ClickableCustomizationItem(
+              title: "Database folder".i18n,
+              subtitle: databaseFolderDisplay,
+              enabled: true,
+              onTap: () => changeDatabaseFolder(context),
+            ),
+          ),
+        ),
+      if (DatabaseDirectoryService.isSupported && hasCustomDatabaseFolder)
+        _CustomizationOption(
+          section: "Danger zone",
+          title: "Use the default location",
+          subtitle: "Move back to the internal app folder",
+          builder: () => Builder(
+            builder: (context) => ClickableCustomizationItem(
+              title: "Use the default location".i18n,
+              subtitle: "Move back to the internal app folder".i18n,
+              enabled: true,
+              onTap: () => resetDatabaseFolder(context),
+            ),
+          ),
+        ),
       _CustomizationOption(
         section: "Additional Settings",
         title: "Restore all the default configurations",

@@ -33,6 +33,7 @@ void main() {
         PreferencesKeys.backupFolderPath, '/storage/emulated/0/Backups');
     await prefs.setString(PreferencesKeys.backupFolderUri,
         'content://com.android.externalstorage.documents/tree/primary:Backups');
+    await prefs.setString(PreferencesKeys.databaseFolderPath, '/sync/oinkoin');
     await prefs.setString('future_unknown_setting', 'must not be exported');
 
     final exported = PreferencesBackupService.exportPreferences(prefs);
@@ -54,6 +55,8 @@ void main() {
     // Device-local backup folder settings must never move to another device.
     expect(exported.containsKey(PreferencesKeys.backupFolderPath), isFalse);
     expect(exported.containsKey(PreferencesKeys.backupFolderUri), isFalse);
+    // Device-local database location must never move to another device.
+    expect(exported.containsKey(PreferencesKeys.databaseFolderPath), isFalse);
     expect(exported.containsKey('future_unknown_setting'), isFalse);
   });
 
