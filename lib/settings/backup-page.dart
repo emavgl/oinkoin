@@ -28,6 +28,16 @@ class BackupPage extends StatefulWidget {
 }
 
 class BackupPageState extends State<BackupPage> {
+  // Stored so rebuilds (e.g. toggling a switch) don't refetch preferences
+  // and rebuild the page from scratch, which would collapse sections.
+  late final Future<void> _preferencesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _preferencesFuture = initializePreferences();
+  }
+
   static String getKeyFromObject<T>(Map<String, T> originalMap, T? searchValue,
       {String? defaultKey}) {
     final invertedMap = originalMap.map((key, value) => MapEntry(value, key));
@@ -372,7 +382,7 @@ class BackupPageState extends State<BackupPage> {
           title: Text("Backup".i18n),
         ),
         body: FutureBuilder(
-          future: initializePreferences(),
+          future: _preferencesFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return SingleChildScrollView(
