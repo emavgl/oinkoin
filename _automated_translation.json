@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 599
+    "total_keys": 603
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5988,24 +5988,64 @@
       "notes": "'Database copy' = full movements.db snapshot, overwritten in place, never auto-deleted.",
       "status": "verified"
     },
+    "Database": {
+      "key": "Database",
+      "context": "Subsection header grouping raw database file actions",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Section header",
+      "meaning": "Introduces Export/Store database actions, distinct from backups",
+      "notes": "Noun, header style.",
+      "status": "verified"
+    },
+    "Complete snapshots of your data, encrypted and restorable anytime.": {
+      "key": "Complete snapshots of your data, encrypted and restorable anytime.",
+      "context": "Explainer under the Backup section header",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Explanatory body text",
+      "meaning": "Backups are full, encrypted, restorable snapshots",
+      "notes": "One-line reassurance for non-expert users.",
+      "status": "verified"
+    },
     "Raw database file for advanced use. Not a backup, and it cannot be encrypted.": {
       "key": "Raw database file for advanced use. Not a backup, and it cannot be encrypted.",
+      "context": "Explainer under the Database section header",
       "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup (visible only with automatic backup on)",
-      "component": "SwitchCustomizationItem subtitle",
-      "context": "Subtitle explaining the database copy to non-expert users",
-      "meaning": "The file is a raw SQLite copy for advanced use, distinct from encrypted JSON backups",
+      "page": "Settings > Backup",
+      "component": "Explanatory body text",
+      "meaning": "The database file is raw SQLite for advanced use, distinct from encrypted backups",
       "notes": "Must prevent mistaking it for a restorable encrypted backup.",
       "status": "verified"
     },
-    "Automatic backup": {
-      "key": "Automatic backup",
-      "context": "Subsection header grouping the automatic backup options",
+    "Store the database on disk": {
+      "key": "Store the database on disk",
+      "context": "Action storing a database snapshot into the destination folder",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "SettingsItem title",
+      "meaning": "Save movements.db into the backup destination folder now",
+      "notes": "Mirrors 'Store the Backup on disk' but for the raw database.",
+      "status": "verified"
+    },
+    "Store a fresh copy with every automatic backup": {
+      "key": "Store a fresh copy with every automatic backup",
+      "context": "Subtitle of the automatic database copy switch",
       "file": "lib/settings/backup-page.dart",
       "page": "Settings > Backup (visible only with automatic backup on)",
-      "component": "Section header",
-      "meaning": "Groups the database copy switch and the retention dropdown",
-      "notes": "Noun phrase, header style. Distinct from the 'Enable automatic backup' switch above it.",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Each automatic backup also stores an overwritten movements.db snapshot",
+      "notes": "Keep movements.db literal out; plain description.",
+      "status": "verified"
+    },
+    "Could not save the database file": {
+      "key": "Could not save the database file",
+      "context": "Error when storing the database snapshot on disk fails",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "SnackBar message",
+      "meaning": "Snapshot creation or storage failed",
+      "notes": "Generic failure message.",
       "status": "verified"
     }
   }

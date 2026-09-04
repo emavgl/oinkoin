@@ -323,11 +323,19 @@ class BackupService {
     }
   }
 
-  /// Creates an automatic backup, given the settings in the preferences.
   /// File name of the database snapshot stored next to automatic backups.
   /// Fixed name on purpose: it is overwritten in place and never touched
   /// by retention cleanup, which only removes `*_obackup.json` files.
   static const String DATABASE_SNAPSHOT_FILE = 'oinkoin_database.db';
+
+  /// Stores an already-created database [snapshot] into the active backup
+  /// directory (custom folder or default), through SAF on Android custom
+  /// folders and by plain copy elsewhere.
+  static Future<bool> storeDatabaseSnapshot(File snapshot) async {
+    final backupDir = await getBackupDirectory();
+    return storeDatabaseCopy(
+        snapshot, backupDir, await _getActiveSafFolderUri());
+  }
 
   /// Stores an already-created database [snapshot] into [backupDir],
   /// through SAF on Android custom folders and by plain copy elsewhere.
@@ -407,8 +415,7 @@ class BackupService {
         // Best effort: a failed database copy must not fail the backup.
         final snapshot = await SqliteDatabase.createDatabaseSnapshot();
         if (snapshot != null) {
-          await storeDatabaseCopy(
-              snapshot, backupDir, await _getActiveSafFolderUri());
+          await storeDatabaseSnapshot(snapshot);
         }
       }
       return true;

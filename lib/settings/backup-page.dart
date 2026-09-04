@@ -12,6 +12,7 @@ import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import '../helpers/alert-dialog-builder.dart';
+import '../services/database/sqlite-database.dart';
 import '../services/platform-file-service.dart';
 import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
@@ -112,6 +113,30 @@ class BackupPageState extends State<BackupPage> {
 
     if (!success) {
       log('Failed to share/save database file');
+    }
+  }
+
+  storeDatabaseFile(BuildContext context) async {
+    try {
+      final snapshot = await SqliteDatabase.createDatabaseSnapshot();
+      if (snapshot == null) {
+        throw StateError('Could not create a database snapshot');
+      }
+      final stored = await BackupService.storeDatabaseSnapshot(snapshot);
+      if (!stored) {
+        throw StateError('Could not store the database file');
+      }
+      final backupDir = await BackupService.getBackupDirectory();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            'File stored in $backupDir/${BackupService.DATABASE_SNAPSHOT_FILE}'),
+      ));
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Could not save the database file".i18n),
+      ));
     }
   }
 
@@ -230,6 +255,17 @@ class BackupPageState extends State<BackupPage> {
   final _textController = TextEditingController();
   bool _isOkButtonEnabled = false;
 
+  /// Small explanatory line under a section header.
+  Widget _buildExplainer(String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+    );
+  }
+
   Future<String?> showPasswordInputDialog(BuildContext context) async {
     return await showDialog(
       context: context,
@@ -301,7 +337,12 @@ class BackupPageState extends State<BackupPage> {
             if (snapshot.connectionState == ConnectionState.done) {
               return SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
+                    SettingSeparator(title: "Backup".i18n),
+                    _buildExplainer(
+                        "Complete snapshots of your data, encrypted and restorable anytime."
+                            .i18n),
                     SettingsItem(
                         icon: Icon(Icons.backup, color: Colors.white),
                         iconBackgroundColor: Colors.orange.shade600,
@@ -309,12 +350,6 @@ class BackupPageState extends State<BackupPage> {
                         subtitle: "Share the backup file".i18n,
                         onPressed: () async =>
                             await createAndShareBackupFile()),
-                    SettingsItem(
-                        icon: Icon(Icons.dataset, color: Colors.white),
-                        iconBackgroundColor: Colors.blueGrey.shade600,
-                        title: 'Export Database'.i18n,
-                        subtitle: "Share the database file".i18n,
-                        onPressed: () async => await shareDatabase()),
                     SettingsItem(
                         icon: Icon(Icons.save_alt, color: Colors.white),
                         iconBackgroundColor: Colors.lightBlue.shade600,
@@ -392,21 +427,6 @@ class BackupPageState extends State<BackupPage> {
                       visible: enableAutomaticBackup,
                       child: Column(
                         children: [
-                          SettingSeparator(title: "Automatic backup".i18n),
-                          SwitchCustomizationItem(
-                            title: "Include a database copy".i18n,
-                            subtitle:
-                                "Raw database file for advanced use. Not a backup, and it cannot be encrypted."
-                                    .i18n,
-                            switchValue: includeDatabaseCopy,
-                            sharedConfigKey:
-                                PreferencesKeys.backupIncludeDatabase,
-                            onChanged: (value) => {
-                              setState(() {
-                                fetchAllThePreferences();
-                              })
-                            },
-                          ),
                           Visibility(
                             visible: enableVersionAndDateInBackupName,
                             child: DropdownCustomizationItem(
@@ -417,6 +437,43 @@ class BackupPageState extends State<BackupPage> {
                               selectedDropdownKey: backupRetentionPeriodValue,
                               sharedConfigKey: "backupRetentionIntervalIndex",
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SettingSeparator(title: "Database".i18n),
+                    _buildExplainer(
+                        "Raw database file for advanced use. Not a backup, and it cannot be encrypted."
+                            .i18n),
+                    SettingsItem(
+                        icon: Icon(Icons.dataset, color: Colors.white),
+                        iconBackgroundColor: Colors.blueGrey.shade600,
+                        title: 'Export Database'.i18n,
+                        subtitle: "Share the database file".i18n,
+                        onPressed: () async => await shareDatabase()),
+                    SettingsItem(
+                        icon: Icon(Icons.storage, color: Colors.white),
+                        iconBackgroundColor: Colors.brown.shade600,
+                        title: 'Store the database on disk'.i18n,
+                        onPressed: () async =>
+                            await storeDatabaseFile(context)),
+                    Visibility(
+                      visible: enableAutomaticBackup,
+                      child: Column(
+                        children: [
+                          SwitchCustomizationItem(
+                            title: "Include a database copy".i18n,
+                            subtitle:
+                                "Store a fresh copy with every automatic backup"
+                                    .i18n,
+                            switchValue: includeDatabaseCopy,
+                            sharedConfigKey:
+                                PreferencesKeys.backupIncludeDatabase,
+                            onChanged: (value) => {
+                              setState(() {
+                                fetchAllThePreferences();
+                              })
+                            },
                           ),
                         ],
                       ),
