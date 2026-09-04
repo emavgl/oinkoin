@@ -85,6 +85,28 @@ class HomeWidgetService {
     }
   }
 
+  /// Daily totals over the interval for sparklines (signed for balance,
+  /// absolute otherwise), capped to the most recent 31 days.
+  static List<double> dailySeries(
+    Iterable<Record?> records, {
+    required bool isBalance,
+  }) {
+    final byDay = <DateTime, double>{};
+    for (final record in records) {
+      if (record?.value == null || record!.isTransfer) continue;
+      final day = DateTime(
+        record.localDateTime.year,
+        record.localDateTime.month,
+        record.localDateTime.day,
+      );
+      final value = isBalance ? record.value! : record.value!.abs();
+      byDay[day] = (byDay[day] ?? 0) + value;
+    }
+    final days = byDay.keys.toList()..sort();
+    final tail = days.length > 31 ? days.sublist(days.length - 31) : days;
+    return [for (final day in tail) byDay[day]!];
+  }
+
   static Future<void> _refreshTotals(
     ThemeData theme,
     List<Record?> records,
@@ -124,9 +146,10 @@ class HomeWidgetService {
         balanceText: text(balanceRecords, isBalance: true),
         balanceColor:
             getAmountColor(balanceResult.total, brightness) ?? Colors.green,
+        sparkline: dailySeries(balanceRecords, isBalance: true),
       ),
       overviewImageKey,
-      const Size(400, 200),
+      const Size(420, 240),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: overviewProvider);
 
@@ -136,9 +159,10 @@ class HomeWidgetService {
         label: "Income".i18n,
         amount: text(incomeRecords, isBalance: false),
         color: getAmountColor(incomeTotal, brightness),
+        sparkline: dailySeries(incomeRecords, isBalance: false),
       ),
       incomeImageKey,
-      const Size(200, 110),
+      const Size(220, 170),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: incomeProvider);
 
@@ -148,9 +172,10 @@ class HomeWidgetService {
         label: "Expenses".i18n,
         amount: text(expenseRecords, isBalance: false),
         color: getAmountColor(expenseTotal, brightness),
+        sparkline: dailySeries(expenseRecords, isBalance: false),
       ),
       expensesImageKey,
-      const Size(200, 110),
+      const Size(220, 170),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: expensesProvider);
 
@@ -160,9 +185,10 @@ class HomeWidgetService {
         label: "Balance".i18n,
         amount: text(balanceRecords, isBalance: true),
         color: getAmountColor(balanceResult.total, brightness),
+        sparkline: dailySeries(balanceRecords, isBalance: true),
       ),
       balanceImageKey,
-      const Size(200, 110),
+      const Size(220, 170),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: balanceProvider);
   }

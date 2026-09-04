@@ -42,7 +42,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Monthly food'), findsOneWidget);
+    expect(find.text('MONTHLY FOOD'), findsOneWidget);
     expect(find.text('225.00 / 450.00'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
   });
