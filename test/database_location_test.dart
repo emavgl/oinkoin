@@ -3,9 +3,16 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' show join;
+import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/wallet.dart';
+import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
+import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'helpers/test_database.dart';
 
 /// Custom database folder behavior: path resolution with fallback and
 /// file relocation with journal sidecars. Desktop-only code paths run
@@ -99,5 +106,33 @@ void main() {
       await SqliteDatabase.relocateDatabase(join(sandbox.path, 'empty')),
       isFalse,
     );
+  });
+
+  group('write notifications', () {
+    var notifications = 0;
+
+    setUpAll(() async {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      await TestDatabaseHelper.setupTestDatabase();
+      SqliteDatabase.onDatabaseChanged = () => notifications++;
+    });
+
+    tearDownAll(() {
+      SqliteDatabase.onDatabaseChanged = null;
+    });
+
+    test('record and wallet writes notify exactly once each', () async {
+      DatabaseInterface db = ServiceConfig.database;
+
+      final walletId = await db.addWallet(Wallet('Cash', initialAmount: 10.0));
+      final recordId = await db.addRecord(
+        Record(-5.0, 'groceries', null, DateTime.utc(2026, 9, 1)),
+      );
+      await db.deleteRecordById(recordId);
+      await db.deleteWalletAndRecords(walletId);
+
+      expect(notifications, 4);
+    });
   });
 }

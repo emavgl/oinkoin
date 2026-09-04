@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -327,6 +328,44 @@ class BackupService {
   /// Fixed name on purpose: it is overwritten in place and never touched
   /// by retention cleanup, which only removes `*_obackup.json` files.
   static const String DATABASE_SNAPSHOT_FILE = 'oinkoin_database.db';
+
+  static bool _copyRunning = false;
+  static bool _copyDirty = false;
+
+  /// Schedules a database copy after a database write (see
+  /// `SqliteDatabase.onDatabaseChanged`). Copies run one at a time; a
+  /// write landing mid-copy marks it dirty so one more copy follows.
+  /// Failures only log and never propagate to the write path.
+  static void scheduleDatabaseCopy() {
+    unawaited(_runDatabaseCopy());
+  }
+
+  static Future<void> _runDatabaseCopy() async {
+    if (_copyRunning) {
+      _copyDirty = true;
+      return;
+    }
+    do {
+      _copyDirty = false;
+      _copyRunning = true;
+      try {
+        var prefs = await SharedPreferences.getInstance();
+        bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+          prefs,
+          PreferencesKeys.backupIncludeDatabase,
+        )!;
+        if (!includeDatabaseCopy) return;
+        final snapshot = await SqliteDatabase.createDatabaseSnapshot();
+        if (snapshot != null) {
+          await storeDatabaseSnapshot(snapshot);
+        }
+      } catch (e, st) {
+        _logger.handle(e, st, 'Failed to store scheduled database copy');
+      } finally {
+        _copyRunning = false;
+      }
+    } while (_copyDirty);
+  }
 
   /// Where database copies go: the dedicated copy folder when set,
   /// otherwise the backup destination. Returns the display path and, on

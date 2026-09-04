@@ -13,6 +13,8 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/services/logger.dart';
+import 'package:piggybank/services/backup-service.dart';
+import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/premium-license-store.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/purchase-service.dart';
@@ -151,6 +153,10 @@ main() async {
     ServiceConfig.initShowHomepageImage();
     ServiceConfig.initNavigationBarAnimationsEnabled();
     ServiceConfig.initPrivacyMode();
+    // Keep the automatic database copy fresh: every database write
+    // schedules a best-effort snapshot (only when the switch is on).
+    SqliteDatabase.onDatabaseChanged =
+        () => BackupService.scheduleDatabaseCopy();
     await MyI18n.loadTranslations();
     await ProfileService.instance.initialize();
 

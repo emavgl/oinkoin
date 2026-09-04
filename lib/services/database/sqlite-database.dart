@@ -44,6 +44,19 @@ class SqliteDatabase implements DatabaseInterface {
   /// SQLite journal sidecars that may sit next to the database file.
   static const List<String> _journalSuffixes = ['-wal', '-shm', '-journal'];
 
+  /// Called after every database write (set by whoever consumes the
+  /// notifications, e.g. the automatic database copy). Fire-and-forget:
+  /// listeners must never throw.
+  static void Function()? onDatabaseChanged;
+
+  static void _notifyDatabaseChanged() {
+    try {
+      onDatabaseChanged?.call();
+    } catch (e, st) {
+      _logger.handle(e, st, 'Database change listener failed');
+    }
+  }
+
   /// For testing only: allows setting a custom database instance
   @visibleForTesting
   static void setDatabaseForTesting(Database? db) {
@@ -203,6 +216,7 @@ class SqliteDatabase implements DatabaseInterface {
     final map = budget.toMap()..remove('id');
     final id = await db.insert('budgets', map);
     _logger.info('Budget added: ID $id (${budget.name})');
+    _notifyDatabaseChanged();
     return id;
   }
 
@@ -213,12 +227,14 @@ class SqliteDatabase implements DatabaseInterface {
     budget.profileId ??= ProfileService.instance.activeProfileId;
     final map = budget.toMap()..remove('id');
     await db.update('budgets', map, where: 'id = ?', whereArgs: [budget.id]);
+    _notifyDatabaseChanged();
   }
 
   @override
   Future<void> deleteBudget(int id) async {
     final db = (await database)!;
     await db.delete('budgets', where: 'id = ?', whereArgs: [id]);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -230,6 +246,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: 'id = ?',
       whereArgs: [id],
     );
+    _notifyDatabaseChanged();
   }
 
   // Category implementation
@@ -272,6 +289,7 @@ class SqliteDatabase implements DatabaseInterface {
       }
       int result = await db.insert("categories", category.toMap());
       _logger.info('Category added: ${category.name}');
+      _notifyDatabaseChanged();
       return result;
     } catch (e, st) {
       if (e is ElementAlreadyExists) {
@@ -308,6 +326,7 @@ class SqliteDatabase implements DatabaseInterface {
         whereArgs: [categoryName, categoryIndex],
       );
       _logger.info('Category deleted: $categoryName');
+      _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to delete category: $categoryName');
       rethrow;
@@ -340,6 +359,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "category_name = ? AND category_type = ?",
       whereArgs: [existingCategoryName, categoryIndex],
     );
+    _notifyDatabaseChanged();
     return newIndex;
   }
 
@@ -369,6 +389,7 @@ class SqliteDatabase implements DatabaseInterface {
         }
       }
       _logger.info('Record added: ID $recordId');
+      _notifyDatabaseChanged();
       return recordId;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add record: ${record?.title}');
@@ -484,6 +505,7 @@ class SqliteDatabase implements DatabaseInterface {
 
       await tagBatch.commit(noResult: true);
       _logger.info('Batch complete with tags');
+      _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
       rethrow;
@@ -577,6 +599,7 @@ class SqliteDatabase implements DatabaseInterface {
 
       await tagBatch.commit(noResult: true);
       _logger.info('Batch complete with tags');
+      _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch (no dup check)');
       rethrow;
@@ -909,6 +932,7 @@ class SqliteDatabase implements DatabaseInterface {
       );
     }
     await batch.commit(noResult: true);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -943,6 +967,7 @@ class SqliteDatabase implements DatabaseInterface {
       "INSERT INTO wallets (name, is_default, is_predefined, sort_order, profile_id, color) VALUES (?, 1, 1, 0, ?, ?)",
       ["Default Wallet".i18n, profileId, "255:129:199:132"],
     );
+    _notifyDatabaseChanged();
     return profileId;
   }
 
@@ -951,6 +976,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     final map = profile.toMap()..remove('id');
     await db.update('profiles', map, where: 'id = ?', whereArgs: [profile.id]);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -960,6 +986,7 @@ class SqliteDatabase implements DatabaseInterface {
       await db.delete(table, where: 'profile_id = ?', whereArgs: [id]);
     }
     await db.delete('profiles', where: 'id = ?', whereArgs: [id]);
+    _notifyDatabaseChanged();
   }
 
   // Wallet implementation
@@ -1065,6 +1092,7 @@ class SqliteDatabase implements DatabaseInterface {
     final map = wallet.toMap()..remove('id');
     final id = await db.insert('wallets', map);
     _logger.info('Wallet added: ID $id (${wallet.name})');
+    _notifyDatabaseChanged();
     return id;
   }
 
@@ -1075,6 +1103,7 @@ class SqliteDatabase implements DatabaseInterface {
     final map = wallet.toMap()..remove('id');
     await db.update('wallets', map, where: 'id = ?', whereArgs: [id]);
     _logger.info('Wallet updated: ID $id (${wallet.name})');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1127,6 +1156,7 @@ class SqliteDatabase implements DatabaseInterface {
     if (wasSystemDefault) await _ensureDefaultWallet(db);
     if (wasPredefined) await _ensurePredefinedWallet(db);
     _logger.info('Wallet ID $id deleted');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1137,6 +1167,7 @@ class SqliteDatabase implements DatabaseInterface {
       await _migrateWalletRefsInTable(db, table, fromId, toId);
     }
     _logger.info('Records moved from wallet ID $fromId to wallet ID $toId');
+    _notifyDatabaseChanged();
   }
 
   /// Migrates all wallet references from [fromId] to [toId] in [table].
@@ -1198,6 +1229,7 @@ class SqliteDatabase implements DatabaseInterface {
     if (isArchived && wasSystemDefault) await _ensureDefaultWallet(db);
     if (isArchived && wasPredefined) await _ensurePredefinedWallet(db);
     _logger.info('Wallet ID $id ${isArchived ? 'archived' : 'unarchived'}');
+    _notifyDatabaseChanged();
   }
 
   /// Promotes the first active wallet to default.
@@ -1282,6 +1314,7 @@ class SqliteDatabase implements DatabaseInterface {
       );
     }
     await batch.commit(noResult: true);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1378,6 +1411,7 @@ class SqliteDatabase implements DatabaseInterface {
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
     }
+    _notifyDatabaseChanged();
     return updatedRows;
   }
 
@@ -1386,6 +1420,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     await db.delete("records", where: "id = ?", whereArgs: [id]);
     // There is a db trigger, deleting a record automatically delete the associated tags
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1397,6 +1432,7 @@ class SqliteDatabase implements DatabaseInterface {
     await db.delete("records", where: "id IN ($placeholders)", whereArgs: ids);
     _logger.info('Batch deleted ${ids.length} records');
     // There is a db trigger, deleting a record automatically delete the associated tags
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1412,6 +1448,7 @@ class SqliteDatabase implements DatabaseInterface {
       whereArgs: ids,
     );
     _logger.info('Batch moved ${ids.length} records to wallet ID $walletId');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1441,6 +1478,7 @@ class SqliteDatabase implements DatabaseInterface {
       await addRecord(duplicate);
     }
     _logger.info('Batch duplicated ${ids.length} records');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1456,6 +1494,7 @@ class SqliteDatabase implements DatabaseInterface {
       whereArgs: [recurrentPatternId, millisecondsSinceEpoch],
     );
     // There is a db trigger, deleting a record automatically delete the associated tags
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1511,6 +1550,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     recordPattern.id ??= Uuid().v4();
     recordPattern.profileId ??= ProfileService.instance.activeProfileId;
+    _notifyDatabaseChanged();
     return await db.insert("recurrent_record_patterns", recordPattern.toMap());
   }
 
@@ -1524,6 +1564,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "id = ?",
       whereArgs: [recurrentPatternId],
     );
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1533,12 +1574,14 @@ class SqliteDatabase implements DatabaseInterface {
   ) async {
     final db = (await database)!;
     var patternMap = pattern.toMap();
-    return await db.update(
+    final updated = await db.update(
       "recurrent_record_patterns",
       patternMap,
       where: "id = ?",
       whereArgs: [recurrentPatternId],
     );
+    _notifyDatabaseChanged();
+    return updated;
   }
 
   @override
@@ -1577,6 +1620,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "name = ? AND category_type = ?",
       whereArgs: [categoryName, categoryType.index],
     );
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1598,6 +1642,7 @@ class SqliteDatabase implements DatabaseInterface {
         whereArgs: [category.name, category.categoryType!.index],
       );
     }
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1646,6 +1691,7 @@ class SqliteDatabase implements DatabaseInterface {
       }
       await batch.commit();
     });
+    _notifyDatabaseChanged();
   }
 
   Future<void> deleteTag(String tagName) async {
@@ -1657,5 +1703,6 @@ class SqliteDatabase implements DatabaseInterface {
       where: 'tag_name = ?',
       whereArgs: [tagName],
     );
+    _notifyDatabaseChanged();
   }
 }
