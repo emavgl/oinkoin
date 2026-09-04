@@ -54,6 +54,8 @@ class AnnouncementDialog extends StatelessWidget {
       content: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.85,
+          // Bound the height so long bodies scroll instead of overflowing.
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
         ),
         child: SizedBox(
           width: double.maxFinite,
@@ -72,16 +74,18 @@ class AnnouncementDialog extends StatelessWidget {
               if (snapshot.hasError || !snapshot.hasData) {
                 return Text('Could not load this announcement'.i18n);
               }
-              return MarkdownBody(
-                data: snapshot.data!,
-                onTapLink: (text, href, title) {
-                  if (href != null) {
-                    launchUrl(
-                      Uri.parse(href),
-                      mode: LaunchMode.externalApplication,
-                    );
-                  }
-                },
+              return SingleChildScrollView(
+                child: MarkdownBody(
+                  data: snapshot.data!,
+                  onTapLink: (text, href, title) {
+                    if (href != null) {
+                      launchUrl(
+                        Uri.parse(href),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                ),
               );
             },
           ),
