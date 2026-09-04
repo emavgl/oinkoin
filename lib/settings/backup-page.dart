@@ -531,27 +531,22 @@ class BackupPageState extends State<BackupPage> {
                             ],
                           ),
                         ),
-                        Visibility(
-                          visible: enableAutomaticBackup,
-                          child: Column(
-                            children: [
-                              SwitchCustomizationItem(
-                                title: "Save database automatically".i18n,
-                                subtitle:
-                                    "Store a fresh copy with every automatic backup"
-                                        .i18n,
-                                switchValue: includeDatabaseCopy,
-                                sharedConfigKey:
-                                    PreferencesKeys.backupIncludeDatabase,
-                                onChanged: (value) => {
-                                  setState(() {
-                                    fetchAllThePreferences();
-                                  })
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+                    SwitchCustomizationItem(
+                      title: "Save database automatically".i18n,
+                      enabled: ServiceConfig.isPremium,
+                      subtitle: !ServiceConfig.isPremium
+                          ? "Available on Oinkoin Pro".i18n
+                          : "Automatically keep a fresh copy in the storage folder"
+                              .i18n,
+                      switchValue: includeDatabaseCopy,
+                      sharedConfigKey:
+                          PreferencesKeys.backupIncludeDatabase,
+                      onChanged: (value) => {
+                        setState(() {
+                          fetchAllThePreferences();
+                        })
+                      },
+                    ),
                       ],
                     ),
                     Center(

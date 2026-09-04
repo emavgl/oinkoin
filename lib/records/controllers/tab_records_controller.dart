@@ -805,8 +805,11 @@ class TabRecordsController {
 
   void runAutomaticBackup(BuildContext? context) {
     log("Checking if automatic backup should be fired!");
-    BackupService.shouldCreateAutomaticBackup().then((shouldBackup) {
-      if (shouldBackup) {
+    Future.wait([
+      BackupService.shouldCreateAutomaticBackup(),
+      BackupService.shouldCreateAutomaticDatabaseCopy(),
+    ]).then((results) {
+      if (results.any((shouldRun) => shouldRun)) {
         log("Automatic backup fired!");
         BackupService.createAutomaticBackup().then((operationSuccess) {
           if (!operationSuccess && context != null) {

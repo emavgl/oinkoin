@@ -6018,16 +6018,6 @@
       "notes": "Mirrors 'Store the Backup on disk' but for the raw database.",
       "status": "verified"
     },
-    "Store a fresh copy with every automatic backup": {
-      "key": "Store a fresh copy with every automatic backup",
-      "context": "Subtitle of the automatic database copy switch",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup (visible only with automatic backup on)",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Each automatic backup also stores an overwritten movements.db snapshot",
-      "notes": "Keep movements.db literal out; plain description.",
-      "status": "verified"
-    },
     "Could not save the database file": {
       "key": "Could not save the database file",
       "context": "Error when storing the database snapshot on disk fails",
@@ -6066,6 +6056,16 @@
       "notes": "Visible only with automatic backup on.",
       "file": "lib/settings/backup-page.dart",
       "page": "Settings > Backup > Database",
+      "status": "verified"
+    },
+    "Automatically keep a fresh copy in the storage folder": {
+      "key": "Automatically keep a fresh copy in the storage folder",
+      "context": "Subtitle of the independent automatic database copy switch",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Runs on its own schedule, independent of the JSON automatic backup",
+      "notes": "Pro-gated like automatic backups.",
       "status": "verified"
     }
   }

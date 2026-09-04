@@ -381,4 +381,51 @@ void main() {
       expect(await snapshot.exists(), isFalse);
     });
   });
+
+  group('shouldCreateAutomaticDatabaseCopy', () {
+    Future<void> enableCopy() async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(PreferencesKeys.backupIncludeDatabase, true);
+      await prefs.setString(PreferencesKeys.backupFolderPath, testDir.path);
+    }
+
+    test('false when the switch is off', () async {
+      expect(await BackupService.shouldCreateAutomaticDatabaseCopy(), isFalse);
+    });
+
+    test('true when no copy exists yet', () async {
+      await enableCopy();
+
+      expect(await BackupService.shouldCreateAutomaticDatabaseCopy(), isTrue);
+    });
+
+    test('false for a fresh copy, true for a stale one', () async {
+      await enableCopy();
+      final copy = File('${testDir.path}/oinkoin_database.db');
+      await copy.writeAsString('db');
+
+      expect(await BackupService.shouldCreateAutomaticDatabaseCopy(), isFalse);
+
+      await copy.setLastModified(
+          DateTime.now().subtract(const Duration(hours: 2)));
+      expect(await BackupService.shouldCreateAutomaticDatabaseCopy(), isTrue);
+    });
+
+    test('reads the date through SAF listings', () async {
+      await useCustomSafFolder();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(PreferencesKeys.backupIncludeDatabase, true);
+      final now = DateTime.now();
+      safHandler = (_) async => [
+            {
+              'name': 'oinkoin_database.db',
+              'lastModifiedMs':
+                  now.subtract(const Duration(hours: 5)).millisecondsSinceEpoch,
+            },
+          ];
+
+      expect(await BackupService.getDateLatestDatabaseCopy(), isNotNull);
+      expect(await BackupService.shouldCreateAutomaticDatabaseCopy(), isTrue);
+    });
+  });
 }

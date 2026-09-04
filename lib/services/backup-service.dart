@@ -399,7 +399,11 @@ class BackupService {
       prefs,
       PreferencesKeys.enableAutomaticBackup,
     )!;
-    if (!enableAutomaticBackup) {
+    bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+      prefs,
+      PreferencesKeys.backupIncludeDatabase,
+    )!;
+    if (!enableAutomaticBackup && !includeDatabaseCopy) {
       log("No automatic backup set");
       return false;
     }
@@ -416,24 +420,22 @@ class BackupService {
       prefs,
       PreferencesKeys.enableVersionAndDateInBackupName,
     )!;
-    bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
-      prefs,
-      PreferencesKeys.backupIncludeDatabase,
-    )!;
 
     String? filename = !enableVersionAndDateInBackupName
         ? await getDefaultFileName()
         : null;
 
     try {
-      _logger.info('Creating automatic backup...');
-      final backupDir = await getBackupDirectory();
-      File backupFile = await BackupService.createJsonBackupFile(
-        backupFileName: filename,
-        directoryPath: backupDir,
-        encryptionPassword: enableEncryptedBackup ? backupPassword : null,
-      );
-      _logger.info("Automatic backup created: ${backupFile.path}");
+      if (enableAutomaticBackup) {
+        _logger.info('Creating automatic backup...');
+        final backupDir = await getBackupDirectory();
+        File backupFile = await BackupService.createJsonBackupFile(
+          backupFileName: filename,
+          directoryPath: backupDir,
+          encryptionPassword: enableEncryptedBackup ? backupPassword : null,
+        );
+        _logger.info("Automatic backup created: ${backupFile.path}");
+      }
       if (includeDatabaseCopy) {
         // Best effort: a failed database copy must not fail the backup.
         final snapshot = await SqliteDatabase.createDatabaseSnapshot();
@@ -444,6 +446,56 @@ class BackupService {
       return true;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to create automatic backup');
+      return false;
+    }
+  }
+
+  /// Date of the existing database copy, or null when there is none or
+  /// its timestamp is unknown (e.g. a provider not reporting one).
+  static Future<DateTime?> getDateLatestDatabaseCopy() async {
+    try {
+      final location = await getDatabaseCopyLocation();
+      if (location.uri != null) {
+        final files =
+            await BackupDirectoryService.listBackupFiles(location.uri!);
+        for (final file in files) {
+          if (file.name == DATABASE_SNAPSHOT_FILE &&
+              file.lastModifiedMs != null &&
+              file.lastModifiedMs! > 0) {
+            return DateTime.fromMillisecondsSinceEpoch(file.lastModifiedMs!);
+          }
+        }
+        return null;
+      }
+      final copy = File(join(location.path, DATABASE_SNAPSHOT_FILE));
+      if (!await copy.exists()) return null;
+      return (await copy.stat()).modified;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to read database copy date');
+      return null;
+    }
+  }
+
+  /// Whether an automatic database copy should be stored: enabled and the
+  /// existing copy missing or older than the backup threshold.
+  static Future<bool> shouldCreateAutomaticDatabaseCopy() async {
+    try {
+      var prefs = await SharedPreferences.getInstance();
+      bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+        prefs,
+        PreferencesKeys.backupIncludeDatabase,
+      )!;
+      if (!includeDatabaseCopy) return false;
+
+      final latestCopyDate = await getDateLatestDatabaseCopy();
+      if (latestCopyDate == null) {
+        _logger.info("No database copy found, automatic copy needed");
+        return true;
+      }
+      return DateTime.now().difference(latestCopyDate) >
+          AUTOMATIC_BACKUP_THRESHOLD;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Error checking if automatic copy is needed');
       return false;
     }
   }
