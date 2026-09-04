@@ -29,7 +29,7 @@
         android:id="@+id/widget_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:autoSizeTextType="uniformWithConfiguration"
+        android:autoSizeTextType="uniform"
         android:autoSizeMinTextSize="14sp"
         android:autoSizeMaxTextSize="30sp"
         android:ellipsize="end"
