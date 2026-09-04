@@ -24,6 +24,7 @@ class _FakeCommunicationService implements CommunicationService {
   bool shouldShowDialog(
     Communication communication, {
     Set<String> buildAudience = const {},
+    String? currentVersion,
   }) =>
       false;
 
