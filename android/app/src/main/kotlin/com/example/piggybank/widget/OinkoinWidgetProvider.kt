@@ -166,7 +166,6 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         if (values.all { it.isNullOrEmpty() }) return false
         val labelIds = intArrayOf(R.id.widget_label_1, R.id.widget_label_2, R.id.widget_label_3)
         val valueIds = intArrayOf(R.id.widget_value_1, R.id.widget_value_2, R.id.widget_value_3)
-        val dotIds = intArrayOf(R.id.widget_dot_1, R.id.widget_dot_2, R.id.widget_dot_3)
         val colorKeys = arrayOf("income_color", "expenses_color", "balance_color")
         for (i in 0..2) {
             views.setTextViewText(labelIds[i], labels[i] ?: "")
@@ -174,7 +173,6 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
             val color = widgetData.getInt(colorKeys[i].let { key(it, suffix) }, titleColor)
             views.setTextColor(valueIds[i], color)
             views.setTextColor(labelIds[i], 0xFF808080.toInt())
-            views.setInt(dotIds[i], "setColorFilter", color)
         }
         bindSpark(views, widgetData, "spark", suffix)
         return true
@@ -202,11 +200,6 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         if (name.isNullOrEmpty()) return false
         views.setTextViewText(R.id.widget_name, name)
         views.setTextColor(R.id.widget_name, titleColor)
-        views.setInt(
-            R.id.widget_dot,
-            "setColorFilter",
-            widgetData.getInt(key("color", suffix), titleColor),
-        )
         views.setProgressBar(
             R.id.widget_bar,
             100,
@@ -245,7 +238,6 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         views.setTextViewText(R.id.widget_value, value)
         views.setTextColor(R.id.widget_value, color)
         views.setTextColor(R.id.widget_label, 0xFF808080.toInt())
-        views.setInt(R.id.widget_dot, "setColorFilter", color)
         bindSpark(views, widgetData, "spark", suffix)
         return true
     }
@@ -262,7 +254,6 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         val color = widgetData.getInt(key("color", suffix), titleColor)
         views.setTextViewText(R.id.widget_name, name)
         views.setTextColor(R.id.widget_name, titleColor)
-        views.setInt(R.id.widget_dot, "setColorFilter", color)
         views.setTextViewText(
             R.id.widget_progress,
             textOrNull(widgetData, "progress", suffix) ?: "",
