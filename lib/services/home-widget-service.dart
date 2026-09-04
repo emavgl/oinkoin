@@ -125,6 +125,17 @@ class HomeWidgetService {
     await save('oinkoin_overview_balance_color',
         (getAmountColor(balanceResult.total, brightness) ?? Colors.green)
             .toARGB32());
+    final balanceSeries = dailySeries(balanceRecords, isBalance: true);
+    if (balanceSeries.length > 1) {
+      final overviewSpark = await _renderSparkline(
+        prefix: 'oinkoin_overview',
+        values: balanceSeries,
+        color: getAmountColor(balanceResult.total, brightness) ?? Colors.green,
+      );
+      if (overviewSpark != null) {
+        await save('oinkoin_overview_spark', overviewSpark);
+      }
+    }
     await HomeWidget.updateWidget(qualifiedAndroidName: overviewProvider);
 
     await _refreshSingle(

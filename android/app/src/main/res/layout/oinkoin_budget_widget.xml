@@ -21,6 +21,8 @@
         android:id="@+id/widget_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textSize="14sp"
         android:textStyle="bold" />
 
@@ -28,6 +30,8 @@
         android:id="@+id/widget_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="#808080"
         android:textSize="12sp" />
 

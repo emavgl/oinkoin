@@ -122,7 +122,23 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
             views.setTextColor(valueIds[i], widgetData.getInt(colorKeys[i].let { key(it, suffix) }, titleColor))
             views.setTextColor(labelIds[i], 0xFF808080.toInt())
         }
+        bindSpark(views, widgetData, "spark", suffix)
         return true
+    }
+
+    private fun bindSpark(
+        views: RemoteViews,
+        widgetData: android.content.SharedPreferences,
+        name: String,
+        suffix: String?,
+    ) {
+        val sparkPath = textOrNull(widgetData, name, suffix)?.let { File(it) }
+        if (sparkPath != null && sparkPath.exists()) {
+            val bitmap = BitmapFactory.decodeFile(sparkPath.absolutePath)
+            if (bitmap != null) {
+                views.setImageViewBitmap(R.id.widget_spark, bitmap)
+            }
+        }
     }
 
     private fun bindSingle(
@@ -141,13 +157,7 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
             widgetData.getInt(key("color", suffix), titleColor),
         )
         views.setTextColor(R.id.widget_label, 0xFF808080.toInt())
-        val sparkPath = textOrNull(widgetData, "spark", suffix)?.let { File(it) }
-        if (sparkPath != null && sparkPath.exists()) {
-            val bitmap = BitmapFactory.decodeFile(sparkPath.absolutePath)
-            if (bitmap != null) {
-                views.setImageViewBitmap(R.id.widget_spark, bitmap)
-            }
-        }
+        bindSpark(views, widgetData, "spark", suffix)
         return true
     }
 
