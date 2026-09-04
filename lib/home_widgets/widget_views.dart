@@ -28,13 +28,16 @@ class _WidgetLabel extends StatelessWidget {
 }
 
 /// Rounded dark card shared by every widget.
+///
+/// The bitmap may be cropped on any side to fill the cell (centerCrop), so
+/// content stays centered with generous padding as a safe zone.
 class _WidgetCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
 
   const _WidgetCard({
     required this.child,
-    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+    this.padding = const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
   });
 
   @override
@@ -174,7 +177,7 @@ class HomeWidgetAmount extends StatelessWidget {
     final valueColor =
         color ?? (brightness == Brightness.dark ? Colors.white : Colors.black);
     return _WidgetCard(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +226,7 @@ class HomeWidgetBudget extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return _WidgetCard(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,

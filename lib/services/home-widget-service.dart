@@ -149,7 +149,7 @@ class HomeWidgetService {
         sparkline: dailySeries(balanceRecords, isBalance: true),
       ),
       overviewImageKey,
-      const Size(420, 240),
+      const Size(480, 240),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: overviewProvider);
 
@@ -162,7 +162,7 @@ class HomeWidgetService {
         sparkline: dailySeries(incomeRecords, isBalance: false),
       ),
       incomeImageKey,
-      const Size(220, 200),
+      const Size(320, 200),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: incomeProvider);
 
@@ -175,7 +175,7 @@ class HomeWidgetService {
         sparkline: dailySeries(expenseRecords, isBalance: false),
       ),
       expensesImageKey,
-      const Size(220, 200),
+      const Size(320, 200),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: expensesProvider);
 
@@ -188,7 +188,7 @@ class HomeWidgetService {
         sparkline: dailySeries(balanceRecords, isBalance: true),
       ),
       balanceImageKey,
-      const Size(220, 200),
+      const Size(320, 200),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: balanceProvider);
   }
@@ -234,7 +234,7 @@ class HomeWidgetService {
           color: color,
         ),
         budgetImageKey(widgetId),
-        const Size(220, 220),
+        const Size(280, 240),
       );
     }
     await HomeWidget.updateWidget(qualifiedAndroidName: budgetProvider);
