@@ -481,61 +481,78 @@ class BackupPageState extends State<BackupPage> {
                         ],
                       ),
                     ),
-                    SettingSeparator(title: "Database".i18n),
-                    _buildExplainer(
+                    ExpansionTile(
+                      initiallyExpanded: false,
+                      maintainState: true,
+                      tilePadding:
+                          const EdgeInsets.symmetric(horizontal: 16.0),
+                      childrenPadding: EdgeInsets.zero,
+                      title: Text(
+                        "Database".i18n,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      subtitle: Text(
                         "Raw database file for advanced use. Not a backup, and it cannot be encrypted."
-                            .i18n),
-                    SettingsItem(
-                        icon: Icon(Icons.dataset, color: Colors.white),
-                        iconBackgroundColor: Colors.blueGrey.shade600,
-                        title: 'Export Database'.i18n,
-                        subtitle: "Share the database file".i18n,
-                        onPressed: () async => await shareDatabase()),
-                    SettingsItem(
-                        icon: Icon(Icons.storage, color: Colors.white),
-                        iconBackgroundColor: Colors.brown.shade600,
-                        title: 'Store the database on disk'.i18n,
-                        onPressed: () async =>
-                            await storeDatabaseFile(context)),
-                    Visibility(
-                      visible: BackupDirectoryService.isSupported,
-                      child: Column(
-                        children: [
-                          ClickableCustomizationItem(
-                              title: "Storage folder".i18n,
-                              subtitle: databaseCopyFolderPath,
-                              enabled: true,
-                              onTap: () async =>
-                                  await changeDatabaseCopyFolder()),
-                          if (hasCustomDatabaseCopyFolder)
-                            ClickableCustomizationItem(
-                                title: "Follow the backup destination".i18n,
-                                subtitle: backupFolderPath,
-                                enabled: true,
-                                onTap: resetDatabaseCopyFolder),
-                        ],
+                            .i18n,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
-                    ),
-                    Visibility(
-                      visible: enableAutomaticBackup,
-                      child: Column(
-                        children: [
-                          SwitchCustomizationItem(
-                            title: "Save database automatically".i18n,
-                            subtitle:
-                                "Store a fresh copy with every automatic backup"
-                                    .i18n,
-                            switchValue: includeDatabaseCopy,
-                            sharedConfigKey:
-                                PreferencesKeys.backupIncludeDatabase,
-                            onChanged: (value) => {
-                              setState(() {
-                                fetchAllThePreferences();
-                              })
-                            },
+                      children: [
+                        SettingsItem(
+                            icon: Icon(Icons.dataset, color: Colors.white),
+                            iconBackgroundColor: Colors.blueGrey.shade600,
+                            title: 'Export Database'.i18n,
+                            subtitle: "Share the database file".i18n,
+                            onPressed: () async => await shareDatabase()),
+                        SettingsItem(
+                            icon: Icon(Icons.storage, color: Colors.white),
+                            iconBackgroundColor: Colors.brown.shade600,
+                            title: 'Store the database on disk'.i18n,
+                            onPressed: () async =>
+                                await storeDatabaseFile(context)),
+                        Visibility(
+                          visible: BackupDirectoryService.isSupported,
+                          child: Column(
+                            children: [
+                              ClickableCustomizationItem(
+                                  title: "Storage folder".i18n,
+                                  subtitle: databaseCopyFolderPath,
+                                  enabled: true,
+                                  onTap: () async =>
+                                      await changeDatabaseCopyFolder()),
+                              if (hasCustomDatabaseCopyFolder)
+                                ClickableCustomizationItem(
+                                    title: "Follow the backup destination".i18n,
+                                    subtitle: backupFolderPath,
+                                    enabled: true,
+                                    onTap: resetDatabaseCopyFolder),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Visibility(
+                          visible: enableAutomaticBackup,
+                          child: Column(
+                            children: [
+                              SwitchCustomizationItem(
+                                title: "Save database automatically".i18n,
+                                subtitle:
+                                    "Store a fresh copy with every automatic backup"
+                                        .i18n,
+                                switchValue: includeDatabaseCopy,
+                                sharedConfigKey:
+                                    PreferencesKeys.backupIncludeDatabase,
+                                onChanged: (value) => {
+                                  setState(() {
+                                    fetchAllThePreferences();
+                                  })
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     Center(
                         child: Text("Last backup: ".i18n + lastBackupDataStr))
