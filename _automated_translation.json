@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 598
+    "total_keys": 599
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5988,14 +5988,24 @@
       "notes": "'Database copy' = full movements.db snapshot, overwritten in place, never auto-deleted.",
       "status": "verified"
     },
-    "Store movements.db next to the automatic backup": {
-      "key": "Store movements.db next to the automatic backup",
+    "Database": {
+      "key": "Database",
+      "context": "Subsection header grouping the database copy switch",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup (visible only with automatic backup on)",
+      "component": "Section header",
+      "meaning": "Introduces the raw database file option",
+      "notes": "Noun, header style.",
+      "status": "verified"
+    },
+    "Raw database file for advanced use. Not a backup, and it cannot be encrypted.": {
+      "key": "Raw database file for advanced use. Not a backup, and it cannot be encrypted.",
       "file": "lib/settings/backup-page.dart",
       "page": "Settings > Backup (visible only with automatic backup on)",
       "component": "SwitchCustomizationItem subtitle",
-      "context": "Subtitle of the database copy switch",
-      "meaning": "The snapshot lands in the same folder as the JSON backup",
-      "notes": "Keep the movements.db filename literal.",
+      "context": "Subtitle explaining the database copy to non-expert users",
+      "meaning": "The file is a raw SQLite copy for advanced use, distinct from encrypted JSON backups",
+      "notes": "Must prevent mistaking it for a restorable encrypted backup.",
       "status": "verified"
     }
   }

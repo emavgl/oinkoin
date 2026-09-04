@@ -15,6 +15,7 @@ import '../helpers/alert-dialog-builder.dart';
 import '../services/platform-file-service.dart';
 import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
+import 'components/setting-separator.dart';
 import 'constants/preferences-keys.dart';
 import 'dropdown-customization-item.dart';
 import 'settings-item.dart';
@@ -391,10 +392,11 @@ class BackupPageState extends State<BackupPage> {
                       visible: enableAutomaticBackup,
                       child: Column(
                         children: [
+                          SettingSeparator(title: "Database".i18n),
                           SwitchCustomizationItem(
                             title: "Include a database copy".i18n,
                             subtitle:
-                                "Store movements.db next to the automatic backup"
+                                "Raw database file for advanced use. Not a backup, and it cannot be encrypted."
                                     .i18n,
                             switchValue: includeDatabaseCopy,
                             sharedConfigKey:
