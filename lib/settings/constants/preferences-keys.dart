@@ -142,4 +142,8 @@ class PreferencesKeys {
   static const monthlyBannerAssignments = 'monthlyBannerAssignments';
   static const monthlyBannerUploads = 'monthlyBannerUploads';
   static const reverseMonthlyImages = 'reverseMonthlyImages';
+
+  // Home screen budget widgets: pinned widget instance id -> budget id.
+  // Device- and launcher-specific, never exported.
+  static const homeWidgetBudgetMap = 'homeWidgetBudgetMap';
 }

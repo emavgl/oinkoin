@@ -70,6 +70,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.privacyModeOnStart:
         false, // Default to respecting the last state
     PreferencesKeys.reverseMonthlyImages: false, // Default to no reversal
+    PreferencesKeys.homeWidgetBudgetMap: '{}',
     PreferencesKeys.statisticsPieChartUseCategoryColors: false,
     PreferencesKeys.statisticsPieChartNumberOfCategoriesToDisplay: 4,
     PreferencesKeys.inAppKeyboardScale: 1,

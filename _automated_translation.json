@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 605
+    "total_keys": 617
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -6075,6 +6075,126 @@
       "meaning": "Date and time of the latest stored database snapshot, mirrors 'Last backup: '",
       "notes": "Keep trailing space and colon like the backup counterpart.",
       "status": "verified"
+    },
+    "Home screen widgets": {
+      "key": "Home screen widgets",
+      "context": "Settings entry and page title for home screen widgets",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "SettingsItem title + AppBar title",
+      "meaning": "Settings entry and page title for home screen widgets",
+      "notes": "Pin/unpin happens in the launcher; this page configures."
+    },
+    "Pin totals and budgets to your home screen": {
+      "key": "Pin totals and budgets to your home screen",
+      "context": "Subtitle of the settings entry",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "SettingsItem subtitle",
+      "meaning": "Subtitle of the settings entry",
+      "notes": "Short feature summary."
+    },
+    "Pin widgets showing your totals. They follow the homepage time interval and refresh when you open the app.": {
+      "key": "Pin widgets showing your totals. They follow the homepage time interval and refresh when you open the app.",
+      "context": "Explainer at the top of the widgets page",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Body text",
+      "meaning": "Explainer at the top of the widgets page",
+      "notes": "Sets expectations: interval source and refresh behavior."
+    },
+    "Add to home screen": {
+      "key": "Add to home screen",
+      "context": "Tooltip of the pin buttons",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "IconButton tooltip",
+      "meaning": "Tooltip of the pin buttons",
+      "notes": "System pin dialog follows."
+    },
+    "Budget": {
+      "key": "Budget",
+      "context": "Pin row for the per-budget widget type",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "List row title",
+      "meaning": "Pin row for the per-budget widget type",
+      "notes": "Generic type; instances are assigned below."
+    },
+    "Pick which budget below after pinning": {
+      "key": "Pick which budget below after pinning",
+      "context": "Hint under the Budget pin row",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "List row subtitle",
+      "meaning": "Hint under the Budget pin row",
+      "notes": "Assignment happens post-pin via the instance list."
+    },
+    "Pinned budget widgets": {
+      "key": "Pinned budget widgets",
+      "context": "Header above installed budget instances",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Section header",
+      "meaning": "Header above installed budget instances",
+      "notes": "Lists live launcher instances."
+    },
+    "Budget widget": {
+      "key": "Budget widget",
+      "context": "Instance row title prefix, followed by the instance id",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "List row title",
+      "meaning": "Instance row title prefix, followed by the instance id",
+      "notes": "Format 'Budget widget #3'."
+    },
+    "Pick a budget": {
+      "key": "Pick a budget",
+      "context": "Dropdown hint for unassigned instances",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Dropdown hint",
+      "meaning": "Dropdown hint for unassigned instances",
+      "notes": "Choose from existing budgets."
+    },
+    "Refresh widgets": {
+      "key": "Refresh widgets",
+      "context": "Manual refresh button",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Button label",
+      "meaning": "Manual refresh button",
+      "notes": "Re-renders all widget images now."
+    },
+    "Add widgets from your launcher's widget picker.": {
+      "key": "Add widgets from your launcher's widget picker.",
+      "context": "Fallback when pinning is unsupported",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Body text",
+      "meaning": "Fallback when pinning is unsupported",
+      "notes": "Older launchers lack the pin dialog."
+    },
+    "Could not add the widget": {
+      "key": "Could not add the widget",
+      "context": "Error when the pin request fails",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "SnackBar message",
+      "meaning": "Error when the pin request fails",
+      "notes": "Rare: launcher denied the request."
     }
   }
 }

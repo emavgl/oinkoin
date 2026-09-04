@@ -10,11 +10,13 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/logger.dart';
+import 'package:piggybank/services/home-widget-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/backup-page.dart';
 import 'package:piggybank/settings/backup-restore-dialogs.dart';
 // import 'package:piggybank/settings/csv_import/csv_import_page.dart';
 import 'package:piggybank/settings/customization-page.dart';
+import 'package:piggybank/settings/home-widgets-page.dart';
 import 'package:piggybank/settings/settings-item.dart';
 import 'package:piggybank/tags/tags-page-view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -86,6 +88,14 @@ class TabSettings extends StatelessWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CustomizationPage()),
+    );
+  }
+
+  goToHomeWidgetsPage(BuildContext context) async {
+    if (!HomeWidgetService.isSupported) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeWidgetsPage()),
     );
   }
 
@@ -223,6 +233,16 @@ class TabSettings extends StatelessWidget {
               title: 'Customization'.i18n,
               subtitle: "Visual settings and more".i18n,
               onPressed: () async => await goToCustomizationPage(context)),
+          if (HomeWidgetService.isSupported)
+            SettingsItem(
+                icon: Icon(
+                  Icons.widgets,
+                  color: Colors.white,
+                ),
+                iconBackgroundColor: Colors.teal.shade600,
+                title: 'Home screen widgets'.i18n,
+                subtitle: "Pin totals and budgets to your home screen".i18n,
+                onPressed: () async => await goToHomeWidgetsPage(context)),
           Divider(),
           Stack(
             children: [
