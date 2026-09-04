@@ -13,12 +13,16 @@ class CategoriesGrid extends StatefulWidget {
   final Function(List<Category?>) onChangeOrder;
   final bool alignToBottom;
 
+  /// Pre-selected record date forwarded to the edit page. Null means "today".
+  final DateTime? initialDate;
+
   CategoriesGrid(
     this.categories, {
     this.goToEditMovementPage,
     required this.enableManualSorting,
     required this.onChangeOrder,
     this.alignToBottom = false,
+    this.initialDate,
   });
 
   @override
@@ -69,8 +73,9 @@ class CategoriesGridState extends State<CategoriesGrid> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      EditRecordPage(passedCategory: category),
+                  builder: (context) => EditRecordPage(
+                      passedCategory: category,
+                      initialDate: widget.initialDate),
                 ),
               );
             } else {

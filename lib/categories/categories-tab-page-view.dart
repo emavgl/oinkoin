@@ -17,7 +17,16 @@ class CategoryTabPageView extends StatefulWidget {
   final bool? goToEditMovementPage;
   final int initialTabIndex;
 
-  CategoryTabPageView({this.goToEditMovementPage, this.initialTabIndex = 0, Key? key}) : super(key: key);
+  /// Pre-selected record date carried through the add flow (e.g. from
+  /// tapping a day header). Null means "today".
+  final DateTime? initialDate;
+
+  CategoryTabPageView(
+      {this.goToEditMovementPage,
+      this.initialTabIndex = 0,
+      this.initialDate,
+      Key? key})
+      : super(key: key);
 
   @override
   CategoryTabPageViewState createState() => CategoryTabPageViewState();
@@ -312,6 +321,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
           initialWallet: origin,
           initialDestinationWallet: destination,
           isTransferFlow: true,
+          initialDate: widget.initialDate,
         ),
       ),
     );
@@ -389,6 +399,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                             element!.categoryType == CategoryType.expense)
                         .toList(),
                     goToEditMovementPage: widget.goToEditMovementPage,
+                    initialDate: widget.initialDate,
                     enableManualSorting:
                         _selectedSortOption == SortOption.original,
                     onChangeOrder: onCategoriesReorder,
@@ -402,6 +413,7 @@ class CategoryTabPageViewState extends State<CategoryTabPageView> {
                             element!.categoryType == CategoryType.income)
                         .toList(),
                     goToEditMovementPage: widget.goToEditMovementPage,
+                    initialDate: widget.initialDate,
                     enableManualSorting:
                         _selectedSortOption == SortOption.original,
                     onChangeOrder: onCategoriesReorder,

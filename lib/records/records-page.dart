@@ -342,6 +342,8 @@ class TabRecordsState extends State<TabRecords> {
         selectedRecordIds: _selectedRecordIds,
         onRecordLongPressed: _enterSelectMode,
         onRecordTapped: _toggleRecord,
+        onDateTapped: (date) =>
+            _controller.navigateToAddNewRecord(context, initialDate: date),
       ),
       const SliverToBoxAdapter(
         child: SizedBox(height: 75),

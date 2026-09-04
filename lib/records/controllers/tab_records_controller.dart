@@ -603,7 +603,8 @@ class TabRecordsController {
   }
 
   // Navigation methods
-  Future<void> navigateToAddNewRecord(BuildContext context) async {
+  Future<void> navigateToAddNewRecord(BuildContext context,
+      {DateTime? initialDate}) async {
     if (_isNavigating) return;
     _isNavigating = true;
     try {
@@ -618,6 +619,7 @@ class TabRecordsController {
             builder: (context) => CategoryTabPageView(
               goToEditMovementPage: true,
               key: _categoryTabPageViewStateKey,
+              initialDate: initialDate,
             ),
           ),
         );

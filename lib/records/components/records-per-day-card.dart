@@ -31,13 +31,18 @@ class RecordsPerDayCard extends StatefulWidget {
   final void Function(int)? onRecordLongPressed;
   final void Function(int)? onRecordTapped;
 
+  /// Called with the day's date when the date header is tapped (e.g. to
+  /// start a new entry pre-dated to that day). Null means no action.
+  final void Function(DateTime date)? onDateTapped;
+
   const RecordsPerDayCard(this._movementDay,
       {this.onListBackCallback,
       this.walletCurrencyMap = const {},
       this.isSelectMode = false,
       this.selectedRecordIds = const {},
       this.onRecordLongPressed,
-      this.onRecordTapped});
+      this.onRecordTapped,
+      this.onDateTapped});
 
   @override
   _RecordsPerDayCardState createState() => _RecordsPerDayCardState();
@@ -416,6 +421,41 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
       ),
     );
   }
+  /// Day header (day number plus weekday/month). Tapping it starts a new
+  /// entry pre-dated to that day when [RecordsPerDayCard.onDateTapped] is set.
+  Widget _buildDateHeader() {
+    final content = Row(
+      children: [
+        Text(
+          widget._movementDay.dateTime!.day.toString(),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(extractWeekdayString(widget._movementDay.dateTime!),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.right),
+                Text(
+                    extractMonthString(widget._movementDay.dateTime!) +
+                        ' ' +
+                        extractYearString(widget._movementDay.dateTime!),
+                    style: TextStyle(fontSize: 13),
+                    textAlign: TextAlign.right)
+              ],
+            ))
+      ],
+    );
+    final onDateTapped = widget.onDateTapped;
+    if (onDateTapped == null) return content;
+    return InkWell(
+      onTap: () => onDateTapped(widget._movementDay.dateTime!),
+      borderRadius: BorderRadius.circular(4),
+      child: content,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -431,37 +471,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          widget._movementDay.dateTime!.day.toString(),
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                    extractWeekdayString(
-                                        widget._movementDay.dateTime!),
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.right),
-                                Text(
-                                    extractMonthString(
-                                            widget._movementDay.dateTime!) +
-                                        ' ' +
-                                        extractYearString(
-                                            widget._movementDay.dateTime!),
-                                    style: TextStyle(fontSize: 13),
-                                    textAlign: TextAlign.right)
-                              ],
-                            ))
-                      ],
-                    ),
+                    _buildDateHeader(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 22, 0),
                       child: ValueListenableBuilder<bool>(

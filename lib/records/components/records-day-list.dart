@@ -18,6 +18,7 @@ class RecordsDayList extends StatefulWidget {
   final Set<int> selectedRecordIds;
   final void Function(int)? onRecordLongPressed;
   final void Function(int)? onRecordTapped;
+  final void Function(DateTime date)? onDateTapped;
 
   RecordsDayList(
     this.records, {
@@ -29,6 +30,7 @@ class RecordsDayList extends StatefulWidget {
     this.selectedRecordIds = const {},
     this.onRecordLongPressed,
     this.onRecordTapped,
+    this.onDateTapped,
   });
 
   @override
@@ -92,6 +94,7 @@ class _RecordsDayListState extends State<RecordsDayList> {
               selectedRecordIds: widget.selectedRecordIds,
               onRecordLongPressed: widget.onRecordLongPressed,
               onRecordTapped: widget.onRecordTapped,
+              onDateTapped: widget.onDateTapped,
             );
           },
           childCount: _displayedCount + (hasMore ? 1 : 0),
@@ -115,6 +118,7 @@ class _RecordsDayListState extends State<RecordsDayList> {
             selectedRecordIds: widget.selectedRecordIds,
             onRecordLongPressed: widget.onRecordLongPressed,
             onRecordTapped: widget.onRecordTapped,
+            onDateTapped: widget.onDateTapped,
           );
         },
       );

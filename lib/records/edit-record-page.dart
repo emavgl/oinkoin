@@ -41,6 +41,11 @@ class EditRecordPage extends StatefulWidget {
   final Wallet? initialDestinationWallet;
   final bool isTransferFlow;
 
+  /// Pre-selected record date (e.g. from tapping a day header on the
+  /// homepage). Only the date part is used; the time stays "now".
+  /// Null means today.
+  final DateTime? initialDate;
+
   EditRecordPage(
       {Key? key,
       this.passedRecord,
@@ -49,7 +54,8 @@ class EditRecordPage extends StatefulWidget {
       this.readOnly = false,
       this.initialWallet,
       this.initialDestinationWallet,
-      this.isTransferFlow = false})
+      this.isTransferFlow = false,
+      this.initialDate})
       : super(key: key);
 
   @override
@@ -228,11 +234,16 @@ class EditRecordPageState extends State<EditRecordPage> {
       // I am adding a new record
       // Create a new record with a UTC timestamp and the current local timezone
       final now = DateTime.now();
+      final preset = widget.initialDate;
+      final recordDateTime = preset == null
+          ? now
+          : DateTime(
+              preset.year, preset.month, preset.day, now.hour, now.minute);
       record = Record(
         null,
         null,
         passedCategory,
-        now.toUtc(),
+        recordDateTime.toUtc(),
         walletId: widget.initialWallet?.id,
         transferWalletId: widget.initialDestinationWallet?.id,
       );
