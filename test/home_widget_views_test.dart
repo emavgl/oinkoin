@@ -1,49 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/home_widgets/widget_views.dart';
+import 'package:piggybank/models/category-type.dart';
+import 'package:piggybank/models/category.dart';
+import 'package:piggybank/models/record.dart';
+import 'package:piggybank/services/home-widget-service.dart';
 
-/// Home screen widget views render with preformatted values (no database).
+/// Home screen widget helpers: sparkline painting and daily series math.
+/// Data pushing itself is covered on-device (needs the widget plugin).
 void main() {
-  Future<void> pump(WidgetTester tester, Widget child) async {
+  testWidgets('sparkline paints without error', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(body: SizedBox(width: 400, height: 200, child: child)),
+      const MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 300,
+            height: 60,
+            child: HomeWidgetSparkline(
+              values: [10.0, 30.0, 20.0, 50.0],
+              color: Colors.green,
+            ),
+          ),
+        ),
       ),
     );
     await tester.pump();
-  }
 
-  testWidgets('overview shows all three totals', (tester) async {
-    await pump(
-      tester,
-      const HomeWidgetOverview(
-        incomeText: '1,700.00',
-        incomeColor: Colors.green,
-        expensesText: '390.50',
-        expenseColor: Colors.red,
-        balanceText: '1,309.50',
-        balanceColor: Colors.green,
-      ),
-    );
-
-    expect(find.text('1,700.00'), findsOneWidget);
-    expect(find.text('390.50'), findsOneWidget);
-    expect(find.text('1,309.50'), findsOneWidget);
+    expect(find.byType(CustomPaint), findsWidgets);
   });
 
-  testWidgets('budget shows name, progress and bar', (tester) async {
-    await pump(
-      tester,
-      const HomeWidgetBudget(
-        name: 'Monthly food',
-        progressText: '225.00 / 450.00',
-        ratio: 0.5,
-        color: Colors.red,
-      ),
+  test('dailySeries groups signed daily totals', () {
+    final food = Category('Food', categoryType: CategoryType.expense);
+    final salary = Category('Salary', categoryType: CategoryType.income);
+
+    final series = HomeWidgetService.dailySeries(
+      <Record?>[
+        Record(-100.0, 'a', food, DateTime.utc(2026, 7, 1)),
+        Record(-50.0, 'b', food, DateTime.utc(2026, 7, 1)),
+        Record(1000.0, 'c', salary, DateTime.utc(2026, 7, 2)),
+      ],
+      isBalance: true,
     );
 
-    expect(find.text('MONTHLY FOOD'), findsOneWidget);
-    expect(find.text('225.00 / 450.00'), findsOneWidget);
-    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(series, [-150.0, 1000.0]);
+  });
+
+  test('dailySeries uses absolute values unless balance', () {
+    final food = Category('Food', categoryType: CategoryType.expense);
+
+    final series = HomeWidgetService.dailySeries(
+      <Record?>[
+        Record(-100.0, 'a', food, DateTime.utc(2026, 7, 1)),
+      ],
+      isBalance: false,
+    );
+
+    expect(series, [100.0]);
   });
 }

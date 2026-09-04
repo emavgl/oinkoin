@@ -3,26 +3,29 @@ package com.example.piggybank.widget
 import android.content.Context
 
 class OinkoinOverviewWidgetProvider : OinkoinWidgetProvider() {
-    override fun imageKeyForInstance(context: Context, appWidgetId: Int): String =
-        "oinkoin_overview_image"
+    override val kind = Kind.OVERVIEW
+    override val keyPrefix = "oinkoin_overview"
 }
 
 class OinkoinIncomeWidgetProvider : OinkoinWidgetProvider() {
-    override fun imageKeyForInstance(context: Context, appWidgetId: Int): String =
-        "oinkoin_income_image"
+    override val kind = Kind.SINGLE
+    override val keyPrefix = "oinkoin_income"
 }
 
 class OinkoinExpensesWidgetProvider : OinkoinWidgetProvider() {
-    override fun imageKeyForInstance(context: Context, appWidgetId: Int): String =
-        "oinkoin_expenses_image"
+    override val kind = Kind.SINGLE
+    override val keyPrefix = "oinkoin_expenses"
 }
 
 class OinkoinBalanceWidgetProvider : OinkoinWidgetProvider() {
-    override fun imageKeyForInstance(context: Context, appWidgetId: Int): String =
-        "oinkoin_balance_image"
+    override val kind = Kind.SINGLE
+    override val keyPrefix = "oinkoin_balance"
 }
 
 class OinkoinBudgetWidgetProvider : OinkoinWidgetProvider() {
-    override fun imageKeyForInstance(context: Context, appWidgetId: Int): String =
-        "oinkoin_budget_image_$appWidgetId"
+    override val kind = Kind.BUDGET
+    override val keyPrefix = "oinkoin_budget"
+
+    override fun instanceSuffix(context: Context, appWidgetId: Int): String =
+        appWidgetId.toString()
 }

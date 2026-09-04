@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
+import 'package:piggybank/home_widgets/widget_views.dart';
 import 'package:piggybank/i18n.dart';
-import 'package:piggybank/helpers/records-utility-functions.dart';import 'package:piggybank/home_widgets/widget_views.dart';
 import 'package:piggybank/models/budget-type.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
@@ -14,16 +15,16 @@ import 'package:piggybank/services/logger.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
-import 'package:piggybank/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Android home screen widgets (overview, income, expenses, balance, and
 /// one configurable widget per budget).
 ///
-/// The widgets render compact Flutter views to bitmaps, so they look like
-/// the app. Values follow the homepage time interval setting. Refresh
-/// happens on app events (record/budget changes, launch) plus a manual
-/// refresh; Android additionally redraws on its own schedule.
+/// The native side renders text itself, so figures stay crisp at any widget
+/// size; only the small sparkline charts are bitmaps. Values follow the
+/// homepage time interval setting. Refresh happens on app events (record
+/// and budget changes, launch) plus a manual refresh; Android additionally
+/// redraws on its own schedule.
 class HomeWidgetService {
   static final _logger = Logger.withClass(HomeWidgetService);
 
@@ -39,13 +40,6 @@ class HomeWidgetService {
   static const String budgetProvider =
       '$_providerPackage.OinkoinBudgetWidgetProvider';
 
-  static const String overviewImageKey = 'oinkoin_overview_image';
-  static const String incomeImageKey = 'oinkoin_income_image';
-  static const String expensesImageKey = 'oinkoin_expenses_image';
-  static const String balanceImageKey = 'oinkoin_balance_image';
-  static String budgetImageKey(int androidWidgetId) =>
-      'oinkoin_budget_image_$androidWidgetId';
-
   /// Maps pinned budget widget instances to budget database ids.
   /// Managed from Settings > Home screen widgets (device-local).
   static const String budgetMappingKey = 'homeWidgetBudgetMap';
@@ -55,13 +49,15 @@ class HomeWidgetService {
 
   static DatabaseInterface get _database => ServiceConfig.database;
 
-  /// Recomputes every widget image and pushes the update. Best effort:
+  /// Recomputes every widget's data and pushes an update. Best effort:
   /// failures only log so callers (UI event handlers) never break.
   static Future<void> refreshAll() async {
     if (!isSupported) return;
     try {
       final prefs = ServiceConfig.sharedPreferences ??
           await SharedPreferences.getInstance();
+      final dark = _isDark(prefs);
+      await HomeWidget.saveWidgetData<bool>('oinkoin_dark', dark);
       final profileId = ProfileService.instance.activeProfileId;
       final interval = getHomepageTimeIntervalEnumSetting();
       final monthStartDay = getHomepageRecordsMonthStartDay();
@@ -76,13 +72,151 @@ class HomeWidgetService {
         monthStartDay: monthStartDay,
         profileId: profileId,
       );
-      final theme = await _resolveTheme(prefs);
 
-      await _refreshTotals(theme, records, walletCurrencyMap);
-      await _refreshBudgets(theme, profileId);
+      await _refreshTotals(dark, records, walletCurrencyMap);
+      await _refreshBudgets(profileId);
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to refresh home screen widgets');
     }
+  }
+
+  static Future<void> _refreshTotals(
+    bool dark,
+    List<Record?> records,
+    Map<int, String?> walletCurrencyMap,
+  ) async {
+    final brightness = dark ? Brightness.dark : Brightness.light;
+    final incomeRecords = records.where((r) =>
+        r?.category?.categoryType == CategoryType.income && !r!.isTransfer);
+    final expenseRecords = records.where((r) =>
+        r?.category?.categoryType == CategoryType.expense && !r!.isTransfer);
+    final balanceRecords = records.where((r) => r != null && !r.isTransfer);
+
+    String text(Iterable<Record?> rs, {required bool isBalance}) {
+      final result =
+          computeConvertedTotal(rs, walletCurrencyMap, isAbsValue: !isBalance);
+      return formatRecordsTotalResult(result);
+    }
+
+    Future<void> save(String key, Object value) =>
+        HomeWidget.saveWidgetData(key, value);
+
+    final incomeTotal =
+        computeConvertedTotal(incomeRecords, walletCurrencyMap).total;
+    final expenseTotal =
+        computeConvertedTotal(expenseRecords, walletCurrencyMap).total;
+    final balanceResult = computeConvertedTotal(
+        balanceRecords, walletCurrencyMap,
+        isAbsValue: false);
+
+    await save('oinkoin_overview_label_income', "Income".i18n);
+    await save('oinkoin_overview_label_expenses', "Expenses".i18n);
+    await save('oinkoin_overview_label_balance', "Balance".i18n);
+    await save(
+        'oinkoin_overview_income', text(incomeRecords, isBalance: false));
+    await save(
+        'oinkoin_overview_expenses', text(expenseRecords, isBalance: false));
+    await save(
+        'oinkoin_overview_balance', text(balanceRecords, isBalance: true));
+    await save('oinkoin_overview_income_color',
+        (getAmountColor(incomeTotal, brightness) ?? Colors.green).toARGB32());
+    await save('oinkoin_overview_expenses_color',
+        (getAmountColor(expenseTotal, brightness) ?? Colors.red).toARGB32());
+    await save('oinkoin_overview_balance_color',
+        (getAmountColor(balanceResult.total, brightness) ?? Colors.green)
+            .toARGB32());
+    await HomeWidget.updateWidget(qualifiedAndroidName: overviewProvider);
+
+    await _refreshSingle(
+      provider: incomeProvider,
+      prefix: 'oinkoin_income',
+      label: "Income".i18n,
+      amount: text(incomeRecords, isBalance: false),
+      color: getAmountColor(incomeTotal, brightness),
+      sparkline: dailySeries(incomeRecords, isBalance: false),
+    );
+    await _refreshSingle(
+      provider: expensesProvider,
+      prefix: 'oinkoin_expenses',
+      label: "Expenses".i18n,
+      amount: text(expenseRecords, isBalance: false),
+      color: getAmountColor(expenseTotal, brightness),
+      sparkline: dailySeries(expenseRecords, isBalance: false),
+    );
+    await _refreshSingle(
+      provider: balanceProvider,
+      prefix: 'oinkoin_balance',
+      label: "Balance".i18n,
+      amount: text(balanceRecords, isBalance: true),
+      color: getAmountColor(balanceResult.total, brightness),
+      sparkline: dailySeries(balanceRecords, isBalance: true),
+    );
+  }
+
+  static Future<void> _refreshSingle({
+    required String provider,
+    required String prefix,
+    required String label,
+    required String amount,
+    required Color? color,
+    required List<double> sparkline,
+  }) async {
+    await HomeWidget.saveWidgetData('${prefix}_label', label);
+    await HomeWidget.saveWidgetData('${prefix}_value', amount);
+    if (color != null) {
+      await HomeWidget.saveWidgetData('${prefix}_color', color.toARGB32());
+    }
+    if (sparkline.length > 1 && color != null) {
+      final path = await _renderSparkline(
+          prefix: prefix, values: sparkline, color: color);
+      if (path != null) {
+        await HomeWidget.saveWidgetData('${prefix}_spark', path);
+      }
+    }
+    await HomeWidget.updateWidget(qualifiedAndroidName: provider);
+  }
+
+  static Future<void> _refreshBudgets(int? profileId) async {
+    final budgets = (await _database.getBudgets(profileId: profileId))
+        .where((b) => !b.isArchived)
+        .toList();
+    if (budgets.isEmpty) return;
+    final byId = {for (final b in budgets) b.id: b};
+
+    List<HomeWidgetInfo> installed = const [];
+    try {
+      installed = await HomeWidget.getInstalledWidgets();
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to list installed widgets');
+      return;
+    }
+    final mapping = await getBudgetMapping();
+    final allRecords = await _database.getAllRecords(profileId: profileId);
+
+    for (final info in installed) {
+      if (info.androidClassName != budgetProvider) continue;
+      final widgetId = info.androidWidgetId;
+      if (widgetId == null) continue;
+      final budget = byId[mapping[widgetId.toString()]];
+      if (budget == null) continue;
+      final cycle = budget.currentCycle();
+      final spent = matchingBudgetRecords(
+              budget, allRecords.whereType<Record>(), cycle)
+          .fold<double>(0, (sum, r) => sum + (r.value ?? 0).abs());
+      final ratio =
+          budget.targetAmount == 0 ? 0.0 : spent / budget.targetAmount;
+      final color = budget.budgetType == BudgetType.expense
+          ? Colors.red[600]!
+          : Colors.green[600]!;
+      final prefix = 'oinkoin_budget_$widgetId';
+      await HomeWidget.saveWidgetData('${prefix}_name', budget.name);
+      await HomeWidget.saveWidgetData('${prefix}_progress',
+          '${getCurrencyValueString(spent)} / ${getCurrencyValueString(budget.targetAmount)}');
+      await HomeWidget.saveWidgetData(
+          '${prefix}_ratio', (ratio.clamp(0.0, 1.0) * 100).round());
+      await HomeWidget.saveWidgetData('${prefix}_color', color.toARGB32());
+    }
+    await HomeWidget.updateWidget(qualifiedAndroidName: budgetProvider);
   }
 
   /// Daily totals over the interval for sparklines (signed for balance,
@@ -107,172 +241,38 @@ class HomeWidgetService {
     return [for (final day in tail) byDay[day]!];
   }
 
-  static Future<void> _refreshTotals(
-    ThemeData theme,
-    List<Record?> records,
-    Map<int, String?> walletCurrencyMap,
-  ) async {
-    final brightness = theme.brightness;
-    final incomeRecords = records.where((r) =>
-        r?.category?.categoryType == CategoryType.income && !r!.isTransfer);
-    final expenseRecords = records.where((r) =>
-        r?.category?.categoryType == CategoryType.expense && !r!.isTransfer);
-    final balanceRecords =
-        records.where((r) => r != null && !r.isTransfer);
-
-    String text(Iterable<Record?> rs, {required bool isBalance}) {
-      final result =
-          computeConvertedTotal(rs, walletCurrencyMap, isAbsValue: !isBalance);
-      return formatRecordsTotalResult(result);
-    }
-
-    final incomeTotal =
-        computeConvertedTotal(incomeRecords, walletCurrencyMap).total;
-    final expenseTotal =
-        computeConvertedTotal(expenseRecords, walletCurrencyMap).total;
-    final balanceResult = computeConvertedTotal(
-        balanceRecords, walletCurrencyMap,
-        isAbsValue: false);
-
-    await _render(
-      theme,
-      HomeWidgetOverview(
-        incomeText: text(incomeRecords, isBalance: false),
-        incomeColor:
-            getAmountColor(incomeTotal, brightness) ?? Colors.green,
-        expensesText: text(expenseRecords, isBalance: false),
-        expenseColor:
-            getAmountColor(expenseTotal, brightness) ?? Colors.red,
-        balanceText: text(balanceRecords, isBalance: true),
-        balanceColor:
-            getAmountColor(balanceResult.total, brightness) ?? Colors.green,
-        sparkline: dailySeries(balanceRecords, isBalance: true),
-      ),
-      overviewImageKey,
-      const Size(480, 240),
-    );
-    await HomeWidget.updateWidget(qualifiedAndroidName: overviewProvider);
-
-    await _render(
-      theme,
-      HomeWidgetAmount(
-        label: "Income".i18n,
-        amount: text(incomeRecords, isBalance: false),
-        color: getAmountColor(incomeTotal, brightness),
-        sparkline: dailySeries(incomeRecords, isBalance: false),
-      ),
-      incomeImageKey,
-      const Size(320, 200),
-    );
-    await HomeWidget.updateWidget(qualifiedAndroidName: incomeProvider);
-
-    await _render(
-      theme,
-      HomeWidgetAmount(
-        label: "Expenses".i18n,
-        amount: text(expenseRecords, isBalance: false),
-        color: getAmountColor(expenseTotal, brightness),
-        sparkline: dailySeries(expenseRecords, isBalance: false),
-      ),
-      expensesImageKey,
-      const Size(320, 200),
-    );
-    await HomeWidget.updateWidget(qualifiedAndroidName: expensesProvider);
-
-    await _render(
-      theme,
-      HomeWidgetAmount(
-        label: "Balance".i18n,
-        amount: text(balanceRecords, isBalance: true),
-        color: getAmountColor(balanceResult.total, brightness),
-        sparkline: dailySeries(balanceRecords, isBalance: true),
-      ),
-      balanceImageKey,
-      const Size(320, 200),
-    );
-    await HomeWidget.updateWidget(qualifiedAndroidName: balanceProvider);
-  }
-
-  static Future<void> _refreshBudgets(ThemeData theme, int? profileId) async {
-    final budgets = (await _database.getBudgets(profileId: profileId))
-        .where((b) => !b.isArchived)
-        .toList();
-    if (budgets.isEmpty) return;
-    final byId = {for (final b in budgets) b.id: b};
-
-    List<HomeWidgetInfo> installed = const [];
+  /// Renders a transparent sparkline chart for [prefix], returning its path.
+  static Future<String?> _renderSparkline({
+    required String prefix,
+    required List<double> values,
+    required Color color,
+  }) async {
     try {
-      installed = await HomeWidget.getInstalledWidgets();
-    } catch (e, st) {
-      _logger.handle(e, st, 'Failed to list installed widgets');
-      return;
-    }
-    final mapping = await getBudgetMapping();
-    final allRecords = await _database.getAllRecords(profileId: profileId);
-
-    for (final info in installed) {
-      if (info.androidClassName != budgetProvider) continue;
-      final widgetId = info.androidWidgetId;
-      if (widgetId == null) continue;
-      final budget = byId[mapping[widgetId.toString()]];
-      if (budget == null) continue;
-      final cycle = budget.currentCycle();
-      final spent = matchingBudgetRecords(budget, allRecords.whereType<Record>(), cycle)
-          .fold<double>(0, (sum, r) => sum + (r.value ?? 0).abs());
-      final ratio =
-          budget.targetAmount == 0 ? 0.0 : spent / budget.targetAmount;
-      final color = budget.budgetType == BudgetType.expense
-          ? Colors.red[600]!
-          : Colors.green[600]!;
-      await _render(
-        theme,
-        HomeWidgetBudget(
-          name: budget.name,
-          progressText:
-              '${getCurrencyValueString(spent)} / ${getCurrencyValueString(budget.targetAmount)}',
-          ratio: ratio.clamp(0.0, 1.0),
-          color: color,
+      return await HomeWidget.renderFlutterWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: SizedBox(
+            width: 300,
+            height: 60,
+            child: HomeWidgetSparkline(values: values, color: color),
+          ),
         ),
-        budgetImageKey(widgetId),
-        const Size(280, 240),
+        key: '${prefix}_spark',
+        logicalSize: const Size(300, 60),
+        pixelRatio: 3.0,
       );
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to render widget sparkline');
+      return null;
     }
-    await HomeWidget.updateWidget(qualifiedAndroidName: budgetProvider);
   }
 
-  /// Wraps [child] with the theming a bare render needs and screenshots it
-  /// to the shared widget storage under [key]. Rendered at 3x so the
-  /// bitmap stays crisp on high-density screens.
-  static Future<void> _render(
-    ThemeData theme,
-    Widget child,
-    String key,
-    Size logicalSize,
-  ) async {
-    final wrapped = Theme(
-      data: theme,
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: DefaultTextStyle(
-          style: theme.textTheme.bodyMedium!,
-          // Fill the frame so the card uses the whole widget area.
-          child: SizedBox.fromSize(size: logicalSize, child: child),
-        ),
-      ),
-    );
-    await HomeWidget.renderFlutterWidget(wrapped,
-        key: key, logicalSize: logicalSize, pixelRatio: 3.0);
-  }
-
-  static Future<ThemeData> _resolveTheme(SharedPreferences prefs) async {
+  static bool _isDark(SharedPreferences prefs) {
     final modeIndex = prefs.getInt(PreferencesKeys.themeMode) ?? 0;
-    final systemDark =
-        SchedulerBinding.instance.platformDispatcher.platformBrightness ==
-            Brightness.dark;
-    final dark = modeIndex == 2 || (modeIndex == 0 && systemDark);
-    return dark
-        ? await MaterialThemeInstance.getDarkTheme()
-        : await MaterialThemeInstance.getLightTheme();
+    if (modeIndex == 2) return true;
+    if (modeIndex == 1) return false;
+    return SchedulerBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
   }
 
   /// Budget database id per pinned budget-widget instance id.
@@ -292,7 +292,8 @@ class HomeWidgetService {
     }
   }
 
-  static Future<void> setBudgetMapping(int androidWidgetId, int? budgetId) async {
+  static Future<void> setBudgetMapping(
+      int androidWidgetId, int? budgetId) async {
     final prefs = ServiceConfig.sharedPreferences ??
         await SharedPreferences.getInstance();
     final mapping = await getBudgetMapping();
