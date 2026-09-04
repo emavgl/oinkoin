@@ -29,6 +29,7 @@ class PreferencesDefaultValues {
     PreferencesKeys.enableAutomaticBackup: false, // Default to disabled
     PreferencesKeys.enableEncryptedBackup: false,
     PreferencesKeys.enableVersionAndDateInBackupName: true,
+    PreferencesKeys.backupIncludeDatabase: false,
     PreferencesKeys.backupRetentionIntervalIndex:
         BackupRetentionPeriod.ALWAYS.index, // Default retention period index
     PreferencesKeys.backupPassword: '', // Default to empty password

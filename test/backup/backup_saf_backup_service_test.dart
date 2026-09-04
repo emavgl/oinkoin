@@ -269,4 +269,56 @@ void main() {
     expect(await file.exists(), isTrue);
     expect(await file.readAsString(), isNotEmpty);
   });
+
+  group('storeDatabaseCopy', () {
+    Future<File> makeSnapshot() async {
+      final snapshot =
+          File('${testDir.path}/snapshot_${DateTime.now().microsecondsSinceEpoch}.db');
+      await snapshot.writeAsString('snapshot-bytes');
+      return snapshot;
+    }
+
+    test('routes through SAF and cleans up the snapshot', () async {
+      safHandler = (_) async => true;
+      final snapshot = await makeSnapshot();
+
+      expect(
+        await BackupService.storeDatabaseCopy(snapshot, safPath, safUri),
+        isTrue,
+      );
+
+      final writes =
+          safCalls.where((call) => call.method == 'writeFile').toList();
+      expect(writes, hasLength(1));
+      expect(writes.single.arguments['uri'], safUri);
+      expect(writes.single.arguments['fileName'], 'oinkoin_database.db');
+      expect(writes.single.arguments['sourcePath'], snapshot.path);
+      expect(await snapshot.exists(), isFalse);
+    });
+
+    test('copies directly for plain directories', () async {
+      final target = Directory('${testDir.path}/plain_backups');
+      await target.create();
+      final snapshot = await makeSnapshot();
+
+      expect(await BackupService.storeDatabaseCopy(snapshot, target.path),
+          isTrue);
+      expect(
+        await File('${target.path}/oinkoin_database.db').readAsString(),
+        'snapshot-bytes',
+      );
+      expect(await snapshot.exists(), isFalse);
+    });
+
+    test('reports failure but still cleans up', () async {
+      safHandler = (_) async => false;
+      final snapshot = await makeSnapshot();
+
+      expect(
+        await BackupService.storeDatabaseCopy(snapshot, safPath, safUri),
+        isFalse,
+      );
+      expect(await snapshot.exists(), isFalse);
+    });
+  });
 }

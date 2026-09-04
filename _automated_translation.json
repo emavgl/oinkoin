@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 596
+    "total_keys": 598
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5977,6 +5977,26 @@
       "component": "Native directory dialog title",
       "meaning": "Title of the native folder picker (desktop only)",
       "notes": "Choose where movements.db lives."
+    },
+    "Include a database copy": {
+      "key": "Include a database copy",
+      "context": "Switch enabling a movements.db snapshot alongside automatic backups",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup (visible only with automatic backup on)",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Each automatic backup also stores a consistent SQLite snapshot",
+      "notes": "'Database copy' = full movements.db snapshot, overwritten in place, never auto-deleted.",
+      "status": "verified"
+    },
+    "Store movements.db next to the automatic backup": {
+      "key": "Store movements.db next to the automatic backup",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup (visible only with automatic backup on)",
+      "component": "SwitchCustomizationItem subtitle",
+      "context": "Subtitle of the database copy switch",
+      "meaning": "The snapshot lands in the same folder as the JSON backup",
+      "notes": "Keep the movements.db filename literal.",
+      "status": "verified"
     }
   }
 }

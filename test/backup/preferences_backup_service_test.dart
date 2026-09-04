@@ -57,6 +57,12 @@ void main() {
     expect(exported.containsKey(PreferencesKeys.backupFolderUri), isFalse);
     // Device-local database location must never move to another device.
     expect(exported.containsKey(PreferencesKeys.databaseFolderPath), isFalse);
+    // Backup automation controls stay device-local too.
+    await prefs.setBool(PreferencesKeys.backupIncludeDatabase, true);
+    expect(
+        PreferencesBackupService.exportPreferences(prefs)
+            .containsKey(PreferencesKeys.backupIncludeDatabase),
+        isFalse);
     expect(exported.containsKey('future_unknown_setting'), isFalse);
   });
 

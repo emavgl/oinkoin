@@ -28,6 +28,10 @@ class PreferencesKeys {
   static const enableVersionAndDateInBackupName =
       'enableVersionAndDateInBackupName';
 
+  // When true, automatic backups also store a movements.db snapshot next
+  // to the JSON backup. Portable: only controls backup content.
+  static const backupIncludeDatabase = 'backupIncludeDatabase';
+
   // Custom folder where backups are stored. Empty string means the platform
   // default folder is used. Device-local, so it is excluded from portable
   // backup/restore.

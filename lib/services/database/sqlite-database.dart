@@ -123,6 +123,32 @@ class SqliteDatabase implements DatabaseInterface {
     }
   }
 
+  /// Creates a consistent snapshot of the live database in a temporary
+  /// file using `VACUUM INTO`, which is safe to copy while the app runs
+  /// (unlike copying the live file, which can catch a partial write or
+  /// an uncheckpointed journal). Returns null when the snapshot fails;
+  /// callers must not fail their own operation because of it.
+  static Future<File?> createDatabaseSnapshot() async {
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final snapshot = File(join(
+        tempDir.path,
+        'oinkoin_snapshot_${DateTime.now().millisecondsSinceEpoch}.db',
+      ));
+      final db = await instance.database;
+      if (db == null) {
+        _logger.warning('No open database to snapshot');
+        return null;
+      }
+      final escapedPath = snapshot.path.replaceAll("'", "''");
+      await db.execute("VACUUM INTO '$escapedPath'");
+      return snapshot;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to create database snapshot');
+      return null;
+    }
+  }
+
   Future<Database> init() async {
     try {
       _logger.info('Initializing database...');

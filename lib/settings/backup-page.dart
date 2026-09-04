@@ -152,6 +152,7 @@ class BackupPageState extends State<BackupPage> {
   late bool enableAutomaticBackup;
   late bool enableVersionAndDateInBackupName;
   late bool enableEncryptedBackup;
+  late bool includeDatabaseCopy;
   late String backupRetentionPeriodValue;
   late String backupFolderPath;
   bool hasCustomBackupFolder = false;
@@ -165,6 +166,8 @@ class BackupPageState extends State<BackupPage> {
         prefs, PreferencesKeys.enableAutomaticBackup)!;
     enableEncryptedBackup = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableEncryptedBackup)!;
+    includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.backupIncludeDatabase)!;
     int backupRetentionIntervalIndex = PreferencesUtils.getOrDefault<int>(
         prefs, PreferencesKeys.backupRetentionIntervalIndex)!;
     backupRetentionPeriodValue = getKeyFromObject<int>(
@@ -388,6 +391,20 @@ class BackupPageState extends State<BackupPage> {
                       visible: enableAutomaticBackup,
                       child: Column(
                         children: [
+                          SwitchCustomizationItem(
+                            title: "Include a database copy".i18n,
+                            subtitle:
+                                "Store movements.db next to the automatic backup"
+                                    .i18n,
+                            switchValue: includeDatabaseCopy,
+                            sharedConfigKey:
+                                PreferencesKeys.backupIncludeDatabase,
+                            onChanged: (value) => {
+                              setState(() {
+                                fetchAllThePreferences();
+                              })
+                            },
+                          ),
                           Visibility(
                             visible: enableVersionAndDateInBackupName,
                             child: DropdownCustomizationItem(

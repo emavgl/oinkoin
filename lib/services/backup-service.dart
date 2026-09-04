@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:i18n_extension/default.i18n.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
 import 'package:piggybank/models/budget.dart';
@@ -323,6 +324,42 @@ class BackupService {
   }
 
   /// Creates an automatic backup, given the settings in the preferences.
+  /// File name of the database snapshot stored next to automatic backups.
+  /// Fixed name on purpose: it is overwritten in place and never touched
+  /// by retention cleanup, which only removes `*_obackup.json` files.
+  static const String DATABASE_SNAPSHOT_FILE = 'oinkoin_database.db';
+
+  /// Stores an already-created database [snapshot] into [backupDir],
+  /// through SAF on Android custom folders and by plain copy elsewhere.
+  /// Always deletes the snapshot afterwards. Returns false on failure.
+  static Future<bool> storeDatabaseCopy(
+    File snapshot,
+    String backupDir, [
+    String? safFolderUri,
+  ]) async {
+    try {
+      if (safFolderUri != null) {
+        final written = await BackupDirectoryService.writeBackupFile(
+            safFolderUri, DATABASE_SNAPSHOT_FILE, snapshot.path);
+        if (!written) {
+          throw StateError(
+              'Could not write $DATABASE_SNAPSHOT_FILE into the backup folder');
+        }
+      } else {
+        await snapshot.copy(join(backupDir, DATABASE_SNAPSHOT_FILE));
+      }
+      _logger.info('Database copy stored in $backupDir');
+      return true;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to store database copy');
+      return false;
+    } finally {
+      if (await snapshot.exists()) {
+        await snapshot.delete();
+      }
+    }
+  }
+
   static Future<bool> createAutomaticBackup() async {
     var prefs = await SharedPreferences.getInstance();
 
@@ -348,6 +385,10 @@ class BackupService {
       prefs,
       PreferencesKeys.enableVersionAndDateInBackupName,
     )!;
+    bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+      prefs,
+      PreferencesKeys.backupIncludeDatabase,
+    )!;
 
     String? filename = !enableVersionAndDateInBackupName
         ? await getDefaultFileName()
@@ -362,6 +403,14 @@ class BackupService {
         encryptionPassword: enableEncryptedBackup ? backupPassword : null,
       );
       _logger.info("Automatic backup created: ${backupFile.path}");
+      if (includeDatabaseCopy) {
+        // Best effort: a failed database copy must not fail the backup.
+        final snapshot = await SqliteDatabase.createDatabaseSnapshot();
+        if (snapshot != null) {
+          await storeDatabaseCopy(
+              snapshot, backupDir, await _getActiveSafFolderUri());
+        }
+      }
       return true;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to create automatic backup');
