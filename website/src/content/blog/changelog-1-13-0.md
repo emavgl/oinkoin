@@ -1,3 +1,9 @@
+---
+title: 'Changelog 1.13.0: Privacy Mode and Custom Backup Folder'
+description: 'Hide your balances in one tap with Privacy mode, and store backups in any folder you choose.'
+pubDate: 2026-09-04
+---
+
 **Changelog**
 
 New features:
@@ -12,5 +18,3 @@ Fixes:
 - Cancel and Delete buttons no longer share the same translated label.
 - Category tab truncation and localized transfer tab labels.
 - Azerbaijani manat symbol.
-
-[Read more in our blog](https://oinkoin.com/blog/changelog-1-13-0)

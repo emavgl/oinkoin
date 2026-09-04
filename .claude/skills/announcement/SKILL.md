@@ -108,9 +108,15 @@ Add the key to `_automated_translation.json` with `"status": "verified"` so futu
 }
 ```
 
-### Step 5 — (Optional) Write a blog post
+### Step 5 — Write the companion blog post
 
-If the announcement warrants a blog post, create `website/src/content/blog/<slug>.md` with frontmatter matching existing posts:
+Every announcement also gets a blog post. Reuse the announcement markdown
+instead of writing from scratch: copy `assets/docs/announcements/<id>.md`
+under the frontmatter below, then expand where worthwhile (background,
+details, FAQ). Keep the announcement body as the condensed version.
+
+Create `website/src/content/blog/<slug>.md` (slug usually matches the
+announcement id without the date prefix):
 
 ```markdown
 ---
@@ -119,9 +125,7 @@ description: 'Short description for SEO.'
 pubDate: 2026-10-15
 ---
 
-# Your Blog Title
-
-Content here...
+<announcement markdown, then expanded sections>
 ```
 
 The blog is at `https://oinkoin.com/blog/<slug>`.
