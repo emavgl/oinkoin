@@ -61,6 +61,23 @@ void main() {
       expect(comms.last.showsDialog, isFalse);
     });
 
+    test('parses dialogMaxVersion when present, null otherwise', () {
+      const capped = '''
+{
+  "communications": [
+    {"id": "a", "date": "2026-09-04", "titleKey": "A", "dialog": true, "dialogMaxVersion": "1.13.0"},
+    {"id": "b", "date": "2026-09-03", "titleKey": "B", "dialog": true}
+  ]
+}
+''';
+      final comms = CommunicationService.parseManifest(capped);
+      expect(
+        comms.firstWhere((c) => c.id == 'a').dialogMaxVersion,
+        '1.13.0',
+      );
+      expect(comms.firstWhere((c) => c.id == 'b').dialogMaxVersion, isNull);
+    });
+
     test('handles an empty communications list', () {
       final comms =
           CommunicationService.parseManifest('{"communications": []}');
@@ -151,6 +168,74 @@ void main() {
         expect(
           service.shouldShowDialog(comm, buildAudience: {'release', 'pro'}),
           isTrue,
+        );
+      });
+    });
+
+    group('dialogMaxVersion targeting', () {
+      Communication capped() => Communication(
+            id: 'capped-comm',
+            date: DateTime.parse('2026-09-04'),
+            titleKey: 'Title',
+            showsDialog: true,
+            dialogMaxVersion: '1.13.0',
+          );
+
+      test('shown on the capped version and older', () {
+        expect(
+          service.shouldShowDialog(capped(), currentVersion: '1.13.0'),
+          isTrue,
+        );
+        expect(
+          service.shouldShowDialog(capped(), currentVersion: '1.12.4'),
+          isTrue,
+        );
+      });
+
+      test('hidden on newer versions', () {
+        expect(
+          service.shouldShowDialog(capped(), currentVersion: '1.14.0'),
+          isFalse,
+        );
+        expect(
+          service.shouldShowDialog(capped(), currentVersion: '1.13.1'),
+          isFalse,
+        );
+      });
+
+      test('a missing current version never suppresses the dialog', () {
+        expect(service.shouldShowDialog(capped()), isTrue);
+      });
+
+      test('an uncapped dialog ignores the version', () {
+        expect(
+          service.shouldShowDialog(comm, currentVersion: '9.99.9'),
+          isTrue,
+        );
+      });
+    });
+
+    group('compareVersions', () {
+      test('orders dotted versions numerically', () {
+        expect(
+          CommunicationService.compareVersions('1.12.4', '1.13.0'),
+          lessThan(0),
+        );
+        expect(
+          CommunicationService.compareVersions('1.13.0', '1.13.0'),
+          equals(0),
+        );
+        expect(
+          CommunicationService.compareVersions('1.14.0', '1.13.0'),
+          greaterThan(0),
+        );
+        expect(
+          CommunicationService.compareVersions('1.13', '1.13.0'),
+          equals(0),
+        );
+        expect(
+          CommunicationService.compareVersions('2.0', '1.99.99'),
+          greaterThan(0),
         );
       });
     });

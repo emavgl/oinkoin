@@ -27,12 +27,18 @@ class Communication {
   /// entry on the announcements page is never affected.
   final List<String> dialogAudience;
 
+  /// Last app version (e.g. `"1.13.0"`) whose users still see the startup
+  /// dialog. Newer versions skip it (the entry stays on the announcements
+  /// page). Null means "no version cap".
+  final String? dialogMaxVersion;
+
   const Communication({
     required this.id,
     required this.date,
     required this.titleKey,
     required this.showsDialog,
     this.dialogAudience = const [],
+    this.dialogMaxVersion,
   });
 }
 
@@ -72,10 +78,33 @@ class CommunicationService {
         dialogAudience:
             (map['dialogAudience'] as List<dynamic>?)?.cast<String>() ??
                 const [],
+        dialogMaxVersion: map['dialogMaxVersion'] as String?,
       );
     }).toList();
     comms.sort((a, b) => b.date.compareTo(a.date));
     return comms;
+  }
+
+  /// Compares dotted version names (`"1.13.0"`, `"1.13"`). Returns a negative
+  /// number when [a] is older, zero when equal, positive when newer.
+  /// Non-numeric segments are ignored so a malformed version can never
+  /// suppress an announcement by accident.
+  @visibleForTesting
+  static int compareVersions(String a, String b) {
+    int part(String version, int index) {
+      final segments = version.split('.');
+      if (index >= segments.length) return 0;
+      return int.tryParse(segments[index].replaceAll(RegExp(r'[^0-9]'), '')) ??
+          0;
+    }
+
+    final length = [a.split('.').length, b.split('.').length]
+        .reduce((x, y) => x > y ? x : y);
+    for (var i = 0; i < length; i++) {
+      final diff = part(a, i) - part(b, i);
+      if (diff != 0) return diff;
+    }
+    return 0;
   }
 
   /// All communications, newest first. Returns an empty list if the
@@ -101,13 +130,26 @@ class CommunicationService {
   /// [buildAudience] is the set of tags describing the running build (see
   /// [resolveBuildAudience]); when the communication restricts its audience,
   /// the dialog is shown only if the two sets intersect.
+  /// [currentVersion] is the running app version (e.g. from
+  /// [ServiceConfig.version]); when the communication declares
+  /// [Communication.dialogMaxVersion], the dialog is skipped on newer
+  /// versions. A missing version never suppresses the dialog.
   bool shouldShowDialog(
     Communication communication, {
     Set<String> buildAudience = const {},
+    String? currentVersion,
   }) {
     if (!communication.showsDialog || _prefs == null) return false;
     if (communication.dialogAudience.isNotEmpty &&
         !communication.dialogAudience.any(buildAudience.contains)) {
+      return false;
+    }
+    final maxVersion = communication.dialogMaxVersion;
+    if (maxVersion != null &&
+        maxVersion.isNotEmpty &&
+        currentVersion != null &&
+        currentVersion.isNotEmpty &&
+        compareVersions(currentVersion, maxVersion) > 0) {
       return false;
     }
     return !(_prefs.getBool('$shownDialogKeyPrefix${communication.id}') ??

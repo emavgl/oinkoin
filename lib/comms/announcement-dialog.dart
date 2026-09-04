@@ -113,7 +113,11 @@ Future<void> maybeShowAnnouncementDialog(
   final buildAudience = resolveBuildAudience();
   if (!context.mounted) return;
   for (final comm in communications) {
-    if (!resolvedService.shouldShowDialog(comm, buildAudience: buildAudience)) {
+    if (!resolvedService.shouldShowDialog(
+      comm,
+      buildAudience: buildAudience,
+      currentVersion: ServiceConfig.version,
+    )) {
       continue;
     }
     await showDialog(

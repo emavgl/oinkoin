@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 583
+    "total_keys": 584
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5846,6 +5846,16 @@
       "component": "SnackBar error message",
       "meaning": "The app cannot write backup files into the folder the user just picked (permission denied, read-only storage, or a non-filesystem provider), so the choice is rejected",
       "notes": "Error message; keep polite tone. 'Writable' = the app can create files in it.",
+      "status": "verified"
+    },
+    "Privacy mode and custom backup folder are here": {
+      "key": "Privacy mode and custom backup folder are here",
+      "context": "Title of the 1.13.0 startup announcement dialog",
+      "file": "lib/comms/announcement-dialog.dart",
+      "page": "Startup dialog + Settings > Announcements",
+      "component": "Dialog title / list item title",
+      "meaning": "Announces privacy mode and custom backup folders",
+      "notes": "English-only announcement by decision; do not translate.",
       "status": "verified"
     }
   }
