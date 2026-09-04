@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
 import com.example.piggybank.R
@@ -38,6 +39,29 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
     private fun key(name: String, suffix: String?): String =
         if (suffix == null) "${keyPrefix}_$name" else "${keyPrefix}_${suffix}_$name"
 
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle,
+    ) {
+        super.onAppWidgetOptionsChanged(
+            context, appWidgetManager, appWidgetId, newOptions,
+        )
+        onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+    }
+
+    /** Compact single-value layout when the widget is shorter than ~110dp. */
+    private fun isCompact(
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+    ): Boolean {
+        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        val minHeight =
+            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
+        return minHeight > 0 && minHeight < 110
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -49,17 +73,40 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         val titleColor = if (dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt()
         for (appWidgetId in appWidgetIds) {
             val suffix = instanceSuffix(context, appWidgetId)
+            val compact = isCompact(appWidgetManager, appWidgetId)
             val views = RemoteViews(
                 context.packageName,
-                when (kind) {
-                    Kind.OVERVIEW -> R.layout.oinkoin_stats_widget
-                    Kind.SINGLE -> R.layout.oinkoin_single_widget
-                    Kind.BUDGET -> R.layout.oinkoin_budget_widget
+                when {
+                    compact && kind == Kind.BUDGET ->
+                        R.layout.oinkoin_compact_budget
+                    compact -> R.layout.oinkoin_compact_value
+                    kind == Kind.OVERVIEW -> R.layout.oinkoin_stats_widget
+                    kind == Kind.SINGLE -> R.layout.oinkoin_single_widget
+                    else -> R.layout.oinkoin_budget_widget
                 },
             )
             views.setInt(R.id.widget_root, "setBackgroundColor", background)
             var hasContent = false
-            when (kind) {
+            if (compact) {
+                hasContent = when (kind) {
+                    Kind.BUDGET -> bindCompactBudget(
+                        views, widgetData, suffix, titleColor,
+                    )
+                    Kind.OVERVIEW -> bindCompactValue(
+                        views,
+                        widgetData,
+                        textOrNull(widgetData, "balance", suffix),
+                        widgetData.getInt(
+                            key("balance_color", suffix), titleColor),
+                    )
+                    Kind.SINGLE -> bindCompactValue(
+                        views,
+                        widgetData,
+                        textOrNull(widgetData, "value", suffix),
+                        widgetData.getInt(key("color", suffix), titleColor),
+                    )
+                }
+            } else when (kind) {
                 Kind.OVERVIEW -> {
                     hasContent = bindTriple(context, views, widgetData, suffix, titleColor)
                 }
@@ -123,6 +170,37 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
             views.setTextColor(labelIds[i], 0xFF808080.toInt())
         }
         bindSpark(views, widgetData, "spark", suffix)
+        return true
+    }
+
+    private fun bindCompactValue(
+        views: RemoteViews,
+        widgetData: android.content.SharedPreferences,
+        value: String?,
+        color: Int,
+    ): Boolean {
+        if (value.isNullOrEmpty()) return false
+        views.setTextViewText(R.id.widget_value, value)
+        views.setTextColor(R.id.widget_value, color)
+        return true
+    }
+
+    private fun bindCompactBudget(
+        views: RemoteViews,
+        widgetData: android.content.SharedPreferences,
+        suffix: String?,
+        titleColor: Int,
+    ): Boolean {
+        val name = textOrNull(widgetData, "name", suffix)
+        if (name.isNullOrEmpty()) return false
+        views.setTextViewText(R.id.widget_name, name)
+        views.setTextColor(R.id.widget_name, titleColor)
+        views.setProgressBar(
+            R.id.widget_bar,
+            100,
+            widgetData.getInt(key("ratio", suffix), 0),
+            false,
+        )
         return true
     }
 

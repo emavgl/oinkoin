@@ -5,7 +5,7 @@
     android:targetCellWidth="4"
     android:targetCellHeight="2"
     android:updatePeriodMillis="1800000"
-    android:initialLayout="@layout/oinkoin_image_widget"
+    android:initialLayout="@layout/oinkoin_stats_widget"
     android:description="@string/oinkoin_overview_widget_description"
     android:previewImage="@mipmap/ic_launcher"
     android:resizeMode="horizontal|vertical"
