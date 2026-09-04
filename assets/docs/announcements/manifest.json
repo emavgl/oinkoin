@@ -10,11 +10,15 @@
       "date": "2026-08-27",
       "titleKey": "Oinkoin Free now supports in-app Pro purchases",
       "dialog": true,
-      "dialogAudience": ["free", "alpha", "debug"],
+      "dialogAudience": [
+        "free",
+        "alpha",
+        "debug"
+      ],
       "dialogMaxVersion": "1.12.4"
     },
     {
-      "id": "2026-09-privacy-backup",
+      "id": "changelog-1-13-0",
       "date": "2026-09-04",
       "titleKey": "Changelog",
       "dialog": true,
