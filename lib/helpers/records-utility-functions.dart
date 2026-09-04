@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
@@ -24,6 +25,56 @@ import 'datetime-utility-functions.dart';
 /// Placeholder shown instead of monetary amounts when privacy mode is on.
 /// Bullets sit vertically centered in most fonts, unlike asterisks.
 const String obscuredAmountText = '••••';
+
+/// Records of [records] counting toward [budget] in [cycle] (category,
+/// tags, wallets, and transfer handling included).
+List<Record> matchingBudgetRecords(
+  Budget budget,
+  Iterable<Record> records,
+  BudgetCycle cycle,
+) {
+  return records.where((record) {
+    final recordDate = record.dateTime;
+    final cycleEnd = DateTime(
+      cycle.end.year,
+      cycle.end.month,
+      cycle.end.day,
+      23,
+      59,
+      59,
+    );
+    final inCycle =
+        !recordDate.isBefore(cycle.start) && !recordDate.isAfter(cycleEnd);
+    final hasCategories = budget.categoryNames.isNotEmpty;
+    final hasTags = budget.tags.isNotEmpty;
+    final hasWallets =
+        ServiceConfig.walletsEnabled && budget.walletIds.isNotEmpty;
+    final matchesWallet =
+        !hasWallets ||
+        budget.walletIds.contains(record.walletId) ||
+        (record.isTransfer &&
+            budget.walletIds.contains(record.transferWalletId));
+    if (!inCycle ||
+        record.category?.categoryType != budget.recordCategoryType ||
+        !matchesWallet) {
+      return false;
+    }
+    final matchesCategories =
+        !hasCategories || budget.categoryNames.contains(record.category?.name);
+    final matchesTags =
+        !hasTags ||
+        (budget.tagOrLogic
+            ? budget.tags.any(record.tags.contains)
+            : budget.tags.every(record.tags.contains));
+
+    if (hasCategories && hasTags) {
+      return budget.categoryTagOrLogic
+          ? matchesCategories || matchesTags
+          : matchesCategories && matchesTags;
+    }
+    return matchesCategories && matchesTags;
+  }).toList();
+}
 
 /// Masked amount widget for privacy mode, centered where the amount was.
 Widget obscuredAmountTextWidget(TextStyle? style) {

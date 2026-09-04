@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="oinkoin_overview_widget_description">Oinkoin income, expenses and balance</string>
+    <string name="oinkoin_income_widget_description">Oinkoin income total</string>
+    <string name="oinkoin_expenses_widget_description">Oinkoin expenses total</string>
+    <string name="oinkoin_balance_widget_description">Oinkoin balance total</string>
+    <string name="oinkoin_budget_widget_description">Oinkoin budget progress</string>
+</resources>

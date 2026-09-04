@@ -20,57 +20,10 @@ import 'package:piggybank/records/components/filter_modal_content.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/services/home-widget-service.dart';
 import 'package:piggybank/records/components/records-day-list.dart';
 import 'package:piggybank/wallets/wallet-picker-page.dart';
 import 'package:piggybank/statistics/statistics-page.dart';
-
-List<Record> _matchingBudgetRecords(
-  Budget budget,
-  Iterable<Record> records,
-  BudgetCycle cycle,
-) {
-  return records.where((record) {
-    final recordDate = record.dateTime;
-    final cycleEnd = DateTime(
-      cycle.end.year,
-      cycle.end.month,
-      cycle.end.day,
-      23,
-      59,
-      59,
-    );
-    final inCycle =
-        !recordDate.isBefore(cycle.start) && !recordDate.isAfter(cycleEnd);
-    final hasCategories = budget.categoryNames.isNotEmpty;
-    final hasTags = budget.tags.isNotEmpty;
-    final hasWallets =
-        ServiceConfig.walletsEnabled && budget.walletIds.isNotEmpty;
-    final matchesWallet =
-        !hasWallets ||
-        budget.walletIds.contains(record.walletId) ||
-        (record.isTransfer &&
-            budget.walletIds.contains(record.transferWalletId));
-    if (!inCycle ||
-        record.category?.categoryType != budget.recordCategoryType ||
-        !matchesWallet) {
-      return false;
-    }
-    final matchesCategories =
-        !hasCategories || budget.categoryNames.contains(record.category?.name);
-    final matchesTags =
-        !hasTags ||
-        (budget.tagOrLogic
-            ? budget.tags.any(record.tags.contains)
-            : budget.tags.every(record.tags.contains));
-
-    if (hasCategories && hasTags) {
-      return budget.categoryTagOrLogic
-          ? matchesCategories || matchesTags
-          : matchesCategories && matchesTags;
-    }
-    return matchesCategories && matchesTags;
-  }).toList();
-}
 
 class _BudgetEmptyState extends StatefulWidget {
   final List<String> messages;
@@ -201,7 +154,10 @@ class BudgetsPageState extends State<BudgetsPage> {
       context,
       MaterialPageRoute(builder: (_) => const CreateBudgetPage()),
     );
-    if (created != null) await _loadData();
+    if (created != null) {
+      await _loadData();
+      HomeWidgetService.refreshAll();
+    }
   }
 
   Future<void> _deleteBudget(Budget budget) async {
@@ -226,11 +182,12 @@ class BudgetsPageState extends State<BudgetsPage> {
     if (confirmed == true) {
       await _database.deleteBudget(budget.id!);
       await _loadData();
+      HomeWidgetService.refreshAll();
     }
   }
 
   double _budgetProgress(Budget budget, BudgetCycle cycle) {
-    final matchingRecords = _matchingBudgetRecords(budget, _records, cycle);
+    final matchingRecords = matchingBudgetRecords(budget, _records, cycle);
     final total = matchingRecords.fold<double>(
       0,
       (sum, record) => sum + (record.value ?? 0).abs(),
@@ -535,7 +492,7 @@ class _BudgetDetailPageState extends State<BudgetDetailPage> {
       _budget.isRecurring && _selectedCycle.start.isBefore(_latestCycle.start);
 
   List<Record> _currentRecords() {
-    return _matchingBudgetRecords(_budget, _records, _selectedCycle);
+    return matchingBudgetRecords(_budget, _records, _selectedCycle);
   }
 
   void _shiftPeriod(int direction) {
@@ -721,7 +678,7 @@ class _BudgetDetailPageState extends State<BudgetDetailPage> {
       selectedEnd,
       now,
     ].reduce((a, b) => a.isBefore(b) ? a : b);
-    final history = _matchingBudgetRecords(
+    final history = matchingBudgetRecords(
       _budget,
       _records,
       BudgetCycle(from, to),

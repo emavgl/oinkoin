@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="40dp"
+    android:minHeight="40dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/oinkoin_budget_widget"
+    android:description="@string/oinkoin_budget_widget_description"
+    android:previewImage="@mipmap/ic_launcher"
+    android:previewLayout="@layout/oinkoin_preview_budget"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />

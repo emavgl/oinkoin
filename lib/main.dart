@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
@@ -11,6 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:piggybank/services/home-widget-service.dart';
 import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/services/logger.dart';
 import 'package:piggybank/services/backup-service.dart';
@@ -29,6 +31,18 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'i18n.dart';
 
 final logger = Logger.withContext("main");
+
+Timer? _widgetRefreshDebounce;
+
+/// Debounced home-widget refresh so rapid consecutive database writes
+/// (e.g. a restore) coalesce into one update.
+void _scheduleWidgetRefresh() {
+  _widgetRefreshDebounce?.cancel();
+  _widgetRefreshDebounce = Timer(
+    const Duration(milliseconds: 600),
+    () => HomeWidgetService.refreshAll(),
+  );
+}
 
 /// Resolves the premium state at startup:
 /// - The separate Pro app (package ends with "pro") and desktop builds are
@@ -155,8 +169,11 @@ main() async {
     ServiceConfig.initPrivacyMode();
     // Keep the automatic database copy fresh: every database write
     // schedules a best-effort snapshot (only when the switch is on).
-    SqliteDatabase.onDatabaseChanged =
-        () => BackupService.scheduleDatabaseCopy();
+    // Also refresh home widgets (debounced) so they track new entries.
+    SqliteDatabase.onDatabaseChanged = () {
+      BackupService.scheduleDatabaseCopy();
+      _scheduleWidgetRefresh();
+    };
     await MyI18n.loadTranslations();
     await ProfileService.instance.initialize();
 

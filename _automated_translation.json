@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 605
+    "total_keys": 618
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -201,6 +201,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Add to home screen": {
+      "key": "Add to home screen",
+      "context": "Tooltip of the pin buttons",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "IconButton tooltip",
+      "meaning": "Tooltip of the pin buttons",
+      "notes": "System pin dialog follows."
+    },
     "Add wallet": {
       "key": "Add wallet",
       "context": null,
@@ -210,6 +220,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Add widgets from your launcher's widget picker.": {
+      "key": "Add widgets from your launcher's widget picker.",
+      "context": "Fallback when pinning is unsupported",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Body text",
+      "meaning": "Fallback when pinning is unsupported",
+      "notes": "Older launchers lack the pin dialog."
     },
     "Add your missing currency": {
       "key": "Add your missing currency",
@@ -610,6 +630,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Automatically keep a fresh copy in the storage folder": {
+      "key": "Automatically keep a fresh copy in the storage folder",
+      "context": "Subtitle of the independent automatic database copy switch",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Runs on its own schedule, independent of the JSON automatic backup",
+      "notes": "Pro-gated like automatic backups.",
+      "status": "verified"
+    },
     "Available Tags": {
       "key": "Available Tags",
       "context": null,
@@ -753,6 +783,23 @@
       "notes": "Simple color name, translate as the standard word for black",
       "status": "verified"
     },
+    "Budget": {
+      "key": "Budget",
+      "context": "Pin row for the per-budget widget type",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "List row title",
+      "meaning": "Pin row for the per-budget widget type",
+      "notes": "Generic type; instances are assigned below.",
+      "same_as_english_locales": [
+        "da",
+        "de",
+        "fr",
+        "it",
+        "vec-IT"
+      ]
+    },
     "Budget name": {
       "key": "Budget name",
       "context": "Text field label on the new budget form",
@@ -762,6 +809,16 @@
       "meaning": "The user-facing name assigned to a budget",
       "notes": null,
       "status": "verified"
+    },
+    "Budget widget": {
+      "key": "Budget widget",
+      "context": "Instance row title prefix, followed by the instance id",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "List row title",
+      "meaning": "Instance row title prefix, followed by the instance id",
+      "notes": "Format 'Budget widget #3'."
     },
     "Budgets": {
       "key": "Budgets",
@@ -925,6 +982,26 @@
       "notes": null,
       "status": "pending"
     },
+    "Change database folder": {
+      "key": "Change database folder",
+      "context": "Title of the confirmation dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog title",
+      "meaning": "Title of the confirmation dialog",
+      "notes": "Imperative; confirms a risky move."
+    },
+    "Change folder": {
+      "key": "Change folder",
+      "context": "Confirm button of the dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog action",
+      "meaning": "Confirm button of the dialog",
+      "notes": "Imperative."
+    },
     "Change the icon, emoji and color used for transfers": {
       "key": "Change the icon, emoji and color used for transfers",
       "context": "Subtitle of the Customize Transfer Icon option in the Settings > Customization page, under the Wallets section",
@@ -934,6 +1011,16 @@
       "meaning": "Opens the editor to change the app-wide icon, emoji and color used to represent transfers",
       "notes": "Companion to 'Customize Transfer Icon'; keep the wording consistent with that label",
       "status": "verified"
+    },
+    "Changelog": {
+      "key": "Changelog",
+      "context": "Title of the 1.13.0 startup announcement dialog",
+      "file": "lib/comms/announcement-dialog.dart",
+      "page": "Startup dialog + Settings > Announcements",
+      "component": "Dialog title / list item title",
+      "meaning": "Release notes heading",
+      "notes": "Keep in English in all locales by explicit request.",
+      "status": "skip"
     },
     "Changing the currency does not convert existing record amounts. Are you sure?": {
       "key": "Changing the currency does not convert existing record amounts. Are you sure?",
@@ -1024,6 +1111,16 @@
       "notes": "Closes the paywall without purchasing",
       "status": "verified"
     },
+    "Close and reopen the app to use the new database location": {
+      "key": "Close and reopen the app to use the new database location",
+      "context": "Body of the restart dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog message",
+      "meaning": "Body of the restart dialog",
+      "notes": "Manual restart instruction."
+    },
     "Code & translation": {
       "key": "Code & translation",
       "context": "Contributor role shown when a code contributor also provided a translation",
@@ -1101,6 +1198,16 @@
       ],
       "status": "verified"
     },
+    "Complete snapshots of your data, encrypted and restorable anytime.": {
+      "key": "Complete snapshots of your data, encrypted and restorable anytime.",
+      "context": "Explainer under the Backup section header",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Explanatory body text",
+      "meaning": "Backups are full, encrypted, restorable snapshots",
+      "notes": "One-line reassurance for non-expert users.",
+      "status": "verified"
+    },
     "Continue": {
       "context": "Button label to proceed from mapping screen to import summary",
       "file": "lib/settings/csv_import/csv_mapping_screen.dart",
@@ -1159,6 +1266,16 @@
       "notes": null,
       "status": "verified"
     },
+    "Could not add the widget": {
+      "key": "Could not add the widget",
+      "context": "Error when the pin request fails",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "SnackBar message",
+      "meaning": "Error when the pin request fails",
+      "notes": "Rare: launcher denied the request."
+    },
     "Could not load this announcement": {
       "key": "Could not load this announcement",
       "context": "Error placeholder shown when the localized markdown body of a communication fails to load",
@@ -1168,6 +1285,16 @@
       "meaning": "The announcement content could not be loaded/displayed",
       "notes": null,
       "status": "verified"
+    },
+    "Could not move the database to the selected folder": {
+      "key": "Could not move the database to the selected folder",
+      "context": "Error when the database copy fails",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "SnackBar message",
+      "meaning": "Error when the database copy fails",
+      "notes": "Copy failure, e.g. permissions or disk space."
     },
     "Could not open link": {
       "key": "Could not open link",
@@ -1186,6 +1313,16 @@
       "component": "Error message",
       "meaning": "CSV content is malformed or uses unsupported format",
       "notes": "Generic error — keep CSV as-is",
+      "status": "verified"
+    },
+    "Could not save the database file": {
+      "key": "Could not save the database file",
+      "context": "Error when storing the database snapshot on disk fails",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "SnackBar message",
+      "meaning": "Snapshot creation or storage failed",
+      "notes": "Generic failure message.",
       "status": "verified"
     },
     "Create backup and change settings": {
@@ -1348,6 +1485,16 @@
       "notes": "Translate as an action label; Transfer is the fixed localized name shown in the editor",
       "status": "verified"
     },
+    "Danger zone": {
+      "key": "Danger zone",
+      "context": "Danger zone subsection header grouping database location settings",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Section header",
+      "meaning": "Danger zone subsection header grouping database location settings",
+      "notes": "High-risk settings area; translate with caution tone."
+    },
     "Dark": {
       "key": "Dark",
       "context": null,
@@ -1377,6 +1524,31 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Database": {
+      "key": "Database",
+      "context": "Subsection header grouping raw database file actions",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Section header",
+      "meaning": "Introduces Export/Store database actions, distinct from backups",
+      "notes": "Noun, header style.",
+      "status": "verified",
+      "same_as_english_locales": [
+        "da",
+        "it",
+        "vec-IT"
+      ]
+    },
+    "Database folder": {
+      "key": "Database folder",
+      "context": "Row opening the folder picker for movements.db",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Clickable row title",
+      "meaning": "Row opening the folder picker for movements.db",
+      "notes": "The folder holding the SQLite database file."
     },
     "Date": {
       "key": "Date",
@@ -2247,6 +2419,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Follow the backup destination": {
+      "key": "Follow the backup destination",
+      "context": "Row resetting the copy folder back to the backup destination",
+      "component": "Clickable row title",
+      "meaning": "Discard the custom copy folder",
+      "notes": "Shown only with a custom copy folder set.",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "status": "verified"
+    },
     "Food": {
       "key": "Food",
       "context": null,
@@ -2347,6 +2529,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Hide amounts": {
+      "key": "Hide amounts",
+      "context": "Tooltip of the eye toggle next to amounts",
+      "file": "lib/records/components/days-summary-box-card.dart and lib/wallets/wallets-tab-page.dart",
+      "page": "Homepage summary and Wallets total",
+      "component": "IconButton tooltip",
+      "meaning": "Conceal amounts behind placeholders",
+      "notes": "Imperative verb + object; pairs with the visibility eye icon.",
+      "status": "verified"
+    },
     "Hide cumulative balance line": {
       "key": "Hide cumulative balance line",
       "context": null,
@@ -2366,6 +2558,16 @@
       "meaning": "Short one-word bottom-navigation tab label",
       "notes": "Must be a SHORT one-word label (<=10 chars preferred, 11-12 only if no shorter natural word exists): long labels wrap in the 5-tab NavigationBar (Material renders labels without ellipsis). Approved short forms avoid literal plural translations (e.g. Settings -> Options).",
       "status": "verified"
+    },
+    "Home screen widgets": {
+      "key": "Home screen widgets",
+      "context": "Settings entry and page title for home screen widgets",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "SettingsItem title + AppBar title",
+      "meaning": "Settings entry and page title for home screen widgets",
+      "notes": "Pin/unpin happens in the launcher; this page configures."
     },
     "Homepage time interval": {
       "key": "Homepage time interval",
@@ -2629,6 +2831,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Last database copy: ": {
+      "key": "Last database copy: ",
+      "context": "Timestamp line under the Database section",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Status text",
+      "meaning": "Date and time of the latest stored database snapshot, mirrors 'Last backup: '",
+      "notes": "Keep trailing space and colon like the backup counterpart.",
+      "status": "verified"
     },
     "Left": {
       "key": "Left",
@@ -2965,6 +3177,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Move back to the internal app folder": {
+      "key": "Move back to the internal app folder",
+      "context": "Subtitle of the reset row",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Clickable row subtitle",
+      "meaning": "Subtitle of the reset row",
+      "notes": "'Internal app folder' = sandboxed app storage."
     },
     "Move records to another wallet": {
       "key": "Move records to another wallet",
@@ -3451,6 +3673,17 @@
       "notes": null,
       "status": "pending"
     },
+    "Overview": {
+      "key": "Overview",
+      "context": "Pin row for the combined overview widget",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "component": "List row title",
+      "meaning": "Pin row for the combined overview widget (income, expenses, balance)",
+      "notes": "Generic widget type; nothing to configure per instance.",
+      "status": "verified",
+      "same_as_english_locales": []
+    },
     "Overwrite the key `comma`": {
       "key": "Overwrite the key `comma`",
       "context": null,
@@ -3518,6 +3751,56 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Pick a budget": {
+      "key": "Pick a budget",
+      "context": "Dropdown hint for unassigned instances",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Dropdown hint",
+      "meaning": "Dropdown hint for unassigned instances",
+      "notes": "Choose from existing budgets."
+    },
+    "Pick which budget below after pinning": {
+      "key": "Pick which budget below after pinning",
+      "context": "Hint under the Budget pin row",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "List row subtitle",
+      "meaning": "Hint under the Budget pin row",
+      "notes": "Assignment happens post-pin via the instance list."
+    },
+    "Pin totals and budgets to your home screen": {
+      "key": "Pin totals and budgets to your home screen",
+      "context": "Subtitle of the settings entry",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "SettingsItem subtitle",
+      "meaning": "Subtitle of the settings entry",
+      "notes": "Short feature summary."
+    },
+    "Pin widgets showing your totals. They follow the homepage time interval and refresh when you open the app.": {
+      "key": "Pin widgets showing your totals. They follow the homepage time interval and refresh when you open the app.",
+      "context": "Explainer at the top of the widgets page",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Body text",
+      "meaning": "Explainer at the top of the widgets page",
+      "notes": "Sets expectations: interval source and refresh behavior."
+    },
+    "Pinned budget widgets": {
+      "key": "Pinned budget widgets",
+      "context": "Header above installed budget instances",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Section header",
+      "meaning": "Header above installed budget instances",
+      "notes": "Lists live launcher instances."
     },
     "Play animations when selecting navigation tabs": {
       "key": "Play animations when selecting navigation tabs",
@@ -3698,6 +3981,29 @@
       "notes": "Translate as temporal navigation, not as a generic sequence label.",
       "status": "verified"
     },
+    "Privacy": {
+      "key": "Privacy",
+      "context": "Privacy subsection header in the Customization settings page",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "Privacy section header",
+      "meaning": "Groups the privacy mode switches",
+      "notes": "Noun. Section name is localized at the option site, header render is idempotent.",
+      "status": "verified",
+      "same_as_english_locales": [
+        "it"
+      ]
+    },
+    "Privacy mode": {
+      "key": "Privacy mode",
+      "context": "Switch enabling concealment of monetary amounts on the homepage",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "When on, balances and amounts are replaced with placeholders",
+      "notes": "'Mode' = app display state, not a phone OS mode.",
+      "status": "verified"
+    },
     "Privacy policy and credits": {
       "key": "Privacy policy and credits",
       "context": null,
@@ -3756,6 +4062,16 @@
       "component": "action card title",
       "meaning": "Button that opens the Play Store to leave a review",
       "notes": "Short action label, only shown for Play Store installs or alpha builds",
+      "status": "verified"
+    },
+    "Raw database file for advanced use. Not a backup, and it cannot be encrypted.": {
+      "key": "Raw database file for advanced use. Not a backup, and it cannot be encrypted.",
+      "context": "Explainer under the Database section header",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Explanatory body text",
+      "meaning": "The database file is raw SQLite for advanced use, distinct from encrypted backups",
+      "notes": "Must prevent mistaking it for a restorable encrypted backup.",
       "status": "verified"
     },
     "Recent news and communications": {
@@ -3866,6 +4182,16 @@
       "notes": null,
       "status": "verified"
     },
+    "Refresh widgets": {
+      "key": "Refresh widgets",
+      "context": "Manual refresh button",
+      "file": "lib/settings/home-widgets-page.dart",
+      "page": "Settings > Home screen widgets",
+      "status": "verified",
+      "component": "Button label",
+      "meaning": "Manual refresh button",
+      "notes": "Re-renders all widget images now."
+    },
     "Remove %s from your currencies?": {
       "key": "Remove %s from your currencies?",
       "context": null,
@@ -3895,6 +4221,26 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Reset to the default folder": {
+      "key": "Reset to the default folder",
+      "context": "Action to discard the user-picked custom backup destination folder",
+      "file": "lib/settings/backup-page.dart:330",
+      "page": "Settings > Backup",
+      "component": "List item shown only when a custom destination folder is set",
+      "meaning": "Backups go back to the platform default folder (e.g. /storage/emulated/0/Documents/oinkoin on Android)",
+      "notes": "'Folder' here is the backup destination directory. Avoid translating as 'file'. Keep imperative form.",
+      "status": "verified"
+    },
+    "Restart required": {
+      "key": "Restart required",
+      "context": "Title of the follow-up dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog title",
+      "meaning": "Title of the follow-up dialog",
+      "notes": "States a restart is mandatory, not optional."
     },
     "Restore Backup": {
       "key": "Restore Backup",
@@ -4054,6 +4400,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Save database automatically": {
+      "key": "Save database automatically",
+      "context": "Switch storing a database snapshot with every automatic backup",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Each automatic backup also stores an overwritten movements.db snapshot",
+      "notes": "Visible only with automatic backup on.",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "status": "verified"
     },
     "Saving": {
       "key": "Saving",
@@ -4264,6 +4620,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Select the database folder": {
+      "key": "Select the database folder",
+      "context": "Title of the native folder picker (desktop only)",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Native directory dialog title",
+      "meaning": "Title of the native folder picker (desktop only)",
+      "notes": "Choose where movements.db lives."
+    },
     "Select the date format": {
       "key": "Select the date format",
       "context": null,
@@ -4283,6 +4649,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Select the destination folder": {
+      "key": "Select the destination folder",
+      "context": "Title of the native directory picker dialog opened from the Destination folder setting",
+      "file": "lib/services/backup-directory-service.dart:82",
+      "page": "Settings > Backup (desktop platforms only; Android uses the system SAF picker)",
+      "component": "Native save/directory dialog title",
+      "meaning": "Choose the folder where backup files will be stored",
+      "notes": "'Destination folder' pairs with the existing 'Destination folder' setting label - translate consistently.",
+      "status": "verified"
     },
     "Select the first day of the week": {
       "key": "Select the first day of the week",
@@ -4504,6 +4880,16 @@
       "notes": "Button that clears the selected wallet filter",
       "status": "verified"
     },
+    "Show amounts": {
+      "key": "Show amounts",
+      "context": "Tooltip of the eye toggle next to amounts",
+      "file": "lib/records/components/days-summary-box-card.dart and lib/wallets/wallets-tab-page.dart",
+      "page": "Homepage summary and Wallets total",
+      "component": "IconButton tooltip",
+      "meaning": "Reveal concealed amounts",
+      "notes": "Imperative verb + object; pairs with the visibility eye icon.",
+      "status": "verified"
+    },
     "Show archived budgets": {
       "key": "Show archived budgets",
       "context": "Overflow-menu option on the active Budgets page",
@@ -4672,6 +5058,16 @@
       "notes": null,
       "status": "pending"
     },
+    "Show the eye button and enable tap-to-hide amounts": {
+      "key": "Show the eye button and enable tap-to-hide amounts",
+      "context": "Subtitle of the privacy arming switch",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "The switch only makes hiding available; it never hides anything by itself",
+      "notes": "Explicit scope: arming vs hiding.",
+      "status": "verified"
+    },
     "Show the image on the homepage appbar": {
       "key": "Show the image on the homepage appbar",
       "context": "Subtitle/description for the 'Show homepage image' toggle in Settings > Customization > Appearance",
@@ -4760,6 +5156,16 @@
       "notes": "Keep the question-and-suggestion tone natural in the target language.",
       "status": "verified"
     },
+    "Start with privacy mode on": {
+      "key": "Start with privacy mode on",
+      "context": "Switch enabling privacy mode automatically on every app start",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Amounts start hidden each time the app opens",
+      "notes": "Pairs with the 'Privacy mode' switch above it.",
+      "status": "verified"
+    },
     "Starting date": {
       "key": "Starting date",
       "context": "Date selector on the new budget form",
@@ -4789,6 +5195,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "Store the database on disk": {
+      "key": "Store the database on disk",
+      "context": "Action storing a database snapshot into the destination folder",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "SettingsItem title",
+      "meaning": "Save movements.db into the backup destination folder now",
+      "notes": "Mirrors 'Store the Backup on disk' but for the raw database.",
+      "status": "verified"
     },
     "Suggested tags": {
       "key": "Suggested tags",
@@ -4973,6 +5389,16 @@
       "notes": null,
       "status": "verified"
     },
+    "The current database will be copied to the new folder. Restart the app to apply the change. Never open the same database in two apps at once.": {
+      "key": "The current database will be copied to the new folder. Restart the app to apply the change. Never open the same database in two apps at once.",
+      "context": "Confirmation when the current database will be copied",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog message",
+      "meaning": "Confirmation when the current database will be copied",
+      "notes": "Same warnings as the existing-database variant."
+    },
     "The data from the backup file are now restored.": {
       "key": "The data from the backup file are now restored.",
       "context": null,
@@ -4993,6 +5419,16 @@
       "notes": "Keep the technical tone; 'Export Backup' is a UI label that should match the actual button text in the app",
       "status": "verified"
     },
+    "The folder already contains a database, which will be used from now on. Restart the app to apply the change. Never open the same database in two apps at once.": {
+      "key": "The folder already contains a database, which will be used from now on. Restart the app to apply the change. Never open the same database in two apps at once.",
+      "context": "Warning when the target folder already holds a database",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog message",
+      "meaning": "Warning when the target folder already holds a database",
+      "notes": "Must convey: existing data wins, restart needed, no simultaneous access (corruption risk)."
+    },
     "The people who built Oinkoin": {
       "key": "The people who built Oinkoin",
       "context": "Subtitle for a Contributors settings menu item (currently commented out/unused in settings-page.dart, but the string is still extracted since it's used elsewhere or reserved)",
@@ -5001,6 +5437,16 @@
       "component": "Settings menu item subtitle",
       "meaning": "Short description of the Contributors page shown as a settings list item subtitle",
       "notes": "Currently only appears in a commented-out block; translate normally since it may be re-enabled",
+      "status": "verified"
+    },
+    "The selected folder is not writable. Please choose another one.": {
+      "key": "The selected folder is not writable. Please choose another one.",
+      "context": "Error snackbar shown when the picked backup folder fails the write probe",
+      "file": "lib/settings/backup-page.dart:212",
+      "page": "Settings > Backup",
+      "component": "SnackBar error message",
+      "meaning": "The app cannot write backup files into the folder the user just picked (permission denied, read-only storage, or a non-filesystem provider), so the choice is rejected",
+      "notes": "Error message; keep polite tone. 'Writable' = the app can create files in it.",
       "status": "verified"
     },
     "Theme style": {
@@ -5339,6 +5785,16 @@
       "notes": "Keep the %s placeholder intact; it is filled with a number via .fill().",
       "status": "verified"
     },
+    "Use the default location": {
+      "key": "Use the default location",
+      "context": "Row resetting the database folder to the app default",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Clickable row title",
+      "meaning": "Row resetting the database folder to the app default",
+      "notes": "Opposite of picking a custom folder."
+    },
     "Use wallets": {
       "key": "Use wallets",
       "context": "Master wallets feature switch title",
@@ -5537,6 +5993,16 @@
       "meaning": null,
       "notes": null,
       "status": "pending"
+    },
+    "When on, the app always starts hidden": {
+      "key": "When on, the app always starts hidden",
+      "context": "Subtitle of the start-with-privacy-mode switch",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Privacy",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Launch-only behavior; never changes the current session",
+      "notes": "Contrasts with the live Privacy mode switch above it.",
+      "status": "verified"
     },
     "When typing `comma`, it types `dot` instead": {
       "key": "When typing `comma`, it types `dot` instead",
@@ -5746,334 +6212,6 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
-      "status": "verified"
-    },
-    "Privacy mode": {
-      "key": "Privacy mode",
-      "context": "Switch enabling concealment of monetary amounts on the homepage",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "SwitchCustomizationItem title",
-      "meaning": "When on, balances and amounts are replaced with placeholders",
-      "notes": "'Mode' = app display state, not a phone OS mode.",
-      "status": "verified"
-    },
-    "Start with privacy mode on": {
-      "key": "Start with privacy mode on",
-      "context": "Switch enabling privacy mode automatically on every app start",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "SwitchCustomizationItem title",
-      "meaning": "Amounts start hidden each time the app opens",
-      "notes": "Pairs with the 'Privacy mode' switch above it.",
-      "status": "verified"
-    },
-    "Privacy": {
-      "key": "Privacy",
-      "context": "Privacy subsection header in the Customization settings page",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "Privacy section header",
-      "meaning": "Groups the privacy mode switches",
-      "notes": "Noun. Section name is localized at the option site, header render is idempotent.",
-      "status": "verified",
-      "same_as_english_locales": [
-        "it"
-      ]
-    },
-    "Show amounts": {
-      "key": "Show amounts",
-      "context": "Tooltip of the eye toggle next to amounts",
-      "file": "lib/records/components/days-summary-box-card.dart and lib/wallets/wallets-tab-page.dart",
-      "page": "Homepage summary and Wallets total",
-      "component": "IconButton tooltip",
-      "meaning": "Reveal concealed amounts",
-      "notes": "Imperative verb + object; pairs with the visibility eye icon.",
-      "status": "verified"
-    },
-    "Hide amounts": {
-      "key": "Hide amounts",
-      "context": "Tooltip of the eye toggle next to amounts",
-      "file": "lib/records/components/days-summary-box-card.dart and lib/wallets/wallets-tab-page.dart",
-      "page": "Homepage summary and Wallets total",
-      "component": "IconButton tooltip",
-      "meaning": "Conceal amounts behind placeholders",
-      "notes": "Imperative verb + object; pairs with the visibility eye icon.",
-      "status": "verified"
-    },
-    "When on, the app always starts hidden": {
-      "key": "When on, the app always starts hidden",
-      "context": "Subtitle of the start-with-privacy-mode switch",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Launch-only behavior; never changes the current session",
-      "notes": "Contrasts with the live Privacy mode switch above it.",
-      "status": "verified"
-    },
-    "Show the eye button and enable tap-to-hide amounts": {
-      "key": "Show the eye button and enable tap-to-hide amounts",
-      "context": "Subtitle of the privacy arming switch",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Privacy",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "The switch only makes hiding available; it never hides anything by itself",
-      "notes": "Explicit scope: arming vs hiding.",
-      "status": "verified"
-    },
-    "Reset to the default folder": {
-      "key": "Reset to the default folder",
-      "context": "Action to discard the user-picked custom backup destination folder",
-      "file": "lib/settings/backup-page.dart:330",
-      "page": "Settings > Backup",
-      "component": "List item shown only when a custom destination folder is set",
-      "meaning": "Backups go back to the platform default folder (e.g. /storage/emulated/0/Documents/oinkoin on Android)",
-      "notes": "'Folder' here is the backup destination directory. Avoid translating as 'file'. Keep imperative form.",
-      "status": "verified"
-    },
-    "Select the destination folder": {
-      "key": "Select the destination folder",
-      "context": "Title of the native directory picker dialog opened from the Destination folder setting",
-      "file": "lib/services/backup-directory-service.dart:82",
-      "page": "Settings > Backup (desktop platforms only; Android uses the system SAF picker)",
-      "component": "Native save/directory dialog title",
-      "meaning": "Choose the folder where backup files will be stored",
-      "notes": "'Destination folder' pairs with the existing 'Destination folder' setting label - translate consistently.",
-      "status": "verified"
-    },
-    "The selected folder is not writable. Please choose another one.": {
-      "key": "The selected folder is not writable. Please choose another one.",
-      "context": "Error snackbar shown when the picked backup folder fails the write probe",
-      "file": "lib/settings/backup-page.dart:212",
-      "page": "Settings > Backup",
-      "component": "SnackBar error message",
-      "meaning": "The app cannot write backup files into the folder the user just picked (permission denied, read-only storage, or a non-filesystem provider), so the choice is rejected",
-      "notes": "Error message; keep polite tone. 'Writable' = the app can create files in it.",
-      "status": "verified"
-    },
-    "Changelog": {
-      "key": "Changelog",
-      "context": "Title of the 1.13.0 startup announcement dialog",
-      "file": "lib/comms/announcement-dialog.dart",
-      "page": "Startup dialog + Settings > Announcements",
-      "component": "Dialog title / list item title",
-      "meaning": "Release notes heading",
-      "notes": "Keep in English in all locales by explicit request.",
-      "status": "skip"
-    },
-    "Danger zone": {
-      "key": "Danger zone",
-      "context": "Danger zone subsection header grouping database location settings",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "Section header",
-      "meaning": "Danger zone subsection header grouping database location settings",
-      "notes": "High-risk settings area; translate with caution tone."
-    },
-    "Database folder": {
-      "key": "Database folder",
-      "context": "Row opening the folder picker for movements.db",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "Clickable row title",
-      "meaning": "Row opening the folder picker for movements.db",
-      "notes": "The folder holding the SQLite database file."
-    },
-    "Use the default location": {
-      "key": "Use the default location",
-      "context": "Row resetting the database folder to the app default",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "Clickable row title",
-      "meaning": "Row resetting the database folder to the app default",
-      "notes": "Opposite of picking a custom folder."
-    },
-    "Move back to the internal app folder": {
-      "key": "Move back to the internal app folder",
-      "context": "Subtitle of the reset row",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "Clickable row subtitle",
-      "meaning": "Subtitle of the reset row",
-      "notes": "'Internal app folder' = sandboxed app storage."
-    },
-    "Change database folder": {
-      "key": "Change database folder",
-      "context": "Title of the confirmation dialog",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "AlertDialog title",
-      "meaning": "Title of the confirmation dialog",
-      "notes": "Imperative; confirms a risky move."
-    },
-    "The folder already contains a database, which will be used from now on. Restart the app to apply the change. Never open the same database in two apps at once.": {
-      "key": "The folder already contains a database, which will be used from now on. Restart the app to apply the change. Never open the same database in two apps at once.",
-      "context": "Warning when the target folder already holds a database",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "AlertDialog message",
-      "meaning": "Warning when the target folder already holds a database",
-      "notes": "Must convey: existing data wins, restart needed, no simultaneous access (corruption risk)."
-    },
-    "The current database will be copied to the new folder. Restart the app to apply the change. Never open the same database in two apps at once.": {
-      "key": "The current database will be copied to the new folder. Restart the app to apply the change. Never open the same database in two apps at once.",
-      "context": "Confirmation when the current database will be copied",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "AlertDialog message",
-      "meaning": "Confirmation when the current database will be copied",
-      "notes": "Same warnings as the existing-database variant."
-    },
-    "Change folder": {
-      "key": "Change folder",
-      "context": "Confirm button of the dialog",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "AlertDialog action",
-      "meaning": "Confirm button of the dialog",
-      "notes": "Imperative."
-    },
-    "Restart required": {
-      "key": "Restart required",
-      "context": "Title of the follow-up dialog",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "AlertDialog title",
-      "meaning": "Title of the follow-up dialog",
-      "notes": "States a restart is mandatory, not optional."
-    },
-    "Close and reopen the app to use the new database location": {
-      "key": "Close and reopen the app to use the new database location",
-      "context": "Body of the restart dialog",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "AlertDialog message",
-      "meaning": "Body of the restart dialog",
-      "notes": "Manual restart instruction."
-    },
-    "Could not move the database to the selected folder": {
-      "key": "Could not move the database to the selected folder",
-      "context": "Error when the database copy fails",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "SnackBar message",
-      "meaning": "Error when the database copy fails",
-      "notes": "Copy failure, e.g. permissions or disk space."
-    },
-    "Select the database folder": {
-      "key": "Select the database folder",
-      "context": "Title of the native folder picker (desktop only)",
-      "file": "lib/settings/customization-page.dart",
-      "page": "Settings > Customization > Danger zone",
-      "status": "verified",
-      "component": "Native directory dialog title",
-      "meaning": "Title of the native folder picker (desktop only)",
-      "notes": "Choose where movements.db lives."
-    },
-    "Database": {
-      "key": "Database",
-      "context": "Subsection header grouping raw database file actions",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup",
-      "component": "Section header",
-      "meaning": "Introduces Export/Store database actions, distinct from backups",
-      "notes": "Noun, header style.",
-      "status": "verified",
-      "same_as_english_locales": [
-        "da",
-        "it",
-        "vec-IT"
-      ]
-    },
-    "Complete snapshots of your data, encrypted and restorable anytime.": {
-      "key": "Complete snapshots of your data, encrypted and restorable anytime.",
-      "context": "Explainer under the Backup section header",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup",
-      "component": "Explanatory body text",
-      "meaning": "Backups are full, encrypted, restorable snapshots",
-      "notes": "One-line reassurance for non-expert users.",
-      "status": "verified"
-    },
-    "Raw database file for advanced use. Not a backup, and it cannot be encrypted.": {
-      "key": "Raw database file for advanced use. Not a backup, and it cannot be encrypted.",
-      "context": "Explainer under the Database section header",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup",
-      "component": "Explanatory body text",
-      "meaning": "The database file is raw SQLite for advanced use, distinct from encrypted backups",
-      "notes": "Must prevent mistaking it for a restorable encrypted backup.",
-      "status": "verified"
-    },
-    "Store the database on disk": {
-      "key": "Store the database on disk",
-      "context": "Action storing a database snapshot into the destination folder",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup",
-      "component": "SettingsItem title",
-      "meaning": "Save movements.db into the backup destination folder now",
-      "notes": "Mirrors 'Store the Backup on disk' but for the raw database.",
-      "status": "verified"
-    },
-    "Could not save the database file": {
-      "key": "Could not save the database file",
-      "context": "Error when storing the database snapshot on disk fails",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup",
-      "component": "SnackBar message",
-      "meaning": "Snapshot creation or storage failed",
-      "notes": "Generic failure message.",
-      "status": "verified"
-    },
-    "Follow the backup destination": {
-      "key": "Follow the backup destination",
-      "context": "Row resetting the copy folder back to the backup destination",
-      "component": "Clickable row title",
-      "meaning": "Discard the custom copy folder",
-      "notes": "Shown only with a custom copy folder set.",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup > Database",
-      "status": "verified"
-    },
-    "Save database automatically": {
-      "key": "Save database automatically",
-      "context": "Switch storing a database snapshot with every automatic backup",
-      "component": "SwitchCustomizationItem title",
-      "meaning": "Each automatic backup also stores an overwritten movements.db snapshot",
-      "notes": "Visible only with automatic backup on.",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup > Database",
-      "status": "verified"
-    },
-    "Automatically keep a fresh copy in the storage folder": {
-      "key": "Automatically keep a fresh copy in the storage folder",
-      "context": "Subtitle of the independent automatic database copy switch",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup > Database",
-      "component": "SwitchCustomizationItem subtitle",
-      "meaning": "Runs on its own schedule, independent of the JSON automatic backup",
-      "notes": "Pro-gated like automatic backups.",
-      "status": "verified"
-    },
-    "Last database copy: ": {
-      "key": "Last database copy: ",
-      "context": "Timestamp line under the Database section",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup",
-      "component": "Status text",
-      "meaning": "Date and time of the latest stored database snapshot, mirrors 'Last backup: '",
-      "notes": "Keep trailing space and colon like the backup counterpart.",
       "status": "verified"
     }
   }

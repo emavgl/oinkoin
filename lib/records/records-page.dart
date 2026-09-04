@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:app_review_dialog/app_review_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/services/home-widget-service.dart';
 import 'package:piggybank/services/logger.dart';
 
 import '../models/wallet.dart';
@@ -53,12 +54,15 @@ class TabRecordsState extends State<TabRecords> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.initialize();
+      // Paint home screen widgets on cold start too, not just on resume.
+      HomeWidgetService.refreshAll();
     });
   }
 
   void _handleOnResume(AppLifecycleState value) {
     if (value == AppLifecycleState.resumed) {
       _controller.onResume();
+      HomeWidgetService.refreshAll();
     }
   }
 
@@ -300,6 +304,7 @@ class TabRecordsState extends State<TabRecords> {
   Future<void> _onRecordListBack() async {
     await _controller.updateRecurrentRecordsAndFetchRecords();
     await _maybeShowReviewDialog();
+    HomeWidgetService.refreshAll();
   }
 
   Future<void> _maybeShowReviewDialog() async {
