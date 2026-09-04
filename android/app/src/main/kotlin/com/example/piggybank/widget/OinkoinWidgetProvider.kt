@@ -80,10 +80,12 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
     ): Boolean {
-        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-        val minHeight =
-            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
-        return minHeight > 0 && minHeight < 110
+        // TEMP DEBUG: forced full layouts to isolate missing text.
+        return false
+        //val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        //val minHeight =
+        //    options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
+        //return minHeight > 0 && minHeight < 110
     }
 
     override fun onUpdate(
