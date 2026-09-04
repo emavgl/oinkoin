@@ -69,7 +69,6 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         widgetData: android.content.SharedPreferences,
     ) {
         val dark = widgetData.getBoolean("oinkoin_dark", true)
-        val background = if (dark) 0xFF1C1C1E.toInt() else 0xFFFFFFFF.toInt()
         val titleColor = if (dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt()
         for (appWidgetId in appWidgetIds) {
             val suffix = instanceSuffix(context, appWidgetId)
@@ -85,7 +84,12 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
                     else -> R.layout.oinkoin_budget_widget
                 },
             )
-            views.setInt(R.id.widget_root, "setBackgroundColor", background)
+            views.setInt(
+                R.id.widget_root,
+                "setBackgroundResource",
+                if (dark) R.drawable.oinkoin_widget_bg_dark
+                else R.drawable.oinkoin_widget_bg_light,
+            )
             var hasContent = false
             if (compact) {
                 hasContent = when (kind) {
@@ -162,12 +166,15 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         if (values.all { it.isNullOrEmpty() }) return false
         val labelIds = intArrayOf(R.id.widget_label_1, R.id.widget_label_2, R.id.widget_label_3)
         val valueIds = intArrayOf(R.id.widget_value_1, R.id.widget_value_2, R.id.widget_value_3)
+        val dotIds = intArrayOf(R.id.widget_dot_1, R.id.widget_dot_2, R.id.widget_dot_3)
         val colorKeys = arrayOf("income_color", "expenses_color", "balance_color")
         for (i in 0..2) {
             views.setTextViewText(labelIds[i], labels[i] ?: "")
             views.setTextViewText(valueIds[i], values[i] ?: "")
-            views.setTextColor(valueIds[i], widgetData.getInt(colorKeys[i].let { key(it, suffix) }, titleColor))
+            val color = widgetData.getInt(colorKeys[i].let { key(it, suffix) }, titleColor)
+            views.setTextColor(valueIds[i], color)
             views.setTextColor(labelIds[i], 0xFF808080.toInt())
+            views.setInt(dotIds[i], "setColorFilter", color)
         }
         bindSpark(views, widgetData, "spark", suffix)
         return true
@@ -195,6 +202,11 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         if (name.isNullOrEmpty()) return false
         views.setTextViewText(R.id.widget_name, name)
         views.setTextColor(R.id.widget_name, titleColor)
+        views.setInt(
+            R.id.widget_dot,
+            "setColorFilter",
+            widgetData.getInt(key("color", suffix), titleColor),
+        )
         views.setProgressBar(
             R.id.widget_bar,
             100,
@@ -228,13 +240,12 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
     ): Boolean {
         val value = textOrNull(widgetData, "value", suffix)
         if (value.isNullOrEmpty()) return false
+        val color = widgetData.getInt(key("color", suffix), titleColor)
         views.setTextViewText(R.id.widget_label, textOrNull(widgetData, "label", suffix) ?: "")
         views.setTextViewText(R.id.widget_value, value)
-        views.setTextColor(
-            R.id.widget_value,
-            widgetData.getInt(key("color", suffix), titleColor),
-        )
+        views.setTextColor(R.id.widget_value, color)
         views.setTextColor(R.id.widget_label, 0xFF808080.toInt())
+        views.setInt(R.id.widget_dot, "setColorFilter", color)
         bindSpark(views, widgetData, "spark", suffix)
         return true
     }
@@ -248,8 +259,10 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
     ): Boolean {
         val name = textOrNull(widgetData, "name", suffix)
         if (name.isNullOrEmpty()) return false
+        val color = widgetData.getInt(key("color", suffix), titleColor)
         views.setTextViewText(R.id.widget_name, name)
         views.setTextColor(R.id.widget_name, titleColor)
+        views.setInt(R.id.widget_dot, "setColorFilter", color)
         views.setTextViewText(
             R.id.widget_progress,
             textOrNull(widgetData, "progress", suffix) ?: "",
