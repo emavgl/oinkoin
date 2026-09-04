@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 604
+    "total_keys": 605
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -6056,6 +6056,16 @@
       "component": "SwitchCustomizationItem subtitle",
       "meaning": "Runs on its own schedule, independent of the JSON automatic backup",
       "notes": "Pro-gated like automatic backups.",
+      "status": "verified"
+    },
+    "Last database copy: ": {
+      "key": "Last database copy: ",
+      "context": "Timestamp line under the Database section",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Status text",
+      "meaning": "Date and time of the latest stored database snapshot, mirrors 'Last backup: '",
+      "notes": "Keep trailing space and colon like the backup counterpart.",
       "status": "verified"
     }
   }

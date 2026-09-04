@@ -1069,6 +1069,16 @@ class BackupService {
     return formatter.format(dateLatestBackup);
   }
 
+  /// Formatted date of the latest database copy, or null when there is none.
+  static Future<String?> getStringDateLatestDatabaseCopy() async {
+    var dateLatestCopy = await getDateLatestDatabaseCopy();
+    if (dateLatestCopy == null) {
+      return null;
+    }
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    return formatter.format(dateLatestCopy);
+  }
+
   /// Returns the date of the latest backup file in the backup directory.
   /// Looks for files that end with MANDATORY_BACKUP_SUFFIX
   /// and returns the modified date of the latest backup as DateTime.

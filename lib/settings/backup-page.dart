@@ -59,6 +59,10 @@ class BackupPageState extends State<BackupPage> {
     if (l != null) {
       lastBackupDataStr = l;
     }
+    String? c = await BackupService.getStringDateLatestDatabaseCopy();
+    if (c != null) {
+      lastDatabaseCopyDataStr = c;
+    }
   }
 
   createAndShareBackupFile() async {
@@ -138,6 +142,12 @@ class BackupPageState extends State<BackupPage> {
         throw StateError('Could not store the database file');
       }
       final location = await BackupService.getDatabaseCopyLocation();
+      String? c = await BackupService.getStringDateLatestDatabaseCopy();
+      if (c != null) {
+        setState(() {
+          lastDatabaseCopyDataStr = c;
+        });
+      }
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
@@ -197,6 +207,7 @@ class BackupPageState extends State<BackupPage> {
   bool hasCustomDatabaseCopyFolder = false;
   late String backupPassword;
   String lastBackupDataStr = "-";
+  String lastDatabaseCopyDataStr = "-";
 
   fetchAllThePreferences() {
     enableVersionAndDateInBackupName = PreferencesUtils.getOrDefault<bool>(
@@ -492,6 +503,9 @@ class BackupPageState extends State<BackupPage> {
                         ],
                       ),
                     ),
+                    Center(
+                        child:
+                            Text("Last backup: ".i18n + lastBackupDataStr)),
                     ExpansionTile(
                       initiallyExpanded: false,
                       maintainState: true,
@@ -561,7 +575,8 @@ class BackupPageState extends State<BackupPage> {
                       ],
                     ),
                     Center(
-                        child: Text("Last backup: ".i18n + lastBackupDataStr))
+                        child: Text("Last database copy: ".i18n +
+                            lastDatabaseCopyDataStr))
                   ],
                 ),
               );
