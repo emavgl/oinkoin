@@ -3,10 +3,12 @@ package com.example.piggybank.widget
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
+import com.example.piggybank.MainActivity
 import com.example.piggybank.R
 import es.antonborri.home_widget.HomeWidgetProvider
 import java.io.File
@@ -38,6 +40,28 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
 
     private fun key(name: String, suffix: String?): String =
         if (suffix == null) "${keyPrefix}_$name" else "${keyPrefix}_${suffix}_$name"
+
+    private fun actionIntent(
+        context: Context,
+        action: String,
+        appWidgetId: Int,
+        requestCode: Int,
+    ): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            this.action = action
+        }
+        return PendingIntent.getActivity(
+            context,
+            appWidgetId * 10 + requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+    }
+
+    companion object {
+        const val ACTION_ADD_EXPENSE = "com.example.piggybank.ADD_EXPENSE"
+        const val ACTION_ADD_INCOME = "com.example.piggybank.ADD_INCOME"
+    }
 
     override fun onAppWidgetOptionsChanged(
         context: Context,
@@ -115,7 +139,7 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
                     hasContent = bindTriple(context, views, widgetData, suffix, titleColor)
                 }
                 Kind.SINGLE -> {
-                    hasContent = bindSingle(context, views, widgetData, suffix, titleColor)
+                    hasContent = bindSingle(context, views, widgetData, suffix, titleColor, appWidgetId)
                 }
                 Kind.BUDGET -> {
                     hasContent = bindBudget(context, views, widgetData, suffix, titleColor)
@@ -230,15 +254,22 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         widgetData: android.content.SharedPreferences,
         suffix: String?,
         titleColor: Int,
+        appWidgetId: Int,
     ): Boolean {
         val value = textOrNull(widgetData, "value", suffix)
         if (value.isNullOrEmpty()) return false
         val color = widgetData.getInt(key("color", suffix), titleColor)
-        views.setTextViewText(R.id.widget_label, textOrNull(widgetData, "label", suffix) ?: "")
-        views.setTextViewText(R.id.widget_value, value)
-        views.setTextColor(R.id.widget_value, color)
         views.setTextColor(R.id.widget_label, 0xFF808080.toInt())
         bindSpark(views, widgetData, "spark", suffix)
+        // Quick-add shortcuts: minus opens the expense flow, plus income.
+        views.setOnClickPendingIntent(
+            R.id.widget_action_minus,
+            actionIntent(context, ACTION_ADD_EXPENSE, appWidgetId, 1),
+        )
+        views.setOnClickPendingIntent(
+            R.id.widget_action_plus,
+            actionIntent(context, ACTION_ADD_INCOME, appWidgetId, 2),
+        )
         return true
     }
 
