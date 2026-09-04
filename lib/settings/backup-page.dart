@@ -18,6 +18,7 @@ import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
 import 'components/setting-separator.dart';
 import 'constants/preferences-keys.dart';
+import 'style.dart';
 import 'dropdown-customization-item.dart';
 import 'settings-item.dart';
 import 'switch-customization-item.dart';
@@ -311,7 +312,7 @@ class BackupPageState extends State<BackupPage> {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Text(
         text,
-        style: Theme.of(context).textTheme.bodySmall,
+        style: subtitleTextStyle,
       ),
     );
   }
