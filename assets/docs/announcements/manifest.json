@@ -16,7 +16,7 @@
     {
       "id": "2026-09-privacy-backup",
       "date": "2026-09-04",
-      "titleKey": "Privacy mode and custom backup folder are here",
+      "titleKey": "Changelog",
       "dialog": true,
       "dialogMaxVersion": "1.13.0"
     }

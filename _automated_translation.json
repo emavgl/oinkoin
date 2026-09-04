@@ -5848,15 +5848,15 @@
       "notes": "Error message; keep polite tone. 'Writable' = the app can create files in it.",
       "status": "verified"
     },
-    "Privacy mode and custom backup folder are here": {
-      "key": "Privacy mode and custom backup folder are here",
+    "Changelog": {
+      "key": "Changelog",
       "context": "Title of the 1.13.0 startup announcement dialog",
       "file": "lib/comms/announcement-dialog.dart",
       "page": "Startup dialog + Settings > Announcements",
       "component": "Dialog title / list item title",
-      "meaning": "Announces privacy mode and custom backup folders",
-      "notes": "English-only announcement by decision; do not translate.",
-      "status": "verified"
+      "meaning": "Release notes heading",
+      "notes": "Keep in English in all locales by explicit request.",
+      "status": "skip"
     }
   }
 }
