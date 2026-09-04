@@ -74,6 +74,9 @@ class HomeWidgetsPageState extends State<HomeWidgetsPage> {
       }
     }
     await _load();
+    // The system draws the placeholder until the first update lands;
+    // render immediately so a just-pinned widget fills in within seconds.
+    await HomeWidgetService.refreshAll();
   }
 
   Future<void> _assignBudget(int widgetId, int? budgetId) async {

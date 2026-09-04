@@ -54,6 +54,8 @@ class TabRecordsState extends State<TabRecords> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.initialize();
+      // Paint home screen widgets on cold start too, not just on resume.
+      HomeWidgetService.refreshAll();
     });
   }
 
