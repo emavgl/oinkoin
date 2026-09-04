@@ -528,7 +528,7 @@ class BackupPageState extends State<BackupPage> {
                           child: Column(
                             children: [
                               ClickableCustomizationItem(
-                                  title: "Storage folder".i18n,
+                                  title: "Destination folder".i18n,
                                   subtitle: databaseCopyFolderPath,
                                   enabled: true,
                                   onTap: () async =>

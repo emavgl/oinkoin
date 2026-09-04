@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 605
+    "total_keys": 604
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -6026,16 +6026,6 @@
       "component": "SnackBar message",
       "meaning": "Snapshot creation or storage failed",
       "notes": "Generic failure message.",
-      "status": "verified"
-    },
-    "Storage folder": {
-      "key": "Storage folder",
-      "context": "Row opening the folder picker for database copies",
-      "component": "Clickable row title",
-      "meaning": "Folder receiving database snapshots; defaults to the backup destination",
-      "notes": "Distinct from the backup Destination folder row.",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup > Database",
       "status": "verified"
     },
     "Follow the backup destination": {
