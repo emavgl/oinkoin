@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import com.example.piggybank.MainActivity
@@ -59,6 +60,7 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
     }
 
     companion object {
+        const val TAG = "OinkoinWidget"
         const val ACTION_ADD_EXPENSE = "com.example.piggybank.ADD_EXPENSE"
         const val ACTION_ADD_INCOME = "com.example.piggybank.ADD_INCOME"
     }
@@ -97,6 +99,7 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             val suffix = instanceSuffix(context, appWidgetId)
             val compact = isCompact(appWidgetManager, appWidgetId)
+            Log.d(TAG, "onUpdate id=$appWidgetId kind=$kind compact=$compact")
             val views = RemoteViews(
                 context.packageName,
                 when {
@@ -149,6 +152,7 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
                 R.id.widget_placeholder,
                 if (hasContent) View.GONE else View.VISIBLE,
             )
+            Log.d(TAG, "bound id=$appWidgetId hasContent=$hasContent")
             val launchIntent =
                 context.packageManager.getLaunchIntentForPackage(context.packageName)
             if (launchIntent != null) {
