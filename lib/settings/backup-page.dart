@@ -508,7 +508,7 @@ class BackupPageState extends State<BackupPage> {
                       subtitle: Text(
                         "Raw database file for advanced use. Not a backup, and it cannot be encrypted."
                             .i18n,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: subtitleTextStyle,
                       ),
                       children: [
                         SettingsItem(
