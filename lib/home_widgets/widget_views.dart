@@ -76,7 +76,8 @@ class HomeWidgetOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     return _WidgetCard(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
         children: [
           Row(
             children: [

@@ -162,7 +162,7 @@ class HomeWidgetService {
         sparkline: dailySeries(incomeRecords, isBalance: false),
       ),
       incomeImageKey,
-      const Size(220, 170),
+      const Size(220, 200),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: incomeProvider);
 
@@ -175,7 +175,7 @@ class HomeWidgetService {
         sparkline: dailySeries(expenseRecords, isBalance: false),
       ),
       expensesImageKey,
-      const Size(220, 170),
+      const Size(220, 200),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: expensesProvider);
 
@@ -188,7 +188,7 @@ class HomeWidgetService {
         sparkline: dailySeries(balanceRecords, isBalance: true),
       ),
       balanceImageKey,
-      const Size(220, 170),
+      const Size(220, 200),
     );
     await HomeWidget.updateWidget(qualifiedAndroidName: balanceProvider);
   }
@@ -241,7 +241,8 @@ class HomeWidgetService {
   }
 
   /// Wraps [child] with the theming a bare render needs and screenshots it
-  /// to the shared widget storage under [key].
+  /// to the shared widget storage under [key]. Rendered at 3x so the
+  /// bitmap stays crisp on high-density screens.
   static Future<void> _render(
     ThemeData theme,
     Widget child,
@@ -254,12 +255,13 @@ class HomeWidgetService {
         textDirection: TextDirection.ltr,
         child: DefaultTextStyle(
           style: theme.textTheme.bodyMedium!,
-          child: child,
+          // Fill the frame so the card uses the whole widget area.
+          child: SizedBox.fromSize(size: logicalSize, child: child),
         ),
       ),
     );
     await HomeWidget.renderFlutterWidget(wrapped,
-        key: key, logicalSize: logicalSize);
+        key: key, logicalSize: logicalSize, pixelRatio: 3.0);
   }
 
   static Future<ThemeData> _resolveTheme(SharedPreferences prefs) async {
