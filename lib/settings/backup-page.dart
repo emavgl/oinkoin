@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/services/backup-directory-service.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/settings/backup-retention-period.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
@@ -153,6 +154,7 @@ class BackupPageState extends State<BackupPage> {
   late bool enableEncryptedBackup;
   late String backupRetentionPeriodValue;
   late String backupFolderPath;
+  bool hasCustomBackupFolder = false;
   late String backupPassword;
   String lastBackupDataStr = "-";
 
@@ -169,7 +171,11 @@ class BackupPageState extends State<BackupPage> {
         backupRetentionPeriodsValues, backupRetentionIntervalIndex);
     backupPassword = PreferencesUtils.getOrDefault<String>(
         prefs, PreferencesKeys.backupPassword)!;
-    backupFolderPath = defaultDirectory;
+    String customBackupFolderPath = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.backupFolderPath)!;
+    hasCustomBackupFolder = customBackupFolderPath.isNotEmpty;
+    backupFolderPath =
+        hasCustomBackupFolder ? customBackupFolderPath : defaultDirectory;
   }
 
   resetEnableEncryptedBackup() {
@@ -184,6 +190,37 @@ class BackupPageState extends State<BackupPage> {
   setPasswordInPreferences(String password) {
     prefs.setString(
         PreferencesKeys.backupPassword, BackupService.hashPassword(password));
+  }
+
+  changeBackupFolder() async {
+    BackupDirectoryPick pick = await BackupDirectoryService.pickDirectory();
+    if (!mounted) return;
+    if (pick.outcome == BackupDirectoryPickOutcome.success &&
+        pick.path != null) {
+      await prefs.setString(PreferencesKeys.backupFolderPath, pick.path!);
+      if (pick.uri != null) {
+        await prefs.setString(PreferencesKeys.backupFolderUri, pick.uri!);
+      } else {
+        await prefs.remove(PreferencesKeys.backupFolderUri);
+      }
+      setState(() {
+        fetchAllThePreferences();
+      });
+    } else if (pick.outcome == BackupDirectoryPickOutcome.notWritable) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            "The selected folder is not writable. Please choose another one."
+                .i18n),
+      ));
+    }
+  }
+
+  resetBackupFolder() {
+    prefs.remove(PreferencesKeys.backupFolderPath);
+    prefs.remove(PreferencesKeys.backupFolderUri);
+    setState(() {
+      fetchAllThePreferences();
+    });
   }
 
   final _textController = TextEditingController();
@@ -279,10 +316,24 @@ class BackupPageState extends State<BackupPage> {
                         iconBackgroundColor: Colors.lightBlue.shade600,
                         title: 'Store the Backup on disk'.i18n,
                         onPressed: () async => await storeBackupFile(context)),
-                    ClickableCustomizationItem(
-                        title: "Destination folder".i18n,
-                        subtitle: backupFolderPath,
-                        enabled: false),
+                    Visibility(
+                      visible: BackupDirectoryService.isSupported,
+                      child: Column(
+                        children: [
+                          ClickableCustomizationItem(
+                              title: "Destination folder".i18n,
+                              subtitle: backupFolderPath,
+                              enabled: true,
+                              onTap: () async => await changeBackupFolder()),
+                          if (hasCustomBackupFolder)
+                            ClickableCustomizationItem(
+                                title: "Reset to the default folder".i18n,
+                                subtitle: defaultDirectory,
+                                enabled: true,
+                                onTap: resetBackupFolder),
+                        ],
+                      ),
+                    ),
                     SwitchCustomizationItem(
                       title: "Backup encryption".i18n,
                       subtitle:

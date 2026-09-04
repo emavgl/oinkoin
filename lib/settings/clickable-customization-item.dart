@@ -6,9 +6,13 @@ class ClickableCustomizationItem<T> extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool enabled;
+  final VoidCallback? onTap;
 
   ClickableCustomizationItem(
-      {required this.title, required this.subtitle, required this.enabled});
+      {required this.title,
+      required this.subtitle,
+      required this.enabled,
+      this.onTap});
 
   Widget buildHeader() {
     return Column(
@@ -26,6 +30,7 @@ class ClickableCustomizationItem<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       enabled: enabled,
+      onTap: onTap,
       title: Text(title, style: titleTextStyle),
       subtitle: Text(subtitle, style: subtitleTextStyle),
       contentPadding: EdgeInsets.fromLTRB(16, 0, 10, 10),

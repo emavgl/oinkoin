@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-09-03",
-    "total_keys": 580
+    "last_updated": "2026-09-04",
+    "total_keys": 583
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -697,8 +697,11 @@
       "page": "Settings",
       "component": "Menu item title",
       "meaning": "Access backup and restore features",
-      "notes": "Menu option for data backup/restore",
-      "status": "verified"
+      "notes": "Menu option for data backup/restore. Italian keeps the English loanword.",
+      "status": "verified",
+      "same_as_english_locales": [
+        "it"
+      ]
     },
     "Backup encryption": {
       "key": "Backup encryption",
@@ -5813,6 +5816,36 @@
       "component": "SwitchCustomizationItem subtitle",
       "meaning": "The switch only makes hiding available; it never hides anything by itself",
       "notes": "Explicit scope: arming vs hiding.",
+      "status": "verified"
+    },
+    "Reset to the default folder": {
+      "key": "Reset to the default folder",
+      "context": "Action to discard the user-picked custom backup destination folder",
+      "file": "lib/settings/backup-page.dart:330",
+      "page": "Settings > Backup",
+      "component": "List item shown only when a custom destination folder is set",
+      "meaning": "Backups go back to the platform default folder (e.g. /storage/emulated/0/Documents/oinkoin on Android)",
+      "notes": "'Folder' here is the backup destination directory. Avoid translating as 'file'. Keep imperative form.",
+      "status": "verified"
+    },
+    "Select the destination folder": {
+      "key": "Select the destination folder",
+      "context": "Title of the native directory picker dialog opened from the Destination folder setting",
+      "file": "lib/services/backup-directory-service.dart:82",
+      "page": "Settings > Backup (desktop platforms only; Android uses the system SAF picker)",
+      "component": "Native save/directory dialog title",
+      "meaning": "Choose the folder where backup files will be stored",
+      "notes": "'Destination folder' pairs with the existing 'Destination folder' setting label - translate consistently.",
+      "status": "verified"
+    },
+    "The selected folder is not writable. Please choose another one.": {
+      "key": "The selected folder is not writable. Please choose another one.",
+      "context": "Error snackbar shown when the picked backup folder fails the write probe",
+      "file": "lib/settings/backup-page.dart:212",
+      "page": "Settings > Backup",
+      "component": "SnackBar error message",
+      "meaning": "The app cannot write backup files into the folder the user just picked (permission denied, read-only storage, or a non-filesystem provider), so the choice is rejected",
+      "notes": "Error message; keep polite tone. 'Writable' = the app can create files in it.",
       "status": "verified"
     }
   }

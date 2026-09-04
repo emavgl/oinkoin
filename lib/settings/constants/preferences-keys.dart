@@ -28,6 +28,16 @@ class PreferencesKeys {
   static const enableVersionAndDateInBackupName =
       'enableVersionAndDateInBackupName';
 
+  // Custom folder where backups are stored. Empty string means the platform
+  // default folder is used. Device-local, so it is excluded from portable
+  // backup/restore.
+  static const backupFolderPath = 'backupFolderPath';
+
+  // SAF content URI of the Android folder picked for backups. Stored next to
+  // backupFolderPath so the persisted URI grant can be reused without asking
+  // the user to pick the folder again. Device-local, never exported.
+  static const backupFolderUri = 'backupFolderUri';
+
   // Homepage
   static const homepageTimeInterval = 'homepageTimeInterval';
   static const homepageRecordsMonthStartDay = 'homepageRecordsMonthStartDay';
