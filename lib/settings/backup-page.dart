@@ -574,13 +574,13 @@ class BackupPageState extends State<BackupPage> {
                         })
                       },
                     ),
-                      ],
-                    ),
                     Center(
                         child: Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: Text("Last database copy: ".i18n +
                                 lastDatabaseCopyDataStr)))
+                      ],
+                    ),
                   ],
                 ),
               );
