@@ -392,7 +392,7 @@ class BackupPageState extends State<BackupPage> {
                       visible: enableAutomaticBackup,
                       child: Column(
                         children: [
-                          SettingSeparator(title: "Database".i18n),
+                          SettingSeparator(title: "Automatic backup".i18n),
                           SwitchCustomizationItem(
                             title: "Include a database copy".i18n,
                             subtitle:

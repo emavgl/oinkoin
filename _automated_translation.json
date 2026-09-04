@@ -5988,16 +5988,6 @@
       "notes": "'Database copy' = full movements.db snapshot, overwritten in place, never auto-deleted.",
       "status": "verified"
     },
-    "Database": {
-      "key": "Database",
-      "context": "Subsection header grouping the database copy switch",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup (visible only with automatic backup on)",
-      "component": "Section header",
-      "meaning": "Introduces the raw database file option",
-      "notes": "Noun, header style.",
-      "status": "verified"
-    },
     "Raw database file for advanced use. Not a backup, and it cannot be encrypted.": {
       "key": "Raw database file for advanced use. Not a backup, and it cannot be encrypted.",
       "file": "lib/settings/backup-page.dart",
@@ -6006,6 +5996,16 @@
       "context": "Subtitle explaining the database copy to non-expert users",
       "meaning": "The file is a raw SQLite copy for advanced use, distinct from encrypted JSON backups",
       "notes": "Must prevent mistaking it for a restorable encrypted backup.",
+      "status": "verified"
+    },
+    "Automatic backup": {
+      "key": "Automatic backup",
+      "context": "Subsection header grouping the automatic backup options",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup (visible only with automatic backup on)",
+      "component": "Section header",
+      "meaning": "Groups the database copy switch and the retention dropdown",
+      "notes": "Noun phrase, header style. Distinct from the 'Enable automatic backup' switch above it.",
       "status": "verified"
     }
   }
