@@ -59,9 +59,16 @@ void main() {
     expect(exported.containsKey(PreferencesKeys.databaseFolderPath), isFalse);
     // Backup automation controls stay device-local too.
     await prefs.setBool(PreferencesKeys.backupIncludeDatabase, true);
-    expect(
-        PreferencesBackupService.exportPreferences(prefs)
-            .containsKey(PreferencesKeys.backupIncludeDatabase),
+    await prefs.setString(
+        PreferencesKeys.databaseCopyFolderPath, '/storage/emulated/0/Sync');
+    await prefs.setString(
+        PreferencesKeys.databaseCopyFolderUri, 'content://tree/sync');
+    final portable = PreferencesBackupService.exportPreferences(prefs);
+    expect(portable.containsKey(PreferencesKeys.backupIncludeDatabase),
+        isFalse);
+    expect(portable.containsKey(PreferencesKeys.databaseCopyFolderPath),
+        isFalse);
+    expect(portable.containsKey(PreferencesKeys.databaseCopyFolderUri),
         isFalse);
     expect(exported.containsKey('future_unknown_setting'), isFalse);
   });

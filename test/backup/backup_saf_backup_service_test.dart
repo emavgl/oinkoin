@@ -270,8 +270,7 @@ void main() {
     expect(await file.readAsString(), isNotEmpty);
   });
 
-  group('storeDatabaseCopy', () {
-    Future<File> makeSnapshot() async {
+  group('storeDatabaseCopy', () {    Future<File> makeSnapshot() async {
       final snapshot =
           File('${testDir.path}/snapshot_${DateTime.now().microsecondsSinceEpoch}.db');
       await snapshot.writeAsString('snapshot-bytes');
@@ -317,6 +316,67 @@ void main() {
       expect(
         await BackupService.storeDatabaseCopy(snapshot, safPath, safUri),
         isFalse,
+      );
+      expect(await snapshot.exists(), isFalse);
+    });
+  });
+
+  group('getDatabaseCopyLocation', () {
+    Future<void> useCustomBackupFolder() async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(PreferencesKeys.backupFolderPath, safPath);
+      await prefs.setString(PreferencesKeys.backupFolderUri, safUri);
+    }
+
+    test('follows the backup destination by default', () async {
+      await useCustomBackupFolder();
+
+      final location = await BackupService.getDatabaseCopyLocation();
+
+      expect(location.path, safPath);
+      expect(location.uri, safUri);
+    });
+
+    test('prefers the dedicated copy folder with its own grant', () async {
+      await useCustomBackupFolder();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          PreferencesKeys.databaseCopyFolderPath, '/storage/emulated/0/Sync');
+      await prefs.setString(
+          PreferencesKeys.databaseCopyFolderUri, 'content://tree/sync');
+
+      final location = await BackupService.getDatabaseCopyLocation();
+
+      expect(location.path, '/storage/emulated/0/Sync');
+      expect(location.uri, 'content://tree/sync');
+    });
+
+    test('dedicated folder without a grant means plain writes', () async {
+      await useCustomBackupFolder();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          PreferencesKeys.databaseCopyFolderPath, '${testDir.path}/copies');
+
+      final location = await BackupService.getDatabaseCopyLocation();
+
+      expect(location.path, '${testDir.path}/copies');
+      expect(location.uri, isNull);
+    });
+
+    test('storeDatabaseSnapshot lands in the copy folder', () async {
+      final target = Directory('${testDir.path}/copy_target');
+      await target.create();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          PreferencesKeys.databaseCopyFolderPath, target.path);
+      final snapshot =
+          File('${testDir.path}/snap_${DateTime.now().microsecondsSinceEpoch}.db');
+      await snapshot.writeAsString('snapshot-bytes');
+
+      expect(await BackupService.storeDatabaseSnapshot(snapshot), isTrue);
+      expect(
+        await File('${target.path}/oinkoin_database.db').readAsString(),
+        'snapshot-bytes',
       );
       expect(await snapshot.exists(), isFalse);
     });

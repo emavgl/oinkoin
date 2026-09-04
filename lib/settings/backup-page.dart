@@ -126,11 +126,11 @@ class BackupPageState extends State<BackupPage> {
       if (!stored) {
         throw StateError('Could not store the database file');
       }
-      final backupDir = await BackupService.getBackupDirectory();
+      final location = await BackupService.getDatabaseCopyLocation();
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-            'File stored in $backupDir/${BackupService.DATABASE_SNAPSHOT_FILE}'),
+            'File stored in ${location.path}/${BackupService.DATABASE_SNAPSHOT_FILE}'),
       ));
     } catch (e) {
       if (!context.mounted) return;
@@ -182,6 +182,8 @@ class BackupPageState extends State<BackupPage> {
   late String backupRetentionPeriodValue;
   late String backupFolderPath;
   bool hasCustomBackupFolder = false;
+  late String databaseCopyFolderPath;
+  bool hasCustomDatabaseCopyFolder = false;
   late String backupPassword;
   String lastBackupDataStr = "-";
 
@@ -205,6 +207,12 @@ class BackupPageState extends State<BackupPage> {
     hasCustomBackupFolder = customBackupFolderPath.isNotEmpty;
     backupFolderPath =
         hasCustomBackupFolder ? customBackupFolderPath : defaultDirectory;
+    String customCopyFolderPath = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.databaseCopyFolderPath)!;
+    hasCustomDatabaseCopyFolder = customCopyFolderPath.isNotEmpty;
+    databaseCopyFolderPath = hasCustomDatabaseCopyFolder
+        ? customCopyFolderPath
+        : backupFolderPath;
   }
 
   resetEnableEncryptedBackup() {
@@ -247,6 +255,38 @@ class BackupPageState extends State<BackupPage> {
   resetBackupFolder() {
     prefs.remove(PreferencesKeys.backupFolderPath);
     prefs.remove(PreferencesKeys.backupFolderUri);
+    setState(() {
+      fetchAllThePreferences();
+    });
+  }
+
+  changeDatabaseCopyFolder() async {
+    BackupDirectoryPick pick = await BackupDirectoryService.pickDirectory();
+    if (!mounted) return;
+    if (pick.outcome == BackupDirectoryPickOutcome.success &&
+        pick.path != null) {
+      await prefs.setString(
+          PreferencesKeys.databaseCopyFolderPath, pick.path!);
+      if (pick.uri != null) {
+        await prefs.setString(PreferencesKeys.databaseCopyFolderUri, pick.uri!);
+      } else {
+        await prefs.remove(PreferencesKeys.databaseCopyFolderUri);
+      }
+      setState(() {
+        fetchAllThePreferences();
+      });
+    } else if (pick.outcome == BackupDirectoryPickOutcome.notWritable) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            "The selected folder is not writable. Please choose another one."
+                .i18n),
+      ));
+    }
+  }
+
+  resetDatabaseCopyFolder() {
+    prefs.remove(PreferencesKeys.databaseCopyFolderPath);
+    prefs.remove(PreferencesKeys.databaseCopyFolderUri);
     setState(() {
       fetchAllThePreferences();
     });
@@ -458,11 +498,30 @@ class BackupPageState extends State<BackupPage> {
                         onPressed: () async =>
                             await storeDatabaseFile(context)),
                     Visibility(
+                      visible: BackupDirectoryService.isSupported,
+                      child: Column(
+                        children: [
+                          ClickableCustomizationItem(
+                              title: "Storage folder".i18n,
+                              subtitle: databaseCopyFolderPath,
+                              enabled: true,
+                              onTap: () async =>
+                                  await changeDatabaseCopyFolder()),
+                          if (hasCustomDatabaseCopyFolder)
+                            ClickableCustomizationItem(
+                                title: "Follow the backup destination".i18n,
+                                subtitle: backupFolderPath,
+                                enabled: true,
+                                onTap: resetDatabaseCopyFolder),
+                        ],
+                      ),
+                    ),
+                    Visibility(
                       visible: enableAutomaticBackup,
                       child: Column(
                         children: [
                           SwitchCustomizationItem(
-                            title: "Include a database copy".i18n,
+                            title: "Save database automatically".i18n,
                             subtitle:
                                 "Store a fresh copy with every automatic backup"
                                     .i18n,

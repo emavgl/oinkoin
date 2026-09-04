@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 603
+    "total_keys": 605
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5978,16 +5978,6 @@
       "meaning": "Title of the native folder picker (desktop only)",
       "notes": "Choose where movements.db lives."
     },
-    "Include a database copy": {
-      "key": "Include a database copy",
-      "context": "Switch enabling a movements.db snapshot alongside automatic backups",
-      "file": "lib/settings/backup-page.dart",
-      "page": "Settings > Backup (visible only with automatic backup on)",
-      "component": "SwitchCustomizationItem title",
-      "meaning": "Each automatic backup also stores a consistent SQLite snapshot",
-      "notes": "'Database copy' = full movements.db snapshot, overwritten in place, never auto-deleted.",
-      "status": "verified"
-    },
     "Database": {
       "key": "Database",
       "context": "Subsection header grouping raw database file actions",
@@ -6046,6 +6036,36 @@
       "component": "SnackBar message",
       "meaning": "Snapshot creation or storage failed",
       "notes": "Generic failure message.",
+      "status": "verified"
+    },
+    "Storage folder": {
+      "key": "Storage folder",
+      "context": "Row opening the folder picker for database copies",
+      "component": "Clickable row title",
+      "meaning": "Folder receiving database snapshots; defaults to the backup destination",
+      "notes": "Distinct from the backup Destination folder row.",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "status": "verified"
+    },
+    "Follow the backup destination": {
+      "key": "Follow the backup destination",
+      "context": "Row resetting the copy folder back to the backup destination",
+      "component": "Clickable row title",
+      "meaning": "Discard the custom copy folder",
+      "notes": "Shown only with a custom copy folder set.",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "status": "verified"
+    },
+    "Save database automatically": {
+      "key": "Save database automatically",
+      "context": "Switch storing a database snapshot with every automatic backup",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Each automatic backup also stores an overwritten movements.db snapshot",
+      "notes": "Visible only with automatic backup on.",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
       "status": "verified"
     }
   }

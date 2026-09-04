@@ -328,13 +328,36 @@ class BackupService {
   /// by retention cleanup, which only removes `*_obackup.json` files.
   static const String DATABASE_SNAPSHOT_FILE = 'oinkoin_database.db';
 
-  /// Stores an already-created database [snapshot] into the active backup
-  /// directory (custom folder or default), through SAF on Android custom
-  /// folders and by plain copy elsewhere.
-  static Future<bool> storeDatabaseSnapshot(File snapshot) async {
+  /// Where database copies go: the dedicated copy folder when set,
+  /// otherwise the backup destination. Returns the display path and, on
+  /// Android custom folders, the SAF URI to write through.
+  static Future<({String path, String? uri})>
+      getDatabaseCopyLocation() async {
+    var prefs = await SharedPreferences.getInstance();
+    String copyFolderPath = PreferencesUtils.getOrDefault<String>(
+      prefs,
+      PreferencesKeys.databaseCopyFolderPath,
+    )!;
+    if (copyFolderPath.isNotEmpty) {
+      String copyFolderUri = PreferencesUtils.getOrDefault<String>(
+        prefs,
+        PreferencesKeys.databaseCopyFolderUri,
+      )!;
+      return (
+        path: copyFolderPath,
+        uri: copyFolderUri.isEmpty ? null : copyFolderUri
+      );
+    }
     final backupDir = await getBackupDirectory();
-    return storeDatabaseCopy(
-        snapshot, backupDir, await _getActiveSafFolderUri());
+    return (path: backupDir, uri: await _getSafFolderUri(backupDir));
+  }
+
+  /// Stores an already-created database [snapshot] into the database copy
+  /// location (dedicated folder or backup destination), through SAF on
+  /// Android custom folders and by plain copy elsewhere.
+  static Future<bool> storeDatabaseSnapshot(File snapshot) async {
+    final location = await getDatabaseCopyLocation();
+    return storeDatabaseCopy(snapshot, location.path, location.uri);
   }
 
   /// Stores an already-created database [snapshot] into [backupDir],
