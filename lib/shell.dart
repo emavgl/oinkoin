@@ -14,6 +14,7 @@ import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/settings/settings-page.dart';
 import 'package:piggybank/style.dart';
 import 'package:piggybank/budgets/budgets-page.dart';
+import 'package:piggybank/categories/categories-tab-page-view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'categories/categories-tab-page-edit.dart';
@@ -25,6 +26,9 @@ class Shell extends StatefulWidget {
 }
 
 class ShellState extends State<Shell> {
+  static const MethodChannel _widgetActionChannel =
+      MethodChannel('oinkoin/widget_action');
+
   /// Singleton-like access for external refresh calls (e.g., quick actions).
   static ShellState? _instance;
 
@@ -103,6 +107,41 @@ class ShellState extends State<Shell> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) maybeShowAnnouncementDialog(context);
     });
+  }
+
+  /// Handles home screen widget quick-add taps (add expense/income). The
+  /// action arrives either pushed while running or stashed for cold starts;
+  /// both run only after authentication, like the announcement dialog.
+  void _handleWidgetQuickAction() {
+    _widgetActionChannel.setMethodCallHandler((call) async {
+      if (call.method == 'openAddFlow') {
+        _openAddFlow(call.arguments as String?);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      String? action;
+      try {
+        action =
+            await _widgetActionChannel.invokeMethod<String>('getInitialAction');
+      } catch (_) {
+        return;
+      }
+      if (action != null && mounted) _openAddFlow(action);
+    });
+  }
+
+  /// Opens the add-record flow on the expense (0) or income (1) tab.
+  void _openAddFlow(String? action) {
+    final tabIndex = action == 'add_income' ? 1 : 0;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CategoryTabPageView(
+          goToEditMovementPage: true,
+          initialTabIndex: tabIndex,
+        ),
+      ),
+    );
   }
 
   /// Refreshes the home tab's records list (e.g., after a quick action added a record).
@@ -282,6 +321,7 @@ class ShellState extends State<Shell> {
         } else {
           // Authentication successful, build the main UI
           _scheduleAnnouncementDialog();
+          _handleWidgetQuickAction();
           return _buildMainUI(context);
         }
       },

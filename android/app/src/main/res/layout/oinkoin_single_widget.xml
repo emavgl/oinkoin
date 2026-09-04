@@ -40,7 +40,34 @@
     <ImageView
         android:id="@+id/widget_spark"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="0dp"
         android:layout_marginTop="4dp"
+        android:layout_weight="1"
         android:scaleType="fitCenter" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/widget_action_minus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/oinkoin_widget_round_button"
+            android:contentDescription="Add expense"
+            android:src="@drawable/oinkoin_ic_minus" />
+
+        <ImageButton
+            android:id="@+id/widget_action_plus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/oinkoin_widget_round_button"
+            android:contentDescription="Add income"
+            android:src="@drawable/oinkoin_ic_plus" />
+    </LinearLayout>
 </LinearLayout>

@@ -17,11 +17,24 @@ import java.util.concurrent.Executors
 
 class MainActivity : FlutterFragmentActivity() {
     private var pendingResult: MethodChannel.Result? = null
+    private var widgetChannel: MethodChannel? = null
+    private var pendingWidgetAction: String? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private val ioExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, WIDGET_CHANNEL)
+            .also { widgetChannel = it }
+            .setMethodCallHandler { call, result ->
+                if (call.method == "getInitialAction") {
+                    result.success(pendingWidgetAction)
+                    pendingWidgetAction = null
+                } else {
+                    result.notImplemented()
+                }
+            }
+        handleWidgetIntent(intent)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -52,6 +65,31 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleWidgetIntent(intent)
+    }
+
+    /**
+     * Forwards home screen widget quick-add taps to Flutter. While the
+     * engine runs, the action is pushed immediately; otherwise (cold start)
+     * it is stashed for [getInitialAction].
+     */
+    private fun handleWidgetIntent(intent: Intent?) {
+        val action = when (intent?.action) {
+            "com.example.piggybank.ADD_EXPENSE" -> "add_expense"
+            "com.example.piggybank.ADD_INCOME" -> "add_income"
+            else -> return
+        }
+        try {
+            widgetChannel?.invokeMethod("openAddFlow", action)
+                ?: run { pendingWidgetAction = action }
+        } catch (e: Exception) {
+            pendingWidgetAction = action
+        }
     }
 
     /**
@@ -314,6 +352,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     companion object {
         private const val CHANNEL = "oinkoin/backup_directory"
+        private const val WIDGET_CHANNEL = "oinkoin/widget_action"
         private const val REQUEST_PICK_BACKUP_DIRECTORY = 7941
         private const val PROBE_FILE_NAME = ".oinkoin_probe"
     }
