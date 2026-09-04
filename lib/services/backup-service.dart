@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -6,6 +7,7 @@ import 'dart:typed_data';
 import 'package:i18n_extension/default.i18n.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/models/backup.dart';
 import 'package:piggybank/models/budget.dart';
@@ -322,7 +324,112 @@ class BackupService {
     }
   }
 
-  /// Creates an automatic backup, given the settings in the preferences.
+  /// File name of the database snapshot stored next to automatic backups.
+  /// Fixed name on purpose: it is overwritten in place and never touched
+  /// by retention cleanup, which only removes `*_obackup.json` files.
+  static const String DATABASE_SNAPSHOT_FILE = 'oinkoin_database.db';
+
+  static bool _copyRunning = false;
+  static bool _copyDirty = false;
+
+  /// Schedules a database copy after a database write (see
+  /// `SqliteDatabase.onDatabaseChanged`). Copies run one at a time; a
+  /// write landing mid-copy marks it dirty so one more copy follows.
+  /// Failures only log and never propagate to the write path.
+  static void scheduleDatabaseCopy() {
+    unawaited(_runDatabaseCopy());
+  }
+
+  static Future<void> _runDatabaseCopy() async {
+    if (_copyRunning) {
+      _copyDirty = true;
+      return;
+    }
+    do {
+      _copyDirty = false;
+      _copyRunning = true;
+      try {
+        var prefs = await SharedPreferences.getInstance();
+        bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+          prefs,
+          PreferencesKeys.backupIncludeDatabase,
+        )!;
+        if (!includeDatabaseCopy) return;
+        final snapshot = await SqliteDatabase.createDatabaseSnapshot();
+        if (snapshot != null) {
+          await storeDatabaseSnapshot(snapshot);
+        }
+      } catch (e, st) {
+        _logger.handle(e, st, 'Failed to store scheduled database copy');
+      } finally {
+        _copyRunning = false;
+      }
+    } while (_copyDirty);
+  }
+
+  /// Where database copies go: the dedicated copy folder when set,
+  /// otherwise the backup destination. Returns the display path and, on
+  /// Android custom folders, the SAF URI to write through.
+  static Future<({String path, String? uri})>
+      getDatabaseCopyLocation() async {
+    var prefs = await SharedPreferences.getInstance();
+    String copyFolderPath = PreferencesUtils.getOrDefault<String>(
+      prefs,
+      PreferencesKeys.databaseCopyFolderPath,
+    )!;
+    if (copyFolderPath.isNotEmpty) {
+      String copyFolderUri = PreferencesUtils.getOrDefault<String>(
+        prefs,
+        PreferencesKeys.databaseCopyFolderUri,
+      )!;
+      return (
+        path: copyFolderPath,
+        uri: copyFolderUri.isEmpty ? null : copyFolderUri
+      );
+    }
+    final backupDir = await getBackupDirectory();
+    return (path: backupDir, uri: await _getSafFolderUri(backupDir));
+  }
+
+  /// Stores an already-created database [snapshot] into the database copy
+  /// location (dedicated folder or backup destination), through SAF on
+  /// Android custom folders and by plain copy elsewhere.
+  static Future<bool> storeDatabaseSnapshot(File snapshot) async {
+    final location = await getDatabaseCopyLocation();
+    return storeDatabaseCopy(snapshot, location.path, location.uri);
+  }
+
+  /// Stores an already-created database [snapshot] into [backupDir],
+  /// through SAF on Android custom folders and by plain copy elsewhere.
+  /// Always deletes the snapshot afterwards. Returns false on failure.
+  static Future<bool> storeDatabaseCopy(
+    File snapshot,
+    String backupDir, [
+    String? safFolderUri,
+  ]) async {
+    try {
+      if (safFolderUri != null) {
+        final written = await BackupDirectoryService.writeBackupFile(
+            safFolderUri, DATABASE_SNAPSHOT_FILE, snapshot.path);
+        if (!written) {
+          throw StateError(
+              'Could not write $DATABASE_SNAPSHOT_FILE into the backup folder');
+        }
+      } else {
+        await snapshot.copy(join(backupDir, DATABASE_SNAPSHOT_FILE));
+      }
+      _logger.info('Database copy stored in $backupDir');
+      return true;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to store database copy');
+      return false;
+    } finally {
+      if (await snapshot.exists()) {
+        await snapshot.delete();
+      }
+    }
+  }
+
   static Future<bool> createAutomaticBackup() async {
     var prefs = await SharedPreferences.getInstance();
 
@@ -331,7 +438,11 @@ class BackupService {
       prefs,
       PreferencesKeys.enableAutomaticBackup,
     )!;
-    if (!enableAutomaticBackup) {
+    bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+      prefs,
+      PreferencesKeys.backupIncludeDatabase,
+    )!;
+    if (!enableAutomaticBackup && !includeDatabaseCopy) {
       log("No automatic backup set");
       return false;
     }
@@ -354,17 +465,76 @@ class BackupService {
         : null;
 
     try {
-      _logger.info('Creating automatic backup...');
-      final backupDir = await getBackupDirectory();
-      File backupFile = await BackupService.createJsonBackupFile(
-        backupFileName: filename,
-        directoryPath: backupDir,
-        encryptionPassword: enableEncryptedBackup ? backupPassword : null,
-      );
-      _logger.info("Automatic backup created: ${backupFile.path}");
+      if (enableAutomaticBackup) {
+        _logger.info('Creating automatic backup...');
+        final backupDir = await getBackupDirectory();
+        File backupFile = await BackupService.createJsonBackupFile(
+          backupFileName: filename,
+          directoryPath: backupDir,
+          encryptionPassword: enableEncryptedBackup ? backupPassword : null,
+        );
+        _logger.info("Automatic backup created: ${backupFile.path}");
+      }
+      if (includeDatabaseCopy) {
+        // Best effort: a failed database copy must not fail the backup.
+        final snapshot = await SqliteDatabase.createDatabaseSnapshot();
+        if (snapshot != null) {
+          await storeDatabaseSnapshot(snapshot);
+        }
+      }
       return true;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to create automatic backup');
+      return false;
+    }
+  }
+
+  /// Date of the existing database copy, or null when there is none or
+  /// its timestamp is unknown (e.g. a provider not reporting one).
+  static Future<DateTime?> getDateLatestDatabaseCopy() async {
+    try {
+      final location = await getDatabaseCopyLocation();
+      if (location.uri != null) {
+        final files =
+            await BackupDirectoryService.listBackupFiles(location.uri!);
+        for (final file in files) {
+          if (file.name == DATABASE_SNAPSHOT_FILE &&
+              file.lastModifiedMs != null &&
+              file.lastModifiedMs! > 0) {
+            return DateTime.fromMillisecondsSinceEpoch(file.lastModifiedMs!);
+          }
+        }
+        return null;
+      }
+      final copy = File(join(location.path, DATABASE_SNAPSHOT_FILE));
+      if (!await copy.exists()) return null;
+      return (await copy.stat()).modified;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to read database copy date');
+      return null;
+    }
+  }
+
+  /// Whether an automatic database copy should be stored: enabled and the
+  /// existing copy missing or older than the backup threshold.
+  static Future<bool> shouldCreateAutomaticDatabaseCopy() async {
+    try {
+      var prefs = await SharedPreferences.getInstance();
+      bool includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+        prefs,
+        PreferencesKeys.backupIncludeDatabase,
+      )!;
+      if (!includeDatabaseCopy) return false;
+
+      final latestCopyDate = await getDateLatestDatabaseCopy();
+      if (latestCopyDate == null) {
+        _logger.info("No database copy found, automatic copy needed");
+        return true;
+      }
+      return DateTime.now().difference(latestCopyDate) >
+          AUTOMATIC_BACKUP_THRESHOLD;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Error checking if automatic copy is needed');
       return false;
     }
   }
@@ -897,6 +1067,16 @@ class BackupService {
     }
     final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
     return formatter.format(dateLatestBackup);
+  }
+
+  /// Formatted date of the latest database copy, or null when there is none.
+  static Future<String?> getStringDateLatestDatabaseCopy() async {
+    var dateLatestCopy = await getDateLatestDatabaseCopy();
+    if (dateLatestCopy == null) {
+      return null;
+    }
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    return formatter.format(dateLatestCopy);
   }
 
   /// Returns the date of the latest backup file in the backup directory.

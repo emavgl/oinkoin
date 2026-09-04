@@ -28,15 +28,32 @@ class PreferencesKeys {
   static const enableVersionAndDateInBackupName =
       'enableVersionAndDateInBackupName';
 
+  // When true, automatic backups also store a movements.db snapshot next
+  // to the JSON backup. Portable: only controls backup content.
+  static const backupIncludeDatabase = 'backupIncludeDatabase';
+
   // Custom folder where backups are stored. Empty string means the platform
   // default folder is used. Device-local, so it is excluded from portable
   // backup/restore.
   static const backupFolderPath = 'backupFolderPath';
-
   // SAF content URI of the Android folder picked for backups. Stored next to
   // backupFolderPath so the persisted URI grant can be reused without asking
   // the user to pick the folder again. Device-local, never exported.
   static const backupFolderUri = 'backupFolderUri';
+
+  // Folder where database copies are stored. Empty means "same as the
+  // backup destination". Device-local, never exported.
+  static const databaseCopyFolderPath = 'databaseCopyFolderPath';
+
+  // SAF content URI of the Android folder picked for database copies.
+  // Device-local, never exported.
+  static const databaseCopyFolderUri = 'databaseCopyFolderUri';
+
+  // Custom folder holding movements.db. Empty string means the platform
+  // default location is used. Device-local, so it is excluded from portable
+  // backup/restore. Only honored on desktop, where SQLite can open real
+  // filesystem paths.
+  static const databaseFolderPath = 'databaseFolderPath';
 
   // Homepage
   static const homepageTimeInterval = 'homepageTimeInterval';

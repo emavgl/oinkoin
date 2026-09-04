@@ -14,6 +14,8 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
+import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -37,6 +39,24 @@ class SqliteDatabase implements DatabaseInterface {
   static int get version => 32;
   static Database? _db;
 
+  static const String databaseFileName = 'movements.db';
+
+  /// SQLite journal sidecars that may sit next to the database file.
+  static const List<String> _journalSuffixes = ['-wal', '-shm', '-journal'];
+
+  /// Called after every database write (set by whoever consumes the
+  /// notifications, e.g. the automatic database copy). Fire-and-forget:
+  /// listeners must never throw.
+  static void Function()? onDatabaseChanged;
+
+  static void _notifyDatabaseChanged() {
+    try {
+      onDatabaseChanged?.call();
+    } catch (e, st) {
+      _logger.handle(e, st, 'Database change listener failed');
+    }
+  }
+
   /// For testing only: allows setting a custom database instance
   @visibleForTesting
   static void setDatabaseForTesting(Database? db) {
@@ -51,6 +71,97 @@ class SqliteDatabase implements DatabaseInterface {
     return _db;
   }
 
+  /// Directory holding the database file: the user-picked custom folder
+  /// when one is set (desktop only), otherwise the platform default.
+  /// A custom folder that no longer exists falls back to the default so a
+  /// stale preference can never prevent the app from starting.
+  static Future<String> getDatabaseDirectory() async {
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      final prefs = await SharedPreferences.getInstance();
+      final custom = prefs.getString(PreferencesKeys.databaseFolderPath);
+      if (custom != null && custom.isNotEmpty) {
+        if (await Directory(custom).exists()) {
+          return custom;
+        }
+        _logger.warning(
+          'Custom database folder is gone, using the default location: $custom',
+        );
+      }
+      // For desktop platforms, use application documents directory
+      // This ensures we write to a writable location, not inside AppImage mount
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final databasePath = join(appDocDir.path, 'oinkoin');
+      // Create directory if it doesn't exist
+      final dir = Directory(databasePath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      return databasePath;
+    } else {
+      // For mobile platforms, use the default sqflite path
+      return await getDatabasesPath();
+    }
+  }
+
+  /// Copies the active database file (plus any journal sidecars) into
+  /// [targetDir], creating it if needed. Returns false when there is
+  /// nothing to copy or the copy fails. Never touches preferences and
+  /// never deletes the source: callers switch over on success.
+  static Future<bool> relocateDatabase(String targetDir) async {
+    try {
+      final currentDir = await getDatabaseDirectory();
+      final currentFile = File(join(currentDir, databaseFileName));
+      if (!await currentFile.exists()) {
+        _logger.warning('No database file to relocate at ${currentFile.path}');
+        return false;
+      }
+      final target = Directory(targetDir);
+      if (join(target.path, databaseFileName) == currentFile.path) {
+        return true;
+      }
+      if (!await target.exists()) {
+        await target.create(recursive: true);
+      }
+      for (final suffix in ['', ..._journalSuffixes]) {
+        final source = File('${currentFile.path}$suffix');
+        if (await source.exists()) {
+          await source.copy(join(target.path, '$databaseFileName$suffix'));
+        }
+      }
+      _logger.info('Database relocated to ${target.path}');
+      return true;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to relocate database to $targetDir');
+      return false;
+    }
+  }
+
+  /// Creates a consistent snapshot of the live database in a temporary
+  /// file using `VACUUM INTO`, which is safe to copy while the app runs
+  /// (unlike copying the live file, which can catch a partial write or
+  /// an uncheckpointed journal). Returns null when the snapshot fails;
+  /// callers must not fail their own operation because of it.
+  static Future<File?> createDatabaseSnapshot() async {
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final snapshot = File(join(
+        tempDir.path,
+        'oinkoin_snapshot_${DateTime.now().millisecondsSinceEpoch}.db',
+      ));
+      final db = await instance.database;
+      if (db == null) {
+        _logger.warning('No open database to snapshot');
+        return null;
+      }
+      final escapedPath = snapshot.path.replaceAll("'", "''");
+      await db.execute("VACUUM INTO '$escapedPath'");
+      return snapshot;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to create database snapshot');
+      return null;
+    }
+  }
+
   Future<Database> init() async {
     try {
       _logger.info('Initializing database...');
@@ -62,24 +173,8 @@ class SqliteDatabase implements DatabaseInterface {
         databaseFactory = databaseFactoryFfi;
       }
 
-      // Get proper database path
-      String databasePath;
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-        // For desktop platforms, use application documents directory
-        // This ensures we write to a writable location, not inside AppImage mount
-        final appDocDir = await getApplicationDocumentsDirectory();
-        databasePath = join(appDocDir.path, 'oinkoin');
-        // Create directory if it doesn't exist
-        final dir = Directory(databasePath);
-        if (!await dir.exists()) {
-          await dir.create(recursive: true);
-        }
-      } else {
-        // For mobile platforms, use the default sqflite path
-        databasePath = await getDatabasesPath();
-      }
-
-      String _path = join(databasePath, 'movements.db');
+      final databasePath = await getDatabaseDirectory();
+      String _path = join(databasePath, databaseFileName);
       _logger.debug('Database path: $_path');
 
       var db = await databaseFactory.openDatabase(
@@ -121,6 +216,7 @@ class SqliteDatabase implements DatabaseInterface {
     final map = budget.toMap()..remove('id');
     final id = await db.insert('budgets', map);
     _logger.info('Budget added: ID $id (${budget.name})');
+    _notifyDatabaseChanged();
     return id;
   }
 
@@ -131,12 +227,14 @@ class SqliteDatabase implements DatabaseInterface {
     budget.profileId ??= ProfileService.instance.activeProfileId;
     final map = budget.toMap()..remove('id');
     await db.update('budgets', map, where: 'id = ?', whereArgs: [budget.id]);
+    _notifyDatabaseChanged();
   }
 
   @override
   Future<void> deleteBudget(int id) async {
     final db = (await database)!;
     await db.delete('budgets', where: 'id = ?', whereArgs: [id]);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -148,6 +246,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: 'id = ?',
       whereArgs: [id],
     );
+    _notifyDatabaseChanged();
   }
 
   // Category implementation
@@ -190,6 +289,7 @@ class SqliteDatabase implements DatabaseInterface {
       }
       int result = await db.insert("categories", category.toMap());
       _logger.info('Category added: ${category.name}');
+      _notifyDatabaseChanged();
       return result;
     } catch (e, st) {
       if (e is ElementAlreadyExists) {
@@ -226,6 +326,7 @@ class SqliteDatabase implements DatabaseInterface {
         whereArgs: [categoryName, categoryIndex],
       );
       _logger.info('Category deleted: $categoryName');
+      _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to delete category: $categoryName');
       rethrow;
@@ -258,6 +359,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "category_name = ? AND category_type = ?",
       whereArgs: [existingCategoryName, categoryIndex],
     );
+    _notifyDatabaseChanged();
     return newIndex;
   }
 
@@ -287,6 +389,7 @@ class SqliteDatabase implements DatabaseInterface {
         }
       }
       _logger.info('Record added: ID $recordId');
+      _notifyDatabaseChanged();
       return recordId;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add record: ${record?.title}');
@@ -402,6 +505,7 @@ class SqliteDatabase implements DatabaseInterface {
 
       await tagBatch.commit(noResult: true);
       _logger.info('Batch complete with tags');
+      _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
       rethrow;
@@ -495,6 +599,7 @@ class SqliteDatabase implements DatabaseInterface {
 
       await tagBatch.commit(noResult: true);
       _logger.info('Batch complete with tags');
+      _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch (no dup check)');
       rethrow;
@@ -827,6 +932,7 @@ class SqliteDatabase implements DatabaseInterface {
       );
     }
     await batch.commit(noResult: true);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -861,6 +967,7 @@ class SqliteDatabase implements DatabaseInterface {
       "INSERT INTO wallets (name, is_default, is_predefined, sort_order, profile_id, color) VALUES (?, 1, 1, 0, ?, ?)",
       ["Default Wallet".i18n, profileId, "255:129:199:132"],
     );
+    _notifyDatabaseChanged();
     return profileId;
   }
 
@@ -869,6 +976,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     final map = profile.toMap()..remove('id');
     await db.update('profiles', map, where: 'id = ?', whereArgs: [profile.id]);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -878,6 +986,7 @@ class SqliteDatabase implements DatabaseInterface {
       await db.delete(table, where: 'profile_id = ?', whereArgs: [id]);
     }
     await db.delete('profiles', where: 'id = ?', whereArgs: [id]);
+    _notifyDatabaseChanged();
   }
 
   // Wallet implementation
@@ -983,6 +1092,7 @@ class SqliteDatabase implements DatabaseInterface {
     final map = wallet.toMap()..remove('id');
     final id = await db.insert('wallets', map);
     _logger.info('Wallet added: ID $id (${wallet.name})');
+    _notifyDatabaseChanged();
     return id;
   }
 
@@ -993,6 +1103,7 @@ class SqliteDatabase implements DatabaseInterface {
     final map = wallet.toMap()..remove('id');
     await db.update('wallets', map, where: 'id = ?', whereArgs: [id]);
     _logger.info('Wallet updated: ID $id (${wallet.name})');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1045,6 +1156,7 @@ class SqliteDatabase implements DatabaseInterface {
     if (wasSystemDefault) await _ensureDefaultWallet(db);
     if (wasPredefined) await _ensurePredefinedWallet(db);
     _logger.info('Wallet ID $id deleted');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1055,6 +1167,7 @@ class SqliteDatabase implements DatabaseInterface {
       await _migrateWalletRefsInTable(db, table, fromId, toId);
     }
     _logger.info('Records moved from wallet ID $fromId to wallet ID $toId');
+    _notifyDatabaseChanged();
   }
 
   /// Migrates all wallet references from [fromId] to [toId] in [table].
@@ -1116,6 +1229,7 @@ class SqliteDatabase implements DatabaseInterface {
     if (isArchived && wasSystemDefault) await _ensureDefaultWallet(db);
     if (isArchived && wasPredefined) await _ensurePredefinedWallet(db);
     _logger.info('Wallet ID $id ${isArchived ? 'archived' : 'unarchived'}');
+    _notifyDatabaseChanged();
   }
 
   /// Promotes the first active wallet to default.
@@ -1200,6 +1314,7 @@ class SqliteDatabase implements DatabaseInterface {
       );
     }
     await batch.commit(noResult: true);
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1296,6 +1411,7 @@ class SqliteDatabase implements DatabaseInterface {
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
     }
+    _notifyDatabaseChanged();
     return updatedRows;
   }
 
@@ -1304,6 +1420,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     await db.delete("records", where: "id = ?", whereArgs: [id]);
     // There is a db trigger, deleting a record automatically delete the associated tags
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1315,6 +1432,7 @@ class SqliteDatabase implements DatabaseInterface {
     await db.delete("records", where: "id IN ($placeholders)", whereArgs: ids);
     _logger.info('Batch deleted ${ids.length} records');
     // There is a db trigger, deleting a record automatically delete the associated tags
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1330,6 +1448,7 @@ class SqliteDatabase implements DatabaseInterface {
       whereArgs: ids,
     );
     _logger.info('Batch moved ${ids.length} records to wallet ID $walletId');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1359,6 +1478,7 @@ class SqliteDatabase implements DatabaseInterface {
       await addRecord(duplicate);
     }
     _logger.info('Batch duplicated ${ids.length} records');
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1374,6 +1494,7 @@ class SqliteDatabase implements DatabaseInterface {
       whereArgs: [recurrentPatternId, millisecondsSinceEpoch],
     );
     // There is a db trigger, deleting a record automatically delete the associated tags
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1429,6 +1550,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     recordPattern.id ??= Uuid().v4();
     recordPattern.profileId ??= ProfileService.instance.activeProfileId;
+    _notifyDatabaseChanged();
     return await db.insert("recurrent_record_patterns", recordPattern.toMap());
   }
 
@@ -1442,6 +1564,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "id = ?",
       whereArgs: [recurrentPatternId],
     );
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1451,12 +1574,14 @@ class SqliteDatabase implements DatabaseInterface {
   ) async {
     final db = (await database)!;
     var patternMap = pattern.toMap();
-    return await db.update(
+    final updated = await db.update(
       "recurrent_record_patterns",
       patternMap,
       where: "id = ?",
       whereArgs: [recurrentPatternId],
     );
+    _notifyDatabaseChanged();
+    return updated;
   }
 
   @override
@@ -1495,6 +1620,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "name = ? AND category_type = ?",
       whereArgs: [categoryName, categoryType.index],
     );
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1516,6 +1642,7 @@ class SqliteDatabase implements DatabaseInterface {
         whereArgs: [category.name, category.categoryType!.index],
       );
     }
+    _notifyDatabaseChanged();
   }
 
   @override
@@ -1564,6 +1691,7 @@ class SqliteDatabase implements DatabaseInterface {
       }
       await batch.commit();
     });
+    _notifyDatabaseChanged();
   }
 
   Future<void> deleteTag(String tagName) async {
@@ -1575,5 +1703,6 @@ class SqliteDatabase implements DatabaseInterface {
       where: 'tag_name = ?',
       whereArgs: [tagName],
     );
+    _notifyDatabaseChanged();
   }
 }

@@ -29,11 +29,16 @@ class PreferencesDefaultValues {
     PreferencesKeys.enableAutomaticBackup: false, // Default to disabled
     PreferencesKeys.enableEncryptedBackup: false,
     PreferencesKeys.enableVersionAndDateInBackupName: true,
+    PreferencesKeys.backupIncludeDatabase: false,
     PreferencesKeys.backupRetentionIntervalIndex:
         BackupRetentionPeriod.ALWAYS.index, // Default retention period index
     PreferencesKeys.backupPassword: '', // Default to empty password
     PreferencesKeys.backupFolderPath: '', // Empty means the default folder
     PreferencesKeys.backupFolderUri: '', // No custom folder picked yet
+    PreferencesKeys.databaseCopyFolderPath:
+        '', // Empty means the backup destination
+    PreferencesKeys.databaseCopyFolderUri: '',
+    PreferencesKeys.databaseFolderPath: '', // Empty means the default location
     PreferencesKeys.enableAppLock: false, // Default to disabled
     PreferencesKeys.restoreAmountOnDelete:
         true, // Default to restoring the amount

@@ -189,6 +189,12 @@ When `/translate` is invoked:
 - Mark as "pending" if unsure — better to slow down than guess
 - Once "verified", context becomes the source of truth for all locales
 
+### Minimizing Strings
+- Every new string costs a translation in ~24 locales. Avoid adding strings.
+- Before introducing a new key, search `en-US.json` for an existing string that already says it (e.g. reuse "Destination folder" instead of adding "Storage folder").
+- Prefer reusing a string with the same meaning even across features; only add a new key when the wording or context genuinely differs.
+- When a UI change removes the only usage of a key, re-run `python3 scripts/update_en_strings.py` and drop its tracking entry so stale keys don't linger.
+
 ### Maintenance
 - Update _automated_translation.json **before** translating
 - Commit changes to this file with the translations

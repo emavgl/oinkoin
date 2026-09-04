@@ -8,7 +8,7 @@
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
     "last_updated": "2026-09-04",
-    "total_keys": 584
+    "total_keys": 605
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -5776,7 +5776,10 @@
       "component": "Privacy section header",
       "meaning": "Groups the privacy mode switches",
       "notes": "Noun. Section name is localized at the option site, header render is idempotent.",
-      "status": "verified"
+      "status": "verified",
+      "same_as_english_locales": [
+        "it"
+      ]
     },
     "Show amounts": {
       "key": "Show amounts",
@@ -5857,6 +5860,221 @@
       "meaning": "Release notes heading",
       "notes": "Keep in English in all locales by explicit request.",
       "status": "skip"
+    },
+    "Danger zone": {
+      "key": "Danger zone",
+      "context": "Danger zone subsection header grouping database location settings",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Section header",
+      "meaning": "Danger zone subsection header grouping database location settings",
+      "notes": "High-risk settings area; translate with caution tone."
+    },
+    "Database folder": {
+      "key": "Database folder",
+      "context": "Row opening the folder picker for movements.db",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Clickable row title",
+      "meaning": "Row opening the folder picker for movements.db",
+      "notes": "The folder holding the SQLite database file."
+    },
+    "Use the default location": {
+      "key": "Use the default location",
+      "context": "Row resetting the database folder to the app default",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Clickable row title",
+      "meaning": "Row resetting the database folder to the app default",
+      "notes": "Opposite of picking a custom folder."
+    },
+    "Move back to the internal app folder": {
+      "key": "Move back to the internal app folder",
+      "context": "Subtitle of the reset row",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Clickable row subtitle",
+      "meaning": "Subtitle of the reset row",
+      "notes": "'Internal app folder' = sandboxed app storage."
+    },
+    "Change database folder": {
+      "key": "Change database folder",
+      "context": "Title of the confirmation dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog title",
+      "meaning": "Title of the confirmation dialog",
+      "notes": "Imperative; confirms a risky move."
+    },
+    "The folder already contains a database, which will be used from now on. Restart the app to apply the change. Never open the same database in two apps at once.": {
+      "key": "The folder already contains a database, which will be used from now on. Restart the app to apply the change. Never open the same database in two apps at once.",
+      "context": "Warning when the target folder already holds a database",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog message",
+      "meaning": "Warning when the target folder already holds a database",
+      "notes": "Must convey: existing data wins, restart needed, no simultaneous access (corruption risk)."
+    },
+    "The current database will be copied to the new folder. Restart the app to apply the change. Never open the same database in two apps at once.": {
+      "key": "The current database will be copied to the new folder. Restart the app to apply the change. Never open the same database in two apps at once.",
+      "context": "Confirmation when the current database will be copied",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog message",
+      "meaning": "Confirmation when the current database will be copied",
+      "notes": "Same warnings as the existing-database variant."
+    },
+    "Change folder": {
+      "key": "Change folder",
+      "context": "Confirm button of the dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog action",
+      "meaning": "Confirm button of the dialog",
+      "notes": "Imperative."
+    },
+    "Restart required": {
+      "key": "Restart required",
+      "context": "Title of the follow-up dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog title",
+      "meaning": "Title of the follow-up dialog",
+      "notes": "States a restart is mandatory, not optional."
+    },
+    "Close and reopen the app to use the new database location": {
+      "key": "Close and reopen the app to use the new database location",
+      "context": "Body of the restart dialog",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "AlertDialog message",
+      "meaning": "Body of the restart dialog",
+      "notes": "Manual restart instruction."
+    },
+    "Could not move the database to the selected folder": {
+      "key": "Could not move the database to the selected folder",
+      "context": "Error when the database copy fails",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "SnackBar message",
+      "meaning": "Error when the database copy fails",
+      "notes": "Copy failure, e.g. permissions or disk space."
+    },
+    "Select the database folder": {
+      "key": "Select the database folder",
+      "context": "Title of the native folder picker (desktop only)",
+      "file": "lib/settings/customization-page.dart",
+      "page": "Settings > Customization > Danger zone",
+      "status": "verified",
+      "component": "Native directory dialog title",
+      "meaning": "Title of the native folder picker (desktop only)",
+      "notes": "Choose where movements.db lives."
+    },
+    "Database": {
+      "key": "Database",
+      "context": "Subsection header grouping raw database file actions",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Section header",
+      "meaning": "Introduces Export/Store database actions, distinct from backups",
+      "notes": "Noun, header style.",
+      "status": "verified",
+      "same_as_english_locales": [
+        "da",
+        "it",
+        "vec-IT"
+      ]
+    },
+    "Complete snapshots of your data, encrypted and restorable anytime.": {
+      "key": "Complete snapshots of your data, encrypted and restorable anytime.",
+      "context": "Explainer under the Backup section header",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Explanatory body text",
+      "meaning": "Backups are full, encrypted, restorable snapshots",
+      "notes": "One-line reassurance for non-expert users.",
+      "status": "verified"
+    },
+    "Raw database file for advanced use. Not a backup, and it cannot be encrypted.": {
+      "key": "Raw database file for advanced use. Not a backup, and it cannot be encrypted.",
+      "context": "Explainer under the Database section header",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Explanatory body text",
+      "meaning": "The database file is raw SQLite for advanced use, distinct from encrypted backups",
+      "notes": "Must prevent mistaking it for a restorable encrypted backup.",
+      "status": "verified"
+    },
+    "Store the database on disk": {
+      "key": "Store the database on disk",
+      "context": "Action storing a database snapshot into the destination folder",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "SettingsItem title",
+      "meaning": "Save movements.db into the backup destination folder now",
+      "notes": "Mirrors 'Store the Backup on disk' but for the raw database.",
+      "status": "verified"
+    },
+    "Could not save the database file": {
+      "key": "Could not save the database file",
+      "context": "Error when storing the database snapshot on disk fails",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "SnackBar message",
+      "meaning": "Snapshot creation or storage failed",
+      "notes": "Generic failure message.",
+      "status": "verified"
+    },
+    "Follow the backup destination": {
+      "key": "Follow the backup destination",
+      "context": "Row resetting the copy folder back to the backup destination",
+      "component": "Clickable row title",
+      "meaning": "Discard the custom copy folder",
+      "notes": "Shown only with a custom copy folder set.",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "status": "verified"
+    },
+    "Save database automatically": {
+      "key": "Save database automatically",
+      "context": "Switch storing a database snapshot with every automatic backup",
+      "component": "SwitchCustomizationItem title",
+      "meaning": "Each automatic backup also stores an overwritten movements.db snapshot",
+      "notes": "Visible only with automatic backup on.",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "status": "verified"
+    },
+    "Automatically keep a fresh copy in the storage folder": {
+      "key": "Automatically keep a fresh copy in the storage folder",
+      "context": "Subtitle of the independent automatic database copy switch",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup > Database",
+      "component": "SwitchCustomizationItem subtitle",
+      "meaning": "Runs on its own schedule, independent of the JSON automatic backup",
+      "notes": "Pro-gated like automatic backups.",
+      "status": "verified"
+    },
+    "Last database copy: ": {
+      "key": "Last database copy: ",
+      "context": "Timestamp line under the Database section",
+      "file": "lib/settings/backup-page.dart",
+      "page": "Settings > Backup",
+      "component": "Status text",
+      "meaning": "Date and time of the latest stored database snapshot, mirrors 'Last backup: '",
+      "notes": "Keep trailing space and colon like the backup counterpart.",
+      "status": "verified"
     }
   }
 }

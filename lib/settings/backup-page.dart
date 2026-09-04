@@ -12,10 +12,13 @@ import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import '../helpers/alert-dialog-builder.dart';
+import '../services/database/sqlite-database.dart';
 import '../services/platform-file-service.dart';
 import '../services/service-config.dart';
 import 'clickable-customization-item.dart';
+import 'components/setting-separator.dart';
 import 'constants/preferences-keys.dart';
+import 'style.dart';
 import 'dropdown-customization-item.dart';
 import 'settings-item.dart';
 import 'switch-customization-item.dart';
@@ -26,6 +29,16 @@ class BackupPage extends StatefulWidget {
 }
 
 class BackupPageState extends State<BackupPage> {
+  // Stored so rebuilds (e.g. toggling a switch) don't refetch preferences
+  // and rebuild the page from scratch, which would collapse sections.
+  late final Future<void> _preferencesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _preferencesFuture = initializePreferences();
+  }
+
   static String getKeyFromObject<T>(Map<String, T> originalMap, T? searchValue,
       {String? defaultKey}) {
     final invertedMap = originalMap.map((key, value) => MapEntry(value, key));
@@ -45,6 +58,10 @@ class BackupPageState extends State<BackupPage> {
     String? l = await BackupService.getStringDateLatestBackup();
     if (l != null) {
       lastBackupDataStr = l;
+    }
+    String? c = await BackupService.getStringDateLatestDatabaseCopy();
+    if (c != null) {
+      lastDatabaseCopyDataStr = c;
     }
   }
 
@@ -114,6 +131,36 @@ class BackupPageState extends State<BackupPage> {
     }
   }
 
+  storeDatabaseFile(BuildContext context) async {
+    try {
+      final snapshot = await SqliteDatabase.createDatabaseSnapshot();
+      if (snapshot == null) {
+        throw StateError('Could not create a database snapshot');
+      }
+      final stored = await BackupService.storeDatabaseSnapshot(snapshot);
+      if (!stored) {
+        throw StateError('Could not store the database file');
+      }
+      final location = await BackupService.getDatabaseCopyLocation();
+      String? c = await BackupService.getStringDateLatestDatabaseCopy();
+      if (c != null) {
+        setState(() {
+          lastDatabaseCopyDataStr = c;
+        });
+      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            'File stored in ${location.path}/${BackupService.DATABASE_SNAPSHOT_FILE}'),
+      ));
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Could not save the database file".i18n),
+      ));
+    }
+  }
+
   storeBackupFile(BuildContext context) async {
     String? filename = enableVersionAndDateInBackupName
         ? null
@@ -152,11 +199,15 @@ class BackupPageState extends State<BackupPage> {
   late bool enableAutomaticBackup;
   late bool enableVersionAndDateInBackupName;
   late bool enableEncryptedBackup;
+  late bool includeDatabaseCopy;
   late String backupRetentionPeriodValue;
   late String backupFolderPath;
   bool hasCustomBackupFolder = false;
+  late String databaseCopyFolderPath;
+  bool hasCustomDatabaseCopyFolder = false;
   late String backupPassword;
   String lastBackupDataStr = "-";
+  String lastDatabaseCopyDataStr = "-";
 
   fetchAllThePreferences() {
     enableVersionAndDateInBackupName = PreferencesUtils.getOrDefault<bool>(
@@ -165,6 +216,8 @@ class BackupPageState extends State<BackupPage> {
         prefs, PreferencesKeys.enableAutomaticBackup)!;
     enableEncryptedBackup = PreferencesUtils.getOrDefault<bool>(
         prefs, PreferencesKeys.enableEncryptedBackup)!;
+    includeDatabaseCopy = PreferencesUtils.getOrDefault<bool>(
+        prefs, PreferencesKeys.backupIncludeDatabase)!;
     int backupRetentionIntervalIndex = PreferencesUtils.getOrDefault<int>(
         prefs, PreferencesKeys.backupRetentionIntervalIndex)!;
     backupRetentionPeriodValue = getKeyFromObject<int>(
@@ -176,6 +229,12 @@ class BackupPageState extends State<BackupPage> {
     hasCustomBackupFolder = customBackupFolderPath.isNotEmpty;
     backupFolderPath =
         hasCustomBackupFolder ? customBackupFolderPath : defaultDirectory;
+    String customCopyFolderPath = PreferencesUtils.getOrDefault<String>(
+        prefs, PreferencesKeys.databaseCopyFolderPath)!;
+    hasCustomDatabaseCopyFolder = customCopyFolderPath.isNotEmpty;
+    databaseCopyFolderPath = hasCustomDatabaseCopyFolder
+        ? customCopyFolderPath
+        : backupFolderPath;
   }
 
   resetEnableEncryptedBackup() {
@@ -223,8 +282,51 @@ class BackupPageState extends State<BackupPage> {
     });
   }
 
+  changeDatabaseCopyFolder() async {
+    BackupDirectoryPick pick = await BackupDirectoryService.pickDirectory();
+    if (!mounted) return;
+    if (pick.outcome == BackupDirectoryPickOutcome.success &&
+        pick.path != null) {
+      await prefs.setString(
+          PreferencesKeys.databaseCopyFolderPath, pick.path!);
+      if (pick.uri != null) {
+        await prefs.setString(PreferencesKeys.databaseCopyFolderUri, pick.uri!);
+      } else {
+        await prefs.remove(PreferencesKeys.databaseCopyFolderUri);
+      }
+      setState(() {
+        fetchAllThePreferences();
+      });
+    } else if (pick.outcome == BackupDirectoryPickOutcome.notWritable) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            "The selected folder is not writable. Please choose another one."
+                .i18n),
+      ));
+    }
+  }
+
+  resetDatabaseCopyFolder() {
+    prefs.remove(PreferencesKeys.databaseCopyFolderPath);
+    prefs.remove(PreferencesKeys.databaseCopyFolderUri);
+    setState(() {
+      fetchAllThePreferences();
+    });
+  }
+
   final _textController = TextEditingController();
   bool _isOkButtonEnabled = false;
+
+  /// Small explanatory line under a section header.
+  Widget _buildExplainer(String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Text(
+        text,
+        style: subtitleTextStyle,
+      ),
+    );
+  }
 
   Future<String?> showPasswordInputDialog(BuildContext context) async {
     return await showDialog(
@@ -292,12 +394,17 @@ class BackupPageState extends State<BackupPage> {
           title: Text("Backup".i18n),
         ),
         body: FutureBuilder(
-          future: initializePreferences(),
+          future: _preferencesFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
+                    SettingSeparator(title: "Backup".i18n),
+                    _buildExplainer(
+                        "Complete snapshots of your data, encrypted and restorable anytime."
+                            .i18n),
                     SettingsItem(
                         icon: Icon(Icons.backup, color: Colors.white),
                         iconBackgroundColor: Colors.orange.shade600,
@@ -305,12 +412,6 @@ class BackupPageState extends State<BackupPage> {
                         subtitle: "Share the backup file".i18n,
                         onPressed: () async =>
                             await createAndShareBackupFile()),
-                    SettingsItem(
-                        icon: Icon(Icons.dataset, color: Colors.white),
-                        iconBackgroundColor: Colors.blueGrey.shade600,
-                        title: 'Export Database'.i18n,
-                        subtitle: "Share the database file".i18n,
-                        onPressed: () async => await shareDatabase()),
                     SettingsItem(
                         icon: Icon(Icons.save_alt, color: Colors.white),
                         iconBackgroundColor: Colors.lightBlue.shade600,
@@ -403,7 +504,83 @@ class BackupPageState extends State<BackupPage> {
                       ),
                     ),
                     Center(
-                        child: Text("Last backup: ".i18n + lastBackupDataStr))
+                        child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Text(
+                                "Last backup: ".i18n + lastBackupDataStr))),
+                    ExpansionTile(
+                      initiallyExpanded: false,
+                      maintainState: true,
+                      tilePadding:
+                          const EdgeInsets.symmetric(horizontal: 16.0),
+                      childrenPadding: EdgeInsets.zero,
+                      title: Text(
+                        "Database".i18n,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      subtitle: Text(
+                        "Raw database file for advanced use. Not a backup, and it cannot be encrypted."
+                            .i18n,
+                        style: subtitleTextStyle,
+                      ),
+                      children: [
+                        SettingsItem(
+                            icon: Icon(Icons.dataset, color: Colors.white),
+                            iconBackgroundColor: Colors.blueGrey.shade600,
+                            title: 'Export Database'.i18n,
+                            subtitle: "Share the database file".i18n,
+                            onPressed: () async => await shareDatabase()),
+                        SettingsItem(
+                            icon: Icon(Icons.storage, color: Colors.white),
+                            iconBackgroundColor: Colors.brown.shade600,
+                            title: 'Store the database on disk'.i18n,
+                            onPressed: () async =>
+                                await storeDatabaseFile(context)),
+                        Visibility(
+                          visible: BackupDirectoryService.isSupported,
+                          child: Column(
+                            children: [
+                              ClickableCustomizationItem(
+                                  title: "Destination folder".i18n,
+                                  subtitle: databaseCopyFolderPath,
+                                  enabled: true,
+                                  onTap: () async =>
+                                      await changeDatabaseCopyFolder()),
+                              if (hasCustomDatabaseCopyFolder)
+                                ClickableCustomizationItem(
+                                    title: "Follow the backup destination".i18n,
+                                    subtitle: backupFolderPath,
+                                    enabled: true,
+                                    onTap: resetDatabaseCopyFolder),
+                            ],
+                          ),
+                        ),
+                    SwitchCustomizationItem(
+                      title: "Save database automatically".i18n,
+                      enabled: ServiceConfig.isPremium,
+                      subtitle: !ServiceConfig.isPremium
+                          ? "Available on Oinkoin Pro".i18n
+                          : "Automatically keep a fresh copy in the storage folder"
+                              .i18n,
+                      switchValue: includeDatabaseCopy,
+                      sharedConfigKey:
+                          PreferencesKeys.backupIncludeDatabase,
+                      onChanged: (value) => {
+                        setState(() {
+                          fetchAllThePreferences();
+                        })
+                      },
+                    ),
+                    Center(
+                        child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Text("Last database copy: ".i18n +
+                                lastDatabaseCopyDataStr)))
+                      ],
+                    ),
                   ],
                 ),
               );
