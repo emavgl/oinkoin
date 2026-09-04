@@ -14,7 +14,7 @@
         android:layout_gravity="center"
         android:text="Open Oinkoin"
         android:textColor="#808080"
-        android:textSize="14sp"
+        android:textSize="16sp"
         android:visibility="gone" />
 
     <TextView
@@ -33,7 +33,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="#808080"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <ProgressBar
         android:id="@+id/widget_bar"

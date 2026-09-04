@@ -23,15 +23,15 @@
         android:layout_height="wrap_content"
         android:textAllCaps="true"
         android:textColor="#808080"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/widget_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:autoSizeTextType="uniform"
-        android:autoSizeMinTextSize="14sp"
-        android:autoSizeMaxTextSize="30sp"
+        android:autoSizeMinTextSize="16sp"
+        android:autoSizeMaxTextSize="38sp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textStyle="bold" />

@@ -36,15 +36,15 @@
                 android:layout_height="wrap_content"
                 android:textAllCaps="true"
                 android:textColor="#808080"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/widget_value_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="12sp"
-                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeMaxTextSize="26sp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textStyle="bold" />
@@ -63,15 +63,15 @@
                 android:layout_height="wrap_content"
                 android:textAllCaps="true"
                 android:textColor="#808080"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/widget_value_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="12sp"
-                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeMaxTextSize="26sp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textStyle="bold" />
@@ -90,15 +90,15 @@
                 android:layout_height="wrap_content"
                 android:textAllCaps="true"
                 android:textColor="#808080"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/widget_value_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="12sp"
-                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeMaxTextSize="26sp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textStyle="bold" />
