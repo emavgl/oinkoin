@@ -183,12 +183,17 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
             else R.drawable.oinkoin_widget_bg_light,
         )
         applyAppBackground(views, widgetData)
-        // Divider above the quick-add row: light gray in dark mode, dark in light.
-        views.setInt(
-            R.id.widget_divider,
-            "setBackgroundColor",
-            if (dark) 0x4DFFFFFF.toInt() else 0x4D000000.toInt(),
-        )
+        // Divider above the quick-add row: light gray in dark mode, dark in
+        // light. Only the overview and single-value layouts carry that row;
+        // budget and compact layouts have no divider view, and RemoteViews
+        // actions against missing views throw and abort the whole update.
+        if (!compact && kind != Kind.BUDGET) {
+            views.setInt(
+                R.id.widget_divider,
+                "setBackgroundColor",
+                if (dark) 0x4DFFFFFF.toInt() else 0x4D000000.toInt(),
+            )
+        }
         var hasContent = false
         if (compact) {
             hasContent = when (kind) {
