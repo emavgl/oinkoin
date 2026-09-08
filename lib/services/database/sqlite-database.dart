@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:piggybank/i18n.dart';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show ValueNotifier, visibleForTesting;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
@@ -49,11 +49,18 @@ class SqliteDatabase implements DatabaseInterface {
   /// listeners must never throw.
   static void Function()? onDatabaseChanged;
 
+  static final ValueNotifier<int> dataChangeNotifier = ValueNotifier(0);
+
   static void _notifyDatabaseChanged() {
     try {
       onDatabaseChanged?.call();
     } catch (e, st) {
       _logger.handle(e, st, 'Database change listener failed');
+    }
+    try {
+      dataChangeNotifier.value++;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Database change notifier failed');
     }
   }
 

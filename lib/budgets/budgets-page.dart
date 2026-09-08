@@ -18,6 +18,7 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/records/components/custom_interval_dialog.dart';
 import 'package:piggybank/records/components/filter_modal_content.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/database/sqlite-database.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/services/home-widget-service.dart';
@@ -130,6 +131,18 @@ class BudgetsPageState extends State<BudgetsPage> {
   @override
   void initState() {
     super.initState();
+    SqliteDatabase.dataChangeNotifier.addListener(_handleDataChanged);
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    SqliteDatabase.dataChangeNotifier.removeListener(_handleDataChanged);
+    super.dispose();
+  }
+
+  void _handleDataChanged() {
+    if (!mounted) return;
     _loadData();
   }
 
@@ -435,6 +448,7 @@ class _BudgetDetailPageState extends State<BudgetDetailPage> {
     ServiceConfig.walletsEnabledNotifier.addListener(
       _handleWalletsEnabledChanged,
     );
+    SqliteDatabase.dataChangeNotifier.addListener(_handleDataChanged);
     _loadData();
   }
 
@@ -443,7 +457,13 @@ class _BudgetDetailPageState extends State<BudgetDetailPage> {
     ServiceConfig.walletsEnabledNotifier.removeListener(
       _handleWalletsEnabledChanged,
     );
+    SqliteDatabase.dataChangeNotifier.removeListener(_handleDataChanged);
     super.dispose();
+  }
+
+  void _handleDataChanged() {
+    if (!mounted) return;
+    _loadData();
   }
 
   void _handleWalletsEnabledChanged() {
