@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 class CurrencyInfo {
   static const _symbolOverrides = <String, String>{
+    'AMD': '֏',
     'AZN': '₼',
   };
 
