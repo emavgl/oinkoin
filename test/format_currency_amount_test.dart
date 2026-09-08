@@ -177,6 +177,11 @@ void main() {
       expect(symbol, '₼');
     });
 
+    test('returns the Armenian dram symbol', () {
+      final symbol = getCurrencySymbol('AMD');
+      expect(symbol, '֏');
+    });
+
     test('returns code for unknown currency', () {
       final symbol = getCurrencySymbol('XYZ');
       expect(symbol, 'XYZ');
