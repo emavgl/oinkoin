@@ -49,6 +49,7 @@ dependencies:
   in_app_purchase:
     path: stubs/in_app_purchase
   flutter_markdown_plus: ^1.0.3
+  home_widget: ^0.9.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
