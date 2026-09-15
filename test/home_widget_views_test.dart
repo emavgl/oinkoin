@@ -5,10 +5,18 @@ import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/services/home-widget-service.dart';
+import 'package:piggybank/services/service-config.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 
 /// Home screen widget helpers: sparkline painting and daily series math.
 /// Data pushing itself is covered on-device (needs the widget plugin).
 void main() {
+  setUpAll(() {
+    tz.initializeTimeZones();
+    TestWidgetsFlutterBinding.ensureInitialized();
+    ServiceConfig.localTimezone = 'Europe/Vienna';
+  });
+
   testWidgets('sparkline paints without error', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
