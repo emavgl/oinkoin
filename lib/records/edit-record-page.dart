@@ -1102,6 +1102,20 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
+  /// Evaluates any pending math expression left in the amount field and
+  /// updates the record value accordingly.
+  ///
+  /// The debounced listener that normally resolves expressions waits a couple
+  /// of seconds after typing. Saving before it fires would otherwise persist a
+  /// concatenated amount (e.g. "10.05+1234" -> 10.051234) because the raw
+  /// expression's operators are stripped during parsing.
+  void _resolvePendingAmountExpression() {
+    solveMathExpressionAndUpdateController(
+      _textEditingController,
+      onSolved: changeRecordValue,
+    );
+  }
+
   void _recalculateTransferValue() {
     if (_selectedWallet?.currency == null ||
         _selectedDestinationWallet?.currency == null ||
@@ -1150,6 +1164,8 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   addOrUpdateRecord() async {
+    _resolvePendingAmountExpression();
+
     if (isTransferFlow &&
         (_selectedWallet?.id == null ||
             _selectedDestinationWallet?.id == null ||
@@ -1272,6 +1288,8 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   addOrUpdateRecurrentPattern({id}) async {
+    _resolvePendingAmountExpression();
+
     // Assign wallet and transfer fields before creating the pattern
     if (ServiceConfig.walletsEnabled) {
       _recalculateTransferValue();
