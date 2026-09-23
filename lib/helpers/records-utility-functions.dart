@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/models/budget-type.dart';
 import 'package:piggybank/models/budget.dart';
+import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/records-per-day.dart';
@@ -54,9 +56,13 @@ List<Record> matchingBudgetRecords(
         budget.walletIds.contains(record.walletId) ||
         (record.isTransfer &&
             budget.walletIds.contains(record.transferWalletId));
-    if (!inCycle ||
-        record.category?.categoryType != budget.recordCategoryType ||
-        !matchesWallet) {
+    // Saving budgets are net: they can count both income and expense records
+    // so expenses can be subtracted from income.
+    final matchesType = budget.budgetType == BudgetType.saving
+        ? (record.category?.categoryType == CategoryType.income ||
+            record.category?.categoryType == CategoryType.expense)
+        : record.category?.categoryType == budget.recordCategoryType;
+    if (!inCycle || !matchesType || !matchesWallet) {
       return false;
     }
     final matchesCategories =
@@ -74,6 +80,27 @@ List<Record> matchingBudgetRecords(
     }
     return matchesCategories && matchesTags;
   }).toList();
+}
+
+/// Signed amount [record] contributes to [budget]'s progress.
+///
+/// Expense budgets count matching expenses as positive. Saving budgets are
+/// net: income adds to the progress while expenses subtract from it.
+double budgetRecordAmount(Budget budget, Record record) {
+  final value = (record.value ?? 0).abs();
+  if (budget.budgetType == BudgetType.saving &&
+      record.category?.categoryType == CategoryType.expense) {
+    return -value;
+  }
+  return value;
+}
+
+/// Signed total of [records] counting toward [budget]'s progress.
+double budgetProgressAmount(Budget budget, Iterable<Record> records) {
+  return records.fold<double>(
+    0,
+    (sum, record) => sum + budgetRecordAmount(budget, record),
+  );
 }
 
 /// Masked amount widget for privacy mode, centered where the amount was.

@@ -201,10 +201,7 @@ class BudgetsPageState extends State<BudgetsPage> {
 
   double _budgetProgress(Budget budget, BudgetCycle cycle) {
     final matchingRecords = matchingBudgetRecords(budget, _records, cycle);
-    final total = matchingRecords.fold<double>(
-      0,
-      (sum, record) => sum + (record.value ?? 0).abs(),
-    );
+    final total = budgetProgressAmount(budget, matchingRecords);
     return budget.targetAmount == 0 ? 0 : total / budget.targetAmount;
   }
 
@@ -578,10 +575,7 @@ class _BudgetDetailPageState extends State<BudgetDetailPage> {
   }
 
   double _currentAmount() {
-    return _currentRecords().fold<double>(
-      0,
-      (sum, record) => sum + (record.value ?? 0).abs(),
-    );
+    return budgetProgressAmount(_budget, _currentRecords());
   }
 
   Future<void> _editBudget() async {
@@ -1020,11 +1014,14 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
   }
 
   Future<void> _loadFilterOptions() async {
-    final categories = await _database.getCategoriesByType(
-      _budgetType == BudgetType.expense
-          ? CategoryType.expense
-          : CategoryType.income,
-    );
+    // Saving budgets are net: offer both income and expense categories so
+    // expenses can be subtracted from income.
+    final categories = _budgetType == BudgetType.expense
+        ? await _database.getCategoriesByType(CategoryType.expense)
+        : [
+            ...await _database.getCategoriesByType(CategoryType.income),
+            ...await _database.getCategoriesByType(CategoryType.expense),
+          ];
     final tags = await _database.getAllTags();
     final wallets = ServiceConfig.walletsEnabled
         ? await _database.getAllWallets(

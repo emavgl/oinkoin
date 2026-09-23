@@ -249,11 +249,10 @@ class HomeWidgetService {
       final budget = byId[mapping[widgetId.toString()]];
       if (budget == null) continue;
       final cycle = budget.currentCycle();
-      final spent = matchingBudgetRecords(
-              budget, allRecords.whereType<Record>(), cycle)
-          .fold<double>(0, (sum, r) => sum + (r.value ?? 0).abs());
+      final amount = budgetProgressAmount(
+          budget, matchingBudgetRecords(budget, allRecords.whereType<Record>(), cycle));
       final ratio =
-          budget.targetAmount == 0 ? 0.0 : spent / budget.targetAmount;
+          budget.targetAmount == 0 ? 0.0 : amount / budget.targetAmount;
       final color = budget.budgetType == BudgetType.expense
           ? Colors.red[600]!
           : Colors.green[600]!;
@@ -268,7 +267,7 @@ class HomeWidgetService {
       await HomeWidget.saveWidgetData('${prefix}_type',
           budget.budgetType == BudgetType.expense ? 'expense' : 'saving');
       await HomeWidget.saveWidgetData('${prefix}_progress',
-          '${getCurrencyValueString(spent)} / ${getCurrencyValueString(budget.targetAmount)}');
+          '${getCurrencyValueString(amount)} / ${getCurrencyValueString(budget.targetAmount)}');
       await HomeWidget.saveWidgetData('${prefix}_percent', percent);
       await HomeWidget.saveWidgetData(
           '${prefix}_ratio', (ratio.clamp(0.0, 1.0) * 100).round());
