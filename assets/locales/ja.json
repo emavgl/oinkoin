@@ -39,6 +39,7 @@
   "Amount (Ascending)": "金額（昇順）",
   "Amount (Descending)": "金額（降順）",
   "Amount input keyboard type": "金額入力キーボードの種類",
+  "Amount received": "受取金額",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "金額、カテゴリ、日時の列は必須です。これらがないとレコードはインポートされません。",
   "And many more...": "その他にも多数...",
   "Animate navigation bar": "ナビゲーションバーをアニメーション表示",

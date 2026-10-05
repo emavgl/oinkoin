@@ -114,6 +114,24 @@ class Record extends Model {
 
   bool get isTransfer => transferWalletId != null;
 
+  /// Destination currency units received per source currency unit sent.
+  /// Derived from the stored amounts so historical transfers keep their rate.
+  double? get transferExchangeRate {
+    final sent = value?.abs();
+    final received = transferValue;
+    if (!isTransfer ||
+        sent == null ||
+        received == null ||
+        !sent.isFinite ||
+        !received.isFinite ||
+        sent <= 0 ||
+        received <= 0) {
+      return null;
+    }
+    final rate = received / sent;
+    return rate.isFinite && rate > 0 ? rate : null;
+  }
+
   Record copyWith({
     int? id,
     double? value,

@@ -39,6 +39,7 @@
   "Amount (Ascending)": "དངུལ་གྲངས་ (ཉུང་བ་ནས་མང་བར་)",
   "Amount (Descending)": "དངུལ་གྲངས་ (མང་བ་ནས་ཉུང་བར་)",
   "Amount input keyboard type": "དངུལ་གྲངས་འཇུག་པའི་ལྡེ་སྒྲོམ་རིགས།",
+  "Amount received": "ཐོབ་པའི་དངུལ་གྲངས་",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "དངུལ་གྲངས་དང་། སྡེ་ཚན། ཚེས་གྲངས་/དུས་ཚོད་བཅས་ཀྱི་ཀ་ཐིག་རྣམས་ངེས་པར་དུ་དགོས། དེ་དག་མེད་ན་ཐོ་གཞུང་ནང་འདྲེན་མི་ཐུབ།",
   "And many more...": "དེ་ལས་མང་བ་མང་པོ་ཡོད།",
   "Animate navigation bar": "ནེ་ཝི་གེ་ཤན་བར་གསོན་སྣང་བཟོ་བ།",

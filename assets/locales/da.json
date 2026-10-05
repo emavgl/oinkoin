@@ -39,6 +39,7 @@
   "Amount (Ascending)": "Beløb (stigende)",
   "Amount (Descending)": "Beløb (faldende)",
   "Amount input keyboard type": "Tastaturtype til beløbsinput",
+  "Amount received": "Modtaget beløb",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "Kolonerne Beløb, Kategori og Dato/tid er påkrævet. Ingen poster vil blive importeret uden dem.",
   "And many more...": "Og mange flere...",
   "Animate navigation bar": "Animer navigationslinjen",

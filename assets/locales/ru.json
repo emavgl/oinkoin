@@ -39,6 +39,7 @@
   "Amount (Ascending)": "Сумма (по возрастанию)",
   "Amount (Descending)": "Сумма (по убыванию)",
   "Amount input keyboard type": "Тип клавиатуры для ввода суммы",
+  "Amount received": "Полученная сумма",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "Столбцы Сумма, Категория и Дата/Время обязательны. Без них ни одна запись не будет импортирована.",
   "And many more...": "И многое другое...",
   "Animate navigation bar": "Анимировать панель навигации",
