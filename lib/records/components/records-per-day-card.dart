@@ -137,7 +137,11 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
 
     // No currency info at all — fall back to plain number
     final Widget content;
-    if (recordCurrency == null || recordCurrency.isEmpty) {
+    final transferContent = buildTransferAmountWidget(record, effectiveMap,
+        mainStyle: style);
+    if (transferContent != null) {
+      content = transferContent;
+    } else if (recordCurrency == null || recordCurrency.isEmpty) {
       content = Text(getCurrencyValueString(record.value), style: style);
     } else {
       content = buildAmountWithCurrencyWidget(record.value!, recordCurrency,

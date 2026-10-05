@@ -245,6 +245,7 @@ class TabRecordsController {
             r!.transferValue ?? (r.value != null ? r.value!.abs() : null);
         result.add(r.copyWith(
           value: receivedAmount,
+          sourceTransferValue: r.value,
           isDestinationTransferView: true,
           // matchesDest-only (this branch) means the source wallet was not
           // selected, so by construction only one side is visible here.
