@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/services/transfer-exchange-rate-service.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/wallets/currency-picker-page.dart';
 import 'package:piggybank/settings/add-currency-page.dart';
@@ -180,7 +181,9 @@ class _CurrenciesPageState extends State<CurrenciesPage> {
     _load();
   }
 
-  void _load() {
+  Future<void> _load() async {
+    await TransferExchangeRateService.refresh(ServiceConfig.database);
+    if (!mounted) return;
     setState(() {
       _config = getUserCurrencyConfig();
       _isLoading = false;
@@ -214,6 +217,7 @@ class _CurrenciesPageState extends State<CurrenciesPage> {
       }
     });
     await saveUserCurrencyConfig(_config);
+    await _load();
   }
 
   Future<void> _addCurrency() async {

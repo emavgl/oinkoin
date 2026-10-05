@@ -45,6 +45,11 @@ abstract class DatabaseInterface {
   Future<void> duplicateRecordsInBatch(List<int> ids);
   Future<DateTime?> getDateTimeFirstRecord();
   Future<List<Record?>> getAllRecords({int? profileId});
+
+  /// Main→other rates from the latest completed cross-currency transfers,
+  /// across all profiles (currency settings are shared). Ties use record ID.
+  Future<Map<String, double>> getLatestMainCurrencyTransferRates(
+      String mainCurrency, DateTime asOf);
   Future<int> getCountRecords();
   Future<List<Record?>> getAllRecordsInInterval(DateTime? from, DateTime? to,
       {int? profileId});
