@@ -42,6 +42,7 @@ class LocaleService {
     const Locale.fromSubtags(languageCode: 'uk', countryCode: "UA"),
     VENETIAN_LOCALE,
     const Locale.fromSubtags(languageCode: 'zh', countryCode: "CN"),
+    const Locale.fromSubtags(languageCode: 'zh', countryCode: "TW"),
     const Locale.fromSubtags(languageCode: 'pt', countryCode: "BR"),
     const Locale.fromSubtags(languageCode: 'pt', countryCode: "PT"),
   ];

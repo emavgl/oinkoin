@@ -167,6 +167,7 @@ class PreferencesBackupService {
           'uk-UA',
           'vec-IT',
           'zh-CN',
+          'zh-TW',
           'hy',
         }.contains(value),
     PreferencesKeys.dateFormat: (value) =>

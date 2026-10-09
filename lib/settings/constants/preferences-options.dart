@@ -44,6 +44,7 @@ class PreferencesOptions {
         "Україна": "uk-UA",
         "Veneto": "vec-IT",
         "简化字": "zh-CN",
+        "繁體中文": "zh-TW",
         "Հայերեն": "hy",
       };
 
