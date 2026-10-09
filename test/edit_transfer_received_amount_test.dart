@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
@@ -522,6 +523,28 @@ void main() {
           92,
         );
       });
+      await finish(tester);
+    },
+  );
+
+  testWidgets(
+    'saving a custom rate updates the global rate used for wallets',
+    (tester) async {
+      await ServiceConfig.sharedPreferences!.setString(
+        PreferencesKeys.defaultCurrency,
+        'USD',
+      );
+      await ServiceConfig.sharedPreferences!.setString(
+        PreferencesKeys.currencyConversionRates,
+        jsonEncode({'USD_EUR': 0.9, 'EUR_USD': 1 / 0.9}),
+      );
+      await open(tester);
+      await tester.enterText(field('amount-field'), '100');
+      await tester.enterText(field('received-amount-field'), '92');
+      await save(tester);
+      final rates = getConversionRates();
+      expect(rates['USD_EUR'], closeTo(0.92, 1e-12));
+      expect(rates['EUR_USD'], closeTo(1 / 0.92, 1e-12));
       await finish(tester);
     },
   );

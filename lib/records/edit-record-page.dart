@@ -21,6 +21,7 @@ import 'package:piggybank/components/markup_text.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:piggybank/services/transfer-exchange-rate-service.dart';
 
 import '../components/category_icon_circle.dart';
 import '../helpers/date_picker_utils.dart';
@@ -1267,6 +1268,13 @@ class EditRecordPageState extends State<EditRecordPage> {
         tryParseCurrencyString(_receivedAmountController.text);
   }
 
+  Future<void> _refreshTransferRatesIfCustomRate() async {
+    if (!_isCrossCurrencyTransfer || !_receivedAmountIsManual) return;
+    try {
+      await TransferExchangeRateService.refresh(database);
+    } catch (_) {}
+  }
+
   void _appendTransferNoteToDescription() {
     final srcWallet = _selectedWallet;
     final destWallet = _selectedDestinationWallet;
@@ -1344,6 +1352,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     } else {
       await database.updateRecordById(record!.id, record);
     }
+    await _refreshTransferRatesIfCustomRate();
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -1491,6 +1500,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     } else {
       await database.addRecurrentRecordPattern(recordPattern);
     }
+    await _refreshTransferRatesIfCustomRate();
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 

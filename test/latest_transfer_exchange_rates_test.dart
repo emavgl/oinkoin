@@ -72,17 +72,21 @@ void main() {
     double sent,
     double? received,
     DateTime date,
-  ) => ServiceConfig.database.addRecord(
-    Record(
-      -sent,
-      'Transfer',
-      null,
-      date,
-      walletId: source,
-      transferWalletId: destination,
-      transferValue: received,
-    ),
-  );
+  ) async {
+    final id = await ServiceConfig.database.addRecord(
+      Record(
+        -sent,
+        'Transfer',
+        null,
+        date,
+        walletId: source,
+        transferWalletId: destination,
+        transferValue: received,
+      ),
+    );
+    await TransferExchangeRateService.refresh(ServiceConfig.database);
+    return id;
+  }
 
   void expectEuroRate(double rate) {
     expect(getConversionRates()['USD_EUR'], closeTo(rate, 1e-12));
@@ -149,6 +153,7 @@ void main() {
     final record = (await ServiceConfig.database.getRecordById(latest))!;
     record.transferValue = 95;
     await ServiceConfig.database.updateRecordById(latest, record);
+    await TransferExchangeRateService.refresh(ServiceConfig.database);
     expectEuroRate(0.95);
     expect(
       (await ServiceConfig.database.getRecordById(older))!.transferValue,
@@ -164,6 +169,7 @@ void main() {
       final record = (await ServiceConfig.database.getRecordById(id))!;
       record.utcDateTime = day1;
       await ServiceConfig.database.updateRecordById(id, record);
+      await TransferExchangeRateService.refresh(ServiceConfig.database);
       expectEuroRate(0.7);
     },
   );
@@ -174,6 +180,7 @@ void main() {
       await add(usd, eur, 100, 70, day1);
       final id = await add(usd, eur, 100, 92, day2);
       await ServiceConfig.database.deleteRecordById(id);
+      await TransferExchangeRateService.refresh(ServiceConfig.database);
       expectEuroRate(0.7);
     },
   );
@@ -251,6 +258,7 @@ void main() {
         transferValue: 80,
       ),
     ]);
+    await TransferExchangeRateService.refresh(ServiceConfig.database);
     expectEuroRate(0.95);
   });
 

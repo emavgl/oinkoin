@@ -8,7 +8,6 @@ import 'package:piggybank/models/currency.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
-import 'package:piggybank/services/transfer-exchange-rate-service.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/wallets/currency-picker-page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,7 +47,6 @@ class _CurrencyConversionRatesPageState
 
   Future<void> _load() async {
     _prefs = await SharedPreferences.getInstance();
-    await TransferExchangeRateService.refresh(_database);
     final wallets = await _database.getAllWallets();
     final nonArchived = wallets.where((w) => !w.isArchived).toList();
 
@@ -120,7 +118,6 @@ class _CurrencyConversionRatesPageState
     if (result == null) return; // back pressed
     final newDefault = result.isEmpty ? null : result;
     await _prefs.setString(PreferencesKeys.defaultCurrency, newDefault ?? '');
-    await TransferExchangeRateService.refresh(_database);
     if (!mounted) return;
     setState(() {
       _defaultCurrency = newDefault;

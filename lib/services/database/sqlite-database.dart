@@ -26,7 +26,6 @@ import '../../models/record-tag-association.dart';
 import '../../models/wallet.dart';
 import '../logger.dart';
 import '../profile-service.dart';
-import '../transfer-exchange-rate-service.dart';
 import 'exceptions.dart';
 
 class SqliteDatabase implements DatabaseInterface {
@@ -62,16 +61,6 @@ class SqliteDatabase implements DatabaseInterface {
       dataChangeNotifier.value++;
     } catch (e, st) {
       _logger.handle(e, st, 'Database change notifier failed');
-    }
-  }
-
-  Future<void> _refreshTransferRates() async {
-    try {
-      await TransferExchangeRateService.refresh(this);
-    } catch (e, st) {
-      // A derived preference update must not turn a successfully persisted
-      // record into an apparent save failure, which could create duplicates.
-      _logger.handle(e, st, 'Could not refresh transfer exchange rates');
     }
   }
 
@@ -344,7 +333,6 @@ class SqliteDatabase implements DatabaseInterface {
         whereArgs: [categoryName, categoryIndex],
       );
       _logger.info('Category deleted: $categoryName');
-      await _refreshTransferRates();
       _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to delete category: $categoryName');
@@ -408,7 +396,6 @@ class SqliteDatabase implements DatabaseInterface {
         }
       }
       _logger.info('Record added: ID $recordId');
-      await _refreshTransferRates();
       _notifyDatabaseChanged();
       return recordId;
     } catch (e, st) {
@@ -525,7 +512,6 @@ class SqliteDatabase implements DatabaseInterface {
 
       await tagBatch.commit(noResult: true);
       _logger.info('Batch complete with tags');
-      await _refreshTransferRates();
       _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
@@ -620,7 +606,6 @@ class SqliteDatabase implements DatabaseInterface {
 
       await tagBatch.commit(noResult: true);
       _logger.info('Batch complete with tags');
-      await _refreshTransferRates();
       _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch (no dup check)');
@@ -1040,7 +1025,6 @@ class SqliteDatabase implements DatabaseInterface {
       await db.delete(table, where: 'profile_id = ?', whereArgs: [id]);
     }
     await db.delete('profiles', where: 'id = ?', whereArgs: [id]);
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
@@ -1158,7 +1142,6 @@ class SqliteDatabase implements DatabaseInterface {
     final map = wallet.toMap()..remove('id');
     await db.update('wallets', map, where: 'id = ?', whereArgs: [id]);
     _logger.info('Wallet updated: ID $id (${wallet.name})');
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
@@ -1212,7 +1195,6 @@ class SqliteDatabase implements DatabaseInterface {
     if (wasSystemDefault) await _ensureDefaultWallet(db);
     if (wasPredefined) await _ensurePredefinedWallet(db);
     _logger.info('Wallet ID $id deleted');
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
@@ -1224,7 +1206,6 @@ class SqliteDatabase implements DatabaseInterface {
       await _migrateWalletRefsInTable(db, table, fromId, toId);
     }
     _logger.info('Records moved from wallet ID $fromId to wallet ID $toId');
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
@@ -1469,7 +1450,6 @@ class SqliteDatabase implements DatabaseInterface {
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
     }
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
     return updatedRows;
   }
@@ -1479,7 +1459,6 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     await db.delete("records", where: "id = ?", whereArgs: [id]);
     // There is a db trigger, deleting a record automatically delete the associated tags
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
@@ -1492,7 +1471,6 @@ class SqliteDatabase implements DatabaseInterface {
     await db.delete("records", where: "id IN ($placeholders)", whereArgs: ids);
     _logger.info('Batch deleted ${ids.length} records');
     // There is a db trigger, deleting a record automatically delete the associated tags
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
@@ -1509,7 +1487,6 @@ class SqliteDatabase implements DatabaseInterface {
       whereArgs: ids,
     );
     _logger.info('Batch moved ${ids.length} records to wallet ID $walletId');
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
@@ -1556,7 +1533,6 @@ class SqliteDatabase implements DatabaseInterface {
       whereArgs: [recurrentPatternId, millisecondsSinceEpoch],
     );
     // There is a db trigger, deleting a record automatically delete the associated tags
-    await _refreshTransferRates();
     _notifyDatabaseChanged();
   }
 
