@@ -23,6 +23,7 @@ import 'package:piggybank/settings/preferences-utils.dart';
 
 import 'banner-image-service.dart';
 import 'datetime-utility-functions.dart';
+import 'intl-locale-utils.dart';
 
 /// Placeholder shown instead of monetary amounts when privacy mode is on.
 /// Bullets sit vertically centered in most fonts, unlike asterisks.
@@ -209,6 +210,14 @@ Locale getCurrencyLocale() {
 }
 
 bool usesWesternArabicNumerals(Locale locale) {
+  // intl has no number data for every locale we support (Tibetan "bo", for
+  // instance) and throws ArgumentError instead of falling back. Without data
+  // the numerals of the locale are unknown, so report false: callers then
+  // fall back to the default locale rather than crashing.
+  if (findNumberFormatLocaleTag(locale.toString()) == null) {
+    return false;
+  }
+
   NumberFormat numberFormat = new NumberFormat.currency(
       locale: locale.toString(), symbol: "", decimalDigits: 2);
 
@@ -236,8 +245,12 @@ NumberFormat getNumberFormatWithCustomizations(
       locale = getCurrencyLocale();
     }
 
+    // Redirect to a locale intl knows about, so unsupported locales (e.g. "bo")
+    // fall back to the default symbols instead of throwing ArgumentError.
+    final localeTag = resolveNumberFormatLocaleTag(locale.toString());
+
     NumberFormat referenceNumberFormat = new NumberFormat.currency(
-        locale: locale.toString(), symbol: "", decimalDigits: decimalDigits);
+        locale: localeTag, symbol: "", decimalDigits: decimalDigits);
 
     numberFormatSymbols['custom_locale'] = new NumberSymbols(
         NAME: "c",
@@ -279,6 +292,9 @@ NumberFormat getNumberFormatWithCustomizations(
     numberFormat.minimumSignificantDigits =
         referenceNumberFormat.minimumSignificantDigits;
   } on Exception catch (_) {
+    numberFormat = new NumberFormat.currency(
+        locale: "en_US", symbol: "", decimalDigits: decimalDigits);
+  } on ArgumentError catch (_) {
     numberFormat = new NumberFormat.currency(
         locale: "en_US", symbol: "", decimalDigits: decimalDigits);
   }

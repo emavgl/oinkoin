@@ -11,6 +11,8 @@ import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/utils/constants.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import 'intl-locale-utils.dart';
+
 
 DateTime addDuration(DateTime start, Duration duration) {
   // Convert to UTC
@@ -35,6 +37,7 @@ DateTime getEndOfMonth(int year, int month) {
 String getDateRangeStr(DateTime start, DateTime end) {
   /// Returns a string representing the range from earliest to latest date
   Locale myLocale = I18n.locale;
+  final localeTag = resolveDateFormatLocaleTag(myLocale.languageCode);
 
   // Ensure earlier date goes to left, latest to right
   DateTime earlier = start.isBefore(end) ? start : end;
@@ -43,19 +46,18 @@ String getDateRangeStr(DateTime start, DateTime end) {
   DateTime lastDayOfTheMonth = getEndOfMonth(earlier.year, earlier.month);
   if (earlier.day == 1 && lastDayOfTheMonth.isAtSameMomentAs(later)) {
     // Visualizing an entire month (starts on 1st and ends on last day)
-    String localeRepr =
-        DateFormat.yMMMM(myLocale.languageCode).format(lastDayOfTheMonth);
+    String localeRepr = DateFormat.yMMMM(localeTag).format(lastDayOfTheMonth);
     return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
   } else {
     if (earlier.year == later.year) {
       // Same year: show year only once at the end
-      String startLocalRepr = DateFormat.MMMd(myLocale.languageCode).format(earlier);
-      String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+      String startLocalRepr = DateFormat.MMMd(localeTag).format(earlier);
+      String endLocalRepr = DateFormat.yMMMd(localeTag).format(later);
       return startLocalRepr + " - " + endLocalRepr;
     } else {
       // Different years: show year for both dates
-      String startLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(earlier);
-      String endLocalRepr = DateFormat.yMMMd(myLocale.languageCode).format(later);
+      String startLocalRepr = DateFormat.yMMMd(localeTag).format(earlier);
+      String endLocalRepr = DateFormat.yMMMd(localeTag).format(later);
       return startLocalRepr + " - " + endLocalRepr;
     }
   }
@@ -64,7 +66,9 @@ String getDateRangeStr(DateTime start, DateTime end) {
 String getMonthStr(DateTime dateTime) {
   /// Returns the header string identifying the current visualised month.
   Locale myLocale = I18n.locale;
-  String localeRepr = DateFormat.yMMMM(myLocale.languageCode).format(dateTime);
+  String localeRepr =
+      DateFormat.yMMMM(resolveDateFormatLocaleTag(myLocale.languageCode))
+          .format(dateTime);
   return localeRepr[0].toUpperCase() + localeRepr.substring(1); // capitalize
 }
 
@@ -151,6 +155,7 @@ DateTime getEndOfWeek(DateTime date) {
 
 String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod, bool shortYear = false}) {
   Locale myLocale = I18n.locale;
+  final localeTag = resolveDateFormatLocaleTag(myLocale.toString());
   if (aggregationMethod != null) {
     if (aggregationMethod == AggregationMethod.WEEK) {
       // Format as week interval (e.g., "1-7", "8-14")
@@ -164,10 +169,10 @@ String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod, boo
       return '$startDay-$endDay';
     }
     if (aggregationMethod == AggregationMethod.MONTH) {
-      return DateFormat.yM(myLocale.toString()).format(dateTime!);
+      return DateFormat.yM(localeTag).format(dateTime!);
     }
     if (aggregationMethod == AggregationMethod.YEAR) {
-      return DateFormat.y(myLocale.toString()).format(dateTime!);
+      return DateFormat.y(localeTag).format(dateTime!);
     }
   }
 
@@ -178,31 +183,35 @@ String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod, boo
 
     if (dateFormatPref != null && dateFormatPref != "system" && dateFormatPref.isNotEmpty) {
       final pattern = shortYear ? dateFormatPref.replaceAll('yyyy', 'yy') : dateFormatPref;
-      return DateFormat(pattern, myLocale.toString()).format(dateTime!);
+      return DateFormat(pattern, localeTag).format(dateTime!);
     }
   }
 
-  final baseFormat = DateFormat.yMd(myLocale.toString());
+  final baseFormat = DateFormat.yMd(localeTag);
   if (shortYear) {
     final shortPattern = baseFormat.pattern!.replaceAll('yyyy', 'yy').replaceAll(RegExp(r'(?<!y)y(?!y)'), 'yy');
-    return DateFormat(shortPattern, myLocale.toString()).format(dateTime!);
+    return DateFormat(shortPattern, localeTag).format(dateTime!);
   }
   return baseFormat.format(dateTime!);
 }
 
 String extractMonthString(DateTime dateTime) {
   Locale myLocale = I18n.locale;
-  return DateFormat.MMMM(myLocale.languageCode).format(dateTime);
+  return DateFormat
+      .MMMM(resolveDateFormatLocaleTag(myLocale.languageCode))
+      .format(dateTime);
 }
 
 String extractYearString(DateTime dateTime) {
   Locale myLocale = I18n.locale;
-  return new DateFormat.y(myLocale.languageCode).format(dateTime);
+  return new DateFormat.y(resolveDateFormatLocaleTag(myLocale.languageCode))
+      .format(dateTime);
 }
 
 String extractWeekdayString(DateTime dateTime) {
   Locale myLocale = I18n.locale;
-  return DateFormat.EEEE(myLocale.languageCode).format(dateTime);
+  return DateFormat.EEEE(resolveDateFormatLocaleTag(myLocale.languageCode))
+      .format(dateTime);
 }
 
 bool isFullMonth(DateTime from, DateTime to) {
