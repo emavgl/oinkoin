@@ -17,35 +17,51 @@ class PreferencesOptions {
         "Monthly Image".i18n: 2,
       };
 
+  /// Locale tags the language picker can store, keyed by their label.
+  ///
+  /// The picker itself adds a localized "System" entry on top of this. It is
+  /// kept separate and free of `.i18n` lookups so backup validation can check
+  /// a restored value without translations having to be loaded first.
+  static const Map<String, String> languageLocaleLabels = {
+    "Arabic (Saudi Arabia)": "ar-SA",
+    "བོད་སྐད།": "bo",
+    "Catalan": "ca",
+    "Dansk": "da",
+    "Deutsch": "de",
+    "English (US)": "en-US",
+    "English (UK)": "en-GB",
+    "Español": "es",
+    "Français": "fr",
+    "hrvatski (Hrvatska)": "hr",
+    "Italiano": "it",
+    "日本語": "ja",
+    "Ελληνικά": "el",
+    "हिन्दी": "hi",
+    "नेपाली": "ne",
+    "ଓଡ଼ିଆ (ଭାରତ)": "or-IN",
+    "polski (Polska)": "pl",
+    "Português (Brazil)": "pt-BR",
+    "Português (Portugal)": "pt-PT",
+    "Pусский язык": "ru",
+    "Türkçe": "tr",
+    "தமிழ் (இந்தியா)": "ta-IN",
+    "Україна": "uk-UA",
+    "Veneto": "vec-IT",
+    "简化字": "zh-CN",
+    "繁體中文": "zh-TW",
+    "Հայերեն": "hy",
+  };
+
+  /// Every value [languageDropdown] can store, the "system" passthrough
+  /// included. A restored language preference is accepted exactly when it is
+  /// in here, so a language added to the picker is backed up and restored
+  /// without touching any second list.
+  static Set<String> get languageLocaleValues =>
+      {'system', ...languageLocaleLabels.values};
+
   static Map<String, String> get languageDropdown => {
         "System".i18n: "system",
-        "Arabic (Saudi Arabia)": "ar-SA",
-        "བོད་སྐད།": "bo",
-        "Catalan": "ca",
-        "Dansk": "da",
-        "Deutsch": "de",
-        "English (US)": "en-US",
-        "English (UK)": "en-GB",
-        "Español": "es",
-        "Français": "fr",
-        "hrvatski (Hrvatska)": "hr",
-        "Italiano": "it",
-        "日本語": "ja",
-        "Ελληνικά": "el",
-        "हिन्दी": "hi",
-        "नेपाली": "ne",
-        "ଓଡ଼ିଆ (ଭାରତ)": "or-IN",
-        "polski (Polska)": "pl",
-        "Português (Brazil)": "pt-BR",
-        "Português (Portugal)": "pt-PT",
-        "Pусский язык": "ru",
-        "Türkçe": "tr",
-        "தமிழ் (இந்தியா)": "ta-IN",
-        "Україна": "uk-UA",
-        "Veneto": "vec-IT",
-        "简化字": "zh-CN",
-        "繁體中文": "zh-TW",
-        "Հայերեն": "hy",
+        ...languageLocaleLabels,
       };
 
   static Map<String, int> get firstDayOfWeekDropdown => {

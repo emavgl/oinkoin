@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/services/preferences-backup-service.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/constants/preferences-options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -149,6 +150,23 @@ void main() {
     expect(prefs.containsKey(PreferencesKeys.transferIconColor), isFalse);
     expect(prefs.getString(PreferencesKeys.transferIconEmoji), '');
     expect(prefs.getBool(PreferencesKeys.showCurrencySymbol), isTrue);
+  });
+
+  test('restores every language the picker can store', () async {
+    // The restore whitelist is derived from the picker, so a language added
+    // there is restorable without a second list. This fails when the two drift
+    // apart, e.g. when a language is added to the picker but not to the
+    // validator (or vice versa).
+    for (final value in PreferencesOptions.languageLocaleValues) {
+      await PreferencesBackupService.restorePreferences(prefs, {
+        PreferencesKeys.languageLocale: value,
+      });
+      expect(
+        prefs.getString(PreferencesKeys.languageLocale),
+        value,
+        reason: 'the restore validator rejected the picker value "$value"',
+      );
+    }
   });
 
   test('does not throw when the preferences payload is empty or arbitrary',

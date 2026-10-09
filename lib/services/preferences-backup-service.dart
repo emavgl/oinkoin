@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:piggybank/models/category-icons.dart';
 import 'package:piggybank/services/logger.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/constants/preferences-options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Handles the portable subset of SharedPreferences used by backup files.
@@ -140,36 +141,11 @@ class PreferencesBackupService {
     PreferencesKeys.inAppKeyboardButtonColorIndex: _intInRange(0, 4),
     PreferencesKeys.inAppKeyboardTextColorIndex: _intIn({0, 1, 2}),
 
-    // Strings with finite option sets
+    // Strings with finite option sets.
+    // The language whitelist is the language picker itself, so a language
+    // added there is restorable without a second list going stale.
     PreferencesKeys.languageLocale: (value) =>
-        value is String &&
-        {
-          'system',
-          'ar-SA',
-          'ca',
-          'da',
-          'de',
-          'en-US',
-          'en-GB',
-          'es',
-          'fr',
-          'hr',
-          'it',
-          'ja',
-          'el',
-          'or-IN',
-          'pl',
-          'pt-BR',
-          'pt-PT',
-          'ru',
-          'tr',
-          'ta-IN',
-          'uk-UA',
-          'vec-IT',
-          'zh-CN',
-          'zh-TW',
-          'hy',
-        }.contains(value),
+        value is String && PreferencesOptions.languageLocaleValues.contains(value),
     PreferencesKeys.dateFormat: (value) =>
         value is String &&
         {
