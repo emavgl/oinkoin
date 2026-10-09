@@ -14,18 +14,18 @@ const isHome = Astro.url.pathname === "/";
       <div class="hidden md:flex items-center gap-4">
         {!isHome && (
           <a href="/support"
-             class="text-sm font-semibold px-4 py-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors shadow-sm border border-amber-200">
+             class="text-sm font-semibold px-4 py-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors shadow-xs border border-amber-200">
             Support
           </a>
         )}
         <a href="/blog"
-           class="text-sm font-semibold px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors shadow-sm">
+           class="text-sm font-semibold px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors shadow-xs">
           Blog
         </a>
         <a href="https://github.com/emavgl/oinkoin"
            target="_blank"
            rel="noopener noreferrer"
-           class="text-sm font-semibold px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors shadow-sm">
+           class="text-sm font-semibold px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors shadow-xs">
           GitHub
         </a>
       </div>

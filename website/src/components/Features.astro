@@ -66,7 +66,7 @@ const icons: Record<FeatureIcon, string> = {
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {features.map((feature) => (
-          <article class="bg-white p-6 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all">
+          <article class="bg-white p-6 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-xs transition-all">
             <Fragment set:html={icons[feature.icon]} />
             <h3 class="text-base font-semibold text-gray-900 mb-2">{feature.title}</h3>
             <p class="text-gray-500 text-sm leading-relaxed">{feature.description}</p>

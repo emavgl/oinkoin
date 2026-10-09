@@ -39,7 +39,7 @@ const screenshots = [
               height="922"
               loading="lazy"
               decoding="async"
-              class="w-full rounded-xl border border-gray-200 hover:border-gray-300 transition-colors shadow-sm cursor-pointer"
+              class="w-full rounded-xl border border-gray-200 hover:border-gray-300 transition-colors shadow-xs cursor-pointer"
               onclick={`openModal('${screenshot.url}', '${screenshot.title}')`}
             />
             <p class="text-sm text-gray-600 mt-3 text-center">{screenshot.title}</p>
@@ -51,7 +51,7 @@ const screenshots = [
 </section>
 
 <!-- Full-screen Modal -->
-<div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onclick="closeModal()" aria-label="Screenshot viewer">
+<div id="modal" class="hidden fixed inset-0 bg-black/75 flex items-center justify-center z-50" onclick="closeModal()" aria-label="Screenshot viewer">
   <img id="modal-img" class="max-w-[80vw] max-h-[80vh]" alt="" />
 </div>
 
