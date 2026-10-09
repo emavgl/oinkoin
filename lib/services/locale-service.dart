@@ -118,16 +118,63 @@ class LocaleService {
     return localeFromUserPreferences;
   }
 
-  static Locale? getLocaleFromDeviceSettings() {
-    for (final locale in getUserPreferredLocales()) {
-      // Exact match
+  /// Regions whose Chinese is written in the Traditional script.
+  static const Set<String> _traditionalChineseRegions = {'TW', 'HK', 'MO'};
+
+  /// Whether [locale] is written in Traditional Chinese, so it must be
+  /// rendered and formatted with the Traditional variants (font, and later
+  /// anything else keyed on script).
+  ///
+  /// Understands both the plain country tag the app stores ('zh-TW') and the
+  /// script-qualified tags devices report ('zh-Hant-TW', 'zh-Hant-HK').
+  /// Chinese without any region defaults to Simplified.
+  static bool usesTraditionalChinese(Locale locale) {
+    if (locale.languageCode != 'zh') {
+      return false;
+    }
+    final script =
+        locale.scriptCode ?? _impliedChineseScript(locale.countryCode);
+    return script == 'Hant';
+  }
+
+  /// The Chinese script of a region, for locales that carry no script subtag.
+  static String? _impliedChineseScript(String? countryCode) =>
+      _traditionalChineseRegions.contains(countryCode) ? 'Hant' : 'Hans';
+
+  /// Whether [a] and [b] are written in the same script.
+  ///
+  /// Only Chinese currently differs by script. An unknown script never rules
+  /// a candidate out, so locales without a script subtag keep matching on
+  /// language alone.
+  static bool _sameScript(Locale a, Locale b) {
+    if (a.languageCode != 'zh' && b.languageCode != 'zh') {
+      return true;
+    }
+    return usesTraditionalChinese(a) == usesTraditionalChinese(b);
+  }
+
+  /// Picks the supported locale matching the device settings, or null when
+  /// the device speaks nothing we support.
+  ///
+  /// [deviceLocales] defaults to the platform locales and exists so tests can
+  /// feed script-qualified tags without touching the platform dispatcher.
+  static Locale? getLocaleFromDeviceSettings({List<Locale>? deviceLocales}) {
+    final locales = deviceLocales ?? getUserPreferredLocales();
+
+    // Exact tag match (zh-TW, pt-BR, or-IN, ...)
+    for (final locale in locales) {
       if (supportedLocales.contains(locale)) {
         return locale;
       }
+    }
 
-      // Match by language code
+    // Match by language code, skipping locales written in another script:
+    // a device set to zh-Hant-TW must not resolve to zh-CN.
+    for (final locale in locales) {
       final matchingLocales = supportedLocales.where(
-        (supported) => supported.languageCode == locale.languageCode,
+        (supported) =>
+            supported.languageCode == locale.languageCode &&
+            _sameScript(supported, locale),
       );
 
       if (matchingLocales.isNotEmpty) {

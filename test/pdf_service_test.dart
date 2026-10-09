@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -227,6 +228,47 @@ void main() {
       // Common Latin symbols should already be covered by the base CJK font.
       expect(base.charToGlyphIndexMap.containsKey(0x24), isTrue); // $
       expect(base.charToGlyphIndexMap.containsKey(0x20AC), isFalse); // € is the gap we patch
+    });
+
+    test('every string of a CJK locale is drawable by its own font', () async {
+      // Each CJK locale renders with (and exports PDFs from) its own bundled
+      // Noto font. These are subsets, so a range that gets trimmed or a
+      // character the subset misses turns text into blank boxes. Assert the
+      // whole shipped locale file is drawable, for all three.
+      const fontOfLocale = {
+        'ja': 'assets/fonts/NotoSansJP-Regular.ttf',
+        'zh-CN': 'assets/fonts/NotoSansSC-Regular.ttf',
+        'zh-TW': 'assets/fonts/NotoSansTC-Regular.ttf',
+      };
+
+      for (final entry in fontOfLocale.entries) {
+        final font = TtfParser(await rootBundle.load(entry.value));
+        final strings = jsonDecode(
+          await rootBundle.loadString('assets/locales/${entry.key}.json'),
+        ) as Map<String, dynamic>;
+
+        final missing = <String>{};
+        for (final value in strings.values) {
+          for (final rune in (value as String).runes) {
+            if (rune > 0x7F && !font.charToGlyphIndexMap.containsKey(rune)) {
+              missing.add(String.fromCharCode(rune));
+            }
+          }
+        }
+
+        expect(
+          missing,
+          isEmpty,
+          reason: '${entry.key} needs ${missing.join()} but '
+              '${entry.value} cannot draw it',
+        );
+      }
+
+      // Traditional Chinese must keep the Traditional glyphs SC lacks.
+      final tc = TtfParser(
+        await rootBundle.load('assets/fonts/NotoSansTC-Regular.ttf'),
+      );
+      expect(tc.charToGlyphIndexMap.containsKey(0x570B), isTrue); // 國
     });
 
     test('createPdfFromRecordList handles wallets with mixed currencies',

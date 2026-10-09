@@ -97,6 +97,9 @@ flutter:
     - family: Noto Sans SC
       fonts:
         - asset: assets/fonts/NotoSansSC-Regular.ttf
+    - family: Noto Sans TC
+      fonts:
+        - asset: assets/fonts/NotoSansTC-Regular.ttf
     - family: Noto Sans
       fonts:
         - asset: assets/fonts/NotoSans-Regular.ttf

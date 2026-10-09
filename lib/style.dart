@@ -11,18 +11,30 @@ import 'helpers/records-utility-functions.dart';
 
 const String FontNameDefault = 'Montserrat';
 
-/// Returns the CJK font fallback matching the given locale, so that localized
-/// glyph variants (Japanese vs Simplified Chinese) are rendered with the
-/// appropriate font. Returns null when the locale needs no special CJK font.
-List<String>? getFontFamilyFallbackForLocale(Locale locale) {
+/// The bundled Noto family that renders [locale]'s CJK glyphs, or null when
+/// the locale needs no CJK font. Chinese splits by script: Traditional
+/// locales (zh-TW and other Hant regions) get Noto Sans TC, every other
+/// Chinese locale the Simplified variant.
+String? getCjkFontFamilyForLocale(Locale locale) {
   switch (locale.languageCode) {
     case 'ja':
-      return ['Noto Sans JP'];
+      return 'Noto Sans JP';
     case 'zh':
-      return ['Noto Sans SC'];
+      return LocaleService.usesTraditionalChinese(locale)
+          ? 'Noto Sans TC'
+          : 'Noto Sans SC';
     default:
       return null;
   }
+}
+
+/// Returns the CJK font fallback matching the given locale, so that localized
+/// glyph variants (Japanese vs Simplified vs Traditional Chinese) are
+/// rendered with the appropriate font. Returns null when the locale needs no
+/// special CJK font.
+List<String>? getFontFamilyFallbackForLocale(Locale locale) {
+  final family = getCjkFontFamilyForLocale(locale);
+  return family == null ? null : [family];
 }
 
 class MaterialThemeInstance {

@@ -13,6 +13,25 @@ void main() {
     test('returns Noto Sans SC for Simplified Chinese locale', () {
       expect(getFontFamilyFallbackForLocale(const Locale('zh', 'CN')),
           ['Noto Sans SC']);
+      expect(getFontFamilyFallbackForLocale(const Locale('zh')),
+          ['Noto Sans SC']);
+    });
+
+    test('returns Noto Sans TC for Traditional Chinese locales', () {
+      expect(getFontFamilyFallbackForLocale(const Locale('zh', 'TW')),
+          ['Noto Sans TC']);
+      expect(
+          getFontFamilyFallbackForLocale(
+              const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')),
+          ['Noto Sans TC']);
+      expect(
+          getFontFamilyFallbackForLocale(const Locale.fromSubtags(
+              languageCode: 'zh', scriptCode: 'Hant', countryCode: 'HK')),
+          ['Noto Sans TC']);
+      expect(
+          getFontFamilyFallbackForLocale(const Locale.fromSubtags(
+              languageCode: 'zh', scriptCode: 'Hans', countryCode: 'TW')),
+          ['Noto Sans SC']);
     });
 
     test('returns null for locales that need no CJK fallback', () {

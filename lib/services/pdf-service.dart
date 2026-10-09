@@ -18,6 +18,7 @@ import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:piggybank/statistics/statistics-calculator.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
+import 'package:piggybank/style.dart';
 
 import 'logger.dart';
 
@@ -104,24 +105,29 @@ class PDFExporter {
 
   /// Loads the base and fallback fonts for the PDF.
   ///
-  /// The base font is the locale-matched bundled Noto CJK font (Chinese uses
-  /// the SC variant, all other locales the JP variant) so Latin, symbols and
-  /// CJK of the active locale render correctly. Noto Sans Regular is embedded
-  /// as a per-glyph fallback because the CJK variants do not include the
-  /// Currency Symbols block (€, ₹, ₺, ₩, ₽, ₿, ...), which would otherwise
-  /// render as blank placeholders in the report.
+  /// The base font is the locale-matched bundled Noto CJK font (Japanese the
+  /// JP variant, Traditional Chinese the TC variant, Simplified Chinese the
+  /// SC variant, everything else the JP variant) so Latin, symbols and CJK of
+  /// the active locale render correctly. Noto Sans Regular is embedded as a
+  /// per-glyph fallback because the CJK variants do not include the Currency
+  /// Symbols block (€, ₹, ₺, ₩, ₽, ₿, ...), which would otherwise render as
+  /// blank placeholders in the report.
   static Future<({pw.Font base, pw.Font fallback})> _loadFonts() async {
-    final code = I18n.locale.languageCode;
-    final base = pw.Font.ttf(
-      await rootBundle.load(code == 'zh'
-          ? 'assets/fonts/NotoSansSC-Regular.ttf'
-          : 'assets/fonts/NotoSansJP-Regular.ttf'),
-    );
+    final family = getCjkFontFamilyForLocale(I18n.locale) ?? 'Noto Sans JP';
+    final base = pw.Font.ttf(await rootBundle.load(_fontAssets[family]!));
     final fallback = pw.Font.ttf(
       await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
     );
     return (base: base, fallback: fallback);
   }
+
+  /// Bundled Noto family name -> asset path, kept in sync with the fonts
+  /// declared in pubspec.yaml.
+  static const Map<String, String> _fontAssets = {
+    'Noto Sans JP': 'assets/fonts/NotoSansJP-Regular.ttf',
+    'Noto Sans SC': 'assets/fonts/NotoSansSC-Regular.ttf',
+    'Noto Sans TC': 'assets/fonts/NotoSansTC-Regular.ttf',
+  };
 
   static pw.Widget _buildHeader(DateTime from, DateTime to) {
     return pw.Container(
