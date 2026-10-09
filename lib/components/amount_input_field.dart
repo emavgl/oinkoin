@@ -401,6 +401,15 @@ class _KeyboardOverlayState extends State<_KeyboardOverlay>
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(position: _slide, child: widget.child);
+    // While sliding in, keep hit testing at the settled position: a finger
+    // aiming at a key during the first frames of the entrance must reach that
+    // key instead of falling through to the page behind it. On the way out,
+    // hits follow the painted position so an invisible keyboard does not
+    // swallow taps once it has slid away.
+    return SlideTransition(
+      position: _slide,
+      transformHitTests: _controller.status != AnimationStatus.forward,
+      child: widget.child,
+    );
   }
 }
