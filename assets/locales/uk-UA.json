@@ -39,6 +39,7 @@
   "Amount (Ascending)": "Сума (за зростанням)",
   "Amount (Descending)": "Сума (за спаданням)",
   "Amount input keyboard type": "Тип клавіатури для введення суми",
+  "Amount received": "Отримана сума",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "Стовпці Сума, Категорія та Дата/Час є обов'язковими. Без них жоден запис не буде імпортовано.",
   "And many more...": "І багато іншого...",
   "Animate navigation bar": "Анімувати панель навігації",

@@ -39,6 +39,7 @@
   "Amount (Ascending)": "金额(升序)",
   "Amount (Descending)": "金额(降序)",
   "Amount input keyboard type": "金额输入键盘类型",
+  "Amount received": "到账金额",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "金额、分类和日期/时间列为必填项。没有它们将无法导入记录。",
   "And many more...": "还有更多...",
   "Animate navigation bar": "为导航栏添加动画",

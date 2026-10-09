@@ -910,6 +910,48 @@ Widget buildAmountWithCurrencyWidget(
       style: mainStyle, textAlign: TextAlign.right);
 }
 
+/// Displays the actual sent and received amounts of a cross-currency transfer.
+/// The visible wallet's side comes first; global conversion rates are not used.
+/// Returns null when the record has no complete cross-currency amount pair.
+Widget? buildTransferAmountWidget(
+  Record record,
+  Map<int, String?> walletCurrencies, {
+  TextStyle? mainStyle,
+}) {
+  if (!record.isTransfer) return null;
+  final sourceCurrency = walletCurrencies[record.walletId];
+  final destinationCurrency = walletCurrencies[record.transferWalletId];
+  final sent = record.isDestinationTransferView
+      ? record.sourceTransferValue
+      : record.value;
+  // Legacy transfers without transferValue credit abs(value) to the other
+  // wallet; display the same fallback as the wallet balance calculation.
+  final received = record.transferValue ?? sent?.abs();
+  if (sourceCurrency == null || sourceCurrency.isEmpty ||
+      destinationCurrency == null || destinationCurrency.isEmpty ||
+      sourceCurrency == destinationCurrency || sent == null || received == null ||
+      !sent.isFinite || !received.isFinite) {
+    return null;
+  }
+  final sourceText = formatCurrencyAmount(-sent.abs(), sourceCurrency);
+  final destinationText = formatCurrencyAmount(received.abs(), destinationCurrency);
+  final primaryStyle = (mainStyle ?? const TextStyle()).copyWith(height: 1.1);
+  final secondaryStyle = primaryStyle.copyWith(
+    fontSize: ((mainStyle?.fontSize ?? 14) - 2).clamp(10.0, double.infinity),
+    color: mainStyle?.color ?? Colors.grey,
+  );
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.end,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(record.isDestinationTransferView ? destinationText : sourceText,
+          style: primaryStyle, textAlign: TextAlign.right),
+      Text(record.isDestinationTransferView ? sourceText : destinationText,
+          style: secondaryStyle, textAlign: TextAlign.right),
+    ],
+  );
+}
+
 /// Sums [currencyAmountPairs] into a single total expressed in [defaultCurrency],
 /// applying stored conversion [rates].
 double _convertAmountsToDefaultCurrency(

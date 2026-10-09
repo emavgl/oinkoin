@@ -66,6 +66,9 @@ class EditRecordPage extends StatefulWidget {
 class EditRecordPageState extends State<EditRecordPage> {
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _textEditingController = TextEditingController();
+  final _receivedAmountController = TextEditingController();
+  bool _receivedAmountIsManual = false;
+  bool _updatingReceivedAmount = false;
   final _formKey = GlobalKey<FormState>();
   Record? record;
 
@@ -102,6 +105,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   DateTime? _originalUtcDateTime;
   double? _originalValue;
+  double? _originalTransferValue;
 
   EditRecordPageState(this.passedRecord, this.passedCategory,
       this.passedRecurrentRecordPattern, this.readOnly);
@@ -159,6 +163,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       // Capture original values to detect changes for pattern-linked records
       _originalUtcDateTime = passedRecord!.utcDateTime;
       _originalValue = passedRecord!.value;
+      _originalTransferValue = passedRecord!.transferValue;
       // Use the localDateTime getter for display purposes
       localDisplayDate = passedRecord!.localDateTime;
       // Initialize time if the record has a non-midnight time
@@ -274,8 +279,10 @@ class EditRecordPageState extends State<EditRecordPage> {
 
     // Keyboard listeners initializations (the same as before)
     _textEditingController.addListener(() async {
+      if (readOnly) return;
       var text = _textEditingController.text.toLowerCase();
       await Future.delayed(Duration(seconds: 2));
+      if (!mounted) return;
       var textAfterPause = _textEditingController.text.toLowerCase();
       if (text == textAfterPause) {
         solveMathExpressionAndUpdateController(
@@ -297,6 +304,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   @override
   void dispose() {
     _textEditingController.dispose();
+    _receivedAmountController.dispose();
     _typeAheadController.dispose();
     super.dispose();
   }
@@ -507,15 +515,21 @@ class EditRecordPageState extends State<EditRecordPage> {
       readOnly: readOnly,
       walletNameSizeGroup: _walletNameSizeGroup,
       onSourceChanged: (wallet) {
+        if (wallet?.id == _selectedWallet?.id) return;
         setState(() {
           _selectedWallet = wallet;
           if (_selectedDestinationWallet?.id == wallet?.id) {
             _selectedDestinationWallet = null;
           }
+          _resetReceivedAmount();
         });
       },
       onDestinationChanged: (wallet) {
-        setState(() => _selectedDestinationWallet = wallet);
+        if (wallet?.id == _selectedDestinationWallet?.id) return;
+        setState(() {
+          _selectedDestinationWallet = wallet;
+          _resetReceivedAmount();
+        });
       },
     );
   }
@@ -1075,11 +1089,17 @@ class EditRecordPageState extends State<EditRecordPage> {
                   child: AmountInputField(
                     controller: _textEditingController,
                     labelText: "Amount".i18n,
+                    suffixText: _isCrossCurrencyTransfer
+                        ? _selectedWallet!.currency
+                        : null,
                     enabled: !readOnly,
                     allowNegative: false,
                     autofocus: shouldAutofocus,
                     onChanged: changeRecordValue,
                     currencyCode: _selectedWallet?.currency,
+                    validator: isTransferFlow || _selectedDestinationWallet != null
+                        ? _validatePositiveTransferAmount
+                        : null,
                   ),
                 ),
               ),
@@ -1100,6 +1120,117 @@ class EditRecordPageState extends State<EditRecordPage> {
       }
       record!.value = numericValue;
     }
+    if (mounted) {
+      setState(() => _suggestReceivedAmount());
+    }
+  }
+
+  bool get _isCrossCurrencyTransfer =>
+      ServiceConfig.walletsEnabled &&
+      _selectedWallet?.currency != null &&
+      _selectedDestinationWallet?.currency != null &&
+      _selectedWallet!.currency != _selectedDestinationWallet!.currency;
+
+  void _setReceivedAmountText(double? amount) {
+    // Keep all saved digits; formatting for display must not change balances.
+    var text = amount?.toString() ?? '';
+    // Currency parsing does not accept scientific notation. Expand the
+    // shortest double representation without rounding or adding digits.
+    if (text.contains('e')) {
+      final parts = text.split('e');
+      final mantissa = parts[0].split('.');
+      final digits = mantissa.join();
+      final point = mantissa[0].length + int.parse(parts[1]);
+      if (point <= 0) {
+        text = '0.${'0' * -point}$digits';
+      } else if (point >= digits.length) {
+        text = '$digits${'0' * (point - digits.length)}';
+      } else {
+        text = '${digits.substring(0, point)}.${digits.substring(point)}';
+      }
+    }
+    _updatingReceivedAmount = true;
+    _receivedAmountController.text =
+        text.replaceAll('.', getDecimalSeparator());
+    _updatingReceivedAmount = false;
+  }
+
+  void _suggestReceivedAmount() {
+    if (!_isCrossCurrencyTransfer || _receivedAmountIsManual || readOnly)
+      return;
+    final amount = record?.value == null
+        ? null
+        : convertAmount(
+            record!.value!.abs(),
+            _selectedWallet!.currency!,
+            _selectedDestinationWallet!.currency!,
+          );
+    _setReceivedAmountText(
+      amount != null && amount.isFinite && amount > 0 ? amount : null,
+    );
+  }
+
+  void _resetReceivedAmount() {
+    _receivedAmountIsManual = false;
+    _setReceivedAmountText(null);
+    _suggestReceivedAmount();
+  }
+
+  String? _validatePositiveTransferAmount(String? text) {
+    final amount = text == null ? null : tryParseSignedCurrencyString(text);
+    if (amount == null || !amount.isFinite || amount <= 0) {
+      return "Please enter a positive amount.".i18n;
+    }
+    if (isMathExpression(text!)) return amountFormatErrorMessage();
+    return null;
+  }
+
+  String? get _transferRateString {
+    final sent = tryParseCurrencyString(_textEditingController.text);
+    final received = tryParseSignedCurrencyString(_receivedAmountController.text);
+    if (!_isCrossCurrencyTransfer || sent == null || received == null) return null;
+    final rate = record
+        ?.copyWith(
+          value: -sent,
+          transferWalletId: _selectedDestinationWallet!.id,
+          transferValue: received,
+        )
+        .transferExchangeRate;
+    if (rate == null) return null;
+    final rateText = rate.toString().replaceAll('.', getDecimalSeparator());
+    return '1 ${_selectedWallet!.currency} = $rateText ${_selectedDestinationWallet!.currency}';
+  }
+
+  Widget _createReceivedAmountCard() {
+    if (!_isCrossCurrencyTransfer) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Semantics(
+            identifier: 'received-amount-field',
+            child: AmountInputField(
+              controller: _receivedAmountController,
+              labelText: "Amount received".i18n,
+              suffixText: _selectedDestinationWallet!.currency,
+              currencyCode: _selectedDestinationWallet!.currency,
+              enabled: !readOnly,
+              validator: _validatePositiveTransferAmount,
+              onChanged: (_) {
+                if (_updatingReceivedAmount || readOnly) return;
+                setState(() => _receivedAmountIsManual = true);
+              },
+            ),
+          ),
+          if (_transferRateString != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(_transferRateString!),
+            ),
+        ],
+      ),
+    );
   }
 
   /// Evaluates any pending math expression left in the amount field and
@@ -1114,9 +1245,12 @@ class EditRecordPageState extends State<EditRecordPage> {
       _textEditingController,
       onSolved: changeRecordValue,
     );
+    if (_isCrossCurrencyTransfer) {
+      solveMathExpressionAndUpdateController(_receivedAmountController);
+    }
   }
 
-  void _recalculateTransferValue() {
+  void _updateTransferValue() {
     if (_selectedWallet?.currency == null ||
         _selectedDestinationWallet?.currency == null ||
         record?.value == null) {
@@ -1129,7 +1263,8 @@ class EditRecordPageState extends State<EditRecordPage> {
       record!.transferValue = null;
       return;
     }
-    record!.transferValue = convertAmount(record!.value!.abs(), src, dest);
+    record!.transferValue =
+        tryParseCurrencyString(_receivedAmountController.text);
   }
 
   void _appendTransferNoteToDescription() {
@@ -1147,7 +1282,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         formatCurrencyAmount(record!.value!.abs(), srcCurrency);
     final destFormatted =
         formatCurrencyAmount(record!.transferValue!, destCurrency);
-    final rateString = getConversionRateString(srcCurrency, destCurrency);
+    final rateString = _transferRateString;
 
     final buffer = StringBuffer();
     buffer.write('$srcFormatted → $destFormatted');
@@ -1180,7 +1315,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
 
     if (ServiceConfig.walletsEnabled) {
-      _recalculateTransferValue();
+      _updateTransferValue();
       record!.walletId = _selectedWallet?.id;
       record!.transferWalletId = _selectedDestinationWallet?.id;
     } else if (record!.id == null) {
@@ -1196,7 +1331,10 @@ class EditRecordPageState extends State<EditRecordPage> {
               _originalUtcDateTime!.millisecondsSinceEpoch;
       final amountChanged =
           _originalValue != null && record!.value != _originalValue;
-      if (dateChanged || amountChanged) {
+      final receivedAmountChanged =
+          (record!.transferValue ?? record!.value?.abs()) !=
+              (_originalTransferValue ?? _originalValue?.abs());
+      if (dateChanged || amountChanged || receivedAmountChanged) {
         record!.recurrencePatternId = null;
       }
     }
@@ -1247,7 +1385,19 @@ class EditRecordPageState extends State<EditRecordPage> {
       final destWallet =
           await database.getWalletById(record!.transferWalletId!);
       if (destWallet != null && mounted) {
-        setState(() => _selectedDestinationWallet = destWallet);
+        setState(() {
+          _selectedDestinationWallet = destWallet;
+          if (record!.transferValue != null || passedRecord != null ||
+              passedRecurrentRecordPattern != null) {
+            _receivedAmountIsManual = true;
+            _setReceivedAmountText(record!.transferValue ?? record!.value?.abs());
+          } else if (readOnly) {
+            // Legacy transfers without a received amount use the sent amount.
+            _setReceivedAmountText(record!.value?.abs());
+          } else {
+            _suggestReceivedAmount();
+          }
+        });
       }
     }
   }
@@ -1292,7 +1442,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
     // Assign wallet and transfer fields before creating the pattern
     if (ServiceConfig.walletsEnabled) {
-      _recalculateTransferValue();
+      _updateTransferValue();
       record!.walletId = _selectedWallet?.id;
       record!.transferWalletId = _selectedDestinationWallet?.id;
     } else if (id == null) {
@@ -1451,6 +1601,7 @@ class EditRecordPageState extends State<EditRecordPage> {
           Divider(height: 1),
           if (ServiceConfig.walletsEnabled) ...[
             _createWalletCard(),
+            _createReceivedAmountCard(),
             Divider(height: 1),
           ],
           _createDateAndRepeatCard(),
@@ -1624,6 +1775,7 @@ class EditRecordPageState extends State<EditRecordPage> {
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: () async {
+                  _resolvePendingAmountExpression();
                   if (_formKey.currentState!.validate()) {
                     if (isARecurrentPattern()) {
                       String? recurrentPatternId;

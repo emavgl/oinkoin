@@ -39,6 +39,7 @@
   "Amount (Ascending)": "Betrag (Aufsteigend)",
   "Amount (Descending)": "Betrag (Absteigend)",
   "Amount input keyboard type": "Tastaturtyp für die Betragseingabe",
+  "Amount received": "Erhaltener Betrag",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "Die Spalten Betrag, Kategorie und Datum/Uhrzeit sind erforderlich. Ohne sie werden keine Datensätze importiert.",
   "And many more...": "Und vieles mehr...",
   "Animate navigation bar": "Navigationsleiste animieren",

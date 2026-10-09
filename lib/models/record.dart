@@ -31,6 +31,10 @@ class Record extends Model {
   // a transfer (value = received amount, walletId = destination). Not persisted.
   bool isDestinationTransferView = false;
 
+  // Transient: preserves the sent amount when value is replaced by the
+  // received amount in a destination-only wallet view. Not persisted.
+  double? sourceTransferValue;
+
   // Transient: true when a transfer record is shown in a wallet-filtered
   // view that includes only one of its two wallets (source or destination),
   // not both. In that case the amount should be colored by sign like a
@@ -114,6 +118,24 @@ class Record extends Model {
 
   bool get isTransfer => transferWalletId != null;
 
+  /// Destination currency units received per source currency unit sent.
+  /// Derived from the stored amounts so historical transfers keep their rate.
+  double? get transferExchangeRate {
+    final sent = (sourceTransferValue ?? value)?.abs();
+    final received = transferValue;
+    if (!isTransfer ||
+        sent == null ||
+        received == null ||
+        !sent.isFinite ||
+        !received.isFinite ||
+        sent <= 0 ||
+        received <= 0) {
+      return null;
+    }
+    final rate = received / sent;
+    return rate.isFinite && rate > 0 ? rate : null;
+  }
+
   Record copyWith({
     int? id,
     double? value,
@@ -131,6 +153,7 @@ class Record extends Model {
     bool? isFutureRecord,
     bool? isDestinationTransferView,
     bool? isSingleSideTransferView,
+    double? sourceTransferValue,
   }) {
     final copy = Record(
       value ?? this.value,
@@ -152,6 +175,7 @@ class Record extends Model {
         isDestinationTransferView ?? this.isDestinationTransferView;
     copy.isSingleSideTransferView =
         isSingleSideTransferView ?? this.isSingleSideTransferView;
+    copy.sourceTransferValue = sourceTransferValue ?? this.sourceTransferValue;
     return copy;
   }
 

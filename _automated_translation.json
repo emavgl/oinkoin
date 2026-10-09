@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-09-04",
-    "total_keys": 618
+    "last_updated": "2026-10-05",
+    "total_keys": 619
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -6212,6 +6212,16 @@
       "component": "Text representation",
       "meaning": "The underscore character (_) used in strings",
       "notes": "Used for customizing string separators - translate as the actual character name",
+      "status": "verified"
+    },
+    "Amount received": {
+      "key": "Amount received",
+      "context": "Received amount for a transfer between wallets with different currencies",
+      "file": "lib/records/edit-record-page.dart",
+      "page": "Add/Edit transfer",
+      "component": "AmountInputField label",
+      "meaning": "The actual amount credited to the destination wallet, expressed in that wallet currency",
+      "notes": "Editing this amount sets the transfer-specific exchange rate; does not change global conversion rates",
       "status": "verified"
     }
   }

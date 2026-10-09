@@ -26,6 +26,7 @@ import '../../services/platform-file-service.dart';
 import '../../services/profile-service.dart';
 import '../../services/recurrent-record-service.dart';
 import '../../services/service-config.dart';
+import '../../services/transfer-exchange-rate-service.dart';
 import '../../settings/constants/homepage-time-interval.dart';
 import '../../settings/constants/overview-time-interval.dart';
 import '../../settings/constants/preferences-keys.dart';
@@ -245,6 +246,7 @@ class TabRecordsController {
             r!.transferValue ?? (r.value != null ? r.value!.abs() : null);
         result.add(r.copyWith(
           value: receivedAmount,
+          sourceTransferValue: r.value,
           isDestinationTransferView: true,
           // matchesDest-only (this branch) means the source wallet was not
           // selected, so by construction only one side is visible here.
@@ -292,6 +294,7 @@ class TabRecordsController {
 
   // Data fetching
   Future<void> updateRecurrentRecordsAndFetchRecords() async {
+    await TransferExchangeRateService.refresh(_database);
     final activeProfileId = ProfileService.instance.activeProfileId;
     var recurrentRecordService =
         RecurrentRecordService(profileId: activeProfileId);

@@ -39,6 +39,7 @@
   "Amount (Ascending)": "Cantidad (Ascendente)",
   "Amount (Descending)": "Cantidad (Descendente)",
   "Amount input keyboard type": "Tipo de teclado para entrada de montos",
+  "Amount received": "Importe recibido",
   "Amount, Category, and Date/Time columns are required. No records will be imported without them.": "Las columnas Monto, Categoría y Fecha/Hora son obligatorias. No se importarán registros sin ellas.",
   "And many more...": "Y muchas más...",
   "Animate navigation bar": "Animar la barra de navegación",
