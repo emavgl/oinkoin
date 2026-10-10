@@ -334,7 +334,11 @@ String getCurrencyValueString(double? value, {turnOffGrouping = false}) {
       numberFormat = ServiceConfig.currencyNumberFormat!;
     }
   }
-  return numberFormat.format(value);
+  // The format is built with an empty symbol, but locales whose currency
+  // pattern places the symbol after the number (e.g. it, de, fr) keep the
+  // space reserved for it, yielding a trailing space. The symbol is inserted
+  // separately, so strip any stray leading/trailing whitespace.
+  return numberFormat.format(value).trim();
 }
 
 /// Like [tryParseCurrencyString] but preserves a leading minus sign.
@@ -665,7 +669,8 @@ String formatCurrencyAmount(double value, String currencyCode) {
   final decDigits = resolveDecimalDigits(null, currencyCode: currencyCode);
   final numberFormat = _numberFormatForDecimalDigits(decDigits);
   final currencySymbol = getCurrencySymbol(currencyCode);
-  final formatted = numberFormat.format(value);
+  // Strip the locale's symbol-placeholder space before adding the symbol.
+  final formatted = numberFormat.format(value).trim();
   return insertCurrencySymbol(formatted, currencySymbol);
 }
 

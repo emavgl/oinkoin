@@ -27,6 +27,21 @@ void main() {
       expect(result, '\$ 1.234,56');
     });
 
+    test('has no trailing space for locales that place the symbol last',
+        () async {
+      ServiceConfig.currencyLocale = const Locale('it');
+      await ServiceConfig.sharedPreferences!
+          .setString(PreferencesKeys.decimalSeparator, ',');
+      await ServiceConfig.sharedPreferences!
+          .setString(PreferencesKeys.groupSeparator, '.');
+
+      setNumberFormatCache();
+      final result = getCurrencyValueString(41643.37);
+
+      expect(result, '41.643,37');
+      expect(result, result.trim());
+    });
+
     test('uses custom group separator when set', () async {
       await ServiceConfig.sharedPreferences!
           .setString(PreferencesKeys.decimalSeparator, ',');
