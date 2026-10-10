@@ -23,6 +23,13 @@
       "titleKey": "Changelog",
       "dialog": true,
       "dialogMaxVersion": "1.13.0"
+    },
+    {
+      "id": "changelog-1-15-0",
+      "date": "2026-10-10",
+      "titleKey": "Changelog 1.15.0",
+      "dialog": true,
+      "dialogMaxVersion": "1.15.0"
     }
   ]
 }

@@ -21,6 +21,8 @@ Create a release on GitHub for the given version.
 
 The version comes from the skill argument (e.g. `1.9.0`). If the user didn't provide one, ask for it before continuing.
 
+> Version bumping (`pubspec.yaml`) is handled by the GitHub Action — do **not** bump it here. This skill only creates the tag and the GitHub release.
+
 ### Step 2 — Find the previous release tag
 
 ```bash
@@ -44,6 +46,14 @@ From the commit list, propose a single-line summary of the user-facing changes. 
 - Condense multiple changes into a single concise sentence rather than listing them separately
 - Write in plain English, present tense ("Add X", "Fix Y", "Improve Z")
 - Show the draft to the user and **ask for approval or edits** before creating the release
+
+### Step 4b — Major version: also run the announcement skill
+
+For a **major version change**, always run the `announcement` skill as well, so the release ships with:
+- the **in-app announcement** (startup dialog + Settings → Announcements entry), and
+- the **blog post** (`website/src/content/blog/changelog-<version>.md`).
+
+Use the title `Changelog <version>` (e.g. `Changelog 1.15.0`) and `dialogMaxVersion: "<version>"`. Commit and push the announcement before creating the tag/release so the release points at it.
 
 ### Step 5 — Create the tag and release
 
