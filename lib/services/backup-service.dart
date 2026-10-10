@@ -785,6 +785,9 @@ class BackupService {
             .putIfAbsent(assoc.recordId, () => <String>{})
             .add(assoc.tagName);
       }
+      _logger.info(
+          'Restoring backup: ${backup.recordTagAssociations.length} tag associations '
+          'across ${recordIdToTags.length} records');
 
       // Populate record.tags and remap wallet_id + profile_id
       for (var record in backup.records) {

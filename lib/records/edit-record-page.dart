@@ -20,6 +20,7 @@ import 'package:piggybank/components/amount_input_field.dart';
 import 'package:piggybank/components/markup_text.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/profile-service.dart';
+import 'package:piggybank/services/logger.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/services/transfer-exchange-rate-service.dart';
 
@@ -65,6 +66,7 @@ class EditRecordPage extends StatefulWidget {
 }
 
 class EditRecordPageState extends State<EditRecordPage> {
+  final _logger = Logger.withContext('EditRecordPage');
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _textEditingController = TextEditingController();
   final _receivedAmountController = TextEditingController();
@@ -1336,6 +1338,7 @@ class EditRecordPageState extends State<EditRecordPage> {
       record!.walletId = (await database.getDefaultWallet())?.id;
     }
     record!.tags = _selectedTags; // Assign selected tags to the record
+    _logger.debug('Saving record with ${_selectedTags.length} tags');
     if (record!.recurrencePatternId != null) {
       final dateChanged = _originalUtcDateTime != null &&
           record!.utcDateTime.millisecondsSinceEpoch !=
@@ -1521,11 +1524,14 @@ class EditRecordPageState extends State<EditRecordPage> {
       );
 
       if (selectedTags != null) {
+        _logger.debug(
+            'Tag selection applied: ${selectedTags.length} tags selected');
         setState(() {
           _selectedTags = selectedTags;
         });
       }
     } else {
+      _logger.debug('Tag selection blocked: not a premium user');
       goToPremiumSplashScreen();
     }
   }

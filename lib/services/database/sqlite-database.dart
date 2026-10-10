@@ -373,7 +373,8 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<int> addRecord(Record? record) async {
     try {
-      _logger.debug('Adding record: ${record?.title} (${record?.value})');
+      _logger.debug(
+          'Adding record: ${record?.title} (${record?.value}) with ${record?.tags.length ?? 0} tags');
       final db = (await database)!;
       record!.profileId ??= ProfileService.instance.activeProfileId;
       if (record.category != null &&
@@ -395,7 +396,7 @@ class SqliteDatabase implements DatabaseInterface {
           }, conflictAlgorithm: ConflictAlgorithm.ignore);
         }
       }
-      _logger.info('Record added: ID $recordId');
+      _logger.info('Record added: ID $recordId (${record.tags.length} tags)');
       _notifyDatabaseChanged();
       return recordId;
     } catch (e, st) {
@@ -403,6 +404,13 @@ class SqliteDatabase implements DatabaseInterface {
       rethrow;
     }
   }
+
+  int _countTags(Iterable<Record?> records) => records
+      .whereType<Record>()
+      .fold(
+        0,
+        (sum, r) => sum + r.tags.where((t) => t.trim().isNotEmpty).length,
+      );
 
   @override
   Future<void> addRecordsInBatch(List<Record?> records) async {
@@ -511,7 +519,8 @@ class SqliteDatabase implements DatabaseInterface {
       }
 
       await tagBatch.commit(noResult: true);
-      _logger.info('Batch complete with tags');
+      _logger.info(
+          'Batch complete with ${_countTags(records)} tag associations');
       _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
@@ -605,7 +614,8 @@ class SqliteDatabase implements DatabaseInterface {
       }
 
       await tagBatch.commit(noResult: true);
-      _logger.info('Batch complete with tags');
+      _logger.info(
+          'Batch complete with ${_countTags(records)} tag associations');
       _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch (no dup check)');
@@ -1474,6 +1484,8 @@ class SqliteDatabase implements DatabaseInterface {
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
     }
+    _logger.info(
+        'Record updated: ID $movementId (${newMovement.tags.length} tags)');
     _notifyDatabaseChanged();
     return updatedRows;
   }

@@ -3,6 +3,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:piggybank/components/tag_chip.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/logger.dart';
 import 'package:piggybank/services/service-config.dart';
 
 class TagSelectionDialog extends StatefulWidget {
@@ -17,6 +18,7 @@ class TagSelectionDialog extends StatefulWidget {
 
 class _TagSelectionDialogState extends State<TagSelectionDialog>
     with TickerProviderStateMixin {
+  final _logger = Logger.withContext('TagSelectionDialog');
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _searchController = TextEditingController();
   Set<String> _allTags = {};
@@ -55,6 +57,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
     final tags = (await database.getAllTags())
         .where((tag) => tag.trim().isNotEmpty)
         .toSet();
+    _logger.debug('Tag dialog loaded ${tags.length} available tags');
     setState(() {
       _allTags = tags;
       _filteredTags = tags;
@@ -370,6 +373,8 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
     final isValid = RegExp(r'^[^\s,]+$').hasMatch(tag);
 
     if (tag.isEmpty || !isValid) {
+      _logger.warning(
+          'Rejected tag "$tag": tags must be a single word without commas');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Tags must be a single word without commas.".i18n),
@@ -393,6 +398,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog>
       _toggleTagSelection(tag);
     }
 
+    _logger.debug('Tag created/selected: $tag');
     _searchController.clear();
     _filterTags('');
   }
