@@ -926,6 +926,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   Future<void> deleteDatabase() async {
     final db = (await database)!;
+    _logger.info('Deleting all database data');
 
     // Step 1: delete everything
     await db.execute("DELETE FROM records");
@@ -960,6 +961,7 @@ class SqliteDatabase implements DatabaseInterface {
     );
 
     _db = null;
+    _logger.info('Database reset completed: default profile and wallet recreated');
   }
 
   // Profile CRUD
@@ -975,6 +977,7 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<void> resetProfileOrderIndexes(List<Profile> ordered) async {
     final db = (await database)!;
+    _logger.debug('Resetting order for ${ordered.length} profiles');
     final batch = db.batch();
     for (int i = 0; i < ordered.length; i++) {
       batch.update(
@@ -1001,6 +1004,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     await db.rawUpdate('UPDATE profiles SET is_default = 0');
     await db.rawUpdate('UPDATE profiles SET is_default = 1 WHERE id = ?', [id]);
+    _logger.info('Default profile set: ID $id');
   }
 
   @override
@@ -1020,6 +1024,7 @@ class SqliteDatabase implements DatabaseInterface {
       "INSERT INTO wallets (name, is_default, is_predefined, sort_order, profile_id, color) VALUES (?, 1, 1, 0, ?, ?)",
       ["Default Wallet".i18n, profileId, "255:129:199:132"],
     );
+    _logger.info('Profile added: ID $profileId (${profile.name})');
     _notifyDatabaseChanged();
     return profileId;
   }
@@ -1029,6 +1034,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     final map = profile.toMap()..remove('id');
     await db.update('profiles', map, where: 'id = ?', whereArgs: [profile.id]);
+    _logger.info('Profile updated: ID ${profile.id} (${profile.name})');
     _notifyDatabaseChanged();
   }
 
@@ -1039,6 +1045,7 @@ class SqliteDatabase implements DatabaseInterface {
       await db.delete(table, where: 'profile_id = ?', whereArgs: [id]);
     }
     await db.delete('profiles', where: 'id = ?', whereArgs: [id]);
+    _logger.info('Profile ID $id and its records deleted');
     _notifyDatabaseChanged();
   }
 
@@ -1325,6 +1332,7 @@ class SqliteDatabase implements DatabaseInterface {
     final db = (await database)!;
     await db.rawUpdate('UPDATE wallets SET is_default = 0');
     await db.rawUpdate('UPDATE wallets SET is_default = 1 WHERE id = ?', [id]);
+    _logger.info('Default wallet set: ID $id');
   }
 
   @override
@@ -1334,6 +1342,7 @@ class SqliteDatabase implements DatabaseInterface {
     await db.rawUpdate('UPDATE wallets SET is_predefined = 1 WHERE id = ?', [
       id,
     ]);
+    _logger.info('Predefined wallet set: ID $id');
   }
 
   @override
@@ -1357,6 +1366,7 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<void> resetWalletOrderIndexes(List<Wallet> ordered) async {
     final db = (await database)!;
+    _logger.debug('Resetting order for ${ordered.length} wallets');
     final batch = db.batch();
     for (int i = 0; i < ordered.length; i++) {
       batch.update(
@@ -1547,6 +1557,7 @@ class SqliteDatabase implements DatabaseInterface {
       whereArgs: [recurrentPatternId, millisecondsSinceEpoch],
     );
     // There is a db trigger, deleting a record automatically delete the associated tags
+    _logger.info('Future records deleted for pattern $recurrentPatternId');
     _notifyDatabaseChanged();
   }
 
@@ -1604,7 +1615,10 @@ class SqliteDatabase implements DatabaseInterface {
     recordPattern.id ??= Uuid().v4();
     recordPattern.profileId ??= ProfileService.instance.activeProfileId;
     _notifyDatabaseChanged();
-    return await db.insert("recurrent_record_patterns", recordPattern.toMap());
+    final id = await db.insert("recurrent_record_patterns", recordPattern.toMap());
+    _logger.info(
+        'Recurrent pattern added: ID ${recordPattern.id} (${recordPattern.title})');
+    return id;
   }
 
   @override
@@ -1617,6 +1631,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "id = ?",
       whereArgs: [recurrentPatternId],
     );
+    _logger.info('Recurrent pattern deleted: ID $recurrentPatternId');
     _notifyDatabaseChanged();
   }
 
@@ -1633,6 +1648,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: "id = ?",
       whereArgs: [recurrentPatternId],
     );
+    _logger.info('Recurrent pattern updated: ID $recurrentPatternId');
     _notifyDatabaseChanged();
     return updated;
   }
@@ -1673,6 +1689,8 @@ class SqliteDatabase implements DatabaseInterface {
       where: "name = ? AND category_type = ?",
       whereArgs: [categoryName, categoryType.index],
     );
+    _logger.info(
+        'Category ${isArchived ? 'archived' : 'unarchived'}: $categoryName');
     _notifyDatabaseChanged();
   }
 
@@ -1681,6 +1699,7 @@ class SqliteDatabase implements DatabaseInterface {
     List<Category> orderedCategories,
   ) async {
     final db = (await database)!;
+    _logger.debug('Resetting order for ${orderedCategories.length} categories');
 
     // Update the sortOrder of each category based on its index in the ordered list
     for (int i = 0; i < orderedCategories.length; i++) {
@@ -1744,6 +1763,7 @@ class SqliteDatabase implements DatabaseInterface {
       }
       await batch.commit();
     });
+    _logger.info('Tag renamed: $oldTagName -> $newTagName');
     _notifyDatabaseChanged();
   }
 
@@ -1756,6 +1776,7 @@ class SqliteDatabase implements DatabaseInterface {
       where: 'tag_name = ?',
       whereArgs: [tagName],
     );
+    _logger.info('Tag deleted: $tagName');
     _notifyDatabaseChanged();
   }
 }
