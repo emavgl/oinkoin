@@ -90,12 +90,19 @@ class _AmountInputFieldState extends State<AmountInputField> {
     final mode = getAmountKeyboardMode();
     final validator = widget.validator ?? _defaultValidator;
     final decDigits = _resolvedDecimalDigits;
+    // Honor the currency symbol spacing preference (non-breaking space so the
+    // number and currency never wrap apart).
+    final suffixText = widget.suffixText == null
+        ? null
+        : getCurrencySymbolSpacing()
+            ? '\u00A0${widget.suffixText}'
+            : widget.suffixText;
 
     if (mode == AmountKeyboardMode.inAppKeyboard) {
       return _InAppKeyboardField(
         controller: widget.controller,
         labelText: widget.labelText,
-        suffixText: widget.suffixText,
+        suffixText: suffixText,
         enabled: widget.enabled,
         allowNegative: widget.allowNegative,
         validator: validator,
@@ -135,7 +142,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
         labelText: widget.labelText,
         hintText:
             widget.unlimitedDecimals ? '0' : buildZeroAmountText(decimalDigits: decDigits),
-        suffixText: widget.suffixText,
+        suffixText: suffixText,
       ),
     );
   }

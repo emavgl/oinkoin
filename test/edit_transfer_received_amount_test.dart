@@ -548,4 +548,30 @@ void main() {
       await finish(tester);
     },
   );
+
+  testWidgets('amount suffix honors the currency symbol spacing preference', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.enterText(field('amount-field'), '100');
+    await tester.pump();
+    expect(find.text('\u00A0USD'), findsOneWidget);
+    expect(find.text('\u00A0EUR'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('amount suffix has no space when spacing is disabled', (
+    tester,
+  ) async {
+    await ServiceConfig.sharedPreferences!.setInt(
+      PreferencesKeys.currencySymbolSpacing,
+      1,
+    );
+    await open(tester);
+    await tester.enterText(field('amount-field'), '100');
+    await tester.pump();
+    expect(find.text('USD'), findsOneWidget);
+    expect(find.text('EUR'), findsOneWidget);
+    await finish(tester);
+  });
 }
