@@ -704,16 +704,30 @@ class SqliteDatabase implements DatabaseInterface {
       JOIN wallets source ON source.id = r.wallet_id
       JOIN wallets destination ON destination.id = r.transfer_wallet_id
       WHERE r.datetime <= ? AND ABS(r.value) > 0 AND r.transfer_value > 0
-        AND source.currency != destination.currency
-        AND (source.currency = ? OR destination.currency = ?)
+        AND COALESCE(source.currency, '') != COALESCE(destination.currency, '')
       ORDER BY r.datetime DESC, r.id DESC
-    ''', [asOf.toUtc().millisecondsSinceEpoch, mainCurrency, mainCurrency]);
+    ''', [asOf.toUtc().millisecondsSinceEpoch]);
     final rates = <String, double>{};
     for (final row in rows) {
-      final source = row['source_currency'] as String;
-      final destination = row['destination_currency'] as String;
-      final other = source == mainCurrency ? destination : source;
-      if (other.isEmpty || rates.containsKey(other)) continue;
+      // A wallet without a currency is treated as the main currency.
+      final sourceRaw = row['source_currency'] as String?;
+      final destinationRaw = row['destination_currency'] as String?;
+      final source = (sourceRaw != null && sourceRaw.isNotEmpty)
+          ? sourceRaw
+          : mainCurrency;
+      final destination = (destinationRaw != null && destinationRaw.isNotEmpty)
+          ? destinationRaw
+          : mainCurrency;
+      if (source == destination) continue;
+      final String other;
+      if (source == mainCurrency) {
+        other = destination;
+      } else if (destination == mainCurrency) {
+        other = source;
+      } else {
+        continue;
+      }
+      if (rates.containsKey(other)) continue;
       final sent = (row['value'] as num).toDouble().abs();
       final received = (row['transfer_value'] as num).toDouble();
       if (!sent.isFinite || !received.isFinite) continue;

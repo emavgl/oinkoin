@@ -1091,13 +1091,13 @@ class EditRecordPageState extends State<EditRecordPage> {
                     controller: _textEditingController,
                     labelText: "Amount".i18n,
                     suffixText: _isCrossCurrencyTransfer
-                        ? _selectedWallet!.currency
+                        ? _walletCurrency(_selectedWallet)
                         : null,
                     enabled: !readOnly,
                     allowNegative: false,
                     autofocus: shouldAutofocus,
                     onChanged: changeRecordValue,
-                    currencyCode: _selectedWallet?.currency,
+                    currencyCode: _walletCurrency(_selectedWallet),
                     validator: isTransferFlow || _selectedDestinationWallet != null
                         ? _validatePositiveTransferAmount
                         : null,
@@ -1126,11 +1126,18 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
+  String? _walletCurrency(Wallet? wallet) {
+    final currency = wallet?.currency;
+    if (currency != null && currency.isNotEmpty) return currency;
+    return getDefaultCurrency();
+  }
+
   bool get _isCrossCurrencyTransfer =>
       ServiceConfig.walletsEnabled &&
-      _selectedWallet?.currency != null &&
-      _selectedDestinationWallet?.currency != null &&
-      _selectedWallet!.currency != _selectedDestinationWallet!.currency;
+      _walletCurrency(_selectedWallet) != null &&
+      _walletCurrency(_selectedDestinationWallet) != null &&
+      _walletCurrency(_selectedWallet) !=
+          _walletCurrency(_selectedDestinationWallet);
 
   void _setReceivedAmountText(double? amount) {
     // Keep all saved digits; formatting for display must not change balances.
@@ -1163,8 +1170,8 @@ class EditRecordPageState extends State<EditRecordPage> {
         ? null
         : convertAmount(
             record!.value!.abs(),
-            _selectedWallet!.currency!,
-            _selectedDestinationWallet!.currency!,
+            _walletCurrency(_selectedWallet)!,
+            _walletCurrency(_selectedDestinationWallet)!,
           );
     _setReceivedAmountText(
       amount != null && amount.isFinite && amount > 0 ? amount : null,
@@ -1199,7 +1206,7 @@ class EditRecordPageState extends State<EditRecordPage> {
         .transferExchangeRate;
     if (rate == null) return null;
     final rateText = rate.toString().replaceAll('.', getDecimalSeparator());
-    return '1 ${_selectedWallet!.currency} = $rateText ${_selectedDestinationWallet!.currency}';
+    return '1 ${_walletCurrency(_selectedWallet)} = $rateText ${_walletCurrency(_selectedDestinationWallet)}';
   }
 
   Widget _createReceivedAmountCard() {
@@ -1214,8 +1221,8 @@ class EditRecordPageState extends State<EditRecordPage> {
             child: AmountInputField(
               controller: _receivedAmountController,
               labelText: "Amount received".i18n,
-              suffixText: _selectedDestinationWallet!.currency,
-              currencyCode: _selectedDestinationWallet!.currency,
+              suffixText: _walletCurrency(_selectedDestinationWallet),
+              currencyCode: _walletCurrency(_selectedDestinationWallet),
               enabled: !readOnly,
               validator: _validatePositiveTransferAmount,
               onChanged: (_) {
@@ -1252,14 +1259,12 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   void _updateTransferValue() {
-    if (_selectedWallet?.currency == null ||
-        _selectedDestinationWallet?.currency == null ||
-        record?.value == null) {
+    final src = _walletCurrency(_selectedWallet);
+    final dest = _walletCurrency(_selectedDestinationWallet);
+    if (src == null || dest == null || record?.value == null) {
       record?.transferValue = null;
       return;
     }
-    final src = _selectedWallet!.currency!;
-    final dest = _selectedDestinationWallet!.currency!;
     if (src == dest) {
       record!.transferValue = null;
       return;
@@ -1276,16 +1281,14 @@ class EditRecordPageState extends State<EditRecordPage> {
   }
 
   void _appendTransferNoteToDescription() {
-    final srcWallet = _selectedWallet;
-    final destWallet = _selectedDestinationWallet;
-    if (srcWallet?.currency == null ||
-        destWallet?.currency == null ||
+    final srcCurrency = _walletCurrency(_selectedWallet);
+    final destCurrency = _walletCurrency(_selectedDestinationWallet);
+    if (srcCurrency == null ||
+        destCurrency == null ||
         record?.transferValue == null ||
-        srcWallet!.currency == destWallet!.currency) {
+        srcCurrency == destCurrency) {
       return;
     }
-    final srcCurrency = srcWallet.currency!;
-    final destCurrency = destWallet.currency!;
     final srcFormatted =
         formatCurrencyAmount(record!.value!.abs(), srcCurrency);
     final destFormatted =
