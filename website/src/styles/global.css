@@ -5,3 +5,18 @@
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
 }
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
