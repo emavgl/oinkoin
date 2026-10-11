@@ -574,4 +574,28 @@ void main() {
     expect(find.text('EUR'), findsOneWidget);
     await finish(tester);
   });
+
+  testWidgets(
+    'typing does not crash when only the source wallet is selected',
+    (tester) async {
+      // Source is USD, default currency is EUR, and no destination wallet is
+      // chosen. A null destination must not be treated as the default currency.
+      await ServiceConfig.sharedPreferences!.setString(
+        PreferencesKeys.defaultCurrency,
+        'EUR',
+      );
+      await tester.pumpWidget(
+        I18n(
+          child: MaterialApp(
+            home: EditRecordPage(initialWallet: source),
+          ),
+        ),
+      );
+      await settle(tester);
+      await tester.enterText(field('amount-field'), '100');
+      await tester.pump();
+      expect(field('received-amount-field'), findsNothing);
+      await finish(tester);
+    },
+  );
 }

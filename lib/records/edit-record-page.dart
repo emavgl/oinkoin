@@ -1134,12 +1134,16 @@ class EditRecordPageState extends State<EditRecordPage> {
     return getDefaultCurrency();
   }
 
-  bool get _isCrossCurrencyTransfer =>
-      ServiceConfig.walletsEnabled &&
-      _walletCurrency(_selectedWallet) != null &&
-      _walletCurrency(_selectedDestinationWallet) != null &&
-      _walletCurrency(_selectedWallet) !=
-          _walletCurrency(_selectedDestinationWallet);
+  bool get _isCrossCurrencyTransfer {
+    if (!ServiceConfig.walletsEnabled ||
+        _selectedWallet == null ||
+        _selectedDestinationWallet == null) {
+      return false;
+    }
+    final source = _walletCurrency(_selectedWallet);
+    final destination = _walletCurrency(_selectedDestinationWallet);
+    return source != null && destination != null && source != destination;
+  }
 
   void _setReceivedAmountText(double? amount) {
     // Keep all saved digits; formatting for display must not change balances.
