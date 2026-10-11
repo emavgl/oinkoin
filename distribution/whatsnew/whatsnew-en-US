@@ -1,1 +1,1 @@
-Add per-transfer exchange rates and Chinese (Traditional), plus currency and keyboard fixes
+Fix a crash when entering an amount after selecting a wallet with a different currency
