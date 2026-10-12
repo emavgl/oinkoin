@@ -1,0 +1,1 @@
+Convert foreign currencies to the main currency in budgets and widget sparklines

@@ -1,1 +1,1 @@
-Fix a crash when entering an amount after selecting a wallet with a different currency
+Convert foreign currencies to the main currency in budgets and widget sparklines
