@@ -125,6 +125,7 @@ class BudgetsPageState extends State<BudgetsPage> {
   final DatabaseInterface _database = ServiceConfig.database;
   List<Budget> _budgets = [];
   List<Record> _records = [];
+  Map<int, String?> _walletCurrencyMap = {};
   bool _showArchived = false;
   bool _loading = true;
 
@@ -152,10 +153,12 @@ class BudgetsPageState extends State<BudgetsPage> {
     final records = (await _database.getAllRecords(profileId: profileId))
         .whereType<Record>()
         .toList();
+    final wallets = await _database.getAllWallets(profileId: profileId);
     if (!mounted) return;
     setState(() {
       _budgets = budgets;
       _records = records;
+      _walletCurrencyMap = buildWalletCurrencyMap(wallets);
       _loading = false;
     });
   }
@@ -201,7 +204,8 @@ class BudgetsPageState extends State<BudgetsPage> {
 
   double _budgetProgress(Budget budget, BudgetCycle cycle) {
     final matchingRecords = matchingBudgetRecords(budget, _records, cycle);
-    final total = budgetProgressAmount(budget, matchingRecords);
+    final total =
+        budgetProgressAmount(budget, matchingRecords, _walletCurrencyMap);
     return budget.targetAmount == 0 ? 0 : total / budget.targetAmount;
   }
 
@@ -575,7 +579,8 @@ class _BudgetDetailPageState extends State<BudgetDetailPage> {
   }
 
   double _currentAmount() {
-    return budgetProgressAmount(_budget, _currentRecords());
+    return budgetProgressAmount(
+        _budget, _currentRecords(), _walletCurrencyMap);
   }
 
   Future<void> _editBudget() async {

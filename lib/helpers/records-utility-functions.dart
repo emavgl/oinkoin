@@ -87,8 +87,20 @@ List<Record> matchingBudgetRecords(
 ///
 /// Expense budgets count matching expenses as positive. Saving budgets are
 /// net: income adds to the progress while expenses subtract from it.
-double budgetRecordAmount(Budget budget, Record record) {
-  final value = (record.value ?? 0).abs();
+///
+/// Budgets are denominated in the user's default (main) currency. When
+/// [walletCurrencyMap] is provided, the record's value is converted from its
+/// wallet currency to the default currency first (same as statistics);
+/// without a map, or when no rate is available, the raw value is used.
+double budgetRecordAmount(
+  Budget budget,
+  Record record, [
+  Map<int, String?>? walletCurrencyMap,
+]) {
+  final raw = record.value ?? 0.0;
+  final signed =
+      walletCurrencyMap == null ? raw : _budgetRecordValueInDefaultCurrency(record, walletCurrencyMap);
+  final value = signed.abs();
   if (budget.budgetType == BudgetType.saving &&
       record.category?.categoryType == CategoryType.expense) {
     return -value;
@@ -97,12 +109,42 @@ double budgetRecordAmount(Budget budget, Record record) {
 }
 
 /// Signed total of [records] counting toward [budget]'s progress.
-double budgetProgressAmount(Budget budget, Iterable<Record> records) {
+/// Pass [walletCurrencyMap] (wallet ID → currency ISO code) so foreign
+/// currencies are converted to the default currency before summing.
+double budgetProgressAmount(
+  Budget budget,
+  Iterable<Record> records, [
+  Map<int, String?>? walletCurrencyMap,
+]) {
   return records.fold<double>(
     0,
-    (sum, record) => sum + budgetRecordAmount(budget, record),
+    (sum, record) => sum + budgetRecordAmount(budget, record, walletCurrencyMap),
   );
 }
+
+/// Returns [record]'s signed value expressed in the default currency,
+/// mirroring statistics aggregation. Falls back to the raw value when there
+/// is no default currency, no wallet currency, or no conversion rate.
+double convertRecordValueToDefaultCurrency(
+  Record record,
+  Map<int, String?> walletCurrencyMap,
+) {
+  final raw = record.value ?? 0.0;
+  final defaultCurrency = getDefaultCurrency();
+  if (defaultCurrency == null || defaultCurrency.isEmpty) return raw;
+  final currency =
+      record.walletId != null ? walletCurrencyMap[record.walletId] : null;
+  if (currency == null || currency.isEmpty || currency == defaultCurrency) {
+    return raw;
+  }
+  return convertAmount(raw, currency, defaultCurrency) ?? raw;
+}
+
+double _budgetRecordValueInDefaultCurrency(
+  Record record,
+  Map<int, String?> walletCurrencyMap,
+) =>
+    convertRecordValueToDefaultCurrency(record, walletCurrencyMap);
 
 /// Masked amount widget for privacy mode, centered where the amount was.
 Widget obscuredAmountTextWidget(TextStyle? style) {

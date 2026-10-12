@@ -142,7 +142,8 @@ class HomeWidgetService {
         (getAmountColor(balanceResult.total, brightness) ??
                 _balanceFallback(balanceResult.total))
             .toARGB32());
-    final balanceSeries = dailySeries(balanceRecords, isBalance: true);
+    final balanceSeries = dailySeries(balanceRecords,
+        isBalance: true, walletCurrencyMap: walletCurrencyMap);
     if (balanceSeries.length > 1) {
       final overviewSpark = await _renderSparkline(
         prefix: 'oinkoin_overview',
@@ -162,7 +163,8 @@ class HomeWidgetService {
       label: "Income".i18n,
       amount: text(incomeRecords, isBalance: false),
       color: getAmountColor(incomeTotal, brightness),
-      sparkline: dailySeries(incomeRecords, isBalance: false),
+      sparkline: dailySeries(incomeRecords,
+          isBalance: false, walletCurrencyMap: walletCurrencyMap),
     );
     await _refreshSingle(
       provider: expensesProvider,
@@ -170,7 +172,8 @@ class HomeWidgetService {
       label: "Expenses".i18n,
       amount: text(expenseRecords, isBalance: false),
       color: getAmountColor(expenseTotal, brightness),
-      sparkline: dailySeries(expenseRecords, isBalance: false),
+      sparkline: dailySeries(expenseRecords,
+          isBalance: false, walletCurrencyMap: walletCurrencyMap),
     );
     await _refreshSingle(
       provider: balanceProvider,
@@ -179,7 +182,8 @@ class HomeWidgetService {
       amount: text(balanceRecords, isBalance: true),
       color: getAmountColor(balanceResult.total, brightness) ??
           _balanceFallback(balanceResult.total),
-      sparkline: dailySeries(balanceRecords, isBalance: true),
+      sparkline: dailySeries(balanceRecords,
+          isBalance: true, walletCurrencyMap: walletCurrencyMap),
     );
   }
 
@@ -241,6 +245,8 @@ class HomeWidgetService {
       }
     }
     final allRecords = await _database.getAllRecords(profileId: profileId);
+    final wallets = await _database.getAllWallets(profileId: profileId);
+    final walletCurrencyMap = buildWalletCurrencyMap(wallets);
 
     for (final info in installed) {
       if (info.androidClassName != budgetProvider) continue;
@@ -250,7 +256,9 @@ class HomeWidgetService {
       if (budget == null) continue;
       final cycle = budget.currentCycle();
       final amount = budgetProgressAmount(
-          budget, matchingBudgetRecords(budget, allRecords.whereType<Record>(), cycle));
+          budget,
+          matchingBudgetRecords(budget, allRecords.whereType<Record>(), cycle),
+          walletCurrencyMap);
       final ratio =
           budget.targetAmount == 0 ? 0.0 : amount / budget.targetAmount;
       final color = budget.budgetType == BudgetType.expense
@@ -278,9 +286,12 @@ class HomeWidgetService {
 
   /// Daily totals over the interval for sparklines (signed for balance,
   /// absolute otherwise), capped to the most recent 31 days.
+  /// Values are converted to the default currency when [walletCurrencyMap]
+  /// is provided, matching the converted headline totals.
   static List<double> dailySeries(
     Iterable<Record?> records, {
     required bool isBalance,
+    Map<int, String?>? walletCurrencyMap,
   }) {
     final byDay = <DateTime, double>{};
     for (final record in records) {
@@ -290,7 +301,10 @@ class HomeWidgetService {
         record.localDateTime.month,
         record.localDateTime.day,
       );
-      final value = isBalance ? record.value! : record.value!.abs();
+      final signed = walletCurrencyMap == null
+          ? record.value!
+          : convertRecordValueToDefaultCurrency(record, walletCurrencyMap);
+      final value = isBalance ? signed : signed.abs();
       byDay[day] = (byDay[day] ?? 0) + value;
     }
     final days = byDay.keys.toList()..sort();
