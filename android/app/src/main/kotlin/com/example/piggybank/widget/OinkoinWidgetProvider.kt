@@ -341,6 +341,13 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
             }
             return false
         }
+        // The host reuses the existing view hierarchy for same-layout
+        // updates and only re-applies the actions in this RemoteViews, so
+        // views hidden by a previous empty update must be shown explicitly
+        // again or the widget stays blank forever.
+        for (id in intArrayOf(R.id.widget_name, R.id.widget_bar)) {
+            views.setViewVisibility(id, View.VISIBLE)
+        }
         val color = getColor(widgetData, "color", suffix, titleColor)
         views.setTextViewText(R.id.widget_name, name)
         views.setTextColor(R.id.widget_name, titleColor)
@@ -410,6 +417,15 @@ abstract class OinkoinWidgetProvider : HomeWidgetProvider() {
                 views.setViewVisibility(id, View.GONE)
             }
             return false
+        }
+        // Views hidden by a previous empty update must be shown explicitly:
+        // the host reuses the same hierarchy and only re-applies the actions
+        // present in this RemoteViews.
+        for (id in intArrayOf(
+            R.id.widget_icon, R.id.widget_name, R.id.widget_cycle,
+            R.id.widget_bar, R.id.widget_amount, R.id.widget_percent,
+        )) {
+            views.setViewVisibility(id, View.VISIBLE)
         }
         val color = getColor(widgetData, "color", suffix, titleColor)
         // The card mirrors the budgets page: icon + name + cycle on top,
