@@ -1370,7 +1370,7 @@ class SqliteDatabase implements DatabaseInterface {
   Future<Wallet?> getDefaultWalletForProfile(int? profileId) =>
       _getWalletByFlag('is_default', profileId);
 
-  /// Returns the first wallet with [_flagColumn] set to 1, scoped to
+  /// Returns the first wallet with [flagColumn] set to 1, scoped to
   /// [profileId] when non-null, together with its computed balance.
   Future<Wallet?> _getWalletByFlag(String flagColumn, int? profileId) async {
     final db = (await database)!;
