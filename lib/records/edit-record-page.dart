@@ -1100,7 +1100,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                     autofocus: shouldAutofocus,
                     onChanged: changeRecordValue,
                     currencyCode: _walletCurrency(_selectedWallet),
-                    validator: isTransferFlow || _selectedDestinationWallet != null
+                    // Transfers must move a non-zero amount; expense/income
+                    // records may legitimately be 0 (e.g. a reminder entry),
+                    // so they keep the default validator which accepts 0.
+                    validator: isTransferFlow
                         ? _validatePositiveTransferAmount
                         : null,
                   ),

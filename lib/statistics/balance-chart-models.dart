@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
@@ -54,7 +55,7 @@ class ComparisonDataAggregator {
       final truncated = truncateDateTime(record.dateTime, aggregationMethod);
       final key = config.getKey(truncated);
 
-      if (data.containsKey(key) && !record.isTransfer) {
+      if (data.containsKey(key) && isCountedInStatistics(record)) {
         // Income/expenses are stored as positive magnitudes in this model
         // (netSavings = income - expenses), so abs() is applied at the model
         // boundary while the conversion works on the real signed value.

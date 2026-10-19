@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/wallet.dart';
@@ -84,7 +85,7 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.records
                   .where((element) =>
                       element?.category?.categoryType == CategoryType.expense &&
-                      !element!.isTransfer)
+                      isCountedInStatistics(element))
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
@@ -103,7 +104,7 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.records
                   .where((element) =>
                       element?.category?.categoryType == CategoryType.income &&
-                      !element!.isTransfer)
+                      isCountedInStatistics(element))
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
@@ -119,7 +120,9 @@ class _StatisticsPageState extends State<StatisticsPage>
             BalanceTabPage(
               widget.from,
               widget.to,
-              widget.records.where((element) => !element!.isTransfer).toList(),
+              widget.records
+                  .where((element) => isCountedInStatistics(element))
+                  .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
               walletCurrencyMap: widget.walletCurrencyMap,

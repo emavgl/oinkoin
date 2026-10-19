@@ -157,8 +157,8 @@ List<DateTimeSeriesRecord> aggregateRecordsByDate(
   /// Available grouping: by day, month, year.
   Map<DateTime?, DateTimeSeriesRecord> aggregatedByDay = {};
   for (var record in records) {
-    if (record == null || record.isTransfer || record.value == null) continue;
-    DateTime? dateTime = truncateDateTime(record.dateTime, aggregationMethod);
+    if (!isCountedInStatistics(record)) continue;
+    DateTime? dateTime = truncateDateTime(record!.dateTime, aggregationMethod);
     // Keep real (signed) values in the aggregation; consumers apply abs()
     // where the magnitude is needed for rendering.
     double valueToAdd = getRecordValueInDefaultCurrency(record, walletCurrencyMap);
@@ -183,7 +183,7 @@ List<Record?> aggregateRecordsByDateAndCategory(
     return records; // don't aggregate
   List<Record?> newAggregatedRecords = [];
   final categorizedRecords = records
-      .where((record) => record?.category != null && !record!.isTransfer)
+      .where((record) => record?.category != null && isCountedInStatistics(record))
       .toList();
   Map<DateTime?, List<Record?>> mapDateTimeRecords = groupBy(categorizedRecords,
       (Record? obj) => truncateDateTime(obj!.dateTime, aggregationMethod));

@@ -597,6 +597,13 @@ Map<String, double> buildCurrencyBreakdown(
 List<Record?> balanceRelevantRecords(List<Record?> records) =>
     records.where((r) => r != null && !r.isTransfer).toList();
 
+/// Returns true when [record] should be counted in statistics: a non-transfer
+/// record carrying a non-zero amount. Zero-amount records are omitted just like
+/// transfers, since they contribute nothing to any total and would otherwise
+/// create empty rows or skew counts and averages.
+bool isCountedInStatistics(Record? record) =>
+    record != null && !record.isTransfer && (record.value ?? 0) != 0;
+
 /// Returns true when [records] span more than one currency group,
 /// meaning a per-currency breakdown is meaningful.
 bool hasMixedCurrencies(
@@ -625,7 +632,16 @@ RecordsTotalResult computeConvertedTotal(
 }) {
   final nonNull = records.where((r) => r != null).cast<Record>().toList();
   if (nonNull.isEmpty) {
-    return const RecordsTotalResult(0.0, null);
+    // Show the zero total in the default currency when one is configured, so a
+    // zero amount is formatted like every other amount instead of losing its
+    // currency symbol.
+    final defaultCurrency = getDefaultCurrency();
+    return RecordsTotalResult(
+      0.0,
+      (defaultCurrency != null && defaultCurrency.isNotEmpty)
+          ? defaultCurrency
+          : null,
+    );
   }
 
   // Determine unique non-null currencies among the wallets used by these records
@@ -872,12 +888,13 @@ Color _greenShade(Brightness brightness) => brightness == Brightness.dark
 Color _redShade(Brightness brightness) =>
     brightness == Brightness.dark ? Colors.red.shade400 : Colors.red.shade700;
 
-/// Returns the color used to display [amount], based purely on its sign:
-/// green when positive or zero, red when negative. Returns null when amount
-/// colorization is disabled.
+/// Returns the color used to display [amount], based on its sign: green when
+/// positive, red when negative. Zero is neutral (null) - it is neither income
+/// nor an expense. Returns null when amount colorization is disabled.
 Color? getAmountColor(double amount, Brightness brightness) {
   if (!_colorizeEnabled()) return null;
-  return amount >= 0 ? _greenShade(brightness) : _redShade(brightness);
+  if (amount == 0) return null;
+  return amount > 0 ? _greenShade(brightness) : _redShade(brightness);
 }
 
 /// Returns the color to use for [record]'s amount.
@@ -889,7 +906,7 @@ Color? getAmountColor(double amount, Brightness brightness) {
 /// list), it's colored by sign like a normal record instead: red when
 /// leaving the visible wallet, green when arriving into it - [record.value]
 /// is already signed for that perspective by the filter that produced it.
-/// Non-transfer records are always colored by sign.
+/// Non-transfer records are colored by sign; a zero amount is neutral.
 Color? getRecordAmountColor(Record record, Brightness brightness) {
   if (record.isTransfer && !record.isSingleSideTransferView) return null;
   return getAmountColor(record.value ?? 0.0, brightness);
