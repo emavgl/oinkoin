@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:piggybank/models/budget-type.dart';
+import 'package:piggybank/models/budget.dart';
 import 'package:piggybank/models/profile.dart';
+import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
@@ -183,15 +186,16 @@ void main() {
           Wallet(
             'Existing wallet',
             id: destDefault.id,
+            profileId: destDefault.profileId,
             initialAmount: 50.0,
             isDefault: true,
             currency: 'USD',
           ),
         );
         await destRawDb.rawInsert(
-          "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id) "
-          "VALUES ('Existing expense', -20.0, 900000, 'UTC', 'House', 0, ?)",
-          [destDefault.id],
+          "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id) "
+          "VALUES ('Existing expense', -20.0, 900000, 'UTC', 'House', 0, ?, ?)",
+          [destDefault.id, destDefault.profileId],
         );
 
         expect(
@@ -284,6 +288,157 @@ void main() {
           closeTo(0.0, 0.001),
           reason: 'another profile\'s wallet must not receive the records',
         );
+      },
+    );
+  });
+
+  testlib.group('Placeholder detection considers every reference type', () {
+    Future<File> createBackupWithCartera() async {
+      final db = ServiceConfig.database;
+      final rawDb = (await (db as SqliteDatabase).database)!;
+      final sourceDefault = (await db.getAllWallets()).firstWhere(
+        (w) => w.isDefault,
+      );
+      await db.updateWallet(
+        sourceDefault.id!,
+        Wallet(
+          'Cartera',
+          id: sourceDefault.id,
+          profileId: sourceDefault.profileId,
+          initialAmount: 1000.0,
+          isDefault: true,
+          currency: 'EUR',
+        ),
+      );
+      await rawDb.rawInsert(
+        "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id) "
+        "VALUES ('Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?, ?)",
+        [sourceDefault.id, sourceDefault.profileId],
+      );
+      return BackupService.createJsonBackupFile(directoryPath: testDir.path);
+    }
+
+    Future<Wallet> prepareDestination() async {
+      await TestDatabaseHelper.setupTestDatabase();
+      BackupService.database = ServiceConfig.database;
+      final db = ServiceConfig.database;
+      final destDefault = (await db.getAllWallets()).firstWhere(
+        (w) => w.isDefault,
+      );
+      await db.updateWallet(
+        destDefault.id!,
+        Wallet(
+          'Existing wallet',
+          id: destDefault.id,
+          profileId: destDefault.profileId,
+          isDefault: true,
+          currency: 'USD',
+        ),
+      );
+      return destDefault;
+    }
+
+    Future<void> expectDestinationPreserved() async {
+      final restored = (await ServiceConfig.database.getAllWallets())
+          .firstWhere((w) => w.isDefault);
+      expect(
+        restored.name,
+        'Existing wallet',
+        reason: 'a wallet referenced by device data must not be replaced',
+      );
+      expect(restored.currency, 'USD');
+    }
+
+    testlib.test('a wallet referenced only as a transfer destination is kept',
+        () async {
+      final backupFile = await createBackupWithCartera();
+
+      final destDefault = await prepareDestination();
+      final destDb = ServiceConfig.database;
+      final destRawDb = (await (destDb as SqliteDatabase).database)!;
+      final otherWalletId = await destDb.addWallet(
+        Wallet('Other', profileId: destDefault.profileId),
+      );
+      await destRawDb.rawInsert(
+        "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id, profile_id) "
+        "VALUES ('Transfer', -10.0, 900000, 'UTC', 'House', 0, ?, ?, ?)",
+        [otherWalletId, destDefault.id, destDefault.profileId],
+      );
+
+      expect(await BackupService.importDataFromBackupFile(backupFile), isTrue);
+      await expectDestinationPreserved();
+    });
+
+    testlib.test('a wallet referenced only by a recurrent pattern is kept',
+        () async {
+      final backupFile = await createBackupWithCartera();
+
+      final destDefault = await prepareDestination();
+      final destRawDb =
+          (await (ServiceConfig.database as SqliteDatabase).database)!;
+      await destRawDb.rawInsert(
+        "INSERT INTO recurrent_record_patterns (id, datetime, timezone, value, title, category_name, category_type, recurrent_period, wallet_id, profile_id) "
+        "VALUES (?, 900000, 'UTC', -10.0, 'Rent', 'House', 0, ?, ?, ?)",
+        [
+          'pattern-1',
+          RecurrentPeriod.EveryMonth.index,
+          destDefault.id,
+          destDefault.profileId,
+        ],
+      );
+
+      expect(await BackupService.importDataFromBackupFile(backupFile), isTrue);
+      await expectDestinationPreserved();
+    });
+
+    testlib.test('a wallet referenced only by a budget is kept', () async {
+      final backupFile = await createBackupWithCartera();
+
+      final destDefault = await prepareDestination();
+      await ServiceConfig.database.addBudget(Budget(
+        name: 'Test budget',
+        targetAmount: 100.0,
+        budgetType: BudgetType.expense,
+        startDate: DateTime(2024, 1, 1),
+        walletIds: [destDefault.id!],
+        profileId: destDefault.profileId,
+      ));
+
+      expect(await BackupService.importDataFromBackupFile(backupFile), isTrue);
+      await expectDestinationPreserved();
+    });
+
+    testlib.test(
+      'a customized but unreferenced default wallet is replaced by the '
+      'backup\'s wallet data',
+      () async {
+        final backupFile = await createBackupWithCartera();
+
+        final destDefault = await prepareDestination();
+        final destDb = ServiceConfig.database;
+        await destDb.updateWallet(
+          destDefault.id!,
+          Wallet(
+            'Renamed wallet',
+            id: destDefault.id,
+            profileId: destDefault.profileId,
+            initialAmount: 50.0,
+            isDefault: true,
+            currency: 'USD',
+          ),
+        );
+
+        expect(await BackupService.importDataFromBackupFile(backupFile), isTrue);
+
+        final restored = (await ServiceConfig.database.getAllWallets())
+            .firstWhere((w) => w.isDefault);
+        expect(
+          restored.name,
+          'Cartera',
+          reason: 'without device data the wallet counts as a placeholder',
+        );
+        expect(restored.currency, 'EUR');
+        expect(restored.initialAmount, closeTo(1000.0, 0.001));
       },
     );
   });
