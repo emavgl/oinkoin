@@ -1267,6 +1267,18 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
+  /// Expense/income amounts may legitimately be zero: leaving the amount field
+  /// empty saves the record with 0 instead of failing validation. Transfers
+  /// still require a positive amount.
+  void _applyEmptyAmountAsZero() {
+    if (isTransferFlow || _textEditingController.text.trim().isNotEmpty) {
+      return;
+    }
+    final zeroText = buildZeroAmountText();
+    _textEditingController.text = zeroText;
+    changeRecordValue(zeroText);
+  }
+
   void _updateTransferValue() {
     final src = _walletCurrency(_selectedWallet);
     final dest = _walletCurrency(_selectedDestinationWallet);
@@ -1808,6 +1820,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                 heroTag: null,
                 onPressed: () async {
                   _resolvePendingAmountExpression();
+                  _applyEmptyAmountAsZero();
                   if (_formKey.currentState!.validate()) {
                     if (isARecurrentPattern()) {
                       String? recurrentPatternId;

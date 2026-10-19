@@ -190,7 +190,11 @@ void main() {
       }
     }
 
-    Future<void> pumpPage(WidgetTester tester, {Wallet? dest}) async {
+    Future<void> pumpPage(
+      WidgetTester tester, {
+      Wallet? dest,
+      bool isTransfer = false,
+    }) async {
       await tester.runAsync(
         () => ServiceConfig.database.addCategory(_expenseCategory),
       );
@@ -201,6 +205,7 @@ void main() {
               passedCategory: _expenseCategory,
               initialWallet: source,
               initialDestinationWallet: dest,
+              isTransferFlow: isTransfer,
             ),
           ),
         ),
@@ -249,6 +254,29 @@ void main() {
       final records = await allRecords(tester);
       expect(records.length, 1);
       expect(records.single!.value, 0);
+    });
+
+    testWidgets('an empty amount field is saved as zero', (tester) async {
+      await pumpPage(tester);
+
+      // The field is empty and only shows the zero hint.
+      await tapSave(tester);
+
+      final records = await allRecords(tester);
+      expect(records.length, 1);
+      expect(records.single!.value, 0);
+    });
+
+    testWidgets('a transfer with an empty amount is still rejected', (
+      tester,
+    ) async {
+      await pumpPage(tester, dest: destination, isTransfer: true);
+
+      await tapSave(tester);
+
+      expect(find.text('Please enter a positive amount.'), findsOneWidget);
+      final records = await allRecords(tester);
+      expect(records, isEmpty);
     });
   });
 }
