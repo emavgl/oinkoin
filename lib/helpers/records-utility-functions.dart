@@ -646,8 +646,9 @@ Map<String, double> buildCurrencyBreakdown(
 }) {
   final breakdown = <String, double>{};
   for (final r in records.where((r) => r != null).cast<Record>()) {
+    final walletId = recordCurrencyWalletId(r);
     final currency =
-        (r.walletId != null ? walletCurrencyMap[r.walletId] : null) ?? '';
+        (walletId != null ? walletCurrencyMap[walletId] : null) ?? '';
     final val = isAbsValue ? r.value!.abs() : r.value!;
     breakdown[currency] = (breakdown[currency] ?? 0.0) + val;
   }
@@ -655,10 +656,19 @@ Map<String, double> buildCurrencyBreakdown(
 }
 
 /// Returns [records] excluding transfers between the user's own wallets:
-/// they net to zero and shouldn't count toward a balance total, matching
-/// [RecordsPerDay.balance]'s own exclusion of transfers from income/expenses.
-List<Record?> balanceRelevantRecords(List<Record?> records) =>
-    records.where((r) => r != null && !r.isTransfer).toList();
+/// they net to zero and shouldn't count toward a balance total. Transfers
+/// shown from a single side (wallet-filtered view) are kept: they move money
+/// in or out of the viewed wallet, so they count toward its balance.
+List<Record?> balanceRelevantRecords(List<Record?> records) => records
+    .where((r) => r != null && (!r.isTransfer || r.isSingleSideTransferView))
+    .toList();
+
+/// Wallet whose currency [record]'s value is expressed in. A destination-view
+/// transfer copy ([Record.isDestinationTransferView]) carries the received
+/// amount in the destination wallet's currency, so it resolves through
+/// [Record.transferWalletId] instead of [Record.walletId].
+int? recordCurrencyWalletId(Record record) =>
+    record.isDestinationTransferView ? record.transferWalletId : record.walletId;
 
 /// Returns true when [record] should be counted in statistics: a non-transfer
 /// record carrying a non-zero amount. Zero-amount records are omitted just like
@@ -708,7 +718,8 @@ RecordsTotalResult computeConvertedTotal(
   }
 
   // Determine unique non-null currencies among the wallets used by these records
-  final usedWalletIds = nonNull.map((r) => r.walletId).whereType<int>().toSet();
+  final usedWalletIds =
+      nonNull.map(recordCurrencyWalletId).whereType<int>().toSet();
   final uniqueCurrencies = usedWalletIds
       .map((id) => walletCurrencyMap[id])
       .where((c) => c != null && c.isNotEmpty)
@@ -731,10 +742,13 @@ RecordsTotalResult computeConvertedTotal(
     final walletCurrency = uniqueCurrencies.first;
     // If a default currency is set and it differs from the wallet currency, convert
     if (defaultCurrency != null && defaultCurrency != walletCurrency) {
-      final entries = nonNull.map((r) => _CurrencyAmount(
-            r.walletId != null ? walletCurrencyMap[r.walletId] : null,
-            isAbsValue ? r.value!.abs() : r.value!,
-          ));
+      final entries = nonNull.map((r) {
+        final walletId = recordCurrencyWalletId(r);
+        return _CurrencyAmount(
+          walletId != null ? walletCurrencyMap[walletId] : null,
+          isAbsValue ? r.value!.abs() : r.value!,
+        );
+      });
       final total = _convertAmountsToDefaultCurrency(
           entries, defaultCurrency, getConversionRates());
       return RecordsTotalResult(total, defaultCurrency);
@@ -750,10 +764,13 @@ RecordsTotalResult computeConvertedTotal(
         0.0, (sum, r) => sum + (isAbsValue ? r.value!.abs() : r.value!));
     return RecordsTotalResult(total, null);
   }
-  final entries = nonNull.map((r) => _CurrencyAmount(
-        r.walletId != null ? walletCurrencyMap[r.walletId] : null,
-        isAbsValue ? r.value!.abs() : r.value!,
-      ));
+  final entries = nonNull.map((r) {
+    final walletId = recordCurrencyWalletId(r);
+    return _CurrencyAmount(
+      walletId != null ? walletCurrencyMap[walletId] : null,
+      isAbsValue ? r.value!.abs() : r.value!,
+    );
+  });
   final total = _convertAmountsToDefaultCurrency(
       entries, defaultCurrency, getConversionRates());
   return RecordsTotalResult(total, defaultCurrency);
@@ -771,10 +788,13 @@ RecordsTotalResult computeTotalInCurrency(
   final nonNull = records.where((r) => r != null).cast<Record>().toList();
   if (nonNull.isEmpty) return RecordsTotalResult(0.0, targetCurrency);
 
-  final entries = nonNull.map((r) => _CurrencyAmount(
-        r.walletId != null ? walletCurrencyMap[r.walletId] : null,
-        isAbsValue ? r.value!.abs() : r.value!,
-      ));
+  final entries = nonNull.map((r) {
+    final walletId = recordCurrencyWalletId(r);
+    return _CurrencyAmount(
+      walletId != null ? walletCurrencyMap[walletId] : null,
+      isAbsValue ? r.value!.abs() : r.value!,
+    );
+  });
   final total = _convertAmountsToDefaultCurrency(
       entries, targetCurrency, getConversionRates());
   return RecordsTotalResult(total, targetCurrency);

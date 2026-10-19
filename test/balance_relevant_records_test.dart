@@ -44,6 +44,21 @@ void main() {
         transferWalletId: transferWalletId,
       );
 
+  Record singleSideTransfer({
+    int? walletId,
+    int? transferWalletId,
+    double value = -100.0,
+    bool destinationView = false,
+  }) =>
+      transfer(
+        walletId: walletId,
+        transferWalletId: transferWalletId,
+        value: value,
+      ).copyWith(
+        isSingleSideTransferView: true,
+        isDestinationTransferView: destinationView,
+      );
+
   group('balanceRelevantRecords', () {
     test('excludes transfers', () {
       final records = [
@@ -83,6 +98,25 @@ void main() {
       final result = balanceRelevantRecords([null, expense(walletId: 1)]);
       expect(result, hasLength(1));
     });
+
+    test(
+      'keeps single-side transfer views (they move the viewed wallet), '
+      'drops fully-visible internal transfers',
+      () {
+        final sourceView = singleSideTransfer(
+            walletId: 1, transferWalletId: 2, value: -30.0);
+        final destinationView = singleSideTransfer(
+            walletId: 1,
+            transferWalletId: 2,
+            value: 30.0,
+            destinationView: true);
+        final internal = transfer(walletId: 1, transferWalletId: 2);
+        final result =
+            balanceRelevantRecords([sourceView, destinationView, internal]);
+        expect(result, hasLength(2));
+        expect(result.every((r) => r!.isTransfer), isTrue);
+      },
+    );
   });
 
   group('day balance total excludes transfers (as computed by '
@@ -114,6 +148,38 @@ void main() {
       expect(relevant, isEmpty,
           reason:
               'RecordsPerDayCard._formatDayBalance returns "" in this case');
+    });
+
+    test('a day with a single-side incoming transfer shows the received amount',
+        () {
+      final records = [
+        expense(walletId: 2, value: -30.0),
+        singleSideTransfer(
+          walletId: 1,
+          transferWalletId: 2,
+          value: 100.0,
+          destinationView: true,
+        ),
+      ];
+      final total = computeConvertedTotal(
+        balanceRelevantRecords(records),
+        {1: 'EUR', 2: 'EUR'},
+      ).total;
+      // The viewed wallet received 100 and spent 30.
+      expect(total, 70.0);
+    });
+
+    test('a day with a single-side outgoing transfer shows the sent amount',
+        () {
+      final records = [
+        expense(walletId: 1, value: -30.0),
+        singleSideTransfer(walletId: 1, transferWalletId: 2, value: -100.0),
+      ];
+      final total = computeConvertedTotal(
+        balanceRelevantRecords(records),
+        {1: 'EUR', 2: 'EUR'},
+      ).total;
+      expect(total, -130.0);
     });
   });
 }

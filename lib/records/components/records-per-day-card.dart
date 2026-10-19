@@ -123,9 +123,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     final effectiveMap = _effectiveCurrencyMap;
     // For destination-view copies, the received amount is in the destination
     // wallet's currency, so look up transferWalletId instead of walletId.
-    final currencyWalletId = record.isDestinationTransferView
-        ? record.transferWalletId
-        : record.walletId;
+    final currencyWalletId = recordCurrencyWalletId(record);
     final recordCurrency = currencyWalletId != null
         ? effectiveMap[currencyWalletId]
         : wallet?.currency;
@@ -162,7 +160,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
     final currencies = <String?>{};
     for (final r in records) {
       if (r == null) continue;
-      final c = effectiveMap[r.walletId];
+      final c = effectiveMap[recordCurrencyWalletId(r)];
       if (c != null && c.isNotEmpty) {
         currencies.add(c);
         if (currencies.length > 1) return true;
@@ -188,7 +186,7 @@ class _RecordsPerDayCardState extends State<RecordsPerDayCard>
 
   String _formatDayBalance() {
     final records = balanceRelevantRecords(widget._movementDay.records ?? []);
-    // A day made up entirely of transfers has nothing to sum into a
+    // A day made up entirely of internal transfers has nothing to sum into a
     // meaningful balance — leave the header blank rather than show 0.
     if (records.isEmpty) return '';
 

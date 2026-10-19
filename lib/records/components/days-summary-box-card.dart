@@ -45,16 +45,25 @@ class DaysSummaryBoxState extends State<DaysSummaryBox> {
   final _subtitleFont = const TextStyle(fontSize: 13.0);
   final _walletRowFont = const TextStyle(fontSize: 15.0);
 
+  /// A transfer seen from a single side (wallet-filtered view) moves money
+  /// into or out of the viewed wallet, so it counts toward income/expenses by
+  /// its sign instead of being excluded like a fully-visible transfer.
+  bool _isSingleSideTransfer(Record? record) =>
+      record?.isTransfer == true && record!.isSingleSideTransferView;
+
   Iterable<Record?> get _incomeRecords => widget.records.where((record) =>
-      record?.category?.categoryType == CategoryType.income &&
-      !record!.isTransfer);
+      (record?.category?.categoryType == CategoryType.income &&
+          !record!.isTransfer) ||
+      (_isSingleSideTransfer(record) && (record!.value ?? 0) > 0));
 
   Iterable<Record?> get _expenseRecords => widget.records.where((record) =>
-      record?.category?.categoryType == CategoryType.expense &&
-      !record!.isTransfer);
+      (record?.category?.categoryType == CategoryType.expense &&
+          !record!.isTransfer) ||
+      (_isSingleSideTransfer(record) && (record!.value ?? 0) < 0));
 
-  Iterable<Record?> get _balanceRecords =>
-      widget.records.where((record) => !record!.isTransfer);
+  Iterable<Record?> get _balanceRecords => widget.records.where((record) =>
+      record != null &&
+      (!record.isTransfer || record.isSingleSideTransferView));
 
   Widget _buildAmountWidget(Iterable<Record?> records,
       {bool isAbsValue = true,

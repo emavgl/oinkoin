@@ -28,7 +28,9 @@ class Record extends Model {
   bool isFutureRecord = false;
 
   // Transient: true when this copy represents the destination wallet's view of
-  // a transfer (value = received amount, walletId = destination). Not persisted.
+  // a transfer (value = received amount in the destination wallet's currency;
+  // walletId stays the source wallet, transferWalletId the destination).
+  // Not persisted.
   bool isDestinationTransferView = false;
 
   // Transient: preserves the sent amount when value is replaced by the
