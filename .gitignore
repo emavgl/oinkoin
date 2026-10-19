@@ -85,3 +85,6 @@ macos/Flutter/ephemeral/flutter_export_environment.sh
 macos/Flutter/ephemeral/Flutter-Generated.xcconfig
 
 dist/
+# Local secrets and social media tooling
+.env
+social/
