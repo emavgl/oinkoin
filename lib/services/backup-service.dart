@@ -639,14 +639,6 @@ class BackupService {
       final profileIdMap =
           <int, int>{}; // backup profile id → new db profile id
       int? fallbackProfileId;
-      // Profiles freshly created by addProfile() during this import (as
-      // opposed to an existing Default Profile that was reused). addProfile
-      // auto-creates a placeholder "Default Wallet" for each of these as a
-      // side effect - real backup wallet data for these profiles must
-      // overwrite that placeholder rather than be discarded by the wallet
-      // dedup logic below, which otherwise can't tell it apart from a
-      // genuine pre-existing wallet worth preserving as-is.
-      final newlyCreatedProfileIds = <int>{};
 
       if (backup.profiles.isNotEmpty) {
         // Check if a default profile already exists in the database
@@ -669,7 +661,6 @@ class BackupService {
               profileIdMap[backupId] = newId;
             }
             if (backupProfile.isDefault) fallbackProfileId = newId;
-            newlyCreatedProfileIds.add(newId);
           }
         }
       } else {
@@ -681,30 +672,24 @@ class BackupService {
       // Insert wallets and build backup_id → new_db_id mapping
       final walletIdMap = <int, int>{}; // backup wallet id → new db wallet id
 
-      // Check if a default wallet already exists in the database
-      final existingDefaultWallet = await database.getDefaultWallet();
-      final int? existingDefaultWalletId = existingDefaultWallet?.id;
-
-      // A Default Wallet that no record, recurrent pattern or budget on this
+      // A default wallet that no record, recurrent pattern or budget on this
       // device references is still the pristine placeholder created
-      // automatically (fresh install, data reset), not genuine user data.
-      // When the backup carries a Default Wallet for the same profile, the
-      // placeholder must be overwritten with the backup's real values (name,
-      // color, icon, currency, initial amount, flags) instead of being
-      // reused untouched - otherwise the restored balance drops the backup
-      // wallet's initial amount. Computed lazily and before any backup data
-      // is inserted, so only pre-existing device data is considered.
-      bool? existingDefaultWalletIsPlaceholder;
-      Future<bool> isExistingDefaultWalletPlaceholder() async {
-        if (existingDefaultWalletIsPlaceholder != null) {
-          return existingDefaultWalletIsPlaceholder!;
+      // automatically (fresh install, data reset, or addProfile() during this
+      // import), not genuine user data. When the backup carries a default
+      // wallet for the same profile, the placeholder must be overwritten with
+      // the backup's real values (name, color, icon, currency, initial
+      // amount, flags) instead of being reused untouched - otherwise the
+      // restored balance drops the backup wallet's initial amount. Computed
+      // lazily, before records, patterns and budgets are restored, so only
+      // pre-existing device data is considered.
+      final placeholderByWalletId = <int, bool>{};
+      Future<bool> isPlaceholderWallet(Wallet wallet) async {
+        final walletId = wallet.id;
+        if (walletId != null && placeholderByWalletId.containsKey(walletId)) {
+          return placeholderByWalletId[walletId]!;
         }
-        final wallet = existingDefaultWallet;
-        if (wallet == null) {
-          return existingDefaultWalletIsPlaceholder = false;
-        }
-        bool referencesWallet(int? walletId) =>
-            walletId != null && walletId == wallet.id;
+        bool referencesWallet(int? referenceId) =>
+            referenceId != null && referenceId == wallet.id;
         final records =
             await database.getAllRecords(profileId: wallet.profileId);
         final patterns = await database
@@ -718,7 +703,11 @@ class BackupService {
                 referencesWallet(pattern.walletId) ||
                 referencesWallet(pattern.transferWalletId)) ||
             budgets.any((budget) => budget.walletIds.contains(wallet.id));
-        return existingDefaultWalletIsPlaceholder = !isReferenced;
+        final isPlaceholder = !isReferenced;
+        if (walletId != null) {
+          placeholderByWalletId[walletId] = isPlaceholder;
+        }
+        return isPlaceholder;
       }
 
       // Get all existing wallets grouped by profile for name-based merging
@@ -741,34 +730,27 @@ class BackupService {
         int? mappedWalletId;
         bool overwritePlaceholder = false;
 
-        if (backupWallet.isDefault &&
-            backupWallet.profileId != null &&
-            newlyCreatedProfileIds.contains(backupWallet.profileId)) {
-          // This wallet's profile was freshly created above, so any default
-          // wallet already on file for it is the addProfile() placeholder,
-          // not genuine pre-existing device data - overwrite it with the
-          // backup's real values instead of discarding them.
-          final placeholder = (existingWalletsByProfile[backupWallet.profileId] ?? [])
-              .where((w) => w.isDefault);
-          if (placeholder.isNotEmpty) {
-            mappedWalletId = placeholder.first.id;
-            overwritePlaceholder = true;
+        // Check if this is a default wallet and reuse the default wallet of
+        // the same target profile. is_default is a per-profile flag, so the
+        // single global default returned by getDefaultWallet() can belong to
+        // another profile on a multi-profile device: reusing it would remap
+        // this wallet's records into the wrong profile.
+        if (backupWallet.isDefault) {
+          final existingDefaultInProfile =
+              (existingWalletsByProfile[backupWallet.profileId] ?? [])
+                  .where((w) => w.isDefault);
+          if (existingDefaultInProfile.isNotEmpty) {
+            final existingDefault = existingDefaultInProfile.first;
+            mappedWalletId = existingDefault.id;
+            // An unused placeholder may be replaced by the backup's data; a
+            // wallet already referenced by device records in the same profile
+            // is genuine user data and keeps its current values.
+            if (await isPlaceholderWallet(existingDefault)) {
+              overwritePlaceholder = true;
+            }
           }
         }
-
-        // Check if this is a default wallet and reuse existing default
-        if (mappedWalletId == null &&
-            backupWallet.isDefault &&
-            existingDefaultWalletId != null) {
-          mappedWalletId = existingDefaultWalletId;
-          // An unused placeholder may be replaced by the backup's data; a
-          // wallet already referenced by device records in the same profile
-          // is genuine user data and keeps its current values.
-          if (existingDefaultWallet?.profileId == backupWallet.profileId &&
-              await isExistingDefaultWalletPlaceholder()) {
-            overwritePlaceholder = true;
-          }
-        } else if (mappedWalletId == null) {
+        if (mappedWalletId == null) {
           // Check if a wallet with the same name exists in the same profile
           final existingInProfile =
               existingWalletsByProfile[backupWallet.profileId] ?? [];

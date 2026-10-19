@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:piggybank/models/profile.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/backup-service.dart';
 import 'package:piggybank/services/database/sqlite-database.dart';
@@ -208,6 +209,81 @@ void main() {
         );
         expect(restored.currency, 'USD');
         expect(restored.initialAmount, closeTo(50.0, 0.001));
+      },
+    );
+
+    testlib.test(
+      'a backup Default Wallet is not merged into another profile\'s '
+      'default wallet',
+      () async {
+        final db = ServiceConfig.database;
+        final rawDb = (await (db as SqliteDatabase).database)!;
+
+        // Source device: customized Default Wallet with one expense.
+        final sourceDefault = (await db.getAllWallets()).firstWhere(
+          (w) => w.isDefault,
+        );
+        await db.updateWallet(
+          sourceDefault.id!,
+          Wallet(
+            'Cartera',
+            id: sourceDefault.id,
+            initialAmount: 1000.0,
+            isDefault: true,
+            currency: 'EUR',
+          ),
+        );
+        await rawDb.rawInsert(
+          "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id) "
+          "VALUES ('Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?)",
+          [sourceDefault.id],
+        );
+
+        final backupFile = await BackupService.createJsonBackupFile(
+          directoryPath: testDir.path,
+        );
+
+        // Destination device with two profiles where the single global
+        // default wallet (returned by getDefaultWallet) belongs to the
+        // non-default profile - a state upgraded installs can reach.
+        await TestDatabaseHelper.setupTestDatabase();
+        BackupService.database = ServiceConfig.database;
+        final destDb = ServiceConfig.database;
+        final defaultProfileId = (await destDb.getDefaultProfile())!.id;
+        final businessProfileId = await destDb.addProfile(Profile('Business'));
+        final businessWallet =
+            (await destDb.getAllWallets(profileId: businessProfileId)).first;
+        await destDb.setDefaultWallet(businessWallet.id!);
+
+        expect(
+          await BackupService.importDataFromBackupFile(backupFile),
+          isTrue,
+        );
+
+        // The backup's Default Wallet must be restored into its own profile
+        // (the existing Default Profile), never into the business profile's
+        // wallet.
+        final restoredWallets = await destDb.getAllWallets();
+        final cartera = restoredWallets.firstWhere(
+          (w) => w.name == 'Cartera',
+        );
+        expect(cartera.profileId, defaultProfileId);
+        expect(cartera.currency, 'EUR');
+        expect(cartera.initialAmount, closeTo(1000.0, 0.001));
+        expect(cartera.balance, closeTo(700.0, 0.001));
+
+        final restoredRecord = (await destDb.getAllRecords()).firstWhere(
+          (record) => record?.title == 'Groceries',
+        );
+        expect(restoredRecord!.walletId, cartera.id);
+
+        final businessWalletAfterRestore =
+            (await destDb.getAllWallets(profileId: businessProfileId)).first;
+        expect(
+          businessWalletAfterRestore.balance,
+          closeTo(0.0, 0.001),
+          reason: 'another profile\'s wallet must not receive the records',
+        );
       },
     );
   });
