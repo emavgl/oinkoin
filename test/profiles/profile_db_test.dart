@@ -650,4 +650,60 @@ void main() {
       expect(bobWallets.any((w) => w.id == walletAId), isFalse);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // Profile-scoped default/predefined wallet lookups
+  // ---------------------------------------------------------------------------
+  group('Wallet lookup scoped to profile', () {
+    test(
+        'getDefaultWalletForProfile returns the default wallet of that profile',
+        () async {
+      final db = ServiceConfig.database;
+      final defaultProfile = await db.getDefaultProfile();
+      final otherProfileId = await db.addProfile(Profile('Other'));
+
+      final defaultProfileWallet =
+          await db.getDefaultWalletForProfile(defaultProfile!.id);
+      final otherProfileWallet =
+          await db.getDefaultWalletForProfile(otherProfileId);
+
+      expect(defaultProfileWallet, isNotNull);
+      expect(otherProfileWallet, isNotNull);
+      expect(defaultProfileWallet!.profileId, defaultProfile.id);
+      expect(otherProfileWallet!.profileId, otherProfileId);
+      expect(defaultProfileWallet.id, isNot(otherProfileWallet.id));
+    });
+
+    test('getPredefinedWalletForProfile does not leak wallets across profiles',
+        () async {
+      final db = ServiceConfig.database;
+      final defaultProfile = await db.getDefaultProfile();
+      final otherProfileId = await db.addProfile(Profile('Other'));
+
+      final otherPredefined =
+          await db.getPredefinedWalletForProfile(otherProfileId);
+      expect(otherPredefined, isNotNull);
+      expect(otherPredefined!.profileId, otherProfileId);
+
+      final defaultProfilePredefined =
+          await db.getPredefinedWalletForProfile(defaultProfile!.id);
+      expect(
+        defaultProfilePredefined,
+        isNull,
+        reason: 'Adding a profile must not make its wallet the predefined '
+            'wallet of another profile (the default profile wallet is not '
+            'marked as predefined on a fresh install)',
+      );
+    });
+
+    test('lookups with a null profileId keep the legacy global behavior',
+        () async {
+      final db = ServiceConfig.database;
+      await db.addProfile(Profile('Other'));
+
+      final globalDefault = await db.getDefaultWallet();
+      final scopedDefault = await db.getDefaultWalletForProfile(null);
+      expect(scopedDefault?.id, globalDefault?.id);
+    });
+  });
 }

@@ -12,6 +12,7 @@ import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/services/database/database-interface.dart';
+import 'package:piggybank/services/profile-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
 import 'package:piggybank/style.dart';
@@ -384,9 +385,15 @@ class _EditWalletPageState extends State<EditWalletPage> {
       _logger.debug('Moving records to wallet "${targetWallet.name}" (ID ${targetWallet.id})');
       await database.moveRecordsToWallet(passedWallet!.id!, targetWallet.id!);
     } else if (choice == _WalletDeletionChoice.keepInDefault) {
-      final defaultWallet = await database.getDefaultWallet();
+      final defaultWallet = await database.getDefaultWalletForProfile(
+          passedWallet!.profileId ?? ProfileService.instance.activeProfileId);
       if (!mounted) return;
-      _logger.debug('Moving records to default wallet (ID ${defaultWallet!.id})');
+      if (defaultWallet == null) {
+        _logger.warning(
+            'Cannot move records of wallet ${passedWallet!.id}: no default wallet found in profile ${passedWallet!.profileId}');
+        return;
+      }
+      _logger.debug('Moving records to default wallet (ID ${defaultWallet.id})');
       await database.moveRecordsToWallet(passedWallet!.id!, defaultWallet.id!);
     }
 

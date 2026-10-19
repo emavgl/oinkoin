@@ -151,6 +151,15 @@ abstract class DatabaseInterface {
   /// Returns the current default wallet with its computed balance, or null.
   Future<Wallet?> getDefaultWallet();
 
+  /// Like [getPredefinedWallet], but returns the predefined wallet of the
+  /// profile [profileId], or null if there is none. When [profileId] is null,
+  /// falls back to the global lookup.
+  Future<Wallet?> getPredefinedWalletForProfile(int? profileId);
+
+  /// Like [getDefaultWallet], but returns the default wallet of the profile
+  /// [profileId]. When [profileId] is null, falls back to the global lookup.
+  Future<Wallet?> getDefaultWalletForProfile(int? profileId);
+
   /// Persists the [sortOrder] of each wallet according to [ordered]'s position.
   Future<void> resetWalletOrderIndexes(List<Wallet> ordered);
 

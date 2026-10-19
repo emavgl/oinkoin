@@ -1356,8 +1356,25 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<Wallet?> getPredefinedWallet() async {
+  Future<Wallet?> getPredefinedWallet() =>
+      _getWalletByFlag('is_predefined', null);
+
+  @override
+  Future<Wallet?> getPredefinedWalletForProfile(int? profileId) =>
+      _getWalletByFlag('is_predefined', profileId);
+
+  @override
+  Future<Wallet?> getDefaultWallet() => _getWalletByFlag('is_default', null);
+
+  @override
+  Future<Wallet?> getDefaultWalletForProfile(int? profileId) =>
+      _getWalletByFlag('is_default', profileId);
+
+  /// Returns the first wallet with [_flagColumn] set to 1, scoped to
+  /// [profileId] when non-null, together with its computed balance.
+  Future<Wallet?> _getWalletByFlag(String flagColumn, int? profileId) async {
     final db = (await database)!;
+    final profileFilter = profileId != null ? "AND w.profile_id = ?" : "";
     final maps = await db.rawQuery("""
       SELECT w.*,
              COALESCE(SUM(r.value), 0) +
@@ -1365,10 +1382,11 @@ class SqliteDatabase implements DatabaseInterface {
              w.initial_amount AS balance
       FROM wallets w
       LEFT JOIN records r ON r.wallet_id = w.id
-      WHERE w.is_predefined = 1
+      WHERE w.$flagColumn = 1 $profileFilter
       GROUP BY w.id
+      ORDER BY w.id
       LIMIT 1
-    """);
+    """, profileId != null ? [profileId] : []);
     if (maps.isEmpty) return null;
     return Wallet.fromMap(Map<String, dynamic>.from(maps.first));
   }
@@ -1388,24 +1406,6 @@ class SqliteDatabase implements DatabaseInterface {
     }
     await batch.commit(noResult: true);
     _notifyDatabaseChanged();
-  }
-
-  @override
-  Future<Wallet?> getDefaultWallet() async {
-    final db = (await database)!;
-    final maps = await db.rawQuery("""
-      SELECT w.*,
-             COALESCE(SUM(r.value), 0) +
-             COALESCE((SELECT SUM(ABS(COALESCE(t.transfer_value, t.value))) FROM records t WHERE t.transfer_wallet_id = w.id), 0) +
-             w.initial_amount AS balance
-      FROM wallets w
-      LEFT JOIN records r ON r.wallet_id = w.id
-      WHERE w.is_default = 1
-      GROUP BY w.id
-      LIMIT 1
-    """);
-    if (maps.isEmpty) return null;
-    return Wallet.fromMap(Map<String, dynamic>.from(maps.first));
   }
 
   @override
