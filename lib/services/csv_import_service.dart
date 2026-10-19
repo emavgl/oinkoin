@@ -669,7 +669,8 @@ class CsvImportService {
 
     // Resolve wallets lazily — cache by name to avoid repeated DB calls
     final walletCache = <String, Wallet>{};
-    final defaultWallet = await db.getDefaultWallet();
+      final defaultWallet = await db.getDefaultWalletForProfile(
+          ProfileService.instance.activeProfileId);
 
     for (int i = 0; i < rows.length; i++) {
       final row = rows[i];
@@ -811,7 +812,8 @@ class CsvImportService {
   ) async {
     final trimmed = walletName.trim();
     if (trimmed.isEmpty) {
-      final defaultWallet = await db.getDefaultWallet();
+    final defaultWallet = await db.getDefaultWalletForProfile(
+        ProfileService.instance.activeProfileId);
       _logger.debug(
         '_getOrCreateWallet: empty name → default wallet "${defaultWallet!.name}" (ID ${defaultWallet.id})',
       );

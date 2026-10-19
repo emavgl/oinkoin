@@ -1339,7 +1339,9 @@ class EditRecordPageState extends State<EditRecordPage> {
       // New record while wallets are disabled: silently assign the default
       // wallet so that re-enabling wallets keeps data consistent. Existing
       // records keep their current wallet/transfer assignment untouched.
-      record!.walletId = (await database.getDefaultWallet())?.id;
+      final activeProfileId = ProfileService.instance.activeProfileId;
+      record!.walletId =
+          (await database.getDefaultWalletForProfile(activeProfileId))?.id;
     }
     record!.tags = _selectedTags; // Assign selected tags to the record
     _logger.debug('Saving record with ${_selectedTags.length} tags');
@@ -1373,23 +1375,25 @@ class EditRecordPageState extends State<EditRecordPage> {
       _selectedDestinationWallet = null;
       return;
     }
-    final allWallets = await database.getAllWallets(
-        profileId: ProfileService.instance.activeProfileId);
+    final activeProfileId = ProfileService.instance.activeProfileId;
+    final allWallets = await database.getAllWallets(profileId: activeProfileId);
     final activeWallets = allWallets.where((w) => !w.isArchived).toList();
 
     Wallet? walletToSelect;
     if (record?.walletId != null) {
       // Fall back to the Predefined Wallet if the assigned wallet no longer exists
       walletToSelect = await database.getWalletById(record!.walletId!) ??
-          await database.getPredefinedWallet() ??
-          await database.getDefaultWallet();
+          await database.getPredefinedWalletForProfile(activeProfileId) ??
+          await database.getDefaultWalletForProfile(activeProfileId);
     } else {
       // Start with the predefined wallet for new records
-      walletToSelect = await database.getPredefinedWallet();
+      walletToSelect =
+          await database.getPredefinedWalletForProfile(activeProfileId);
       if (walletToSelect == null && activeWallets.length == 1) {
         walletToSelect = activeWallets.first;
       }
-      walletToSelect ??= await database.getDefaultWallet();
+      walletToSelect ??=
+          await database.getDefaultWalletForProfile(activeProfileId);
     }
 
     if (mounted) {
@@ -1467,7 +1471,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     } else if (id == null) {
       // New recurrent pattern while wallets are disabled: silently assign the
       // default wallet. Existing patterns keep their wallet assignment.
-      record!.walletId = (await database.getDefaultWallet())?.id;
+      final activeProfileId = ProfileService.instance.activeProfileId;
+      record!.walletId =
+          (await database.getDefaultWalletForProfile(activeProfileId))?.id;
     }
     if (id == null) {
       _appendTransferNoteToDescription();
