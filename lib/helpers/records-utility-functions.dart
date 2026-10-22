@@ -29,6 +29,30 @@ import 'intl-locale-utils.dart';
 /// Bullets sit vertically centered in most fonts, unlike asterisks.
 const String obscuredAmountText = '••••';
 
+/// Which side of [record]'s transfer [budget] sees.
+///
+/// Returns:
+/// - `-1` when the budget includes the source wallet only (money left it),
+/// - `1` when the budget includes the destination wallet only (money entered
+///   it),
+/// - `0` when the budget sees both wallets, neither wallet, or has no wallet
+///   filter at all.
+///
+/// A budget with no wallet filter spans every wallet, so it sees both sides
+/// and the transfer nets out to zero.
+int transferBudgetSide(Budget budget, Record record) {
+  if (!record.isTransfer ||
+      !ServiceConfig.walletsEnabled ||
+      budget.walletIds.isEmpty) {
+    return 0;
+  }
+  final sourceIncluded = budget.walletIds.contains(record.walletId);
+  final destinationIncluded =
+      budget.walletIds.contains(record.transferWalletId);
+  if (sourceIncluded == destinationIncluded) return 0;
+  return sourceIncluded ? -1 : 1;
+}
+
 /// Records of [records] counting toward [budget] in [cycle] (category,
 /// tags, wallets, and transfer handling included).
 List<Record> matchingBudgetRecords(
@@ -48,22 +72,30 @@ List<Record> matchingBudgetRecords(
     );
     final inCycle =
         !recordDate.isBefore(cycle.start) && !recordDate.isAfter(cycleEnd);
+    if (!inCycle) return false;
+
+    // Transfers move money between the user's own wallets, so a budget that
+    // sees both wallets must not count them at all. A budget that sees only
+    // one side counts the money leaving (source) or entering (destination)
+    // that wallet. The transfer's category is only a label here, so category
+    // and tag filters do not apply.
+    if (record.isTransfer) {
+      return transferBudgetSide(budget, record) != 0;
+    }
+
     final hasCategories = budget.categoryNames.isNotEmpty;
     final hasTags = budget.tags.isNotEmpty;
     final hasWallets =
         ServiceConfig.walletsEnabled && budget.walletIds.isNotEmpty;
     final matchesWallet =
-        !hasWallets ||
-        budget.walletIds.contains(record.walletId) ||
-        (record.isTransfer &&
-            budget.walletIds.contains(record.transferWalletId));
+        !hasWallets || budget.walletIds.contains(record.walletId);
     // Saving budgets are net: they can count both income and expense records
     // so expenses can be subtracted from income.
     final matchesType = budget.budgetType == BudgetType.saving
         ? (record.category?.categoryType == CategoryType.income ||
             record.category?.categoryType == CategoryType.expense)
         : record.category?.categoryType == budget.recordCategoryType;
-    if (!inCycle || !matchesType || !matchesWallet) {
+    if (!matchesType || !matchesWallet) {
       return false;
     }
     final matchesCategories =
@@ -97,6 +129,25 @@ double budgetRecordAmount(
   Record record, [
   Map<int, String?>? walletCurrencyMap,
 ]) {
+  if (record.isTransfer) {
+    final side = transferBudgetSide(budget, record);
+    if (side == 0) return 0;
+    final sent = (record.value ?? 0.0).abs();
+    final received = (record.transferValue ?? sent).abs();
+    if (side < 0) {
+      return -_convertValueToDefaultCurrency(
+        sent,
+        record.walletId,
+        walletCurrencyMap,
+      );
+    }
+    return _convertValueToDefaultCurrency(
+      received,
+      record.transferWalletId,
+      walletCurrencyMap,
+    );
+  }
+
   final raw = record.value ?? 0.0;
   final signed =
       walletCurrencyMap == null ? raw : _budgetRecordValueInDefaultCurrency(record, walletCurrencyMap);
@@ -128,12 +179,24 @@ double budgetProgressAmount(
 double convertRecordValueToDefaultCurrency(
   Record record,
   Map<int, String?> walletCurrencyMap,
+) =>
+    _convertValueToDefaultCurrency(
+      record.value ?? 0.0,
+      record.walletId,
+      walletCurrencyMap,
+    );
+
+/// Converts [raw] from [walletId]'s currency to the default currency when a
+/// [walletCurrencyMap] is given; otherwise returns [raw] unchanged.
+double _convertValueToDefaultCurrency(
+  double raw,
+  int? walletId,
+  Map<int, String?>? walletCurrencyMap,
 ) {
-  final raw = record.value ?? 0.0;
+  if (walletCurrencyMap == null) return raw;
   final defaultCurrency = getDefaultCurrency();
   if (defaultCurrency == null || defaultCurrency.isEmpty) return raw;
-  final currency =
-      record.walletId != null ? walletCurrencyMap[record.walletId] : null;
+  final currency = walletId != null ? walletCurrencyMap[walletId] : null;
   if (currency == null || currency.isEmpty || currency == defaultCurrency) {
     return raw;
   }

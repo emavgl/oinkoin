@@ -165,6 +165,73 @@ void main() {
     });
   });
 
+  group('Transfers convert from the side the budget sees', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({
+        'defaultCurrency': 'EUR',
+        'currencyConversionRates': '{"USD_EUR": 0.92}',
+      });
+      ServiceConfig.sharedPreferences = await SharedPreferences.getInstance();
+    });
+
+    // Wallet 1 = EUR (source), wallet 2 = USD (destination).
+    Record transfer() => Record(
+      -100,
+      'Transfer',
+      null,
+      DateTime.utc(2026, 1, 10),
+      walletId: 1,
+      transferWalletId: 2,
+      transferValue: 100,
+      timeZoneName: 'UTC',
+    );
+
+    Budget walletBudget(int walletId) => Budget(
+      name: 'Wallet',
+      targetAmount: 1000,
+      budgetType: BudgetType.expense,
+      startDate: DateTime(2026, 1, 1),
+      walletIds: [walletId],
+    );
+
+    test('source side uses the sent amount and its currency', () {
+      expect(
+        budgetProgressAmount(
+          walletBudget(1),
+          [transfer()],
+          walletCurrencyMap,
+        ),
+        closeTo(-100.0, 0.001),
+      );
+    });
+
+    test('destination side uses the received amount and its currency', () {
+      expect(
+        budgetProgressAmount(
+          walletBudget(2),
+          [transfer()],
+          walletCurrencyMap,
+        ),
+        closeTo(92.0, 0.001),
+      );
+    });
+
+    test('both sides selected leaves the budget at zero', () {
+      final budget = Budget(
+        name: 'Both',
+        targetAmount: 1000,
+        budgetType: BudgetType.expense,
+        startDate: DateTime(2026, 1, 1),
+        walletIds: [1, 2],
+      );
+
+      expect(
+        budgetProgressAmount(budget, [transfer()], walletCurrencyMap),
+        0,
+      );
+    });
+  });
+
   group('Without a default currency', () {
     setUp(() async {
       SharedPreferences.setMockInitialValues({});

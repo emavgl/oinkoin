@@ -126,4 +126,122 @@ void main() {
       expect(budgetProgressAmount(budget, matching), 300.0);
     });
   });
+
+  group('Transfers never count toward budgets', () {
+    Record transfer(Category? category) {
+      return Record(
+        -500,
+        category?.name ?? 'Transfer',
+        category,
+        DateTime(2026, 1, 20).toUtc(),
+        walletId: 1,
+        transferWalletId: 2,
+        transferValue: 500,
+      );
+    }
+
+    test('a categorized transfer is ignored by both budget types', () {
+      final expenseBudget = Budget(
+        name: 'Expense',
+        targetAmount: 1000,
+        budgetType: BudgetType.expense,
+        startDate: DateTime(2026, 1, 1),
+      );
+      final savingBudget = Budget(
+        name: 'Saving',
+        targetAmount: 1000,
+        budgetType: BudgetType.saving,
+        startDate: DateTime(2026, 1, 1),
+      );
+      final records = [transfer(groceries)];
+
+      for (final budget in [expenseBudget, savingBudget]) {
+        final matching = matchingBudgetRecords(budget, records, cycle);
+        expect(matching, isEmpty);
+        expect(budgetProgressAmount(budget, matching), 0);
+      }
+    });
+
+    test('a transfer is ignored even when its category is selected', () {
+      final budget = Budget(
+        name: 'Food',
+        targetAmount: 500,
+        budgetType: BudgetType.expense,
+        startDate: DateTime(2026, 1, 1),
+        categoryNames: ['Groceries'],
+      );
+
+      final matching =
+          matchingBudgetRecords(budget, [transfer(groceries)], cycle);
+
+      expect(matching, isEmpty);
+    });
+
+    test('an uncategorized transfer is ignored', () {
+      final budget = Budget(
+        name: 'Net savings',
+        targetAmount: 1000,
+        budgetType: BudgetType.saving,
+        startDate: DateTime(2026, 1, 1),
+      );
+
+      final matching = matchingBudgetRecords(budget, [transfer(null)], cycle);
+
+      expect(matching, isEmpty);
+    });
+  });
+
+  group('A single-wallet budget sees one side of a transfer', () {
+    Record transfer() => Record(
+      -500,
+      'Transfer',
+      null,
+      DateTime(2026, 1, 20).toUtc(),
+      walletId: 1,
+      transferWalletId: 2,
+      transferValue: 500,
+    );
+
+    Budget walletBudget(List<int> walletIds, BudgetType type) => Budget(
+      name: 'Wallet budget',
+      targetAmount: 1000,
+      budgetType: type,
+      startDate: DateTime(2026, 1, 1),
+      walletIds: walletIds,
+    );
+
+    test('source only subtracts the sent amount for both budget types', () {
+      for (final type in [BudgetType.expense, BudgetType.saving]) {
+        final budget = walletBudget([1], type);
+        final matching = matchingBudgetRecords(budget, [transfer()], cycle);
+
+        expect(matching.length, 1);
+        expect(budgetProgressAmount(budget, matching), -500.0);
+      }
+    });
+
+    test('destination only adds the received amount for both budget types', () {
+      for (final type in [BudgetType.expense, BudgetType.saving]) {
+        final budget = walletBudget([2], type);
+        final matching = matchingBudgetRecords(budget, [transfer()], cycle);
+
+        expect(matching.length, 1);
+        expect(budgetProgressAmount(budget, matching), 500.0);
+      }
+    });
+
+    test('both wallets net to zero', () {
+      final budget = walletBudget([1, 2], BudgetType.saving);
+      final matching = matchingBudgetRecords(budget, [transfer()], cycle);
+
+      expect(matching, isEmpty);
+      expect(budgetProgressAmount(budget, matching), 0);
+    });
+
+    test('an unrelated wallet does not see the transfer', () {
+      final budget = walletBudget([3], BudgetType.expense);
+
+      expect(matchingBudgetRecords(budget, [transfer()], cycle), isEmpty);
+    });
+  });
 }
