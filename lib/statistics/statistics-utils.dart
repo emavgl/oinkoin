@@ -411,25 +411,30 @@ class ChartDateRangeConfig {
   }
 
   /// Advances a date by one period based on the aggregation method.
+  ///
+  /// Day and week steps use calendar-day arithmetic instead of [Duration] so
+  /// that crossing a daylight saving time transition does not shift the
+  /// period start by an hour (which made two consecutive week bins collapse
+  /// into the same one).
   DateTime advance(DateTime current) {
     switch (aggregationMethod) {
       case AggregationMethod.DAY:
-        return current.add(Duration(days: 1));
+        return DateTime(current.year, current.month, current.day + 1);
       case AggregationMethod.WEEK:
-        return current.add(Duration(days: 7));
+        return DateTime(current.year, current.month, current.day + 7);
       case AggregationMethod.MONTH:
         return DateTime(current.year, current.month + 1);
       case AggregationMethod.YEAR:
         return DateTime(current.year + 1);
       default:
-        return current.add(Duration(days: 1));
+        return DateTime(current.year, current.month, current.day + 1);
     }
   }
 
   /// Gets the label for a week range (e.g., "1-7" or "25-31").
   static String _getWeekLabel(DateTime date) {
     final startDay = date.day;
-    var weekEnd = date.add(Duration(days: 6));
+    var weekEnd = DateTime(date.year, date.month, date.day + 6);
     if (weekEnd.month != date.month) {
       weekEnd = DateTime(date.year, date.month + 1, 0);
     }
@@ -459,7 +464,7 @@ class ChartTickGenerator {
           isMonthStart ? "${current.month}/${current.day}" : "${current.day}";
 
       ticks.add(label);
-      current = current.add(Duration(days: jump));
+      current = DateTime(current.year, current.month, current.day + jump);
     }
 
     // Ensure end date is always shown
@@ -502,12 +507,12 @@ class ChartTickGenerator {
     final List<String> ticks = [];
     DateTime current = start;
     while (!current.isAfter(end)) {
-      final weekEnd = current.add(Duration(days: 6));
+      final weekEnd = DateTime(current.year, current.month, current.day + 6);
       final endDay = weekEnd.month != current.month
           ? DateTime(current.year, current.month + 1, 0).day
           : weekEnd.day;
       ticks.add("${current.day}-$endDay");
-      current = current.add(Duration(days: 7));
+      current = DateTime(current.year, current.month, current.day + 7);
     }
     return ticks;
   }

@@ -160,7 +160,8 @@ String getDateStr(DateTime? dateTime, {AggregationMethod? aggregationMethod, boo
     if (aggregationMethod == AggregationMethod.WEEK) {
       // Format as week interval (e.g., "1-7", "8-14")
       int startDay = dateTime!.day;
-      DateTime weekEnd = dateTime.add(Duration(days: 6));
+      DateTime weekEnd =
+          DateTime(dateTime.year, dateTime.month, dateTime.day + 6);
       // Make sure we don't go beyond the current month
       if (weekEnd.month != dateTime.month) {
         weekEnd = DateTime(dateTime.year, dateTime.month + 1, 0); // Last day of month

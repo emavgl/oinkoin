@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
@@ -93,8 +92,7 @@ class _BarChartCardState extends State<BarChartCard> {
     ticksListX =
         tickLabels.map((label) => charts.TickSpec<String>(label)).toList();
 
-    _chartData = _prepareData(
-        visibleRecords, config.start, config.end, config.formatter);
+    _chartData = _prepareData(visibleRecords, config);
     seriesList = _createSeriesList();
 
     double sumValues = (this
@@ -150,8 +148,8 @@ class _BarChartCardState extends State<BarChartCard> {
     });
   }
 
-  List<StringSeriesRecord> _prepareData(List<Record?> records, DateTime start,
-      DateTime end, DateFormat formatter) {
+  List<StringSeriesRecord> _prepareData(
+      List<Record?> records, ChartDateRangeConfig config) {
     List<DateTimeSeriesRecord> dateTimeSeriesRecords = aggregateRecordsByDate(
         records, widget.aggregationMethod,
         walletCurrencyMap: widget.walletCurrencyMap);
@@ -159,63 +157,31 @@ class _BarChartCardState extends State<BarChartCard> {
     for (var d in dateTimeSeriesRecords) {
       DateTime truncated = truncateDateTime(d.time!, widget.aggregationMethod);
       StringSeriesRecord record =
-          StringSeriesRecord(truncated, d.value, formatter);
-      // Ensure the key matches what we use in ticks
-      record.key = _generateDataKey(truncated, start, end);
+          StringSeriesRecord(truncated, d.value, config.formatter);
+      // Use the shared config keys so bars and axis ticks always match.
+      record.key = config.getKey(truncated);
       aggregatedByDay.putIfAbsent(truncated, () => record);
     }
 
-    DateTime currentStart = start;
-    while (!currentStart.isAfter(end)) {
+    // Add a zero-value placeholder for every period in the range, including
+    // trailing periods with no records, so the chart keeps a slot for them.
+    DateTime currentStart = config.start;
+    while (!currentStart.isAfter(config.end)) {
       DateTime truncated =
           truncateDateTime(currentStart, widget.aggregationMethod);
       if (!aggregatedByDay.containsKey(truncated)) {
         StringSeriesRecord record =
-            StringSeriesRecord(currentStart, 0, formatter);
-        record.key = _generateDataKey(truncated, start, end);
+            StringSeriesRecord(currentStart, 0, config.formatter);
+        record.key = config.getKey(truncated);
         aggregatedByDay[truncated] = record;
       }
-      if (widget.aggregationMethod == AggregationMethod.DAY) {
-        currentStart = currentStart.add(Duration(days: 1));
-      } else if (widget.aggregationMethod == AggregationMethod.WEEK) {
-        currentStart = currentStart.add(Duration(days: 7));
-      } else if (widget.aggregationMethod == AggregationMethod.MONTH) {
-        currentStart = DateTime(currentStart.year, currentStart.month + 1);
-      } else if (widget.aggregationMethod == AggregationMethod.YEAR) {
-        if (currentStart.year == end.year) {
-          currentStart = DateTime(currentStart.year + 1, end.month);
-        } else {
-          currentStart = DateTime(currentStart.year + 1, 12, 31, 23, 59);
-        }
-      }
+      currentStart = config.advance(currentStart);
     }
 
     List<StringSeriesRecord> data = aggregatedByDay.values.toList();
     data.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
 
     return data;
-  }
-
-  /// Generates a data key that matches the tick labels exactly.
-  String _generateDataKey(
-      DateTime date, DateTime rangeStart, DateTime rangeEnd) {
-    String key;
-    if (widget.aggregationMethod == AggregationMethod.WEEK) {
-      key = _getWeekLabel(date);
-    } else if (widget.aggregationMethod == AggregationMethod.DAY) {
-      // For DAY aggregation, match the tick generation logic:
-      // Only show month at the start of a month (day 1)
-      // Example: 30 March to 3 April -> "30 31 1/4 2 3"
-      final bool isMonthStart = date.day == 1;
-
-      key = isMonthStart ? "${date.month}/${date.day}" : "${date.day}";
-    } else {
-      // For MONTH and YEAR, use the formatter
-      key = widget.aggregationMethod == AggregationMethod.MONTH
-          ? "${date.month}"
-          : "${date.year}";
-    }
-    return key;
   }
 
   List<charts.Series<StringSeriesRecord, String>> _createSeriesList() {
@@ -245,18 +211,6 @@ class _BarChartCardState extends State<BarChartCard> {
         data: _chartData,
       )
     ];
-  }
-
-  String _getWeekLabel(DateTime date) {
-    // Get the start of the week and calculate the end day
-    int startDay = date.day;
-    DateTime weekEnd = date.add(Duration(days: 6));
-    // Make sure we don't go beyond the current month
-    if (weekEnd.month != date.month) {
-      weekEnd = DateTime(date.year, date.month + 1, 0); // Last day of month
-    }
-    int endDay = weekEnd.day;
-    return '$startDay-$endDay';
   }
 
   bool animate = true;

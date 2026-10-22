@@ -391,6 +391,78 @@ void main() {
     });
   });
 
+  group('Week ticks', () {
+    test('should generate all five week labels for October 2026', () {
+      final config = ChartDateRangeConfig.create(
+        AggregationMethod.WEEK,
+        DateTime(2026, 10, 1),
+        DateTime(2026, 10, 31, 23, 59, 59),
+      );
+
+      expect(
+        ChartTickGenerator.generateTicks(config),
+        equals(['1-7', '8-14', '15-21', '22-28', '29-31']),
+      );
+    });
+
+    test('data keys should match tick labels for every week bin', () {
+      final config = ChartDateRangeConfig.create(
+        AggregationMethod.WEEK,
+        DateTime(2026, 10, 1),
+        DateTime(2026, 10, 31, 23, 59, 59),
+      );
+
+      final ticks = ChartTickGenerator.generateTicks(config);
+      final keys = <String>[];
+      var current = config.start;
+      while (!current.isAfter(config.end)) {
+        final truncated = truncateDateTime(current, AggregationMethod.WEEK);
+        keys.add(config.getKey(truncated));
+        current = config.advance(current);
+      }
+
+      expect(keys, equals(ticks));
+      expect(keys.length, equals(5));
+    });
+
+    test('week bins should start at midnight after advancing', () {
+      final config = ChartDateRangeConfig.create(
+        AggregationMethod.WEEK,
+        DateTime(2026, 10, 1),
+        DateTime(2026, 10, 31, 23, 59, 59),
+      );
+
+      final days = <int>[];
+      var current = config.start;
+      while (!current.isAfter(config.end)) {
+        expect(current.hour, equals(0));
+        expect(current.minute, equals(0));
+        days.add(current.day);
+        current = config.advance(current);
+      }
+
+      expect(days, equals([1, 8, 15, 22, 29]));
+    });
+
+    test('should not add a fifth week bin to a 28-day February', () {
+      final config = ChartDateRangeConfig.create(
+        AggregationMethod.WEEK,
+        DateTime(2026, 2, 1),
+        DateTime(2026, 2, 28, 23, 59, 59),
+      );
+
+      expect(
+        ChartTickGenerator.generateTicks(config),
+        equals(['1-7', '8-14', '15-21', '22-28']),
+      );
+      expect(
+        config.getKey(
+            truncateDateTime(DateTime(2026, 2, 28), AggregationMethod.WEEK)),
+        equals('22-28'),
+      );
+    });
+  });
+
   group('ChartDateRangeConfig.create YEAR range clamping', () {
     test('should not clamp a range within maxYearsShown', () {
       final config = ChartDateRangeConfig.create(
