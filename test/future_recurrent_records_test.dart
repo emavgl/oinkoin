@@ -6,6 +6,7 @@ import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/recurrent-record-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz_timezone;
 
 void main() {
   group('Future recurrent records generation', () {
@@ -61,19 +62,22 @@ void main() {
     });
 
     test('should split records into past and future correctly in boundary cases', () {
-      // Test edge case where today's date is exactly on a recurrent record
-      final today = DateTime.now().toUtc();
-      final startOfToday = DateTime(today.year, today.month, today.day).toUtc();
+      // Test edge case where today's date is exactly on a recurrent record.
+      // Build both boundaries in the pattern's timezone so adding five days
+      // stays aligned with local midnight across DST transitions.
+      final location = tz_timezone.getLocation(ServiceConfig.localTimezone);
+      final now = tz_timezone.TZDateTime.now(location);
+      final startOfToday =
+          tz_timezone.TZDateTime(location, now.year, now.month, now.day);
+      final viewEndDate =
+          tz_timezone.TZDateTime(location, now.year, now.month, now.day + 5);
 
       // Pattern starts today
-      final recordPattern = RecurrentRecordPattern(
-          75.0, "Boundary Test", category1, startOfToday, RecurrentPeriod.EveryDay);
-
-      // View end date is 5 days from today
-      final viewEndDate = startOfToday.add(Duration(days: 5));
+      final recordPattern = RecurrentRecordPattern(75.0, "Boundary Test",
+          category1, startOfToday.toUtc(), RecurrentPeriod.EveryDay);
 
       final records = recurrentRecordService
-          .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate);
+          .generateRecurrentRecordsFromDateTime(recordPattern, viewEndDate.toUtc());
 
       // Should generate 6 records (today + 5 more days)
       expect(records.length, 6);
