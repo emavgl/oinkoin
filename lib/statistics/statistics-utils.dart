@@ -139,8 +139,8 @@ double getRecordValueInDefaultCurrency(
   final raw = record.value ?? 0.0;
   final defaultCurrency = getDefaultCurrency();
   if (defaultCurrency == null || defaultCurrency.isEmpty) return raw;
-  final currency =
-      record.walletId != null ? walletCurrencyMap[record.walletId] : null;
+  final walletId = recordCurrencyWalletId(record);
+  final currency = walletId != null ? walletCurrencyMap[walletId] : null;
   if (currency == null || currency.isEmpty || currency == defaultCurrency) {
     return raw;
   }

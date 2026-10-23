@@ -8,6 +8,7 @@ import 'package:piggybank/statistics/statistics-summary-card.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/statistics/bar-chart-card.dart';
 import 'package:piggybank/statistics/categories-pie-chart.dart';
 import 'package:piggybank/statistics/tags-pie-chart.dart';
@@ -349,8 +350,10 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           if (filterGroupByType == GroupByType.tag) {
             return r?.tags.any((tag) => !topCategories!.contains(tag)) ?? false;
           } else if (filterGroupByType == GroupByType.wallet) {
-            if (r?.walletId == null) return false;
-            return !topCategories!.contains(r!.walletId.toString());
+            final recordWalletId =
+                r == null ? null : recordCurrencyWalletId(r);
+            if (recordWalletId == null) return false;
+            return !topCategories!.contains(recordWalletId.toString());
           }
           return !topCategories!.contains(r?.category?.name);
         }).toList();
@@ -360,7 +363,8 @@ class StatisticsTabPageState extends State<StatisticsTabPage> {
           if (filterGroupByType == GroupByType.tag) {
             return r?.tags.contains(selectedCategory) ?? false;
           } else if (filterGroupByType == GroupByType.wallet) {
-            return r?.walletId?.toString() == selectedCategory;
+            return r != null &&
+                recordCurrencyWalletId(r)?.toString() == selectedCategory;
           }
           return r?.category?.name == selectedCategory;
         }).toList();

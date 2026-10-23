@@ -3,6 +3,7 @@ import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/i18n.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
 
@@ -114,15 +115,16 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
     // Keep real (signed) values while aggregating; magnitudes are only used
     // for the sorting and percentage representation below.
     for (var record in records) {
-      if (record != null && record.walletId != null) {
-        final value =
-            getRecordValueInDefaultCurrency(record, widget.walletCurrencyMap);
-        aggregatedWalletsValuesTemporaryMap.update(
-          record.walletId!,
-          (current) => current + value,
-          ifAbsent: () => value,
-        );
-      }
+      if (record == null) continue;
+      final walletId = recordCurrencyWalletId(record);
+      if (walletId == null) continue;
+      final value =
+          getRecordValueInDefaultCurrency(record, widget.walletCurrencyMap);
+      aggregatedWalletsValuesTemporaryMap.update(
+        walletId,
+        (current) => current + value,
+        ifAbsent: () => value,
+      );
     }
     final totalSum = aggregatedWalletsValuesTemporaryMap.values
         .fold<double>(0.0, (sum, value) => sum + value.abs());
@@ -184,13 +186,14 @@ class _WalletsPieChartState extends State<WalletsPieChart> {
           double walletSum = 0;
           for (var r in widget.records) {
             if (r == null) continue;
+            final rWalletId = recordCurrencyWalletId(r);
             final value =
                 getRecordValueInDefaultCurrency(r, widget.walletCurrencyMap);
             if (walletId == "Others".i18n) {
-              if (r.walletId != null && !_isTopWallet(r.walletId!)) {
+              if (rWalletId != null && !_isTopWallet(rWalletId)) {
                 walletSum += value;
               }
-            } else if (r.walletId?.toString() == walletId) {
+            } else if (rWalletId?.toString() == walletId) {
               walletSum += value;
             }
           }

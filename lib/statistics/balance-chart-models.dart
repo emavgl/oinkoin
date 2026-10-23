@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:community_charts_flutter/community_charts_flutter.dart'
     as charts;
 import 'package:piggybank/helpers/records-utility-functions.dart';
-import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
@@ -61,9 +60,9 @@ class ComparisonDataAggregator {
         // boundary while the conversion works on the real signed value.
         final value =
             getRecordValueInDefaultCurrency(record, walletCurrencyMap);
-        if (record.category?.categoryType == CategoryType.expense) {
+        if (isExpenseRecordForStatistics(record)) {
           data[key]!.expenses += value.abs();
-        } else {
+        } else if (isIncomeRecordForStatistics(record)) {
           data[key]!.income += value.abs();
         }
       }

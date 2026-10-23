@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/i18n.dart';
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/record-filters.dart';
@@ -47,10 +48,12 @@ class GroupByDropdown extends StatelessWidget {
     final tagCount = uniqueTags.length;
 
     final walletsEnabled = ServiceConfig.walletsEnabled;
-    final hasWalletRecords = recordsToCheck.any((r) => r?.walletId != null);
+    final hasWalletRecords = recordsToCheck
+        .any((r) => r != null && recordCurrencyWalletId(r) != null);
     final uniqueWalletIds = recordsToCheck
-        .where((r) => r?.walletId != null)
-        .map<int>((r) => r!.walletId!)
+        .where((r) => r != null)
+        .map((r) => recordCurrencyWalletId(r!))
+        .whereType<int>()
         .toSet();
     final walletCount = uniqueWalletIds.length;
 

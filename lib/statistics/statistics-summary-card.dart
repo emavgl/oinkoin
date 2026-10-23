@@ -765,14 +765,16 @@ class _StatisticsSummaryCardState extends State<StatisticsSummaryCard> {
     final walletRecordsMap = <int, List<Record?>>{};
 
     for (var record in records) {
-      if (record?.walletId == null) continue;
+      if (record == null) continue;
+      final recordWalletId = recordCurrencyWalletId(record);
+      if (recordWalletId == null) continue;
       // Skip wallets that are in topCategories when showing "Others"
       if (widget.selectedCategoryOrTag == "Others".i18n &&
           widget.topCategories != null &&
-          widget.topCategories!.contains(record!.walletId.toString())) {
+          widget.topCategories!.contains(recordWalletId.toString())) {
         continue;
       }
-      walletRecordsMap.putIfAbsent(record!.walletId!, () => []).add(record);
+      walletRecordsMap.putIfAbsent(recordWalletId, () => []).add(record);
     }
 
     return walletRecordsMap.entries.map((entry) {

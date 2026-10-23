@@ -663,19 +663,41 @@ List<Record?> balanceRelevantRecords(List<Record?> records) => records
     .where((r) => r != null && (!r.isTransfer || r.isSingleSideTransferView))
     .toList();
 
-/// Wallet whose currency [record]'s value is expressed in. A destination-view
-/// transfer copy ([Record.isDestinationTransferView]) carries the received
-/// amount in the destination wallet's currency, so it resolves through
+/// Wallet that owns [record]'s value. A destination-view transfer copy
+/// ([Record.isDestinationTransferView]) carries the received amount in the
+/// destination wallet's currency, so it resolves through
 /// [Record.transferWalletId] instead of [Record.walletId].
 int? recordCurrencyWalletId(Record record) =>
     record.isDestinationTransferView ? record.transferWalletId : record.walletId;
 
-/// Returns true when [record] should be counted in statistics: a non-transfer
-/// record carrying a non-zero amount. Zero-amount records are omitted just like
-/// transfers, since they contribute nothing to any total and would otherwise
-/// create empty rows or skew counts and averages.
+/// Returns true when [record] should be counted in statistics: a non-zero
+/// record that is either a normal movement or a transfer seen from one side
+/// only. Fully-visible transfers net to zero and stay excluded, and zero-amount
+/// records would only create empty rows or skew counts and averages.
 bool isCountedInStatistics(Record? record) =>
-    record != null && !record.isTransfer && (record.value ?? 0) != 0;
+    record != null &&
+    (!record.isTransfer || record.isSingleSideTransferView) &&
+    (record.value ?? 0) != 0;
+
+/// True when [record] contributes to the income side of statistics: a normal
+/// income record, or a single-side transfer arriving into the viewed wallet.
+bool isIncomeRecordForStatistics(Record? record) {
+  if (record == null) return false;
+  if (record.isTransfer) {
+    return record.isSingleSideTransferView && (record.value ?? 0) > 0;
+  }
+  return record.category?.categoryType == CategoryType.income;
+}
+
+/// True when [record] contributes to the expense side of statistics: a normal
+/// expense record, or a single-side transfer leaving the viewed wallet.
+bool isExpenseRecordForStatistics(Record? record) {
+  if (record == null) return false;
+  if (record.isTransfer) {
+    return record.isSingleSideTransferView && (record.value ?? 0) < 0;
+  }
+  return record.category?.categoryType == CategoryType.expense;
+}
 
 /// Returns true when [records] span more than one currency group,
 /// meaning a per-currency breakdown is meaningful.

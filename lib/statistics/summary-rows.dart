@@ -460,8 +460,10 @@ class WalletSummaryRow extends SummaryRow {
 
   @override
   void onTap(BuildContext context) {
-    final walletRecords =
-        records.where((element) => element?.walletId == wallet.id).toList();
+    final walletRecords = records
+        .where((element) =>
+            element != null && recordCurrencyWalletId(element) == wallet.id)
+        .toList();
 
     DateTime? detailFrom = from;
     DateTime? detailTo = to;

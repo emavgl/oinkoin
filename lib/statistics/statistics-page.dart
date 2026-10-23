@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
-import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/statistics/statistics-tab-page.dart';
@@ -84,8 +83,8 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.to,
               widget.records
                   .where((element) =>
-                      element?.category?.categoryType == CategoryType.expense &&
-                      isCountedInStatistics(element))
+                      isCountedInStatistics(element) &&
+                      isExpenseRecordForStatistics(element))
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,
@@ -103,8 +102,8 @@ class _StatisticsPageState extends State<StatisticsPage>
               widget.to,
               widget.records
                   .where((element) =>
-                      element?.category?.categoryType == CategoryType.income &&
-                      isCountedInStatistics(element))
+                      isCountedInStatistics(element) &&
+                      isIncomeRecordForStatistics(element))
                   .toList(),
               selectedDate: _selectedDate,
               showRecordsToggle: true,

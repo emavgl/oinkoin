@@ -1,3 +1,4 @@
+import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/statistics/statistics-models.dart';
 import 'package:piggybank/statistics/statistics-utils.dart';
@@ -120,15 +121,16 @@ class RecordFilters {
     if (isOthers) {
       // If "Others" but no topWallets provided, return records with a wallet
       if (topWallets == null || topWallets.isEmpty) {
-        return records.where((r) => r?.walletId != null).toList();
+        return records.where((r) => r != null && recordCurrencyWalletId(r) != null).toList();
       }
       return records.where((r) {
-        if (r?.walletId == null) return false;
-        return !topWallets.contains(r!.walletId.toString());
+        final recordWalletId = r == null ? null : recordCurrencyWalletId(r);
+        if (recordWalletId == null) return false;
+        return !topWallets.contains(recordWalletId.toString());
       }).toList();
     } else {
       return records.where((r) {
-        return r?.walletId?.toString() == walletId;
+        return r != null && recordCurrencyWalletId(r)?.toString() == walletId;
       }).toList();
     }
   }
