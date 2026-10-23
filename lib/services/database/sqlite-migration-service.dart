@@ -59,6 +59,7 @@ class SqliteMigrationService {
               icon_emoji    TEXT,
               initial_amount REAL DEFAULT 0,
               is_archived   INTEGER DEFAULT 0,
+              is_hidden     INTEGER DEFAULT 0,
               is_default    INTEGER DEFAULT 0,
               is_predefined INTEGER DEFAULT 0,
               sort_order    INTEGER DEFAULT 0,
@@ -587,6 +588,11 @@ class SqliteMigrationService {
         db, "ALTER TABLE profiles ADD COLUMN sort_order INTEGER DEFAULT 0;");
   }
 
+  static Future<void> _migrateTo33(Database db) async {
+    await safeAlterTable(
+        db, "ALTER TABLE wallets ADD COLUMN is_hidden INTEGER DEFAULT 0;");
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -614,6 +620,7 @@ class SqliteMigrationService {
     30: SqliteMigrationService._migrateTo30,
     31: SqliteMigrationService._migrateTo31,
     32: SqliteMigrationService._migrateTo32,
+    33: SqliteMigrationService._migrateTo33,
   };
 
   // Public Methods

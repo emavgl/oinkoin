@@ -21,6 +21,7 @@ class Wallet extends Model {
   String? iconEmoji;
   double initialAmount;
   bool isArchived;
+  bool isHidden; // Kept out of wallet lists and pickers by default
   bool isDefault; // System Default Wallet - cannot be deleted
   bool isPredefined; // User-selected default for new records
   int sortOrder;
@@ -36,6 +37,7 @@ class Wallet extends Model {
     this.iconEmoji,
     this.initialAmount = 0.0,
     this.isArchived = false,
+    this.isHidden = false,
     this.isDefault = false,
     this.isPredefined = false,
     this.sortOrder = 0,
@@ -67,6 +69,7 @@ class Wallet extends Model {
       'icon_emoji': iconEmoji,
       'initial_amount': initialAmount,
       'is_archived': isArchived ? 1 : 0,
+      'is_hidden': isHidden ? 1 : 0,
       'is_default': isDefault ? 1 : 0,
       'is_predefined': isPredefined ? 1 : 0,
       'sort_order': sortOrder,
@@ -96,6 +99,8 @@ class Wallet extends Model {
 
     final isArchived =
         map['is_archived'] != null ? (map['is_archived'] as int) == 1 : false;
+    final isHidden =
+        map['is_hidden'] != null ? (map['is_hidden'] as int) == 1 : false;
     final sortOrder = (map['sort_order'] as int?) ?? 0;
     final initialAmount = (map['initial_amount'] as num?)?.toDouble() ?? 0.0;
     // balance is a computed column returned by SQL queries, not stored directly
@@ -109,6 +114,7 @@ class Wallet extends Model {
       iconEmoji: map['icon_emoji'] as String?,
       initialAmount: initialAmount,
       isArchived: isArchived,
+      isHidden: isHidden,
       isDefault: isDefault,
       isPredefined: isPredefined,
       sortOrder: sortOrder,

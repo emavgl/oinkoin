@@ -1393,6 +1393,7 @@ class EditRecordPageState extends State<EditRecordPage> {
     final activeProfileId = ProfileService.instance.activeProfileId;
     final allWallets = await database.getAllWallets(profileId: activeProfileId);
     final activeWallets = allWallets.where((w) => !w.isArchived).toList();
+    final visibleWallets = activeWallets.where((w) => !w.isHidden).toList();
 
     Wallet? walletToSelect;
     if (record?.walletId != null) {
@@ -1401,20 +1402,40 @@ class EditRecordPageState extends State<EditRecordPage> {
           await database.getPredefinedWalletForProfile(activeProfileId) ??
           await database.getDefaultWalletForProfile(activeProfileId);
     } else {
-      // Start with the predefined wallet for new records
-      walletToSelect =
+      // Start with the predefined wallet for new records, but skip hidden
+      // ones: a hidden wallet is out of the spending picture, so a new
+      // record should not silently land on it while visible wallets exist.
+      final predefined =
           await database.getPredefinedWalletForProfile(activeProfileId);
-      if (walletToSelect == null && activeWallets.length == 1) {
-        walletToSelect = activeWallets.first;
+      if (predefined != null && !predefined.isHidden) {
+        walletToSelect = predefined;
       }
-      walletToSelect ??=
-          await database.getDefaultWalletForProfile(activeProfileId);
+      if (walletToSelect == null && visibleWallets.length == 1) {
+        walletToSelect = visibleWallets.first;
+      }
+      if (walletToSelect == null) {
+        final defaultWallet =
+            await database.getDefaultWalletForProfile(activeProfileId);
+        if (defaultWallet != null && !defaultWallet.isHidden) {
+          walletToSelect = defaultWallet;
+        } else if (visibleWallets.isNotEmpty) {
+          walletToSelect = visibleWallets.first;
+        } else {
+          // Every wallet is hidden: keep the user's configured preference.
+          walletToSelect = predefined ?? defaultWallet;
+        }
+      }
     }
 
     if (mounted) {
       setState(() {
         _selectedWallet = walletToSelect;
-        _totalWalletCount = activeWallets.length;
+        _totalWalletCount = activeWallets.isEmpty
+            ? 0
+            : visibleWallets.isEmpty
+                ? activeWallets.length
+                : visibleWallets.length +
+                    (walletToSelect?.isHidden == true ? 1 : 0);
       });
     }
 

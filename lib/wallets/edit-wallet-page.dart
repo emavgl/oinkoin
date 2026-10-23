@@ -187,6 +187,31 @@ class _EditWalletPageState extends State<EditWalletPage> {
     );
   }
 
+  Widget _getVisibilitySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _getPageSeparatorLabel("Visibility".i18n),
+        Divider(thickness: 0.5),
+        SwitchListTile(
+          secondary: Icon(
+            wallet.isHidden
+                ? Icons.visibility_off
+                : Icons.visibility_outlined,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          title: Text("Hidden".i18n),
+          subtitle: Text(
+            "This wallet stays out of wallet lists and totals. It is still available for transfers, and you can reveal it with Show hidden wallets."
+                .i18n,
+          ),
+          value: wallet.isHidden,
+          onChanged: (value) => setState(() => wallet.isHidden = value),
+        ),
+      ],
+    );
+  }
+
   Widget _getCurrencySection() {
     final currencyInfo = _selectedCurrency != null
         ? CurrencyInfo.byCode(_selectedCurrency!)
@@ -427,9 +452,31 @@ class _EditWalletPageState extends State<EditWalletPage> {
       await database.updateWallet(passedWallet!.id!, wallet);
     }
 
+    if (wallet.isHidden && wallet.id != null) {
+      await _removeFromSavedWalletFilters(wallet.id!);
+    }
+
     await _checkMixedCurrencyPrompt();
 
     if (mounted) Navigator.of(context).pop();
+  }
+
+  /// A hidden wallet must stop counting through a saved wallet filter: drop
+  /// it from the home and Wallets tab selections so hiding takes effect.
+  /// Budget selections are left alone, where an explicit choice wins.
+  Future<void> _removeFromSavedWalletFilters(int walletId) async {
+    final profileId = ProfileService.instance.activeProfileId;
+    final prefs = ServiceConfig.sharedPreferences;
+    if (profileId == null || prefs == null) return;
+    final id = walletId.toString();
+    for (final key in [
+      PreferencesKeys.homePageWalletFilter(profileId),
+      PreferencesKeys.walletsTabWalletFilter(profileId),
+    ]) {
+      final saved = prefs.getStringList(key);
+      if (saved == null || !saved.contains(id)) continue;
+      await prefs.setStringList(key, [...saved]..remove(id));
+    }
   }
 
   Future<void> _checkMixedCurrencyPrompt() async {
@@ -498,6 +545,8 @@ class _EditWalletPageState extends State<EditWalletPage> {
               _getBalanceField(),
               // Currency
               _getCurrencySection(),
+              // Visibility
+              _getVisibilitySection(),
               // Color + Icon (shared component, sections are collapsible internally)
               IconColorPickerSection(
                 initialIconEmoji: wallet.iconEmoji,

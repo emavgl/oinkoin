@@ -7,8 +7,8 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-10-05",
-    "total_keys": 619
+    "last_updated": "2026-10-23",
+    "total_keys": 623
   },
   "keys": {
     " and all its records, wallets and recurrent patterns?": {
@@ -6222,6 +6222,46 @@
       "component": "AmountInputField label",
       "meaning": "The actual amount credited to the destination wallet, expressed in that wallet currency",
       "notes": "Editing this amount sets the transfer-specific exchange rate; does not change global conversion rates",
+      "status": "verified"
+    },
+    "Hidden": {
+      "key": "Hidden",
+      "context": "Edit Wallet page switch that keeps a wallet out of wallet lists, totals and ordinary pickers",
+      "file": "lib/wallets/edit-wallet-page.dart:510",
+      "page": "Wallets > Edit Wallet",
+      "component": "SwitchListTile title",
+      "meaning": "Marks the wallet as hidden so it no longer appears in wallet lists or combined totals, and only shows in pickers when revealed; transfer pickers always list it",
+      "notes": "Translate as an adjective meaning kept out of sight, not 'archived'. Keep the switch label short. Hidden wallets remain usable for transfers.",
+      "status": "verified"
+    },
+    "This wallet stays out of wallet lists and totals. It is still available for transfers, and you can reveal it with Show hidden wallets.": {
+      "key": "This wallet stays out of wallet lists and totals. It is still available for transfers, and you can reveal it with Show hidden wallets.",
+      "context": "Explanatory subtitle under the Hidden switch on the Edit Wallet page",
+      "file": "lib/wallets/edit-wallet-page.dart:205",
+      "page": "Wallets > Edit Wallet",
+      "component": "SwitchListTile subtitle",
+      "meaning": "Tells the user the hidden wallet is kept out of lists and totals, but can still be used for transfers and revealed on demand",
+      "notes": "Refers to the 'Show hidden wallets' control; keep that name consistent within the sentence. Hidden wallets are intentionally listed in transfer pickers.",
+      "status": "verified"
+    },
+    "Show hidden wallets": {
+      "key": "Show hidden wallets",
+      "context": "Control that reveals wallets marked as hidden, in the wallet picker, transfer selector and Wallets tab menu",
+      "file": "lib/wallets/wallet-picker-page.dart:174",
+      "page": "Wallet picker / Wallets tab",
+      "component": "Toggle and menu item label",
+      "meaning": "Reveals hidden wallets so they can be selected or shown",
+      "notes": "Same wording is reused everywhere hidden wallets can be revealed; keep it identical across contexts",
+      "status": "verified"
+    },
+    "Visibility": {
+      "key": "Visibility",
+      "context": "Section header on the Edit Wallet page grouping the Hidden wallet switch",
+      "file": "lib/wallets/edit-wallet-page.dart:190",
+      "page": "Wallets > Edit Wallet",
+      "component": "Section header label",
+      "meaning": "Group title for settings that control where and whether this wallet is shown",
+      "notes": "Short section header above the Hidden switch; translate as the noun 'visibility', not 'privacy'",
       "status": "verified"
     }
   }

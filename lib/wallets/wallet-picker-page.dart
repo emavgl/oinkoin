@@ -32,12 +32,18 @@ class WalletPickerPage extends StatefulWidget {
   /// the user of this.
   final DateTime? asOfDate;
 
+  /// Always lists hidden wallets instead of requiring "Show hidden wallets".
+  /// Used by transfer flows, where hidden wallets stay usable as origin or
+  /// destination because moving money between own wallets is not spending.
+  final bool showHiddenWallets;
+
   WalletPickerPage({
     this.excludeWalletId,
     this.multiSelect = false,
     this.initiallySelected = const [],
     this.preferencesKey,
     this.asOfDate,
+    this.showHiddenWallets = false,
   });
 
   @override
@@ -49,6 +55,20 @@ class _WalletPickerPageState extends State<WalletPickerPage> {
   List<Wallet>? _wallets;
   late Set<int?> _selectedIds;
   bool _saveAsDefault = false;
+  bool _showHidden = false;
+
+  /// Wallets actually listed: hidden ones are shown only when revealed, or
+  /// when they were already selected (so a saved selection never vanishes).
+  List<Wallet> get _visibleWallets => (_wallets ?? [])
+      .where((w) =>
+          !w.isHidden ||
+          widget.showHiddenWallets ||
+          _showHidden ||
+          _selectedIds.contains(w.id))
+      .toList();
+
+  bool get _hasHiddenWallets =>
+      _wallets?.any((w) => w.isHidden) ?? false;
 
   @override
   void initState() {
@@ -112,27 +132,60 @@ class _WalletPickerPageState extends State<WalletPickerPage> {
   }
 
   void _toggleSelectAll() {
+    final visible = _visibleWallets;
     setState(() {
-      if (_selectedIds.length == _wallets!.length) {
-        _selectedIds.clear();
+      if (visible.every((w) => _selectedIds.contains(w.id))) {
+        _selectedIds.removeAll(visible.map((w) => w.id));
       } else {
-        _selectedIds = _wallets!.map((w) => w.id).toSet();
+        _selectedIds.addAll(visible.map((w) => w.id));
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final allSelected =
-        _wallets != null && _selectedIds.length == _wallets!.length;
+    final visibleWallets = _visibleWallets;
+    final allSelected = _wallets != null &&
+        visibleWallets.isNotEmpty &&
+        visibleWallets.every((w) => _selectedIds.contains(w.id));
 
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Text("Select Wallet".i18n),
+        actions: [
+          if (_hasHiddenWallets && !widget.showHiddenWallets)
+            PopupMenuButton<int>(
+              icon: const Icon(Icons.more_vert),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              onSelected: (value) {
+                if (value == 1) {
+                  setState(() => _showHidden = !_showHidden);
+                }
+              },
+              itemBuilder: (ctx) => [
+                PopupMenuItem<int>(
+                  padding: const EdgeInsets.all(20),
+                  value: 1,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Show hidden wallets".i18n,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      if (_showHidden) const Icon(Icons.check, size: 20),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
       body: _wallets == null
           ? Center(child: CircularProgressIndicator())
-          : _wallets!.isEmpty
+          : visibleWallets.isEmpty
               ? Center(child: Text("No wallets available".i18n))
               : Column(
                   children: [
@@ -168,13 +221,37 @@ class _WalletPickerPageState extends State<WalletPickerPage> {
                     Expanded(
                       child: ListView.separated(
                         separatorBuilder: (_, __) => Divider(thickness: 0.5),
-                        itemCount: _wallets!.length,
+                        itemCount: visibleWallets.length,
                         itemBuilder: (context, i) {
-                          final wallet = _wallets![i];
+                          final wallet = visibleWallets[i];
                           final isSelected = _selectedIds.contains(wallet.id);
 
                           if (widget.multiSelect) {
-                            return ListTile(
+                            return Opacity(
+                              opacity: wallet.isHidden ? 0.6 : 1.0,
+                              child: ListTile(
+                                leading: WalletIconSquare(
+                                  iconEmoji: wallet.iconEmoji,
+                                  iconDataFromDefaultIconSet: wallet.icon,
+                                  backgroundColor: wallet.color,
+                                ),
+                                title: Text(wallet.name,
+                                    style: TextStyle(fontSize: 18)),
+                                subtitle: wallet.balance != null
+                                    ? Text(formatWalletBalance(wallet))
+                                    : null,
+                                trailing: Checkbox(
+                                  value: isSelected,
+                                  onChanged: (_) => _toggleSelection(wallet),
+                                ),
+                                onTap: () => _toggleSelection(wallet),
+                              ),
+                            );
+                          }
+
+                          return Opacity(
+                            opacity: wallet.isHidden ? 0.6 : 1.0,
+                            child: ListTile(
                               leading: WalletIconSquare(
                                 iconEmoji: wallet.iconEmoji,
                                 iconDataFromDefaultIconSet: wallet.icon,
@@ -182,35 +259,17 @@ class _WalletPickerPageState extends State<WalletPickerPage> {
                               ),
                               title: Text(wallet.name,
                                   style: TextStyle(fontSize: 18)),
-                              subtitle: wallet.balance != null
-                                  ? Text(formatWalletBalance(wallet))
+                              subtitle: wallet.isPredefined
+                                  ? Text("Predefined".i18n)
                                   : null,
-                              trailing: Checkbox(
-                                value: isSelected,
-                                onChanged: (_) => _toggleSelection(wallet),
-                              ),
-                              onTap: () => _toggleSelection(wallet),
-                            );
-                          }
-
-                          return ListTile(
-                            leading: WalletIconSquare(
-                              iconEmoji: wallet.iconEmoji,
-                              iconDataFromDefaultIconSet: wallet.icon,
-                              backgroundColor: wallet.color,
+                              trailing: wallet.balance != null
+                                  ? Text(
+                                      formatWalletBalance(wallet),
+                                      style: TextStyle(fontSize: 16),
+                                    )
+                                  : null,
+                              onTap: () => Navigator.of(context).pop(wallet),
                             ),
-                            title: Text(wallet.name,
-                                style: TextStyle(fontSize: 18)),
-                            subtitle: wallet.isPredefined
-                                ? Text("Predefined".i18n)
-                                : null,
-                            trailing: wallet.balance != null
-                                ? Text(
-                                    formatWalletBalance(wallet),
-                                    style: TextStyle(fontSize: 16),
-                                  )
-                                : null,
-                            onTap: () => Navigator.of(context).pop(wallet),
                           );
                         },
                       ),

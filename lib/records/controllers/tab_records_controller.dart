@@ -43,6 +43,7 @@ class TabRecordsController {
   // State variables
   List<Record?> records = [];
   List<Record?>? overviewRecords;
+  List<Record?>? _overviewBaseRecords;
   List<Record?> filteredRecords = [];
   List<Category?> categories = [];
   List<String> tags = [];
@@ -56,6 +57,11 @@ class TabRecordsController {
   // Wallet filter state
   List<Wallet> allWallets = [];
   List<Wallet> selectedWallets = [];
+
+  /// Hidden wallets the user picked on purpose. A wallet hidden *after* being
+  /// selected drops out of the filter on the next load, so hiding takes
+  /// effect; hidden wallets the user selected while already hidden stay.
+  Set<int?> _explicitlySelectedHiddenIds = {};
   bool _walletPrefsLoaded = false;
   int? _walletPrefsProfileId;
 
@@ -412,6 +418,7 @@ class TabRecordsController {
         getHomepageOverviewWidgetTimeIntervalEnumSetting();
     if (overviewTimeIntervalEnum == OverviewTimeInterval.DisplayedRecords) {
       // When set to DisplayedRecords, use the filtered records
+      _overviewBaseRecords = null;
       overviewRecords = null;
     } else {
       HomepageTimeInterval recordTimeIntervalEnum =
@@ -439,14 +446,16 @@ class TabRecordsController {
               DateTime(recordLocal.year, recordLocal.month, recordLocal.day);
           return !recordDate.isBefore(fromDate) && !recordDate.isAfter(toDate);
         }).toList();
-        overviewRecords = [...overviewDbRecords, ...matchingFuture];
+        _overviewBaseRecords = [...overviewDbRecords, ...matchingFuture];
       } else {
-        overviewRecords = overviewDbRecords;
+        _overviewBaseRecords = overviewDbRecords;
       }
+      overviewRecords = _overviewBaseRecords;
     }
 
     // Refresh wallet balances since records have changed
     await _loadWallets();
+    _refreshOverviewRecords();
 
     onStateChanged();
   }
@@ -476,13 +485,35 @@ class TabRecordsController {
     onStateChanged();
   }
 
+  void _refreshOverviewRecords() {
+    final base = _overviewBaseRecords;
+    if (base == null) {
+      overviewRecords = null;
+      return;
+    }
+    if (!ServiceConfig.walletsEnabled) {
+      overviewRecords = base;
+      return;
+    }
+    if (selectedWallets.isNotEmpty) {
+      final selectedIds =
+          selectedWallets.map((w) => w.id).whereType<int>().toSet();
+      overviewRecords = applyTransferAwareWalletFilter(base, selectedIds);
+    } else {
+      overviewRecords = base;
+    }
+  }
+
   Future<void> _loadWallets() async {
     if (!ServiceConfig.walletsEnabled) {
       // Wallets feature is disabled: clear wallet state so the homepage shows
       // no wallet-related UI and no wallet-based record filtering.
       allWallets = [];
       selectedWallets = [];
+      _explicitlySelectedHiddenIds = {};
       _walletPrefsLoaded = false;
+      filterRecords();
+      _refreshOverviewRecords();
       onStateChanged();
       return;
     }
@@ -546,10 +577,15 @@ class TabRecordsController {
     }
 
     if (selectedWallets.isNotEmpty) {
-      // Re-sync selectedWallets so balances stay fresh after external edits
+      // Re-sync selectedWallets so balances stay fresh after external edits.
+      // A wallet hidden after it had been selected leaves the filter, while
+      // hidden wallets the user deliberately picked stay selected.
       final selectedIds = selectedWallets.map((w) => w.id).toSet();
-      selectedWallets =
-          allWallets.where((w) => selectedIds.contains(w.id)).toList();
+      selectedWallets = allWallets
+          .where((w) =>
+              selectedIds.contains(w.id) &&
+              (!w.isHidden || _explicitlySelectedHiddenIds.contains(w.id)))
+          .toList();
     } else if (!_walletPrefsLoaded ||
         _walletPrefsProfileId != ProfileService.instance.activeProfileId) {
       // First load, or profile switched: restore saved selection for this profile
@@ -569,16 +605,19 @@ class TabRecordsController {
         final idSet = savedIds.map(int.tryParse).toSet();
         selectedWallets =
             allWallets.where((w) => idSet.contains(w.id)).toList();
+        // A saved selection is an explicit choice, hidden wallets included.
+        _explicitlySelectedHiddenIds = selectedWallets
+            .where((w) => w.isHidden)
+            .map((w) => w.id)
+            .toSet();
         // Apply the wallet filter to already-fetched records
         filterRecords();
-        // Also filter overview records if they were fetched separately
-        if (overviewRecords != null) {
-          overviewRecords =
-              applyTransferAwareWalletFilter(overviewRecords!, idSet);
-        }
+        _refreshOverviewRecords();
         return;
       }
     }
+    filterRecords();
+    _refreshOverviewRecords();
     onStateChanged();
   }
 
@@ -596,9 +635,21 @@ class TabRecordsController {
       ),
     );
     if (result != null) {
-      // If every wallet is selected, treat it the same as "All accounts"
-      selectedWallets = result.length == allWallets.length ? [] : result;
+      // Collapse to "All accounts" only when every wallet is selected and no
+      // hidden wallet is involved. With a hidden wallet around, selecting all
+      // the listed (visible) wallets stays an explicit selection: that keeps
+      // the hidden wallet out of the filter instead of implicitly including
+      // it through "All accounts", and an explicitly picked hidden wallet
+      // still counts.
+      final allWalletsSelected =
+          result.length == allWallets.length && !result.any((w) => w.isHidden);
+      selectedWallets = allWalletsSelected ? [] : result;
+      _explicitlySelectedHiddenIds = selectedWallets
+          .where((w) => w.isHidden)
+          .map((w) => w.id)
+          .toSet();
       filterRecords();
+      _refreshOverviewRecords();
       onStateChanged();
     }
   }
@@ -637,6 +688,8 @@ class TabRecordsController {
   void navigateToStatisticsPage(BuildContext context) {
     final currencyMap = walletCurrencyMap;
     final wallets = walletMap;
+    // Statistics follow the homepage wallet filter, which has already been
+    // applied to filteredRecords.
     if (customIntervalTo == null) {
       var hti = getHomepageTimeIntervalEnumSetting();
       getTimeIntervalFromHomepageTimeInterval(_database, hti)
@@ -919,8 +972,11 @@ class TabRecordsController {
       selectedTags.isNotEmpty || selectedCategories.isNotEmpty;
 
   // Wallet computed properties
-  double get totalWalletsBalance =>
-      allWallets.fold(0.0, (sum, w) => sum + (w.balance ?? 0.0));
+  // Hidden wallets are excluded by default, and only count once the user has
+  // selected one explicitly (selectedWallets) or revealed it in the list.
+  double get totalWalletsBalance => allWallets
+      .where((w) => !w.isHidden)
+      .fold(0.0, (sum, w) => sum + (w.balance ?? 0.0));
 
   double get selectedWalletsBalance {
     if (selectedWallets.isEmpty) return totalWalletsBalance;
@@ -929,7 +985,7 @@ class TabRecordsController {
 
   String get selectedWalletsBalanceString {
     final wallets = selectedWallets.isEmpty
-        ? allWallets.where((w) => !w.isArchived).toList()
+        ? allWallets.where((w) => !w.isArchived && !w.isHidden).toList()
         : selectedWallets;
     return computeCombinedBalanceString(wallets);
   }

@@ -36,7 +36,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 32;
+  static int get version => 33;
   static Database? _db;
 
   static const String databaseFileName = 'movements.db';

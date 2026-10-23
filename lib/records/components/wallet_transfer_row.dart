@@ -37,7 +37,15 @@ class WalletTransferRow extends StatelessWidget {
     dismissInAppKeyboard();
     final selected = await Navigator.push<Wallet>(
       context,
-      MaterialPageRoute(builder: (_) => WalletPickerPage()),
+      MaterialPageRoute(
+        builder: (_) => WalletPickerPage(
+          // Transfers may move money to or from a hidden wallet; spending
+          // keeps hidden wallets out unless the user reveals them.
+          showHiddenWallets: requireDestination,
+          initiallySelected:
+              selectedWallet != null ? [selectedWallet!] : const [],
+        ),
+      ),
     );
     if (selected != null) {
       onSourceChanged(selected);
@@ -50,7 +58,14 @@ class WalletTransferRow extends StatelessWidget {
     final selected = await Navigator.push<Wallet>(
       context,
       MaterialPageRoute(
-        builder: (_) => WalletPickerPage(excludeWalletId: selectedWallet?.id),
+        builder: (_) => WalletPickerPage(
+          excludeWalletId: selectedWallet?.id,
+          showHiddenWallets: requireDestination,
+          initiallySelected:
+              selectedDestinationWallet != null
+                  ? [selectedDestinationWallet!]
+                  : const [],
+        ),
       ),
     );
     if (selected != null) {
