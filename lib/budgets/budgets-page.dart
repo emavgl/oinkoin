@@ -165,10 +165,12 @@ class BudgetsPageState extends State<BudgetsPage> {
 
   Future<void> onTabChange() => _loadData();
 
-  Future<void> _createBudget() async {
+  Future<void> _createBudget(BudgetType budgetType) async {
     final created = await Navigator.push<Budget>(
       context,
-      MaterialPageRoute(builder: (_) => const CreateBudgetPage()),
+      MaterialPageRoute(
+        builder: (_) => CreateBudgetPage(initialBudgetType: budgetType),
+      ),
     );
     if (created != null) {
       await _loadData();
@@ -378,13 +380,37 @@ class BudgetsPageState extends State<BudgetsPage> {
               ),
         floatingActionButton: _showArchived
             ? null
-            : Stack(
-                children: [
-                  FloatingActionButton(
-                    heroTag: null,
-                    onPressed: ServiceConfig.isPremium
-                        ? _createBudget
-                        : () async {
+            : Builder(
+                // Read the live tab index so the form opens on the budget
+                // type the user is currently looking at, including after a
+                // swipe between the Expense and Saving tabs.
+                builder: (fabContext) => Stack(
+                  children: [
+                    FloatingActionButton(
+                      heroTag: null,
+                      onPressed: ServiceConfig.isPremium
+                          ? () => _createBudget(
+                                DefaultTabController.of(fabContext).index == 0
+                                    ? BudgetType.expense
+                                    : BudgetType.saving,
+                              )
+                          : () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PremiumSplashScreen(),
+                                ),
+                              );
+                            },
+                      tooltip: 'Add a new budget'.i18n,
+                      child: const Icon(Icons.add),
+                    ),
+                    if (!ServiceConfig.isPremium)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: GestureDetector(
+                          onTap: () async {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -392,29 +418,14 @@ class BudgetsPageState extends State<BudgetsPage> {
                               ),
                             );
                           },
-                    tooltip: 'Add a new budget'.i18n,
-                    child: const Icon(Icons.add),
-                  ),
-                  if (!ServiceConfig.isPremium)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: GestureDetector(
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PremiumSplashScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-                          child: getProLabel(labelFontSize: 10.0),
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+                            child: getProLabel(labelFontSize: 10.0),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
       ),
     );
@@ -935,7 +946,11 @@ class _BudgetDetailPageState extends State<BudgetDetailPage> {
 class CreateBudgetPage extends StatefulWidget {
   final Budget? budget;
 
-  const CreateBudgetPage({super.key, this.budget});
+  /// Budget type the form should open on when creating a new budget. Ignored
+  /// when [budget] is provided, since the edited budget already carries a type.
+  final BudgetType? initialBudgetType;
+
+  const CreateBudgetPage({super.key, this.budget, this.initialBudgetType});
 
   @override
   State<CreateBudgetPage> createState() => _CreateBudgetPageState();
@@ -972,6 +987,9 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
       _handleWalletsEnabledChanged,
     );
     final budget = widget.budget;
+    if (budget == null && widget.initialBudgetType != null) {
+      _budgetType = widget.initialBudgetType!;
+    }
     if (budget != null) {
       _budgetType = budget.budgetType;
       _nameController.text = budget.name;
