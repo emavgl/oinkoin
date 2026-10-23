@@ -25,9 +25,14 @@ class WalletsTabPageState extends State<WalletsTabPage> {
   DatabaseInterface database = ServiceConfig.database;
   List<Wallet>? _wallets;
   List<Wallet> _selectedWallets = [];
+
+  /// Hidden wallets the user picked on purpose; see
+  /// TabRecordsController for the same rule.
+  Set<int?> _explicitlySelectedHiddenIds = {};
   bool _walletPrefsLoaded = false;
   int? _walletPrefsProfileId;
   bool _showArchived = false;
+  bool _showHidden = false;
   bool _showBreakdown = false;
 
   WalletSortOption _selectedSortOption = WalletSortOption.original;
@@ -76,10 +81,14 @@ class WalletsTabPageState extends State<WalletsTabPage> {
 
     List<Wallet> updatedSelection = _selectedWallets;
     if (_selectedWallets.isNotEmpty) {
-      // Re-sync so balances stay fresh after external edits
+      // Re-sync so balances stay fresh after external edits. A wallet hidden
+      // after being selected leaves the filter, so hiding takes effect.
       final selectedIds = _selectedWallets.map((w) => w.id).toSet();
-      updatedSelection =
-          allNonArchived.where((w) => selectedIds.contains(w.id)).toList();
+      updatedSelection = allNonArchived
+          .where((w) =>
+              selectedIds.contains(w.id) &&
+              (!w.isHidden || _explicitlySelectedHiddenIds.contains(w.id)))
+          .toList();
     } else if (!_walletPrefsLoaded ||
         _walletPrefsProfileId != ProfileService.instance.activeProfileId) {
       // First load, or profile switched: restore saved selection for this profile
@@ -95,6 +104,11 @@ class WalletsTabPageState extends State<WalletsTabPage> {
         final idSet = savedIds.map(int.tryParse).toSet();
         updatedSelection =
             allNonArchived.where((w) => idSet.contains(w.id)).toList();
+        // A saved selection is an explicit choice, hidden wallets included.
+        _explicitlySelectedHiddenIds = updatedSelection
+            .where((w) => w.isHidden)
+            .map((w) => w.id)
+            .toSet();
       }
     }
 
@@ -271,11 +285,13 @@ class WalletsTabPageState extends State<WalletsTabPage> {
   }
 
   /// The wallets used for balance/summary calculations.
-  /// Returns the user's filter selection when active; otherwise all non-archived wallets.
+  /// Returns the user's filter selection when active; otherwise all
+  /// non-archived wallets. Hidden wallets are left out unless the user
+  /// selected them, which is what "including" a hidden wallet means.
   List<Wallet> get _displayWallets {
     if (_wallets == null) return [];
     if (_selectedWallets.isNotEmpty) return _selectedWallets;
-    return _wallets!.where((w) => !w.isArchived).toList();
+    return _wallets!.where((w) => !w.isArchived && !w.isHidden).toList();
   }
 
   String _displayBalanceString() {
@@ -392,6 +408,7 @@ class WalletsTabPageState extends State<WalletsTabPage> {
         ProfileService.instance.activeProfileId!));
     setState(() {
       _selectedWallets = [];
+      _explicitlySelectedHiddenIds = {};
     });
   }
 
@@ -409,8 +426,18 @@ class WalletsTabPageState extends State<WalletsTabPage> {
       ),
     );
     if (result != null) {
+      // See TabRecordsController.navigateToWalletPicker: only collapse to
+      // "All accounts" when every wallet is selected and none is hidden.
+      final allWalletsSelected =
+          result.length == allNonArchived.length &&
+              !result.any((w) => w.isHidden);
+      final selection = allWalletsSelected ? <Wallet>[] : result;
       setState(() {
-        _selectedWallets = result.length == allNonArchived.length ? [] : result;
+        _selectedWallets = selection;
+        _explicitlySelectedHiddenIds = selection
+            .where((w) => w.isHidden)
+            .map((w) => w.id)
+            .toSet();
       });
     }
   }
@@ -420,8 +447,13 @@ class WalletsTabPageState extends State<WalletsTabPage> {
     if (_wallets == null) return [];
     var filtered =
         _wallets!.where((w) => w.isArchived == _showArchived).toList();
+    // Hidden wallets stay out of the list until revealed, and a selected
+    // hidden wallet is always shown so it can be deselected.
+    final selectedIds = _selectedWallets.map((w) => w.id).toSet();
+    filtered = filtered
+        .where((w) => !w.isHidden || _showHidden || selectedIds.contains(w.id))
+        .toList();
     if (!_showArchived && _selectedWallets.isNotEmpty) {
-      final selectedIds = _selectedWallets.map((w) => w.id).toSet();
       filtered = filtered.where((w) => selectedIds.contains(w.id)).toList();
     }
     switch (_selectedSortOption) {
@@ -488,6 +520,8 @@ class WalletsTabPageState extends State<WalletsTabPage> {
               onSelected: (value) async {
                 if (value == 1) {
                   setState(() => _showArchived = !_showArchived);
+                } else if (value == 2) {
+                  setState(() => _showHidden = !_showHidden);
                 }
               },
               itemBuilder: (ctx) => [
@@ -499,6 +533,21 @@ class WalletsTabPageState extends State<WalletsTabPage> {
                         ? "Show active wallets".i18n
                         : "Show archived wallets".i18n,
                     style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+                PopupMenuItem<int>(
+                  padding: const EdgeInsets.all(20),
+                  value: 2,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Show hidden wallets".i18n,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      if (_showHidden) const Icon(Icons.check, size: 20),
+                    ],
                   ),
                 ),
               ],

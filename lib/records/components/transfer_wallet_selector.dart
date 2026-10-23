@@ -63,6 +63,11 @@ class _TransferWalletSelectorState extends State<TransferWalletSelector> {
   Wallet? _origin;
   Wallet? _destination;
 
+  /// Transfers move money between the user's own wallets, so hidden wallets
+  /// stay listed here: hiding only keeps them out of spending views and
+  /// totals, not out of transfers.
+  List<Wallet> get _visibleWallets => _wallets ?? [];
+
   @override
   void initState() {
     super.initState();
@@ -164,21 +169,24 @@ class _TransferWalletSelectorState extends State<TransferWalletSelector> {
     final isSelected = isOrigin || isDestination;
     final selectionColor = Theme.of(context).colorScheme.secondaryContainer;
 
-    return ListTile(
-      tileColor: isSelected ? selectionColor : null,
-      leading: WalletIconSquare(
-        iconEmoji: wallet.iconEmoji,
-        iconDataFromDefaultIconSet: wallet.icon,
-        backgroundColor: wallet.color,
-        overlayIcon: isOrigin
-            ? Icons.north_east
-            : isDestination
-                ? Icons.south_west
-                : null,
+    return Opacity(
+      opacity: wallet.isHidden ? 0.6 : 1.0,
+      child: ListTile(
+        tileColor: isSelected ? selectionColor : null,
+        leading: WalletIconSquare(
+          iconEmoji: wallet.iconEmoji,
+          iconDataFromDefaultIconSet: wallet.icon,
+          backgroundColor: wallet.color,
+          overlayIcon: isOrigin
+              ? Icons.north_east
+              : isDestination
+                  ? Icons.south_west
+                  : null,
+        ),
+        title: Text(wallet.name, style: const TextStyle(fontSize: 18)),
+        trailing: _buildWalletBalanceWidget(wallet),
+        onTap: () => _selectWallet(wallet),
       ),
-      title: Text(wallet.name, style: const TextStyle(fontSize: 18)),
-      trailing: _buildWalletBalanceWidget(wallet),
-      onTap: () => _selectWallet(wallet),
     );
   }
 
@@ -200,14 +208,10 @@ class _TransferWalletSelectorState extends State<TransferWalletSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final wallets = _wallets;
-    if (wallets == null) {
+    if (_wallets == null) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (wallets.isEmpty) {
-      return Center(child: Text("No wallets available".i18n));
-    }
-
+    final wallets = _visibleWallets;
     final canContinue = _origin != null && _destination != null;
     return Column(
       children: [
@@ -224,22 +228,24 @@ class _TransferWalletSelectorState extends State<TransferWalletSelector> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: wallets.length * 2,
-            itemBuilder: (context, index) {
-              if (index.isEven) {
-                final separatorIndex = index ~/ 2;
-                return _buildSelectionSeparator(
-                  previousWallet: separatorIndex == 0
-                      ? null
-                      : wallets[separatorIndex - 1],
-                  nextWallet: wallets[separatorIndex],
-                );
-              }
+          child: wallets.isEmpty
+              ? Center(child: Text("No wallets available".i18n))
+              : ListView.builder(
+                  itemCount: wallets.length * 2,
+                  itemBuilder: (context, index) {
+                    if (index.isEven) {
+                      final separatorIndex = index ~/ 2;
+                      return _buildSelectionSeparator(
+                        previousWallet: separatorIndex == 0
+                            ? null
+                            : wallets[separatorIndex - 1],
+                        nextWallet: wallets[separatorIndex],
+                      );
+                    }
 
-              return _buildWalletRow(wallets[index ~/ 2]);
-            },
-          ),
+                    return _buildWalletRow(wallets[index ~/ 2]);
+                  },
+                ),
         ),
         SafeArea(
           top: false,

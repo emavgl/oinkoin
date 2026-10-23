@@ -175,37 +175,43 @@ class _WalletsListState extends State<WalletsList> {
           key: ValueKey(wallet.id),
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: widget.enableManualSorting
-                  ? Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ReorderableDragStartListener(
-                          index: index,
-                          child: Icon(
-                            Icons.drag_handle,
-                            color: cs.onSurface.withValues(alpha: 0.35),
+            // Hidden wallets are dimmed when revealed, to tell them apart
+            // from the wallets that are part of the main list.
+            Opacity(
+              opacity: wallet.isHidden ? 0.6 : 1.0,
+              child: ListTile(
+                leading: widget.enableManualSorting
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: Icon(
+                              Icons.drag_handle,
+                              color: cs.onSurface.withValues(alpha: 0.35),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        WalletIconSquare(
-                          iconEmoji: wallet.iconEmoji,
-                          iconDataFromDefaultIconSet: wallet.icon,
-                          backgroundColor: wallet.color,
-                          overlayIcon: wallet.isPredefined ? Icons.check : null,
-                        ),
-                      ],
-                    )
-                  : WalletIconSquare(
-                      iconEmoji: wallet.iconEmoji,
-                      iconDataFromDefaultIconSet: wallet.icon,
-                      backgroundColor: wallet.color,
-                      overlayIcon: wallet.isPredefined ? Icons.check : null,
-                    ),
-              title: Text(wallet.name, style: const TextStyle(fontSize: 18)),
-              trailing: _buildWalletBalanceWidget(wallet),
-              onTap: () => _openEdit(wallet),
-              onLongPress: () => _showPredefinedSheet(wallet),
+                          const SizedBox(width: 8),
+                          WalletIconSquare(
+                            iconEmoji: wallet.iconEmoji,
+                            iconDataFromDefaultIconSet: wallet.icon,
+                            backgroundColor: wallet.color,
+                            overlayIcon:
+                                wallet.isPredefined ? Icons.check : null,
+                          ),
+                        ],
+                      )
+                    : WalletIconSquare(
+                        iconEmoji: wallet.iconEmoji,
+                        iconDataFromDefaultIconSet: wallet.icon,
+                        backgroundColor: wallet.color,
+                        overlayIcon: wallet.isPredefined ? Icons.check : null,
+                      ),
+                title: Text(wallet.name, style: const TextStyle(fontSize: 18)),
+                trailing: _buildWalletBalanceWidget(wallet),
+                onTap: () => _openEdit(wallet),
+                onLongPress: () => _showPredefinedSheet(wallet),
+              ),
             ),
             if (!isLast) const Divider(thickness: 0.5),
           ],
