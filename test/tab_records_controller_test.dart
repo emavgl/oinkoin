@@ -242,16 +242,20 @@ void main() {
           DateTime.monday,
         );
 
-        // Get the current week's start (uses same pinned preference as controller)
-        DateTime now = DateTime.now();
-        DateTime currentWeekStart = getStartOfWeek(now);
+        // Use fixed dates to avoid any date-sensitive flakiness, and step by
+        // calendar days so crossing a daylight saving transition does not
+        // shift the expected week start by an hour.
+        DateTime currentWeekStart = DateTime(2026, 3, 30);
+
+        // Set a known base interval so shiftInterval uses it instead of DateTime.now().
+        controller.customIntervalFrom = currentWeekStart;
 
         // Act: Shift forward by 1 week
         await controller.shiftInterval(1);
 
-        // Assert: Should be next week
-        DateTime expectedStart = currentWeekStart.add(Duration(days: 7));
-        DateTime expectedEnd = expectedStart.add(Duration(days: 6));
+        // Assert: Should be next week (April 6-12, 2026)
+        DateTime expectedStart = DateTime(2026, 4, 6);
+        DateTime expectedEnd = DateTime(2026, 4, 12, 23, 59, 59);
 
         expect(controller.customIntervalFrom!.year, expectedStart.year);
         expect(controller.customIntervalFrom!.month, expectedStart.month);
