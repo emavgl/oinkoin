@@ -47,13 +47,13 @@ From the commit list, propose a single-line summary of the user-facing changes. 
 - Write in plain English, present tense ("Add X", "Fix Y", "Improve Z")
 - Show the draft to the user and **ask for approval or edits** before creating the release
 
-### Step 4b — Major version: also run the announcement skill
+### Step 4b — Major and minor versions: also run the announcement skill
 
-For a **major version change**, always run the `announcement` skill as well, so the release ships with:
+For a **major or minor version change** (not a patch release), always run the `announcement` skill as well, so the release ships with:
 - the **in-app announcement** (startup dialog + Settings → Announcements entry), and
 - the **blog post** (`website/src/content/blog/changelog-<version>.md`).
 
-Use the title `Changelog <version>` (e.g. `Changelog 1.15.0`) and `dialogMaxVersion: "<version>"`. Commit and push the announcement before creating the tag/release so the release points at it.
+This applies whenever the release adds user-facing features or visible changes. Patch releases (bug fixes only) skip the announcement. Use the title `Changelog <version>` (e.g. `Changelog 1.15.0`) and `dialogMaxVersion: "<version>"`. Commit and push the announcement before creating the tag/release so the release points at it.
 
 ### Step 5 — Create the tag and release
 
