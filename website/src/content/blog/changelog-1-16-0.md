@@ -12,7 +12,7 @@ This release also fixes how single-side transfers are counted in budgets, the ho
 
 The Wallets tab is meant to answer one question quickly: *how much money do I have available right now?* But not every wallet belongs in that answer.
 
-Some wallets are **real but not spendable day to day**: a long-term savings account, a deposit, a gift card, a wallet you track for someone else. Others are **still around for their history** even though the account is closed. Keeping them visible clutters every list and every picker, and including them in the combined balance makes your available money look bigger than it is.
+Some wallets are **real but not spendable day to day**: a long-term savings account, a deposit, a gift card, a wallet you track for someone else. Others are **active but only used occasionally**, like a travel wallet or a seasonal account. Keeping them visible clutters every list and every picker, and including them in the combined balance makes your available money look bigger than it is.
 
 Until now the only options were to keep the wallet in plain sight or archive it. Archiving is for accounts that are finished — you cannot use them for new records. Hidden wallets are different: they are **active wallets that simply stay out of the way**.
 
@@ -47,9 +47,9 @@ You have a current account with €1,200 and an emergency fund with €8,000. Yo
 
 Hide the emergency fund. The combined balance now shows €1,200. Every month you still record a €200 transfer from the current account to the emergency fund — the transfer picker lists it, so nothing gets in the way. When you want to check the fund, open **⋮ → Show hidden wallets** or open a record that uses it.
 
-### The closed bank account
+### The travel wallet
 
-You closed an account two years ago, but its records are part of your history. Archiving would make it a finished account; hiding keeps it active but out of sight, so your wallet list stays focused while the old records remain in statistics and in your backup.
+A multi-currency wallet you use twice a year for trips is real and active, but irrelevant to your monthly spending. Hide it between trips: it stays out of the Wallets tab and the combined balance, while its history remains in statistics. When you travel, reveal it in the picker and keep recording expenses on it.
 
 ### Gift cards and vouchers
 
@@ -69,7 +69,7 @@ If you keep a wallet for a family member's expenses, hide it so it does not infl
 | Records and statistics | Kept | Kept |
 | Purpose | Active wallet, out of the way | Account no longer in use |
 
-If the account is finished, archive it. If it is alive but should not clutter your spending picture, hide it.
+If the account is finished — a closed bank account, an expired card — archive it. If it is alive but should not clutter your spending picture, hide it.
 
 ## FAQ
 
