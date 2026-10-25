@@ -5,6 +5,8 @@ import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/category-type.dart';
 import 'package:piggybank/models/category.dart';
 import 'package:piggybank/models/record.dart';
+import 'package:piggybank/models/recurrent-period.dart';
+import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/models/wallet.dart';
 import 'package:piggybank/records/controllers/tab_records_controller.dart';
 import 'package:piggybank/services/database/database-interface.dart';
@@ -900,6 +902,51 @@ void main() {
       expect(controller.balanceAsOfDate, isNull);
       expect(controller.allWallets, isEmpty);
       expect(controller.selectedWallets, isEmpty);
+    });
+  });
+
+  group('future recurrent transfers in wallet balances', () {
+    test('a planned same-currency transfer moves money between both wallets '
+        'without changing the combined balance', () async {
+      final sourceId = await database.addWallet(
+        Wallet('Wallet 1', initialAmount: 0.0),
+      );
+      final destId = await database.addWallet(
+        Wallet('Wallet 2', initialAmount: 0.0),
+      );
+
+      // Same-currency transfers leave transferValue null; only the source
+      // value (-100) carries the amount. The destination must still be
+      // credited, exactly like the persisted-balance SQL query does with
+      // ABS(COALESCE(transfer_value, value)).
+      await database.addRecurrentRecordPattern(
+        RecurrentRecordPattern(
+          -100.0,
+          'Transfer',
+          testCategory,
+          DateTime.utc(2027, 1, 9),
+          RecurrentPeriod.EveryTwoWeeks,
+          walletId: sourceId,
+          transferWalletId: destId,
+        ),
+      );
+
+      controller.updateCustomInterval(
+        DateTime(2027, 1, 1),
+        getEndOfMonth(2027, 1),
+        'January 2027',
+      );
+      await controller.updateRecurrentRecordsAndFetchRecords();
+
+      final source = controller.allWallets.firstWhere((w) => w.id == sourceId);
+      final dest = controller.allWallets.firstWhere((w) => w.id == destId);
+
+      // Jan 9 and Jan 23, 2027: two planned transfers of 100 each.
+      expect(source.balance, closeTo(-200.0, 0.001));
+      expect(dest.balance, closeTo(200.0, 0.001));
+
+      // An internal transfer must not change the "All accounts" total.
+      expect(controller.totalWalletsBalance, closeTo(0.0, 0.001));
     });
   });
 }

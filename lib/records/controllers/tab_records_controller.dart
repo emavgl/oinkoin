@@ -537,13 +537,21 @@ class TabRecordsController {
             ifAbsent: () => (record.value ?? 0.0),
           );
         }
-        // For transfers, also adjust the destination wallet's balance
-        if (record.transferWalletId != null && record.transferValue != null) {
-          futureSumByWallet.update(
-            record.transferWalletId!,
-            (sum) => sum + record.transferValue!.abs(),
-            ifAbsent: () => record.transferValue!.abs(),
-          );
+        // For transfers, also credit the destination wallet. Same-currency
+        // transfers store no transferValue, so fall back to abs(value). This
+        // mirrors the persisted-balance query
+        // (ABS(COALESCE(transfer_value, value))) and
+        // applyTransferAwareWalletFilter, and keeps an internal transfer
+        // neutral in the combined "All accounts" balance.
+        if (record.transferWalletId != null) {
+          final received = record.transferValue ?? record.value?.abs();
+          if (received != null) {
+            futureSumByWallet.update(
+              record.transferWalletId!,
+              (sum) => sum + received.abs(),
+              ifAbsent: () => received.abs(),
+            );
+          }
         }
       }
 
