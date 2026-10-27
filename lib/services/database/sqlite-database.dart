@@ -49,7 +49,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 33;
+  static int get version => 34;
   static Database? _db;
 
   static const String databaseFileName = 'movements.db';
@@ -307,7 +307,10 @@ class SqliteDatabase implements DatabaseInterface {
       if (foundCategory != null) {
         throw ElementAlreadyExists();
       }
-      int result = await db.insert("categories", category.toMap());
+      // Drop the counter so the column default (0) applies: storing the null
+      // of a fresh Category would make the usage triggers write NULL forever.
+      final categoryMap = category.toMap()..remove('record_count');
+      int result = await db.insert("categories", categoryMap);
       _logger.info('Category added: ${category.name}');
       _notifyDatabaseChanged();
       return result;
