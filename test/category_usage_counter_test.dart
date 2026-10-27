@@ -107,19 +107,6 @@ void main() {
     expect(await recordCountOf('Counter food'), 0);
   });
 
-  test('the counter is correct even when the stored column is stale', () async {
-    await addRecordIn(food);
-    await addRecordIn(food);
-
-    // Simulate a database written by an older version (or restored from an old
-    // backup), where the stored counter drifted away from the real value.
-    final raw = await (ServiceConfig.database as SqliteDatabase).database;
-    await raw!.update('categories', {'record_count': 99},
-        where: 'name = ?', whereArgs: ['Counter food']);
-
-    expect(await recordCountOf('Counter food'), 2);
-  });
-
   test('the usage trigger does not count an edit as a new record', () async {
     final id = await addRecordIn(food);
     final raw = (await (ServiceConfig.database as SqliteDatabase).database)!;

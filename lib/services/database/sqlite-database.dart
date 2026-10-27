@@ -274,30 +274,9 @@ class SqliteDatabase implements DatabaseInterface {
   Future<List<Category>> getAllCategories() async {
     final db = (await database)!;
     List<Map> results = await db.query("categories");
-    final categories = List.generate(results.length, (i) {
+    return List.generate(results.length, (i) {
       return Category.fromMap(results[i] as Map<String, dynamic>);
     });
-
-    // Count the records instead of trusting the `record_count` column: the
-    // trigger that maintains it used to inflate it on every record edit, and a
-    // database restored from an old backup can carry stale values. Counting
-    // here keeps the value right in both cases.
-    final counts = await db.rawQuery(
-      'SELECT category_name, category_type, COUNT(*) AS records '
-      'FROM records WHERE category_name IS NOT NULL '
-      'GROUP BY category_name, category_type',
-    );
-    final recordsByCategory = <(String, int), int>{
-      for (final row in counts)
-        (row['category_name'] as String, row['category_type'] as int):
-            row['records'] as int,
-    };
-    for (final category in categories) {
-      category.recordCount = recordsByCategory[
-              (category.name!, category.categoryType!.index)] ??
-          0;
-    }
-    return categories;
   }
 
   @override
