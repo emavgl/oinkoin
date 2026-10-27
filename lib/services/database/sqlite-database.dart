@@ -473,6 +473,7 @@ class SqliteDatabase implements DatabaseInterface {
       }
 
       var inserted = 0;
+      var insertedTags = 0;
       // Records and their tags are inserted in one transaction: tags are
       // attached to the id of each record, so identical records never share
       // each other's tags.
@@ -503,15 +504,19 @@ class SqliteDatabase implements DatabaseInterface {
                 'record_id': record.id,
                 'tag_name': tag,
               }, conflictAlgorithm: ConflictAlgorithm.ignore);
+              insertedTags++;
             }
           }
         }
       });
 
-      _logger.info(
-          'Batch insert committed: $inserted of ${records.length} records');
-      _logger.info(
-          'Batch complete with ${_countTags(recordsToInsert)} tag associations');
+      _logger.info('Batch insert committed: $inserted of ${records.length} '
+          'records, $insertedTags tag associations');
+      if (inserted == 0) {
+        // Nothing changed: no need to notify listeners (or to schedule a
+        // database copy).
+        return;
+      }
       _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
