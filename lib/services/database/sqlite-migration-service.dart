@@ -240,6 +240,24 @@ class SqliteMigrationService {
     batch.execute(triggerQuery);
   }
 
+  static void _createAllTriggers(Batch batch) {
+    _createAddRecordTrigger(batch);
+    _createUpdateRecordTrigger(batch);
+    _createDeleteRecordTrigger(batch);
+    _createDeleteRecordTagsTrigger(batch);
+  }
+
+  /// (Re)installs the triggers on `records`, which maintain the category usage
+  /// counters and clean up the tags of a deleted record.
+  ///
+  /// Needed whenever those triggers change, and after any rebuild of the
+  /// records table, since dropping the table drops its triggers.
+  static Future<void> recreateRecordTriggers(DatabaseExecutor executor) async {
+    final batch = executor.batch();
+    _createAllTriggers(batch);
+    await batch.commit(noResult: true);
+  }
+
   // Default Data
   static List<Category> getDefaultCategories() {
     List<Category> defaultCategories = <Category>[];
@@ -608,6 +626,26 @@ class SqliteMigrationService {
         db, "ALTER TABLE wallets ADD COLUMN is_hidden INTEGER DEFAULT 0;");
   }
 
+  /// v34: repairs the category usage counter once and installs the fixed
+  /// triggers that keep it right afterwards.
+  ///
+  /// The update trigger counted every record edit as an additional record, and
+  /// categories created by the app stored a NULL counter, which the triggers
+  /// kept turning into NULL (NULL + 1 is NULL). Recomputing the counters from
+  /// the records is idempotent, so running this again after a downgrade reset
+  /// the database version is harmless.
+  static Future<void> _migrateTo34(Database db) async {
+    await recreateRecordTriggers(db);
+    await db.execute('''
+      UPDATE categories
+      SET record_count = (
+        SELECT COUNT(*) FROM records r
+        WHERE r.category_name = categories.name
+          AND r.category_type = categories.category_type
+      )
+    ''');
+  }
+
   static Map<int, Function(Database)?> migrationFunctions = {
     6: SqliteMigrationService._migrateTo6,
     7: SqliteMigrationService._migrateTo7,
@@ -636,6 +674,7 @@ class SqliteMigrationService {
     31: SqliteMigrationService._migrateTo31,
     32: SqliteMigrationService._migrateTo32,
     33: SqliteMigrationService._migrateTo33,
+    34: SqliteMigrationService._migrateTo34,
   };
 
   // Public Methods
@@ -668,10 +707,7 @@ class SqliteMigrationService {
     _createBudgetsTable(batch);
 
     // Create Triggers
-    _createAddRecordTrigger(batch);
-    _createUpdateRecordTrigger(batch);
-    _createDeleteRecordTrigger(batch);
-    _createDeleteRecordTagsTrigger(batch);
+    _createAllTriggers(batch);
 
     // Insert Default Categories
     List<Category> defaultCategories = getDefaultCategories();
