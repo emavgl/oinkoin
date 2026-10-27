@@ -107,8 +107,7 @@ class RecordIdConversionService {
 
   static Future<void> _createUuidTables(Database db) async {
     await db.execute('CREATE TABLE records_new ('
-        'id TEXT PRIMARY KEY NOT NULL DEFAULT ($uuidV4Sql), '
-        '$_copiedRecordColumns)');
+        'id TEXT PRIMARY KEY NOT NULL, $_copiedRecordColumns)');
     await db.execute('CREATE TABLE records_tags_new ('
         'record_id TEXT NOT NULL, tag_name TEXT NOT NULL, '
         'PRIMARY KEY (record_id, tag_name))');

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:uuid/uuid.dart';
 
 /// The records table and its triggers as created by database version 33,
 /// i.e. before record ids became uuids.
@@ -317,6 +318,7 @@ void main() {
 
     // The insert trigger still maintains the category usage counter.
     await db.insert('records', {
+      'id': Uuid().v4(),
       'datetime': 1,
       'value': -1.0,
       'title': 'Another',
@@ -334,17 +336,12 @@ void main() {
         .query('records_tags', where: 'record_id = ?', whereArgs: [recordId]);
     expect(remaining, isEmpty);
 
-    // A raw insert without an id gets a generated uuid (schema default).
-    final inserted = await db.insert('records', {
-      'datetime': 2,
-      'value': -2.0,
-      'title': 'Raw insert',
-    });
-    final raw = await db.query('records',
-        where: 'title = ?', whereArgs: ['Raw insert'], limit: 1);
-    expect(raw.first['id'], isA<String>());
-    expect((raw.first['id'] as String).isNotEmpty, isTrue);
-    expect(inserted, isA<int>());
+    // Records must always carry their own id: the schema does not invent one,
+    // so a raw insert that forgets it fails instead of storing an anonymous row.
+    await expectLater(
+      db.insert('records', {'datetime': 2, 'value': -2.0, 'title': 'No id'}),
+      throwsA(anything),
+    );
   });
 
   test('running the migration again on a migrated database is a no-op',

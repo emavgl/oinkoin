@@ -8,6 +8,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   setUpAll(() {
@@ -92,8 +93,8 @@ void main() {
     // Insert a record via raw SQL
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('Test Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES ('${Uuid().v4()}', 'Test Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
     """,
       [wallet!.id],
     );
@@ -157,8 +158,8 @@ void main() {
     // Insert a record
     final recordId = await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('Tagged Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES ('${Uuid().v4()}', 'Tagged Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
     """,
       [wallet!.id],
     );
@@ -192,8 +193,8 @@ void main() {
     for (int i = 0; i < 5; i++) {
       await rawDb.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-        VALUES ('Record $i', -10.0, 1000000, 'UTC', 'House', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+        VALUES ('${Uuid().v4()}', 'Record $i', -10.0, 1000000, 'UTC', 'House', 0, ?)
       """,
         [wallet!.id],
       );
@@ -204,8 +205,8 @@ void main() {
     // Insert a new record after deletion
     final newRecordId = await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('New Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES ('${Uuid().v4()}', 'New Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
     """,
       [wallet!.id],
     );

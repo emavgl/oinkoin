@@ -32,7 +32,7 @@ class SqliteMigrationService {
   static void _createRecordsTable(Batch batch) {
     String query = """
       CREATE TABLE IF NOT EXISTS records (
-              id          TEXT PRIMARY KEY NOT NULL DEFAULT (${RecordIdConversionService.uuidV4Sql}),
+              id          TEXT PRIMARY KEY NOT NULL,
               datetime    INTEGER,
               timezone     TEXT,
               value       REAL,

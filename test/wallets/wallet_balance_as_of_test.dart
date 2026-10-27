@@ -7,6 +7,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   setUpAll(() {
@@ -29,8 +30,8 @@ void main() {
   Future<void> _insertRecord(
       dynamic rawDb, int walletId, double value, DateTime datetime) async {
     await rawDb.rawInsert("""
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('Record', ?, ?, 'UTC', 'House', 0, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES ('${Uuid().v4()}', 'Record', ?, ?, 'UTC', 'House', 0, ?)
     """, [value, datetime.millisecondsSinceEpoch, walletId]);
   }
 
@@ -38,8 +39,8 @@ void main() {
       int destWalletId, double value, double? transferValue, DateTime datetime) async {
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id, transfer_value)
-      VALUES ('Transfer', ?, ?, 'UTC', 'House', 0, ?, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id, transfer_value)
+      VALUES ('${Uuid().v4()}', 'Transfer', ?, ?, 'UTC', 'House', 0, ?, ?, ?)
     """,
       [value, datetime.millisecondsSinceEpoch, srcWalletId, destWalletId, transferValue],
     );
