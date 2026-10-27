@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:piggybank/components/amount_input_field.dart';
+import 'package:piggybank/helpers/amount-input-utils.dart';
 import 'package:piggybank/helpers/records-utility-functions.dart';
 import 'package:piggybank/helpers/date_picker_utils.dart';
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
@@ -961,6 +962,7 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
   final _savingFormKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
+  late final AmountExpressionResolver _amountExpressionResolver;
   final DatabaseInterface _database = ServiceConfig.database;
 
   BudgetType _budgetType = BudgetType.expense;
@@ -1011,6 +1013,7 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
       _categoryTagOrLogic = budget.categoryTagOrLogic;
       _tagOrLogic = budget.tagOrLogic;
     }
+    _amountExpressionResolver = AmountExpressionResolver(_amountController);
     _loadFilterOptions();
   }
 
@@ -1019,6 +1022,7 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
     ServiceConfig.walletsEnabledNotifier.removeListener(
       _handleWalletsEnabledChanged,
     );
+    _amountExpressionResolver.dispose();
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -1244,6 +1248,10 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
   }
 
   Future<void> _save() async {
+    // Resolve a pending expression (e.g. "1000+125") before validating and
+    // parsing it: parsing strips the operators, which would otherwise save a
+    // concatenated amount such as 1000125.
+    _amountExpressionResolver.resolveNow();
     final formKey = _budgetType == BudgetType.expense
         ? _expenseFormKey
         : _savingFormKey;

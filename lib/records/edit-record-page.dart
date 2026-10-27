@@ -69,6 +69,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   final _logger = Logger.withContext('EditRecordPage');
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _textEditingController = TextEditingController();
+  late final AmountExpressionResolver _amountExpressionResolver;
   final _receivedAmountController = TextEditingController();
   bool _receivedAmountIsManual = false;
   bool _updatingReceivedAmount = false;
@@ -281,19 +282,10 @@ class EditRecordPageState extends State<EditRecordPage> {
     _initWallet();
 
     // Keyboard listeners initializations (the same as before)
-    _textEditingController.addListener(() async {
-      if (readOnly) return;
-      var text = _textEditingController.text.toLowerCase();
-      await Future.delayed(Duration(seconds: 2));
-      if (!mounted) return;
-      var textAfterPause = _textEditingController.text.toLowerCase();
-      if (text == textAfterPause) {
-        solveMathExpressionAndUpdateController(
-          _textEditingController,
-          onSolved: changeRecordValue,
-        );
-      }
-    });
+    _amountExpressionResolver = AmountExpressionResolver(
+      _textEditingController,
+      onSolved: changeRecordValue,
+    );
 
     categorySign =
         isTransferFlow || record?.category?.categoryType == CategoryType.expense
@@ -306,6 +298,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   @override
   void dispose() {
+    _amountExpressionResolver.dispose();
     _textEditingController.dispose();
     _receivedAmountController.dispose();
     _typeAheadController.dispose();
@@ -1258,10 +1251,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   /// concatenated amount (e.g. "10.05+1234" -> 10.051234) because the raw
   /// expression's operators are stripped during parsing.
   void _resolvePendingAmountExpression() {
-    solveMathExpressionAndUpdateController(
-      _textEditingController,
-      onSolved: changeRecordValue,
-    );
+    _amountExpressionResolver.resolveNow();
     if (_isCrossCurrencyTransfer) {
       solveMathExpressionAndUpdateController(_receivedAmountController);
     }
