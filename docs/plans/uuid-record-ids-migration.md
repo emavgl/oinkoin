@@ -1,12 +1,43 @@
 # Plan: UUID record IDs
 
-Status: **proposed** (not implemented)
+Status: **implemented** on `feat/uuid-record-ids` (schema v34). The two-release
+rollout of §5.1 is still a release-process step: the converter lives in this
+branch, but the guarantee for users only exists for downgrades **to a build that
+contains it**, i.e. the UUID release must be preceded by a release carrying
+`onDowngrade`.
 Related: issue #452 (backup restore dropped identical records), fixed in 1.16.2 by
 making the content-based dedupe one-to-one (`addRecordsInBatch`).
 Downgrade strategy: **D** — ids are reversible (the previous release converts a
 UUID schema back to integer ids), so the upgrade never copies user data anywhere
 (see §5).
 Owner: TBD
+
+Implemented in this branch (see the commit diff for details):
+
+* models and database API use `String` record ids (`Record.id`,
+  `RecordTagAssociation.recordId`, `getRecordById`, batch delete/move/duplicate,
+  `getTagsForRecord`);
+* schema v34 (`records.id TEXT PRIMARY KEY NOT NULL DEFAULT <uuid v4>`) plus
+  `_migrateTo34` that rebuilds `records`/`records_tags` from integer ids in
+  creation order and recreates the triggers, with before/after count assertions;
+* `SqliteMigrationService.onDowngrade` + `_downgradeFrom34`, the reverse rebuild
+  (uuid → integer ids in `rowid` order), wired into `SqliteDatabase.init()`;
+* restore keeps ids (`addRecordsInBatch(..., preserveIds: true)`), legacy
+  integer-id backups fall back to the 1.16.2 content check, tag associations are
+  resolved through uuid or legacy id;
+* tags are always attached through the id of the record that was just inserted
+  (`addRecordsInBatch`, `addRecordsInBatchNoDuplicateCheck`), including the CSV
+  import path;
+* ordering tie-breaks use `rowid` (`creation_order` exposed on `Record`,
+  currency-rate query) instead of the integer id;
+* tests: `test/database/migration_uuid_ids_test.dart` (migration, triggers,
+  idempotency, downgrade, lossless round trip) and
+  `test/backup/restore_uuid_ids_test.dart` (identity based restore, legacy
+  backups, repeated imports).
+
+Not implemented (belongs to the preparatory release N, §5.1): making an
+integer-id build accept *uuid-id backups* (Phase P step 4). Current builds already
+accept both.
 
 ## 1. Why
 
