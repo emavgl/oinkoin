@@ -157,7 +157,9 @@ class SqliteMigrationService {
       BEGIN
           UPDATE categories
           SET 
-              record_count = record_count + 1,
+              -- COALESCE: categories added by older versions store a NULL
+              -- counter, and NULL + 1 is NULL.
+              record_count = COALESCE(record_count, 0) + 1,
               last_used = strftime('%s', 'now') * 1000 -- Convert seconds to milliseconds
           WHERE
               name = NEW.category_name AND
@@ -174,23 +176,36 @@ class SqliteMigrationService {
       AFTER UPDATE ON records
       FOR EACH ROW
       BEGIN
-          -- Increment the record count and update the last_used timestamp for the new category
+          -- Refresh the usage timestamp of the category the record belongs to
+          -- now. Editing a record is using its category, but it is not a new
+          -- record, so the counter below only follows a change of category.
           UPDATE categories
-          SET 
-              record_count = record_count + 1,
-              last_used = strftime('%s', 'now') * 1000 -- Convert seconds to milliseconds
+          SET last_used = strftime('%s', 'now') * 1000 -- Convert seconds to milliseconds
           WHERE
               name = NEW.category_name AND
               category_type = NEW.category_type;
-      
-          -- Decrement the record count for the old category only if the category has changed
+
+          -- Move the record from the old category to the new one. IS NOT is
+          -- the null-safe comparison, so records without a category are
+          -- handled too. Updating any other field of a record must leave the
+          -- usage counters alone.
           UPDATE categories
           SET
-              record_count = record_count - 1
+              record_count = MAX(COALESCE(record_count, 0) - 1, 0)
           WHERE
               name = OLD.category_name AND
               category_type = OLD.category_type
-              AND (NEW.category_name != OLD.category_name OR NEW.category_type != OLD.category_type);
+              AND (OLD.category_name IS NOT NEW.category_name
+                   OR OLD.category_type IS NOT NEW.category_type);
+
+          UPDATE categories
+          SET
+              record_count = COALESCE(record_count, 0) + 1
+          WHERE
+              name = NEW.category_name AND
+              category_type = NEW.category_type
+              AND (OLD.category_name IS NOT NEW.category_name
+                   OR OLD.category_type IS NOT NEW.category_type);
       END;
     """;
     batch.execute(addRecordTriggerQuery);
@@ -205,7 +220,7 @@ class SqliteMigrationService {
       BEGIN
           UPDATE categories
           SET 
-              record_count = record_count - 1
+              record_count = MAX(COALESCE(record_count, 0) - 1, 0)
           WHERE
               name = OLD.category_name AND
               category_type = OLD.category_type;
@@ -233,9 +248,11 @@ class SqliteMigrationService {
     _createDeleteRecordTagsTrigger(batch);
   }
 
-  /// Recreates the triggers on `records`, which maintain the category usage
-  /// counters and clean up tags. Any rebuild of the records table drops them
-  /// with the table, so it must call this afterwards.
+  /// (Re)installs the triggers on `records`, which maintain the category usage
+  /// counters and clean up the tags of a deleted record.
+  ///
+  /// Needed whenever those triggers change, and after any rebuild of the
+  /// records table, since dropping the table drops its triggers.
   static Future<void> recreateRecordTriggers(DatabaseExecutor executor) async {
     final batch = executor.batch();
     _createAllTriggers(batch);
@@ -610,6 +627,26 @@ class SqliteMigrationService {
         db, "ALTER TABLE wallets ADD COLUMN is_hidden INTEGER DEFAULT 0;");
   }
 
+  /// v34: repairs the category usage counter once and installs the fixed
+  /// triggers that keep it right afterwards.
+  ///
+  /// The update trigger counted every record edit as an additional record, and
+  /// categories created by the app stored a NULL counter, which the triggers
+  /// kept turning into NULL (NULL + 1 is NULL). Recomputing the counters from
+  /// the records is idempotent, so running this again after a downgrade reset
+  /// the database version is harmless.
+  static Future<void> _migrateTo34(Database db) async {
+    await recreateRecordTriggers(db);
+    await db.execute('''
+      UPDATE categories
+      SET record_count = (
+        SELECT COUNT(*) FROM records r
+        WHERE r.category_name = categories.name
+          AND r.category_type = categories.category_type
+      )
+    ''');
+  }
+
   /// Record ids become uuids, so a record keeps its identity across backups and
   /// can be matched exactly on restore.
   static Future<void> _migrateTo35(Database db) =>
@@ -668,6 +705,7 @@ class SqliteMigrationService {
     31: SqliteMigrationService._migrateTo31,
     32: SqliteMigrationService._migrateTo32,
     33: SqliteMigrationService._migrateTo33,
+    34: SqliteMigrationService._migrateTo34,
     35: SqliteMigrationService._migrateTo35,
   };
 

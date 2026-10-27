@@ -307,7 +307,10 @@ class SqliteDatabase implements DatabaseInterface {
       if (foundCategory != null) {
         throw ElementAlreadyExists();
       }
-      int result = await db.insert("categories", category.toMap());
+      // Drop the counter so the column default (0) applies: storing the null
+      // of a fresh Category would make the usage triggers write NULL forever.
+      final categoryMap = category.toMap()..remove('record_count');
+      int result = await db.insert("categories", categoryMap);
       _logger.info('Category added: ${category.name}');
       _notifyDatabaseChanged();
       return result;
