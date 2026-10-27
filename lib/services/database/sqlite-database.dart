@@ -28,6 +28,19 @@ import '../logger.dart';
 import '../profile-service.dart';
 import 'exceptions.dart';
 
+/// Fields the batch duplicate check compares when deciding whether two
+/// records are the same record stored twice.
+typedef _RecordDuplicateSignature = (
+  int datetime,
+  double? value,
+  String? title,
+  String? categoryName,
+  int? categoryType,
+  int? walletId,
+  int? profileId,
+  String description,
+);
+
 class SqliteDatabase implements DatabaseInterface {
   /// SqliteDatabase is an implementation of DatabaseService using sqlite3 database.
   /// It is implemented using Singleton pattern.
@@ -417,116 +430,112 @@ class SqliteDatabase implements DatabaseInterface {
     try {
       _logger.debug('Adding ${records.length} records in batch...');
       final db = (await database)!;
-      Batch batch = db.batch();
 
+      // Duplicate records already stored in the database are skipped, but the
+      // matching is one-to-one: a record is only skipped when an identical
+      // stored record has not already been matched by an earlier record of
+      // this batch. Identical records within the same batch are distinct user
+      // data (e.g. two identical expenses recorded at the same minute and
+      // restored from a backup) and must all be stored, while importing data
+      // that is already in the database still adds nothing.
+      final matchedDuplicates = <_RecordDuplicateSignature, int>{};
+      final recordsToInsert = <Record>[];
       for (var record in records) {
         if (record == null) {
           continue;
         }
         record.id = null;
-
         record.profileId ??= ProfileService.instance.activeProfileId;
-        batch.rawInsert(
-          """
-      INSERT OR IGNORE INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id, wallet_id, transfer_wallet_id, transfer_value, profile_id)
-      SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-      WHERE NOT EXISTS (
-        SELECT 1 FROM records
-        WHERE datetime = ?
-          AND value = ?
-          AND title IS ?
-          AND category_name = ?
-          AND category_type = ?
-          AND wallet_id IS ?
-          AND (profile_id IS NULL OR profile_id = ?)
-          AND COALESCE(description, '') = COALESCE(?, '')
-      )
-    """,
-          [
-            record.title,
-            record.value,
-            record.utcDateTime.millisecondsSinceEpoch,
-            record.timeZoneName,
-            record.category?.name,
-            record.category?.categoryType?.index,
-            record.description,
-            record.recurrencePatternId,
-            record.walletId,
-            record.transferWalletId,
-            record.transferValue,
-            record.profileId,
 
-            // Duplicate check values
-            record.utcDateTime.millisecondsSinceEpoch,
-            record.value,
-            record.title,
-            record.category?.name,
-            record.category?.categoryType?.index,
-            record.walletId,
-            record.profileId,
-            record.description,
-          ],
-        );
-      }
-
-      await batch.commit(noResult: true);
-      _logger.info('Batch insert committed: ${records.length} records');
-
-      // Insert tags for each record in a second batch after getting record IDs
-      Batch tagBatch = db.batch();
-      for (var record in records) {
-        if (record == null || record.tags.isEmpty) {
+        final signature = _duplicateSignature(record);
+        final alreadyMatched = matchedDuplicates[signature] ?? 0;
+        final alreadyStored = await _countDuplicateRecords(db, record);
+        if (alreadyMatched < alreadyStored) {
+          matchedDuplicates[signature] = alreadyMatched + 1;
+          _logger.debug('Skipping already-stored record: ${record.title}');
           continue;
         }
+        recordsToInsert.add(record);
+      }
 
-        // Find the record ID by querying for the record we just inserted
-        var recordId = await db.rawQuery(
-          """
-        SELECT id FROM records
-        WHERE datetime = ?
-          AND value = ?
-          AND title IS ?
-          AND category_name = ?
-          AND category_type = ?
-          AND wallet_id IS ?
-          AND (profile_id IS NULL OR profile_id = ?)
-          AND COALESCE(description, '') = COALESCE(?, '')
-        LIMIT 1
-      """,
-          [
-            record.utcDateTime.millisecondsSinceEpoch,
-            record.value,
-            record.title,
-            record.category?.name,
-            record.category?.categoryType?.index,
-            record.walletId,
-            record.profileId,
-            record.description,
-          ],
-        );
+      if (recordsToInsert.isEmpty) {
+        _logger.info('No new records to insert in batch');
+        return;
+      }
 
-        if (recordId.isNotEmpty) {
-          final id = recordId.first['id'] as int;
+      // Records and their tags are inserted in one transaction: tags are
+      // attached to the ID returned by each insert, so identical records never
+      // share each other's tags.
+      await db.transaction((txn) async {
+        for (var record in recordsToInsert) {
+          final recordId = await txn.insert("records", record.toMap());
+          record.id = recordId;
+
           for (String tag in record.tags) {
             if (tag.trim().isNotEmpty) {
-              tagBatch.insert("records_tags", {
-                'record_id': id,
+              await txn.insert("records_tags", {
+                'record_id': recordId,
                 'tag_name': tag,
               }, conflictAlgorithm: ConflictAlgorithm.ignore);
             }
           }
         }
-      }
+      });
 
-      await tagBatch.commit(noResult: true);
       _logger.info(
-          'Batch complete with ${_countTags(records)} tag associations');
+          'Batch insert committed: ${recordsToInsert.length} of ${records.length} records');
+      _logger.info(
+          'Batch complete with ${_countTags(recordsToInsert)} tag associations');
       _notifyDatabaseChanged();
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add records in batch');
       rethrow;
     }
   }
+
+  /// Number of records already stored in the database that are identical to
+  /// [record] according to the duplicate check of [addRecordsInBatch].
+  Future<int> _countDuplicateRecords(Database db, Record record) async {
+    var result = await db.rawQuery(
+      """
+      SELECT COUNT(*) AS occurrences FROM records
+      WHERE datetime = ?
+        AND value = ?
+        AND title IS ?
+        AND category_name = ?
+        AND category_type = ?
+        AND wallet_id IS ?
+        AND (profile_id IS NULL OR profile_id = ?)
+        AND COALESCE(description, '') = COALESCE(?, '')
+    """,
+      [
+        record.utcDateTime.millisecondsSinceEpoch,
+        record.value,
+        record.title,
+        record.category?.name,
+        record.category?.categoryType?.index,
+        record.walletId,
+        record.profileId,
+        record.description,
+      ],
+    );
+    return (result.first['occurrences'] as int?) ?? 0;
+  }
+
+  /// Signature grouping the records of a batch that the duplicate check
+  /// considers interchangeable, so that every record of the batch is matched
+  /// against at most one already-stored record.
+  static _RecordDuplicateSignature _duplicateSignature(Record record) =>
+      (
+        record.utcDateTime.millisecondsSinceEpoch,
+        record.value,
+        record.title,
+        record.category?.name,
+        record.category?.categoryType?.index,
+        record.walletId,
+        record.profileId,
+        record.description ?? '',
+      );
 
   @override
   Future<void> addRecordsInBatchNoDuplicateCheck(List<Record?> records) async {

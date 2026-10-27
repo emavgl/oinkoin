@@ -314,30 +314,54 @@ Future main() async {
       );
     });
 
-    test('addRecordsInBatch should treat same-date same-amount same-description records as duplicates', () async {
+    test('addRecordsInBatch should keep identical records of the same batch and only skip records already stored', () async {
       DatabaseInterface db = ServiceConfig.database;
       await db.addCategory(testCategoryExpense);
       final sameDate = DateTime.utc(2024, 6, 14, 12, 0, 0);
-      var record1 = Record(
+      Record identicalRecord(String description) => Record(
         15.0,
         "Coffee",
         testCategoryExpense,
         sameDate,
-        description: "My coffee",
+        description: description,
       );
-      var record2 = Record(
-        15.0,
-        "Coffee",
-        testCategoryExpense,
-        sameDate,
-        description: "My coffee",
-      );
-      await db.addRecordsInBatch([record1, record2]);
+
+      // Two identical records in the same batch are distinct user data (e.g. a
+      // backup restore of two identical expenses), so both must be stored.
+      await db.addRecordsInBatch([
+        identicalRecord("My coffee"),
+        identicalRecord("My coffee"),
+      ]);
       var allRecords = await db.getAllRecords();
       expect(
         allRecords.length,
-        1,
-        reason: 'Two identical records (same date, amount, title, description) should be treated as duplicates',
+        2,
+        reason: 'Identical records within the same batch must all be stored',
+      );
+
+      // A record identical to one already stored is still skipped: re-importing
+      // the same data must not duplicate it.
+      await db.addRecordsInBatch([identicalRecord("My coffee")]);
+      allRecords = await db.getAllRecords();
+      expect(
+        allRecords.length,
+        2,
+        reason: 'A record already stored must not be inserted twice',
+      );
+
+      // Duplicate matching against stored records is one-to-one: with a single
+      // identical record stored, only one record of the next batch matches it
+      // and the other one is stored as a distinct record.
+      await db.deleteRecordById(allRecords.first?.id);
+      await db.addRecordsInBatch([
+        identicalRecord("My coffee"),
+        identicalRecord("My coffee"),
+      ]);
+      allRecords = await db.getAllRecords();
+      expect(
+        allRecords.length,
+        2,
+        reason: 'One of the two records matches the single stored record, the other is new',
       );
     });
 
