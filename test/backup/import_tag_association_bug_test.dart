@@ -103,29 +103,29 @@ void main() {
         "Lunch",
         categories[0],
         DateTime.parse("2024-01-01 12:00:00"),
-        id: 1,
+        id: '1',
       ), // Original ID: 1
       Record(
         -20,
         "Dinner",
         categories[0],
         DateTime.parse("2024-01-01 19:00:00"),
-        id: 2,
+        id: '2',
       ), // Original ID: 2
       Record(
         1000,
         "Salary",
         categories[1],
         DateTime.parse("2024-01-01 09:00:00"),
-        id: 3,
+        id: '3',
       ), // Original ID: 3
     ];
 
     // Tags associated with specific record IDs from source device
     final recordTagAssociations = [
-      RecordTagAssociation(recordId: 1, tagName: "food-tag-for-lunch"),
-      RecordTagAssociation(recordId: 2, tagName: "food-tag-for-dinner"),
-      RecordTagAssociation(recordId: 3, tagName: "income-tag-for-salary"),
+      RecordTagAssociation(recordId: '1', tagName: "food-tag-for-lunch"),
+      RecordTagAssociation(recordId: '2', tagName: "food-tag-for-dinner"),
+      RecordTagAssociation(recordId: '3', tagName: "income-tag-for-salary"),
     ];
 
     final capturedRecords = <Record?>[];
@@ -144,7 +144,7 @@ void main() {
 
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
 
-    when(mockDatabase.addRecordsInBatch(any)).thenAnswer((
+    when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds'))).thenAnswer((
       Invocation invocation,
     ) async {
       final List<Record?> incomingRecords = invocation.positionalArguments[0];
@@ -225,29 +225,29 @@ void main() {
           "Prestation Dentiste",
           categories[0],
           DateTime.parse("2024-01-10 10:00:00"),
-          id: 6,
+          id: '6',
         ),
         Record(
           -17.74,
           "Alimentation",
           categories[1],
           DateTime.parse("2024-01-09 10:00:00"),
-          id: 7,
+          id: '7',
         ),
         Record(
           1829,
           null,
           categories[2],
           DateTime.parse("2024-01-10 10:00:00"),
-          id: 8,
+          id: '8',
         ),
       ];
 
       // Tags on source device
       final recordTagAssociations = [
-        RecordTagAssociation(recordId: 6, tagName: "dentist-tag"),
-        RecordTagAssociation(recordId: 7, tagName: "food-tag"),
-        RecordTagAssociation(recordId: 8, tagName: "pension-tag"),
+        RecordTagAssociation(recordId: '6', tagName: "dentist-tag"),
+        RecordTagAssociation(recordId: '7', tagName: "food-tag"),
+        RecordTagAssociation(recordId: '8', tagName: "pension-tag"),
       ];
 
       final capturedRecords = <Record?>[];
@@ -267,7 +267,7 @@ void main() {
 
       when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
 
-      when(mockDatabase.addRecordsInBatch(any)).thenAnswer((
+      when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds'))).thenAnswer((
         Invocation invocation,
       ) async {
         final List<Record?> incomingRecords = invocation.positionalArguments[0];

@@ -258,7 +258,7 @@ void main() {
         .toList();
 
     // Build expected mapping: record ID -> set of tags
-    final expectedTagsByRecordId = <int, Set<String>>{};
+    final expectedTagsByRecordId = <String, Set<String>>{};
     for (var assoc in originalAssociations) {
       expectedTagsByRecordId
           .putIfAbsent(assoc.recordId, () => <String>{})
@@ -298,7 +298,7 @@ void main() {
     when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
 
-    when(mockDatabase.addRecordsInBatch(any)).thenAnswer((
+    when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds'))).thenAnswer((
       Invocation invocation,
     ) async {
       final List<Record?> incomingRecords = invocation.positionalArguments[0];

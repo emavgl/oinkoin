@@ -25,7 +25,7 @@ void main() {
           'Test Record 1',
           category1,
           DateTime(2023, 1, 1),
-          id: 1,
+          id: '1',
           description: 'Description 1',
         ),
         Record(
@@ -33,7 +33,7 @@ void main() {
           'Test Record 2',
           category2,
           DateTime(2023, 1, 2),
-          id: 2,
+          id: '2',
           description: 'Description 2',
         ),
       ];
@@ -59,7 +59,7 @@ void main() {
           'Test, Record with comma',
           category,
           DateTime(2023, 1, 1),
-          id: 1,
+          id: '1',
           description: 'Description with\nnewline and "quotes"',
         ),
       ];
@@ -79,7 +79,7 @@ void main() {
           'Record with tags',
           category,
           DateTime(2023, 1, 1),
-          id: 1,
+          id: '1',
           description: 'Description',
           tags: ['tag1', 'tag2', 'tag3'].toSet(),
         ),

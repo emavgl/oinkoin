@@ -6,7 +6,8 @@ import 'package:timezone/timezone.dart' as tz;
 import '../helpers/datetime-utility-functions.dart';
 
 class Record extends Model {
-  int? id;
+  /// Stable identity of the record, preserved across backups. Uuid v4.
+  String? id;
   double? value;
   String? title;
   String? description;
@@ -45,6 +46,16 @@ class Record extends Model {
   // wallet filter at all - are visible. Not persisted.
   bool isSingleSideTransferView = false;
 
+  // Transient: integer id this record had inside a pre-UUID backup file. Set
+  // only while importing such a backup, to remap its `record_tag_associations`
+  // onto the new uuids. Never persisted.
+  int? legacyBackupId;
+
+  // Transient: insertion order of the database row (`rowid`), read by the
+  // record queries that expose it. Breaks ties between records sharing the
+  // same datetime, since uuids are not monotonic. Never persisted.
+  int? creationOrder;
+
   Record(
     this.value,
     this.title,
@@ -80,13 +91,18 @@ class Record extends Model {
       timezone = ServiceConfig.localTimezone;
     }
 
+    // Current databases and backups store a uuid. Backups written before the
+    // uuid migration store an integer id, which is kept aside for tag
+    // association remapping during a legacy import.
+    final rawId = map['id'];
+
     return Record(
       map['value'],
       map['title'],
       map['category'],
       utcDateTime,
       timeZoneName: timezone,
-      id: map['id'],
+      id: rawId is String ? rawId : null,
       description: map['description'],
       recurrencePatternId: map['recurrence_id'],
       walletId: map['wallet_id'] as int?,
@@ -95,7 +111,9 @@ class Record extends Model {
       profileId: map['profile_id'] as int?,
       tags:
           map['tags'] != null ? (map['tags'] as String).split(',').toSet() : {},
-    );
+    )
+      ..legacyBackupId = rawId is int ? rawId : null
+      ..creationOrder = map['creation_order'] as int?;
   }
 
   /// Serialize to database
@@ -139,7 +157,7 @@ class Record extends Model {
   }
 
   Record copyWith({
-    int? id,
+    String? id,
     double? value,
     String? title,
     String? description,
@@ -178,6 +196,7 @@ class Record extends Model {
     copy.isSingleSideTransferView =
         isSingleSideTransferView ?? this.isSingleSideTransferView;
     copy.sourceTransferValue = sourceTransferValue ?? this.sourceTransferValue;
+    copy.creationOrder = creationOrder;
     return copy;
   }
 

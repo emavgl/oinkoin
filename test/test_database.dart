@@ -365,6 +365,75 @@ Future main() async {
       );
     });
 
+    test('addRecordsInBatchNoDuplicateCheck keeps each record\'s own tags', () async {
+      DatabaseInterface db = ServiceConfig.database;
+      await db.addCategory(testCategoryExpense);
+      final sameDate = DateTime.utc(2024, 6, 14, 12, 0, 0);
+      // Two identical records that only differ by their tags: tags must not be
+      // looked up by record fields, or they end up on the same record.
+      await db.addRecordsInBatchNoDuplicateCheck([
+        Record(15.0, "Coffee", testCategoryExpense, sameDate, tags: {'a'}),
+        Record(15.0, "Coffee", testCategoryExpense, sameDate, tags: {'b'}),
+      ]);
+      final allRecords = await db.getAllRecords();
+      expect(allRecords.length, 2);
+      expect(
+        allRecords.map((record) => record!.tags).toList(),
+        containsAll([
+          {'a'},
+          {'b'},
+        ]),
+      );
+    });
+
+    test('addRecordsInBatch preserveIds keeps the given ids and skips stored ones', () async {
+      DatabaseInterface db = ServiceConfig.database;
+      await db.addCategory(testCategoryExpense);
+      final sameDate = DateTime.utc(2024, 6, 14, 12, 0, 0);
+      final first = Record(
+        15.0,
+        "Coffee",
+        testCategoryExpense,
+        sameDate,
+        id: '11111111-1111-4111-8111-111111111111',
+      );
+      final second = Record(
+        15.0,
+        "Coffee",
+        testCategoryExpense,
+        sameDate,
+        id: '22222222-2222-4222-8222-222222222222',
+      );
+
+      await db.addRecordsInBatch([first, second], preserveIds: true);
+      var allRecords = await db.getAllRecords();
+      expect(allRecords.length, 2, reason: 'identical content, different ids');
+      expect(
+        allRecords.map((record) => record!.id).toSet(),
+        {
+          '11111111-1111-4111-8111-111111111111',
+          '22222222-2222-4222-8222-222222222222',
+        },
+      );
+
+      // Restoring the same records again must not duplicate them.
+      await db.addRecordsInBatch(
+        [
+          Record(15.0, "Coffee", testCategoryExpense, sameDate,
+              id: '11111111-1111-4111-8111-111111111111'),
+          Record(15.0, "Coffee", testCategoryExpense, sameDate,
+              id: '33333333-3333-4333-8333-333333333333'),
+        ],
+        preserveIds: true,
+      );
+      allRecords = await db.getAllRecords();
+      expect(
+        allRecords.length,
+        3,
+        reason: 'the stored id is skipped, the new one is inserted',
+      );
+    });
+
     test('updateRecordById should modify an existing record', () async {
       DatabaseInterface db = ServiceConfig.database;
       await db.addCategory(testCategoryExpense);

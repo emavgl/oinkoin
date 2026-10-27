@@ -49,7 +49,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   SqliteDatabase._privateConstructor();
   static final SqliteDatabase instance = SqliteDatabase._privateConstructor();
-  static int get version => 33;
+  static int get version => 34;
   static Database? _db;
 
   static const String databaseFileName = 'movements.db';
@@ -203,7 +203,7 @@ class SqliteDatabase implements DatabaseInterface {
           version: version,
           onCreate: SqliteMigrationService.onCreate,
           onUpgrade: SqliteMigrationService.onUpgrade,
-          onDowngrade: SqliteMigrationService.onUpgrade,
+          onDowngrade: SqliteMigrationService.onDowngrade,
         ),
       );
       _logger.info('Database initialized successfully (version: $version)');
@@ -384,12 +384,13 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<int> addRecord(Record? record) async {
+  Future<String> addRecord(Record? record) async {
     try {
       _logger.debug(
           'Adding record: ${record?.title} (${record?.value}) with ${record?.tags.length ?? 0} tags');
       final db = (await database)!;
       record!.profileId ??= ProfileService.instance.activeProfileId;
+      record.id ??= Uuid().v4();
       if (record.category != null &&
           await getCategory(
                 record.category?.name,
@@ -398,20 +399,20 @@ class SqliteDatabase implements DatabaseInterface {
               null) {
         await addCategory(record.category);
       }
-      int recordId = await db.insert("records", record.toMap());
+      await db.insert("records", record.toMap());
 
       // Insert tags into records_tags table
       for (String? tag in record.tags) {
         if (tag != null && tag.trim().isNotEmpty) {
           await db.insert("records_tags", {
-            'record_id': recordId,
+            'record_id': record.id,
             'tag_name': tag,
           }, conflictAlgorithm: ConflictAlgorithm.ignore);
         }
       }
-      _logger.info('Record added: ID $recordId (${record.tags.length} tags)');
+      _logger.info('Record added: ID ${record.id} (${record.tags.length} tags)');
       _notifyDatabaseChanged();
-      return recordId;
+      return record.id!;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to add record: ${record?.title}');
       rethrow;
@@ -426,27 +427,35 @@ class SqliteDatabase implements DatabaseInterface {
       );
 
   @override
-  Future<void> addRecordsInBatch(List<Record?> records) async {
+  Future<void> addRecordsInBatch(List<Record?> records,
+      {bool preserveIds = false}) async {
     try {
       _logger.debug('Adding ${records.length} records in batch...');
       final db = (await database)!;
 
-      // Duplicate records already stored in the database are skipped, but the
-      // matching is one-to-one: a record is only skipped when an identical
-      // stored record has not already been matched by an earlier record of
-      // this batch. Identical records within the same batch are distinct user
-      // data (e.g. two identical expenses recorded at the same minute and
-      // restored from a backup) and must all be stored, while importing data
-      // that is already in the database still adds nothing.
+      // With [preserveIds] a record carrying an id keeps it: it is inserted
+      // as-is and skipped when the database already holds that id (identity
+      // based merge, used when restoring a backup).
+      //
+      // Records without an id fall back to the content based duplicate check:
+      // a record is skipped only when an identical already-stored record has
+      // not already been matched by an earlier record of this batch, so
+      // identical records inside the same backup are all restored while
+      // re-importing stored data still adds nothing.
       final matchedDuplicates = <_RecordDuplicateSignature, int>{};
       final recordsToInsert = <Record>[];
       for (var record in records) {
         if (record == null) {
           continue;
         }
-        record.id = null;
         record.profileId ??= ProfileService.instance.activeProfileId;
 
+        if (preserveIds && record.id != null) {
+          recordsToInsert.add(record);
+          continue;
+        }
+
+        record.id = null;
         final signature = _duplicateSignature(record);
         final alreadyMatched = matchedDuplicates[signature] ?? 0;
         final alreadyStored = await _countDuplicateRecords(db, record);
@@ -463,18 +472,35 @@ class SqliteDatabase implements DatabaseInterface {
         return;
       }
 
+      var inserted = 0;
       // Records and their tags are inserted in one transaction: tags are
-      // attached to the ID returned by each insert, so identical records never
-      // share each other's tags.
+      // attached to the id of each record, so identical records never share
+      // each other's tags.
       await db.transaction((txn) async {
         for (var record in recordsToInsert) {
-          final recordId = await txn.insert("records", record.toMap());
-          record.id = recordId;
+          final providedId = record.id;
+          if (providedId != null) {
+            final existing = await txn.query(
+              "records",
+              columns: ["id"],
+              where: "id = ?",
+              whereArgs: [providedId],
+              limit: 1,
+            );
+            if (existing.isNotEmpty) {
+              _logger.debug(
+                  'Skipping record already stored with id $providedId');
+              continue;
+            }
+          }
+          record.id ??= Uuid().v4();
+          await txn.insert("records", record.toMap());
+          inserted++;
 
           for (String tag in record.tags) {
             if (tag.trim().isNotEmpty) {
               await txn.insert("records_tags", {
-                'record_id': recordId,
+                'record_id': record.id,
                 'tag_name': tag,
               }, conflictAlgorithm: ConflictAlgorithm.ignore);
             }
@@ -483,7 +509,7 @@ class SqliteDatabase implements DatabaseInterface {
       });
 
       _logger.info(
-          'Batch insert committed: ${recordsToInsert.length} of ${records.length} records');
+          'Batch insert committed: $inserted of ${records.length} records');
       _logger.info(
           'Batch complete with ${_countTags(recordsToInsert)} tag associations');
       _notifyDatabaseChanged();
@@ -544,85 +570,31 @@ class SqliteDatabase implements DatabaseInterface {
         'Adding ${records.length} records in batch (no duplicate check)...',
       );
       final db = (await database)!;
-      Batch batch = db.batch();
 
-      // Phase 1: batch-insert every record without any deduplication.
-      // Uses plain INSERT INTO (not INSERT OR IGNORE) so every row is stored.
-      for (var record in records) {
-        if (record == null) continue;
-        record.id = null;
-        record.profileId ??= ProfileService.instance.activeProfileId;
-        batch.rawInsert(
-          """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, description, recurrence_id, wallet_id, transfer_wallet_id, transfer_value, profile_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """,
-          [
-            record.title,
-            record.value,
-            record.utcDateTime.millisecondsSinceEpoch,
-            record.timeZoneName,
-            record.category?.name,
-            record.category?.categoryType?.index,
-            record.description,
-            record.recurrencePatternId,
-            record.walletId,
-            record.transferWalletId,
-            record.transferValue,
-            record.profileId,
-          ],
-        );
-      }
+      // Every record is stored as a new record with a fresh uuid. Tags are
+      // attached to the id of the record that was just inserted, so identical
+      // records never share each other's tags.
+      await db.transaction((txn) async {
+        for (var record in records) {
+          if (record == null) continue;
+          record.id = Uuid().v4();
+          record.profileId ??= ProfileService.instance.activeProfileId;
+          await txn.insert("records", record.toMap());
 
-      await batch.commit(noResult: true);
-      _logger.info(
-        'Batch insert committed (no dup check): ${records.length} records',
-      );
-
-      // Phase 2: insert tags (same field-matching approach as addRecordsInBatch)
-      Batch tagBatch = db.batch();
-      for (var record in records) {
-        if (record == null || record.tags.isEmpty) continue;
-
-        var recordId = await db.rawQuery(
-          """
-        SELECT id FROM records
-        WHERE datetime = ?
-          AND value = ?
-          AND title IS ?
-          AND category_name = ?
-          AND category_type = ?
-          AND wallet_id IS ?
-          AND (profile_id IS NULL OR profile_id = ?)
-          AND COALESCE(description, '') = COALESCE(?, '')
-        LIMIT 1
-      """,
-          [
-            record.utcDateTime.millisecondsSinceEpoch,
-            record.value,
-            record.title,
-            record.category?.name,
-            record.category?.categoryType?.index,
-            record.walletId,
-            record.profileId,
-            record.description,
-          ],
-        );
-
-        if (recordId.isNotEmpty) {
-          final id = recordId.first['id'] as int;
           for (String tag in record.tags) {
             if (tag.trim().isNotEmpty) {
-              tagBatch.insert("records_tags", {
-                'record_id': id,
+              await txn.insert("records_tags", {
+                'record_id': record.id,
                 'tag_name': tag,
               }, conflictAlgorithm: ConflictAlgorithm.ignore);
             }
           }
         }
-      }
+      });
 
-      await tagBatch.commit(noResult: true);
+      _logger.info(
+        'Batch insert committed (no dup check): ${records.length} records',
+      );
       _logger.info(
           'Batch complete with ${_countTags(records)} tag associations');
       _notifyDatabaseChanged();
@@ -683,6 +655,7 @@ class SqliteDatabase implements DatabaseInterface {
     var maps = await db.rawQuery("""
             SELECT
                 m.*,
+                m.rowid AS creation_order,
                 c.name,
                 c.color,
                 c.category_type,
@@ -724,7 +697,7 @@ class SqliteDatabase implements DatabaseInterface {
       JOIN wallets destination ON destination.id = r.transfer_wallet_id
       WHERE r.datetime <= ? AND ABS(r.value) > 0 AND r.transfer_value > 0
         AND COALESCE(source.currency, '') != COALESCE(destination.currency, '')
-      ORDER BY r.datetime DESC, r.id DESC
+      ORDER BY r.datetime DESC, r.rowid DESC
     ''', [asOf.toUtc().millisecondsSinceEpoch]);
     final rates = <String, double>{};
     for (final row in rows) {
@@ -776,7 +749,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<List<String>> getTagsForRecord(int recordId) async {
+  Future<List<String>> getTagsForRecord(String recordId) async {
     final db = (await database)!;
     final List<Map<String, dynamic>> maps = await db.query(
       'records_tags',
@@ -867,6 +840,7 @@ class SqliteDatabase implements DatabaseInterface {
       """
             SELECT
                 m.*,
+                m.rowid AS creation_order,
                 c.name,
                 c.color,
                 c.category_type,
@@ -1430,12 +1404,13 @@ class SqliteDatabase implements DatabaseInterface {
     });
   }
 
-  Future<Record?> getRecordById(int id) async {
+  Future<Record?> getRecordById(String id) async {
     final db = (await database)!;
     var maps = await db.rawQuery(
       """
             SELECT
                 m.*,
+                m.rowid AS creation_order,
                 c.name,
                 c.color,
                 c.category_type,
@@ -1464,7 +1439,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<int> updateRecordById(int? movementId, Record? newMovement) async {
+  Future<int> updateRecordById(String? movementId, Record? newMovement) async {
     final db = (await database)!;
     var recordMap = newMovement!.toMap();
     if (recordMap['id'] == null) {
@@ -1500,7 +1475,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> deleteRecordById(int? id) async {
+  Future<void> deleteRecordById(String? id) async {
     final db = (await database)!;
     await db.delete("records", where: "id = ?", whereArgs: [id]);
     // There is a db trigger, deleting a record automatically delete the associated tags
@@ -1508,7 +1483,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> deleteRecordsInBatch(List<int> ids) async {
+  Future<void> deleteRecordsInBatch(List<String> ids) async {
     if (ids.isEmpty) return;
     _logger.debug('Batch deleting ${ids.length} records');
     final db = (await database)!;
@@ -1520,7 +1495,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> updateRecordWalletInBatch(List<int> ids, int? walletId) async {
+  Future<void> updateRecordWalletInBatch(List<String> ids, int? walletId) async {
     if (ids.isEmpty) return;
     _logger.debug('Batch moving ${ids.length} records to wallet ID $walletId');
     final db = (await database)!;
@@ -1536,7 +1511,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   @override
-  Future<void> duplicateRecordsInBatch(List<int> ids) async {
+  Future<void> duplicateRecordsInBatch(List<String> ids) async {
     if (ids.isEmpty) return;
     _logger.debug('Batch duplicating ${ids.length} records');
     final now = DateTime.now().toUtc();
