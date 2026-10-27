@@ -433,6 +433,15 @@ void main() {
     await db.close();
 
     Future<void> expectFullRow(Database db) async {
+      // Guard the copied-column list: the rebuilt table must have exactly the
+      // columns this fixture fills, so adding a column to the schema without
+      // converting it fails here.
+      final columns = await db.rawQuery('PRAGMA table_info(records)');
+      expect(
+        columns.map((column) => column['name']).toSet(),
+        {'id', ...fullRow.keys},
+      );
+
       final rows =
           await db.query('records', where: 'title = ?', whereArgs: ['Full row']);
       expect(rows, hasLength(1));
