@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../models/category-type.dart';
 import '../../models/category.dart';
 import '../logger.dart';
+import 'record-id-conversion-service.dart';
 
 class SqliteMigrationService {
   static final _logger = Logger.withClass(SqliteMigrationService);
@@ -31,7 +32,7 @@ class SqliteMigrationService {
   static void _createRecordsTable(Batch batch) {
     String query = """
       CREATE TABLE IF NOT EXISTS records (
-              id          TEXT PRIMARY KEY NOT NULL DEFAULT ($_uuidV4Sql),
+              id          TEXT PRIMARY KEY NOT NULL DEFAULT (${RecordIdConversionService.uuidV4Sql}),
               datetime    INTEGER,
               timezone     TEXT,
               value       REAL,
@@ -230,6 +231,15 @@ class SqliteMigrationService {
     _createUpdateRecordTrigger(batch);
     _createDeleteRecordTrigger(batch);
     _createDeleteRecordTagsTrigger(batch);
+  }
+
+  /// Recreates the triggers on `records`, which maintain the category usage
+  /// counters and clean up tags. Any rebuild of the records table drops them
+  /// with the table, so it must call this afterwards.
+  static Future<void> recreateRecordTriggers(DatabaseExecutor executor) async {
+    final batch = executor.batch();
+    _createAllTriggers(batch);
+    await batch.commit(noResult: true);
   }
 
   // Default Data
@@ -600,160 +610,33 @@ class SqliteMigrationService {
         db, "ALTER TABLE wallets ADD COLUMN is_hidden INTEGER DEFAULT 0;");
   }
 
-  /// Columns of `records` copied when the table is rebuilt.
-  static const String _recordColumns =
-      'datetime, timezone, value, title, description, category_name, '
-      'category_type, recurrence_id, wallet_id, transfer_wallet_id, '
-      'transfer_value, profile_id';
-
-  /// SQL expression generating a random uuid v4. Used to assign ids in bulk
-  /// during migrations; the application itself uses `Uuid().v4()`.
-  static const String _uuidV4Sql = "lower(hex(randomblob(4))) || '-' || "
-      "lower(hex(randomblob(2))) || '-4' || "
-      "substr(lower(hex(randomblob(2))), 2) || '-' || "
-      "substr('89ab', abs(random()) % 4 + 1, 1) || "
-      "substr(lower(hex(randomblob(2))), 2) || '-' || "
-      "lower(hex(randomblob(6)))";
-
-  /// Type of the `id` column of `records`, or null when the table is missing.
-  static Future<String?> _recordsIdColumnType(Database db) async {
-    final rows = await db.rawQuery('PRAGMA table_info(records)');
-    for (final row in rows) {
-      if (row['name'] == 'id') {
-        return (row['type'] as String?)?.toUpperCase();
-      }
-    }
-    return null;
-  }
-
-  static Future<int> _countTableRows(Database db, String table) async {
-    final result =
-        await db.rawQuery('SELECT COUNT(*) AS occurrences FROM $table');
-    return (result.first['occurrences'] as int?) ?? 0;
-  }
-
-  /// Number of tag associations that reference an existing record.
-  static Future<int> _countAttachedTags(Database db) async {
-    final result = await db.rawQuery('SELECT COUNT(*) AS occurrences '
-        'FROM records_tags rt '
-        'WHERE EXISTS (SELECT 1 FROM records r WHERE r.id = rt.record_id)');
-    return (result.first['occurrences'] as int?) ?? 0;
-  }
-
-  /// Rebuilds `records` and `records_tags` with the given id representation.
-  /// Rows are copied in creation order (ascending id when converting to uuids,
-  /// ascending new integer id when converting back), so the `rowid` sequence of
-  /// the rebuilt table - used as creation order, see `SqliteDatabase` - keeps
-  /// matching the original insertion order.
-  static Future<void> _rebuildRecordsWithIds(
-    Database db, {
-    required bool uuidIds,
-  }) async {
-    final recordCount = await _countTableRows(db, 'records');
-    // Only associations that actually point at a record are copied, so orphaned
-    // rows (possible in databases written by older versions) must not make the
-    // verification below fail.
-    final tagCount = await _countAttachedTags(db);
-
-    await db.execute('DROP TABLE IF EXISTS records_id_map');
-    await db.execute(uuidIds
-        // old integer id -> new uuid
-        ? 'CREATE TEMP TABLE records_id_map ('
-            'old_id INTEGER PRIMARY KEY, new_id TEXT NOT NULL)'
-        // old uuid -> new integer id, assigned in rowid (creation) order
-        : 'CREATE TEMP TABLE records_id_map ('
-            'new_id INTEGER PRIMARY KEY AUTOINCREMENT, '
-            'old_id TEXT NOT NULL UNIQUE)');
-
-    if (uuidIds) {
-      await db.execute('INSERT INTO records_id_map (old_id, new_id) '
-          'SELECT id, $_uuidV4Sql FROM records ORDER BY id');
-    } else {
-      await db.execute('INSERT INTO records_id_map (old_id) '
-          'SELECT id FROM records ORDER BY rowid');
-    }
-
-    await db.execute(uuidIds
-        ? 'CREATE TABLE records_new '
-            '(id TEXT PRIMARY KEY NOT NULL DEFAULT ($_uuidV4Sql), '
-            '$_recordColumns)'
-        : 'CREATE TABLE records_new (id INTEGER PRIMARY KEY AUTOINCREMENT, '
-            '$_recordColumns)');
-    await db.execute(
-      'INSERT INTO records_new (id, $_recordColumns) '
-      'SELECT m.new_id, r.$_recordColumns '
-      'FROM records r JOIN records_id_map m ON m.old_id = r.id '
-      '${uuidIds ? 'ORDER BY r.id' : 'ORDER BY m.new_id'}',
-    );
-
-    await db.execute(uuidIds
-        ? 'CREATE TABLE records_tags_new ('
-            'record_id TEXT NOT NULL, tag_name TEXT NOT NULL, '
-            'PRIMARY KEY (record_id, tag_name))'
-        : 'CREATE TABLE records_tags_new ('
-            'record_id INTEGER NOT NULL, tag_name TEXT NOT NULL, '
-            'PRIMARY KEY (record_id, tag_name))');
-    await db.execute('INSERT INTO records_tags_new (record_id, tag_name) '
-        'SELECT m.new_id, rt.tag_name FROM records_tags rt '
-        'JOIN records_id_map m ON m.old_id = rt.record_id');
-
-    await db.execute('DROP TABLE records');
-    await db.execute('ALTER TABLE records_new RENAME TO records');
-    await db.execute('DROP TABLE records_tags');
-    await db.execute('ALTER TABLE records_tags_new RENAME TO records_tags');
-
-    var batch = db.batch();
-    _createAllTriggers(batch);
-    await batch.commit(noResult: true);
-
-    // The rebuild must be lossless: abort (rolling back the enclosing
-    // transaction) instead of leaving the user with missing records or tags.
-    final newRecordCount = await _countTableRows(db, 'records');
-    final newTagCount = await _countAttachedTags(db);
-    if (newRecordCount != recordCount || newTagCount != tagCount) {
-      throw StateError('Record id rebuild lost data: '
-          '$recordCount -> $newRecordCount records, '
-          '$tagCount -> $newTagCount tag associations');
-    }
-
-    await db.execute('DROP TABLE records_id_map');
-  }
-
   /// v34: record ids become uuids, so a record keeps its identity across
   /// backups and can be matched exactly on restore.
-  static Future<void> _migrateTo34(Database db) async {
-    // Idempotent on purpose: opening a database with an older version resets
-    // `user_version`, so this migration can run again on a database that has
-    // already been converted.
-    if (await _recordsIdColumnType(db) == 'TEXT') {
-      _logger.info('Records already use uuid ids, skipping migration to 34');
-      return;
-    }
-    _logger.info('Migrating record ids to uuids');
-    await _rebuildRecordsWithIds(db, uuidIds: true);
-    _logger.info('Record ids migrated to uuids');
-  }
+  static Future<void> _migrateTo34(Database db) =>
+      _convertIds(db, RecordIdConversionService.convertToUuidIds);
 
-  /// Converts a uuid database back to integer record ids, so that a build that
-  /// still expects integer ids can open it. Shipped one release before the uuid
-  /// migration, which is what makes the downgrade possible at all.
-  static Future<void> _downgradeFrom34(Database db) async {
-    if (await _recordsIdColumnType(db) != 'TEXT') {
-      _logger.info('Records already use integer ids, skipping downgrade from 34');
-      return;
-    }
-    _logger.info('Converting record ids back to integers');
-    await _rebuildRecordsWithIds(db, uuidIds: false);
-    _logger.info('Record ids converted back to integers');
-  }
-
+  /// Handles a database written by a newer version: a build that still expects
+  /// integer ids cannot read uuid record ids, so the database is converted back
+  /// before it is used.
   static Future<void> onDowngrade(
       Database db, int oldVersion, int newVersion) async {
     _logger.info('Downgrading database from version $oldVersion to $newVersion');
-    if (oldVersion >= 34 && newVersion < 34) {
-      await _downgradeFrom34(db);
+    if (oldVersion >= RecordIdConversionService.uuidSchemaVersion &&
+        newVersion < RecordIdConversionService.uuidSchemaVersion) {
+      await _convertIds(db, RecordIdConversionService.convertToIntegerIds);
     }
     _logger.info('Database downgrade completed to version $newVersion');
+  }
+
+  /// Runs an id [conversion] and recreates the record triggers it drops, only
+  /// when the database actually had to be converted.
+  static Future<void> _convertIds(
+    Database db,
+    Future<bool> Function(Database) conversion,
+  ) async {
+    if (await conversion(db)) {
+      await recreateRecordTriggers(db);
+    }
   }
 
   static Map<int, Function(Database)?> migrationFunctions = {
