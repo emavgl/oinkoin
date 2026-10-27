@@ -257,9 +257,9 @@ void main() {
     if (await testDir.exists()) await testDir.delete(recursive: true);
   });
 
-  Future<Database> openAsV34() => _open(
+  Future<Database> openAsV35() => _open(
         dbPath,
-        version: 34,
+        version: 35,
         onCreate: (db, version) async {},
         onUpgrade: SqliteMigrationService.onUpgrade,
         onDowngrade: SqliteMigrationService.onDowngrade,
@@ -286,9 +286,9 @@ void main() {
     ''');
   }
 
-  test('migrating to 34 turns record ids into unique uuids and keeps the data',
+  test('migrating to 35 turns record ids into unique uuids and keeps the data',
       () async {
-    final db = await openAsV34();
+    final db = await openAsV35();
     addTearDown(db.close);
 
     expect(await idColumnType(db), 'TEXT');
@@ -312,8 +312,8 @@ void main() {
         ['Test record', 'Test record', 'Coffee']);
   });
 
-  test('migrating to 34 recreates the record triggers', () async {
-    final db = await openAsV34();
+  test('migrating to 35 recreates the record triggers', () async {
+    final db = await openAsV35();
     addTearDown(db.close);
 
     // The insert trigger still maintains the category usage counter.
@@ -346,14 +346,14 @@ void main() {
 
   test('running the migration again on a migrated database is a no-op',
       () async {
-    var db = await openAsV34();
+    var db = await openAsV35();
     final before =
         await db.rawQuery('SELECT id FROM records ORDER BY rowid');
     await db.close();
 
     // A downgrade resets user_version, so the upgrade runs again on the same
     // (already migrated) schema.
-    db = await openAsV34();
+    db = await openAsV35();
     addTearDown(db.close);
     final after = await db.rawQuery('SELECT id FROM records ORDER BY rowid');
 
@@ -362,7 +362,7 @@ void main() {
   });
 
   test('downgrading from 34 restores integer ids in creation order', () async {
-    var db = await openAsV34();
+    var db = await openAsV35();
     final uuidIds = (await db.rawQuery('SELECT id FROM records ORDER BY rowid'))
         .map((row) => row['id'] as String)
         .toList();
@@ -385,13 +385,13 @@ void main() {
   });
 
   test('a downgrade followed by an upgrade is lossless', () async {
-    var db = await openAsV34();
+    var db = await openAsV35();
     await db.close();
 
     db = await openAsV33();
     await db.close();
 
-    db = await openAsV34();
+    db = await openAsV35();
     addTearDown(db.close);
 
     expect(await idColumnType(db), 'TEXT');
@@ -449,7 +449,7 @@ void main() {
       expect(stored, fullRow);
     }
 
-    db = await openAsV34();
+    db = await openAsV35();
     await expectFullRow(db);
     await db.close();
 
@@ -467,7 +467,7 @@ void main() {
     expect(await db.query('records'), isEmpty);
     await db.close();
 
-    db = await openAsV34();
+    db = await openAsV35();
     expect(await idColumnType(db), 'TEXT');
     expect(await db.query('records'), isEmpty);
     await db.close();

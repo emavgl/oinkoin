@@ -610,21 +610,22 @@ class SqliteMigrationService {
         db, "ALTER TABLE wallets ADD COLUMN is_hidden INTEGER DEFAULT 0;");
   }
 
-  /// v34: record ids become uuids, so a record keeps its identity across
-  /// backups and can be matched exactly on restore.
-  static Future<void> _migrateTo34(Database db) =>
+  /// Record ids become uuids, so a record keeps its identity across backups and
+  /// can be matched exactly on restore.
+  static Future<void> _migrateTo35(Database db) =>
       _convertIds(db, RecordIdConversionService.convertToUuidIds);
 
   /// Handles a database written by a newer version: a build that still expects
   /// integer ids cannot read uuid record ids, so the database is converted back
   /// before it is used.
+  ///
+  /// The schema decides, not the version number: converting an integer database
+  /// is a no-op, so this also works when the newer release uses another version
+  /// number than the one this build knows.
   static Future<void> onDowngrade(
       Database db, int oldVersion, int newVersion) async {
     _logger.info('Downgrading database from version $oldVersion to $newVersion');
-    if (oldVersion >= RecordIdConversionService.uuidSchemaVersion &&
-        newVersion < RecordIdConversionService.uuidSchemaVersion) {
-      await _convertIds(db, RecordIdConversionService.convertToIntegerIds);
-    }
+    await _convertIds(db, RecordIdConversionService.convertToIntegerIds);
     _logger.info('Database downgrade completed to version $newVersion');
   }
 
@@ -667,7 +668,7 @@ class SqliteMigrationService {
     31: SqliteMigrationService._migrateTo31,
     32: SqliteMigrationService._migrateTo32,
     33: SqliteMigrationService._migrateTo33,
-    34: SqliteMigrationService._migrateTo34,
+    35: SqliteMigrationService._migrateTo35,
   };
 
   // Public Methods

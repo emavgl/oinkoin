@@ -8,10 +8,10 @@ typedef _RecordCounts = ({int records, int tags});
 /// Converts the record id representation of a database, so that a build that
 /// expects a different one can open it.
 ///
-/// Record ids became uuids in database version [uuidSchemaVersion]. The
-/// conversion runs in both directions:
+/// Record ids became uuids in a newer database version. The conversion runs in
+/// both directions:
 ///
-/// * up, from the v34 migration (integer ids -> uuid);
+/// * up, from the uuid migration (integer ids -> uuid);
 /// * down, from the `onDowngrade` callback (uuid -> integer ids), because a
 ///   build that still expects integer ids cannot read uuids and a released
 ///   binary cannot be patched afterwards.
@@ -20,9 +20,6 @@ typedef _RecordCounts = ({int records, int tags});
 /// dropped together with the table.
 class RecordIdConversionService {
   static final _logger = Logger.withClass(RecordIdConversionService);
-
-  /// First database version that stores record ids as uuids.
-  static const int uuidSchemaVersion = 34;
 
   /// SQL expression generating a random uuid v4. The application generates ids
   /// with `Uuid().v4()`; the conversions do it in SQL.
@@ -40,7 +37,7 @@ class RecordIdConversionService {
       'category_type, recurrence_id, wallet_id, transfer_wallet_id, '
       'transfer_value, profile_id';
 
-  /// v34: replaces integer record ids with generated uuids and returns whether
+  /// Replaces integer record ids with generated uuids and returns whether
   /// the database was converted (it is not when the ids are already uuids).
   ///
   /// Safe to run repeatedly: opening a database with an older version resets

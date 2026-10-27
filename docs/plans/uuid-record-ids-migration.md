@@ -1,6 +1,6 @@
 # Plan: UUID record IDs
 
-Status: **implemented** on `feat/uuid-record-ids` (schema v34). The two-release
+Status: **implemented** on `feat/uuid-record-ids` (schema v35). The two-release
 rollout of §5.1 is still a release-process step: the converter lives in this
 branch, but the guarantee for users only exists for downgrades **to a build that
 contains it**, i.e. the UUID release must be preceded by a release carrying
@@ -17,12 +17,12 @@ Implemented in this branch (see the commit diff for details):
 * models and database API use `String` record ids (`Record.id`,
   `RecordTagAssociation.recordId`, `getRecordById`, batch delete/move/duplicate,
   `getTagsForRecord`);
-* schema v34 (`records.id TEXT PRIMARY KEY NOT NULL`, no default: the app
+* schema v35 (`records.id TEXT PRIMARY KEY NOT NULL`, no default: the app
   always generates the uuid, so a missing id fails loudly instead of being
   invented by the database) plus
-  `_migrateTo34` that rebuilds `records`/`records_tags` from integer ids in
+  `_migrateTo35` that rebuilds `records`/`records_tags` from integer ids in
   creation order and recreates the triggers, with before/after count assertions;
-* `SqliteMigrationService.onDowngrade` + `_downgradeFrom34`, the reverse rebuild
+* `SqliteMigrationService.onDowngrade` + `_downgradeFromUuids`, the reverse rebuild
   (uuid → integer ids in `rowid` order), wired into `SqliteDatabase.init()`;
 * restore keeps ids (`addRecordsInBatch(..., preserveIds: true)`), legacy
   integer-id backups fall back to the 1.16.2 content check, tag associations are
@@ -104,7 +104,7 @@ Non-goals (possible follow-ups, not in this change)
 
 ## 3. Target design
 
-### 3.1 Schema (v34)
+### 3.1 Schema (v35)
 
 ```sql
 CREATE TABLE records (
@@ -231,7 +231,7 @@ convert it back, so that downgrading from release N+1 is lossless (§5).
 1. Replace `onDowngrade: SqliteMigrationService.onUpgrade` in
    `SqliteDatabase.init()` with a real handler dispatching to
    `SqliteMigrationService.onDowngrade(db, oldVersion, newVersion)`.
-2. Implement `_downgradeFrom34` (uuid → int):
+2. Implement `_downgradeFromUuids` (uuid → int):
    1. schema-detecting guard: `PRAGMA table_info(records)` — if `id` is not
       `TEXT`, return immediately (idempotent);
    2. single transaction; build `uuid → new int id` for every record in `rowid`
@@ -260,16 +260,16 @@ convert it back, so that downgrading from release N+1 is lossless (§5).
 4. Regenerate mocks (`flutter pub run build_runner build`), update
    `test/backup/*.mocks.dart`.
 
-### Phase 2 — schema v34 (1 day)
+### Phase 2 — schema v35 (1 day)
 
-1. `SqliteDatabase.version` 33 → **34**.
+1. `SqliteDatabase.version` 33 → **35** (34 is taken by a counter repair that ships first).
 2. `_createRecordsTable` / `_createRecordsTagsTable` use TEXT ids (fresh installs).
-3. **Idempotency guard (required):** `_migrateTo34` starts by inspecting
+3. **Idempotency guard (required):** `_migrateTo35` starts by inspecting
    `PRAGMA table_info(records)`. If the `id` column already has `TEXT` type, the
    migration returns immediately. This is not optional: a downgrade resets
    `user_version` to 33 (§5.3), so the upgrade runs again on an already-migrated
    database.
-4. `_migrateTo34` in `SqliteMigrationService`:
+4. `_migrateTo35` in `SqliteMigrationService`:
    1. inside a single transaction;
    2. read `SELECT id FROM records ORDER BY id`, generate a uuid per row in Dart
       (chunked, e.g. 5 000 ids per statement) into a temp table
@@ -282,7 +282,7 @@ convert it back, so that downgrading from release N+1 is lossless (§5).
    6. verify `COUNT(*)` of records and tag associations before/after and roll back
       on mismatch;
    7. drop `records_id_map`.
-6. Register `_migrateTo34` in `migrationFunctions`.
+6. Register `_migrateTo35` in `migrationFunctions`.
 7. Make sure the migration is safe if the database file is copied (automatic
    database copy) mid-upgrade: the migration runs before any read.
 
@@ -311,7 +311,7 @@ convert it back, so that downgrading from release N+1 is lossless (§5).
 * `_countDuplicateRecords` / `_duplicateSignature` stay, but only reachable from
   the legacy path.
 * Update `Backup` doc/comments and the `database_version` written by
-  `createJsonBackupFile` (it uses `SqliteDatabase.version`, so it becomes `34`).
+  `createJsonBackupFile` (it uses `SqliteDatabase.version`, so it becomes `35`).
 
 ### Phase 5 — UI + CSV (0.5 day)
 
@@ -336,7 +336,7 @@ Update (fixtures with integer ids stay as *legacy* fixtures, add uuid variants):
 * `test/recurrent_pattern_edit_test.dart`, `test/future_recurrent_records_test.dart`,
   `test/csv_import*_test.dart`, `test/batch_records_operations_test.dart`.
 * Migrations: add `test/database/migration_uuid_ids_test.dart` (new) covering
-  * v33 DB with records + tags + triggers → v34: ids become unique uuids, tags
+  * v33 DB with records + tags + triggers → v35: ids become unique uuids, tags
     still attached to the same records, category usage counters unchanged,
     rowid order preserved, record count equal;
   * empty DB;
@@ -352,10 +352,10 @@ New tests:
   skips exactly that one (id match) and inserts the other;
 * legacy int-id backup still restores with the 1.16.2 one-to-one behaviour;
 * CSV import of two identical rows attaches each row's tags to its own record;
-* `_migrateTo34` on an already-migrated (TEXT id) database is a no-op and never
+* `_migrateTo35` on an already-migrated (TEXT id) database is a no-op and never
   rewrites ids (downgrade/re-upgrade path, §5.3);
-* round trip on a fixture database (Phase P + Phase 2): v33 → v34 →
-  `_downgradeFrom34` → v33 keeps the record count, the tag associations and the
+* round trip on a fixture database (Phase P + Phase 2): v33 → v35 →
+  `_downgradeFromUuids` → v33 keeps the record count, the tag associations and the
   creation order (ids 1..N in `rowid` order), and a subsequent upgrade again
   produces unique uuids;
 * the upgrade does not create any extra file containing user data (guarded by a
@@ -388,7 +388,7 @@ automatically. The upgrade never writes a copy of the user's data anywhere.
 | Release | Contents |
 | --- | --- |
 | **N** (preparatory, integer ids) | real `onDowngrade` handler that converts a UUID schema back to integer ids; schema-detecting/idempotent guards; optionally tolerates UUID-id backups (§10) |
-| **N+1** | schema v34, uuid ids, id-preserving restore |
+| **N+1** | schema v35, uuid ids, id-preserving restore |
 
 Release N must be public *before* N+1 ships: the downgrade code has to be
 installed already, since old binaries cannot be patched.
@@ -396,7 +396,7 @@ installed already, since old binaries cannot be patched.
 ### 5.2 Downgrade converter (uuid → int), shipped in release N
 
 `SqliteMigrationService.onDowngrade(db, oldVersion, newVersion)` →
-`_downgradeFrom34`:
+`_downgradeFromUuids`:
 
 1. `PRAGMA table_info(records)`; if `id` is not `TEXT`, return (no-op, idempotent).
 2. In one transaction, assign integers to records in **`rowid` order** into a
@@ -422,14 +422,14 @@ the tags are rewritten in the same transaction.
 ### 5.3 What happens today, and the version ping-pong
 
 * `SqliteDatabase.init()` registers `onDowngrade: SqliteMigrationService.onUpgrade`.
-  sqflite calls it with `oldVersion = 34`, `newVersion = 33`; the loop
+  sqflite calls it with `oldVersion = 35`, `newVersion = 33`; the loop
   `for (i = oldVersion + 1; i <= newVersion; i++)` runs zero times, so the file
   opens without an exception, and sqflite then writes `user_version` back to 33.
-* A build without `_downgradeFrom34` then throws a type error in
+* A build without `_downgradeFromUuids` then throws a type error in
   `Record.fromMap` (`map['id']`, a `String`, into the `int?` field) on the first
   record read: a loud failure with no data loss, but the app is unusable until
   it is upgraded again.
-* Because the file now claims v33, the next upgrade runs `_migrateTo34` again on
+* Because the file now claims v33, the next upgrade runs `_migrateTo35` again on
 already-migrated data. Both directions must therefore be schema-detecting and
 idempotent (Phase P step 2.1, Phase 2 step 3), and "every migration must be
 idempotent" becomes a standing rule, since a downgrade resets `user_version`
@@ -485,8 +485,8 @@ Database downgrade: N+1 → N is supported and lossless (§5); older targets are
 | Migration corrupts records / loses tags | single transaction + before/after count assertions + rollback on mismatch; dedicated migration tests on a real v33 fixture |
 | Large DB migration is slow / OOM | chunked id map (5 000), set-based `INSERT … SELECT`, no per-row Dart copy |
 | Migration runs twice / partially | schema-detecting guard (Phase 2 step 3) **and** `onUpgrade` version gate; all steps use `IF NOT EXISTS`, and the final rename is the last step |
-| Downgrade resets `user_version`, so the next upgrade re-runs `_migrateTo34` | idempotent guard in both directions (§5.3) + round-trip test; standing rule for future migrations |
-| `_downgradeFrom34` mangles ids/tags | run it only from the schema guard, one transaction, count assertions, and the same round-trip test used for the upgrade |
+| Downgrade resets `user_version`, so the next upgrade re-runs `_migrateTo35` | idempotent guard in both directions (§5.3) + round-trip test; standing rule for future migrations |
+| `_downgradeFromUuids` mangles ids/tags | run it only from the schema guard, one transaction, count assertions, and the same round-trip test used for the upgrade |
 | Downgrade target older than N | documented as unsupported (§5.4); failure is loud and non-destructive |
 | Creation order drifts because a table rebuild lost `rowid` order | every `records` rebuild (up and down) must copy `ORDER BY` the previous creation order; assert it in tests |
 | A future migration re-introduces an implicit data copy | standing rule: no migration writes user data outside the app's private storage (§5.5) |
@@ -499,10 +499,10 @@ Database downgrade: N+1 → N is supported and lossless (§5); older targets are
 
 ## 8. Acceptance criteria
 
-- [ ] Fresh install creates `records.id TEXT PRIMARY KEY NOT NULL` (schema v34) and the four triggers.
+- [ ] Fresh install creates `records.id TEXT PRIMARY KEY NOT NULL` (schema v35) and the four triggers.
 - [ ] Upgrading a v33 database keeps record count, tag associations, category usage counters and insertion order; ids are unique uuids.
-- [ ] Re-running `_migrateTo34` on a migrated database is a no-op (simulated downgrade/re-upgrade).
-- [ ] Release N converts a v34 database back to integer ids in `rowid` order, keeping record count, tag associations and creation order; a following upgrade produces unique uuids again (round-trip test).
+- [ ] Re-running `_migrateTo35` on a migrated database is a no-op (simulated downgrade/re-upgrade).
+- [ ] Release N converts a uuid database back to integer ids in `rowid` order, keeping record count, tag associations and creation order; a following upgrade produces unique uuids again (round-trip test).
 - [ ] The upgrade creates **no** additional file containing user data (asserted in a test).
 - [ ] Creating, editing, duplicating, deleting, moving, transferring, filtering by wallet/profile, budgets, statistics, home widget and PDF/CSV export all behave as before.
 - [ ] A backup containing two identical records restores both, with the correct balance, and each keeps its own tags.
@@ -518,7 +518,7 @@ Database downgrade: N+1 → N is supported and lossless (§5); older targets are
 * Between N and N+1: N is a no-op for users; reverting N is safe (it only adds a
   downgrade handler that never ran).
 * After N+1, broken migration: ship a forward fix (v35) that repairs ids/tags.
-  `_downgradeFrom34` is a ready-made escape hatch to an int-id database, but it
+  `_downgradeFromUuids` is a ready-made escape hatch to an int-id database, but it
   needs a build that contains it (N), so support guidance is "install N, not an
   older build".
 * After N+1, pulled/broken release: users install N; the conversion runs on first
