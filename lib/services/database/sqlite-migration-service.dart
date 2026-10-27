@@ -156,7 +156,9 @@ class SqliteMigrationService {
       BEGIN
           UPDATE categories
           SET 
-              record_count = record_count + 1,
+              -- COALESCE: categories added by older versions store a NULL
+              -- counter, and NULL + 1 is NULL.
+              record_count = COALESCE(record_count, 0) + 1,
               last_used = strftime('%s', 'now') * 1000 -- Convert seconds to milliseconds
           WHERE
               name = NEW.category_name AND
@@ -173,23 +175,36 @@ class SqliteMigrationService {
       AFTER UPDATE ON records
       FOR EACH ROW
       BEGIN
-          -- Increment the record count and update the last_used timestamp for the new category
+          -- Refresh the usage timestamp of the category the record belongs to
+          -- now. Editing a record is using its category, but it is not a new
+          -- record, so the counter below only follows a change of category.
           UPDATE categories
-          SET 
-              record_count = record_count + 1,
-              last_used = strftime('%s', 'now') * 1000 -- Convert seconds to milliseconds
+          SET last_used = strftime('%s', 'now') * 1000 -- Convert seconds to milliseconds
           WHERE
               name = NEW.category_name AND
               category_type = NEW.category_type;
-      
-          -- Decrement the record count for the old category only if the category has changed
+
+          -- Move the record from the old category to the new one. IS NOT is
+          -- the null-safe comparison, so records without a category are
+          -- handled too. Updating any other field of a record must leave the
+          -- usage counters alone.
           UPDATE categories
           SET
-              record_count = record_count - 1
+              record_count = MAX(COALESCE(record_count, 0) - 1, 0)
           WHERE
               name = OLD.category_name AND
               category_type = OLD.category_type
-              AND (NEW.category_name != OLD.category_name OR NEW.category_type != OLD.category_type);
+              AND (OLD.category_name IS NOT NEW.category_name
+                   OR OLD.category_type IS NOT NEW.category_type);
+
+          UPDATE categories
+          SET
+              record_count = COALESCE(record_count, 0) + 1
+          WHERE
+              name = NEW.category_name AND
+              category_type = NEW.category_type
+              AND (OLD.category_name IS NOT NEW.category_name
+                   OR OLD.category_type IS NOT NEW.category_type);
       END;
     """;
     batch.execute(addRecordTriggerQuery);
@@ -204,7 +219,7 @@ class SqliteMigrationService {
       BEGIN
           UPDATE categories
           SET 
-              record_count = record_count - 1
+              record_count = MAX(COALESCE(record_count, 0) - 1, 0)
           WHERE
               name = OLD.category_name AND
               category_type = OLD.category_type;
