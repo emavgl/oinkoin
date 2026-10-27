@@ -3,8 +3,9 @@
 Status: **proposed** (not implemented)
 Related: issue #452 (backup restore dropped identical records), fixed in 1.16.2 by
 making the content-based dedupe one-to-one (`addRecordsInBatch`).
-Downgrade strategy: **A+** — single UUID identity plus a pre-migration backup as the
-recovery path (see §5).
+Downgrade strategy: **D** — ids are reversible (the previous release converts a
+UUID schema back to integer ids), so the upgrade never copies user data anywhere
+(see §5).
 Owner: TBD
 
 ## 1. Why
@@ -50,13 +51,17 @@ Goals
 3. Old (integer-id) backups still import correctly.
 4. No regression in record ordering, selection, editing, duplicating, deleting,
    CSV import, recurrent records, budgets or the home widget.
-5. A downgrade stays recoverable: the upgrade writes a pre-migration backup that
-   an older build can restore (§5).
+5. A downgrade to the previous release works automatically and losslessly: ids are
+   converted back to integers from the `rowid` order (§5). The upgrade must not
+   create any additional copy of the user's data.
 
 Non-goals (possible follow-ups, not in this change)
 
-* **Database downgrade** — an older build reading a migrated database is not
-  supported; recovery is by restoring the pre-migration backup (§5).
+* **Downgrade to releases older than the preparatory one** — only the release that
+  ships the int-conversion can perform it. Older builds fail loudly on a migrated
+  database (no data loss), see §5.4.
+* Any automatic, silent backup of user data, in particular outside the app's
+  private storage (§5.5).
 * UUIDs for `wallets`, `profiles`, `categories`, `budgets`. Note that wallets have
   the same class of problem today (restore matches wallets by name/default flag),
   so this is a candidate for a later change.
@@ -182,6 +187,35 @@ order so rowids keep matching the previous creation order.
 * `grep -rn "int? id\|int id\|\.id!\|getRecordById\|deleteRecordById\|deleteRecordsInBatch\|duplicateRecordsInBatch\|updateRecordById\|updateRecordWalletInBatch" lib/` and record every hit in a checklist on this issue/PR.
 * Confirm no other table references `records.id` besides `records_tags`.
 
+### Phase P — preparatory release, release N (1 day, ships first)
+
+Release N keeps integer ids but gains the ability to open a UUID database and
+convert it back, so that downgrading from release N+1 is lossless (§5).
+
+1. Replace `onDowngrade: SqliteMigrationService.onUpgrade` in
+   `SqliteDatabase.init()` with a real handler dispatching to
+   `SqliteMigrationService.onDowngrade(db, oldVersion, newVersion)`.
+2. Implement `_downgradeFrom34` (uuid → int):
+   1. schema-detecting guard: `PRAGMA table_info(records)` — if `id` is not
+      `TEXT`, return immediately (idempotent);
+   2. single transaction; build `uuid → new int id` for every record in `rowid`
+      order (creation order, see §3.4) into a temp table;
+   3. create `records_new (id INTEGER PRIMARY KEY AUTOINCREMENT, …)` and copy in
+      the same `rowid` order so ids 1..N match creation order;
+   4. rewrite `records_tags` through the map, drop/rename, recreate the four
+      triggers;
+   5. assert record and tag-association counts before/after, roll back on
+      mismatch.
+3. Do not touch `user_version` in the handler: sqflite writes it after the
+   callback returns.
+4. Recommended (see §10): tolerate UUID-id backups in N, so a backup made by
+   N+1 can also be restored by N (non-int `id` kept in a transient field, tags
+   resolved through it, new integer ids assigned on insert).
+5. Tests: the round-trip fixture lives here (int → uuid → int), so it can be
+   written before the UUID schema exists — see Phase 6.
+6. Release notes: no user-visible change; mention that the release prepares for a
+   future storage change.
+
 ### Phase 1 — model + interface (0.5 day)
 
 1. `lib/models/record.dart`: `String? id`, `fromMap`/`toMap`.
@@ -190,17 +224,16 @@ order so rowids keep matching the previous creation order.
 4. Regenerate mocks (`flutter pub run build_runner build`), update
    `test/backup/*.mocks.dart`.
 
-### Phase 2 — schema v34 (1.5 days)
+### Phase 2 — schema v34 (1 day)
 
 1. `SqliteDatabase.version` 33 → **34**.
 2. `_createRecordsTable` / `_createRecordsTagsTable` use TEXT ids (fresh installs).
 3. **Idempotency guard (required):** `_migrateTo34` starts by inspecting
    `PRAGMA table_info(records)`. If the `id` column already has `TEXT` type, the
    migration returns immediately. This is not optional: a downgrade resets
-   `user_version` to 33 (§5.1), so the upgrade runs again on an already-migrated
+   `user_version` to 33 (§5.3), so the upgrade runs again on an already-migrated
    database.
-4. **Pre-migration backup** before touching any schema (see §5.2).
-5. `_migrateTo34` in `SqliteMigrationService`:
+4. `_migrateTo34` in `SqliteMigrationService`:
    1. inside a single transaction;
    2. read `SELECT id FROM records ORDER BY id`, generate a uuid per row in Dart
       (chunked, e.g. 5 000 ids per statement) into a temp table
@@ -284,12 +317,20 @@ New tests:
 * legacy int-id backup still restores with the 1.16.2 one-to-one behaviour;
 * CSV import of two identical rows attaches each row's tags to its own record;
 * `_migrateTo34` on an already-migrated (TEXT id) database is a no-op and never
-  rewrites ids (downgrade/re-upgrade path, §5.1);
-* the pre-migration backup is written with integer record ids and can be imported
-  by the *legacy* code path (assert shape, not the old binary).
+  rewrites ids (downgrade/re-upgrade path, §5.3);
+* round trip on a fixture database (Phase P + Phase 2): v33 → v34 →
+  `_downgradeFrom34` → v33 keeps the record count, the tag associations and the
+  creation order (ids 1..N in `rowid` order), and a subsequent upgrade again
+  produces unique uuids;
+* the upgrade does not create any extra file containing user data (guarded by a
+  test that lists the app documents directory before/after migration);
+* (if the §10 item is accepted) a UUID-id backup restores on release N with new
+  integer ids and the same one-to-one content dedupe.
 
-### Phase 7 — release (0.5 day)
+### Phase 7 — release, release N+1 (0.5 day)
 
+* Release N must already be out (Phase P) before this ships, otherwise the
+downgrade guarantee does not exist for the users.
 * Bump patch/minor version through the normal release flow
   (`gh release create` ⇒ `on-release` workflow bumps `pubspec.yaml`,
   `metadata/…/changelogs/<code>.txt`, `distribution/whatsnew`).
@@ -297,90 +338,104 @@ New tests:
   * "Records now have stable IDs, so a backup restores exactly the records it
     contains, including identical ones."
   * "Backups created by this version cannot be imported by older versions."
-  * "Upgrading keeps a pre-upgrade backup that older versions can restore."
-* Blog post note for the one-way migration and the downgrade runbook (§5).
+* Blog post note for the one-way *backup* compatibility and the two-release
+  rollout (§5.1).
 
-## 5. Downgrade compatibility (decision: A+)
+## 5. Reversible ids (decision: D)
 
-Decision: keep the clean single-identity schema (**option A**) and add a
-**pre-migration backup** so that a downgrade is *recoverable* (**A+**). Downgrading
-the database itself — an old build reading uuid ids — stays out of scope.
+Decision: keep the clean single-identity schema (**option A**) and make the id
+migration **reversible**, so downgrading to the previous release works
+automatically. The upgrade never writes a copy of the user's data anywhere.
 
-### 5.1 What happens today when an older build opens a newer database
+### 5.1 Two-release rollout
+
+| Release | Contents |
+| --- | --- |
+| **N** (preparatory, integer ids) | real `onDowngrade` handler that converts a UUID schema back to integer ids; schema-detecting/idempotent guards; optionally tolerates UUID-id backups (§10) |
+| **N+1** | schema v34, uuid ids, id-preserving restore |
+
+Release N must be public *before* N+1 ships: the downgrade code has to be
+installed already, since old binaries cannot be patched.
+
+### 5.2 Downgrade converter (uuid → int), shipped in release N
+
+`SqliteMigrationService.onDowngrade(db, oldVersion, newVersion)` →
+`_downgradeFrom34`:
+
+1. `PRAGMA table_info(records)`; if `id` is not `TEXT`, return (no-op, idempotent).
+2. In one transaction, assign integers to records in **`rowid` order** into a
+   temp table `uuid → new_id`.
+3. Create `records_new (id INTEGER PRIMARY KEY AUTOINCREMENT, …)` and copy in the
+   same `rowid` order, so ids 1..N reproduce the original creation order.
+4. Rewrite `records_tags` through the map, drop/rename, recreate the four
+   triggers.
+5. Assert record and tag-association counts before/after; roll back on mismatch.
+6. Leave `user_version` alone: sqflite writes it after the callback returns.
+
+Why `rowid` and not `datetime`: `datetime` is user-entered (it can be backdated
+and two records can share it — issue #452), while `rowid` is the real insertion
+order, which is what the `ORDER BY … id DESC` tie-breaks rely on (§3.4). The
+upgrade copies rows in ascending old id, so the `rowid` sequence survives the
+round trip.
+
+Safety argument: record ids are purely internal. No preference stores them;
+`recurrence_id` is an independent uuid; in backups ids are only used to map tag
+associations at import time. Reassigning integers therefore loses nothing, and
+the tags are rewritten in the same transaction.
+
+### 5.3 What happens today, and the version ping-pong
 
 * `SqliteDatabase.init()` registers `onDowngrade: SqliteMigrationService.onUpgrade`.
   sqflite calls it with `oldVersion = 34`, `newVersion = 33`; the loop
-  `for (i = oldVersion + 1; i <= newVersion; i++)` runs zero times, so **the file
-  opens without an exception**.
-* sqflite then writes `user_version` back to the code's version (**34 → 33**).
-* The old build then throws a type error in `Record.fromMap`, where
-  `map['id']` (a `String`) is passed to the `int? id` field, on the first record
-  read. It is a loud failure, not silent data loss, and the file is left
-  untouched.
-* **Re-upgrade hazard:** because the file now claims v33, `_migrateTo34` runs a
-  second time on already-migrated data. Hence the schema-detecting, idempotent
-  guard in Phase 2 step 3. Treat "every migration must be idempotent" as a rule
-  from here on, since a downgrade resets `user_version` silently.
+  `for (i = oldVersion + 1; i <= newVersion; i++)` runs zero times, so the file
+  opens without an exception, and sqflite then writes `user_version` back to 33.
+* A build without `_downgradeFrom34` then throws a type error in
+  `Record.fromMap` (`map['id']`, a `String`, into the `int?` field) on the first
+  record read: a loud failure with no data loss, but the app is unusable until
+  it is upgraded again.
+* Because the file now claims v33, the next upgrade runs `_migrateTo34` again on
+already-migrated data. Both directions must therefore be schema-detecting and
+idempotent (Phase P step 2.1, Phase 2 step 3), and "every migration must be
+idempotent" becomes a standing rule, since a downgrade resets `user_version`
+silently.
 
-### 5.2 Pre-migration backup
+### 5.4 Limits of the guarantee
 
-* Written **before** the schema change, while the old rows are still intact.
-  `onUpgrade` receives a DB handle but `SqliteDatabase.database` is not assigned
-  yet during `openDatabase`, so this must be a dedicated raw-table exporter
-  (dump `records`, `categories`, `wallets`, `profiles`,
-  `recurrent_record_patterns`, `records_tags`, `budgets` as row maps into the
-  normal backup envelope), not a call into `BackupService`'s public API.
-* Payload is **v33-shaped**: integer `records.id` and `record_tag_associations.record_id`,
-  so an old build can restore it. `database_version` will still read `34` because
-  it comes from the `SqliteDatabase.version` constant — which is exactly why
-  legacy payloads are detected by **id type**, not by `database_version` (§3.3).
-* Name/location: the backup directory, deliberately **not** ending in
-  `_obackup.json` (e.g. `oinkoin_pre_uuid_migration_<date>.json`).
-  `getDateLatestBackup` / `shouldCreateAutomaticBackup` and
-  `removeOldBackups` match `*_obackup.json`, so an `_obackup.json` name would both
-  reset the automatic-backup clock and be deleted after 7/30 days.
-* Best effort: a failure to read/write must be logged and must **not** block the
-  migration (a stuck upgrade is worse than a missing recovery file), but it
-  should be logged at warning level for support.
-* Do **not** rely on `oinkoin_database.db` (the automatic database copy) for
-  recovery: `scheduleDatabaseCopy` overwrites it on the next write, so it becomes
-  a v34 copy right after the upgrade.
-* Keep one file per upgrade: overwrite the previous `<date>` variant (or cap the
-  count) so repeated upgrades don't accumulate.
+* Downgrade **N+1 → N**: automatic, lossless, no user action.
+* Downgrade **N+1 → older than N**: not supported. The file opens and the app
+  fails loudly on the first record read; no data is lost. The user must either
+  reinstall N+1, or delete the data and restore a backup (which, being made by
+  N+1, is also unreadable there). Document this in the release notes.
+* Users who skip N and go straight back to an older build are in that second
+  case: the guarantee is only as wide as the previous release.
 
-### 5.3 Downgrade runbook (for support and the release notes)
-
-1. Install the older build. It opens the migrated file but shows no records
-   (§5.1).
-2. Settings → Delete, confirm deletion of all data.
-3. Settings → Restore Backup → `oinkoin_pre_uuid_migration_<date>.json`.
-4. Anything created after the upgrade is not in that file: it is only recoverable
-   by re-installing the newer build and exporting a fresh backup.
-
-### 5.4 Rejected alternatives
+### 5.5 Rejected alternatives
 
 | Option | Why not |
 | --- | --- |
-| **B** — keep `id INTEGER PRIMARY KEY` and add `uuid TEXT UNIQUE DEFAULT (lower(hex(randomblob(16))))` as identity | Old builds keep working, but the backup must carry both ids forever, tags stay integer-keyed, every query needs a second identity column, and rows written by old builds get random uuids (no dedupe ever). Permanent complexity for a rare scenario. |
-| **C** — identity side table `record_identity(uuid, record_id)` | Same compatibility as B without rebuilding `records`, but adds an insert/delete trigger, a join on every identity read, and the same dual-id backup format. |
-| **Pure UUID PK, no recovery path** | A pulled release would leave users' data unreadable with no way back. A+ costs ~1 day more. |
+| **A+** — silent pre-migration JSON backup in the backup folder | An unencrypted dump of all the user's finances written without asking, in a folder other apps can read (`/storage/emulated/0/Documents/oinkoin`, `~/Documents/oinkoin`), and bypassing the opt-in nature of `backupIncludeDatabase`. Also only a *recovery* path (delete + restore), not a downgrade. |
+| **Opt-in** pre-upgrade backup (dialog in the upgrade flow) | Consistent with consent, but adds strings/translations and still only recovers pre-upgrade data; the reversible conversion makes it unnecessary. Keep it as an option only if §10 says so. |
+| **B** — `id INTEGER PRIMARY KEY` + `uuid TEXT UNIQUE DEFAULT (lower(hex(randomblob(16))))` as identity | Old builds keep working, but the backup must carry both ids forever, tags stay integer-keyed, every query needs a second identity column, and rows written by old builds get random uuids. Permanent complexity for a rare scenario. |
+| **C** — identity side table `record_identity(uuid, record_id)` | Same compatibility as B without rebuilding `records`, but adds triggers, a join on every identity read and the same dual-id backup format. |
 
 ## 6. Backup compatibility matrix
 
-| Backup → App | 1.16.x (int ids) | ≥ 1.17.0 (uuid ids) |
-| --- | --- | --- |
-| Backup made by 1.16.x (int ids) | works | works (legacy path: uuid generated + one-to-one content dedupe) |
-| Backup made by ≥ 1.17.0 (uuid ids) | **fails** (type error in `Record.fromMap`: `String` id into the `int?` field) | works |
-| `oinkoin_pre_uuid_migration_*.json` (v33 payload, int ids) | works | works (legacy path) |
+Let A = releases before N, N = preparatory release, N+1 = uuid release.
 
-Mitigations for the "new backup on old app" case:
+| Backup → App | A (int ids) | N (int ids + converter) | N+1 (uuid ids) |
+| --- | --- | --- | --- |
+| Made by A (int ids) | works | works | works (legacy path: uuid generated + one-to-one content dedupe) |
+| Made by N (int ids) | works | works | works (legacy path) |
+| Made by N+1 (uuid ids) | **fails** (`Record.fromMap` type error) | fails today; can be made to work (Phase P step 4, §10) | works |
+
+Mitigations for the "new backup on an older app" case:
 
 * document it in the release notes and the in-app backup screen copy if we want
   (a new string ⇒ translation cost — evaluate reusing an existing string);
 * the restore already returns `false` and shows "Make sure you have the latest
   version of the app…", which is an acceptable message for this case.
 
-Database downgrade: not supported, but recoverable — see §5.
+Database downgrade: N+1 → N is supported and lossless (§5); older targets are not.
 
 ## 7. Risks and mitigations
 
@@ -389,9 +444,11 @@ Database downgrade: not supported, but recoverable — see §5.
 | Migration corrupts records / loses tags | single transaction + before/after count assertions + rollback on mismatch; dedicated migration tests on a real v33 fixture |
 | Large DB migration is slow / OOM | chunked id map (5 000), set-based `INSERT … SELECT`, no per-row Dart copy |
 | Migration runs twice / partially | schema-detecting guard (Phase 2 step 3) **and** `onUpgrade` version gate; all steps use `IF NOT EXISTS`, and the final rename is the last step |
-| Downgrade resets `user_version`, so the next upgrade re-runs `_migrateTo34` | idempotent guard (§5.1) + test; make this a rule for future migrations |
-| Pre-migration backup missing or unreadable | best-effort write + warning log; document the automatic database copy caveat; runbook in §5.3 |
-| Users downgrade and lose post-upgrade changes | release notes + blog post describe the runbook; pre-migration file is timestamped so its age is obvious |
+| Downgrade resets `user_version`, so the next upgrade re-runs `_migrateTo34` | idempotent guard in both directions (§5.3) + round-trip test; standing rule for future migrations |
+| `_downgradeFrom34` mangles ids/tags | run it only from the schema guard, one transaction, count assertions, and the same round-trip test used for the upgrade |
+| Downgrade target older than N | documented as unsupported (§5.4); failure is loud and non-destructive |
+| Creation order drifts because a table rebuild lost `rowid` order | every `records` rebuild (up and down) must copy `ORDER BY` the previous creation order; assert it in tests |
+| A future migration re-introduces an implicit data copy | standing rule: no migration writes user data outside the app's private storage (§5.5) |
 | Uuid inserted but `id` still stored as number somewhere | grep for `as int` on ids; type the model as `String?` so the analyzer catches it |
 | Ordering regressions (bank-like lists, currency rates) | replace id tie-breaks with `rowid`; copy rows in ascending old id order; add a test asserting tie-break order is unchanged after migration |
 | CSV import tag mis-assignment | attach tags by inserted id (§3.5) |
@@ -403,8 +460,9 @@ Database downgrade: not supported, but recoverable — see §5.
 
 - [ ] Fresh install creates `records.id TEXT PRIMARY KEY` (schema v34) and the four triggers.
 - [ ] Upgrading a v33 database keeps record count, tag associations, category usage counters and insertion order; ids are unique uuids.
-- [ ] Upgrading writes `oinkoin_pre_uuid_migration_<date>.json` with integer record ids and tag associations, and does not register it as an automatic backup.
 - [ ] Re-running `_migrateTo34` on a migrated database is a no-op (simulated downgrade/re-upgrade).
+- [ ] Release N converts a v34 database back to integer ids in `rowid` order, keeping record count, tag associations and creation order; a following upgrade produces unique uuids again (round-trip test).
+- [ ] The upgrade creates **no** additional file containing user data (asserted in a test).
 - [ ] Creating, editing, duplicating, deleting, moving, transferring, filtering by wallet/profile, budgets, statistics, home widget and PDF/CSV export all behave as before.
 - [ ] A backup containing two identical records restores both, with the correct balance, and each keeps its own tags.
 - [ ] Importing the same uuid backup twice adds no records.
@@ -415,12 +473,15 @@ Database downgrade: not supported, but recoverable — see §5.
 
 ## 9. Rollback
 
-* Before release: revert the branch — no data has been migrated in the wild.
-* After release, broken migration: ship a forward fix (v35) that repairs ids/tags;
-  the pre-migration file (§5.2) plus the automatic database copies
-  (`oinkoin_database.db`, `BackupService.DATABASE_SNAPSHOT_FILE`) give support two
-  recovery sources.
-* After release, pulled/broken release: users follow the downgrade runbook (§5.3).
+* Before release N: revert the branches — nothing has changed for users.
+* Between N and N+1: N is a no-op for users; reverting N is safe (it only adds a
+  downgrade handler that never ran).
+* After N+1, broken migration: ship a forward fix (v35) that repairs ids/tags.
+  `_downgradeFrom34` is a ready-made escape hatch to an int-id database, but it
+  needs a build that contains it (N), so support guidance is "install N, not an
+  older build".
+* After N+1, pulled/broken release: users install N; the conversion runs on first
+  start and the app works on their existing data (no backup, no data reset).
 
 ## 10. Open questions
 
@@ -436,10 +497,11 @@ Database downgrade: not supported, but recoverable — see §5.
    that re-importing the same legacy file is idempotent? Note it reintroduces the
    #452 collision for identical twins, so it would still need the counter-based
    matching for those.
-5. Should the pre-migration backup be surfaced in the app (e.g. listed in the
-   backup settings with a "created before the last upgrade" label), or stay a
-   file-level artefact documented in the release notes? The former needs a new
-   string per locale.
-6. Is a best-effort pre-migration backup acceptable, or should the migration
-   refuse to run when the file cannot be written (safer for downgrade, but can
-   block users on a read-only/full storage)?
+5. Does release N also accept **UUID-id backups** (Phase P step 4)? It needs
+   `Record.fromMap` to keep a non-int `id` in a transient field (and
+   `RecordTagAssociation.fromMap` to tolerate it) so tags can be mapped, then new
+   integer ids on insert. Cheap, and it closes the "downgrade then restore my
+   latest backup" gap; recommend yes.
+6. Do we want an **opt-in** pre-upgrade backup offered in the upgrade flow?
+   Consent-safe, but adds strings in ~24 locales and is redundant with the
+   reversible conversion.
