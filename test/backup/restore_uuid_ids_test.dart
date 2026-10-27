@@ -300,4 +300,59 @@ void main() {
     all = await ServiceConfig.database.getAllRecords();
     expect(all.length, 2);
   });
+
+  test('a restore keeps the stored version of a record whose id already exists',
+      () async {
+    const id = 'eeeeeeee-1111-4111-8111-111111111111';
+    await ServiceConfig.database.addRecord(Record(
+      -99.0,
+      'Local version',
+      Category('Test category', categoryType: CategoryType.expense),
+      DateTime.fromMillisecondsSinceEpoch(_sameDatetime, isUtc: true),
+      id: id,
+    ));
+
+    // The backup carries the same id with different content: identity wins, so
+    // the version already stored is kept.
+    final file = await writeBackup(
+      'conflict.json',
+      _backup(
+        records: [
+          _record(
+            id: id,
+            title: 'Backup version',
+            value: -10.0,
+            datetime: _sameDatetime,
+          ),
+        ],
+        associations: [],
+      ),
+    );
+
+    expect(await BackupService.importDataFromBackupFile(file), isTrue);
+
+    final all = await ServiceConfig.database.getAllRecords();
+    expect(all, hasLength(1));
+    expect(all.single!.id, id);
+    expect(all.single!.title, 'Local version');
+    expect(all.single!.value, -99.0);
+  });
+
+  test('a backup that repeats the same id stores the record once', () async {
+    const id = 'ffffffff-1111-4111-8111-111111111111';
+    final record = _record(
+      id: id,
+      title: 'Test record',
+      value: -10.0,
+      datetime: _sameDatetime,
+    );
+    final file = await writeBackup(
+      'repeated-id.json',
+      _backup(records: [record, Map<String, dynamic>.from(record)],
+          associations: []),
+    );
+
+    expect(await BackupService.importDataFromBackupFile(file), isTrue);
+    expect((await ServiceConfig.database.getAllRecords()).length, 1);
+  });
 }

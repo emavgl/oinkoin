@@ -406,4 +406,66 @@ void main() {
     expect(tagged.map((row) => row['tags']).toList(),
         ['first', 'second', null]);
   });
+
+  test('every record column survives both conversion directions', () async {
+    // Fill a record with every column before the conversion: a column that is
+    // missing or misspelled in the copy list would otherwise pass unnoticed.
+    final fullRow = <String, Object?>{
+      'datetime': 1234567890,
+      'timezone': 'Europe/Vienna',
+      'value': -12.5,
+      'title': 'Full row',
+      'description': 'a description',
+      'category_name': 'Food',
+      'category_type': 0,
+      'recurrence_id': 'pattern-1',
+      'wallet_id': 7,
+      'transfer_wallet_id': 8,
+      'transfer_value': 11.0,
+      'profile_id': 2,
+    };
+
+    var db = await databaseFactory.openDatabase(
+      dbPath,
+      options: OpenDatabaseOptions(version: 33, singleInstance: false),
+    );
+    await db.insert('records', fullRow);
+    await db.close();
+
+    Future<void> expectFullRow(Database db) async {
+      final rows =
+          await db.query('records', where: 'title = ?', whereArgs: ['Full row']);
+      expect(rows, hasLength(1));
+      final stored = Map<String, dynamic>.from(rows.single)..remove('id');
+      expect(stored, fullRow);
+    }
+
+    db = await openAsV34();
+    await expectFullRow(db);
+    await db.close();
+
+    db = await openAsV33();
+    await expectFullRow(db);
+    await db.close();
+  });
+
+  test('an empty database converts without error', () async {
+    var db = await databaseFactory.openDatabase(
+      dbPath,
+      options: OpenDatabaseOptions(version: 33, singleInstance: false),
+    );
+    await db.delete('records');
+    expect(await db.query('records'), isEmpty);
+    await db.close();
+
+    db = await openAsV34();
+    expect(await idColumnType(db), 'TEXT');
+    expect(await db.query('records'), isEmpty);
+    await db.close();
+
+    db = await openAsV33();
+    expect(await idColumnType(db), 'INTEGER');
+    expect(await db.query('records'), isEmpty);
+    await db.close();
+  });
 }
