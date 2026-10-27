@@ -438,12 +438,17 @@ silently.
 ### 5.4 Limits of the guarantee
 
 * Downgrade **N+1 → N**: automatic, lossless, no user action.
-* Downgrade **N+1 → older than N**: not supported. The file opens and the app
-  fails loudly on the first record read; no data is lost. The user must either
-  reinstall N+1, or delete the data and restore a backup (which, being made by
-  N+1, is also unreadable there). Document this in the release notes.
+* Downgrade **N+1 → older than N**: not supported *as a direct jump*. The file
+  opens and the app fails loudly on the first record read; no data is lost. The
+  user must either reinstall N+1, or delete the data and restore a backup (which,
+  being made by N+1, is also unreadable there). Document this in the release
+  notes.
 * Users who skip N and go straight back to an older build are in that second
   case: the guarantee is only as wide as the previous release.
+* However, **N converts the database in place and sets the version back to 33**,
+  so after one launch of N any older build can open the file again. The recovery
+  step for a user who downgraded further than N is therefore "install N once,
+  then go back": the data stays int-id based from then on.
 
 ### 5.5 Rejected alternatives
 
