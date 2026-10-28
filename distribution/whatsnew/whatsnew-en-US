@@ -1,1 +1,1 @@
-Fix restoring identical records that share the same datetime
+Fix amount editing with a moved cursor, budget target math and category counters
