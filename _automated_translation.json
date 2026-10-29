@@ -7,7 +7,7 @@
       "verified": "Context researched and documented",
       "skip": "Should not be translated (brand names, technical terms, or intentionally English)"
     },
-    "last_updated": "2026-10-23",
+    "last_updated": "2026-10-29",
     "total_keys": 623
   },
   "keys": {
@@ -775,12 +775,12 @@
     },
     "Black": {
       "key": "Black",
-      "context": "Color name option shared by the keyboard background, button, and text color dropdowns",
-      "file": "lib/settings/constants/preferences-options.dart:156",
-      "page": "Settings > Keyboard Settings",
-      "component": "Color dropdown option (color swatch shown alongside)",
-      "meaning": "The color black, used as a fixed color choice for keyboard customization",
-      "notes": "Simple color name, translate as the standard word for black",
+      "context": "Color name option shared by the keyboard background, button and text color dropdowns, and the theme style dropdown",
+      "file": "lib/settings/constants/preferences-options.dart:18 (theme style), :187, :199, :208 (keyboard colors)",
+      "page": "Settings > Customization > Appearance > Theme style; Settings > Keyboard Settings",
+      "component": "dropdown option",
+      "meaning": "The color black: a fixed keyboard color choice, and the dark theme style that uses a pure black (#000000) background for AMOLED screens instead of dark grey",
+      "notes": "Simple color name, translate as the standard word for black. In the theme picker it names a theme style, placed next to System/Light/Dark.",
       "status": "verified"
     },
     "Budget": {

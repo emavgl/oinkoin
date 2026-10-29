@@ -113,7 +113,8 @@ class PreferencesBackupService {
 
     // Integer options
     PreferencesKeys.themeColor: _intIn({0, 1, 2}),
-    PreferencesKeys.themeMode: _intIn({0, 1, 2}),
+    PreferencesKeys.themeMode: _intIn(
+        {0, 1, 2, PreferencesOptions.blackThemeMode}),
     PreferencesKeys.firstDayOfWeek: _intIn({0, 1, 6, 7}),
     PreferencesKeys.numberDecimalDigits: _intIn({0, 1, 2, 3, 4, 5, 6, 7, 8}),
     PreferencesKeys.currencySymbolPosition: _intIn({0, 1, 2}),

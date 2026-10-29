@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:piggybank/services/locale-service.dart';
 import 'package:piggybank/settings/constants/preferences-keys.dart';
+import 'package:piggybank/settings/constants/preferences-options.dart';
 import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_theme/system_theme.dart';
@@ -44,6 +45,40 @@ class MaterialThemeInstance {
   static ThemeMode? themeMode;
   static Color defaultSeedColor = Color.fromARGB(255, 255, 214, 91);
 
+  /// The stored theme style index counts [ThemeMode] entries plus the black
+  /// variant, so it cannot index [ThemeMode.values] directly. "Black" is a
+  /// dark theme, only the generated colors change.
+  static ThemeMode themeModeFromIndex(int? themeStyleIndex) {
+    if (themeStyleIndex == PreferencesOptions.blackThemeMode) {
+      return ThemeMode.dark;
+    }
+    if (themeStyleIndex == null ||
+        themeStyleIndex < 0 ||
+        themeStyleIndex >= ThemeMode.values.length) {
+      return ThemeMode.system;
+    }
+    return ThemeMode.values[themeStyleIndex];
+  }
+
+  static bool isBlackTheme(int? themeStyleIndex) =>
+      themeStyleIndex == PreferencesOptions.blackThemeMode;
+
+  /// Makes the dark surfaces of [scheme] pure black, keeping the accent colors
+  /// derived from the seed. The container shades stay just above black so
+  /// elevated surfaces (cards, dialogs, sheets) remain distinguishable.
+  static ColorScheme withBlackSurfaces(ColorScheme scheme) {
+    return scheme.copyWith(
+      surface: Colors.black,
+      surfaceDim: Colors.black,
+      surfaceBright: const Color(0xFF282828),
+      surfaceContainerLowest: Colors.black,
+      surfaceContainerLow: const Color(0xFF0A0A0A),
+      surfaceContainer: const Color(0xFF121212),
+      surfaceContainerHigh: const Color(0xFF1A1A1A),
+      surfaceContainerHighest: const Color(0xFF242424),
+    );
+  }
+
   static getDefaultColorScheme(Brightness brightness) {
     ColorScheme defaultColorScheme = ColorScheme.fromSeed(
         seedColor: defaultSeedColor, brightness: brightness);
@@ -55,6 +90,10 @@ class MaterialThemeInstance {
     int? dynamicColorScheme =
         PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeColor);
 
+    int? themeStyleIndex =
+        PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeMode);
+
+    ColorScheme colorScheme;
     switch (dynamicColorScheme) {
       case 1:
         {
@@ -65,7 +104,7 @@ class MaterialThemeInstance {
           if (accentColor == defaultSeedColor) {
             log("Failed to retrieve system color, using default instead");
           }
-          return ColorScheme.fromSeed(
+          colorScheme = ColorScheme.fromSeed(
               seedColor: accentColor, brightness: brightness);
         }
 
@@ -75,20 +114,25 @@ class MaterialThemeInstance {
           ImageProvider backgroundImage =
               getBackgroundImage(DateTime.now().month);
           try {
-            ColorScheme colorScheme = await ColorScheme.fromImageProvider(
+            colorScheme = await ColorScheme.fromImageProvider(
                 provider: backgroundImage, brightness: brightness);
-            return colorScheme;
           } catch (e) {
             log("Failed to derive colors from the banner image: $e");
-            return getDefaultColorScheme(brightness);
+            colorScheme = getDefaultColorScheme(brightness);
           }
         }
 
       default:
         {
-          return getDefaultColorScheme(brightness);
+          colorScheme = getDefaultColorScheme(brightness);
         }
     }
+
+    if (brightness == Brightness.dark && isBlackTheme(themeStyleIndex)) {
+      log("Using the Black dark theme");
+      colorScheme = withBlackSurfaces(colorScheme);
+    }
+    return colorScheme;
   }
 
   static getMaterialThemeData(Brightness brightness) async {
@@ -106,7 +150,7 @@ class MaterialThemeInstance {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? themeModeIndex =
         PreferencesUtils.getOrDefault<int>(prefs, PreferencesKeys.themeMode);
-    themeMode = ThemeMode.values[themeModeIndex!];
+    themeMode = themeModeFromIndex(themeModeIndex);
     return themeMode!;
   }
 
