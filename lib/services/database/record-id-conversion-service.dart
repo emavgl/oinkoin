@@ -54,7 +54,7 @@ class RecordIdConversionService {
     await _createUuidTables(db);
     await _copyRecordsAndTags(db, orderBy: 'r.id');
     await _replaceOldTables(db);
-    await _requireNothingWasLost(db, countsBefore);
+    await _verifyConversion(db, countsBefore, expectUuids: true);
     await _dropIdMap(db);
     _logger.info('Record ids migrated to uuids');
     return true;
@@ -77,7 +77,7 @@ class RecordIdConversionService {
     await _createIntegerTables(db);
     await _copyRecordsAndTags(db, orderBy: 'm.new_id');
     await _replaceOldTables(db);
-    await _requireNothingWasLost(db, countsBefore);
+    await _verifyConversion(db, countsBefore, expectUuids: false);
     await _dropIdMap(db);
     _logger.info('Record ids converted back to integers');
     return true;
@@ -158,15 +158,49 @@ class RecordIdConversionService {
     );
   }
 
-  /// Aborts the conversion (rolling back the transaction sqflite opens for the
-  /// migration or the downgrade) instead of leaving missing records or tags.
-  static Future<void> _requireNothingWasLost(
-      Database db, _RecordCounts before) async {
+  /// Checks the rebuilt tables before the transaction commits, so a conversion
+  /// that lost or mangled data leaves the database as it was instead of
+  /// committing the damage. Throwing here rolls back the transaction sqflite
+  /// opens for the migration or the downgrade.
+  ///
+  /// The checks are deliberately cheap facts about the whole table, not a
+  /// sample: every record survives, the ids have the expected type, none is
+  /// missing, and SQLite's own structural check passes.
+  static Future<void> _verifyConversion(
+    Database db,
+    _RecordCounts before, {
+    required bool expectUuids,
+  }) async {
     final after = await _countRecordsAndTags(db);
     if (after != before) {
       throw StateError('Record id conversion lost data: '
           '${before.records} -> ${after.records} records, '
           '${before.tags} -> ${after.tags} tag associations');
+    }
+
+    final expectedType = expectUuids ? 'TEXT' : 'INTEGER';
+    final idType = await _recordIdType(db);
+    if (idType != expectedType) {
+      throw StateError(
+          'Record id conversion produced $idType ids instead of $expectedType');
+    }
+
+    final missingIds = await db.rawQuery(
+        'SELECT COUNT(*) AS occurrences FROM records WHERE id IS NULL');
+    final missing = (missingIds.first['occurrences'] as int?) ?? 0;
+    if (missing != 0) {
+      throw StateError('Record id conversion left $missing records without id');
+    }
+
+    final integrity = await db.rawQuery('PRAGMA integrity_check');
+    final problems = integrity
+        .map((row) => row.values.first)
+        .where((value) => value != 'ok')
+        .toList();
+    if (problems.isNotEmpty) {
+      throw StateError(
+          'Record id conversion left the database inconsistent: '
+          '${problems.join('; ')}');
     }
   }
 

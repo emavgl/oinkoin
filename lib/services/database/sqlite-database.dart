@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:piggybank/i18n.dart';
 
@@ -183,6 +184,8 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   Future<Database> init() async {
+    File? preMigrationSnapshot;
+    String? databasePath;
     try {
       _logger.info('Initializing database...');
 
@@ -193,9 +196,13 @@ class SqliteDatabase implements DatabaseInterface {
         databaseFactory = databaseFactoryFfi;
       }
 
-      final databasePath = await getDatabaseDirectory();
+      databasePath = await getDatabaseDirectory();
       String _path = join(databasePath, databaseFileName);
       _logger.debug('Database path: $_path');
+
+      // A schema change only ever runs on a database that was copied first,
+      // so the old data survives even a migration that commits bad changes.
+      preMigrationSnapshot = await _prepareForMigration(_path);
 
       var db = await databaseFactory.openDatabase(
         _path,
@@ -209,8 +216,167 @@ class SqliteDatabase implements DatabaseInterface {
       _logger.info('Database initialized successfully (version: $version)');
       return db;
     } catch (e, st) {
+      if (preMigrationSnapshot != null && databasePath != null) {
+        try {
+          await restorePreMigrationSnapshot(
+              join(databasePath, databaseFileName), preMigrationSnapshot);
+        } catch (restoreError, restoreStackTrace) {
+          _logger.handle(restoreError, restoreStackTrace,
+              'Failed to restore the pre-migration database copy');
+        }
+      }
       _logger.handle(e, st, 'Failed to initialize database');
       rethrow;
+    }
+  }
+
+  /// Suffix of the copy taken next to the database before its schema changes.
+  static const String preMigrationSnapshotSuffix = '.pre_migration_v';
+
+  /// How long a pre-migration copy is kept after the upgrade succeeded.
+  static const Duration preMigrationSnapshotRetention = Duration(days: 7);
+
+  /// `user_version` stored in the SQLite file header (bytes 60-63), or null
+  /// when the file is missing or is not a SQLite database.
+  ///
+  /// The header is read without opening the database, so this cannot trigger
+  /// a migration callback.
+  static Future<int?> readFileSchemaVersion(String path) async {
+    final file = File(path);
+    if (!await file.exists()) return null;
+    final handle = await file.open();
+    try {
+      final header = await handle.read(100);
+      if (header.length < 100) return null;
+      const magic = 'SQLite format 3\u0000';
+      if (String.fromCharCodes(header.sublist(0, 16)) != magic) return null;
+      return ByteData.sublistView(header, 60, 64).getUint32(0, Endian.big);
+    } finally {
+      await handle.close();
+    }
+  }
+
+  /// Path of the copy taken before the file at [path] is migrated from
+  /// [fileVersion].
+  static String preMigrationSnapshotPath(String path, int fileVersion) =>
+      '$path$preMigrationSnapshotSuffix$fileVersion.db';
+
+  /// Copies the database at [path] as it is now, before any migration runs.
+  ///
+  /// `VACUUM INTO` reads through a connection that opens the file without a
+  /// version, so no migration callback can run and any journal left by a
+  /// previous run is applied to the copy. A checkpoint followed by a plain
+  /// copy is the fallback when the bundled SQLite has no `VACUUM INTO`.
+  ///
+  /// Returns null when the copy could not be written: the caller must then
+  /// leave the database untouched instead of migrating without a copy.
+  static Future<File?> createPreMigrationSnapshot(
+      String path, int fileVersion) async {
+    final target = File(preMigrationSnapshotPath(path, fileVersion));
+    Database? connection;
+    try {
+      // No version: the callbacks, and therefore the migration, cannot run.
+      connection = await databaseFactory.openDatabase(
+        path,
+        options: OpenDatabaseOptions(
+          singleInstance: false,
+          readOnly: false,
+        ),
+      );
+      if (await target.exists()) await target.delete();
+
+      try {
+        final escapedPath = target.path.replaceAll("'", "''");
+        await connection.execute("VACUUM INTO '$escapedPath'");
+        return target;
+      } catch (e) {
+        _logger.warning(
+            'VACUUM INTO failed, falling back to a file copy: $e');
+      }
+
+      // Fallback for SQLite builds without VACUUM INTO: a checkpoint moves
+      // any pending journal into the main file, so the plain copy is complete.
+      try {
+        await connection.execute('PRAGMA wal_checkpoint(TRUNCATE)');
+      } catch (_) {}
+      await connection.close();
+      connection = null;
+
+      if (await target.exists()) await target.delete();
+      await File(path).copy(target.path);
+      return target;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to copy the database before migrating');
+      return null;
+    } finally {
+      try {
+        await connection?.close();
+      } catch (_) {}
+    }
+  }
+
+  /// Puts [snapshot] back over [path] after a failed upgrade, so the data is
+  /// the one from before the attempt and an older release can open it.
+  static Future<bool> restorePreMigrationSnapshot(
+      String path, File snapshot) async {
+    try {
+      if (!await snapshot.exists()) return false;
+      for (final suffix in _journalSuffixes) {
+        final sidecar = File('$path$suffix');
+        if (await sidecar.exists()) await sidecar.delete();
+      }
+      await snapshot.copy(path);
+      _logger.warning(
+          'Restored the pre-migration database copy: ${snapshot.path}');
+      return true;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to restore the pre-migration copy');
+      return false;
+    }
+  }
+
+  /// Returns the copy to restore if the upgrade fails, or null when there is
+  /// nothing to protect (no database yet, or already at [version]).
+  ///
+  /// A database that needs migrating is never opened without its copy: when the
+  /// copy cannot be written the upgrade is skipped, so the file stays at its
+  /// current version and the release that wrote it can still read it.
+  static Future<File?> _prepareForMigration(String path) async {
+    await prunePreMigrationSnapshots(path);
+    final fileVersion = await readFileSchemaVersion(path);
+    if (fileVersion == null || fileVersion >= version) return null;
+
+    final snapshot = await createPreMigrationSnapshot(path, fileVersion);
+    if (snapshot == null) {
+      throw StateError(
+        'Not upgrading the database from version $fileVersion to $version: '
+        'the pre-migration copy could not be written. The data is untouched.',
+      );
+    }
+    _logger.info('Pre-migration database copy written to ${snapshot.path}');
+    return snapshot;
+  }
+
+  /// Deletes pre-migration copies older than [preMigrationSnapshotRetention].
+  /// The copy of the current upgrade is kept, so a problem found days later can
+  /// still be recovered.
+  @visibleForTesting
+  static Future<void> prunePreMigrationSnapshots(String path) async {
+    try {
+      final directory = File(path).parent;
+      if (!await directory.exists()) return;
+      final prefix = '$databaseFileName$preMigrationSnapshotSuffix';
+      final expiry = DateTime.now().subtract(preMigrationSnapshotRetention);
+      await for (final entity in directory.list()) {
+        if (entity is! File) continue;
+        if (!basename(entity.path).startsWith(prefix)) continue;
+        if ((await entity.stat()).modified.isBefore(expiry)) {
+          await entity.delete();
+          _logger.info('Removed old pre-migration copy ${entity.path}');
+        }
+      }
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to prune pre-migration database copies');
     }
   }
 
