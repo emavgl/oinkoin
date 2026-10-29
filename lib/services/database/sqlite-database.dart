@@ -203,7 +203,7 @@ class SqliteDatabase implements DatabaseInterface {
           version: version,
           onCreate: SqliteMigrationService.onCreate,
           onUpgrade: SqliteMigrationService.onUpgrade,
-          onDowngrade: SqliteMigrationService.onUpgrade,
+          onDowngrade: SqliteMigrationService.onDowngrade,
         ),
       );
       _logger.info('Database initialized successfully (version: $version)');

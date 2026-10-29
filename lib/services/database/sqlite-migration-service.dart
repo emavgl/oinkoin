@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../models/category-type.dart';
 import '../../models/category.dart';
 import '../logger.dart';
+import 'record-id-conversion-service.dart';
 
 class SqliteMigrationService {
   static final _logger = Logger.withClass(SqliteMigrationService);
@@ -691,6 +692,22 @@ class SqliteMigrationService {
       }
     }
     _logger.info('Database upgrade completed to version $newVersion');
+  }
+
+  /// Handles a database written by a newer version.
+  ///
+  /// Record ids are the only thing this build cannot read from such a database
+  /// when they are uuids, so the schema decides: the conversion is a no-op when
+  /// the ids are already integers, which also makes it independent of the
+  /// version number the newer release uses.
+  static Future<void> onDowngrade(
+      Database db, int oldVersion, int newVersion) async {
+    _logger.info('Downgrading database from version $oldVersion to $newVersion');
+    final converted = await RecordIdConversionService.convertToIntegerIds(db);
+    if (converted) {
+      await recreateRecordTriggers(db);
+    }
+    _logger.info('Database downgrade completed to version $newVersion');
   }
 
   static Future<void> onCreate(Database db, int version) async {
