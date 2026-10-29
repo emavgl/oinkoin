@@ -34,15 +34,25 @@ abstract class DatabaseInterface {
   Future<void> resetCategoryOrderIndexes(List<Category> orderedCategories);
 
   /// Record CRUD
-  Future<Record?> getRecordById(int id);
-  Future<void> deleteRecordById(int? id);
-  Future<void> deleteRecordsInBatch(List<int> ids);
-  Future<int> addRecord(Record? record);
-  Future<void> addRecordsInBatch(List<Record?> records);
+  Future<Record?> getRecordById(String id);
+  Future<void> deleteRecordById(String? id);
+  Future<void> deleteRecordsInBatch(List<String> ids);
+  Future<String> addRecord(Record? record);
+
+  /// Adds [records] in one batch. Duplicate records that are already stored are
+  /// skipped, one-to-one (see the implementation for the exact rule).
+  ///
+  /// With [preserveIds] the id already carried by a record is inserted as-is,
+  /// so restoring a backup keeps record identities and records already present
+  /// are skipped by primary key. Records without an id (older backups, newly
+  /// generated records) get a new uuid and fall back to the content duplicate
+  /// check.
+  Future<void> addRecordsInBatch(List<Record?> records,
+      {bool preserveIds = false});
   Future<void> addRecordsInBatchNoDuplicateCheck(List<Record?> records);
-  Future<int?> updateRecordById(int? recordId, Record? newRecord);
-  Future<void> updateRecordWalletInBatch(List<int> ids, int? walletId);
-  Future<void> duplicateRecordsInBatch(List<int> ids);
+  Future<int?> updateRecordById(String? recordId, Record? newRecord);
+  Future<void> updateRecordWalletInBatch(List<String> ids, int? walletId);
+  Future<void> duplicateRecordsInBatch(List<String> ids);
   Future<DateTime?> getDateTimeFirstRecord();
   Future<List<Record?>> getAllRecords({int? profileId});
 
@@ -58,7 +68,7 @@ abstract class DatabaseInterface {
       String recurrentPatternId, DateTime startingTime);
   Future<List<String>> suggestedRecordTitles(
       String search, String categoryName);
-  Future<List<String>> getTagsForRecord(int recordId);
+  Future<List<String>> getTagsForRecord(String recordId);
   Future<Set<String>> getAllTags();
   Future<Set<String>> getRecentlyUsedTags();
   Future<Set<String>> getMostUsedTagsForCategory(

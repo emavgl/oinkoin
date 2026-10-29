@@ -66,7 +66,7 @@ void main() {
     );
   });
 
-  Future<int> add(
+  Future<String> add(
     int source,
     int destination,
     double sent,
@@ -141,7 +141,8 @@ void main() {
     expectEuroRate(0.95);
   });
 
-  test('ties use the larger record id deterministically', () async {
+  test('ties use the most recently inserted transfer deterministically',
+      () async {
     await add(usd, eur, 100, 92, day1);
     await add(eur, usd, 96, 100, day1);
     expectEuroRate(0.96);

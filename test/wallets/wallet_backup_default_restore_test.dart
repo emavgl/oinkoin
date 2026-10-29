@@ -15,6 +15,7 @@ import 'package:test/test.dart' as testlib;
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 /// Regression coverage for issue #445: restoring a backup into a fresh
 /// install (whose database already contains the auto-created Default Profile
@@ -108,8 +109,8 @@ void main() {
           ),
         );
         await rawDb.rawInsert(
-          "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id) "
-          "VALUES ('Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?)",
+          "INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id) "
+          "VALUES ('${Uuid().v4()}', 'Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?)",
           [defaultWallet.id],
         );
 
@@ -163,8 +164,8 @@ void main() {
           ),
         );
         await rawDb.rawInsert(
-          "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id) "
-          "VALUES ('Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?)",
+          "INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id) "
+          "VALUES ('${Uuid().v4()}', 'Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?)",
           [sourceDefault.id],
         );
 
@@ -193,8 +194,8 @@ void main() {
           ),
         );
         await destRawDb.rawInsert(
-          "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id) "
-          "VALUES ('Existing expense', -20.0, 900000, 'UTC', 'House', 0, ?, ?)",
+          "INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id) "
+          "VALUES ('${Uuid().v4()}', 'Existing expense', -20.0, 900000, 'UTC', 'House', 0, ?, ?)",
           [destDefault.id, destDefault.profileId],
         );
 
@@ -238,8 +239,8 @@ void main() {
           ),
         );
         await rawDb.rawInsert(
-          "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id) "
-          "VALUES ('Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?)",
+          "INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id) "
+          "VALUES ('${Uuid().v4()}', 'Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?)",
           [sourceDefault.id],
         );
 
@@ -311,8 +312,8 @@ void main() {
         ),
       );
       await rawDb.rawInsert(
-        "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id) "
-        "VALUES ('Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?, ?)",
+        "INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id) "
+        "VALUES ('${Uuid().v4()}', 'Groceries', -300.0, 1000000, 'UTC', 'House', 0, ?, ?)",
         [sourceDefault.id, sourceDefault.profileId],
       );
       return BackupService.createJsonBackupFile(directoryPath: testDir.path);
@@ -360,8 +361,8 @@ void main() {
         Wallet('Other', profileId: destDefault.profileId),
       );
       await destRawDb.rawInsert(
-        "INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id, profile_id) "
-        "VALUES ('Transfer', -10.0, 900000, 'UTC', 'House', 0, ?, ?, ?)",
+        "INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id, profile_id) "
+        "VALUES ('${Uuid().v4()}', 'Transfer', -10.0, 900000, 'UTC', 'House', 0, ?, ?, ?)",
         [otherWalletId, destDefault.id, destDefault.profileId],
       );
 

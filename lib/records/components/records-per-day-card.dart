@@ -27,9 +27,9 @@ class RecordsPerDayCard extends StatefulWidget {
   final RecordsPerDay _movementDay;
   final Map<int, String?> walletCurrencyMap;
   final bool isSelectMode;
-  final Set<int> selectedRecordIds;
-  final void Function(int)? onRecordLongPressed;
-  final void Function(int)? onRecordTapped;
+  final Set<String> selectedRecordIds;
+  final void Function(String)? onRecordLongPressed;
+  final void Function(String)? onRecordTapped;
 
   /// Called with the day's date when the date header is tapped (e.g. to
   /// start a new entry pre-dated to that day). Null means no action.

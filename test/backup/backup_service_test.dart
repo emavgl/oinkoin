@@ -52,7 +52,7 @@ void main() {
         "April Rent",
         categories[0],
         DateTime.parse("2020-04-02 10:30:00"),
-        id: 1,
+        id: '1',
         tags: ["rent", "house"].toSet(),
       ),
       Record(
@@ -60,7 +60,7 @@ void main() {
         "May Rent",
         categories[0],
         DateTime.parse("2020-05-01 10:30:00"),
-        id: 2,
+        id: '2',
         tags: ["rent", "monthly"].toSet(),
       ),
       Record(
@@ -68,7 +68,7 @@ void main() {
         "Pizza",
         categories[1],
         DateTime.parse("2020-05-01 09:30:00"),
-        id: 3,
+        id: '3',
         tags: ["food", "dinner"].toSet(),
       ),
       Record(
@@ -76,7 +76,7 @@ void main() {
         "Salary",
         categories[2],
         DateTime.parse("2020-05-02 09:30:00"),
-        id: 4,
+        id: '4',
         tags: ["income", "job"].toSet(),
       ),
       Record(
@@ -84,7 +84,7 @@ void main() {
         "Restaurant",
         categories[1],
         DateTime.parse("2020-05-02 10:30:00"),
-        id: 5,
+        id: '5',
         tags: ["food", "lunch"].toSet(),
       ),
       Record(
@@ -92,7 +92,7 @@ void main() {
         "Groceries",
         categories[1],
         DateTime.parse("2020-05-03 10:30:00"),
-        id: 6,
+        id: '6',
         tags: ["food", "supermarket"].toSet(),
       ),
     ];
@@ -108,18 +108,18 @@ void main() {
     ];
 
     recordTagAssociations = [
-      RecordTagAssociation(recordId: 1, tagName: "rent"),
-      RecordTagAssociation(recordId: 1, tagName: "house"),
-      RecordTagAssociation(recordId: 2, tagName: "rent"),
-      RecordTagAssociation(recordId: 2, tagName: "monthly"),
-      RecordTagAssociation(recordId: 3, tagName: "food"),
-      RecordTagAssociation(recordId: 3, tagName: "dinner"),
-      RecordTagAssociation(recordId: 4, tagName: "income"),
-      RecordTagAssociation(recordId: 4, tagName: "job"),
-      RecordTagAssociation(recordId: 5, tagName: "food"),
-      RecordTagAssociation(recordId: 5, tagName: "lunch"),
-      RecordTagAssociation(recordId: 6, tagName: "food"),
-      RecordTagAssociation(recordId: 6, tagName: "supermarket"),
+      RecordTagAssociation(recordId: '1', tagName: "rent"),
+      RecordTagAssociation(recordId: '1', tagName: "house"),
+      RecordTagAssociation(recordId: '2', tagName: "rent"),
+      RecordTagAssociation(recordId: '2', tagName: "monthly"),
+      RecordTagAssociation(recordId: '3', tagName: "food"),
+      RecordTagAssociation(recordId: '3', tagName: "dinner"),
+      RecordTagAssociation(recordId: '4', tagName: "income"),
+      RecordTagAssociation(recordId: '4', tagName: "job"),
+      RecordTagAssociation(recordId: '5', tagName: "food"),
+      RecordTagAssociation(recordId: '5', tagName: "lunch"),
+      RecordTagAssociation(recordId: '6', tagName: "food"),
+      RecordTagAssociation(recordId: '6', tagName: "supermarket"),
     ];
     budgets = [
       Budget(
@@ -154,8 +154,8 @@ void main() {
     when(mockDatabase.addProfile(any)).thenAnswer((_) async => 1);
 
     when(mockDatabase.addCategory(any)).thenAnswer((_) async => 0);
-    when(mockDatabase.addRecord(any)).thenAnswer((_) async => 0);
-    when(mockDatabase.addRecordsInBatch(any)).thenAnswer((_) async => null);
+    when(mockDatabase.addRecord(any)).thenAnswer((_) async => 'generated-id');
+    when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds'))).thenAnswer((_) async => null);
     when(mockDatabase.addRecurrentRecordPattern(any))
         .thenAnswer((_) async => null);
     when(mockDatabase.addBudget(argThat(isA<Budget>())))
@@ -306,9 +306,9 @@ void main() {
       expect(backupMap['recurrent_record_patterns'][0], contains('tags'));
 
       // Verify record tag associations
-      expect(backupMap['record_tag_associations'][0]['record_id'], 1);
+      expect(backupMap['record_tag_associations'][0]['record_id'], '1');
       expect(backupMap['record_tag_associations'][0]['tag_name'], "rent");
-      expect(backupMap['record_tag_associations'][1]['record_id'], 1);
+      expect(backupMap['record_tag_associations'][1]['record_id'], '1');
       expect(backupMap['record_tag_associations'][1]['tag_name'], "house");
     },
   );
@@ -320,7 +320,7 @@ void main() {
       'Wallet transfer',
       null,
       DateTime.parse('2020-05-04 10:30:00'),
-      id: 7,
+      id: '7',
       walletId: 10,
       transferWalletId: 11,
       transferValue: 125,
@@ -335,7 +335,7 @@ void main() {
         .thenAnswer((_) async => [originWallet, destinationWallet]);
     when(mockDatabase.addWallet(any)).thenAnswer((_) async => nextWalletId++);
     when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
-    when(mockDatabase.addRecordsInBatch(any))
+    when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds')))
         .thenAnswer((Invocation invocation) async {
           final List<Record?> imported = invocation.positionalArguments[0];
           restoredRecords.addAll(imported);
@@ -394,7 +394,7 @@ void main() {
       when(mockDatabase.getAllWallets()).thenAnswer((_) async => []);
       when(mockDatabase.addWallet(any)).thenAnswer((_) async => 1);
       when(mockDatabase.getWalletById(any)).thenAnswer((_) async => null);
-      when(mockDatabase.addRecordsInBatch(any)).thenAnswer((_) async {});
+      when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds'))).thenAnswer((_) async {});
       clearInteractions(mockDatabase);
     }
   });
@@ -514,7 +514,7 @@ void main() {
       final capturedRecords = <Record?>[];
       final capturedRecurrentPatterns = <RecurrentRecordPattern>[];
 
-      when(mockDatabase.addRecordsInBatch(any))
+      when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds')))
           .thenAnswer((Invocation invocation) async {
             final List<Record?> records = invocation.positionalArguments[0];
             capturedRecords.addAll(records);
@@ -536,7 +536,9 @@ void main() {
 
       expect(result, isTrue);
       verify(mockDatabase.addCategory(any)).called(categories.length);
-      verify(mockDatabase.addRecordsInBatch(argThat(isA<List<Record?>>())))
+      verify(mockDatabase.addRecordsInBatch(
+              argThat(isA<List<Record?>>()),
+              preserveIds: anyNamed('preserveIds')))
           .called(1);
       verify(mockDatabase.addRecurrentRecordPattern(any))
           .called(recurrentPatterns.length);
@@ -557,7 +559,7 @@ void main() {
     final capturedRecords = <Record?>[];
     final capturedRecurrentPatterns = <RecurrentRecordPattern>[];
 
-    when(mockDatabase.addRecordsInBatch(any))
+    when(mockDatabase.addRecordsInBatch(any, preserveIds: anyNamed('preserveIds')))
         .thenAnswer((Invocation invocation) async {
           final List<Record?> records = invocation.positionalArguments[0];
           capturedRecords.addAll(records);

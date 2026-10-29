@@ -245,7 +245,12 @@ List<RecordsPerDay> groupRecordsByDay(List<Record?> records) {
         if (a == null || b == null) return 0;
         final timeCmp = b.dateTime.compareTo(a.dateTime);
         if (timeCmp != 0) return timeCmp;
-        return (b.id ?? 0).compareTo(a.id ?? 0);
+        // Same datetime: newer records first. Record ids are uuids, so the
+        // insertion order (database rowid) is used as tie-break instead.
+        final orderCmp =
+            (b.creationOrder ?? 0).compareTo(a.creationOrder ?? 0);
+        if (orderCmp != 0) return orderCmp;
+        return (b.id ?? '').compareTo(a.id ?? '');
       });
       movementsPerDay.addFirst(RecordsPerDay(date, records: groupedMovements));
     }

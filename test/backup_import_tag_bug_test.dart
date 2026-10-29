@@ -55,22 +55,25 @@ void main() {
     }
 
     // Build a map of record ID -> tags from the backup's tag associations
-    final recordIdToTags = <int, Set<String>>{};
+    final recordIdToTags = <String, Set<String>>{};
     for (var assoc in backup.recordTagAssociations) {
       recordIdToTags
           .putIfAbsent(assoc.recordId, () => <String>{})
           .add(assoc.tagName);
     }
 
-    // Populate record.tags so addRecordsInBatch Phase 2 handles ID remapping
+    // Populate record.tags from the associations. Legacy backups reference
+    // records by integer id, kept aside in legacyBackupId by Record.fromMap.
     for (var record in backup.records) {
-      if (record?.id != null && recordIdToTags.containsKey(record!.id)) {
-        record.tags = recordIdToTags[record.id]!;
+      final lookupId = record?.id ?? record?.legacyBackupId?.toString();
+      if (lookupId != null && recordIdToTags.containsKey(lookupId)) {
+        record!.tags = recordIdToTags[lookupId]!;
       }
     }
 
-    // Add records in batch — Phase 2 will correctly map tags to new IDs
-    await database.addRecordsInBatch(backup.records);
+    // Restore keeping the ids the backup carries (none for legacy backups,
+    // whose records get a new uuid and the content based duplicate check)
+    await database.addRecordsInBatch(backup.records, preserveIds: true);
   }
 
   test('BUG: importing backup into clean DB causes tags to be assigned to wrong records', () async {
@@ -156,7 +159,7 @@ void main() {
 
     // Verify that the tag associations are deserialized correctly
     expect(backup.recordTagAssociations.length, 3);
-    expect(backup.recordTagAssociations[0].recordId, 10);
+    expect(backup.recordTagAssociations[0].recordId, '10');
     expect(backup.recordTagAssociations[0].tagName, 'Lidl');
 
     // Perform the import (same logic as BackupService.importDataFromBackupFile)
@@ -166,13 +169,11 @@ void main() {
     final allRecords = await db.getAllRecords();
     expect(allRecords.length, 3);
 
-    // The new IDs should be 1, 2, 3 (sequential autoincrement on clean DB)
-    final recordIds = allRecords.map((r) => r!.id!).toList()..sort();
-    expect(recordIds, [
-      1,
-      2,
-      3,
-    ], reason: 'Records should get new sequential IDs on import');
+    // Legacy integer ids are replaced by uuids on import
+    final recordIds = allRecords.map((r) => r!.id!).toList();
+    expect(recordIds.length, 3);
+    expect(recordIds.every((id) => id.isNotEmpty), isTrue);
+    expect(recordIds.toSet().length, 3, reason: 'ids must be unique');
 
     // Build a map from record title to its tags
     final titleToTags = <String, Set<String>>{};
@@ -309,14 +310,14 @@ void main() {
     // Tag associations reference IDs 3, 4, 5 which now point to Record C, D, E
     // instead of Record A, B, C!
 
-    final idToRecord = <int, Record>{};
+    final idToRecord = <String, Record>{};
     for (var r in allRecords) {
       idToRecord[r!.id!] = r;
     }
 
-    // Verify IDs are sequential
-    final ids = idToRecord.keys.toList()..sort();
-    expect(ids, [1, 2, 3, 4, 5]);
+    // Verify ids are unique uuids
+    expect(idToRecord.length, 5);
+    expect(idToRecord.keys.every((id) => id.isNotEmpty), isTrue);
 
     // Find records by title
     final titleToRecord = <String, Record>{};
@@ -378,8 +379,10 @@ void main() {
       final backupJson = jsonDecode(await backupFile.readAsString());
       final backup = Backup.fromMap(backupJson);
 
-      // All record IDs in the backup
-      final recordIds = backup.records.map((r) => r!.id).toSet();
+      // All record IDs in the backup (integer for pre-uuid backups)
+      final recordIds = backup.records
+          .map((r) => r!.id ?? r.legacyBackupId?.toString())
+          .toSet();
 
       // All record IDs referenced by tag associations
       final tagRecordIds = backup.recordTagAssociations
@@ -723,7 +726,7 @@ void main() {
       expect(restored.records.first!.value, -42.5);
 
       // Verify tag association data
-      expect(restored.recordTagAssociations.first.recordId, 1);
+      expect(restored.recordTagAssociations.first.recordId, '1');
       expect(restored.recordTagAssociations.first.tagName, 'roundtrip-tag');
 
       // Verify category data

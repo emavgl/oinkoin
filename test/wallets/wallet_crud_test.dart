@@ -7,6 +7,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   setUpAll(() {
@@ -78,8 +79,8 @@ void main() {
     // Insert a record linked to this wallet via raw SQL
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('Test', -10.0, 1000000, 'UTC', 'House', 0, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES ('${Uuid().v4()}', 'Test', -10.0, 1000000, 'UTC', 'House', 0, ?)
     """,
       [walletId],
     );
@@ -173,15 +174,15 @@ void main() {
       // Transfer A→B: source record in A, partner record in B
       await rawDb.rawInsert(
         """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
-      VALUES ('Transfer out', -50.0, 1000000, 'UTC', 'Transfer', 0, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
+      VALUES ('${Uuid().v4()}', 'Transfer out', -50.0, 1000000, 'UTC', 'Transfer', 0, ?, ?)
     """,
         [walletA, walletB],
       );
       await rawDb.rawInsert(
         """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
-      VALUES ('Transfer in', 50.0, 1000000, 'UTC', 'Transfer', 1, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
+      VALUES ('${Uuid().v4()}', 'Transfer in', 50.0, 1000000, 'UTC', 'Transfer', 1, ?, ?)
     """,
         [walletB, walletA],
       );
@@ -216,15 +217,15 @@ void main() {
     // Transfer A→B (would become self-transfer B→B if A merged into B)
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
-      VALUES ('Transfer out', -50.0, 1000000, 'UTC', 'Transfer', 0, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
+      VALUES ('${Uuid().v4()}', 'Transfer out', -50.0, 1000000, 'UTC', 'Transfer', 0, ?, ?)
     """,
       [walletA, walletB],
     );
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
-      VALUES ('Transfer in', 50.0, 1000000, 'UTC', 'Transfer', 1, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
+      VALUES ('${Uuid().v4()}', 'Transfer in', 50.0, 1000000, 'UTC', 'Transfer', 1, ?, ?)
     """,
       [walletB, walletA],
     );
@@ -232,15 +233,15 @@ void main() {
     // Transfer A→C (should survive, with transfer_wallet_id updated from A to B)
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
-      VALUES ('Transfer out', -30.0, 2000000, 'UTC', 'Transfer', 0, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
+      VALUES ('${Uuid().v4()}', 'Transfer out', -30.0, 2000000, 'UTC', 'Transfer', 0, ?, ?)
     """,
       [walletA, walletC],
     );
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
-      VALUES ('Transfer in', 30.0, 2000000, 'UTC', 'Transfer', 1, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, transfer_wallet_id)
+      VALUES ('${Uuid().v4()}', 'Transfer in', 30.0, 2000000, 'UTC', 'Transfer', 1, ?, ?)
     """,
       [walletC, walletA],
     );
@@ -280,8 +281,8 @@ void main() {
 
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('R1', -5.0, 1000000, 'UTC', 'House', 0, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES ('${Uuid().v4()}', 'R1', -5.0, 1000000, 'UTC', 'House', 0, ?)
     """,
       [fromId],
     );
@@ -328,16 +329,16 @@ void main() {
     // wallet_id = NULL instead of the pattern's wallet_id.
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, recurrence_id)
-      VALUES ('Orphan 1', -10.0, 1000000, 'UTC', 'Food', 0, NULL, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, recurrence_id)
+      VALUES ('${Uuid().v4()}', 'Orphan 1', -10.0, 1000000, 'UTC', 'Food', 0, NULL, ?)
     """,
       [patternId],
     );
 
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, recurrence_id)
-      VALUES ('Orphan 2', -10.0, 2000000, 'UTC', 'Food', 0, NULL, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, recurrence_id)
+      VALUES ('${Uuid().v4()}', 'Orphan 2', -10.0, 2000000, 'UTC', 'Food', 0, NULL, ?)
     """,
       [patternId],
     );
@@ -345,8 +346,8 @@ void main() {
     // Also add a normal record that should be deleted by the usual path
     await rawDb.rawInsert(
       """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('Normal', -5.0, 3000000, 'UTC', 'Food', 0, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES ('${Uuid().v4()}', 'Normal', -5.0, 3000000, 'UTC', 'Food', 0, ?)
     """,
       [walletId],
     );
@@ -407,8 +408,8 @@ void main() {
 
       await rawDb.rawInsert(
         """
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, recurrence_id)
-      VALUES ('Other record', -20.0, 1000000, 'UTC', 'Food', 0, ?, ?)
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, recurrence_id)
+      VALUES ('${Uuid().v4()}', 'Other record', -20.0, 1000000, 'UTC', 'Food', 0, ?, ?)
     """,
         [otherWallet, otherPatternId],
       );

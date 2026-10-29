@@ -803,8 +803,11 @@ class BackupService {
         }
       }
 
-      // Build a map of record ID -> tags from the backup's tag associations
-      final recordIdToTags = <int, Set<String>>{};
+      // Build a map of record id -> tags from the backup's tag associations.
+      // Current backups reference records by uuid; backups written before the
+      // uuid migration reference them by integer id, which is kept in the
+      // string form of the same key.
+      final recordIdToTags = <String, Set<String>>{};
       for (var assoc in backup.recordTagAssociations) {
         recordIdToTags
             .putIfAbsent(assoc.recordId, () => <String>{})
@@ -817,8 +820,9 @@ class BackupService {
       // Populate record.tags and remap wallet_id + profile_id
       for (var record in backup.records) {
         if (record == null) continue;
-        if (record.id != null && recordIdToTags.containsKey(record.id)) {
-          record.tags = recordIdToTags[record.id]!;
+        final tagLookupId = record.id ?? record.legacyBackupId?.toString();
+        if (tagLookupId != null && recordIdToTags.containsKey(tagLookupId)) {
+          record.tags = recordIdToTags[tagLookupId]!;
         }
         // Remap profile_id from backup id to new db id
         if (record.profileId != null &&
@@ -845,8 +849,13 @@ class BackupService {
         }
       }
 
-      // Add records in batch — Phase 2 will correctly map tags to new IDs
-      await database.addRecordsInBatch(backup.records);
+      // Add records in batch. A record that already carries a uuid (current
+      // backups) keeps it, so records already stored are skipped by identity
+      // and identical records inside the backup are all restored. Backups
+      // written before the uuid migration have integer ids: those records get
+      // a new uuid and the content based duplicate check keeps repeat imports
+      // from duplicating them.
+      await database.addRecordsInBatch(backup.records, preserveIds: true);
 
       // Add recurrent patterns (remap profile_id)
       for (var backupRecurrentPatterns in backup.recurrentRecordsPattern) {

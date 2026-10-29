@@ -12,6 +12,7 @@ import 'package:test/test.dart' as testlib;
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   late Directory testDir;
@@ -504,15 +505,15 @@ void main() {
 
       await raw.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Personal Expense', -100.0, 1000000, 'UTC', 'House', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Personal Expense', -100.0, 1000000, 'UTC', 'House', 0, ?)
       """,
         [defaultId],
       );
       await raw.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Work Expense', -200.0, 2000000, 'UTC', 'Transport', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Work Expense', -200.0, 2000000, 'UTC', 'Transport', 0, ?)
       """,
         [workId],
       );
