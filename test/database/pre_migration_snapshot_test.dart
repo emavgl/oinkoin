@@ -73,6 +73,23 @@ void main() {
     );
   });
 
+  test('no copy is produced for a file that is not a database', () async {
+    final notSqlite = File('${testDir.path}/broken.db');
+    await notSqlite.writeAsString('this is not a database');
+
+    // Without a copy the upgrade is not allowed to start, so a broken file is
+    // left alone instead of being opened as if it could be migrated.
+    expect(
+      await SqliteDatabase.createPreMigrationSnapshot(notSqlite.path, 34),
+      isNull,
+    );
+    expect(
+      File(SqliteDatabase.preMigrationSnapshotPath(notSqlite.path, 34))
+          .existsSync(),
+      isFalse,
+    );
+  });
+
   test('the pre-migration copy holds the data and leaves the file untouched',
       () async {
     final db = await createPreviousVersionDatabase();

@@ -268,8 +268,14 @@ class SqliteDatabase implements DatabaseInterface {
   /// previous run is applied to the copy. A checkpoint followed by a plain
   /// copy is the fallback when the bundled SQLite has no `VACUUM INTO`.
   ///
-  /// Returns null when the copy could not be written: the caller must then
-  /// leave the database untouched instead of migrating without a copy.
+  /// The copy is verified before it is returned: it must open, pass
+  /// `quick_check` and hold the same rows as the source. A copy that failed
+  /// halfway would otherwise look like a backup while containing nothing
+  /// usable.
+  ///
+  /// Returns null when the copy could not be written or verified: the caller
+  /// must then leave the database untouched instead of migrating without a
+  /// copy.
   static Future<File?> createPreMigrationSnapshot(
       String path, int fileVersion) async {
     final target = File(preMigrationSnapshotPath(path, fileVersion));
@@ -283,27 +289,35 @@ class SqliteDatabase implements DatabaseInterface {
           readOnly: false,
         ),
       );
+      final expected = await _tableCounts(connection);
       if (await target.exists()) await target.delete();
 
+      var writtenToTarget = false;
       try {
         final escapedPath = target.path.replaceAll("'", "''");
         await connection.execute("VACUUM INTO '$escapedPath'");
-        return target;
+        writtenToTarget = true;
       } catch (e) {
         _logger.warning(
             'VACUUM INTO failed, falling back to a file copy: $e');
       }
 
-      // Fallback for SQLite builds without VACUUM INTO: a checkpoint moves
-      // any pending journal into the main file, so the plain copy is complete.
-      try {
-        await connection.execute('PRAGMA wal_checkpoint(TRUNCATE)');
-      } catch (_) {}
-      await connection.close();
-      connection = null;
+      if (!writtenToTarget) {
+        // Fallback for SQLite builds without VACUUM INTO: a checkpoint moves
+        // any pending journal into the main file, so the copy is complete.
+        try {
+          await connection.execute('PRAGMA wal_checkpoint(TRUNCATE)');
+        } catch (_) {}
+        await connection.close();
+        connection = null;
+        if (await target.exists()) await target.delete();
+        await File(path).copy(target.path);
+      }
 
-      if (await target.exists()) await target.delete();
-      await File(path).copy(target.path);
+      if (!await _verifyPreMigrationSnapshot(target, expected)) {
+        if (await target.exists()) await target.delete();
+        return null;
+      }
       return target;
     } catch (e, st) {
       _logger.handle(e, st, 'Failed to copy the database before migrating');
@@ -311,6 +325,60 @@ class SqliteDatabase implements DatabaseInterface {
     } finally {
       try {
         await connection?.close();
+      } catch (_) {}
+    }
+  }
+
+  /// Row counts of the tables a migration can touch, or null per table when it
+  /// does not exist yet (the oldest databases lack some of them).
+  static Future<({int? records, int? tags})> _tableCounts(
+      DatabaseExecutor db) async {
+    Future<int?> count(String table) async {
+      final exists = await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+          [table]);
+      if (exists.isEmpty) return null;
+      final rows =
+          await db.rawQuery('SELECT COUNT(*) AS occurrences FROM $table');
+      return (rows.first['occurrences'] as int?) ?? 0;
+    }
+
+    return (records: await count('records'), tags: await count('records_tags'));
+  }
+
+  /// Whether [snapshot] is a usable copy of the database it was taken from.
+  static Future<bool> _verifyPreMigrationSnapshot(
+      File snapshot, ({int? records, int? tags}) expected) async {
+    Database? copy;
+    try {
+      copy = await databaseFactory.openDatabase(
+        snapshot.path,
+        options: OpenDatabaseOptions(singleInstance: false, readOnly: true),
+      );
+      final integrity = await copy.rawQuery('PRAGMA quick_check');
+      final problems = integrity
+          .map((row) => row.values.first)
+          .where((value) => value != 'ok')
+          .toList();
+      if (problems.isNotEmpty) {
+        _logger
+            .warning('Pre-migration copy is damaged: ${problems.join('; ')}');
+        return false;
+      }
+
+      final actual = await _tableCounts(copy);
+      if (actual != expected) {
+        _logger.warning(
+            'Pre-migration copy holds $actual instead of $expected');
+        return false;
+      }
+      return true;
+    } catch (e, st) {
+      _logger.handle(e, st, 'Failed to verify the pre-migration copy');
+      return false;
+    } finally {
+      try {
+        await copy?.close();
       } catch (_) {}
     }
   }
