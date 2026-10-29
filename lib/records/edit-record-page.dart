@@ -432,6 +432,10 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Widget _createCategoryCard() {
     final category = record!.category;
+    // Transfers may have no category, so let the user remove one they set by
+    // mistake. Other record types always have a category: their amount sign
+    // and statistics depend on it.
+    final showClearCategory = isTransferFlow && !readOnly && category != null;
     return InkWell(
       onTap: () async {
         if (readOnly) return;
@@ -470,21 +474,39 @@ class EditRecordPageState extends State<EditRecordPage> {
                         ),
                       ),
                     ),
-              Container(
-                margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                child: Text(
-                  category?.name ?? "Select the category".i18n,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: category == null
-                        ? Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withValues(alpha: 0.5)
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                  child: Text(
+                    category?.name ?? "Select the category".i18n,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: category == null
+                          ? Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withValues(alpha: 0.5)
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
-              )
+              ),
+              if (showClearCategory)
+                Semantics(
+                  identifier: 'clear-category-button',
+                  child: IconButton(
+                    icon: Icon(Icons.close,
+                        size: 28,
+                        color: Theme.of(context).colorScheme.onSurface),
+                    onPressed: () {
+                      setState(() {
+                        record!.category = null;
+                        changeRecordValue(
+                            _textEditingController.text.toLowerCase());
+                      });
+                    },
+                  ),
+                ),
             ],
           ),
         ),
