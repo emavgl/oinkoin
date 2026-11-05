@@ -6,10 +6,6 @@ releases:
         package:
           platform: linux
           target: deb
-      - name: release-linux-rpm
-        package:
-          platform: linux
-          target: rpm
       - name: release-linux-appimage
         package:
           platform: linux

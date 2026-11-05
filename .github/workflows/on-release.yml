@@ -256,14 +256,14 @@ jobs:
           flutter --version
           
           # Build .deb, .rpm, and AppImage packages
-          flutter_distributor release --name=linux-release --jobs=release-linux-deb,release-linux-rpm,release-linux-appimage
+          scripts/build_linux_packages.sh
 
       - name: Upload Linux packages as Release asset
         uses: softprops/action-gh-release@v1
         with:
           files: |
             dist/*/*-linux.deb
-            dist/*/*-linux.rpm
+            dist/rpmbuild/RPMS/*/*.rpm
             dist/*/*-linux.AppImage
           body: ${{ github.event.release.body }}
           tag_name: ${{ github.event.release.tag_name }}
