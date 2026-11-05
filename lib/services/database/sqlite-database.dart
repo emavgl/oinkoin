@@ -441,35 +441,42 @@ class SqliteDatabase implements DatabaseInterface {
       // data (e.g. two identical expenses recorded at the same minute and
       // restored from a backup) and must all be stored, while importing data
       // that is already in the database still adds nothing.
+      //
+      // The duplicate check, the inserts and the tag inserts all run in the
+      // same transaction. sqflite serializes transactions on a database, so a
+      // concurrent batch (e.g. a recurrent-records update overlapping with a
+      // backup import) cannot read the stored occurrences before this batch is
+      // committed and insert the very same records again.
       final matchedDuplicates = <_RecordDuplicateSignature, int>{};
+      // Stored occurrences per signature, counted once before anything is
+      // inserted so that the one-to-one matching keeps its meaning.
+      final storedDuplicates = <_RecordDuplicateSignature, int>{};
       final recordsToInsert = <Record>[];
-      for (var record in records) {
-        if (record == null) {
-          continue;
-        }
-        record.id = null;
-        record.profileId ??= ProfileService.instance.activeProfileId;
 
-        final signature = _duplicateSignature(record);
-        final alreadyMatched = matchedDuplicates[signature] ?? 0;
-        final alreadyStored = await _countDuplicateRecords(db, record);
-        if (alreadyMatched < alreadyStored) {
-          matchedDuplicates[signature] = alreadyMatched + 1;
-          _logger.debug('Skipping already-stored record: ${record.title}');
-          continue;
-        }
-        recordsToInsert.add(record);
-      }
-
-      if (recordsToInsert.isEmpty) {
-        _logger.info('No new records to insert in batch');
-        return;
-      }
-
-      // Records and their tags are inserted in one transaction: tags are
-      // attached to the ID returned by each insert, so identical records never
-      // share each other's tags.
       await db.transaction((txn) async {
+        for (var record in records) {
+          if (record == null) {
+            continue;
+          }
+          record.id = null;
+          record.profileId ??= ProfileService.instance.activeProfileId;
+
+          final signature = _duplicateSignature(record);
+          final alreadyStored = storedDuplicates[signature] ??
+              await _countDuplicateRecords(txn, record);
+          storedDuplicates[signature] = alreadyStored;
+
+          final alreadyMatched = matchedDuplicates[signature] ?? 0;
+          if (alreadyMatched < alreadyStored) {
+            matchedDuplicates[signature] = alreadyMatched + 1;
+            _logger.debug('Skipping already-stored record: ${record.title}');
+            continue;
+          }
+          recordsToInsert.add(record);
+        }
+
+        // Tags are attached to the ID returned by each insert, so identical
+        // records never share each other's tags.
         for (var record in recordsToInsert) {
           final recordId = await txn.insert("records", record.toMap());
           record.id = recordId;
@@ -485,6 +492,11 @@ class SqliteDatabase implements DatabaseInterface {
         }
       });
 
+      if (recordsToInsert.isEmpty) {
+        _logger.info('No new records to insert in batch');
+        return;
+      }
+
       _logger.info(
           'Batch insert committed: ${recordsToInsert.length} of ${records.length} records');
       _logger.info(
@@ -498,7 +510,8 @@ class SqliteDatabase implements DatabaseInterface {
 
   /// Number of records already stored in the database that are identical to
   /// [record] according to the duplicate check of [addRecordsInBatch].
-  Future<int> _countDuplicateRecords(Database db, Record record) async {
+  Future<int> _countDuplicateRecords(
+      DatabaseExecutor db, Record record) async {
     var result = await db.rawQuery(
       """
       SELECT COUNT(*) AS occurrences FROM records

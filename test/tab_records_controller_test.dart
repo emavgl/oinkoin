@@ -905,6 +905,51 @@ void main() {
     });
   });
 
+  group('recurrent records and overlapping refreshes', () {
+    test('overlapping refreshes triggered by the lifecycle store the due '
+        'record once', () async {
+      // The records page refreshes after cold start, on resume and on tab
+      // changes without awaiting the previous refresh, so several refreshes
+      // can run at the same time (discussion #463).
+      final now = DateTime.now();
+      final startOfToday = DateTime(now.year, now.month, now.day);
+      await database.addRecurrentRecordPattern(
+        RecurrentRecordPattern(
+          1500.0,
+          'IG Metall',
+          testCategory,
+          startOfToday.toUtc(),
+          RecurrentPeriod.EveryMonth,
+        ),
+      );
+
+      await Future.wait([
+        controller.updateRecurrentRecordsAndFetchRecords(),
+        controller.updateRecurrentRecordsAndFetchRecords(),
+        controller.updateRecurrentRecordsAndFetchRecords(),
+      ]);
+
+      final stored = await database.getAllRecords();
+      final storedToday = stored.where((record) {
+        final local = record!.dateTime;
+        return local.year == now.year &&
+            local.month == now.month &&
+            local.day == now.day;
+      }).toList();
+      expect(stored.length, 1,
+          reason: 'The record that manifested today must be stored once');
+      expect(storedToday.length, 1);
+
+      // The list rendered on the records page must show it once as well.
+      final shown = controller.records.where((record) =>
+          record!.title == 'IG Metall' &&
+          record.dateTime.year == now.year &&
+          record.dateTime.month == now.month &&
+          record.dateTime.day == now.day);
+      expect(shown.length, 1);
+    });
+  });
+
   group('future recurrent transfers in wallet balances', () {
     test('a planned same-currency transfer moves money between both wallets '
         'without changing the combined balance', () async {
