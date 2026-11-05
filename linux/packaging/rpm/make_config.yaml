@@ -20,6 +20,19 @@ dependencies:
 
 icon: linux/assets/oinkoin.png
 
+# flutter_app_packager writes the app bundle to the top-level BUILD directory of
+# rpmbuild and generates a spec whose %install copies it with a relative path
+# ("cp -r piggybank/* ..."). That only works while %install runs inside BUILD:
+# since rpm 4.20 (Ubuntu 26.04 runners) rpmbuild creates an empty
+# %{name}-%{version}-build directory and runs the scriptlet there instead, so
+# the copy fails with "cp: cannot stat 'piggybank/*'".
+# Prepending a cd to the bundle directory keeps the generated spec working on
+# both old and new rpmbuild: on rpm < 4.20 it is a no-op, because %install
+# already runs in %{_topdir}/BUILD.
+spec_macros:
+  - "%global __oinkoin_spec_install_pre %{__spec_install_pre}"
+  - "%global __spec_install_pre %{__oinkoin_spec_install_pre}; cd %{_topdir}/BUILD"
+
 keywords:
   - expense
   - tracker
