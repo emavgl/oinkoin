@@ -28,9 +28,12 @@ void main() {
     return DateTime(now.year, now.month, now.day);
   }
 
+  /// End of the device-local day, exactly like [RecurrentRecordService] splits
+  /// past and future records. The pattern timezone only affects generation, so
+  /// this must not be derived from [today].
   DateTime endOfToday() {
-    final day = today();
-    return DateTime(day.year, day.month, day.day, 23, 59, 59, 999);
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
   }
 
   /// The end date used by the records page: the end of the visible month.
@@ -99,9 +102,12 @@ void main() {
 
   /// Past records a fresh pattern is expected to store, computed with the pure
   /// generation function so the expectations never depend on today's date.
-  List<Record> expectedStoredRecords(RecurrentRecordPattern pattern) {
+  List<Record> expectedStoredRecords(
+    RecurrentRecordPattern pattern, {
+    DateTime? endDate,
+  }) {
     final generated = RecurrentRecordService()
-        .generateRecurrentRecordsFromDateTime(pattern, viewEndDate());
+        .generateRecurrentRecordsFromDateTime(pattern, endDate ?? farEndDate());
     return generated
         .where((record) =>
             record.utcDateTime.isBefore(endOfToday()) ||
@@ -196,17 +202,21 @@ void main() {
       final pattern = dailyPattern(daysAgo: 4);
       await database.addRecurrentRecordPattern(pattern);
       final expected = expectedStoredRecords(pattern);
-      expect(expected.length, 5);
+      expect(expected.length, greaterThanOrEqualTo(4),
+          reason: 'The daily pattern must have a due record for every day');
 
       await Future.wait([
-        RecurrentRecordService().updateRecurrentRecords(viewEndDate()),
+        RecurrentRecordService().updateRecurrentRecords(farEndDate()),
         RecurrentRecordService()
-            .updateRecurrentRecords(viewEndDate().add(const Duration(days: 1))),
+            .updateRecurrentRecords(farEndDate().add(const Duration(days: 1))),
       ]);
 
       final stored = await database.getAllRecords();
-      expect(stored.length, 5);
+      expect(stored.length, expected.length);
       expect(recordCounts(stored), recordCounts(expected));
+      for (final count in recordCounts(stored).values) {
+        expect(count, 1, reason: 'Every due day must be stored exactly once');
+      }
     });
 
     test(
@@ -329,27 +339,38 @@ void main() {
     test('tags are stored once per generated record when updates overlap',
         () async {
       final taggedPattern = patternStartingToday(tags: {'salary', 'monthly'});
+      final plainPattern = dailyPattern(daysAgo: 1, title: "Daily stipend");
       await database.addRecurrentRecordPattern(taggedPattern);
-      await database.addRecurrentRecordPattern(
-        dailyPattern(daysAgo: 1, title: "Daily stipend"),
-      );
+      await database.addRecurrentRecordPattern(plainPattern);
+      final taggedRecords = expectedStoredRecords(taggedPattern);
+      final expected = [
+        ...taggedRecords,
+        ...expectedStoredRecords(plainPattern),
+      ];
 
       await Future.wait([
-        RecurrentRecordService().updateRecurrentRecords(viewEndDate()),
-        RecurrentRecordService().updateRecurrentRecords(viewEndDate()),
+        RecurrentRecordService().updateRecurrentRecords(farEndDate()),
+        RecurrentRecordService().updateRecurrentRecords(farEndDate()),
       ]);
 
       final stored = await database.getAllRecords();
-      expect(stored.length, 3, reason: 'One weekly and two daily records');
+      expect(recordCounts(stored), recordCounts(expected));
+      expect(stored.length, expected.length);
 
       final associations = await rawDatabase.rawQuery(
         "SELECT record_id, COUNT(*) AS occurrences FROM records_tags "
         "GROUP BY record_id",
       );
-      expect(associations.length, 1,
-          reason: 'Only the tagged record has tag associations');
-      expect(associations.single['occurrences'], 2,
-          reason: 'Both tags of the pattern must be stored once');
+      expect(associations.length, taggedRecords.length,
+          reason: 'Only the tagged pattern has tag associations');
+      expect(
+        associations.fold<int>(
+          0,
+          (sum, row) => sum + (row['occurrences'] as int),
+        ),
+        taggedRecords.length * 2,
+        reason: 'Both tags of the pattern must be stored once per record',
+      );
 
       final tagNames = await rawDatabase.rawQuery(
         "SELECT tag_name FROM records_tags ORDER BY tag_name",
