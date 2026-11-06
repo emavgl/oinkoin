@@ -777,18 +777,35 @@ class SqliteDatabase implements DatabaseInterface {
     String search,
     String categoryName,
   ) async {
+    final trimmedSearch = search.trim();
+    if (trimmedSearch.isEmpty) {
+      return [];
+    }
     final db = (await database)!;
-    var maps = await db.rawQuery(
+    // Titles saved before trimming was enforced may carry leading/trailing
+    // whitespace, so trim before matching and de-duplicating: "Fuel" and
+    // "Fuel " must produce a single suggestion.
+    final maps = await db.rawQuery(
       """
-            SELECT DISTINCT m.title 
-            FROM records as m WHERE m.title LIKE ? AND m.category_name = ? 
+            SELECT DISTINCT TRIM(m.title) AS title
+            FROM records AS m
+            WHERE TRIM(m.title) LIKE ? AND m.category_name = ?
+            ORDER BY title COLLATE NOCASE
         """,
-      ["%$search%", categoryName],
+      ["%$trimmedSearch%", categoryName],
     );
-    return List.generate(maps.length, (i) {
-      Map<String, dynamic> currentRowMap = Map<String, String>.from(maps[i]);
-      return currentRowMap["title"];
-    });
+    final titles = <String>[];
+    final seenTitles = <String>{};
+    for (final map in maps) {
+      final title = (map["title"] as String?)?.trim();
+      if (title == null || title.isEmpty) {
+        continue;
+      }
+      if (seenTitles.add(title)) {
+        titles.add(title);
+      }
+    }
+    return titles;
   }
 
   @override

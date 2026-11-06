@@ -10,6 +10,7 @@ import 'package:piggybank/models/recurrent-period.dart';
 import 'package:piggybank/models/recurrent-record-pattern.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/service-config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
@@ -51,6 +52,9 @@ Future main() async {
             return null;
           },
         );
+
+    // The database directory lookup reads the custom-folder preference.
+    SharedPreferences.setMockInitialValues({});
 
     // Initialize FFI
     sqfliteFfiInit();
@@ -567,6 +571,24 @@ Future main() async {
           DateTime.now().toUtc(),
         ),
       );
+      // Legacy records may have been stored with surrounding whitespace:
+      // suggestions must trim and de-duplicate them.
+      await db.addRecord(
+        Record(
+          11.0,
+          "Lunch at Cafe ",
+          testCategoryExpense,
+          DateTime.now().toUtc(),
+        ),
+      );
+      await db.addRecord(
+        Record(
+          13.0,
+          "  Dinner at a different cafe  ",
+          testCategoryExpense,
+          DateTime.now().toUtc(),
+        ),
+      );
       await db.addRecord(
         Record(5.0, "Coffee", testCategoryExpense2, DateTime.now().toUtc()),
       );
@@ -578,6 +600,14 @@ Future main() async {
       expect(suggestions.length, 2);
       expect(suggestions, contains("Lunch at Cafe"));
       expect(suggestions, contains("Dinner at a different cafe"));
+      expect(suggestions, isNot(contains("Lunch at Cafe ")));
+
+      // Search terms are trimmed too, so a trailing space still matches.
+      suggestions = await db.suggestedRecordTitles(
+        " cafe ",
+        testCategoryExpense.name!,
+      );
+      expect(suggestions.length, 2);
     });
 
     test('records should match based on their localTime', () async {

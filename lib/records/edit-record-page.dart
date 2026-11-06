@@ -1342,8 +1342,16 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
+  /// Titles typed by the user are stored without leading or trailing
+  /// whitespace. Otherwise the suggestions would later show "Fuel" and
+  /// "Fuel " as two separate entries.
+  void _trimRecordTitle() {
+    record?.title = record?.title?.trim();
+  }
+
   addOrUpdateRecord() async {
     _resolvePendingAmountExpression();
+    _trimRecordTitle();
 
     if (isTransferFlow &&
         (_selectedWallet?.id == null ||
@@ -1510,6 +1518,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   addOrUpdateRecurrentPattern({id}) async {
     _resolvePendingAmountExpression();
+    _trimRecordTitle();
 
     // Assign wallet and transfer fields before creating the pattern
     if (ServiceConfig.walletsEnabled) {
