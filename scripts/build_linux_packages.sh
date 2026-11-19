@@ -27,6 +27,10 @@ if [[ -z "$version" || -z "$build_number" ]]; then
 fi
 
 echo "Building .deb and .AppImage for $version+$build_number"
+# appimagetool refuses to guess the architecture when the AppDir contains more
+# than one lib path ("More than one architectures were found") and dies. The
+# bundle is x86_64 only, so tell it explicitly.
+export ARCH=x86_64
 flutter_distributor release --name=linux-release
 
 echo "Building .rpm for $version+$build_number"
