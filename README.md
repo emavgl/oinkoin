@@ -33,20 +33,16 @@ Oinkoin is available for Android, Linux, and Windows.
 
 ### Oinkoin PRO
 
-Oinkoin PRO comes with some additional features at a small costs:
+Oinkoin PRO is the separate app with every feature unlocked. All of those Pro
+features (backup restore, extra icons and colours, custom date ranges, recurrent
+records, tags, wallets, budgets, profiles, multiple currencies, PDF export and
+more) are currently free for everyone and included in Oinkoin. Paid features may
+be introduced again in the future. Oinkoin PRO is no longer listed on Google
+Play, but it keeps receiving updates for people who already have it.
 
-- Backup/Restore your data
-- New fantastic icons
-- More colours for your categories
-- View your data specifying a custom date-range
-- Set recurrent records
-- Label your records with `Tags`
-- Support the development
-
-<a href='https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro&pli=1&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150'/></a>
 <a href='https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png' width='150'/></a>
 
-Oinkoin PRO is also available *for free* via [F-droid](https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/). However, F-droid can be very slow in updating the release to the latest available versions. If want the very last version, you can manually download the APK from [Github directly](https://github.com/emavgl/oinkoin/releases). You can add Oinkoin to [Obtainium](https://github.com/ImranR98/Obtainium) which will check and install the latest version from Github release directly.
+Oinkoin PRO is also available *for free* via [F-Droid](https://f-droid.org/en/packages/com.github.emavgl.piggybankpro/). However, F-Droid can be very slow in updating the release to the latest available versions. If want the very last version, you can manually download the APK from [Github directly](https://github.com/emavgl/oinkoin/releases). You can add Oinkoin to [Obtainium](https://github.com/ImranR98/Obtainium) which will check and install the latest version from Github release directly.
 
 ### Desktop
 
@@ -97,18 +93,6 @@ Oinkoin is currently available in the following languages:
 * **Croatian** — thanks to ashune
 * **Polish** — thanks to [@Smuuuko](https://github.com/Smuuuko)
 * **Danish** — thanks to catsnote
-
-## How can I donate and sponsor the project?
-
-Any donation is welcome, thanks for your support! If you wish to donate, you can do it in the following ways:
-
-- Buy [Oinkoin PRO on Google Play Store](https://play.google.com/store/apps/details?id=com.github.emavgl.piggybankpro)
-- Bitcoin `bc1qscnas903lcycrkaw7ztflskwld87k8wxgc0sx8`
-- Monero `44LmMThH7jMgi5pGpRtQVxCXUr9tNSenhSm97g3zgXQZPS1bwMMqxSR7M7yFcbQ9uUJAwHTJ4gXENKXZdaTDopv9QU2aGni`
-- [buymeacoffe.com](https://www.buymeacoffee.com/emavgl)
-
-With your donation you support the work I do, also helping to keep this project alive. 
-I intend to also use the donations to help pay for the yearly subscription fee of 100€ for the apple developer program in order to also offer Oinkoin in the App Store in the future.
 
 ## Security & Scam Prevention
 

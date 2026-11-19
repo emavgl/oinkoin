@@ -5,9 +5,13 @@ import 'service-config.dart';
 ///
 /// The Play/App Store is the source of truth for purchases; this store is
 /// only a local cache so Pro keeps working while the device is offline or the
-/// store is unreachable. The entitlement is refreshed on every app start (and
-/// on "Restore purchases") by [PurchaseService], and cleared when the store
-/// reports no active purchase.
+/// store is unreachable.
+///
+/// Oinkoin currently sells nothing, so nothing writes or clears this cache any
+/// more: it is kept exactly as the buyer left it, so Lifetime Pro purchases
+/// made before billing was removed survive. When paid features return, a
+/// purchase service refreshes it again on every app start (it used to be
+/// `PurchaseService`, and the store reported whether a purchase was active).
 ///
 /// The entitlement is permanent: the one-time Lifetime Pro purchase never
 /// expires.

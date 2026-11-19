@@ -72,9 +72,9 @@ Changing the currency of an existing wallet does not silently reinterpret your h
 
 ---
 
-## Upgrade Now
+## Get Oinkoin
 
-All wallet and profile management features are part of **Oinkoin Pro**. The default wallet and the single default profile are always free.
+All wallet and profile management features are included in Oinkoin for everyone — nothing is locked behind a purchase.
 
 Download version **1.6.0** from [Google Play](https://play.google.com/store/apps/details?id=com.emavgl.piggybank) or grab the APK directly from our [GitHub releases page](https://github.com/emavgl/oinkoin/releases/tag/1.6.0).
 

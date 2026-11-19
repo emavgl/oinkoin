@@ -6,16 +6,14 @@
   },
   "communications": [
     {
-      "id": "2026-08-pro-in-app",
-      "date": "2026-08-27",
-      "titleKey": "Oinkoin Free now supports in-app Pro purchases",
+      "id": "2026-11-pro-for-everyone",
+      "date": "2026-11-18",
+      "titleKey": "Oinkoin Pro features are currently free for everyone",
       "dialog": true,
       "dialogAudience": [
-        "free",
-        "alpha",
-        "debug"
+        "free"
       ],
-      "dialogMaxVersion": "1.12.4"
+      "dialogMaxVersion": "1.17.0"
     },
     {
       "id": "changelog-1-13-0",

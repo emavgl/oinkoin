@@ -1,13 +1,12 @@
 #!/bin/bash
-# Regenerate pubspec.yaml.fdroid and pubspec.lock.fdroid: the stubbed
-# manifest and its pub-resolved lockfile that F-Droid's build consumes.
+# Regenerate pubspec.yaml.fdroid and pubspec.lock.fdroid: the manifest and
+# its pub-resolved lockfile that F-Droid's build consumes.
 #
 # F-Droid's recipe just copies these two files into place (no live editing,
 # no pub resolution) before running `pub get --enforce-lockfile`, so they
-# must already be fully self-consistent. This script does the actual
-# stubbing and resolution here (with network access) instead, and is meant
-# to be re-run whenever real dependencies change (wired into the release
-# workflow).
+# must already be fully self-consistent. This script does the resolution
+# here (with network access) instead, and is meant to be re-run whenever real
+# dependencies change (wired into the release workflow).
 #
 # Usage:
 #   ./scripts/generate_fdroid_lock.sh
@@ -32,8 +31,8 @@ cleanup() {
     mv "$LOCKFILE_BACKUP" "$LOCKFILE"
     echo "Restored pubspec.lock"
   fi
-  # pub get with the stubs regenerates this file without the StoreKit plugin;
-  # restore it so the working tree stays clean.
+  # pub get regenerates the macOS plugin registrant; restore it so the
+  # working tree stays clean.
   git -C "$PROJECT_DIR" checkout -- macos/Flutter/GeneratedPluginRegistrant.swift 2>/dev/null || true
 }
 trap cleanup EXIT
@@ -42,8 +41,8 @@ trap cleanup EXIT
 cp "$PUBSPEC" "$PUBSPEC_BACKUP"
 cp "$LOCKFILE" "$LOCKFILE_BACKUP"
 
-# Swap real packages for stubs (version-agnostic, YAML-validated)
-python3 "$SCRIPT_DIR/stub_in_app_purchase.py"
+# No stubbing step any more: the app no longer depends on Google Play Billing,
+# so the F-Droid manifest is simply a copy of the real one.
 cp "$PUBSPEC" "$FDROID_PUBSPEC"
 
 cd "$PROJECT_DIR"
