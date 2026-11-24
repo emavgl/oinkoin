@@ -1,1 +1,1 @@
-Fix Android version code handling so F-Droid builds and sideloaded updates work again.
+Add custom currencies from the currency picker, and use your own currency as the main currency.
