@@ -45,7 +45,7 @@ void main() {
         .recordCount!;
   }
 
-  Future<int> addRecordIn(Category category) {
+  Future<String> addRecordIn(Category category) {
     return ServiceConfig.database.addRecord(
       Record(-10.0, 'Record', category, DateTime.utc(2026, 1, 1, 12)),
     );

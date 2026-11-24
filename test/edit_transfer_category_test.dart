@@ -106,7 +106,7 @@ void main() {
     return record;
   }
 
-  Future<Record?> reloadedRecord(WidgetTester tester, int id) async {
+  Future<Record?> reloadedRecord(WidgetTester tester, String id) async {
     late Record? record;
     await tester.runAsync(() async {
       record = await ServiceConfig.database.getRecordById(id);

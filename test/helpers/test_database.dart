@@ -16,7 +16,7 @@ class TestDatabaseHelper {
         version: SqliteDatabase.version,
         onCreate: SqliteMigrationService.onCreate,
         onUpgrade: SqliteMigrationService.onUpgrade,
-        onDowngrade: SqliteMigrationService.onUpgrade,
+        onDowngrade: SqliteMigrationService.onDowngrade,
       ),
     );
 

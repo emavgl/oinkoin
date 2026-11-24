@@ -39,7 +39,7 @@ class TabRecordsState extends State<TabRecords> {
   late final AppLifecycleListener _listener;
   bool _isAppBarExpanded = true;
   bool _isSelectMode = false;
-  Set<int> _selectedRecordIds = {};
+  Set<String> _selectedRecordIds = {};
 
   @override
   void initState() {
@@ -79,7 +79,7 @@ class TabRecordsState extends State<TabRecords> {
     _controller.runAutomaticBackup(context);
   }
 
-  void _enterSelectMode(int id) {
+  void _enterSelectMode(String id) {
     _logger.debug('Entering select mode, initial record ID: $id');
     setState(() {
       _isSelectMode = true;
@@ -96,7 +96,7 @@ class TabRecordsState extends State<TabRecords> {
     });
   }
 
-  void _toggleRecord(int id) {
+  void _toggleRecord(String id) {
     setState(() {
       if (_selectedRecordIds.contains(id)) {
         _selectedRecordIds.remove(id);
@@ -138,7 +138,7 @@ class TabRecordsState extends State<TabRecords> {
     if (confirmed != true) return;
 
     // Copy IDs before async operations
-    final idsToDelete = List<int>.from(_selectedRecordIds);
+    final idsToDelete = List<String>.from(_selectedRecordIds);
     _logger.info('Batch deleting ${idsToDelete.length} records: $idsToDelete');
 
     // Exit select mode immediately
@@ -168,7 +168,7 @@ class TabRecordsState extends State<TabRecords> {
 
   Future<void> _batchDuplicate() async {
     // Copy IDs before async operations
-    final idsToDuplicate = List<int>.from(_selectedRecordIds);
+    final idsToDuplicate = List<String>.from(_selectedRecordIds);
     _logger.info(
         'Batch duplicating ${idsToDuplicate.length} records: $idsToDuplicate');
 
@@ -208,7 +208,7 @@ class TabRecordsState extends State<TabRecords> {
     if (chosenWallet == null) return;
 
     // Copy IDs before async operations
-    final idsToMove = List<int>.from(_selectedRecordIds);
+    final idsToMove = List<String>.from(_selectedRecordIds);
     _logger.info(
         'Batch moving ${idsToMove.length} records to wallet "${chosenWallet.name}" (ID ${chosenWallet.id})');
 

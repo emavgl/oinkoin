@@ -1,7 +1,9 @@
 import 'package:piggybank/models/model.dart';
 
 class RecordTagAssociation extends Model {
-  final int recordId;
+  /// Record id: a uuid for current backups, the string form of the integer id
+  /// for backups written before the uuid migration.
+  final String recordId;
   final String tagName;
 
   RecordTagAssociation({
@@ -19,7 +21,7 @@ class RecordTagAssociation extends Model {
 
   static RecordTagAssociation fromMap(Map<String, dynamic> map) {
     return RecordTagAssociation(
-      recordId: map['record_id'] as int,
+      recordId: map['record_id'].toString(),
       tagName: map['tag_name'] as String,
     );
   }

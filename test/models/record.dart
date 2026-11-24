@@ -31,7 +31,7 @@ void main() {
         testCategory,
         nowUtc,
         timeZoneName: timeZoneName,
-        id: 1,
+        id: '1',
         description: 'Lunch at the cafe',
         recurrencePatternId: 'pattern-1',
         tags: ['food', 'lunch'].toSet(),
@@ -86,7 +86,7 @@ void main() {
         'Books',
         testCategory,
         nowUtc,
-        id: 2,
+        id: '2',
         timeZoneName: null, // Explicitly pass null
       );
 
@@ -112,7 +112,7 @@ void main() {
           testCategoryForMap,
           fixedUtcTime,
           timeZoneName: timeZoneName,
-          id: 10,
+          id: '10',
           description: 'Monthly internet provider bill',
           recurrencePatternId: 'internet-pattern-1',
           tags: ['bill', 'home'].toSet(),

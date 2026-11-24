@@ -71,7 +71,7 @@ void main() {
         testCategory,
         recordUtcDate,
         timeZoneName: timeZoneName,
-        id: 1,
+        id: '1',
         description: 'Monthly rent payment',
         tags: ['housing', 'rent'].toSet(),
       );

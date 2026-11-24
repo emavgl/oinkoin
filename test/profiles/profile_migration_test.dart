@@ -6,6 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -191,8 +192,8 @@ void main() {
       // Insert a record with profile_id — would fail if column is absent
       expect(
         () async => await raw.rawInsert("""
-          INSERT INTO records (datetime, timezone, value, category_name, category_type, profile_id)
-          VALUES (1000000, 'UTC', -10.0, 'House', 0, 1)
+          INSERT INTO records (id, datetime, timezone, value, category_name, category_type, profile_id)
+          VALUES ('${Uuid().v4()}', 1000000, 'UTC', -10.0, 'House', 0, 1)
         """),
         returnsNormally,
       );

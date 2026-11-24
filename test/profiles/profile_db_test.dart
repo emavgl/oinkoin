@@ -7,6 +7,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   setUpAll(() {
@@ -164,8 +165,8 @@ void main() {
 
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Alice Salary', 2000.0, 1000000, 'UTC', 'Salary', 1, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Alice Salary', 2000.0, 1000000, 'UTC', 'Salary', 1, ?)
       """,
           [profileAId],
         );
@@ -187,8 +188,8 @@ void main() {
 
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Bob Groceries', -50.0, 2000000, 'UTC', 'Food', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Bob Groceries', -50.0, 2000000, 'UTC', 'Food', 0, ?)
       """,
           [profileBId],
         );
@@ -210,15 +211,15 @@ void main() {
 
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Alice Rent', -800.0, 1000000, 'UTC', 'House', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Alice Rent', -800.0, 1000000, 'UTC', 'House', 0, ?)
       """,
           [profileAId],
         );
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Bob Transport', -30.0, 2000000, 'UTC', 'Transport', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Bob Transport', -30.0, 2000000, 'UTC', 'Transport', 0, ?)
       """,
           [profileBId],
         );
@@ -241,15 +242,15 @@ void main() {
 
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Alice Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Alice Record', -10.0, 1000000, 'UTC', 'House', 0, ?)
       """,
           [profileAId],
         );
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Bob Record', -20.0, 2000000, 'UTC', 'Food', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Bob Record', -20.0, 2000000, 'UTC', 'Food', 0, ?)
       """,
           [profileBId],
         );
@@ -423,15 +424,15 @@ void main() {
 
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Record 1', -10.0, 1000000, 'UTC', 'House', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Record 1', -10.0, 1000000, 'UTC', 'House', 0, ?)
       """,
           [profileId],
         );
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Record 2', -20.0, 2000000, 'UTC', 'Food', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Record 2', -20.0, 2000000, 'UTC', 'Food', 0, ?)
       """,
           [profileId],
         );
@@ -511,15 +512,15 @@ void main() {
 
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Doomed', -10.0, 1000000, 'UTC', 'House', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Doomed', -10.0, 1000000, 'UTC', 'House', 0, ?)
       """,
           [toDelete],
         );
         await raw.rawInsert(
           """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('Survivor', -20.0, 2000000, 'UTC', 'Food', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'Survivor', -20.0, 2000000, 'UTC', 'Food', 0, ?)
       """,
           [toKeep],
         );
@@ -573,22 +574,22 @@ void main() {
       // Add data to both profiles
       await raw.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('A Record', -5.0, 1000000, 'UTC', 'House', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'A Record', -5.0, 1000000, 'UTC', 'House', 0, ?)
       """,
         [aId],
       );
       await raw.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('B Record 1', -15.0, 2000000, 'UTC', 'Food', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'B Record 1', -15.0, 2000000, 'UTC', 'Food', 0, ?)
       """,
         [bId],
       );
       await raw.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, profile_id)
-        VALUES ('B Record 2', -25.0, 3000000, 'UTC', 'Transport', 0, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, profile_id)
+        VALUES ('${Uuid().v4()}', 'B Record 2', -25.0, 3000000, 'UTC', 'Transport', 0, ?)
       """,
         [bId],
       );
@@ -635,8 +636,8 @@ void main() {
       // Insert a record against Alice's wallet
       await raw.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id)
-        VALUES ('Alice Income', 500.0, 1000000, 'UTC', 'Salary', 1, ?, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id, profile_id)
+        VALUES ('${Uuid().v4()}', 'Alice Income', 500.0, 1000000, 'UTC', 'Salary', 1, ?, ?)
       """,
         [walletAId, profileA],
       );

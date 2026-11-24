@@ -4,6 +4,7 @@ import 'package:piggybank/services/database/sqlite-migration-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:uuid/uuid.dart';
 
 /// Simulates a v17 database schema (before wallet support).
 Future<Database> _openV17Database() async {
@@ -176,6 +177,7 @@ void main() {
 
       // records table should have wallet_id column (verified by inserting with it)
       await db.insert('records', {
+        'id': Uuid().v4(),
         'datetime': DateTime.now().millisecondsSinceEpoch,
         'timezone': 'UTC',
         'value': -10.0,

@@ -20,6 +20,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import 'helpers/test_database.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   late TabRecordsController controller;
@@ -749,8 +750,8 @@ void main() {
       final rawDb = (await sqliteDb.database)!;
       await rawDb.rawInsert(
         """
-        INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-        VALUES ('Record', ?, ?, 'UTC', ?, ?, ?)
+        INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+        VALUES ('${Uuid().v4()}', 'Record', ?, ?, 'UTC', ?, ?, ?)
       """,
         [
           value,

@@ -9,6 +9,7 @@ import 'package:piggybank/settings/preferences-utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:uuid/uuid.dart';
 
 import '../helpers/test_database.dart';
 
@@ -26,11 +27,13 @@ void main() {
     await TestDatabaseHelper.setupTestDatabase();
   });
 
-  Future<int> insertRecord(dynamic rawDb, int walletId, double value) async {
-    return await rawDb.rawInsert("""
-      INSERT INTO records (title, value, datetime, timezone, category_name, category_type, wallet_id)
-      VALUES ('Record', ?, 1000000, 'UTC', 'Food', 0, ?)
-    """, [value, walletId]);
+  Future<String> insertRecord(dynamic rawDb, int walletId, double value) async {
+    final id = Uuid().v4();
+    await rawDb.rawInsert("""
+      INSERT INTO records (id, title, value, datetime, timezone, category_name, category_type, wallet_id)
+      VALUES (?, 'Record', ?, 1000000, 'UTC', 'Food', 0, ?)
+    """, [id, value, walletId]);
+    return id;
   }
 
   // --- Preference tests ---
@@ -132,7 +135,7 @@ void main() {
       // Fetch record id and value before deletion
       final rows = await rawDb
           .rawQuery('SELECT id, value FROM records WHERE wallet_id = ?', [walletId]);
-      final recordId = rows.first['id'] as int;
+      final recordId = rows.first['id'] as String;
       final recordValue = (rows.first['value'] as num).toDouble();
 
       await db.deleteRecordById(recordId);
@@ -161,7 +164,7 @@ void main() {
 
       final rows = await rawDb
           .rawQuery('SELECT id, value FROM records WHERE wallet_id = ?', [walletId]);
-      final recordId = rows.first['id'] as int;
+      final recordId = rows.first['id'] as String;
       final recordValue = (rows.first['value'] as num).toDouble();
 
       await db.deleteRecordById(recordId);
@@ -192,7 +195,7 @@ void main() {
           .rawQuery('SELECT id, value FROM records WHERE wallet_id = ?', [walletId]);
 
       for (final row in rows) {
-        final recordId = row['id'] as int;
+        final recordId = row['id'] as String;
         final recordValue = (row['value'] as num).toDouble();
         await db.deleteRecordById(recordId);
         final wallet = await db.getWalletById(walletId);
@@ -230,13 +233,13 @@ void main() {
       // Delete from A — restore=true: just delete
       final rowsA = await rawDb.rawQuery(
           'SELECT id FROM records WHERE wallet_id = ?', [walletAId]);
-      await db.deleteRecordById(rowsA.first['id'] as int);
+      await db.deleteRecordById(rowsA.first['id'] as String);
 
       // Delete from B — restore=false: delete + adjust initialAmount
       final rowsB = await rawDb.rawQuery(
           'SELECT id, value FROM records WHERE wallet_id = ?', [walletBId]);
       final recordValue = (rowsB.first['value'] as num).toDouble();
-      await db.deleteRecordById(rowsB.first['id'] as int);
+      await db.deleteRecordById(rowsB.first['id'] as String);
       final walletB = await db.getWalletById(walletBId);
       walletB!.initialAmount += recordValue;
       await db.updateWallet(walletBId, walletB);

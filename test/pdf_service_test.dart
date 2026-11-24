@@ -37,7 +37,7 @@ void main() {
           'Lunch',
           food,
           DateTime(2023, 1, 1, 12),
-          id: 1,
+          id: '1',
           description: 'Ate at a restaurant',
           walletId: 1,
           tags: {'meal', 'work'},
@@ -47,7 +47,7 @@ void main() {
           'Groceries',
           food,
           DateTime(2023, 1, 2, 18),
-          id: 2,
+          id: '2',
           description: 'Weekly shopping',
           walletId: 1,
           tags: {'food'},
@@ -57,7 +57,7 @@ void main() {
           'January salary',
           salary,
           DateTime(2023, 1, 3, 8),
-          id: 3,
+          id: '3',
           description: 'Monthly paycheck',
           walletId: 2,
         ),
@@ -100,7 +100,7 @@ void main() {
           'Record $i',
           i.isEven ? food : salary,
           DateTime(2020 + (i % 6), 1 + (i % 12), 1 + (i % 28), i % 24),
-          id: i,
+          id: '$i',
           walletId: (i % 3) + 1,
           tags: {'tag${i % 5}'},
         ));
@@ -125,9 +125,9 @@ void main() {
       final salary = Category('Salary', categoryType: CategoryType.income);
       final records = [
         Record(-10.0, 'Lunch', food, DateTime(2023, 1, 1, 12),
-            id: 1, walletId: 1, tags: {'meal'}),
+            id: '1', walletId: 1, tags: {'meal'}),
         Record(100.0, 'Salary', salary, DateTime(2023, 1, 3, 8),
-            id: 2, walletId: 2, tags: {'pay'}),
+            id: '2', walletId: 2, tags: {'pay'}),
       ];
       final bytes = await PDFExporter.createPdfFromRecordList(
         records,
@@ -148,7 +148,7 @@ void main() {
           'Coffee',
           food,
           DateTime(2023, 1, 1),
-          id: 1,
+          id: '1',
           walletId: 1,
         ),
         Record(
@@ -156,7 +156,7 @@ void main() {
           'Transfer',
           food,
           DateTime(2023, 1, 2),
-          id: 2,
+          id: '2',
           walletId: 1,
           transferWalletId: 2,
         ),
@@ -284,11 +284,11 @@ void main() {
       final food = Category('Food', categoryType: CategoryType.expense);
       final records = [
         Record(-10.0, 'Lunch', food, DateTime(2023, 1, 1, 12),
-            id: 1, walletId: 1),
+            id: '1', walletId: 1),
         Record(-20.0, 'Groceries', food, DateTime(2023, 1, 2, 18),
-            id: 2, walletId: 1),
+            id: '2', walletId: 1),
         Record(-50.0, 'Electronics', food, DateTime(2023, 1, 3, 10),
-            id: 3, walletId: 2),
+            id: '3', walletId: 2),
       ];
       final bytes = await PDFExporter.createPdfFromRecordList(
         records,

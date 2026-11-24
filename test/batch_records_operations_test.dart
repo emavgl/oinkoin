@@ -483,7 +483,7 @@ void main() {
 
         // Create 50 records
         final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-        final ids = <int>[];
+        final ids = <String>[];
         for (int i = 0; i < 50; i++) {
           final id = await db.addRecord(
             Record(-10.0, 'Record $i', testCategory, now, walletId: walletId),
@@ -517,7 +517,7 @@ void main() {
 
         // Create 50 records
         final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-        final ids = <int>[];
+        final ids = <String>[];
         for (int i = 0; i < 50; i++) {
           final id = await db.addRecord(
             Record(-10.0, 'Record $i', testCategory, now, walletId: wallet1),
@@ -547,7 +547,7 @@ void main() {
 
       // Create 20 records
       final now = DateTime.utc(2025, 1, 1, 12, 0, 0);
-      final ids = <int>[];
+      final ids = <String>[];
       for (int i = 0; i < 20; i++) {
         final id = await db.addRecord(
           Record(-10.0, 'Record $i', testCategory, now, walletId: walletId),

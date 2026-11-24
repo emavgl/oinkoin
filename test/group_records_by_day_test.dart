@@ -15,7 +15,8 @@ final _category = Category(
 Record makeRecord({
   required double value,
   required DateTime utcDateTime,
-  int? id,
+  String? id,
+  int? creationOrder,
   String timeZone = 'UTC',
 }) {
   return Record(
@@ -25,7 +26,7 @@ Record makeRecord({
     utcDateTime,
     id: id,
     timeZoneName: timeZone,
-  );
+  )..creationOrder = creationOrder;
 }
 
 void main() {
@@ -101,55 +102,57 @@ void main() {
       expect(dayRecords[2]!.value, 1); // 08:00 last
     });
 
-    test('records with identical datetimes preserve insertion order (id desc)',
-        () {
+    test('records with identical datetimes preserve insertion order', () {
       final sameTime = DateTime.utc(2026, 5, 1, 10, 0);
       final records = [
-        makeRecord(value: 10, utcDateTime: sameTime, id: 1),
-        makeRecord(value: 20, utcDateTime: sameTime, id: 2),
-        makeRecord(value: 30, utcDateTime: sameTime, id: 3),
+        makeRecord(
+            value: 10, utcDateTime: sameTime, id: 'a', creationOrder: 1),
+        makeRecord(
+            value: 20, utcDateTime: sameTime, id: 'b', creationOrder: 2),
+        makeRecord(
+            value: 30, utcDateTime: sameTime, id: 'c', creationOrder: 3),
       ];
 
       final dayRecords = groupRecordsByDay(records).first.records!;
 
-      // Higher id (more recently inserted) appears first
-      expect(dayRecords[0]!.id, 3);
-      expect(dayRecords[1]!.id, 2);
-      expect(dayRecords[2]!.id, 1);
+      // Higher creation order (more recently inserted) appears first
+      expect(dayRecords[0]!.creationOrder, 3);
+      expect(dayRecords[1]!.creationOrder, 2);
+      expect(dayRecords[2]!.creationOrder, 1);
     });
 
     test('time ordering takes priority over insertion order', () {
       final records = [
         makeRecord(
-            value: 1, utcDateTime: DateTime.utc(2026, 5, 1, 20, 0), id: 1),
+            value: 1, utcDateTime: DateTime.utc(2026, 5, 1, 20, 0), id: 'a'),
         makeRecord(
-            value: 2, utcDateTime: DateTime.utc(2026, 5, 1, 8, 0), id: 2),
+            value: 2, utcDateTime: DateTime.utc(2026, 5, 1, 8, 0), id: 'b'),
       ];
 
       final dayRecords = groupRecordsByDay(records).first.records!;
 
-      // id=1 was inserted first but has a later time — it should appear first
-      expect(dayRecords[0]!.id, 1);
-      expect(dayRecords[1]!.id, 2);
+      // 'a' was inserted first but has a later time — it should appear first
+      expect(dayRecords[0]!.id, 'a');
+      expect(dayRecords[1]!.id, 'b');
     });
 
     test('mixed times and same times are ordered correctly', () {
       final t10 = DateTime.utc(2026, 5, 1, 10, 0);
       final t20 = DateTime.utc(2026, 5, 1, 20, 0);
       final records = [
-        makeRecord(value: 1, utcDateTime: t10, id: 1),
-        makeRecord(value: 2, utcDateTime: t20, id: 2),
-        makeRecord(value: 3, utcDateTime: t10, id: 3),
-        makeRecord(value: 4, utcDateTime: t20, id: 4),
+        makeRecord(value: 1, utcDateTime: t10, id: 'a', creationOrder: 1),
+        makeRecord(value: 2, utcDateTime: t20, id: 'b', creationOrder: 2),
+        makeRecord(value: 3, utcDateTime: t10, id: 'c', creationOrder: 3),
+        makeRecord(value: 4, utcDateTime: t20, id: 'd', creationOrder: 4),
       ];
 
       final dayRecords = groupRecordsByDay(records).first.records!;
 
-      // t20 records first (id 4 then 2), t10 records after (id 3 then 1)
-      expect(dayRecords[0]!.id, 4);
-      expect(dayRecords[1]!.id, 2);
-      expect(dayRecords[2]!.id, 3);
-      expect(dayRecords[3]!.id, 1);
+      // t20 records first (d then b), t10 records after (c then a)
+      expect(dayRecords[0]!.id, 'd');
+      expect(dayRecords[1]!.id, 'b');
+      expect(dayRecords[2]!.id, 'c');
+      expect(dayRecords[3]!.id, 'a');
     });
   });
 }

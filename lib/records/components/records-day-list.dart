@@ -15,9 +15,9 @@ class RecordsDayList extends StatefulWidget {
   final int batchSize;
   final Map<int, String?> walletCurrencyMap;
   final bool isSelectMode;
-  final Set<int> selectedRecordIds;
-  final void Function(int)? onRecordLongPressed;
-  final void Function(int)? onRecordTapped;
+  final Set<String> selectedRecordIds;
+  final void Function(String)? onRecordLongPressed;
+  final void Function(String)? onRecordTapped;
   final void Function(DateTime date)? onDateTapped;
 
   RecordsDayList(
