@@ -200,6 +200,51 @@ void main() {
       expect(found?.symbol, equals('X'));
     });
 
+    test('should remove a custom currency', () {
+      CurrencyInfo.addCustomCurrency(
+        const CurrencyInfo(
+            isoCode: 'REM1', name: 'Removable', customSymbol: 'R'),
+      );
+      expect(CurrencyInfo.byCode('REM1'), isNotNull);
+
+      expect(CurrencyInfo.removeCustomCurrency('REM1'), isTrue);
+      expect(CurrencyInfo.byCode('REM1'), isNull);
+      expect(
+        CurrencyInfo.customCurrencies.where((c) => c.isoCode == 'REM1'),
+        isEmpty,
+      );
+    });
+
+    test('should remove a custom currency regardless of code case', () {
+      CurrencyInfo.addCustomCurrency(
+        const CurrencyInfo(isoCode: 'REM2', name: 'Removable 2'),
+      );
+
+      expect(CurrencyInfo.removeCustomCurrency('rem2'), isTrue);
+      expect(CurrencyInfo.byCode('REM2'), isNull);
+    });
+
+    test('should not remove unknown or built-in currencies', () {
+      expect(CurrencyInfo.removeCustomCurrency('NOPE'), isFalse);
+      expect(CurrencyInfo.removeCustomCurrency('USD'), isFalse);
+      expect(CurrencyInfo.byCode('USD'), isNotNull);
+    });
+
+    test('should allow re-adding a removed custom currency', () {
+      CurrencyInfo.addCustomCurrency(
+        const CurrencyInfo(isoCode: 'REM3', name: 'Old', customSymbol: 'O'),
+      );
+      CurrencyInfo.removeCustomCurrency('REM3');
+
+      CurrencyInfo.addCustomCurrency(
+        const CurrencyInfo(isoCode: 'REM3', name: 'New', customSymbol: 'N'),
+      );
+
+      final found = CurrencyInfo.byCode('REM3');
+      expect(found?.name, equals('New'));
+      expect(found?.symbol, equals('N'));
+    });
+
     test('should return null for non-existent currency', () {
       final found = CurrencyInfo.byCode('NONEXISTENT');
       expect(found, isNull);
