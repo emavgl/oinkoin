@@ -200,8 +200,10 @@ class SqliteDatabase implements DatabaseInterface {
       String _path = join(databasePath, databaseFileName);
       _logger.debug('Database path: $_path');
 
-      // A schema change only ever runs on a database that was copied first,
-      // so the old data survives even a migration that commits bad changes.
+      // Best effort: a copy is taken before a schema change so that the data
+      // survives a migration that commits bad changes. It is not a downgrade
+      // path (a downgrade is not supported), so a copy that cannot be written
+      // only costs the safety net and never blocks the upgrade.
       preMigrationSnapshot = await _prepareForMigration(_path);
 
       var db = await databaseFactory.openDatabase(
@@ -210,7 +212,6 @@ class SqliteDatabase implements DatabaseInterface {
           version: version,
           onCreate: SqliteMigrationService.onCreate,
           onUpgrade: SqliteMigrationService.onUpgrade,
-          onDowngrade: SqliteMigrationService.onDowngrade,
         ),
       );
       _logger.info('Database initialized successfully (version: $version)');
@@ -274,8 +275,7 @@ class SqliteDatabase implements DatabaseInterface {
   /// usable.
   ///
   /// Returns null when the copy could not be written or verified: the caller
-  /// must then leave the database untouched instead of migrating without a
-  /// copy.
+  /// then migrates without a safety net.
   static Future<File?> createPreMigrationSnapshot(
       String path, int fileVersion) async {
     final target = File(preMigrationSnapshotPath(path, fileVersion));
@@ -384,7 +384,7 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   /// Puts [snapshot] back over [path] after a failed upgrade, so the data is
-  /// the one from before the attempt and an older release can open it.
+  /// the one from before the attempt.
   static Future<bool> restorePreMigrationSnapshot(
       String path, File snapshot) async {
     try {
@@ -404,11 +404,13 @@ class SqliteDatabase implements DatabaseInterface {
   }
 
   /// Returns the copy to restore if the upgrade fails, or null when there is
-  /// nothing to protect (no database yet, or already at [version]).
+  /// nothing to protect (no database yet, already at [version], or no copy
+  /// could be written).
   ///
-  /// A database that needs migrating is never opened without its copy: when the
-  /// copy cannot be written the upgrade is skipped, so the file stays at its
-  /// current version and the release that wrote it can still read it.
+  /// A copy that cannot be written (no space, read-only folder) only loses the
+  /// safety net: the upgrade still runs, because the migration itself is a
+  /// single transaction that rolls back on failure. Blocking the upgrade would
+  /// leave the app unable to start for a problem it can work around.
   static Future<File?> _prepareForMigration(String path) async {
     await prunePreMigrationSnapshots(path);
     final fileVersion = await readFileSchemaVersion(path);
@@ -416,10 +418,9 @@ class SqliteDatabase implements DatabaseInterface {
 
     final snapshot = await createPreMigrationSnapshot(path, fileVersion);
     if (snapshot == null) {
-      throw StateError(
-        'Not upgrading the database from version $fileVersion to $version: '
-        'the pre-migration copy could not be written. The data is untouched.',
-      );
+      _logger.warning('Upgrading from version $fileVersion to $version without '
+          'a pre-migration copy (it could not be written)');
+      return null;
     }
     _logger.info('Pre-migration database copy written to ${snapshot.path}');
     return snapshot;

@@ -633,8 +633,7 @@ class SqliteMigrationService {
   /// The update trigger counted every record edit as an additional record, and
   /// categories created by the app stored a NULL counter, which the triggers
   /// kept turning into NULL (NULL + 1 is NULL). Recomputing the counters from
-  /// the records is idempotent, so running this again after a downgrade reset
-  /// the database version is harmless.
+  /// the records is idempotent, so running this again is harmless.
   static Future<void> _migrateTo34(Database db) async {
     await recreateRecordTriggers(db);
     await db.execute('''
@@ -649,30 +648,12 @@ class SqliteMigrationService {
 
   /// Record ids become uuids, so a record keeps its identity across backups and
   /// can be matched exactly on restore.
-  static Future<void> _migrateTo35(Database db) =>
-      _convertIds(db, RecordIdConversionService.convertToUuidIds);
-
-  /// Handles a database written by a newer version: a build that still expects
-  /// integer ids cannot read uuid record ids, so the database is converted back
-  /// before it is used.
   ///
-  /// The schema decides, not the version number: converting an integer database
-  /// is a no-op, so this also works when the newer release uses another version
-  /// number than the one this build knows.
-  static Future<void> onDowngrade(
-      Database db, int oldVersion, int newVersion) async {
-    _logger.info('Downgrading database from version $oldVersion to $newVersion');
-    await _convertIds(db, RecordIdConversionService.convertToIntegerIds);
-    _logger.info('Database downgrade completed to version $newVersion');
-  }
-
-  /// Runs an id [conversion] and recreates the record triggers it drops, only
-  /// when the database actually had to be converted.
-  static Future<void> _convertIds(
-    Database db,
-    Future<bool> Function(Database) conversion,
-  ) async {
-    if (await conversion(db)) {
+  /// There is no downgrade path: a build that still expects integer ids cannot
+  /// read this schema. The conversion looks at the `id` column type, so it is a
+  /// no-op when it runs again on an already converted database.
+  static Future<void> _migrateTo35(Database db) async {
+    if (await RecordIdConversionService.convertToUuidIds(db)) {
       await recreateRecordTriggers(db);
     }
   }

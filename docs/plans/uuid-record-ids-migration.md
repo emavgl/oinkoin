@@ -1,15 +1,19 @@
 # Plan: UUID record IDs
 
-Status: **implemented** on `feat/uuid-record-ids` (schema v35). The two-release
-rollout of §5.1 is still a release-process step: the converter lives in this
-branch, but the guarantee for users only exists for downgrades **to a build that
-contains it**, i.e. the UUID release must be preceded by a release carrying
-`onDowngrade`.
+Status: **implemented** in schema v35 (PR #457).
 Related: issue #452 (backup restore dropped identical records), fixed in 1.16.2 by
 making the content-based dedupe one-to-one (`addRecordsInBatch`).
-Downgrade strategy: **D** — ids are reversible (the previous release converts a
-UUID schema back to integer ids), so the upgrade never copies user data anywhere
-(see §5).
+
+Downgrade: **not supported**. §5 (reversible ids / two-release rollout) is
+superseded and kept only as history: the uuid -> integer converter, the
+`onDowngrade` handler and the release-N requirement were removed after the v35
+release. A build that expects integer ids cannot read a v35 database, and
+reinstalling an older build is not a supported path. What keeps the upgrade safe
+is the migration itself: it runs in the transaction sqflite opens for
+`onUpgrade` (a throw rolls back records, tags and the version bump) and it
+verifies the rebuilt tables before committing (counts, id type, no missing ids,
+`PRAGMA integrity_check`). §5.a is what is actually implemented.
+
 Owner: TBD
 
 Implemented in this branch (see the commit diff for details):
@@ -22,8 +26,6 @@ Implemented in this branch (see the commit diff for details):
   invented by the database) plus
   `_migrateTo35` that rebuilds `records`/`records_tags` from integer ids in
   creation order and recreates the triggers, with before/after count assertions;
-* `SqliteMigrationService.onDowngrade` + `_downgradeFromUuids`, the reverse rebuild
-  (uuid → integer ids in `rowid` order), wired into `SqliteDatabase.init()`;
 * restore keeps ids (`addRecordsInBatch(..., preserveIds: true)`), legacy
   integer-id backups fall back to the 1.16.2 content check, tag associations are
   resolved through uuid or legacy id;
@@ -33,13 +35,29 @@ Implemented in this branch (see the commit diff for details):
 * ordering tie-breaks use `rowid` (`creation_order` exposed on `Record`,
   currency-rate query) instead of the integer id;
 * tests: `test/database/migration_uuid_ids_test.dart` (migration, triggers,
-  idempotency, downgrade, lossless round trip) and
-  `test/backup/restore_uuid_ids_test.dart` (identity based restore, legacy
-  backups, repeated imports).
+  idempotency), `test/database/pre_migration_snapshot_test.dart` (the copy and
+  the rollback of a failed conversion) and `test/backup/restore_uuid_ids_test.dart`
+  (identity based restore, legacy backups, repeated imports).
 
 Not implemented (belongs to the preparatory release N, §5.1): making an
 integer-id build accept *uuid-id backups* (Phase P step 4). Current builds already
 accept both.
+
+### 5.a Safety conditions in the shipped migration
+
+* `RecordIdConversionService.convertToUuidIds` looks at the `id` column type, so
+  it is a no-op on an already converted database instead of a second rewrite.
+* The conversion runs in one transaction and verifies before the commit: record
+  and *attached* tag counts unchanged (orphaned tag rows are ignored, so old
+  databases cannot fail on them), `id` is `TEXT`, no record is left without an
+  id, `PRAGMA integrity_check` is `ok`. A mismatch throws and rolls back.
+* Triggers are recreated after the table rebuild (`recreateRecordTriggers`).
+* A best-effort copy of the file is taken before any schema change
+  (`VACUUM INTO` on a version-less connection, checkpoint + copy as fallback,
+  `quick_check` + row counts as verification, 7 days of retention). It is a
+  recovery aid, **not** a downgrade path, and it never blocks the upgrade.
+* New ids are assigned in creation order (`ORDER BY id`), so the rebuilt table's
+  `rowid` sequence still matches the original insertion order.
 
 ## 1. Why
 
@@ -84,9 +102,9 @@ Goals
 3. Old (integer-id) backups still import correctly.
 4. No regression in record ordering, selection, editing, duplicating, deleting,
    CSV import, recurrent records, budgets or the home widget.
-5. A downgrade to the previous release works automatically and losslessly: ids are
-   converted back to integers from the `rowid` order (§5). The upgrade must not
-   create any additional copy of the user's data.
+5. ~~A downgrade to the previous release works automatically and losslessly~~
+   Dropped: downgrades are not supported (§5). The upgrade must not create any
+   additional copy of the user's data.
 
 Non-goals (possible follow-ups, not in this change)
 
@@ -377,11 +395,16 @@ downgrade guarantee does not exist for the users.
 * Blog post note for the one-way *backup* compatibility and the two-release
   rollout (§5.1).
 
-## 5. Reversible ids (decision: D)
+## 5. Reversible ids (decision: D) — SUPERSEDED, not implemented
 
-Decision: keep the clean single-identity schema (**option A**) and make the id
-migration **reversible**, so downgrading to the previous release works
-automatically. The upgrade never writes a copy of the user's data anywhere.
+> The decision below was dropped before release: downgrades are not supported, so
+> the reverse converter, the `onDowngrade` handler and the release-N rollout were
+> removed. See §5.a at the top of this document for what actually ships. The rest
+> of this section is kept as the reasoning that was considered and rejected.
+
+Decision at planning time: keep the clean single-identity schema (**option A**)
+and make the id migration **reversible**, so downgrading to the previous release
+works automatically. The upgrade never writes a copy of the user's data anywhere.
 
 ### 5.1 Two-release rollout
 
@@ -476,7 +499,7 @@ Mitigations for the "new backup on an older app" case:
 * the restore already returns `false` and shows "Make sure you have the latest
   version of the app…", which is an acceptable message for this case.
 
-Database downgrade: N+1 → N is supported and lossless (§5); older targets are not.
+Database downgrade is not supported (§5).
 
 ## 7. Risks and mitigations
 
@@ -501,8 +524,7 @@ Database downgrade: N+1 → N is supported and lossless (§5); older targets are
 
 - [ ] Fresh install creates `records.id TEXT PRIMARY KEY NOT NULL` (schema v35) and the four triggers.
 - [ ] Upgrading a v33 database keeps record count, tag associations, category usage counters and insertion order; ids are unique uuids.
-- [ ] Re-running `_migrateTo35` on a migrated database is a no-op (simulated downgrade/re-upgrade).
-- [ ] Release N converts a uuid database back to integer ids in `rowid` order, keeping record count, tag associations and creation order; a following upgrade produces unique uuids again (round-trip test).
+- [ ] Re-running `_migrateTo35` on a migrated database is a no-op.
 - [ ] The upgrade creates **no** additional file containing user data (asserted in a test).
 - [ ] Creating, editing, duplicating, deleting, moving, transferring, filtering by wallet/profile, budgets, statistics, home widget and PDF/CSV export all behave as before.
 - [ ] A backup containing two identical records restores both, with the correct balance, and each keeps its own tags.
@@ -514,15 +536,13 @@ Database downgrade: N+1 → N is supported and lossless (§5); older targets are
 
 ## 9. Rollback
 
-* Before release N: revert the branches — nothing has changed for users.
-* Between N and N+1: N is a no-op for users; reverting N is safe (it only adds a
-  downgrade handler that never ran).
-* After N+1, broken migration: ship a forward fix (v35) that repairs ids/tags.
-  `_downgradeFromUuids` is a ready-made escape hatch to an int-id database, but it
-  needs a build that contains it (N), so support guidance is "install N, not an
-  older build".
-* After N+1, pulled/broken release: users install N; the conversion runs on first
-  start and the app works on their existing data (no backup, no data reset).
+* Before v35: revert the branch — nothing has changed for users.
+* A migration that throws rolls back (records, tags and the version bump), so the
+  file stays at v34 and a new build can retry.
+* After v35 is committed, there is no downgrade path: a broken v35 is fixed
+  forward (a v36 that repairs ids/tags), never by reinstalling an older build.
+  The pre-migration copy next to the database holds the v34 data for 7 days, for
+  support/recovery only.
 
 ## 10. Open questions
 

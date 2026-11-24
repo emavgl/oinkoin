@@ -112,7 +112,6 @@ void main() {
         version: version,
         onCreate: onCreate ?? (db, version) async {},
         onUpgrade: onUpgrade ?? (db, from, to) async {},
-        onDowngrade: (db, from, to) async {},
       ),
     );
   }
