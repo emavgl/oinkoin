@@ -157,8 +157,6 @@ const List<String> _v33Schema = [
   ''',
 ];
 
-/// Ids of the three records created by [_createV33Database], in creation order.
-const List<int> _legacyIds = [1, 2, 3];
 
 Future<void> _createV33Database(Database db) async {
   for (final statement in _v33Schema) {
@@ -209,7 +207,6 @@ Future<Database> _open(
   required int version,
   required OnDatabaseCreateFn onCreate,
   required OnDatabaseVersionChangeFn onUpgrade,
-  required OnDatabaseVersionChangeFn onDowngrade,
 }) {
   return databaseFactory.openDatabase(
     path,
@@ -220,7 +217,6 @@ Future<Database> _open(
       version: version,
       onCreate: onCreate,
       onUpgrade: onUpgrade,
-      onDowngrade: onDowngrade,
     ),
   );
 }
@@ -248,7 +244,6 @@ void main() {
       version: 33,
       onCreate: (db, version) => _createV33Database(db),
       onUpgrade: (db, from, to) async {},
-      onDowngrade: (db, from, to) async {},
     );
     await db.close();
   });
@@ -262,15 +257,6 @@ void main() {
         version: 35,
         onCreate: (db, version) async {},
         onUpgrade: SqliteMigrationService.onUpgrade,
-        onDowngrade: SqliteMigrationService.onDowngrade,
-      );
-
-  Future<Database> openAsV33() => _open(
-        dbPath,
-        version: 33,
-        onCreate: (db, version) async {},
-        onUpgrade: SqliteMigrationService.onUpgrade,
-        onDowngrade: SqliteMigrationService.onDowngrade,
       );
 
   Future<String> idColumnType(Database db) async {
@@ -351,8 +337,9 @@ void main() {
         await db.rawQuery('SELECT id FROM records ORDER BY rowid');
     await db.close();
 
-    // A downgrade resets user_version, so the upgrade runs again on the same
-    // (already migrated) schema.
+    // The migration derives from the schema, so opening a converted database
+    // again (the version bump did not land, an interrupted first open) is a
+    // no-op instead of a second rewrite of the ids.
     db = await openAsV35();
     addTearDown(db.close);
     final after = await db.rawQuery('SELECT id FROM records ORDER BY rowid');
@@ -361,53 +348,7 @@ void main() {
         before.map((row) => row['id']).toList());
   });
 
-  test('downgrading from 34 restores integer ids in creation order', () async {
-    var db = await openAsV35();
-    final uuidIds = (await db.rawQuery('SELECT id FROM records ORDER BY rowid'))
-        .map((row) => row['id'] as String)
-        .toList();
-    await db.close();
-
-    db = await openAsV33();
-    addTearDown(db.close);
-
-    expect(await idColumnType(db), 'INTEGER');
-    final rows = await db.rawQuery('SELECT id, title FROM records ORDER BY id');
-    expect(rows.map((row) => row['id']).toList(), _legacyIds);
-    expect(rows.map((row) => row['title']).toList(),
-        ['Test record', 'Test record', 'Coffee']);
-    expect(uuidIds.length, 3);
-
-    // Tags follow their records.
-    final tagged = await tagsByTitle(db);
-    expect(tagged.map((row) => row['tags']).toList(),
-        ['first', 'second', null]);
-  });
-
-  test('a downgrade followed by an upgrade is lossless', () async {
-    var db = await openAsV35();
-    await db.close();
-
-    db = await openAsV33();
-    await db.close();
-
-    db = await openAsV35();
-    addTearDown(db.close);
-
-    expect(await idColumnType(db), 'TEXT');
-    final rows = await db.rawQuery('SELECT id, title FROM records ORDER BY rowid');
-    expect(rows.length, 3);
-    expect(rows.map((row) => row['title']).toList(),
-        ['Test record', 'Test record', 'Coffee']);
-    final ids = rows.map((row) => row['id'] as String).toSet();
-    expect(ids.length, 3);
-
-    final tagged = await tagsByTitle(db);
-    expect(tagged.map((row) => row['tags']).toList(),
-        ['first', 'second', null]);
-  });
-
-  test('every record column survives both conversion directions', () async {
+  test('every record column survives the conversion', () async {
     // Fill a record with every column before the conversion: a column that is
     // missing or misspelled in the copy list would otherwise pass unnoticed.
     final fullRow = <String, Object?>{
@@ -452,10 +393,6 @@ void main() {
     db = await openAsV35();
     await expectFullRow(db);
     await db.close();
-
-    db = await openAsV33();
-    await expectFullRow(db);
-    await db.close();
   });
 
   test('an empty database converts without error', () async {
@@ -469,11 +406,6 @@ void main() {
 
     db = await openAsV35();
     expect(await idColumnType(db), 'TEXT');
-    expect(await db.query('records'), isEmpty);
-    await db.close();
-
-    db = await openAsV33();
-    expect(await idColumnType(db), 'INTEGER');
     expect(await db.query('records'), isEmpty);
     await db.close();
   });

@@ -5,16 +5,12 @@ import '../logger.dart';
 /// Size of the data stored in the tables a record id conversion rebuilds.
 typedef _RecordCounts = ({int records, int tags});
 
-/// Converts the record id representation of a database, so that a build that
-/// expects a different one can open it.
+/// Converts the integer record ids of a database to uuids.
 ///
-/// Record ids became uuids in a newer database version. The conversion runs in
-/// both directions:
-///
-/// * up, from the uuid migration (integer ids -> uuid);
-/// * down, from the `onDowngrade` callback (uuid -> integer ids), because a
-///   build that still expects integer ids cannot read uuids and a released
-///   binary cannot be patched afterwards.
+/// Record ids became uuids in a newer database version, so the migration has to
+/// rewrite the two tables that reference them. There is no reverse conversion:
+/// a build that still expects integer ids cannot read this schema, and a
+/// downgrade is not supported.
 ///
 /// Callers must recreate the record triggers after a conversion: they are
 /// dropped together with the table.
@@ -40,8 +36,9 @@ class RecordIdConversionService {
   /// Replaces integer record ids with generated uuids and returns whether
   /// the database was converted (it is not when the ids are already uuids).
   ///
-  /// Safe to run repeatedly: opening a database with an older version resets
-  /// `user_version`, so the migration can run again on a converted database.
+  /// The check is on the schema, not on `user_version`, so running the
+  /// conversion again on a converted database is a no-op instead of a second
+  /// rewrite of the ids.
   static Future<bool> convertToUuidIds(Database db) async {
     if (!await _usesIntegerIds(db)) {
       _logger.info('Record ids are not integers, nothing to convert to uuids');
@@ -52,34 +49,11 @@ class RecordIdConversionService {
     final countsBefore = await _countRecordsAndTags(db);
     await _mapIntegerIdsToUuids(db);
     await _createUuidTables(db);
-    await _copyRecordsAndTags(db, orderBy: 'r.id');
+    await _copyRecordsAndTags(db);
     await _replaceOldTables(db);
-    await _verifyConversion(db, countsBefore, expectUuids: true);
+    await _verifyConversion(db, countsBefore);
     await _dropIdMap(db);
     _logger.info('Record ids migrated to uuids');
-    return true;
-  }
-
-  /// Replaces uuid record ids with integer ids and returns whether the database
-  /// was converted (it is not when the ids are already integers).
-  ///
-  /// The new ids are assigned in creation (`rowid`) order, so the record
-  /// ordering used as tie-break stays the same.
-  static Future<bool> convertToIntegerIds(Database db) async {
-    if (!await _usesUuidIds(db)) {
-      _logger.info('Record ids are not uuids, nothing to convert to integers');
-      return false;
-    }
-
-    _logger.info('Converting record ids back to integers');
-    final countsBefore = await _countRecordsAndTags(db);
-    await _mapUuidIdsToIntegers(db);
-    await _createIntegerTables(db);
-    await _copyRecordsAndTags(db, orderBy: 'm.new_id');
-    await _replaceOldTables(db);
-    await _verifyConversion(db, countsBefore, expectUuids: false);
-    await _dropIdMap(db);
-    _logger.info('Record ids converted back to integers');
     return true;
   }
 
@@ -87,13 +61,6 @@ class RecordIdConversionService {
     await _createIdMap(db, 'old_id INTEGER PRIMARY KEY, new_id TEXT NOT NULL');
     await db.execute('INSERT INTO records_id_map (old_id, new_id) '
         'SELECT id, $uuidV4Sql FROM records ORDER BY id');
-  }
-
-  static Future<void> _mapUuidIdsToIntegers(Database db) async {
-    await _createIdMap(db,
-        'new_id INTEGER PRIMARY KEY AUTOINCREMENT, old_id TEXT NOT NULL UNIQUE');
-    await db.execute('INSERT INTO records_id_map (old_id) '
-        'SELECT id FROM records ORDER BY rowid');
   }
 
   /// Temporary `old id -> new id` map used while the tables are rebuilt.
@@ -110,26 +77,15 @@ class RecordIdConversionService {
         'PRIMARY KEY (record_id, tag_name))');
   }
 
-  static Future<void> _createIntegerTables(Database db) async {
-    await db.execute('CREATE TABLE records_new ('
-        'id INTEGER PRIMARY KEY AUTOINCREMENT, $_copiedRecordColumns)');
-    await db.execute('CREATE TABLE records_tags_new ('
-        'record_id INTEGER NOT NULL, tag_name TEXT NOT NULL, '
-        'PRIMARY KEY (record_id, tag_name))');
-  }
-
-  /// Copies both tables through the id map. [orderBy] keeps the creation order,
-  /// so the `rowid` sequence of the rebuilt table keeps matching the original
-  /// insertion order.
-  static Future<void> _copyRecordsAndTags(
-    Database db, {
-    required String orderBy,
-  }) async {
+  /// Copies both tables through the id map. Ordering by the old id keeps the
+  /// creation order, so the `rowid` sequence of the rebuilt table keeps
+  /// matching the original insertion order.
+  static Future<void> _copyRecordsAndTags(Database db) async {
     await db.execute(
       'INSERT INTO records_new (id, $_copiedRecordColumns) '
       'SELECT m.new_id, r.$_copiedRecordColumns '
       'FROM records r JOIN records_id_map m ON m.old_id = r.id '
-      'ORDER BY $orderBy',
+      'ORDER BY r.id',
     );
     await db.execute('INSERT INTO records_tags_new (record_id, tag_name) '
         'SELECT m.new_id, rt.tag_name FROM records_tags rt '
@@ -161,16 +117,15 @@ class RecordIdConversionService {
   /// Checks the rebuilt tables before the transaction commits, so a conversion
   /// that lost or mangled data leaves the database as it was instead of
   /// committing the damage. Throwing here rolls back the transaction sqflite
-  /// opens for the migration or the downgrade.
+  /// opens for the migration.
   ///
   /// The checks are deliberately cheap facts about the whole table, not a
-  /// sample: every record survives, the ids have the expected type, none is
-  /// missing, and SQLite's own structural check passes.
+  /// sample: every record survives, the ids are text, none is missing, and
+  /// SQLite's own structural check passes.
   static Future<void> _verifyConversion(
     Database db,
-    _RecordCounts before, {
-    required bool expectUuids,
-  }) async {
+    _RecordCounts before,
+  ) async {
     final after = await _countRecordsAndTags(db);
     if (after != before) {
       throw StateError('Record id conversion lost data: '
@@ -178,11 +133,10 @@ class RecordIdConversionService {
           '${before.tags} -> ${after.tags} tag associations');
     }
 
-    final expectedType = expectUuids ? 'TEXT' : 'INTEGER';
     final idType = await _recordIdType(db);
-    if (idType != expectedType) {
+    if (idType != 'TEXT') {
       throw StateError(
-          'Record id conversion produced $idType ids instead of $expectedType');
+          'Record id conversion produced $idType ids instead of TEXT');
     }
 
     final missingIds = await db.rawQuery(
@@ -218,9 +172,6 @@ class RecordIdConversionService {
     }
     return null;
   }
-
-  static Future<bool> _usesUuidIds(Database db) async =>
-      await _recordIdType(db) == 'TEXT';
 
   static Future<bool> _usesIntegerIds(Database db) async =>
       await _recordIdType(db) == 'INTEGER';
