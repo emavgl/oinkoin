@@ -1,1 +1,1 @@
-Fix restoring identical records that share the same datetime
+Add custom currencies from the currency picker, and use your own currency as the main currency.

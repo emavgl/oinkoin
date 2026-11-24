@@ -1,9 +1,10 @@
 #!/bin/bash
-# Build the F-Droid flavor with in_app_purchase stripped out.
+# Build the F-Droid flavor.
 #
 # F-Droid forbids proprietary dependencies (Google Play Billing) in the APK.
-# This script temporarily swaps the real in_app_purchase packages for no-op
-# stubs, builds the fdroid flavor, then restores the original pubspec.yaml.
+# Oinkoin no longer bundles any billing library, so the F-Droid flavor is built
+# from the committed pubspec.yaml.fdroid/pubspec.lock.fdroid pair (which the
+# F-Droid recipe also uses), then the real pubspec.yaml is restored.
 #
 # Usage:
 #   ./scripts/build_fdroid.sh [--release]
@@ -33,8 +34,8 @@ cleanup() {
     mv "$LOCKFILE_BACKUP" "$LOCKFILE"
     echo "Restored pubspec.lock"
   fi
-  # pub get with the stubs regenerates this file without the StoreKit plugin;
-  # restore it so the working tree stays clean.
+  # pub get regenerates the macOS plugin registrant; restore it so the
+  # working tree stays clean.
   git -C "$PROJECT_DIR" checkout -- macos/Flutter/GeneratedPluginRegistrant.swift 2>/dev/null || true
 }
 trap cleanup EXIT
@@ -43,7 +44,7 @@ trap cleanup EXIT
 cp "$PUBSPEC" "$PUBSPEC_BACKUP"
 cp "$LOCKFILE" "$LOCKFILE_BACKUP"
 
-# Swap real packages for stubs (mirrors F-Droid's own prebuild step exactly)
+# Use the committed F-Droid manifests (mirrors F-Droid's prebuild step)
 cp "$FDROID_PUBSPEC" "$PUBSPEC"
 cp "$FDROID_LOCKFILE" "$LOCKFILE"
 

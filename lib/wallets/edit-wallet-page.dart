@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:piggybank/services/logger.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -49,7 +47,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
   String? _selectedCurrency;
   final _formKey = GlobalKey<FormState>();
   final _balanceController = TextEditingController();
-  Timer? _mathDebounce;
+  late final AmountExpressionResolver _balanceExpressionResolver;
 
   _EditWalletPageState(this.passedWallet);
 
@@ -92,17 +90,12 @@ class _EditWalletPageState extends State<EditWalletPage> {
           getCurrencyValueString(displayBalance, turnOffGrouping: false);
     }
 
-    _balanceController.addListener(() {
-      _mathDebounce?.cancel();
-      _mathDebounce = Timer(const Duration(seconds: 2), () {
-        solveMathExpressionAndUpdateController(_balanceController);
-      });
-    });
+    _balanceExpressionResolver = AmountExpressionResolver(_balanceController);
   }
 
   @override
   void dispose() {
-    _mathDebounce?.cancel();
+    _balanceExpressionResolver.dispose();
     _balanceController.dispose();
     super.dispose();
   }

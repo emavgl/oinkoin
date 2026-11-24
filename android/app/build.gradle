@@ -131,11 +131,17 @@ ext.abiCodes = ['armeabi-v7a': 1, 'arm64-v8a': 2, x86_64: 4]
 // F-droid requires variant.versionCode * 1000 + baseAbiVersionCode
 // instead of the flutter default: baseAbiVersionCode * 1000 + variant.versionCode
 // read more at: https://github.com/emavgl/oinkoin/issues/120
+//
+// Read the base from mergedFlavor rather than variant.versionCode: newer
+// Flutter plugins may already have written an ABI-adjusted override into the
+// variant. Flutter's own override is disabled with
+// force-version-code-ignoring-abi in android/gradle.properties so this is the
+// only place that encodes the ABI.
 android.applicationVariants.all { variant ->
     variant.outputs.each { output ->
         def baseAbiVersionCode = project.ext.abiCodes.get(output.getFilter("ABI"))
         if (baseAbiVersionCode != null) {
-            output.versionCodeOverride = variant.versionCode * 1000 + baseAbiVersionCode
+            output.versionCodeOverride = variant.mergedFlavor.versionCode * 1000 + baseAbiVersionCode
         }
     }
 }

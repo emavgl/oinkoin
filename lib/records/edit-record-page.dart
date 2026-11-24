@@ -69,6 +69,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   final _logger = Logger.withContext('EditRecordPage');
   DatabaseInterface database = ServiceConfig.database;
   TextEditingController _textEditingController = TextEditingController();
+  late final AmountExpressionResolver _amountExpressionResolver;
   final _receivedAmountController = TextEditingController();
   bool _receivedAmountIsManual = false;
   bool _updatingReceivedAmount = false;
@@ -281,19 +282,10 @@ class EditRecordPageState extends State<EditRecordPage> {
     _initWallet();
 
     // Keyboard listeners initializations (the same as before)
-    _textEditingController.addListener(() async {
-      if (readOnly) return;
-      var text = _textEditingController.text.toLowerCase();
-      await Future.delayed(Duration(seconds: 2));
-      if (!mounted) return;
-      var textAfterPause = _textEditingController.text.toLowerCase();
-      if (text == textAfterPause) {
-        solveMathExpressionAndUpdateController(
-          _textEditingController,
-          onSolved: changeRecordValue,
-        );
-      }
-    });
+    _amountExpressionResolver = AmountExpressionResolver(
+      _textEditingController,
+      onSolved: changeRecordValue,
+    );
 
     categorySign =
         isTransferFlow || record?.category?.categoryType == CategoryType.expense
@@ -306,6 +298,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   @override
   void dispose() {
+    _amountExpressionResolver.dispose();
     _textEditingController.dispose();
     _receivedAmountController.dispose();
     _typeAheadController.dispose();
@@ -439,6 +432,10 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   Widget _createCategoryCard() {
     final category = record!.category;
+    // Transfers may have no category, so let the user remove one they set by
+    // mistake. Other record types always have a category: their amount sign
+    // and statistics depend on it.
+    final showClearCategory = isTransferFlow && !readOnly && category != null;
     return InkWell(
       onTap: () async {
         if (readOnly) return;
@@ -477,21 +474,39 @@ class EditRecordPageState extends State<EditRecordPage> {
                         ),
                       ),
                     ),
-              Container(
-                margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                child: Text(
-                  category?.name ?? "Select the category".i18n,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: category == null
-                        ? Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withValues(alpha: 0.5)
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                  child: Text(
+                    category?.name ?? "Select the category".i18n,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: category == null
+                          ? Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withValues(alpha: 0.5)
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
-              )
+              ),
+              if (showClearCategory)
+                Semantics(
+                  identifier: 'clear-category-button',
+                  child: IconButton(
+                    icon: Icon(Icons.close,
+                        size: 28,
+                        color: Theme.of(context).colorScheme.onSurface),
+                    onPressed: () {
+                      setState(() {
+                        record!.category = null;
+                        changeRecordValue(
+                            _textEditingController.text.toLowerCase());
+                      });
+                    },
+                  ),
+                ),
             ],
           ),
         ),
@@ -1258,10 +1273,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   /// concatenated amount (e.g. "10.05+1234" -> 10.051234) because the raw
   /// expression's operators are stripped during parsing.
   void _resolvePendingAmountExpression() {
-    solveMathExpressionAndUpdateController(
-      _textEditingController,
-      onSolved: changeRecordValue,
-    );
+    _amountExpressionResolver.resolveNow();
     if (_isCrossCurrencyTransfer) {
       solveMathExpressionAndUpdateController(_receivedAmountController);
     }
@@ -1330,8 +1342,16 @@ class EditRecordPageState extends State<EditRecordPage> {
     }
   }
 
+  /// Titles typed by the user are stored without leading or trailing
+  /// whitespace. Otherwise the suggestions would later show "Fuel" and
+  /// "Fuel " as two separate entries.
+  void _trimRecordTitle() {
+    record?.title = record?.title?.trim();
+  }
+
   addOrUpdateRecord() async {
     _resolvePendingAmountExpression();
+    _trimRecordTitle();
 
     if (isTransferFlow &&
         (_selectedWallet?.id == null ||
@@ -1498,6 +1518,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   addOrUpdateRecurrentPattern({id}) async {
     _resolvePendingAmountExpression();
+    _trimRecordTitle();
 
     // Assign wallet and transfer fields before creating the pattern
     if (ServiceConfig.walletsEnabled) {

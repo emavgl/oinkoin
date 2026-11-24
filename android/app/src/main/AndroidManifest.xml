@@ -18,6 +18,12 @@
         </intent>
     </queries>
 
+    <!-- Declared on purpose: the Play build keeps the internet permission so
+         a future update can use the network without asking users again. The
+         app itself performs no network requests (no telemetry, no account),
+         and the pro/fdroid/alpha flavors strip this permission. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 
     <application

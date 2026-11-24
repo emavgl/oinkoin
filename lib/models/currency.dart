@@ -43,6 +43,19 @@ class CurrencyInfo {
   static List<CurrencyInfo> get customCurrencies =>
       List.unmodifiable(_customCurrencies);
 
+  /// Removes the user-defined currency with [isoCode] from the in-memory list.
+  ///
+  /// Only the registry is touched here: the persisted definition is removed by
+  /// the caller (see `saveUserCurrencyConfig`). Built-in currencies are never
+  /// removed. Returns whether a custom currency was actually removed.
+  static bool removeCustomCurrency(String isoCode) {
+    final upperCode = isoCode.toUpperCase();
+    final index = _customCurrencies.indexWhere((c) => c.isoCode == upperCode);
+    if (index < 0) return false;
+    _customCurrencies.removeAt(index);
+    return true;
+  }
+
   static const List<CurrencyInfo> allCurrencies = [
     CurrencyInfo(isoCode: 'USD', name: 'US Dollar'),
     CurrencyInfo(isoCode: 'EUR', name: 'Euro'),

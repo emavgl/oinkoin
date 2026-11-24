@@ -204,9 +204,12 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
       _pressKey(getDecimalSeparator());
       return KeyEventResult.handled;
     }
-    if (event.logicalKey == LogicalKeyboardKey.backspace ||
-        event.logicalKey == LogicalKeyboardKey.delete) {
+    if (event.logicalKey == LogicalKeyboardKey.backspace) {
       _backspace();
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.delete) {
+      _deleteForward();
       return KeyEventResult.handled;
     }
     if (event.logicalKey == LogicalKeyboardKey.enter ||
@@ -223,33 +226,76 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
         newValue, (v, f) => f.formatEditUpdate(oldValue, v));
   }
 
+  /// Returns the caret range to edit, falling back to the end of the text when
+  /// the controller has no valid selection (e.g. it was never focused).
+  TextSelection _editingSelection(TextEditingValue value) {
+    final selection = value.selection;
+    if (!selection.isValid) {
+      return TextSelection.collapsed(offset: value.text.length);
+    }
+    final start = selection.start.clamp(0, value.text.length);
+    final end = selection.end.clamp(start, value.text.length);
+    return TextSelection(baseOffset: start, extentOffset: end);
+  }
+
   void _pressKey(String char) {
     final old = widget.controller.value;
-    String base = old.text;
+    final text = old.text;
+    final selection = _editingSelection(old);
+    var start = selection.start;
+    var end = selection.end;
+
+    // Typing an operator right after another operator replaces the previous
+    // one instead of stacking them.
     if (CalculatorOperator.isOperator(char) &&
-        CalculatorOperator.exprEndsWithOperator(base)) {
-      base = base.substring(0, base.length - 1);
+        start == end &&
+        start > 0 &&
+        CalculatorOperator.exprEndsWithOperator(text.substring(0, start))) {
+      start -= 1;
     }
-    final appended = base + char;
-    final baseValue = TextEditingValue(
-      text: base,
-      selection: TextSelection.collapsed(offset: base.length),
-    );
+
+    final inserted = text.replaceRange(start, end, char);
+    final caret = start + char.length;
     final next = TextEditingValue(
-      text: appended,
-      selection: TextSelection.collapsed(offset: appended.length),
+      text: inserted,
+      selection: TextSelection.collapsed(offset: caret),
     );
-    widget.controller.value = _applyFormatters(baseValue, next);
+    widget.controller.value = _applyFormatters(old, next);
     HapticFeedback.lightImpact();
   }
 
+  /// Deletes the character before the caret (or the current selection).
   void _backspace() {
+    _deleteSelection(forward: false);
+  }
+
+  /// Deletes the character after the caret (or the current selection).
+  void _deleteForward() {
+    _deleteSelection(forward: true);
+  }
+
+  void _deleteSelection({required bool forward}) {
     final old = widget.controller.value;
-    if (old.text.isEmpty) return;
-    final newText = old.text.substring(0, old.text.length - 1);
+    final text = old.text;
+    if (text.isEmpty) return;
+    final selection = _editingSelection(old);
+    var start = selection.start;
+    var end = selection.end;
+
+    if (start == end) {
+      if (forward) {
+        if (end >= text.length) return;
+        end += 1;
+      } else {
+        if (start == 0) return;
+        start -= 1;
+      }
+    }
+
+    final newText = text.replaceRange(start, end, '');
     final next = TextEditingValue(
       text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
+      selection: TextSelection.collapsed(offset: start),
     );
     widget.controller.value = _applyFormatters(old, next);
     HapticFeedback.lightImpact();
@@ -261,12 +307,25 @@ class _InAppKeyboardState extends State<InAppKeyboard> {
   }
 
   void _toggleSign() {
-    final text = _text;
-    final newText = text.startsWith('-') ? text.substring(1) : '-$text';
-    widget.controller.value = TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
+    final old = widget.controller.value;
+    final text = old.text;
+    final caret =
+        old.selection.isValid ? old.selection.baseOffset : text.length;
+    if (text.startsWith('-')) {
+      final newText = text.substring(1);
+      widget.controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(
+            offset: (caret - 1).clamp(0, newText.length)),
+      );
+    } else {
+      final newText = '-$text';
+      widget.controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(
+            offset: (caret + 1).clamp(0, newText.length)),
+      );
+    }
     HapticFeedback.mediumImpact();
   }
 

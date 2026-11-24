@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:piggybank/helpers/datetime-utility-functions.dart';
 import 'package:piggybank/models/record.dart';
 import 'package:piggybank/models/recurrent-period.dart';
@@ -10,6 +12,18 @@ import 'logger.dart';
 
 class RecurrentRecordService {
   static final _logger = Logger.withClass(RecurrentRecordService);
+
+  /// Tail of the queue that serializes [updateRecurrentRecords] calls of every
+  /// service instance.
+  ///
+  /// The records page triggers an update from several lifecycle hooks without
+  /// awaiting them (cold start, resume, tab change, returning from a page), so
+  /// two updates used to run at the same time. Both read the same stored
+  /// `last_update` from the patterns and generated the records that had just
+  /// become due, which duplicated them on the day they manifested
+  /// (see discussion #463). Queueing makes the second update wait and re-read
+  /// the patterns after the first one persisted its dates.
+  static Future<void> _updateQueue = Future<void>.value();
 
   DatabaseInterface database = ServiceConfig.database;
   final int? profileId;
@@ -227,7 +241,24 @@ class RecurrentRecordService {
     }
   }
 
+  /// Generates and stores the recurrent records that are due up to [endDate].
+  ///
+  /// Calls are serialized: an update issued while another one is still running
+  /// waits for it instead of generating the same records again.
   Future<List<Record>> updateRecurrentRecords(DateTime endDate) async {
+    final previousUpdate = _updateQueue;
+    final currentUpdate = Completer<void>();
+    _updateQueue = currentUpdate.future;
+    try {
+      // A failed update must not block the following ones.
+      await previousUpdate.catchError((Object _) {});
+      return await _updateRecurrentRecords(endDate);
+    } finally {
+      currentUpdate.complete();
+    }
+  }
+
+  Future<List<Record>> _updateRecurrentRecords(DateTime endDate) async {
     try {
       _logger.info('Starting recurrent records update...');
       List<RecurrentRecordPattern> patterns =

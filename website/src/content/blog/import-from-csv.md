@@ -40,7 +40,7 @@ Oinkoin handles the details so you don't have to:
 
 ## Wallet Mapping
 
-If your CSV includes wallet information, you can map it to the Wallet field. Wallet support is an **Oinkoin Pro** feature — non-Pro users will see a PRO label on the Wallet mapping row.
+If your CSV includes wallet information, you can map it to the Wallet field. Wallet support is included in Oinkoin for everyone — there is no PRO label on the Wallet mapping row.
 
 ## Saved Mappings
 

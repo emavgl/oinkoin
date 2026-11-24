@@ -1,0 +1,1 @@
+Fix amount editing with a moved cursor, budget target math and category counters

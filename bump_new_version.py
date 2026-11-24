@@ -31,14 +31,22 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
     matches = re.search(version_pattern, pubspec_content)
     if matches:
         version_name, version_code = matches.groups()
-        if new_version_name == "keep":
+        keep_name = new_version_name == "keep"
+        if keep_name:
             new_version_name = version_name
         version_code = int(version_code)
     else:
         print('No version information found in pubspec.yaml')
 
-    # Update the version in pubspec.yaml with the provided version argument
-    new_version_code = version_code + 1
+    # Bump the build number only when the release introduces a new version name.
+    # A version that is already in pubspec.yaml was bumped ahead of time (for
+    # example together with the feature); releasing it must ship exactly that
+    # versionCode so the uploaded bundle matches what is on master. "keep"
+    # still means "same name, new build", so it keeps incrementing.
+    if keep_name or new_version_name != version_name:
+        new_version_code = version_code + 1
+    else:
+        new_version_code = version_code
     new_pubspec_content = pubspec_content.replace(f"version: {version_name}+{version_code}", f"version: {new_version_name}+{new_version_code}")
 
     # Write the updated content back to pubspec.yaml
@@ -46,7 +54,7 @@ def update_flutter_version_and_copy_changelog(new_version_name, changelog_file):
         pubspec_file.write(new_pubspec_content)
 
     print(f'Updated version to {new_version_name} in pubspec.yaml')
-    print(f'Incremented version code to {new_version_code}')
+    print(f'Version code is {new_version_code}')
 
     # Keep the F-Droid stub manifest in sync because some Android workflows
     # swap it into place before building.

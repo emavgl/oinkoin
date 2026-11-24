@@ -340,8 +340,10 @@ class HomeWidgetService {
 
   static bool _isDark(SharedPreferences prefs) {
     final modeIndex = prefs.getInt(PreferencesKeys.themeMode) ?? 0;
-    if (modeIndex == 2) return true;
-    if (modeIndex == 1) return false;
+    // "Black" is a dark theme as well, so the shared mapping covers it.
+    final mode = MaterialThemeInstance.themeModeFromIndex(modeIndex);
+    if (mode == ThemeMode.dark) return true;
+    if (mode == ThemeMode.light) return false;
     return SchedulerBinding.instance.platformDispatcher.platformBrightness ==
         Brightness.dark;
   }

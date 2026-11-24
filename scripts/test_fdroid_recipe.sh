@@ -5,8 +5,8 @@
 #   build:    flutter pub get --enforce-lockfile
 #
 # Run this after touching pubspec.yaml, pubspec.lock, pubspec.yaml.fdroid,
-# pubspec.lock.fdroid, or the stubs/ packages, to catch a lockfile mismatch
-# before it shows up as a failed F-Droid build.
+# pubspec.lock.fdroid, to catch a lockfile mismatch before it shows up as a
+# failed F-Droid build.
 #
 # Usage:
 #   ./scripts/test_fdroid_recipe.sh

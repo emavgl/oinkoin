@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Oinkoin
+GenericName=Expense Tracker
+Icon=oinkoin
+Exec=oinkoin %U
+Categories=Office;Finance;Utility;
+Keywords=expense;tracker;finance;budget;money;piggybank;oinkoin;
+StartupNotify=true

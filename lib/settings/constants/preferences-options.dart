@@ -5,10 +5,17 @@ import '../backup-retention-period.dart';
 import 'homepage-time-interval.dart';
 
 class PreferencesOptions {
+  /// Index of the "Black" theme style: it behaves like the dark theme
+  /// (ThemeMode.dark) but the generated dark theme uses pure black (#000000)
+  /// surfaces, which suits AMOLED screens. Kept here so the dropdown and the
+  /// theme builder agree on the same value.
+  static const int blackThemeMode = 3;
+
   static Map<String, int> get themeStyleDropdown => {
         "System".i18n: 0,
         "Light".i18n: 1,
         "Dark".i18n: 2,
+        "Black".i18n: blackThemeMode,
       };
 
   static Map<String, int> get themeColorDropdown => {

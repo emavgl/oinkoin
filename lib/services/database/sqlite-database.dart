@@ -674,47 +674,58 @@ class SqliteDatabase implements DatabaseInterface {
       // as-is and skipped when the database already holds that id (identity
       // based merge, used when restoring a backup).
       //
-      // Records without an id fall back to the content based duplicate check:
-      // a record is skipped only when an identical already-stored record has
-      // not already been matched by an earlier record of this batch, so
-      // identical records inside the same backup are all restored while
-      // re-importing stored data still adds nothing.
+      // Records without an id fall back to the content based duplicate check,
+      // which is one-to-one: a record is only skipped when an identical
+      // already-stored record has not already been matched by an earlier
+      // record of this batch. Identical records within the same batch are
+      // distinct user data (e.g. two identical expenses recorded at the same
+      // minute and restored from a backup) and must all be stored, while
+      // importing data that is already in the database still adds nothing.
+      //
+      // The duplicate check, the inserts and the tag inserts all run in the
+      // same transaction. sqflite serializes transactions on a database, so a
+      // concurrent batch (e.g. a recurrent-records update overlapping with a
+      // backup import) cannot read the stored occurrences before this batch is
+      // committed and insert the very same records again.
       final matchedDuplicates = <_RecordDuplicateSignature, int>{};
+      // Stored occurrences per signature, counted once before anything is
+      // inserted so that the one-to-one matching keeps its meaning.
+      final storedDuplicates = <_RecordDuplicateSignature, int>{};
       final recordsToInsert = <Record>[];
-      for (var record in records) {
-        if (record == null) {
-          continue;
-        }
-        record.profileId ??= ProfileService.instance.activeProfileId;
-
-        if (preserveIds && record.id != null) {
-          recordsToInsert.add(record);
-          continue;
-        }
-
-        record.id = null;
-        final signature = _duplicateSignature(record);
-        final alreadyMatched = matchedDuplicates[signature] ?? 0;
-        final alreadyStored = await _countDuplicateRecords(db, record);
-        if (alreadyMatched < alreadyStored) {
-          matchedDuplicates[signature] = alreadyMatched + 1;
-          _logger.debug('Skipping already-stored record: ${record.title}');
-          continue;
-        }
-        recordsToInsert.add(record);
-      }
-
-      if (recordsToInsert.isEmpty) {
-        _logger.info('No new records to insert in batch');
-        return;
-      }
 
       var inserted = 0;
       var insertedTags = 0;
-      // Records and their tags are inserted in one transaction: tags are
-      // attached to the id of each record, so identical records never share
-      // each other's tags.
       await db.transaction((txn) async {
+        for (var record in records) {
+          if (record == null) {
+            continue;
+          }
+          record.profileId ??= ProfileService.instance.activeProfileId;
+
+          if (preserveIds && record.id != null) {
+            recordsToInsert.add(record);
+            continue;
+          }
+
+          record.id = null;
+          final signature = _duplicateSignature(record);
+          final alreadyStored = storedDuplicates[signature] ??
+              await _countDuplicateRecords(txn, record);
+          storedDuplicates[signature] = alreadyStored;
+
+          final alreadyMatched = matchedDuplicates[signature] ?? 0;
+          if (alreadyMatched < alreadyStored) {
+            matchedDuplicates[signature] = alreadyMatched + 1;
+            _logger.debug('Skipping already-stored record: ${record.title}');
+            continue;
+          }
+          recordsToInsert.add(record);
+        }
+
+        // Tags are attached to the id of each record, so identical records
+        // never share each other's tags. The uuid is generated here, not by
+        // the schema, so the id of a batch-inserted record is known even when
+        // the caller did not provide one.
         for (var record in recordsToInsert) {
           final providedId = record.id;
           if (providedId != null) {
@@ -763,7 +774,8 @@ class SqliteDatabase implements DatabaseInterface {
 
   /// Number of records already stored in the database that are identical to
   /// [record] according to the duplicate check of [addRecordsInBatch].
-  Future<int> _countDuplicateRecords(Database db, Record record) async {
+  Future<int> _countDuplicateRecords(
+      DatabaseExecutor db, Record record) async {
     var result = await db.rawQuery(
       """
       SELECT COUNT(*) AS occurrences FROM records
@@ -976,18 +988,35 @@ class SqliteDatabase implements DatabaseInterface {
     String search,
     String categoryName,
   ) async {
+    final trimmedSearch = search.trim();
+    if (trimmedSearch.isEmpty) {
+      return [];
+    }
     final db = (await database)!;
-    var maps = await db.rawQuery(
+    // Titles saved before trimming was enforced may carry leading/trailing
+    // whitespace, so trim before matching and de-duplicating: "Fuel" and
+    // "Fuel " must produce a single suggestion.
+    final maps = await db.rawQuery(
       """
-            SELECT DISTINCT m.title 
-            FROM records as m WHERE m.title LIKE ? AND m.category_name = ? 
+            SELECT DISTINCT TRIM(m.title) AS title
+            FROM records AS m
+            WHERE TRIM(m.title) LIKE ? AND m.category_name = ?
+            ORDER BY title COLLATE NOCASE
         """,
-      ["%$search%", categoryName],
+      ["%$trimmedSearch%", categoryName],
     );
-    return List.generate(maps.length, (i) {
-      Map<String, dynamic> currentRowMap = Map<String, String>.from(maps[i]);
-      return currentRowMap["title"];
-    });
+    final titles = <String>[];
+    final seenTitles = <String>{};
+    for (final map in maps) {
+      final title = (map["title"] as String?)?.trim();
+      if (title == null || title.isEmpty) {
+        continue;
+      }
+      if (seenTitles.add(title)) {
+        titles.add(title);
+      }
+    }
+    return titles;
   }
 
   @override

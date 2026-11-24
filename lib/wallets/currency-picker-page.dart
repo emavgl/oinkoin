@@ -62,7 +62,7 @@ class _CurrencyPickerPageState extends State<CurrencyPickerPage> {
       final existing = _config.getByCode(result);
       if (existing == null) {
         _config.currencies
-            .insert(0, UserCurrency(isoCode: result, ratioToMain: 1.0));
+            .insert(0, buildUserCurrencyEntry(result));
       }
     });
     await saveUserCurrencyConfig(_config);
@@ -166,6 +166,23 @@ class _CurrencyPickerPageState extends State<CurrencyPickerPage> {
     await saveUserCurrencyConfig(_config);
   }
 
+  /// Adds a custom currency while browsing the full list. The new code is
+  /// returned to the caller, which then asks for the conversion ratio.
+  Future<void> _addCustomCurrencyAndReturn() async {
+    final result = await Navigator.push<UserCurrency?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddCustomCurrencyPage(
+          mainCurrency: _config.mainCurrency ?? '',
+          existingCodes: _config.isoCodes,
+        ),
+      ),
+    );
+    if (result == null) return;
+    if (!mounted) return;
+    Navigator.of(context).pop(result.isoCode);
+  }
+
   List<String> get _allCodes {
     final customCodes = CurrencyInfo.customCurrencies.map((c) => c.isoCode);
     return [
@@ -194,6 +211,14 @@ class _CurrencyPickerPageState extends State<CurrencyPickerPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Select Currency".i18n),
+        actions: [
+          if (widget.showAllCurrencies)
+            IconButton(
+              onPressed: _addCustomCurrencyAndReturn,
+              icon: const Icon(Icons.add),
+              tooltip: "Add your missing currency".i18n,
+            ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: Padding(
@@ -215,63 +240,73 @@ class _CurrencyPickerPageState extends State<CurrencyPickerPage> {
           ),
         ),
       ),
-      body: showEmptyState
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.search_off, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text(
-                    "No currency found".i18n,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Would you like to add your own currency?".i18n,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6),
+      body: Column(
+        children: [
+          Expanded(
+            child: showEmptyState
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.search_off,
+                            size: 64, color: Colors.grey),
+                        const SizedBox(height: 16),
+                        Text(
+                          "No currency found".i18n,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _addCustomCurrency,
-                    icon: const Icon(Icons.add),
-                    label: Text("Add your missing currency".i18n),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              itemCount: filtered.length,
-              itemBuilder: (context, index) {
-                final code = filtered[index];
-                final info = CurrencyInfo.byCode(code);
-                final isSelected = code == widget.selectedCurrency;
-
-                return ListTile(
-                  leading: SizedBox(
-                    width: 40,
-                    child: Text(
-                      info?.symbol ?? code,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
+                        const SizedBox(height: 8),
+                        Text(
+                          "Would you like to add your own currency?".i18n,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: widget.showAllCurrencies
+                              ? _addCustomCurrencyAndReturn
+                              : _addCustomCurrency,
+                          icon: const Icon(Icons.add),
+                          label: Text("Add your missing currency".i18n),
+                        ),
+                      ],
                     ),
+                  )
+                : ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final code = filtered[index];
+                      final info = CurrencyInfo.byCode(code);
+                      final isSelected = code == widget.selectedCurrency;
+
+                      return ListTile(
+                        leading: SizedBox(
+                          width: 40,
+                          child: Text(
+                            info?.symbol ?? code,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        title: Text(code),
+                        subtitle: Text(info?.name ?? code),
+                        trailing: isSelected
+                            ? Icon(Icons.check,
+                                color: Theme.of(context).colorScheme.primary)
+                            : null,
+                        onTap: () => Navigator.of(context).pop(code),
+                      );
+                    },
                   ),
-                  title: Text(code),
-                  subtitle: Text(info?.name ?? code),
-                  trailing: isSelected
-                      ? Icon(Icons.check,
-                          color: Theme.of(context).colorScheme.primary)
-                      : null,
-                  onTap: () => Navigator.of(context).pop(code),
-                );
-              },
-            ),
+          ),
+        ],
+      ),
       floatingActionButton: widget.showAllCurrencies
           ? null
           : FloatingActionButton(

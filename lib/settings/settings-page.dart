@@ -10,6 +10,7 @@ import 'package:piggybank/premium/util-widgets.dart';
 import 'package:piggybank/recurrent_record_patterns/patterns-page-view.dart';
 import 'package:piggybank/services/database/database-interface.dart';
 import 'package:piggybank/services/logger.dart';
+import 'package:piggybank/services/premium-license-store.dart';
 import 'package:piggybank/services/home-widget-service.dart';
 import 'package:piggybank/services/service-config.dart';
 import 'package:piggybank/settings/backup-page.dart';
@@ -415,21 +416,24 @@ class TabSettings extends StatelessWidget {
             subtitle: "Got problems? Check out the logs".i18n,
             onPressed: () async => await goToLogs(context),
           ),
+          // Debug/alpha only: shows whether this installation owns Lifetime
+          // Pro, i.e. what Google Play reported and `PremiumLicenseStore`
+          // cached. Oinkoin is free for everyone, so there is nothing to
+          // switch: tapping just re-reads the stored Play entitlement.
           if (kDebugMode || ServiceConfig.packageName!.contains("alpha"))
-            ValueListenableBuilder<bool>(
-              valueListenable: ServiceConfig.premiumNotifier,
-              builder: (context, isPremium, child) {
-                return SettingsItem(
-                  icon: Icon(
-                    Icons.bug_report,
-                    color: Colors.white,
-                  ),
-                  iconBackgroundColor: Colors.grey.shade700,
-                  title: 'Debug: Switch Pro',
-                  subtitle: isPremium ? 'Premium: ON' : 'Premium: OFF',
-                  onPressed: ServiceConfig.togglePremium,
-                );
-              },
+            StatefulBuilder(
+              builder: (context, setState) => SettingsItem(
+                icon: Icon(
+                  Icons.bug_report,
+                  color: Colors.white,
+                ),
+                iconBackgroundColor: Colors.grey.shade700,
+                title: 'Debug: Lifetime Pro',
+                subtitle: PremiumLicenseStore.isPro()
+                    ? 'Purchased on Google Play'
+                    : 'Not purchased',
+                onPressed: () => setState(() {}),
+              ),
             ),
         ],
       ),

@@ -152,6 +152,24 @@ Future<void> saveUserCurrencyConfig(UserCurrencyConfig config) async {
   }
 }
 
+/// Builds the config entry for [isoCode] with [ratioToMain].
+///
+/// Custom (user-defined) currencies keep their custom name and symbol, so that
+/// they survive a restart and stay selectable, e.g. when the user chooses one
+/// as the main currency.
+UserCurrency buildUserCurrencyEntry(String isoCode,
+    {double ratioToMain = 1.0}) {
+  final info = CurrencyInfo.byCode(isoCode);
+  final isCustom = info != null &&
+      CurrencyInfo.customCurrencies.any((c) => c.isoCode == isoCode);
+  return UserCurrency(
+    isoCode: isoCode,
+    ratioToMain: ratioToMain,
+    customName: isCustom ? info.name : null,
+    customSymbol: isCustom ? info.symbol : null,
+  );
+}
+
 /// Returns the list of user-defined currency ISO codes.
 List<String> getUserCurrencyCodes() {
   return getUserCurrencyConfig().isoCodes;
@@ -209,8 +227,7 @@ class _CurrenciesPageState extends State<CurrenciesPage> {
       // Ensure main currency is in the list with ratio 1.0
       final existing = _config.getByCode(result);
       if (existing == null) {
-        _config.currencies
-            .insert(0, UserCurrency(isoCode: result, ratioToMain: 1.0));
+        _config.currencies.insert(0, buildUserCurrencyEntry(result));
       }
     });
     await saveUserCurrencyConfig(_config);
@@ -347,6 +364,10 @@ class _CurrenciesPageState extends State<CurrenciesPage> {
       _config.currencies.removeWhere((c) => c.isoCode == isoCode);
     });
     await saveUserCurrencyConfig(_config);
+    // Drop the definition from the in-memory registry as well, so a deleted
+    // custom currency stops showing up in the pickers (and can be re-created
+    // with the same code) without waiting for an app restart.
+    CurrencyInfo.removeCustomCurrency(isoCode);
   }
 
   @override

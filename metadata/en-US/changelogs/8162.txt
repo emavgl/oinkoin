@@ -1,0 +1,1 @@
+Fix Android version code handling so F-Droid builds and sideloaded updates work again.

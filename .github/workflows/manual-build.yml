@@ -131,7 +131,7 @@ jobs:
           flutter --version
           
           # Build .deb, .rpm, and AppImage packages
-          flutter_distributor release --name=linux-release --jobs=release-linux-deb,release-linux-rpm,release-linux-appimage
+          scripts/build_linux_packages.sh
 
       - name: Upload .deb as artifact
         uses: actions/upload-artifact@v4
@@ -143,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-rpm
-          path: dist/*/*-linux.rpm
+          path: dist/rpmbuild/RPMS/*/*.rpm
 
       - name: Upload AppImage as artifact
         uses: actions/upload-artifact@v4

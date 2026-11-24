@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -70,6 +71,53 @@ void solveMathExpressionAndUpdateController(
     onSolved?.call(controller.text.toLowerCase());
   } catch (e) {
     stderr.writeln("Can't parse the expression: $text");
+  }
+}
+
+/// Resolves math expressions typed into an amount [controller] after the user
+/// pauses, so fields accept input like `1000+125` without evaluating while the
+/// expression is still being typed.
+///
+/// The owning page must call [dispose] when it is disposed.
+class AmountExpressionResolver {
+  AmountExpressionResolver(
+    this.controller, {
+    this.onSolved,
+    this.delay = const Duration(seconds: 2),
+  }) {
+    controller.addListener(_schedule);
+  }
+
+  final TextEditingController controller;
+  final void Function(String)? onSolved;
+  final Duration delay;
+
+  Timer? _timer;
+  bool _resolving = false;
+
+  void _schedule() {
+    // Controller updates performed by [resolveNow] must not schedule another
+    // resolution.
+    if (_resolving) return;
+    _timer?.cancel();
+    _timer = Timer(delay, resolveNow);
+  }
+
+  /// Resolves a pending expression immediately, e.g. before saving when the
+  /// user has not waited for [delay] to elapse.
+  void resolveNow() {
+    _timer?.cancel();
+    _resolving = true;
+    try {
+      solveMathExpressionAndUpdateController(controller, onSolved: onSolved);
+    } finally {
+      _resolving = false;
+    }
+  }
+
+  void dispose() {
+    _timer?.cancel();
+    controller.removeListener(_schedule);
   }
 }
 

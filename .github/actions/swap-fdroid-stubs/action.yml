@@ -1,15 +1,17 @@
-name: Swap in F-Droid stub dependencies
+name: Swap in the F-Droid pubspec
 description: >
   Back up the real pubspec.yaml/pubspec.lock, then replace them with the
-  committed, pre-resolved F-Droid stub variants (no proprietary Google Play
-  Billing) and resolve once. Used by every CI build that needs the same
-  no-op in_app_purchase as the F-Droid build: Pro and Alpha. Pair with the
-  restore-real-pubspec action once the stubbed build is done.
+  committed, pre-resolved F-Droid variants and resolve once. Used by the
+  F-Droid build and by the Pro/Alpha builds, which ship without Google Play
+  Billing. Oinkoin has no billing dependency any more, so these variants match
+  the real manifest; the swap is kept so the F-Droid recipe and the CI jobs
+  keep using the same pinned pair. Pair with the restore-real-pubspec action
+  once the build is done.
 
 runs:
   using: composite
   steps:
-    - name: Swap in F-Droid stub dependencies
+    - name: Swap in the F-Droid pubspec
       run: |
         cp pubspec.yaml pubspec.yaml.bak
         cp pubspec.lock pubspec.lock.bak

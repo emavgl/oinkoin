@@ -1,0 +1,1 @@
+Add custom currencies from the currency picker, and use your own currency as the main currency.

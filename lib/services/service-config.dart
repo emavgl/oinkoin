@@ -11,8 +11,17 @@ class ServiceConfig {
   /// used in different parts of the applications.
 
   static final DatabaseInterface database = SqliteDatabase.instance;
-  static bool isPremium = false; // set in main.dart
-  static final ValueNotifier<bool> premiumNotifier = ValueNotifier(false);
+
+  /// Whether the Pro features are unlocked. Oinkoin is currently free for
+  /// everyone, so this defaults to `true` and nothing turns it off. The gates
+  /// that read it are kept in place so paid features can be restored by giving
+  /// this flag real logic again (see `main.dart` for the startup hook).
+  static bool isPremium = true;
+
+  /// Mirrors [isPremium] for widgets that need to rebuild when it changes
+  /// (the paywall used to listen to it). Nothing listens while the app is
+  /// free; kept as the hook a future purchase service plugs into.
+  static final ValueNotifier<bool> premiumNotifier = ValueNotifier(true);
   static SharedPreferences? sharedPreferences;
   static String localTimezone = "Europe/London"; // set in main
 
@@ -80,12 +89,10 @@ class ServiceConfig {
     budgetsEnabledNotifier.value = budgetsEnabled;
   }
 
-  static void togglePremium() {
-    setPremium(!isPremium);
-  }
-
   /// Updates the premium state and notifies [premiumNotifier] listeners.
-  /// Used by the purchase service (license sync) and the debug toggle.
+  ///
+  /// Nothing calls this while Oinkoin is free for everyone: it is kept next to
+  /// [premiumNotifier] as the entry point a purchase service would use again.
   static void setPremium(bool value) {
     if (isPremium == value && premiumNotifier.value == value) return;
     isPremium = value;
