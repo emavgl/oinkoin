@@ -95,9 +95,38 @@ void _handlePendingQuickAction() {
       });
 }
 
+/// Forwards errors that would otherwise be invisible to the app log (the
+/// Logs page only shows what is explicitly passed to [globalTalker]).
+///
+/// Nothing is suppressed or rethrown: the previous/default handlers still run,
+/// so console output and crash reporting behave exactly as before. Messages are
+/// written with [Logger.error], which does not raise a `TalkerException` and
+/// therefore does not add a snackbar to the UI.
+void _installErrorLogging() {
+  final previousOnError = FlutterError.onError;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    logger.error(
+      'Uncaught Flutter error: ${details.exceptionAsString()}\n'
+      '${details.stack ?? ''}',
+    );
+    if (previousOnError != null) {
+      previousOnError(details);
+    } else {
+      FlutterError.presentError(details);
+    }
+  };
+
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    logger.error('Uncaught asynchronous error: $error\n$stack');
+    // Keep the default handling (debug console, crash reporting).
+    return false;
+  };
+}
+
 main() async {
   DartPluginRegistrant.ensureInitialized();
   WidgetsFlutterBinding.ensureInitialized();
+  _installErrorLogging();
 
   logger.info('App initialization started');
 

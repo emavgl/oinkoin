@@ -578,6 +578,13 @@ class BackupService {
   }) async {
     try {
       _logger.info('Starting backup import from: ${inputFile.path}');
+      // A truncated or unreadable copy of the picked file is a common reason
+      // for a restore that seems to do nothing, so its size is recorded.
+      try {
+        _logger.debug('Backup file size: ${await inputFile.length()} bytes');
+      } catch (error) {
+        _logger.warning('Could not read the backup file size: $error');
+      }
       String fileContent = await inputFile.readAsString();
 
       // Decrypt the file content if an encryption password is provided
@@ -588,10 +595,22 @@ class BackupService {
 
       var jsonMap = jsonDecode(fileContent);
       Backup backup = Backup.fromMap(jsonMap);
+      // The backup header is recorded so a restore coming from a different app
+      // or database version is visible in the log.
+      _logger.info(
+        'Backup header: package=${backup.packageName}, '
+        'version=${backup.version}, databaseVersion=${backup.databaseVersion}, '
+        'currentDatabaseVersion=${SqliteDatabase.version}, '
+        'preferences=${backup.preferences.length}',
+      );
       _logger.info(
         'Importing: ${backup.records.length} records, ${backup.categories.length} categories, ${backup.wallets.length} wallets, ${backup.budgets.length} budgets',
       );
 
+      _logger.debug(
+        'Import context: walletsEnabled=${ServiceConfig.walletsEnabled}, '
+        'budgetsEnabled=${ServiceConfig.budgetsEnabled}',
+      );
       // Restore portable preferences independently. A malformed, obsolete, or
       // failing setting is skipped by the preference service and cannot abort
       // the database restore. Very old backups stored user currencies in a
@@ -639,6 +658,8 @@ class BackupService {
       final profileIdMap =
           <int, int>{}; // backup profile id → new db profile id
       int? fallbackProfileId;
+      var profilesCreated = 0;
+      var profilesReused = 0;
 
       if (backup.profiles.isNotEmpty) {
         // Check if a default profile already exists in the database
@@ -650,6 +671,7 @@ class BackupService {
 
           if (backupProfile.isDefault && existingDefaultProfileId != null) {
             // Reuse the existing Default Profile instead of creating a duplicate
+            profilesReused++;
             if (backupId != null) {
               profileIdMap[backupId] = existingDefaultProfileId;
             }
@@ -657,6 +679,7 @@ class BackupService {
           } else {
             backupProfile.id = null;
             final newId = await database.addProfile(backupProfile);
+            profilesCreated++;
             if (backupId != null) {
               profileIdMap[backupId] = newId;
             }
@@ -671,6 +694,9 @@ class BackupService {
 
       // Insert wallets and build backup_id → new_db_id mapping
       final walletIdMap = <int, int>{}; // backup wallet id → new db wallet id
+      var walletsCreated = 0;
+      var walletsReused = 0;
+      var walletsOverwritten = 0;
 
       // A default wallet that no record, recurrent pattern or budget on this
       // device references is still the pristine placeholder created
@@ -763,18 +789,21 @@ class BackupService {
         }
 
         if (overwritePlaceholder && mappedWalletId != null) {
+          walletsOverwritten++;
           await database.updateWallet(mappedWalletId, backupWallet);
           if (backupId != null) {
             walletIdMap[backupId] = mappedWalletId;
           }
         } else if (mappedWalletId != null) {
           // Reuse existing wallet
+          walletsReused++;
           if (backupId != null) {
             walletIdMap[backupId] = mappedWalletId;
           }
         } else {
           // Insert without the old id so the DB auto-assigns a new one
           backupWallet.id = null;
+          walletsCreated++;
           final newId = await database.addWallet(backupWallet);
           if (backupId != null) {
             walletIdMap[backupId] = newId;
@@ -795,11 +824,17 @@ class BackupService {
       final fallbackWalletId = defaultWallet?.id;
 
       // Add categories
+      var categoriesCreated = 0;
+      var categoriesAlreadyPresent = 0;
       for (var backupCategory in backup.categories) {
         try {
           await database.addCategory(backupCategory);
+          categoriesCreated++;
         } on ElementAlreadyExists {
-          print("${backupCategory!.name} already exists.");
+          categoriesAlreadyPresent++;
+          _logger.debug(
+            'Category ${backupCategory?.name} already exists, skipped',
+          );
         }
       }
 
@@ -858,6 +893,8 @@ class BackupService {
       await database.addRecordsInBatch(backup.records, preserveIds: true);
 
       // Add recurrent patterns (remap profile_id)
+      var patternsAdded = 0;
+      var patternsSkipped = 0;
       for (var backupRecurrentPatterns in backup.recurrentRecordsPattern) {
         // Remap profile_id
         if (backupRecurrentPatterns.profileId != null &&
@@ -880,15 +917,19 @@ class BackupService {
         if (await database.getRecurrentRecordPattern(recurrentPatternId) ==
             null) {
           await database.addRecurrentRecordPattern(backupRecurrentPatterns);
+          patternsAdded++;
         } else {
-          print(
-            "Recurrent pattern with id $recurrentPatternId already exists.",
+          patternsSkipped++;
+          _logger.debug(
+            'Recurrent pattern with id $recurrentPatternId already exists, '
+            'skipped',
           );
         }
       }
 
       // Add budgets after profiles have been remapped. Budget filters use
       // category names, so no category ID remapping is necessary.
+      var budgetsAdded = 0;
       for (final backupBudget in backup.budgets) {
         if (backupBudget.profileId != null &&
             profileIdMap.containsKey(backupBudget.profileId)) {
@@ -911,7 +952,19 @@ class BackupService {
         }
         backupBudget.id = null;
         await database.addBudget(backupBudget);
+        budgetsAdded++;
       }
+
+      // Summary of what the import actually wrote: a restore that reports
+      // success but changes nothing is otherwise invisible.
+      _logger.info(
+        'Import summary: profiles $profilesCreated created/$profilesReused '
+        'reused, wallets $walletsCreated created/$walletsReused reused/'
+        '$walletsOverwritten overwritten, categories $categoriesCreated '
+        'created/$categoriesAlreadyPresent already present, patterns '
+        '$patternsAdded added/$patternsSkipped skipped, budgets $budgetsAdded '
+        'added',
+      );
 
       _logger.info('Backup imported successfully');
       return true;
@@ -983,10 +1036,22 @@ class BackupService {
   }
 
   static Future<bool> isEncrypted(File inputFile) async {
+    String content;
     try {
       // Read the content of the file as a string
-      String content = await inputFile.readAsString();
+      content = await inputFile.readAsString();
+    } catch (error, stackTrace) {
+      // A file that cannot be read keeps being reported as encrypted, so the
+      // behaviour is unchanged. It is logged because an unreadable file used to
+      // be indistinguishable from an encrypted one.
+      _logger.error(
+        'Could not read ${inputFile.path}, assuming it is encrypted: $error\n'
+        '$stackTrace',
+      );
+      return true;
+    }
 
+    try {
       // Try to parse the content as JSON
       jsonDecode(content);
 
@@ -994,6 +1059,9 @@ class BackupService {
       return false;
     } catch (e) {
       // If there's an error (e.g., the content is not valid JSON), assume the file is encrypted
+      _logger.debug(
+        '${inputFile.path} is not valid JSON, assuming it is encrypted',
+      );
       return true;
     }
   }
